@@ -2,17 +2,20 @@ package com.soundcloud.android.sync;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiRequestException.Reason;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.legacy.Request;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.annotations.Issue;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.junit.Before;
@@ -25,6 +28,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LegacySyncJobTest extends AndroidUnitTest {
 
@@ -35,7 +40,7 @@ public class LegacySyncJobTest extends AndroidUnitTest {
 
     @Mock private ApiSyncerFactory apiSyncerFactory;
     @Mock private SyncStateManager syncStateManager;
-    @Mock private SyncStrategy SyncStrategy;
+    @Mock private SyncStrategy syncStrategy;
     @Mock private SharedPreferences sharedPreferences;
 
     private ApiSyncResult apiSyncResult;
@@ -69,12 +74,12 @@ public class LegacySyncJobTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSyncIfLocalCollectionUpdateFails() throws Exception {
-        when(apiSyncerFactory.forContentUri(CONTENT_URI)).thenReturn(SyncStrategy);
+        when(apiSyncerFactory.forContentUri(CONTENT_URI)).thenReturn(syncStrategy);
         when(syncStateManager.updateLastSyncAttemptAsync(CONTENT_URI)).thenReturn(Observable.just(false));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
-        verifyZeroInteractions(SyncStrategy);
+        verifyZeroInteractions(syncStrategy);
     }
 
     @Test
@@ -167,6 +172,17 @@ public class LegacySyncJobTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForValidationErrorException() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.validationError(null, null, "key test", 123));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
+        assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
+    }
+
+    @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForMalformedInputException() throws Exception {
         setupExceptionThrowingSync(ApiRequestException.malformedInput(null, new ApiMapperException("Test exception")));
 
@@ -211,9 +227,34 @@ public class LegacySyncJobTest extends AndroidUnitTest {
     }
 
     @Test
+    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/5169")
+    public void shouldHandleAllPossibleApiRequestExceptions() throws Exception {
+        List<ApiRequestException> apiRequestExceptions = new ArrayList<>();
+        for (Reason reason : Reason.values()) {
+            apiRequestExceptions.add(ApiRequestException.fromReason(reason, null, null));
+        }
+
+        assertAllExceptionsHandled(apiRequestExceptions);
+    }
+
+    private void assertAllExceptionsHandled(List<? extends Exception> exceptions) throws Exception {
+        try {
+            for (Exception ex : exceptions) {
+                Mockito.reset(syncStrategy);
+                setupExceptionThrowingSync(ex);
+
+                legacySyncItem.onQueued();
+                legacySyncItem.run();
+            }
+        } catch (IllegalStateException e) {
+            fail("Expected all failures to be handled");
+        }
+    }
+
+    @Test
     public void shouldCallOnSyncComplete() throws Exception {
         setupSuccessfulSync();
-        when(SyncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenReturn(apiSyncResult);
+        when(syncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenReturn(apiSyncResult);
         legacySyncItem.onQueued();
         legacySyncItem.run();
         verify(syncStateManager).onSyncComplete(apiSyncResult, CONTENT_URI);
@@ -223,17 +264,17 @@ public class LegacySyncJobTest extends AndroidUnitTest {
         setupSync();
         apiSyncResult = new ApiSyncResult(CONTENT_URI);
         apiSyncResult.success = true;
-        when(SyncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenReturn(apiSyncResult);
+        when(syncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenReturn(apiSyncResult);
     }
 
     private void setupExceptionThrowingSync(Exception e) throws Exception {
         setupSync();
-        when(SyncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenThrow(e);
+        when(syncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenThrow(e);
 
     }
 
     private void setupSync() {
-        when(apiSyncerFactory.forContentUri(CONTENT_URI)).thenReturn(SyncStrategy);
+        when(apiSyncerFactory.forContentUri(CONTENT_URI)).thenReturn(syncStrategy);
         when(syncStateManager.updateLastSyncAttempt(CONTENT_URI)).thenReturn(true);
         when(syncStateManager.updateLastSyncAttemptAsync(CONTENT_URI)).thenReturn(Observable.just(true));
     }

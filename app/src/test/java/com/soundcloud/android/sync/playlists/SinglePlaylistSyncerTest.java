@@ -174,6 +174,22 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         syncsPlaylistWithLocalAdditionAndRemovalCommon(modifiedPlaylistFromStorage());
     }
 
+    @Test
+    public void syncEditedPlaylistWithLocalRemovals() throws Exception {
+        final ApiTrack localRemoval = ModelFixtures.create(ApiTrack.class);
+        final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks();
+
+        withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), PropertySet.create());
+        withLocalTracks(removedTrack(localRemoval));
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), PropertySet.create());
+
+        singlePlaylistSyncer.call();
+
+        verifyPlaylistStored(updatedPlaylist);
+        verifyTracksStored();
+        verifyPlaylistTrackStored();
+    }
+
     private void syncsPlaylistWithLocalAdditionAndRemovalCommon(PropertySet playlistFromStorage) throws Exception {
         final ApiTrack noChange = ModelFixtures.create(ApiTrack.class);
         final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);

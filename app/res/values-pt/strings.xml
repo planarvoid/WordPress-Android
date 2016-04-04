@@ -22,8 +22,9 @@
   <string name="password">Senha</string>
   <string name="website">Site</string>
   <string name="imprint">SoundCloud Ltd.</string>
-  <string name="terms_of_use">Termos de uso</string>
-  <string name="privacy_policy">Política de privacidade</string>
+  <string name="terms_of_use">Termos de Uso</string>
+  <string name="terms_of_use_go">Termos de uso do SoundCloud Go</string>
+  <string name="privacy_policy">Política de Privacidade</string>
   <string name="contact_support">Contatar suporte</string>
   <string name="copyright_information">Informações sobre direitos autorais</string>
   <!--@Todo from l10n: please explain-->
@@ -83,7 +84,7 @@
   <string name="authentication_log_in_with_google">Logar com Google</string>
   <string name="error_google_sign_in_failed">Não conseguimos iniciar sua sessão com o Google+. Para ativar sua conta do Google+ e tentar novamente, acesse plus.google.com.</string>
   <string name="auth_disclaimer_title">Mais um passo</string>
-  <string name="auth_disclaimer_message">Selecionando \"Continuar\", você concorda com os Termos de Uso e com a Política de Privacidade da SoundCloud.</string>
+  <string name="auth_disclaimer_message">Selecionando \"Continuar\", você concorda com os Termos de Uso e com a Política de Privacidade do SoundCloud.</string>
   <string name="facebook_authentication_failed_message">Tente novamente em seguida ou faça login usando seu endereço e sua senha.</string>
   <string name="authentication_recover_password_msg">Insira seu endereço de e-mail, e nós lhe enviaremos um link para alterar sua senha. Se você ainda precisar de ajuda, visite nossa Central de ajuda.</string>
   <string name="authentication_recover_password_visit_our_Help_Center">Visite nossa Central de ajuda</string>
@@ -383,9 +384,9 @@
   <string name="pref_sync_wifi_only">Atualizar os dados apenas através de Wi-Fi</string>
   <string name="pref_sync_wifi_only_description">Atualizar apenas novas curtidas, etc. através de Wi-Fi</string>
   <string name="pref_analytics">Análise</string>
-  <string name="pref_analytics_desc">A ativação das técnicas de análise permite coletar dados sobre o uso deste app, o que nos ajuda a melhorá-lo. Consulte nossa Política de Privacidade para obter mais detalhes.</string>
+  <string name="pref_analytics_desc">A ativação da análise nos permite coletar dados sobre seu uso deste aplicativo, o que nos ajuda a melhorar o aplicativo. Para obter detalhes, consulte nossa Política de Privacidade.</string>
   <string name="pref_crashlogs">Crashlogs</string>
-  <string name="pref_crashlogs_desc">A ativação dos logs de pane nos ajuda a melhorar o aplicativo de forma significativa. Não coletamos dados pessoais. Para obter detalhes, consulte a Política de Privacidade.</string>
+  <string name="pref_crashlogs_desc">A ativação dos logs de pane nos ajuda a melhorar o aplicativo de forma significativa. Não coletamos dados pessoais. Para obter mais detalhes, consulte nossa Política de Privacidade.</string>
   <string name="cache_clearing">Limpando o cache</string>
   <string name="cache_clearing_message">Excluindo arquivos em cache...</string>
   <string name="cache_cleared">Cache liberado</string>
@@ -592,8 +593,11 @@
   <string name="no_network_connection">Sem conexão de rede</string>
   <string name="no_wifi_connection">Sem conexão Wi-Fi</string>
   <string name="offline_not_available_offline">Não disponível off-line</string>
+  <string name="offline_no_wifi">Sem Wi-Fi</string>
+  <string name="offline_no_connection">Sem conexão</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_header">Bem-vindo ao SoundCloud Go</string>
+  <string name="go_onboarding_subheader">Agora você poderá aproveitar ainda mais música, offline e sem anúncios.</string>
   <string name="go_onboarding_title">Salvar sua música offline</string>
   <string name="go_onboarding_subtext">Use a seta para salvar todas as suas curtidas ou\nqualquer uma de suas playlists offline.</string>
   <string name="go_onboarding_start">OK, entendi</string>
@@ -607,8 +611,7 @@
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Sua assinatura da SoundCloud Go terminou</string>
   <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
-  <string name="go_offboarding_description">Ficamos tristes em ver que você está indo embora.
-Se você sente falta de um acesso offline sem anúncio ao nosso catálogo expandido, não se preocupe. Você poderá voltar a qualquer momento.</string>
+  <string name="go_offboarding_description">Ficamos tristes em saber que você está indo embora. Se você sente falta de um acesso offline sem anúncios ao nosso catálogo expandido, não se preocupe. Você poderá retornar a qualquer momento.</string>
   <string name="go_offboarding_primary_button_text">Assinar novamente</string>
   <string name="go_offboarding_secondary_button_text">Continuar</string>
   <!--__OFFLINE SETTINGS-->
@@ -666,12 +669,19 @@ Se você sente falta de um acesso offline sem anúncio ao nosso catálogo expand
   <string name="user_profile_sounds_header_playlists">Playlists</string>
   <string name="user_profile_sounds_header_reposts">Republicações</string>
   <string name="user_profile_sounds_header_likes">Curtidas</string>
-  <string name="user_profile_sounds_view_all">Ver tudo</string>
+  <string name="user_profile_sounds_view_all">Exibir tudo</string>
+  <string name="user_profile_sounds_view_all_tracks">Exibir todas as faixas</string>
+  <string name="user_profile_sounds_view_all_releases">Ver todas as versões</string>
+  <string name="user_profile_sounds_view_all_playlists">Exibir todas as playlists</string>
+  <string name="user_profile_sounds_view_all_reposts">Exibir todas as republicações</string>
+  <string name="user_profile_sounds_view_all_likes">Exibir todas as curtidas</string>
+  <string name="user_reposts_empty">Essa pessoa ainda não tem republicações.</string>
+  <string name="user_reposts_label">Republicações</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Retirar anúncios</string>
   <string name="upsell_stream_upgrade_button">Obter SoundCloud Go</string>
   <string name="upsell_stream_upgrade_title">Fazer upgrade para o SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_description">Obtenha nosso catálogo expandido, com escuta offline e sem anúncios.</string>
+  <string name="upsell_stream_upgrade_description">Obtenha um catálogo expandido, sem escuta offline e sem anúncios.</string>
   <string name="upsell_track_preview">Pré-vizualização</string>
   <string name="upsell_track_geo_blocked">Não disponível no seu país</string>
   <!--__STATIONS-->
@@ -698,16 +708,18 @@ Se você sente falta de um acesso offline sem anúncio ao nosso catálogo expand
   <string name="search_premium_content_upsell">Atualizar para ouvir as faixas completas</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Notificações push</string>
-  <string name="push_notifications_all_summary">Ativar todas as notificações móveis\nou selecionar qual receber</string>
+  <string name="push_notifications_all_summary">Ativar todas as notificações móveis\nou selecionar qual receber.</string>
   <string name="push_notifications_follower">Novo seguidor</string>
   <string name="push_notifications_repost">Republicação do seu post</string>
   <string name="push_notifications_new_post">Novo post de usuário sendo seguido</string>
   <string name="push_notifications_like">Curtir seu post</string>
-  <string name="push_notifications_product_updates">Atualizações do produto</string>
-  <string name="push_notifications_survey">Convidar para pesquisa</string>
-  <string name="push_notifications_tips">Dicas e práticas recomendadas</string>
+  <string name="push_notifications_comment">Comentar seu post</string>
+  <string name="push_notifications_product_updates">Novos recursos da SoundCloud</string>
+  <string name="push_notifications_survey">Pesquisas e feedback</string>
+  <string name="push_notifications_tips">Dicas da SoundCloud</string>
+  <string name="push_notifications_recommendations">O que está bombando</string>
   <string name="email_notifications_all_title">Notificações de e-mail</string>
-  <string name="email_notifications_all_summary">Ativar todas as notificações de e-mail\nou selecionar qual receber</string>
+  <string name="email_notifications_all_summary">Ativar todas as notificações de e-mail\nou selecionar qual receber.</string>
   <string name="email_notifications_follower">Novo seguidor</string>
   <string name="email_notifications_repost">Republicação do seu post</string>
   <string name="email_notifications_new_post">Novo post de usuário sendo seguido</string>
@@ -715,14 +727,20 @@ Se você sente falta de um acesso offline sem anúncio ao nosso catálogo expand
   <string name="email_notifications_message">Nova mensagem</string>
   <string name="email_notifications_comment">Comentar seu post</string>
   <string name="email_notifications_group">Nova postagem de grupo</string>
-  <string name="email_notifications_product_updates">Atualizações do produto</string>
-  <string name="email_notifications_survey">Convidar para pesquisa</string>
-  <string name="email_notifications_tips">Dicas e práticas recomendadas</string>
+  <string name="email_notifications_product_updates">Novos recursos da SoundCloud</string>
+  <string name="email_notifications_survey">Pesquisas e feedback</string>
+  <string name="email_notifications_tips">Dicas da SoundCloud</string>
+  <string name="email_notifications_recommendations">O que está bombando</string>
   <string name="email_notifications_newsletter">Newsletter da SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts">
     <item quantity="one">1 nova postagem</item>
     <item quantity="other">%s novas postagens</item>
+  </plurals>
+  <!--__ACTIVITIES-->
+  <plurals name="activities_new_notification">
+    <item quantity="one">1 nova notificação</item>
+    <item quantity="other">%s novas notificações</item>
   </plurals>
   <!--__KILL SWITCH-->
   <string name="kill_switch_message">Para continuar usando o aplicativo SoundCloud, atualize para a versão mais recente.</string>

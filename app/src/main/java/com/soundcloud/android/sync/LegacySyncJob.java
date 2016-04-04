@@ -119,6 +119,7 @@ public class LegacySyncJob implements SyncJob {
                 break;
             case UNEXPECTED_RESPONSE:
             case BAD_REQUEST:
+            case VALIDATION_ERROR:
             case MALFORMED_INPUT:
                 ErrorUtils.handleSilentException(exception);
                 // do not break
