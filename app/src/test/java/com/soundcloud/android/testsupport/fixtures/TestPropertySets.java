@@ -144,8 +144,12 @@ public abstract class TestPropertySets {
     }
 
     public static PropertySet expectedPostedPlaylistsForPostedPlaylistsScreen() {
+        return postedPlaylistForPostedPlaylistScreen(Urn.forPlaylist(123L));
+    }
+
+    public static PropertySet postedPlaylistForPostedPlaylistScreen(Urn playlistUrn) {
         return PropertySet.from(
-                PlaylistProperty.URN.bind(Urn.forPlaylist(123L)),
+                PlaylistProperty.URN.bind(playlistUrn),
                 PlaylistProperty.TITLE.bind("squirlex galore"),
                 PlaylistProperty.CREATOR_NAME.bind("avieciie"),
                 PlaylistProperty.TRACK_COUNT.bind(4),
