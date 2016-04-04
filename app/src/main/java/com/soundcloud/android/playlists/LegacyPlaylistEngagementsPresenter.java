@@ -52,7 +52,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle<Fragment>
+public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle<Fragment>
         implements PlaylistEngagementsView.OnEngagementListener {
 
     private Context context;
@@ -79,20 +79,20 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private Subscription offlineStateSubscription = RxUtils.invalidSubscription();
 
     @Inject
-    public PlaylistEngagementsPresenter(EventBus eventBus,
-                                        RepostOperations repostOperations,
-                                        AccountOperations accountOperations,
-                                        LikeOperations likeOperations,
-                                        PlaylistEngagementsView playlistEngagementsView,
-                                        FeatureOperations featureOperations,
-                                        OfflineContentOperations offlineOperations,
-                                        PlaybackInitiator playbackInitiator,
-                                        PlaylistOperations playlistOperations,
-                                        PlaybackToastHelper playbackToastHelper,
-                                        NetworkConnectionHelper connectionHelper,
-                                        OfflineSettingsOperations offlineSettings,
-                                        Navigator navigator,
-                                        ShareOperations shareOperations) {
+    public LegacyPlaylistEngagementsPresenter(EventBus eventBus,
+                                              RepostOperations repostOperations,
+                                              AccountOperations accountOperations,
+                                              LikeOperations likeOperations,
+                                              PlaylistEngagementsView playlistEngagementsView,
+                                              FeatureOperations featureOperations,
+                                              OfflineContentOperations offlineOperations,
+                                              PlaybackInitiator playbackInitiator,
+                                              PlaylistOperations playlistOperations,
+                                              PlaybackToastHelper playbackToastHelper,
+                                              NetworkConnectionHelper connectionHelper,
+                                              OfflineSettingsOperations offlineSettings,
+                                              Navigator navigator,
+                                              ShareOperations shareOperations) {
         this.eventBus = eventBus;
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
@@ -287,6 +287,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onDeletePlaylist() {
         DeletePlaylistDialogFragment.show(fragmentManager, playlistHeaderItem.getUrn());
+    }
+
+    @Override
+    public void onEditPlaylist() {
+        throw new UnsupportedOperationException("Edit playlist is not supported.");
     }
 
     private Action0 publishAnalyticsEventForShuffle() {

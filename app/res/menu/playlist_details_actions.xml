@@ -16,6 +16,10 @@
         android:id="@+id/share"
         android:title="@string/share" />
     <item
+        android:id="@+id/edit_playlist"
+        android:title="@string/edit_playlist"
+        android:visible="false" />
+    <item
         android:id="@+id/delete_playlist"
         android:title="@string/delete_playlist"
         android:visible="false" />

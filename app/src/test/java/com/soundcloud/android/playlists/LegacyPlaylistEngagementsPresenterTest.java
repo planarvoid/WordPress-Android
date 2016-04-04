@@ -68,13 +68,13 @@ import android.os.Bundle;
 import java.util.Arrays;
 import java.util.List;
 
-public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
+public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
 
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123);
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
 
-    private PlaylistEngagementsPresenter controller;
+    private LegacyPlaylistEngagementsPresenter controller;
     private PlaylistWithTracks playlistWithTracks;
     private PublishSubject<Void> publishSubject;
     private TestEventBus eventBus;
@@ -106,7 +106,7 @@ public class PlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Before
     public void setup() {
         eventBus = new TestEventBus();
-        controller = new PlaylistEngagementsPresenter(eventBus, repostOperations, accountOperations, likeOperations,
+        controller = new LegacyPlaylistEngagementsPresenter(eventBus, repostOperations, accountOperations, likeOperations,
                 engagementsView, featureOperations, offlineContentOperations, playbackInitiator,
                 playlistOperations, playbackToastHelper, connectionHelper, offlineSettings, navigator, shareOperations);
 

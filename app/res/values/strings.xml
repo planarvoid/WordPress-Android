@@ -287,6 +287,7 @@
     <string name="shuffle_playlist">Shuffle playlist</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="remove_from_playlist">Remove from playlist</string>
+    <string name="edit_playlist">Edit playlist</string>
     <string name="delete_playlist">Delete playlist</string>
 
     <!-- __PLAYLIST CREATION -->

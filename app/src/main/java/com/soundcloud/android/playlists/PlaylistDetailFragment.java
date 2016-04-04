@@ -39,6 +39,12 @@ public class PlaylistDetailFragment extends ScrollableProfileFragment implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        playlistPresenter.setScreen(Screen.fromBundle(getArguments()).get());
+    }
+
+    @Override
     public MultiSwipeRefreshLayout getRefreshLayout() {
         return (MultiSwipeRefreshLayout) getView().findViewById(R.id.str_layout);
     }

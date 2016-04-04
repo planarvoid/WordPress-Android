@@ -91,7 +91,7 @@ public class PlaylistDetailActivity extends PlayerActivity {
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);
 
         Fragment fragment;
-        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_DETAILS)) {
+        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST)) {
             fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
         } else {
             fragment = LegacyPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);

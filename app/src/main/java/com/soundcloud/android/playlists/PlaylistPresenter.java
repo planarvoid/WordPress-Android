@@ -8,11 +8,12 @@ import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROM
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -22,6 +23,7 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -33,6 +35,7 @@ import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -46,7 +49,6 @@ import android.view.View;
 import javax.inject.Provider;
 
 public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListItem> implements PlaylistHeaderListener {
-
 
     private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -71,36 +73,35 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
         }
     };
 
-    @LightCycle PlaylistHeaderPresenter headerPresenter;
-
+    @LightCycle final PlaylistHeaderPresenter headerPresenter;
+    private final ViewStrategyFactory viewStrategyFactory;
     private final PlaylistOperations playlistOperations;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
     private final Navigator navigator;
     private final PlaylistAdapter adapter;
-    private final PlaybackInitiator playbackInitiator;
 
     protected PlaySessionSource playSessionSource;
-
-    private CompositeSubscription eventSubscription = new CompositeSubscription();
     private Fragment fragment;
+    private Subscription subscription = RxUtils.invalidSubscription();
+    private PlaylistStrategy strategy;
+    private String screen;
 
     public PlaylistPresenter(PlaylistOperations playlistOperations,
                              SwipeRefreshAttacher swipeRefreshAttacher,
-                             PlaylistHeaderPresenterFactory headerPresenterFactory,
-                             Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                             PlaylistHeaderPresenter headerPresenter,
                              PlaylistAdapterFactory adapterFactory,
                              EventBus eventBus,
-                             PlaybackInitiator playbackInitiator,
-                             Navigator navigator) {
+                             Navigator navigator,
+                             ViewStrategyFactory viewStrategyFactory) {
         super(swipeRefreshAttacher);
         this.playlistOperations = playlistOperations;
-        this.navigator = navigator;
-        this.headerPresenter = headerPresenterFactory.create(this);
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
-        this.adapter = adapterFactory.create(headerPresenter);
         this.eventBus = eventBus;
-        this.playbackInitiator = playbackInitiator;
+        this.navigator = navigator;
+        this.headerPresenter = headerPresenter;
+        this.viewStrategyFactory = viewStrategyFactory;
+        headerPresenter.setListener(this);
+        this.adapter = adapterFactory.create(headerPresenter);
+        this.strategy = PlaylistStrategy.EMPTY;
     }
 
     @Override
@@ -113,39 +114,28 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-
-        eventSubscription.add(
-                eventBus.queue(ENTITY_STATE_CHANGED)
-                        .filter(IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new ReloadSubscriber()));
-
-        eventSubscription.add(eventBus
-                .queue(ENTITY_STATE_CHANGED)
-                .filter(IS_CURRENT_PLAYLIST_DELETED)
-                .subscribe(new GoBackSubscriber()));
-
-        eventSubscription.add(eventBus
-                .queue(ENTITY_STATE_CHANGED)
-                .filter(IS_PLAYLIST_PUSHED_FILTER)
-                .subscribe(new PlaylistPushedSubscriber()));
-
-        eventSubscription.add(eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)));
-        eventSubscription.add(eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)));
-        eventSubscription.add(eventBus
-                .subscribe(OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter)));
+        subscription = new CompositeSubscription(
+                eventBus
+                        .queue(ENTITY_STATE_CHANGED)
+                        .filter(IS_CURRENT_PLAYLIST_DELETED)
+                        .subscribe(new GoBackSubscriber()),
+                eventBus
+                        .queue(ENTITY_STATE_CHANGED)
+                        .filter(IS_PLAYLIST_PUSHED_FILTER)
+                        .subscribe(new PlaylistPushedSubscriber()));
+        strategy.start();
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        eventSubscription.unsubscribe();
-        eventSubscription = new CompositeSubscription();
+        subscription.unsubscribe();
+        strategy.stop();
         super.onDestroyView(fragment);
     }
 
     @Override
     public void onHeaderPlay() {
-        playFromBeginning();
+        strategy.onHeaderClick();
     }
 
     @Override
@@ -154,19 +144,13 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
     }
 
     @Override
+    public void onEditPlaylist() {
+        throw new UnsupportedOperationException("Edit playlist is not supported.");
+    }
+
+    @Override
     protected void onItemClicked(View view, int position) {
-        playTracksAtPosition(position, expandPlayerSubscriberProvider.get());
-    }
-
-    private void playFromBeginning() {
-        playTracksAtPosition(0, expandPlayerSubscriberProvider.get());
-    }
-
-    private void playTracksAtPosition(int trackPosition, Subscriber<PlaybackResult> playbackSubscriber) {
-        playbackInitiator.playTracks(
-                playlistOperations.trackUrnsForPlayback(getPlaylistUrn()),
-                adapter.getItem(trackPosition).getUrn(), trackPosition, playSessionSource)
-                .subscribe(playbackSubscriber);
+        strategy.onItemClicked(position);
     }
 
     @Override
@@ -176,15 +160,14 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
 
     @Override
     protected CollectionBinding<PlaylistWithTracks, ListItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(loadPlaylistObservable(fragmentArgs), getListItemTransformation())
+        return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)), getListItemTransformation())
                 .withAdapter(adapter).build();
     }
 
     protected abstract Func1<PlaylistWithTracks, Iterable<ListItem>> getListItemTransformation();
 
-    private Observable<PlaylistWithTracks> loadPlaylistObservable(Bundle fragmentArgs) {
-        final Observable<PlaylistWithTracks> playlist = playlistOperations.playlist(getPlaylistUrn(fragmentArgs));
-        return playlist.doOnNext(clearAdapter);
+    private Observable<PlaylistWithTracks> loadPlaylistObservable(Urn playlistUrn) {
+        return playlistOperations.playlist(playlistUrn).doOnNext(clearAdapter);
     }
 
     private Urn getPlaylistUrn(Bundle fragmentArgs) {
@@ -221,16 +204,14 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
         return (PromotedSourceInfo) fragment.getArguments().getParcelable(EXTRA_PROMOTED_SOURCE_INFO);
     }
 
-    private class ReloadSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(EntityStateChangedEvent event) {
-            reloadPlaylist();
-        }
+    void setScreen(String screen) {
+        this.screen = screen;
+        headerPresenter.setScreen(screen);
     }
 
-    private void reloadPlaylist() {
+    void reloadPlaylist() {
         retryWith(CollectionBinding
-                .from(loadPlaylistObservable(fragment.getArguments()), getListItemTransformation())
+                .from(loadPlaylistObservable(getPlaylistUrn()), getListItemTransformation())
                 .withAdapter(adapter).build());
     }
 
@@ -249,13 +230,14 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
         @Override
         public void onNext(PlaylistWithTracks playlistWithTracks) {
             playSessionSource = createPlaySessionSource(playlistWithTracks);
+            strategy = viewStrategyFactory.create(PlaylistPresenter.this, adapter, playSessionSource);
         }
     }
 
-    public PlaySessionSource createPlaySessionSource(PlaylistWithTracks playlistWithTracks) {
+    protected PlaySessionSource createPlaySessionSource(PlaylistWithTracks playlistWithTracks) {
         PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(
-                Screen.fromBundle(fragment.getArguments()).get(),
-                getPlaylistUrn(),
+                screen,
+                playlistWithTracks.getUrn(),
                 playlistWithTracks.getCreatorUrn(),
                 playlistWithTracks.getTrackCount());
 
@@ -277,4 +259,134 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
             fragment.getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
         }
     }
+
+    private interface PlaylistStrategy {
+
+        PlaylistStrategy EMPTY = new PlaylistStrategy() {
+            @Override
+            public void start() {
+            }
+
+            @Override
+            public void stop() {
+            }
+
+            @Override
+            public void onItemClicked(int position) {
+            }
+
+            @Override
+            public void onHeaderClick() {
+            }
+        };
+
+        void start();
+
+        void stop();
+
+        void onItemClicked(int position);
+
+        void onHeaderClick();
+    }
+
+    @AutoFactory
+    static class ViewStrategy implements PlaylistStrategy {
+
+        private final PlaylistPresenter presenter;
+        private final EventBus eventBus;
+        private final PlaybackInitiator playbackInitiator;
+        private final PlaylistOperations playlistOperations;
+        private final PlaylistAdapter adapter;
+        private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+        private PlaySessionSource playSessionSource;
+
+        private Subscription eventSubscription = RxUtils.invalidSubscription();
+
+        ViewStrategy(@Provided EventBus eventBus,
+                     @Provided PlaybackInitiator playbackInitiator,
+                     @Provided PlaylistOperations playlistOperations,
+                     @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                     PlaylistPresenter presenter,
+                     PlaylistAdapter adapter,
+                     PlaySessionSource playSessionSource) {
+            this.presenter = presenter;
+            this.eventBus = eventBus;
+            this.playbackInitiator = playbackInitiator;
+            this.playlistOperations = playlistOperations;
+            this.adapter = adapter;
+            this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+            this.playSessionSource = playSessionSource;
+        }
+
+        @Override
+        public void start() {
+            eventSubscription = new CompositeSubscription(
+                    eventBus.queue(ENTITY_STATE_CHANGED)
+                            .filter(IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new ReloadSubscriber()),
+                    eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
+                            new UpdatePlayingTrackSubscriber(adapter)),
+                    eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                    eventBus.subscribe(OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter)));
+        }
+
+        @Override
+        public void stop() {
+            eventSubscription.unsubscribe();
+        }
+
+        @Override
+        public void onItemClicked(int position) {
+            playTracksAtPosition(position, expandPlayerSubscriberProvider.get());
+        }
+
+        @Override
+        public void onHeaderClick() {
+            playFromBeginning();
+        }
+
+        private void playFromBeginning() {
+            playTracksAtPosition(0, expandPlayerSubscriberProvider.get());
+        }
+
+        private void playTracksAtPosition(int trackPosition, Subscriber<PlaybackResult> playbackSubscriber) {
+            playbackInitiator.playTracks(
+                    playlistOperations.trackUrnsForPlayback(playSessionSource.getCollectionUrn()),
+                    adapter.getItem(trackPosition).getUrn(), trackPosition, playSessionSource)
+                    .subscribe(playbackSubscriber);
+        }
+
+        private class ReloadSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+            @Override
+            public void onNext(EntityStateChangedEvent event) {
+                presenter.reloadPlaylist();
+            }
+        }
+
+    }
+
+    private static class EditStrategy implements PlaylistStrategy {
+
+        @Override
+        public void start() {
+
+        }
+
+        @Override
+        public void stop() {
+
+        }
+
+        @Override
+        public void onItemClicked(int position) {
+
+        }
+
+        @Override
+        public void onHeaderClick() {
+
+        }
+    }
+
 }

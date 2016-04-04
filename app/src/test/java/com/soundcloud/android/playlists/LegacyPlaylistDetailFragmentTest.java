@@ -77,7 +77,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
-    @Mock private PlaylistEngagementsPresenter playlistEngagementsPresenter;
+    @Mock private LegacyPlaylistEngagementsPresenter playlistEngagementsPresenter;
     @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;

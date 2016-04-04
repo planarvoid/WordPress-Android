@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-@AutoFactory
+@AutoFactory(allowSubclasses = true)
 class PlaylistDetailsView {
 
     private final ImageOperations imageOperations;
