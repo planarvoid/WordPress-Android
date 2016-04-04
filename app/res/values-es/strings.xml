@@ -23,6 +23,7 @@
   <string name="website">Sitio web</string>
   <string name="imprint">SoundCloud Ltd.</string>
   <string name="terms_of_use">Condiciones de uso</string>
+  <string name="terms_of_use_go">Condiciones de uso de SoundCloud Go</string>
   <string name="privacy_policy">Política de privacidad</string>
   <string name="contact_support">Contacta con el servicio técnico</string>
   <string name="copyright_information">Información de copyright</string>
@@ -83,7 +84,7 @@
   <string name="authentication_log_in_with_google">Conéctate con Google</string>
   <string name="error_google_sign_in_failed">No hemos podido iniciar tu sesión con Google+. Visita plus.google.com para activar tu cuenta de Google+ e inténtalo de nuevo.</string>
   <string name="auth_disclaimer_title">Un paso más</string>
-  <string name="auth_disclaimer_message">Al seleccionar \"Continuar\", aceptas las Condiciones de uso y la Política de privacidad de SoundCloud.</string>
+  <string name="auth_disclaimer_message">Al seleccionar \"Continuar\", aceptas las Condiciones de Uso y la Política de Privacidad de SoundCloud.</string>
   <string name="facebook_authentication_failed_message">Inténtalo de nuevo más tarde o inicia sesión con tu dirección de email y tu contraseña.</string>
   <string name="authentication_recover_password_msg">Introduce tu dirección de email y te enviaremos un enlace para cambiar tu contraseña. Si tienes alguna duda, visita nuestra Ayuda.</string>
   <string name="authentication_recover_password_visit_our_Help_Center">Visita nuestra Ayuda</string>
@@ -383,9 +384,9 @@
   <string name="pref_sync_wifi_only">Actualizar solo datos a través de Wi-Fi</string>
   <string name="pref_sync_wifi_only_description">Actualizar solo Me gusta, etc., a través de Wi-Fi</string>
   <string name="pref_analytics">Análisis</string>
-  <string name="pref_analytics_desc">Habilitar el análisis nos permite recopilar datos sobre el uso de esta aplicación que nos ayudan a mejorarla. Consulta nuestra Política de privacidad para obtener información.</string>
+  <string name="pref_analytics_desc">Habilitar las estadísticas nos permite recoger datos de tu uso de la aplicación que nos ayudan a mejorarla. Consulta nuestra Política de privacidad para más detalles.</string>
   <string name="pref_crashlogs">CrashLogs</string>
-  <string name="pref_crashlogs_desc">Habilitar los registros de incidencias nos permite mejorar la aplicación de manera considerable. No recopilamos datos personales. Para más detalles, consulta nuestra Política de privacidad.</string>
+  <string name="pref_crashlogs_desc">Habilitar los registros de incidencias nos permite mejorar la aplicación de manera considerable. Consulta nuestra Política de privacidad para más detalles.</string>
   <string name="cache_clearing">Borrando caché</string>
   <string name="cache_clearing_message">Eliminando archivos en caché...</string>
   <string name="cache_cleared">Caché borrada</string>
@@ -591,8 +592,11 @@
   <string name="no_network_connection">No hay conexión a red</string>
   <string name="no_wifi_connection">No hay conexión a Wi-Fi</string>
   <string name="offline_not_available_offline">No disponible sin conexión</string>
+  <string name="offline_no_wifi">Sin Wi-Fi</string>
+  <string name="offline_no_connection">Sin conexión</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_header">Bienvenido a SoundCloud Go</string>
+  <string name="go_onboarding_subheader">Ahora puedes disfrutar de más música, sin conexión y sin anuncios.</string>
   <string name="go_onboarding_title">Guarda tu música sin conexión</string>
   <string name="go_onboarding_subtext">Utiliza la flecha para guardar sin conexión\ntodos tus Me gusta o cualquiera de tus listas.</string>
   <string name="go_onboarding_start">De acuerdo</string>
@@ -606,7 +610,7 @@
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Tu suscripción a SoundCloud Go ha finalizado</string>
   <!--Translate the sentence, "We’re sad to see you go (no pun intended)." as "We’re sad to hear you’re leaving."-->
-  <string name="go_offboarding_description">Es una pena que te vayas. Si echas de menos poder acceder al catálogo completo sin conexión y sin anuncios, no te preocupes. Puedes volver cuando quieras.</string>
+  <string name="go_offboarding_description">Es una pena que te vayas. Si echas de menos poder acceder a un catálogo ampliado sin conexión y sin anuncios, no te preocupes. Puedes volver cuando quieras.</string>
   <string name="go_offboarding_primary_button_text">Volver a suscribirse</string>
   <string name="go_offboarding_secondary_button_text">Continuar</string>
   <!--__OFFLINE SETTINGS-->
@@ -664,12 +668,19 @@
   <string name="user_profile_sounds_header_playlists">Listas</string>
   <string name="user_profile_sounds_header_reposts">Reposts</string>
   <string name="user_profile_sounds_header_likes">Me gusta</string>
-  <string name="user_profile_sounds_view_all">Ver todos</string>
+  <string name="user_profile_sounds_view_all">Ver todo</string>
+  <string name="user_profile_sounds_view_all_tracks">Ver todas las pistas</string>
+  <string name="user_profile_sounds_view_all_releases">Ver todos los lanzamientos</string>
+  <string name="user_profile_sounds_view_all_playlists">Ver todas las listas</string>
+  <string name="user_profile_sounds_view_all_reposts">Ver todos los reposts</string>
+  <string name="user_profile_sounds_view_all_likes">Ver todos los Me gusta</string>
+  <string name="user_reposts_empty">Este usuario aún no ha reposteado nada.</string>
+  <string name="user_reposts_label">Reposts</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Sin anuncios</string>
   <string name="upsell_stream_upgrade_button">Hazte con SoundCloud Go</string>
   <string name="upsell_stream_upgrade_title">Pásate a SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_description">Accede al catálogo completo, sin conexión y sin anuncios.</string>
+  <string name="upsell_stream_upgrade_description">Accede a un catálogo completo, sin conexión y sin anuncios.</string>
   <string name="upsell_track_preview">Vista previa</string>
   <string name="upsell_track_geo_blocked">No disponible en tu país</string>
   <!--__STATIONS-->
@@ -701,11 +712,13 @@
   <string name="push_notifications_repost">Repost de tu post</string>
   <string name="push_notifications_new_post">Nuevo post de un usuario seguido</string>
   <string name="push_notifications_like">Me gusta en tu post</string>
-  <string name="push_notifications_product_updates">Actualizaciones del producto</string>
-  <string name="push_notifications_survey">Invitación a encuesta</string>
-  <string name="push_notifications_tips">Consejos y prácticas recomendadas</string>
+  <string name="push_notifications_comment">Comentario en tu post</string>
+  <string name="push_notifications_product_updates">Nuevas funciones de SoundCloud</string>
+  <string name="push_notifications_survey">Encuestas y comentarios</string>
+  <string name="push_notifications_tips">Consejos de SoundCloud</string>
+  <string name="push_notifications_recommendations">Pistas destacadas</string>
   <string name="email_notifications_all_title">Notificaciones por correo electrónico</string>
-  <string name="email_notifications_all_summary">Activa todas las notificaciones por correo electrónico\no selecciona cuál recibir</string>
+  <string name="email_notifications_all_summary">Activa todas las notificaciones de correo electrónico\no selecciona cuál recibir</string>
   <string name="email_notifications_follower">Nuevo seguidor</string>
   <string name="email_notifications_repost">Repost de tu post</string>
   <string name="email_notifications_new_post">Nuevo post de un usuario seguido</string>
@@ -713,14 +726,20 @@
   <string name="email_notifications_message">Nuevo mensaje</string>
   <string name="email_notifications_comment">Comentario en tu post</string>
   <string name="email_notifications_group">Nuevo post de grupo</string>
-  <string name="email_notifications_product_updates">Actualizaciones del producto</string>
-  <string name="email_notifications_survey">Invitación a encuesta</string>
-  <string name="email_notifications_tips">Consejos y prácticas recomendadas</string>
+  <string name="email_notifications_product_updates">Nuevas funciones de SoundCloud</string>
+  <string name="email_notifications_survey">Encuestas y comentarios</string>
+  <string name="email_notifications_tips">Consejos de SoundCloud</string>
+  <string name="email_notifications_recommendations">Pistas destacadas</string>
   <string name="email_notifications_newsletter">Boletín de noticias de SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts">
     <item quantity="one">1 post nuevo</item>
     <item quantity="other">%s posts nuevos</item>
+  </plurals>
+  <!--__ACTIVITIES-->
+  <plurals name="activities_new_notification">
+    <item quantity="one">1 notificación nueva</item>
+    <item quantity="other">%s notificaciones nuevas</item>
   </plurals>
   <!--__KILL SWITCH-->
   <string name="kill_switch_message">Para seguir usando la aplicación de SoundCloud, actualiza a la versión más reciente.</string>
