@@ -13,6 +13,7 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
@@ -188,11 +189,18 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     public List<Urn> getItemUrns(int from, int count) {
         final int to = Math.min(size(), from + count);
-        final List<Urn> itemUrns = new ArrayList<>(to - from);
-        for (int i = from; i < to; i++) {
-            itemUrns.add(getUrn(i));
+        if (to >= from) {
+            final List<Urn> itemUrns = new ArrayList<>(to - from);
+            for (int i = from; i < to; i++) {
+                itemUrns.add(getUrn(i));
+            }
+            return itemUrns;
+        } else {
+            // debugging #5168
+            ErrorUtils.handleSilentException(new IllegalStateException("Error getting item urns. size = ["
+                    + size() + "], from = [" + from + "], count = [" + count + "]"));
+            return Collections.emptyList();
         }
-        return itemUrns;
     }
 
     public boolean shouldPersistItemAt(int position) {
