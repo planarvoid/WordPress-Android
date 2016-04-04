@@ -151,10 +151,10 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onPlaystateChangedPublishesStateTransistionForVideo() throws Exception {
+    public void onPlaystateChangedPublishesStateTransitionForVideo() throws Exception {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123));
         when(streamPlayer.getLastStateTransition()).thenReturn(PlaybackStateTransition.DEFAULT);
-        playbackItem = VideoPlaybackItem.create(videoAd);
+        playbackItem = VideoPlaybackItem.create(videoAd, 0L);
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
@@ -219,7 +219,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void shouldForwardVideoAdPlayerStateTransitionToAnalyticsController() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123));
         when(streamPlayer.getLastStateTransition()).thenReturn(PlaybackStateTransition.DEFAULT);
-        playbackItem = VideoPlaybackItem.create(videoAd);
+        playbackItem = VideoPlaybackItem.create(videoAd, 0L);
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
@@ -284,7 +284,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void onProgressPublishesAProgressEventForVideo() throws Exception {
         when(streamPlayer.getLastStateTransition()).thenReturn(PlaybackStateTransition.DEFAULT);
-        playbackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123)));
+        playbackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123)), 0L);
         playbackService.onCreate();
         playbackService.play(playbackItem);
 

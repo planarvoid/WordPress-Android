@@ -48,13 +48,13 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
 
         videoSourceProvider = new VideoSourceProvider(applicationProperties, deviceHelper, mediaCodecInfoProvider, networkConnectionHelper);
-        videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), VALID_SOURCES));
+        videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), VALID_SOURCES), 0L);
     }
 
     @Test
     public void failsIfNoValidFormatsProvided() throws IllegalArgumentException {
         final ApiVideoSource invalidSource = createApiVideoSource(100, 200, "video/invalid", 12);
-        videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), invalidSource));
+        videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), invalidSource), 0L);
 
         try {
             videoSourceProvider.selectOptimalSource(videoPlaybackItem);
@@ -155,7 +155,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     public void videoSourceProviderRecognizes1080x1920as1080p() {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_1080P)).thenReturn(true);
         final ApiVideoSource VERTICAL_1080P = createApiVideoSource(1080, 1920, PlaybackConstants.MIME_TYPE_MP4, 12);
-        videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), Collections.singletonList(VERTICAL_1080P)));
+        videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), Collections.singletonList(VERTICAL_1080P)), 0L);
 
         final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 

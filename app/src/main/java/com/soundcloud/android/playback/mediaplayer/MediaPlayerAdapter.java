@@ -108,10 +108,10 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
+            case VIDEO_DEFAULT:
                 play(playbackItem, playbackItem.getStartPosition());
                 break;
             case AUDIO_UNINTERRUPTED:
-            case VIDEO_DEFAULT:
                 play(playbackItem, 0);
                 break;
             default:
@@ -419,7 +419,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     @Override
     public void destroy() {
         stop();
-        clearVideoView();
         // make sure there aren't any other messages coming
         playerHandler.removeCallbacksAndMessages(null);
     }
