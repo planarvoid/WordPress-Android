@@ -13,6 +13,7 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.VALIDATION_E
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.annotations.VisibleForTesting;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
@@ -79,6 +80,11 @@ public final class ApiRequestException extends Exception {
 
     public static ApiRequestException serverError(ApiRequest request, ApiResponse response) {
         return new ApiRequestException(SERVER_ERROR, request, response);
+    }
+
+    @VisibleForTesting
+    public static ApiRequestException fromReason(Reason reason, ApiRequest request, ApiResponse response) {
+        return new ApiRequestException(reason, request, response);
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, ApiResponse response) {
