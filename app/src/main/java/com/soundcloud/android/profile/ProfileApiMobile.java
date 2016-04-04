@@ -21,26 +21,28 @@ import java.util.List;
 public class ProfileApiMobile implements ProfileApi {
 
     private final TypeToken<ModelCollection<ApiPostSource>> postSourceToken =
-            new TypeToken<ModelCollection<ApiPostSource>>() {};
+            new TypeToken<ModelCollection<ApiPostSource>>() {
+            };
 
     private final TypeToken<ModelCollection<ApiPlayableSource>> playableSourceToken =
-            new TypeToken<ModelCollection<ApiPlayableSource>>() {};
+            new TypeToken<ModelCollection<ApiPlayableSource>>() {
+            };
 
     private static final Func1<ModelCollection<? extends ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> SOURCE_TO_HOLDER =
             new Func1<ModelCollection<? extends ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>>() {
-        @Override
-        public ModelCollection<ApiEntityHolder> call(ModelCollection<? extends ApiEntityHolderSource> modelCollection) {
-            final List<? extends ApiEntityHolderSource> collection = modelCollection.getCollection();
-            List<ApiEntityHolder> entityHolders = new ArrayList<>();
-            for (ApiEntityHolderSource entityHolderSource : collection) {
-                final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
-                if (entityHolder.isPresent()) {
-                    entityHolders.add(entityHolder.get());
+                @Override
+                public ModelCollection<ApiEntityHolder> call(ModelCollection<? extends ApiEntityHolderSource> modelCollection) {
+                    final List<? extends ApiEntityHolderSource> collection = modelCollection.getCollection();
+                    List<ApiEntityHolder> entityHolders = new ArrayList<>();
+                    for (ApiEntityHolderSource entityHolderSource : collection) {
+                        final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
+                        if (entityHolder.isPresent()) {
+                            entityHolders.add(entityHolder.get());
+                        }
+                    }
+                    return new ModelCollection(entityHolders, modelCollection.getLinks());
                 }
-            }
-            return new ModelCollection(entityHolders, modelCollection.getLinks());
-        }
-    };
+            };
 
     private final ApiClientRx apiClientRx;
 
