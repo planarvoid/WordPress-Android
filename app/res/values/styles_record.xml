@@ -145,6 +145,7 @@
         <item name="android:paddingLeft">5dip</item>
         <item name="android:paddingRight">5dip</item>
         <item name="android:textColor">#ff333333</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="RecordFadeSwitch">

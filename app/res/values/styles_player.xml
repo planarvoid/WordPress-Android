@@ -172,6 +172,7 @@
         <item name="android:paddingLeft">6dp</item>
         <item name="android:textSize" tools:ignore="SpUsage">12dp</item> <!-- This text cannot be scaled due to fixed timestamp height -->
         <item name="android:textColor">@color/timestamp_primary</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="TimestampText.Duration">
