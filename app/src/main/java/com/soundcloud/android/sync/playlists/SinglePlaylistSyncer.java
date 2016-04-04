@@ -116,7 +116,7 @@ public class SinglePlaylistSyncer implements Callable<Boolean> {
     @NonNull
     private List<Urn> compileRemoteBasedFinalTrackList(List<Urn> remoteTracks, List<Urn> localRemovals, Set<Urn> localAdditions) {
         // add all local tracks that have not been removed remotely
-        List<Urn> finalTrackList = new ArrayList<>(remoteTracks.size() + localAdditions.size() - localRemovals.size());
+        List<Urn> finalTrackList = new ArrayList<>(remoteTracks.size() + localAdditions.size());
         for (Urn track : remoteTracks) {
             if (!localRemovals.contains(track)) {
                 finalTrackList.add(track);
