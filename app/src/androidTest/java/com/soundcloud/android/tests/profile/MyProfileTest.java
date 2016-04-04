@@ -84,6 +84,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         profileScreen.touchLikesTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
 
+        profileScreen.scrollToFirstPlaylist();
         final PlaylistElement expectedPlaylist = profileScreen
                 .getPlaylists()
                 .get(0);
