@@ -4,6 +4,7 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -26,6 +27,10 @@ public class ProfileApiMobile implements ProfileApi {
 
     private final TypeToken<ModelCollection<ApiPlayableSource>> playableSourceToken =
             new TypeToken<ModelCollection<ApiPlayableSource>>() {
+            };
+
+    private final TypeToken<ModelCollection<ApiPlaylistPost>> playlistPostToken =
+            new TypeToken<ModelCollection<ApiPlaylistPost>>() {
             };
 
     private static final Func1<ModelCollection<? extends ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> SOURCE_TO_HOLDER =
@@ -169,5 +174,25 @@ public class ProfileApiMobile implements ProfileApi {
                 .build();
 
         return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user) {
+        return getUserReleasesCollection(ApiEndpoints.USER_RELEASES.path(user));
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink) {
+        return getUserReleasesCollection(nextPageLink);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<ApiPlaylistPost>> getUserReleasesCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPrivateApi()
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, playlistPostToken);
     }
 }

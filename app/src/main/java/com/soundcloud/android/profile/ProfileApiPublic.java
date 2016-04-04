@@ -8,6 +8,7 @@ import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -125,6 +126,16 @@ public class ProfileApiPublic implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink) {
         throw new UnsupportedOperationException("User Tracks will not be supported by Public API");
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user) {
+        throw new UnsupportedOperationException("User Releases will not be supported by Public API");
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink) {
+        throw new UnsupportedOperationException("User Releases will not be supported by Public API");
     }
 
     @NotNull

@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -94,5 +95,15 @@ public class ProfileApiDelegator implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink) {
         return profileApiMobile.get().userTracks(nextPageLink);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user) {
+        return profileApiMobile.get().userReleases(user);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink) {
+        return profileApiMobile.get().userReleases(nextPageLink);
     }
 }

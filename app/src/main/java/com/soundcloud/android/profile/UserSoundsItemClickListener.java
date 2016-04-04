@@ -46,10 +46,13 @@ public class UserSoundsItemClickListener {
 
         switch (collectionType) {
             case UserSoundsTypes.REPOSTS:
-                navigator.openReposts(view.getContext(), userUrn, Screen.USERS_REPOSTS, searchQuerySourceInfo);
+                navigator.openProfileReposts(view.getContext(), userUrn, Screen.USERS_REPOSTS, searchQuerySourceInfo);
                 break;
             case UserSoundsTypes.TRACKS:
                 navigator.openProfileTracks(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
+                break;
+            case UserSoundsTypes.RELEASES:
+                navigator.openProfileReleases(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown collection type : " + collectionType);

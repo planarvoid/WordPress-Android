@@ -27,6 +27,7 @@ import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.UserReleasesActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -195,13 +196,18 @@ public class Navigator {
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    public void openReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(createRepostsIntent(context, user, screen)
+    public void openProfileReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(createProfileRepostsIntent(context, user, screen)
                 .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
 
     public void openProfileTracks(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         context.startActivity(createProfileTracksIntent(context, user, screen)
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+    }
+
+    public void openProfileReleases(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(createProfileReleasesIntent(context, user, screen)
                 .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
 
@@ -361,7 +367,7 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createRepostsIntent(Context context, Urn user, Screen screen) {
+    private Intent createProfileRepostsIntent(Context context, Urn user, Screen screen) {
         Intent intent = new Intent(context, UserRepostsActivity.class)
                 .putExtra(UserRepostsActivity.EXTRA_USER_URN, user);
         screen.addToIntent(intent);
@@ -371,6 +377,13 @@ public class Navigator {
     private Intent createProfileTracksIntent(Context context, Urn user, Screen screen) {
         Intent intent = new Intent(context, UserTracksActivity.class)
                 .putExtra(UserTracksActivity.EXTRA_USER_URN, user);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createProfileReleasesIntent(Context context, Urn user, Screen screen) {
+        Intent intent = new Intent(context, UserReleasesActivity.class)
+                .putExtra(UserReleasesActivity.EXTRA_USER_URN, user);
         screen.addToIntent(intent);
         return intent;
     }
