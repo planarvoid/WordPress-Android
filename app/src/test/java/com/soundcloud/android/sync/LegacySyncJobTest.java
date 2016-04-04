@@ -228,7 +228,7 @@ public class LegacySyncJobTest extends AndroidUnitTest {
 
     @Test
     @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/5169")
-    public void shouldBeForwardsCompatibleForDifferentApiRequestExceptions() throws Exception {
+    public void shouldHandleAllPossibleApiRequestExceptions() throws Exception {
         List<ApiRequestException> apiRequestExceptions = new ArrayList<>();
         for (Reason reason : Reason.values()) {
             apiRequestExceptions.add(ApiRequestException.fromReason(reason, null, null));
