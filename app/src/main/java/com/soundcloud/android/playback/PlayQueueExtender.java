@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -8,6 +10,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -17,6 +20,7 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.HashMap;
 
 @Singleton
 public class PlayQueueExtender {
@@ -105,7 +109,24 @@ public class PlayQueueExtender {
     private class UpcomingTracksSubscriber extends DefaultSubscriber<PlayQueue> {
         @Override
         public void onNext(PlayQueue playQueue) {
+            checkArgument(!playQueueManager.isQueueEmpty(), "Should not append to empty queue");
             playQueueManager.appendPlayQueueItems(playQueue);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            if (e instanceof IllegalArgumentException) {
+                // we should not need this, as we should never get this far with an empty queue.
+                // Just being defensive while we investigate
+                // https://github.com/soundcloud/SoundCloud-Android/issues/3938
+
+                final HashMap<String, String> valuePairs = new HashMap<>(2);
+                valuePairs.put("Queue Size", String.valueOf(playQueueManager.getQueueSize()));
+                valuePairs.put("PlaySessionSource", playQueueManager.getCurrentPlaySessionSource().toString());
+                ErrorUtils.handleSilentException(e, valuePairs);
+            } else {
+                super.onError(e);
+            }
         }
     }
 
