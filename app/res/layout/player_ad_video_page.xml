@@ -84,8 +84,4 @@
 
     <include layout="@layout/video_play_controls"/>
 
-    <Button android:id="@+id/video_pause_control"
-            style="@style/AdVideoPause"
-            android:visibility="invisible"/>
-
 </RelativeLayout>

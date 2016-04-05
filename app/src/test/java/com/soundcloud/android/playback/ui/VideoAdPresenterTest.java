@@ -172,30 +172,9 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void videoViewCoversEntireScreenForVerticalVideo() {
-        final int viewWidth = adView.findViewById(R.id.video_view).getWidth();
-        final int viewHeight = adView.findViewById(R.id.video_view).getHeight();
-
         final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
         assertThat(layoutParams.width).isGreaterThanOrEqualTo(resources().getDisplayMetrics().widthPixels);
         assertThat(layoutParams.height).isGreaterThanOrEqualTo(resources().getDisplayMetrics().heightPixels);
-    }
-
-    @Test
-    public void fadingViewsWithoutPauseButtonVisibleOnBind() {
-        for (View view : fadingViews()) {
-            assertThat(view).isVisible();
-        }
-        assertThat(adView.findViewById(R.id.video_pause_control)).isNotVisible();
-    }
-
-    @Test
-    public void fadingViewsWithoutPauseButtonVisibleOnClear() {
-        presenter.clearItemView(adView);
-
-        for (View view : fadingViews()) {
-            assertThat(view).isVisible();
-        }
-        assertThat(adView.findViewById(R.id.video_pause_control)).isNotVisible();
     }
 
     @Test
@@ -229,13 +208,13 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void fadingViewsWithPauseAreSetToInvisibleAfterPlayEventFromPause() {
+    public void fadingViewsAreSetToInvisibleAfterPlayEventFromPause() {
         presenter.setPlayState(adView,
                 createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
         presenter.setPlayState(adView,
                 createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
 
-        for (View view : fadingViewsWithPause()) {
+        for (View view : fadingViews()) {
             assertThat(view).isInvisible();
         }
     }
@@ -244,34 +223,13 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void togglePlayOnPlayClick() {
         adView.findViewById(R.id.player_play).performClick();
 
-        verify(pageListener).onTogglePlay();
     }
 
     @Test
-    public void togglePlayOnPauseClick() {
-        adView.findViewById(R.id.video_pause_control).performClick();
-
-        verify(pageListener).onTogglePlay();
-    }
-
-    @Test
-    public void animatePauseButtonOnAdPageOverlayClick() {
-        presenter.setPlayState(adView,
-                createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
+    public void togglePlayOnVideoOverlayClick() {
         adView.findViewById(R.id.video_overlay).performClick();
 
-        assertThat(adView.findViewById(R.id.video_pause_control).getAnimation()).isNotNull();
-
-    }
-
-    @Test
-    public void dontDisplayPauseButtonWhenAdPageOverlayClickedWhilePlaybackPaused() {
-        presenter.setPlayState(adView,
-                createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
-
-        adView.findViewById(R.id.video_overlay).performClick();
-
-        assertThat(adView.findViewById(R.id.video_pause_control)).isNotVisible();
+        verify(pageListener).onTogglePlay();
     }
 
     @Test
@@ -346,11 +304,6 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     private Iterable<View> fadingViews() {
         VideoAdPresenter.Holder holder = (VideoAdPresenter.Holder) adView.getTag();
         return holder.fadingViews;
-    }
-
-    private Iterable<View> fadingViewsWithPause() {
-        VideoAdPresenter.Holder holder = (VideoAdPresenter.Holder) adView.getTag();
-        return holder.fadingViewsWithPause;
     }
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
