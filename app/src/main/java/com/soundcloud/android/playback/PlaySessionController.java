@@ -233,8 +233,6 @@ public class PlaySessionController {
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
-            subscription.unsubscribe();
-
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack()) {
                 if (castConnectionHelper.isCasting()) {
