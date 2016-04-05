@@ -32,21 +32,21 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     private List<String> trackingUrls = Collections.emptyList();
 
     public static AdPlaybackSessionEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
-                .setQuartileTrackingUrls(FIRST_QUARTILE_TYPE, adData)
-                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, FIRST_QUARTILE_TYPE);
+        return forQuartile(adData, trackSourceInfo, FIRST_QUARTILE_TYPE);
     }
 
     public static AdPlaybackSessionEvent forSecondQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
-                .setQuartileTrackingUrls(SECOND_QUARTILE_TYPE, adData)
-                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, SECOND_QUARTILE_TYPE);
+        return forQuartile(adData, trackSourceInfo, SECOND_QUARTILE_TYPE);
     }
 
     public static AdPlaybackSessionEvent forThirdQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
+        return forQuartile(adData, trackSourceInfo, THIRD_QUARTILE_TYPE);
+    }
+
+    private static AdPlaybackSessionEvent forQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo, String quartileType)  {
         return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
-                .setQuartileTrackingUrls(THIRD_QUARTILE_TYPE, adData)
-                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, THIRD_QUARTILE_TYPE);
+                .setQuartileTrackingUrls(quartileType, adData)
+                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
     }
 
     public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo, PlaybackStateTransition stateTransition) {
@@ -64,16 +64,11 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
 
     private AdPlaybackSessionEvent(String kind, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
         super(kind, System.currentTimeMillis());
-
         this.trackSourceInfo = trackSourceInfo;
 
         put(AdTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
-        if (adData instanceof VideoAd) {
-            put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_VIDEO);
-        } else {
-            put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO);
-        }
+        put(AdTrackingKeys.KEY_MONETIZATION_TYPE, adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO);
     }
 
     public boolean isFirstPlay() {
