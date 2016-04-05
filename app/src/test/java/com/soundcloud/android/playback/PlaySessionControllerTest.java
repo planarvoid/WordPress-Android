@@ -152,18 +152,6 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playQueueTrackChangeWhenCastingDoesNotPlayTrackWhenCurrentTrackStaysTheSame() {
-        when(castConnectionHelper.isCasting()).thenReturn(true);
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
-
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
-
-        assertThat(playCurrentSubject.hasObservers()).isFalse();
-    }
-
-    @Test
     public void shouldNotRespondToPlayQueueTrackChangesWhenPlayerIsNotPlaying() {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
