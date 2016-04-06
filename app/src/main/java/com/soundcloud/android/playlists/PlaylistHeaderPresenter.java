@@ -54,6 +54,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Override
     public void onResume(Fragment fragment) {
+        super.onResume(fragment);
         foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
     }
 
@@ -61,6 +62,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onPause(Fragment fragment) {
         foregroundSubscription.unsubscribe();
+        super.onPause(fragment);
     }
 
 
