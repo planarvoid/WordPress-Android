@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.activity.resolve;
 
-import static com.soundcloud.android.framework.TestUser.defaultUser;
+import static com.soundcloud.android.framework.TestUser.playerUser;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +37,7 @@ public class ResolveDeepLinkBeforeAndAfterLogin extends ActivityTest<ResolveActi
     public void testShouldOpenPlayerFromDeeplinkAfterSignIn() {
         new HomeScreen(solo)
                 .clickLogInButton()
-                .loginAs(defaultUser.getEmail(), defaultUser.getPassword());
+                .loginAs(playerUser.getEmail(), playerUser.getPassword());
 
         VisualPlayerElement visualPlayer = new VisualPlayerElement(solo);
         visualPlayer.waitForExpandedPlayer();
