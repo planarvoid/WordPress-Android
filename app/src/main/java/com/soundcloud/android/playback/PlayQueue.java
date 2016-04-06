@@ -216,7 +216,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         List<Urn> shuffled = newArrayList(tracks);
         Collections.shuffle(shuffled);
 
-        if (!offlineAvailable.isEmpty()){
+        if (!offlineAvailable.isEmpty()) {
             Collections.shuffle(offlineAvailable);
             Urn randomOfflineTrack = offlineAvailable.get(0);
 
