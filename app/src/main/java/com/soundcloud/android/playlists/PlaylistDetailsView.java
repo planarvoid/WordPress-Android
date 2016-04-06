@@ -27,15 +27,18 @@ class PlaylistDetailsView {
     private PlaylistItem playlistInfo;
     private ApiImageSize artworkSize = ApiImageSize.Unknown;
 
-    public PlaylistDetailsView(@Provided ImageOperations imageOperations,
-                               View headerView,
-                               View.OnClickListener playButtonListener,
-                               View.OnClickListener creatorClickListener) {
+    public PlaylistDetailsView(@Provided ImageOperations imageOperations, View headerView) {
         this.imageOperations = imageOperations;
         this.artworkSize = ApiImageSize.getFullImageSize(headerView.getResources());
 
         ButterKnife.bind(this, headerView);
+    }
+
+    public void setOnPlayButtonClickListener(View.OnClickListener playButtonListener) {
         playButton.setOnClickListener(playButtonListener);
+    }
+
+    public void setOnCreatorButtonClickListener(View.OnClickListener creatorClickListener) {
         usernameView.setOnClickListener(creatorClickListener);
     }
 

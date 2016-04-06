@@ -5,7 +5,6 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -44,7 +43,7 @@ import rx.functions.Func1;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.VisibleForTesting;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
@@ -52,13 +51,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle<Fragment>
-        implements PlaylistEngagementsView.OnEngagementListener {
-
-    private Context context;
-    private FragmentManager fragmentManager;
-    private PlaylistHeaderItem playlistHeaderItem;
-    private OriginProvider originProvider;
+class PlaylistViewHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements PlaylistEngagementsView.OnEngagementListener {
 
     private final RepostOperations repostOperations;
     private final AccountOperations accountOperations;
@@ -75,27 +68,31 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsOperations offlineSettings;
 
-    private Subscription foregroundSubscription = RxUtils.invalidSubscription();
+    private Context context;
+    private PlaylistHeaderListener listener;
+    private FragmentManager fragmentManager;
     private Subscription offlineStateSubscription = RxUtils.invalidSubscription();
+    private PlaylistHeaderItem playlistHeaderItem;
+    private String screen;
 
     @Inject
-    public LegacyPlaylistEngagementsPresenter(EventBus eventBus,
-                                              RepostOperations repostOperations,
-                                              AccountOperations accountOperations,
-                                              LikeOperations likeOperations,
-                                              PlaylistEngagementsView playlistEngagementsView,
-                                              FeatureOperations featureOperations,
-                                              OfflineContentOperations offlineOperations,
-                                              PlaybackInitiator playbackInitiator,
-                                              PlaylistOperations playlistOperations,
-                                              PlaybackToastHelper playbackToastHelper,
-                                              NetworkConnectionHelper connectionHelper,
-                                              OfflineSettingsOperations offlineSettings,
-                                              Navigator navigator,
-                                              ShareOperations shareOperations) {
-        this.eventBus = eventBus;
+    public PlaylistViewHeaderPresenter(RepostOperations repostOperations,
+                                       AccountOperations accountOperations,
+                                       EventBus eventBus,
+                                       LikeOperations likeOperations,
+                                       PlaylistEngagementsView playlistEngagementsView,
+                                       FeatureOperations featureOperations,
+                                       OfflineContentOperations offlineOperations,
+                                       PlaybackInitiator playbackInitiator,
+                                       PlaylistOperations playlistOperations,
+                                       PlaybackToastHelper playbackToastHelper,
+                                       Navigator navigator,
+                                       ShareOperations shareOperations,
+                                       NetworkConnectionHelper connectionHelper,
+                                       OfflineSettingsOperations offlineSettings) {
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
+        this.eventBus = eventBus;
         this.likeOperations = likeOperations;
         this.playlistEngagementsView = playlistEngagementsView;
         this.featureOperations = featureOperations;
@@ -103,38 +100,81 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         this.playbackInitiator = playbackInitiator;
         this.playlistOperations = playlistOperations;
         this.playbackToastHelper = playbackToastHelper;
-        this.connectionHelper = connectionHelper;
-        this.offlineSettings = offlineSettings;
         this.navigator = navigator;
         this.shareOperations = shareOperations;
+        this.connectionHelper = connectionHelper;
+        this.offlineSettings = offlineSettings;
     }
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
-        super.onCreate(fragment, bundle);
+        context = fragment.getContext();
+
+        // TODO
         if (featureOperations.upsellOfflineContent()) {
             Urn playlistUrn = fragment.getArguments().getParcelable(LegacyPlaylistDetailFragment.EXTRA_URN);
-            eventBus.publish(EventQueue.TRACKING,
-                    UpgradeTrackingEvent.forPlaylistPageImpression(playlistUrn));
+            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistPageImpression(playlistUrn));
         }
     }
 
-    @VisibleForTesting
-    void bindView(View rootView) {
-        bindView(rootView, new OriginProvider() {
-            @Override
-            public String getScreenTag() {
-                return Screen.UNKNOWN.get();
-            }
-        });
+    @Override
+    public void onResume(Fragment fragment) {
+        fragmentManager = fragment.getFragmentManager();
     }
 
-    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    void bindView(View rootView, OriginProvider originProvider) {
-        this.context = rootView.getContext();
-        this.originProvider = originProvider;
-        playlistEngagementsView.onViewCreated(rootView);
+    @Override
+    public void onPause(Fragment fragment) {
+        offlineStateSubscription.unsubscribe();
+        fragmentManager = null;
+    }
+
+    public void bindView(View view) {
+        playlistEngagementsView.onViewCreated(view);
         playlistEngagementsView.setOnEngagementListener(this);
+    }
+
+    public void update(EntityStateChangedEvent event) {
+        if (playlistHeaderItem != null && playlistHeaderItem.getUrn().equals(event.getFirstUrn())) {
+            final PropertySet changeSet = event.getNextChangeSet();
+            playlistHeaderItem.update(changeSet);
+
+            if (changeSet.contains(PlaylistProperty.IS_USER_LIKE)) {
+                playlistEngagementsView.updateLikeItem(
+                        changeSet.get(PlayableProperty.LIKES_COUNT),
+                        changeSet.get(PlayableProperty.IS_USER_LIKE));
+                updateOfflineAvailability();
+            }
+            if (changeSet.contains(PlaylistProperty.IS_USER_REPOST)) {
+                playlistEngagementsView.showPublicOptions(
+                        changeSet.get(PlayableProperty.IS_USER_REPOST));
+            }
+        }
+    }
+
+    void setScreen(final String screen) {
+        this.screen = screen;
+    }
+
+    @NonNull
+    View.OnClickListener getCreatorClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (playlistHeaderItem != null) {
+                    listener.onGoToCreator(playlistHeaderItem.getCreatorUrn());
+                }
+            }
+        };
+    }
+
+    @NonNull
+    View.OnClickListener getPlayButtonListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onHeaderPlay();
+            }
+        };
     }
 
     @Override
@@ -142,38 +182,20 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         playlistEngagementsView.onDestroyView();
     }
 
-    @Override
-    public void onResume(Fragment fragment) {
-        fragmentManager = fragment.getFragmentManager();
-        foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
-    }
-
-    @Override
-    public void onPause(Fragment fragment) {
-        foregroundSubscription.unsubscribe();
-        offlineStateSubscription.unsubscribe();
-        fragmentManager = null;
-    }
-
-    @VisibleForTesting
-    void setOriginProvider(OriginProvider originProvider) {
-        this.originProvider = originProvider;
-    }
-
     void setPlaylistInfo(@NotNull final PlaylistHeaderItem playlistHeaderItem) {
         this.playlistHeaderItem = playlistHeaderItem;
 
         final String trackCount = context.getResources().getQuantityString(
-                R.plurals.number_of_sounds, this.playlistHeaderItem.getTrackCount(),
-                this.playlistHeaderItem.getTrackCount());
+                R.plurals.number_of_sounds, playlistHeaderItem.getTrackCount(),
+                playlistHeaderItem.getTrackCount());
 
         playlistEngagementsView.setInfoText(context.getString(R.string.playlist_new_info_header_text_trackcount_duration,
-                trackCount, this.playlistHeaderItem.geFormattedDuration()));
+                trackCount, playlistHeaderItem.geFormattedDuration()));
 
-        playlistEngagementsView.updateLikeItem(this.playlistHeaderItem.getLikesCount(), this.playlistHeaderItem.isLikedByUser());
+        playlistEngagementsView.updateLikeItem(playlistHeaderItem.getLikesCount(), playlistHeaderItem.isLikedByUser());
 
-        showPublicOptions(this.playlistHeaderItem);
-        showShuffleOption(this.playlistHeaderItem);
+        showPublicOptions();
+        showShuffleOption();
 
         updateOfflineAvailability();
         subscribeForOfflineContentUpdates();
@@ -188,15 +210,15 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
                 .subscribe(new OfflineStateSubscriber());
     }
 
-    private void showShuffleOption(PlaylistHeaderItem headerItem) {
-        if (headerItem.getTrackCount() > 1) {
+    private void showShuffleOption() {
+        if (playlistHeaderItem.getTrackCount() > 1) {
             playlistEngagementsView.enableShuffle();
         } else {
             playlistEngagementsView.disableShuffle();
         }
     }
 
-    private void showPublicOptions(PlaylistHeaderItem playlistHeaderItem) {
+    private void showPublicOptions() {
         if (playlistHeaderItem.isPublic()) {
             if (isOwned(playlistHeaderItem)) {
                 playlistEngagementsView.showPublicOptionsForYourTrack();
@@ -291,14 +313,14 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
 
     @Override
     public void onEditPlaylist() {
-        throw new UnsupportedOperationException("Edit playlist is not supported.");
+        listener.onEditPlaylist();
     }
 
     private Action0 publishAnalyticsEventForShuffle() {
         return new Action0() {
             @Override
             public void call() {
-                final UIEvent fromShufflePlaylist = UIEvent.fromShufflePlaylist(originProvider.getScreenTag(), playlistHeaderItem.getUrn());
+                final UIEvent fromShufflePlaylist = UIEvent.fromShufflePlaylist(screen, playlistHeaderItem.getUrn());
                 eventBus.publish(EventQueue.TRACKING, fromShufflePlaylist);
             }
         };
@@ -340,7 +362,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
 
     private EventContextMetadata getEventContext() {
         return EventContextMetadata.builder()
-                .contextScreen(originProvider.getScreenTag())
+                .contextScreen(screen)
                 .pageName(Screen.PLAYLIST_DETAILS.get())
                 .invokerScreen(Screen.PLAYLIST_DETAILS.get())
                 .pageUrn(playlistHeaderItem.getUrn())
@@ -357,26 +379,6 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         }
     }
 
-    private class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(EntityStateChangedEvent event) {
-            if (playlistHeaderItem != null && playlistHeaderItem.getUrn().equals(event.getFirstUrn())) {
-                final PropertySet changeSet = event.getNextChangeSet();
-                playlistHeaderItem.update(changeSet);
-
-                if (changeSet.contains(PlaylistProperty.IS_USER_LIKE)) {
-                    playlistEngagementsView.updateLikeItem(
-                            changeSet.get(PlayableProperty.LIKES_COUNT),
-                            changeSet.get(PlayableProperty.IS_USER_LIKE));
-                    updateOfflineAvailability();
-                }
-                if (changeSet.contains(PlaylistProperty.IS_USER_REPOST)) {
-                    playlistEngagementsView.showPublicOptions(
-                            changeSet.get(PlayableProperty.IS_USER_REPOST));
-                }
-            }
-        }
-    }
 
     private class OfflineStateSubscriber extends DefaultSubscriber<OfflineState> {
         @Override
@@ -398,4 +400,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         }
     }
 
+    public void setListener(PlaylistHeaderListener listener) {
+        this.listener = listener;
+    }
 }

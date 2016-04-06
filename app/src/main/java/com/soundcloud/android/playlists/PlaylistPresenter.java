@@ -7,13 +7,17 @@ import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROMOTED_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -44,6 +48,9 @@ import rx.subscriptions.CompositeSubscription;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Provider;
@@ -123,7 +130,6 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
                         .queue(ENTITY_STATE_CHANGED)
                         .filter(IS_PLAYLIST_PUSHED_FILTER)
                         .subscribe(new PlaylistPushedSubscriber()));
-        strategy.start();
     }
 
     @Override
@@ -145,7 +151,34 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
 
     @Override
     public void onEditPlaylist() {
-        throw new UnsupportedOperationException("Edit playlist is not supported.");
+        changeStrategy(new EditStrategy(eventBus, this));
+    }
+
+    private void onViewPlaylist() {
+        changeStrategy(viewStrategyFactory.create(PlaylistPresenter.this, adapter, playSessionSource));
+    }
+
+    private void startEditMode() {
+        fragment.getActivity().startActionMode(new EditModeCallback());
+    }
+
+    private void leaveEditMode() {
+        //TODO tracks changed
+        //if (tracks changed) {
+        //TODO add tracks
+        //fireAndForget(playlistOperations.editPlaylist(getPlaylistUrn(), headerPresenter.getTitle(), headerPresenter.isPrivate(), null));
+        //}
+        onViewPlaylist();
+    }
+
+    private void discardChanged() {
+        //TODO discard changes of tracks
+    }
+
+    private void changeStrategy(PlaylistStrategy newStrategy) {
+        strategy.stop();
+        strategy = newStrategy;
+        strategy.start();
     }
 
     @Override
@@ -230,7 +263,7 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
         @Override
         public void onNext(PlaylistWithTracks playlistWithTracks) {
             playSessionSource = createPlaySessionSource(playlistWithTracks);
-            strategy = viewStrategyFactory.create(PlaylistPresenter.this, adapter, playSessionSource);
+            onViewPlaylist();
         }
     }
 
@@ -257,6 +290,34 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
         public void onNext(EntityStateChangedEvent args) {
             final PropertySet updatedPlaylist = args.getNextChangeSet();
             fragment.getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
+        }
+    }
+
+    private final class EditModeCallback implements ActionMode.Callback {
+        public static final int DISCARD_ITEM_ID = 1;
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            menu.add(0, DISCARD_ITEM_ID, Menu.NONE, R.string.btn_cancel);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
+            if (item.getItemId() == DISCARD_ITEM_ID) {
+                discardChanged();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            leaveEditMode();
         }
     }
 
@@ -367,15 +428,24 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
     }
 
     private static class EditStrategy implements PlaylistStrategy {
+        private final EventBus eventBus;
+        private final PlaylistPresenter presenter;
+
+        private EditStrategy(EventBus eventBus,
+                             PlaylistPresenter presenter) {
+            this.eventBus = eventBus;
+            this.presenter = presenter;
+        }
 
         @Override
         public void start() {
-
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.hidePlayer());
+            presenter.startEditMode();
         }
 
         @Override
         public void stop() {
-
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
         }
 
         @Override
@@ -388,5 +458,4 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
 
         }
     }
-
 }

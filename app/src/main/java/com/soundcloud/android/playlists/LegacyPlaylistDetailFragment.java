@@ -316,7 +316,9 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     }
 
     private void setupPlaylistDetails(View detailsView) {
-        playlistDetailsView = playlistDetailsViewFactory.create(detailsView, onPlayClick, onHeaderTextClick);
+        playlistDetailsView = playlistDetailsViewFactory.create(detailsView);
+        playlistDetailsView.setOnPlayButtonClickListener(onPlayClick);
+        playlistDetailsView.setOnCreatorButtonClickListener(onHeaderTextClick);
         engagementsPresenter.bindView(detailsView, new OriginProvider() {
             @Override
             public String getScreenTag() {

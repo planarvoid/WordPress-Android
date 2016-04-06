@@ -203,7 +203,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         }
     }
 
-    void setOnEngagement(OnEngagementListener listener) {
+    void setOnEngagementListener(OnEngagementListener listener) {
         this.listener = listener;
     }
 
