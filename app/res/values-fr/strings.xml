@@ -721,7 +721,7 @@
   <string name="email_notifications_newsletter">Bulletin d\'infos de SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts">
-    <item quantity="one">%d nouvelle publication</item>
+    <item quantity="one">%s nouvelle publication</item>
     <item quantity="other">%s nouvelles publications</item>
   </plurals>
   <!--__ACTIVITIES-->
