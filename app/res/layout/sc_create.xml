@@ -86,6 +86,7 @@
                 android:layout_marginTop="32dp"
                 android:layout_centerInParent="true"
                 android:layout_below="@id/rec_controls"
+                android:gravity="center"
                 android:text="@string/record_tap_to_record"
                 style="@style/TextAppearanceMedium" />
 
