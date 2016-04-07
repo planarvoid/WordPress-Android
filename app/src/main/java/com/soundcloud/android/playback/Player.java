@@ -12,6 +12,8 @@ public interface Player {
 
     long getProgress();
 
+    float getVolume();
+
     void setVolume(float v);
 
     void stop();

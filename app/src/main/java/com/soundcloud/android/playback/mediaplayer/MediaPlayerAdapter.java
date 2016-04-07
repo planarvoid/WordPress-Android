@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.mediaplayer;
 
+import static com.soundcloud.android.playback.PlaybackType.VIDEO_DEFAULT;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -35,7 +37,6 @@ import android.view.SurfaceHolder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
@@ -67,6 +68,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     private PlaybackItem currentItem;
     private int connectionRetries = 0;
+    private float volume = 1.0f;
 
     private boolean waitingForSeek;
     private long seekPos = POS_NOT_SET;
@@ -541,8 +543,14 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     @Override
     public void setVolume(float volume) {
         if (mediaPlayer != null) {
+            this.volume = volume;
             mediaPlayer.setVolume(volume, volume);
         }
+    }
+
+    @Override
+    public float getVolume() {
+        return volume;
     }
 
     @Override

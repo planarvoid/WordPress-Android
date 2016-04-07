@@ -698,6 +698,33 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void getVolumeGetsLastVolumeSet() {
+        mediaPlayerAdapter.play(trackItem);
+        mediaPlayerAdapter.setVolume(0.42f);
+        float volume = mediaPlayerAdapter.getVolume();
+        assertThat(volume).isEqualTo(0.42f);
+    }
+
+    @Test
+    public void getVolumeDefaultsToMax() {
+        mediaPlayerAdapter.play(trackItem);
+        float volume = mediaPlayerAdapter.getVolume();
+        assertThat(volume).isEqualTo(1);
+    }
+
+    @Test
+    public void getVolumeDoesNotGetLastVolumeSetWhenNotPlaying() {
+        mediaPlayerAdapter.play(trackItem);
+        mediaPlayerAdapter.setVolume(0.42f);
+        mediaPlayerAdapter.pause();
+
+        mediaPlayerAdapter.setVolume(0.86f);
+        float volume = mediaPlayerAdapter.getVolume();
+
+        assertThat(volume).isEqualTo(0.42f);
+    }
+
+    @Test
     public void destroyShouldCallStop() {
         playUrlAndSetPrepared(trackItem);
         mediaPlayerAdapter.destroy();
