@@ -38,7 +38,8 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.stream_track_card, parent, false);
+        final View inflatedView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.stream_track_card, parent, false);
         inflatedView.setTag(new StreamItemViewHolder(inflatedView));
         return inflatedView;
     }

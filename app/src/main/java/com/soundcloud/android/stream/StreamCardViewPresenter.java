@@ -99,18 +99,18 @@ class StreamCardViewPresenter {
         }
     }
 
-    private void showPromoted(StreamItemViewHolder itemView, final PromotedListItem promotedListItem) {
-        if (promotedListItem.hasPromoter()) {
+    private void showPromoted(StreamItemViewHolder itemView, final PromotedListItem promoted) {
+        if (promoted.hasPromoter()) {
             final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatar(itemView, promotedListItem.getPromoterUrn().get());
+            loadAvatar(itemView, promoted.getPromoterUrn().get());
 
-            headerSpannableBuilder.actionSpannedString(action, isTrack(promotedListItem));
-            itemView.setPromoterHeader(promotedListItem.getPromoterName().get(), headerSpannableBuilder.get());
-            itemView.setPromoterClickable(new PromoterClickViewListener(promotedListItem, eventBus, screenProvider, navigator));
+            headerSpannableBuilder.actionSpannedString(action, isTrack(promoted));
+            itemView.setPromoterHeader(promoted.getPromoterName().get(), headerSpannableBuilder.get());
+            itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
         } else {
             itemView.hideUserImage();
 
-            headerSpannableBuilder.promotedSpannedString(isTrack(promotedListItem));
+            headerSpannableBuilder.promotedSpannedString(isTrack(promoted));
             itemView.setPromotedHeader(headerSpannableBuilder.get());
         }
     }
