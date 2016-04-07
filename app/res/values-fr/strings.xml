@@ -241,7 +241,7 @@
   <string name="share_tracktitle_link">Écouter %1$s #np sur #SoundCloud\n%2$s</string>
   <string name="share_subject">%s - SoundCloud</string>
   <string name="info">Info</string>
-  <string name="uploaded_xtimeago">%s mis en ligne </string>
+  <string name="uploaded_xtimeago">Uploadé %s</string>
   <string name="track_info_no_description">Aucune description n\'est disponible</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Non jouable</string>
