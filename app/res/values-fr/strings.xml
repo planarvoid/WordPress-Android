@@ -596,7 +596,7 @@
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_header">Bienvenue sur SoundCloud Go</string>
   <string name="go_onboarding_title">Enregistrez votre musique hors ligne</string>
-  <string name="go_onboarding_subtext">Utilisez la flèche pour enregistrer tous vos favoris ou\nvos playlists hors ligne.</string>
+  <string name="go_onboarding_subtext">Utilisez la flèche pour enregistrer tous vos favoris ou vos playlists hors ligne.</string>
   <string name="go_onboarding_start">D\'accord, j\'ai compris</string>
   <string name="go_onboarding_retry">Échec du chargement. Réessayer ?</string>
   <string name="go_onboarding_error_dialog_title">Un problème est survenu</string>
