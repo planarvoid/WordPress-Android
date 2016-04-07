@@ -54,6 +54,10 @@ public class PlaybackToastHelper {
         Toast.makeText(context, R.string.playback_missing_playable_tracks, Toast.LENGTH_SHORT).show();
     }
 
+    public void showConcurrentStreamingStoppedToast() {
+        Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();
+    }
+
     private void showUnableToCastTrack() {
         Toast.makeText(context, R.string.cast_unable_play_track, Toast.LENGTH_SHORT).show();
     }

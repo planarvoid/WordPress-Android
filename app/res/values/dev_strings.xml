@@ -30,6 +30,9 @@
     <string name="dev_drawer_action_crash_key">crash</string>
     <string name="dev_drawer_action_crash_title">Crash the app</string>
 
+    <string name="dev_drawer_action_concurrent_key">concurrent</string>
+    <string name="dev_drawer_action_concurrent_title">Send concurrent playback stop</string>
+
     <string name="dev_drawer_flush_eventlogger_instantly_key">dev.flushEventloggerInstantly</string>
     <string name="dev_drawer_flush_eventlogger_instantly_title">Flush Eventlogger Instantly</string>
 

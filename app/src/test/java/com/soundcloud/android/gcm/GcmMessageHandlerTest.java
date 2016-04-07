@@ -8,9 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.StopReasonProvider;
+import com.soundcloud.android.playback.ConcurrentPlaybackOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,14 +24,12 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
     private GcmMessageHandler handler;
 
     @Mock private GcmDecryptor decryptor;
-    @Mock private PlaySessionController playSessionController;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private ConcurrentPlaybackOperations concurrentPlaybackOperations;
     @Mock private AccountOperations accountOperations;
-    @Mock private StopReasonProvider stopReasonProvider;
 
     @Before
     public void setUp() throws Exception {
-        handler = new GcmMessageHandler(resources(), decryptor, playSessionController, playSessionStateProvider, accountOperations, stopReasonProvider);
+        handler = new GcmMessageHandler(resources(), decryptor, concurrentPlaybackOperations, accountOperations);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(123L));
     }
 
@@ -44,25 +40,10 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
         intent.putExtra("data", ENCRYPTED_DATA);
 
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
-        handler.handleMessage(context(), intent);
+        handler.handleMessage(intent);
 
-        verify(playSessionController).pause();
-    }
-
-    @Test
-    public void setsPendingConcurrentPauseWhenStopMessageReceivedAndPlaying() throws UnsupportedEncodingException, EncryptionException {
-        final Intent intent = new Intent("com.google.android.c2dm.intent.RECEIVE");
-        intent.putExtra("from", resources().getString(R.string.google_api_key));
-        intent.putExtra("data", ENCRYPTED_DATA);
-
-        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-
-        handler.handleMessage(context(), intent);
-
-        verify(stopReasonProvider).setPendingConcurrentPause();
+        verify(concurrentPlaybackOperations).pauseIfPlaying();
     }
 
     @Test
@@ -71,24 +52,11 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
         intent.putExtra("from", resources().getString(R.string.google_api_key));
         intent.putExtra("data", ENCRYPTED_DATA);
 
-        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
+        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":234}");
 
-        handler.handleMessage(context(), intent);
+        handler.handleMessage(intent);
 
-        verify(playSessionController, never()).pause();
-    }
-
-    @Test
-    public void doesNotStopPlaybackWhenStopMessageReceivedAndNotPlaying() throws UnsupportedEncodingException, EncryptionException {
-        final Intent intent = new Intent("com.google.android.c2dm.intent.RECEIVE");
-        intent.putExtra("from", resources().getString(R.string.google_api_key));
-        intent.putExtra("data", ENCRYPTED_DATA);
-
-        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
-
-        handler.handleMessage(context(), intent);
-
-        verify(playSessionController, never()).pause();
+        verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
     }
 
     @Test
@@ -98,11 +66,10 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
         intent.putExtra("data", ENCRYPTED_DATA);
 
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"stealth\":true, \"user_id\":123}");
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
-        handler.handleMessage(context(), intent);
+        handler.handleMessage(intent);
 
-        verify(playSessionController, never()).pause();
+        verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
     }
 
     @Test
@@ -113,8 +80,8 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
 
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"blah\"}, \"user_id\":123}");
 
-        handler.handleMessage(context(), intent);
+        handler.handleMessage(intent);
 
-        verify(playSessionController, never()).pause();
+        verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
     }
 }

@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.playback.ConcurrentPlaybackOperations;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -43,6 +44,7 @@ public class DevDrawerFragment extends PreferenceFragment {
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
     @Inject ConfigurationManager configurationManager;
     @Inject Navigator navigator;
+    @Inject ConcurrentPlaybackOperations concurrentPlaybackOperations;
 
     public DevDrawerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -152,6 +154,14 @@ public class DevDrawerFragment extends PreferenceFragment {
                     }
                 });
 
+        screen.findPreference(getString(R.string.dev_drawer_action_concurrent_key))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        concurrentPlaybackOperations.pauseIfPlaying();
+                        return true;
+                    }
+                });
     }
 
     private void setupForceConfigUpdatePref(PreferenceScreen screen) {
