@@ -43,19 +43,22 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
         return forQuartile(adData, trackSourceInfo, THIRD_QUARTILE_TYPE);
     }
 
-    private static AdPlaybackSessionEvent forQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo, String quartileType)  {
+    private static AdPlaybackSessionEvent forQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
+                                                      String quartileType)  {
         return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
                 .setQuartileTrackingUrls(quartileType, adData)
                 .put(AdTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
     }
 
-    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo, PlaybackStateTransition stateTransition) {
+    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
+                                                 PlaybackStateTransition stateTransition) {
         return new AdPlaybackSessionEvent(EVENT_KIND_PLAY, adData, trackSourceInfo)
                 .setStateTransition(stateTransition)
                 .setPlaybackTrackingUrls(adData);
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo, PlaybackStateTransition stateTransition, int stopReason) {
+    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
+                                                 PlaybackStateTransition stateTransition, int stopReason) {
         return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, trackSourceInfo)
                 .setStateTransition(stateTransition)
                 .setStopReason(stopReason)

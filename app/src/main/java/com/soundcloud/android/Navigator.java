@@ -60,7 +60,10 @@ import java.util.List;
 public class Navigator {
 
     private static final int NO_FLAGS = 0;
-    private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
+    private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK
+            | Intent.FLAG_ACTIVITY_CLEAR_TOP
+            | Intent.FLAG_ACTIVITY_TASK_ON_HOME
+            | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
@@ -120,7 +123,8 @@ public class Navigator {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, true));
     }
 
-    public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
+    public void openPlaylist(Context context, Urn playlist, Screen screen,
+                             SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
     }
 
@@ -196,19 +200,19 @@ public class Navigator {
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    public void openProfileReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public void openProfileReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfileRepostsIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
-    public void openProfileTracks(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public void openProfileTracks(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfileTracksIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
-    public void openProfileReleases(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public void openProfileReleases(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfileReleasesIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
     public void openActivities(Context context) {

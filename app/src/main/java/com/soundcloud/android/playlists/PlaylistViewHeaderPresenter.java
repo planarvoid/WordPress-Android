@@ -51,7 +51,8 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class PlaylistViewHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements PlaylistEngagementsView.OnEngagementListener {
+class PlaylistViewHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment>
+        implements PlaylistEngagementsView.OnEngagementListener {
 
     private final RepostOperations repostOperations;
     private final AccountOperations accountOperations;
@@ -300,7 +301,8 @@ class PlaylistViewHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragm
     public void onPlayShuffled() {
         if (playlistHeaderItem != null) {
             final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playlistHeaderItem.getUrn());
-            playbackInitiator.playTracksShuffled(tracks, playlistHeaderItem.getPlaySessionSource(), featureOperations.isOfflineContentEnabled())
+            playbackInitiator
+                    .playTracksShuffled(tracks, playlistHeaderItem.getPlaySessionSource(), featureOperations.isOfflineContentEnabled())
                     .doOnCompleted(publishAnalyticsEventForShuffle())
                     .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }

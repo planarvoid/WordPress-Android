@@ -7,7 +7,6 @@ import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROMOTED_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -55,7 +54,8 @@ import android.view.View;
 
 import javax.inject.Provider;
 
-public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListItem> implements PlaylistHeaderListener {
+public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListItem>
+        implements PlaylistHeaderListener {
 
     private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -216,7 +216,8 @@ public abstract class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWi
     }
 
     @Override
-    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, ListItem> collectionBinding, CompositeSubscription viewLifeCycle) {
+    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, ListItem> collectionBinding,
+                                      CompositeSubscription viewLifeCycle) {
         collectionBinding.source().subscribe(getPlaylistSubscriber());
     }
 
