@@ -90,14 +90,6 @@
 
     <style name="Profile.HeaderInfoLayout" parent="HeaderInfoLayoutBase" />
 
-    <style name="TabsBase">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentBottom">true</item>
-    </style>
-
-    <style name="Profile.Tabs" parent="TabsBase" />
-
     <style name="Profile.HeaderImage">
         <item name="android:layout_width">@dimen/profile_image_dimen</item>
         <item name="android:layout_height">@dimen/profile_image_dimen</item>
@@ -122,22 +114,7 @@
         <item name="android:textColor">@color/dark_gray_text</item>
     </style>
 
-    <style name="ToolbarUsernameBase">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:layout_alignTop">@id/toolbar_id</item>
-        <item name="android:layout_alignBottom">@id/toolbar_id</item>
-        <item name="android:visibility">gone</item>
-        <item name="android:layout_marginLeft">@dimen/toolbar_title_left_margin</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_marginTop">5dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Title</item>
-    </style>
-
     <style name="Profile.Toolbar" />
-
-    <style name="Profile.Toolbar.Username" parent="ToolbarUsernameBase" />
 
     <style name="Profile.Stats" parent="ListItemText.Numeric">
         <item name="android:layout_marginTop">6dp</item>

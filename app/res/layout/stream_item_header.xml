@@ -1,6 +1,6 @@
 <RelativeLayout
     android:id="@+id/header_container"
-    style="@style/Stream.Header"
+    style="@style/Cards.Header"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">

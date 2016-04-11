@@ -1,13 +1,5 @@
 package com.soundcloud.android.framework.viewelements;
 
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.ViewFetcher;
-import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.offline.DownloadImageView;
-import com.soundcloud.android.screens.elements.ListElement;
-import com.soundcloud.android.screens.elements.Tabs;
-
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
@@ -20,9 +12,18 @@ import android.view.animation.Animation;
 import android.webkit.WebView;
 import android.widget.ToggleButton;
 
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.ViewFetcher;
+import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.Tabs;
+
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class DefaultViewElement extends ViewElement {
     private final View view;
@@ -130,7 +131,7 @@ public class DefaultViewElement extends ViewElement {
     }
 
     private String getClickPoint() {
-        return String.format("%f, %f", getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY());
+        return String.format(Locale.US, "%f, %f", getVisibleRect().exactCenterX(), getVisibleRect().exactCenterY());
     }
 
     private Rect getVisibleRect() {

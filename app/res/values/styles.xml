@@ -2,8 +2,6 @@
 
 <resources>
 
-    <style name="Toolbar" />
-
     <style name="Toolbar.Title" parent="TextAppearance.Widget.ScAppCompat.Toolbar.Title">
         <item name="android:textColor">@color/dark_gray_text</item>
         <item name="android:layout_width">wrap_content</item>
@@ -91,12 +89,6 @@
         <item name="android:background">@drawable/divider_list_orange</item>
     </style>
 
-    <style name="ItemSelector">
-        <item name="android:background">@drawable/list_selector_dark</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
     <!-- Tablet layouts -->
 
     <style name="MarginLeft">
@@ -133,13 +125,6 @@
         <item name="android:id">@id/legacy_elevation</item>
         <item name="android:background">@drawable/toolbar_shadow</item>
         <item name="android:layout_height">5dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_below">@id/toolbar_id</item>
-    </style>
-
-    <style name="DropShadow">
-        <item name="android:background">@drawable/drop_shadow</item>
-        <item name="android:layout_height">4dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_below">@id/toolbar_id</item>
     </style>
@@ -298,9 +283,7 @@
         <item name="custom_font">@string/interstate_light</item>
     </style>
 
-    <style name="NewItemsIndicator" />
-
-    <style name="NewItemsIndicator.Base">
+    <style name="NewItemsIndicator">
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:layout_marginTop">10dp</item>
@@ -313,7 +296,7 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="NewItemsIndicator.Text" parent="NewItemsIndicator.Base">
+    <style name="NewItemsIndicator.Text" parent="NewItemsIndicator">
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingBottom">6dp</item>
     </style>

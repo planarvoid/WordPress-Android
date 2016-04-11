@@ -20,7 +20,7 @@
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
     <issue id="MissingQuantity" severity="warning"/>
-    <issue id="MissingQuantity" severity="warning"/>
+    <issue id="ImpliedQuantity" severity="informational"/>
 
     <issue id="MissingTranslation" severity="informational"/>
 
@@ -87,7 +87,7 @@
 
     <issue id="InlinedApi" severity="error"/>
 
-    <issue id="UnusedResources" severity="error">
+    <issue id="UnusedResources" severity="informational">
         <ignore path="res/values/keys.xml"/>
         <!-- ignore Crashlytics plugin auto-generated code -->
         <ignore path="res/values/com_crashlytics_export_strings.xml"/>

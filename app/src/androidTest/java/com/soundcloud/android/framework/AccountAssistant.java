@@ -1,5 +1,15 @@
 package com.soundcloud.android.framework;
 
+import static java.lang.String.format;
+import static java.util.Locale.getDefault;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.app.Instrumentation;
+import android.content.Context;
+import android.util.Log;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.Endpoints;
@@ -12,22 +22,18 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import org.apache.http.HttpResponse;
-import rx.Subscription;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
-import android.app.Instrumentation;
-import android.content.Context;
-import android.util.Log;
+import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import rx.Subscription;
 
 public final class AccountAssistant {
 
@@ -88,7 +94,7 @@ public final class AccountAssistant {
             return false;
         }
 
-        Log.i(TAG, String.format("LoggedInUser: %s", getAccount(context).name));
+        Log.i(TAG, format(Locale.US, "LoggedInUser: %s", getAccount(context).name));
 
         AccountManagerFuture<Boolean> accountManagerFuture =
                 AccountManager.get(context).removeAccount(account, null, null);
@@ -104,7 +110,7 @@ public final class AccountAssistant {
     }
 
     public static Subscription accountDataCleanup(Context context) {
-        final Subscription subscription = SoundCloudApplication.fromContext(context).getEventBus().subscribe(
+        return SoundCloudApplication.fromContext(context).getEventBus().subscribe(
                 EventQueue.CURRENT_USER_CHANGED, new DefaultSubscriber<CurrentUserChangedEvent>() {
 
                     @Override
@@ -118,7 +124,6 @@ public final class AccountAssistant {
                         }
                     }
                 });
-        return subscription;
     }
 
     public static void waitForAccountDataCleanup(Subscription subscription) throws Exception {
@@ -154,7 +159,7 @@ public final class AccountAssistant {
         HttpResponse response = apiWrapper.get(Request.to(Endpoints.MY_DETAILS));
         int status = response.getStatusLine().getStatusCode();
         if (status != 200) {
-            throw new IOException(String.format("%s response status was: %d", Endpoints.MY_DETAILS, status));
+            throw new IOException(format(getDefault(), "%s response status was: %d", Endpoints.MY_DETAILS, status));
         }
         final InputStream content = response.getEntity().getContent();
         return PublicApi.buildObjectMapper().readValue(content, PublicApiUser.class);

@@ -10,6 +10,7 @@ import com.soundcloud.java.optional.Optional;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 class SuggestionsResult implements Iterable<PropertySet> {
     private final List<PropertySet> items;
@@ -41,7 +42,8 @@ class SuggestionsResult implements Iterable<PropertySet> {
     }
 
     private static IllegalStateException getMissingItemException(List<? extends PropertySetSource> items, int emptyItems) {
-        return new IllegalStateException(String.format("%d/%d empty items in suggestions result", emptyItems, items.size()));
+        return new IllegalStateException(
+                String.format(Locale.getDefault(), "%d/%d empty items in suggestions result", emptyItems, items.size()));
     }
 
     @Override
