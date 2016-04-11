@@ -30,7 +30,6 @@ public class UpsellDeeplinkTest extends ActivityTest<ResolveActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.SOUNDCLOUD_GO);
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.UPGRADE_URI));
         super.setUp();
     }

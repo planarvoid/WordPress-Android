@@ -21,7 +21,7 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.payments.NativeConversionActivity;
+import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -29,7 +29,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserReleasesActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -40,7 +39,6 @@ import com.soundcloud.java.optional.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -56,8 +54,6 @@ public class NavigatorTest extends AndroidUnitTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
 
-    @Mock private FeatureFlags flags;
-
     private Navigator navigator;
 
     private Context appContext;
@@ -65,7 +61,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        navigator = new Navigator(flags);
+        navigator = new Navigator();
         appContext = context();
         activityContext = new Activity();
     }
@@ -128,7 +124,7 @@ public class NavigatorTest extends AndroidUnitTest {
     @Test
     public void openUpgrade() {
         navigator.openUpgrade(activityContext);
-        assertThat(activityContext).nextStartedIntent().opensActivity(NativeConversionActivity.class);
+        assertThat(activityContext).nextStartedIntent().opensActivity(WebConversionActivity.class);
     }
 
     @Test

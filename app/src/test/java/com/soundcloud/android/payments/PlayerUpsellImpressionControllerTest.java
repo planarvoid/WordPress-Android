@@ -1,7 +1,6 @@
 package com.soundcloud.android.payments;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
@@ -9,7 +8,6 @@ import com.soundcloud.android.events.UpgradeTrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -28,8 +26,7 @@ public class PlayerUpsellImpressionControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlayerUpsellImpressionController(eventBus, featureFlags);
-        when(featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)).thenReturn(true);
+        controller = new PlayerUpsellImpressionController(eventBus);
     }
 
     @Test

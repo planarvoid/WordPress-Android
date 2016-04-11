@@ -22,7 +22,6 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -30,8 +29,6 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserReleasesActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
@@ -53,7 +50,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,13 +63,6 @@ public class Navigator {
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
-
-    private final FeatureFlags featureFlags;
-
-    @Inject
-    public Navigator(FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
-    }
 
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));
@@ -102,13 +91,7 @@ public class Navigator {
     }
 
     public void openUpgrade(Context activityContext) {
-        activityContext.startActivity(new Intent(activityContext, getUpgradeClass()));
-    }
-
-    protected Class getUpgradeClass() {
-        return featureFlags.isEnabled(Flag.FEATURE_WEB_UPGRADE_FLOW)
-                ? WebConversionActivity.class
-                : NativeConversionActivity.class;
+        activityContext.startActivity(new Intent(activityContext, WebConversionActivity.class));
     }
 
     public void openUpgradeOnMain(Context context) {

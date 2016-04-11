@@ -9,7 +9,6 @@ import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
@@ -33,7 +32,6 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.SOUNDCLOUD_GO);
         super.setUp();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
