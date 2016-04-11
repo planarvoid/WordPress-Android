@@ -22,14 +22,14 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
     @Mock StreamPlayer streamPlayer;
     @Mock FadeHandlerFactory fadeHandlerFactory;
-    @Mock FadeHandler fadeHandler;
+    @Mock FadeHelper fadeHelper;
     @Mock VolumeController.Listener listener;
 
     private VolumeController volumeController;
 
     @Before
     public void setUp() {
-        when(fadeHandlerFactory.create(any(VolumeController.class))).thenReturn(fadeHandler);
+        when(fadeHandlerFactory.create(any(VolumeController.class))).thenReturn(fadeHelper);
         volumeController = new VolumeController(streamPlayer, listener, fadeHandlerFactory);
     }
 
@@ -39,7 +39,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
         volumeController.mute(ONE_SECOND);
 
-        verify(fadeHandler).fade(FADE_OUT_ONE_SECOND);
+        verify(fadeHelper).fade(FADE_OUT_ONE_SECOND);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
         volumeController.mute(ONE_SECOND);
         volumeController.mute(ONE_SECOND);
 
-        verify(fadeHandler, times(1)).fade(FADE_OUT_ONE_SECOND);
+        verify(fadeHelper, times(1)).fade(FADE_OUT_ONE_SECOND);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
         volumeController.unMute(ONE_SECOND);
 
-        verify(fadeHandler).fade(FADE_IN_ONE_SECOND);
+        verify(fadeHelper).fade(FADE_IN_ONE_SECOND);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
         volumeController.unMute(ONE_SECOND);
 
-        verify(fadeHandler, never()).fade(FADE_IN_ONE_SECOND);
+        verify(fadeHelper, never()).fade(FADE_IN_ONE_SECOND);
     }
 
     @Test
@@ -81,9 +81,9 @@ public class VolumeControllerTest extends AndroidUnitTest {
         volumeController.unMute(ONE_SECOND);
         volumeController.unMute(ONE_SECOND);
 
-        InOrder inOrder = Mockito.inOrder(fadeHandler);
-        inOrder.verify(fadeHandler).fade(FADE_OUT_ONE_SECOND);
-        inOrder.verify(fadeHandler).fade(FADE_IN_ONE_SECOND);
+        InOrder inOrder = Mockito.inOrder(fadeHelper);
+        inOrder.verify(fadeHelper).fade(FADE_OUT_ONE_SECOND);
+        inOrder.verify(fadeHelper).fade(FADE_IN_ONE_SECOND);
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -93,7 +93,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
         volumeController.duck(ONE_SECOND);
 
-        verify(fadeHandler).fade(DUCK_ONE_SECOND);
+        verify(fadeHelper).fade(DUCK_ONE_SECOND);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
         volumeController.duck(ONE_SECOND);
 
-        verify(fadeHandler, never()).fade(DUCK_ONE_SECOND);
+        verify(fadeHelper, never()).fade(DUCK_ONE_SECOND);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
         volumeController.duck(ONE_SECOND);
         volumeController.duck(ONE_SECOND);
 
-        verify(fadeHandler, times(1)).fade(DUCK_ONE_SECOND);
+        verify(fadeHelper, times(1)).fade(DUCK_ONE_SECOND);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
     public void resetVolumeStopsAnyOngoingFade() {
         volumeController.resetVolume();
 
-        verify(fadeHandler).stop();
+        verify(fadeHelper).stop();
     }
 
     @Test
@@ -155,7 +155,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
         volumeController.fadeOut(ONE_SECOND, -ONE_SECOND);
 
-        verify(fadeHandler).fade(fadeRequest);
+        verify(fadeHelper).fade(fadeRequest);
     }
 
     @Test

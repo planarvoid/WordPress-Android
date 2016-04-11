@@ -16,7 +16,7 @@ import rx.schedulers.Schedulers;
 import java.util.concurrent.TimeUnit;
 
 @AutoFactory(allowSubclasses = true)
-class FadeHandler {
+class FadeHelper {
     private static final long STEP_MS = 10;
 
     interface Listener {
@@ -29,13 +29,13 @@ class FadeHandler {
     private final Scheduler scheduler;
     private Subscription subscription = RxUtils.invalidSubscription();
 
-    FadeHandler(Listener listener) {
+    FadeHelper(Listener listener) {
         this.listener = listener;
         this.scheduler = Schedulers.newThread();
     }
 
     @VisibleForTesting
-    FadeHandler(Listener listener, Scheduler scheduler) {
+    FadeHelper(Listener listener, Scheduler scheduler) {
         this.listener = listener;
         this.scheduler = scheduler;
     }

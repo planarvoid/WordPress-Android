@@ -4,7 +4,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 
 @AutoFactory(allowSubclasses = true)
-class VolumeController implements FadeHandler.Listener {
+class VolumeController implements FadeHelper.Listener {
 
     interface Listener {
         void onFadeFinished();
@@ -14,7 +14,7 @@ class VolumeController implements FadeHandler.Listener {
     private static final float MAX_VOLUME = 1.0f;
     private static final float MIN_VOLUME = 0.0f;
 
-    private final FadeHandler fadeHandler;
+    private final FadeHelper fadeHelper;
 
     private boolean ducked = false;
     private boolean muted = false;
@@ -29,7 +29,7 @@ class VolumeController implements FadeHandler.Listener {
                      @Provided FadeHandlerFactory fadeHandlerFactory) {
         this.streamPlayer = streamPlayer;
         this.listener = listener;
-        this.fadeHandler = fadeHandlerFactory.create(this);
+        this.fadeHelper = fadeHandlerFactory.create(this);
     }
 
     void mute(long duration) {
@@ -56,7 +56,7 @@ class VolumeController implements FadeHandler.Listener {
 
     void resetVolume() {
         if (!ducked && !muted) {
-            fadeHandler.stop();
+            fadeHelper.stop();
             setVolume(MAX_VOLUME);
             fading_in = false;
             fading_out = false;
@@ -88,7 +88,7 @@ class VolumeController implements FadeHandler.Listener {
                 .endValue(target)
                 .build();
 
-        fadeHandler.fade(fadeRequest);
+        fadeHelper.fade(fadeRequest);
     }
 
     private void setVolume(float volume) {
