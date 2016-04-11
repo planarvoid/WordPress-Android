@@ -11,7 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -60,7 +60,7 @@ class TrackPageListener extends PageListener {
 
     public void onUpsell(final Context activityContext, final Urn trackUrn) {
         navigator.openUpgrade(activityContext);
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlayerClick(trackUrn));
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlayerClick(trackUrn));
     }
 
     private EventContextMetadata getEventContextMetadata(Urn trackUrn) {

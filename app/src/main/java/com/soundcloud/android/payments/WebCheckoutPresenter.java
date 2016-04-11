@@ -6,7 +6,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -99,7 +99,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
 
     @Override
     public void onPaymentSuccess() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeSuccess());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeSuccess());
         trackPurchase();
         navigator.resetForAccountUpgrade(activity);
         activity.finish();

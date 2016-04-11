@@ -31,7 +31,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -560,8 +560,8 @@ public class PlaylistViewHeaderPresenterTest extends AndroidUnitTest {
 
         controller.onCreate(fragmentRule.getFragment(), null);
 
-        UpgradeTrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeTrackingEvent.class);
-        assertThat(event.get(UpgradeTrackingEvent.KEY_PAGE_URN)).isEqualTo(PLAYLIST_URN.toString());
+        UpgradeFunnelEvent event = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
+        assertThat(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)).isEqualTo(PLAYLIST_URN.toString());
     }
 
     @Test

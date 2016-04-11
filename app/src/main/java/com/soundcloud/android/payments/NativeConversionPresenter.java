@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.payments.error.PaymentError;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -84,7 +84,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
     public void startPurchase() {
         subscribeToPurchase(paymentOperations.purchase(details.getId()).cache());
         conversionView.setBuyButtonLoading();
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonClick());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonClick());
     }
 
     @Override
@@ -156,7 +156,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
                 details = result.getDetails();
                 conversionView.showPrice(details.getPrice());
                 conversionView.setBuyButtonReady();
-                eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonImpression());
+                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonImpression());
             } else {
                 paymentErrorPresenter.showConnectionError();
             }
@@ -208,7 +208,7 @@ class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActiv
 
     private void upgradeSuccess() {
         navigator.resetForAccountUpgrade(activity);
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeSuccess());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeSuccess());
     }
 
     private void loadPurchaseOptions() {

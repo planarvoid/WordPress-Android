@@ -11,7 +11,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -110,7 +110,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
         final List<TrackingEvent> trackingEvents = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(trackingEvents).hasSize(1);
-        assertThat(trackingEvents.get(0).getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION);
+        assertThat(trackingEvents.get(0).getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
         final List<TrackingEvent> trackingEvents = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(trackingEvents).hasSize(2);
-        assertThat(trackingEvents.get(1).getKind()).isEqualTo(UpgradeTrackingEvent.KIND_UPSELL_CLICK);
+        assertThat(trackingEvents.get(1).getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
     }
 
     @Test

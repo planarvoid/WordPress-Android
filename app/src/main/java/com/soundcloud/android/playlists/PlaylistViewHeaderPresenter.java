@@ -15,7 +15,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
@@ -114,7 +114,7 @@ class PlaylistViewHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragm
         // TODO
         if (featureOperations.upsellOfflineContent()) {
             Urn playlistUrn = fragment.getArguments().getParcelable(LegacyPlaylistDetailFragment.EXTRA_URN);
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forPlaylistPageImpression(playlistUrn));
+            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageImpression(playlistUrn));
         }
     }
 
@@ -294,7 +294,7 @@ class PlaylistViewHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragm
     public void onUpsell(Context context) {
         navigator.openUpgrade(context);
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeTrackingEvent.forPlaylistPageClick(playlistHeaderItem.getUrn()));
+                UpgradeFunnelEvent.forPlaylistPageClick(playlistHeaderItem.getUrn()));
     }
 
     @Override

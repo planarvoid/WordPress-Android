@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
@@ -75,7 +75,7 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     }
 
     private void startWebCheckout() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonClick());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonClick());
 
         final Intent intent = new Intent(activity, WebCheckoutActivity.class);
         intent.putExtra(PRODUCT_INFO, product.get());
@@ -94,7 +94,7 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
         conversionView.showPrice(product.getDiscountPrice().or(product.getPrice()));
         conversionView.showTrialDays(product.getTrialDays());
         conversionView.setBuyButtonReady();
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeButtonImpression());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeButtonImpression());
     }
 
     class WebProductSubscriber extends DefaultSubscriber<Optional<WebProduct>> {

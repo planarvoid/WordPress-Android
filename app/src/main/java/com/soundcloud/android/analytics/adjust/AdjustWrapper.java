@@ -27,7 +27,7 @@ public class AdjustWrapper {
         this.applicationProperties = applicationProperties;
     }
 
-    public void onCreate(Context context) {
+    void onCreate(Context context) {
         Adjust.onCreate(buildAdjustConfig(context));
     }
 
@@ -39,7 +39,11 @@ public class AdjustWrapper {
         Adjust.onPause();
     }
 
-    public void trackPurchase(String token, String value, String currency) {
+    void trackEvent(String token) {
+        Adjust.trackEvent(new AdjustEvent(token));
+    }
+
+    void trackPurchase(String token, String value, String currency) {
         AdjustEvent purchaseEvent = new AdjustEvent(token);
         purchaseEvent.setRevenue(Double.valueOf(value), currency);
         Adjust.trackEvent(purchaseEvent);

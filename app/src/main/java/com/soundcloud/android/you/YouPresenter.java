@@ -7,7 +7,7 @@ import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
@@ -110,7 +110,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
             youView.showOfflineSettings();
         } else if (featureOperations.upsellHighTier()) {
             youView.showOfflineSettings();
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsImpression());
+            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSettingsImpression());
         } else {
             youView.hideOfflineSettings();
         }
@@ -186,7 +186,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
             navigator.openOfflineSettings(view.getContext());
         }
         if (featureOperations.upsellHighTier()) {
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSettingsClick());
+            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSettingsClick());
         }
     }
 

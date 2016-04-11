@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -23,7 +23,7 @@ public class PlayerUpsellImpressionController {
     public void recordUpsellViewed(PlayQueueItem playQueueItem) {
         if (!playQueueItem.equals(lastImpression)) {
             lastImpression = playQueueItem;
-            final UpgradeTrackingEvent event = UpgradeTrackingEvent.forPlayerImpression(playQueueItem.getUrn());
+            final UpgradeFunnelEvent event = UpgradeFunnelEvent.forPlayerImpression(playQueueItem.getUrn());
             eventBus.publish(EventQueue.TRACKING, event);
         }
     }

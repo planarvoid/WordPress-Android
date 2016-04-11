@@ -24,7 +24,7 @@ import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
@@ -963,7 +963,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlayerUpsellImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forPlayerImpression(TRACK_URN);
+        UpgradeFunnelEvent impression = UpgradeFunnelEvent.forPlayerImpression(TRACK_URN);
 
         jsonDataBuilder.buildForUpsell(impression);
 
@@ -976,7 +976,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlayerUpsellClickJson() throws ApiMapperException {
-        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlayerClick(TRACK_URN);
+        UpgradeFunnelEvent click = UpgradeFunnelEvent.forPlayerClick(TRACK_URN);
 
         jsonDataBuilder.buildForUpsell(click);
 
@@ -990,7 +990,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsStreamUpsellClickJson() throws Exception {
-        UpgradeTrackingEvent click = UpgradeTrackingEvent.forStreamClick();
+        UpgradeFunnelEvent click = UpgradeFunnelEvent.forStreamClick();
 
         jsonDataBuilder.buildForUpsell(click);
 
@@ -1004,7 +1004,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsLikesUpsellImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forLikesImpression();
+        UpgradeFunnelEvent impression = UpgradeFunnelEvent.forLikesImpression();
 
         jsonDataBuilder.buildForUpsell(impression);
 
@@ -1016,7 +1016,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaylistItemUpsellClickJson() throws Exception {
-        UpgradeTrackingEvent click = UpgradeTrackingEvent.forPlaylistItemClick(PAGE_NAME, PLAYLIST_URN);
+        UpgradeFunnelEvent click = UpgradeFunnelEvent.forPlaylistItemClick(PAGE_NAME, PLAYLIST_URN);
 
         jsonDataBuilder.buildForUpsell(click);
 
@@ -1030,7 +1030,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsResubscribeClickJson() throws Exception {
-        UpgradeTrackingEvent click = UpgradeTrackingEvent.forResubscribeClick();
+        UpgradeFunnelEvent click = UpgradeFunnelEvent.forResubscribeClick();
 
         jsonDataBuilder.buildForUpsell(click);
 
@@ -1043,7 +1043,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsResubscribeImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forResubscribeImpression();
+        UpgradeFunnelEvent impression = UpgradeFunnelEvent.forResubscribeImpression();
 
         jsonDataBuilder.buildForUpsell(impression);
 
@@ -1055,7 +1055,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsUpgradeSuccessImpressionJson() throws Exception {
-        UpgradeTrackingEvent impression = UpgradeTrackingEvent.forUpgradeSuccess();
+        UpgradeFunnelEvent impression = UpgradeFunnelEvent.forUpgradeSuccess();
 
         jsonDataBuilder.buildForUpsell(impression);
 
