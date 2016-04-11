@@ -26,10 +26,10 @@ class VolumeController implements FadeHelper.Listener {
 
     VolumeController(StreamPlayer streamPlayer,
                      Listener listener,
-                     @Provided FadeHandlerFactory fadeHandlerFactory) {
+                     @Provided FadeHelperFactory fadeHelperFactory) {
         this.streamPlayer = streamPlayer;
         this.listener = listener;
-        this.fadeHelper = fadeHandlerFactory.create(this);
+        this.fadeHelper = fadeHelperFactory.create(this);
     }
 
     void mute(long duration) {

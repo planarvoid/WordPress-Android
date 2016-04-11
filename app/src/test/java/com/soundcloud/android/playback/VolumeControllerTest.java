@@ -21,7 +21,7 @@ public class VolumeControllerTest extends AndroidUnitTest {
     private static final FadeRequest DUCK_ONE_SECOND = FadeRequest.create(ONE_SECOND, 0, 1, .1f);
 
     @Mock StreamPlayer streamPlayer;
-    @Mock FadeHandlerFactory fadeHandlerFactory;
+    @Mock FadeHelperFactory fadeHelperFactory;
     @Mock FadeHelper fadeHelper;
     @Mock VolumeController.Listener listener;
 
@@ -29,8 +29,8 @@ public class VolumeControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        when(fadeHandlerFactory.create(any(VolumeController.class))).thenReturn(fadeHelper);
-        volumeController = new VolumeController(streamPlayer, listener, fadeHandlerFactory);
+        when(fadeHelperFactory.create(any(VolumeController.class))).thenReturn(fadeHelper);
+        volumeController = new VolumeController(streamPlayer, listener, fadeHelperFactory);
     }
 
     @Test
