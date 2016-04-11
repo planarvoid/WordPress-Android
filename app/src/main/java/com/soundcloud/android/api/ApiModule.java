@@ -7,7 +7,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.LocaleHeaderFormatter;
+import com.soundcloud.android.utils.LocaleFormatter;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
@@ -36,9 +36,9 @@ public class ApiModule {
                                       OAuth oAuth,
                                       UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                                       AccountOperations accountOperations,
-                                      LocaleHeaderFormatter localeHeaderFormatter) {
+                                      LocaleFormatter localeFormatter) {
         ApiClient apiClient = new ApiClient(httpClient, urlBuilder, jsonTransformer, deviceHelper, adIdHelper,
-                oAuth, unauthorisedRequestRegistry, accountOperations, localeHeaderFormatter);
+                oAuth, unauthorisedRequestRegistry, accountOperations, localeFormatter);
         apiClient.setAssertBackgroundThread(true);
         return apiClient;
     }

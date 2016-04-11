@@ -7,6 +7,8 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.utils.LocaleFormatter;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -26,15 +28,17 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
     private static final long TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(15);
     public static final String PAYMENT_FORM_BASE_URL = "https://soundcloud.com/android_payment.html";
     public static final String OAUTH_TOKEN_KEY = "oauth_token";
+    public static final String LOCALE_KEY = "locale";
     public static final String PRICE_KEY = "price";
     public static final String EXPIRY_DATE_KEY = "expiry_date";
     public static final String TRIAL_DAYS_KEY = "trial_days";
     public static final String PACKAGE_URN_KEY = "package_urn";
     public static final String ENVIRONMENT_KEY = "env";
-    public static final String DISCOUNT_PRICE = "discount_price";
+    public static final String DISCOUNT_PRICE_KEY = "discount_price";
 
     private final WebCheckoutView view;
     private final AccountOperations operations;
+    private final LocaleFormatter localeFormatter;
     private final Navigator navigator;
     private final EventBus eventBus;
     private final Resources resources;
@@ -46,11 +50,13 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
     @Inject
     public WebCheckoutPresenter(WebCheckoutView view,
                                 AccountOperations operations,
+                                LocaleFormatter localeFormatter,
                                 Navigator navigator,
                                 EventBus eventBus,
                                 Resources resources) {
         this.view = view;
         this.operations = operations;
+        this.localeFormatter = localeFormatter;
         this.navigator = navigator;
         this.eventBus = eventBus;
         this.resources = resources;
@@ -152,10 +158,23 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
                 .appendQueryParameter(PACKAGE_URN_KEY, product.getPackageUrn())
                 .appendQueryParameter(ENVIRONMENT_KEY, environment);
 
-        if (product.getDiscountPrice().isPresent()) {
-            builder.appendQueryParameter(DISCOUNT_PRICE, product.getDiscountPrice().get());
-        }
+        appendDiscount(product, builder);
+        appendLocale(builder);
 
         return builder.toString();
     }
+
+    private void appendDiscount(WebProduct product, Uri.Builder builder) {
+        if (product.getDiscountPrice().isPresent()) {
+            builder.appendQueryParameter(DISCOUNT_PRICE_KEY, product.getDiscountPrice().get());
+        }
+    }
+
+    private void appendLocale(Uri.Builder builder) {
+        Optional<String> locale = localeFormatter.getLocale();
+        if (locale.isPresent()) {
+            builder.appendQueryParameter(LOCALE_KEY, locale.get());
+        }
+    }
+
 }

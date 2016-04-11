@@ -10,37 +10,37 @@ public class LocaleHeaderFormatterTest {
 
     @Test
     public void shouldReturnValidLocaleParameterWithLangAndCountry() {
-        LocaleHeaderFormatter formatter = new LocaleHeaderFormatter(Locale.CANADA);
+        LocaleFormatter formatter = new LocaleFormatter(Locale.CANADA);
 
-        assertThat(formatter.getFormattedLocale().get()).isEqualTo("en-CA");
+        assertThat(formatter.getLocale().get()).isEqualTo("en-CA");
     }
 
     @Test
     public void shouldReturnOnlyLanguageIfCountryMissing() {
-        LocaleHeaderFormatter formatter = new LocaleHeaderFormatter(Locale.ENGLISH);
+        LocaleFormatter formatter = new LocaleFormatter(Locale.ENGLISH);
 
-        assertThat(formatter.getFormattedLocale().get()).isEqualTo("en");
+        assertThat(formatter.getLocale().get()).isEqualTo("en");
     }
 
     @Test
     public void shouldNotReturnVariantInValidLocale() {
-        LocaleHeaderFormatter formatter = new LocaleHeaderFormatter(new Locale("sl", "IT", "nedis"));
+        LocaleFormatter formatter = new LocaleFormatter(new Locale("sl", "IT", "nedis"));
 
-        assertThat(formatter.getFormattedLocale().get()).isEqualTo("sl-IT");
+        assertThat(formatter.getLocale().get()).isEqualTo("sl-IT");
     }
 
     @Test
     public void shouldNotReturnLocaleParameterIfMissingLanguage() {
-        LocaleHeaderFormatter formatter = new LocaleHeaderFormatter(new Locale("", "US", ""));
+        LocaleFormatter formatter = new LocaleFormatter(new Locale("", "US", ""));
 
-        assertThat(formatter.getFormattedLocale().isPresent()).isFalse();
+        assertThat(formatter.getLocale().isPresent()).isFalse();
     }
 
     @Test
     public void shouldNotReturnLocaleParameterIfAllComponentsMissing() {
-        LocaleHeaderFormatter formatter = new LocaleHeaderFormatter(new Locale("", "", ""));
+        LocaleFormatter formatter = new LocaleFormatter(new Locale("", "", ""));
 
-        assertThat(formatter.getFormattedLocale().isPresent()).isFalse();
+        assertThat(formatter.getLocale().isPresent()).isFalse();
     }
 
 }
