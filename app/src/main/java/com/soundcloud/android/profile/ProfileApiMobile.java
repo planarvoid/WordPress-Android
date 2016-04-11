@@ -87,17 +87,17 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
-        return getLikesCollection(ApiEndpoints.USER_LIKES.path(user));
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
+        return getLegacyLikesCollection(ApiEndpoints.LEGACY_USER_LIKES.path(user));
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
-        return getLikesCollection(nextPageLink);
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String nextPageLink) {
+        return getLegacyLikesCollection(nextPageLink);
     }
 
     @NotNull
-    private Observable<ModelCollection<ApiEntityHolder>> getLikesCollection(String path) {
+    private Observable<ModelCollection<ApiEntityHolder>> getLegacyLikesCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)

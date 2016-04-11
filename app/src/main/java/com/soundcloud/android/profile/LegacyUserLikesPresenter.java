@@ -19,17 +19,17 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
+class LegacyUserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
 
     private final UserProfileOperations profileOperations;
 
     @Inject
-    UserLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                       ImagePauseOnScrollListener imagePauseOnScrollListener,
-                       MixedPlayableRecyclerItemAdapter adapter,
-                       MixedItemClickListener.Factory clickListenerFactory,
-                       PlayableListUpdater.Factory updaterFactory,
-                       UserProfileOperations profileOperations) {
+    LegacyUserLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                             ImagePauseOnScrollListener imagePauseOnScrollListener,
+                             MixedPlayableRecyclerItemAdapter adapter,
+                             MixedItemClickListener.Factory clickListenerFactory,
+                             PlayableListUpdater.Factory updaterFactory,
+                             UserProfileOperations profileOperations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
                 clickListenerFactory, updaterFactory);
         this.profileOperations = profileOperations;
@@ -38,9 +38,9 @@ class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     @Override
     protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(USER_URN_KEY);
-        return CollectionBinding.from(profileOperations.pagedLikes(userUrn), pageTransformer)
+        return CollectionBinding.from(profileOperations.pagedLegacyLikes(userUrn), pageTransformer)
                 .withAdapter(adapter)
-                .withPager(profileOperations.likesPagingFunction())
+                .withPager(profileOperations.legacyLikesPagingFunction())
                 .build();
     }
 

@@ -15,7 +15,7 @@ import dagger.Provides;
                 MyFollowingsFragment.class,
                 UserPostsFragment.class,
                 UserPlaylistsFragment.class,
-                UserLikesFragment.class,
+                LegacyUserLikesFragment.class,
                 UserFollowingsFragment.class,
                 UserFollowersFragment.class,
                 UserSoundsFragment.class,

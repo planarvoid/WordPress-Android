@@ -63,7 +63,7 @@ public enum ApiEndpoints {
     MY_DOB("/you/profile/dob"),
     USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
     USER_POSTED_PLAYLISTS("/users/%s/posted_playlists"),
-    USER_LIKES("/users/%s/liked_tracks_and_playlists"),
+    LEGACY_USER_LIKES("/users/%s/liked_tracks_and_playlists"),
 
     // tracks
     TRACKS("/tracks/%s"),

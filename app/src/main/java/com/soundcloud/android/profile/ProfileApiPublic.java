@@ -64,12 +64,12 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
         throw new UnsupportedOperationException("User likes are no longer supported via Public API");
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String pageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String pageLink) {
         throw new UnsupportedOperationException("User likes are no longer supported via Public API");
     }
 

@@ -23,7 +23,7 @@ import rx.observers.TestSubscriber;
 import java.util.Arrays;
 import java.util.List;
 
-public class ProfileApiMobileLikeTest extends AndroidUnitTest {
+public class ProfileApiMobileLegacyLikesTest extends AndroidUnitTest {
 
     private static final String NEXT_HREF = "next-href";
 
@@ -52,7 +52,7 @@ public class ProfileApiMobileLikeTest extends AndroidUnitTest {
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);
 
-        api.userLikes(Urn.forUser(123L)).subscribe(subscriber);
+        api.legacyUserLikes(Urn.forUser(123L)).subscribe(subscriber);
         assertAllLikesEmitted();
     }
 
@@ -63,7 +63,7 @@ public class ProfileApiMobileLikeTest extends AndroidUnitTest {
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);
 
-        api.userLikes(NEXT_HREF).subscribe(subscriber);
+        api.legacyUserLikes(NEXT_HREF).subscribe(subscriber);
         assertAllLikesEmitted();
     }
 

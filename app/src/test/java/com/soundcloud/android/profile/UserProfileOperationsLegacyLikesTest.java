@@ -11,7 +11,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackLike;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.collection.PlayableItemStatusLoader;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserProfileOperationsLikesTest {
+public class UserProfileOperationsLegacyLikesTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final String NEXT_HREF = "next-href";
@@ -79,28 +78,28 @@ public class UserProfileOperationsLikesTest {
 
     @Test
     public void returnsUserLikesResultFromApi() {
-        when(profileApi.userLikes(USER_URN)).thenReturn(Observable.just(page));
+        when(profileApi.legacyUserLikes(USER_URN)).thenReturn(Observable.just(page));
 
-        operations.pagedLikes(USER_URN).subscribe(observer);
+        operations.pagedLegacyLikes(USER_URN).subscribe(observer);
 
         assertAllItemsEmitted();
     }
 
     @Test
     public void userLikesMergesInPlaylistLikeInfo() {
-        when(profileApi.userLikes(USER_URN)).thenReturn(Observable.just(page));
+        when(profileApi.legacyUserLikes(USER_URN)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist));
 
-        operations.pagedLikes(USER_URN).subscribe(observer);
+        operations.pagedLegacyLikes(USER_URN).subscribe(observer);
 
         assertAllItemsEmittedWithLike();
     }
 
     @Test
     public void storesUserLikesResultFromApi() {
-        when(profileApi.userLikes(USER_URN)).thenReturn(Observable.just(page));
+        when(profileApi.legacyUserLikes(USER_URN)).thenReturn(Observable.just(page));
 
-        operations.pagedLikes(USER_URN).subscribe(observer);
+        operations.pagedLegacyLikes(USER_URN).subscribe(observer);
 
         verify(writeMixedRecordsCommand).call(page);
     }
@@ -108,9 +107,9 @@ public class UserProfileOperationsLikesTest {
     @Test
     public void userLikesPagerReturnsNextPage() {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
-        when(profileApi.userLikes(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(profileApi.legacyUserLikes(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.likesPagingFunction().call(page1).subscribe(observer);
+        operations.legacyLikesPagingFunction().call(page1).subscribe(observer);
 
         assertAllItemsEmitted();
     }
@@ -118,10 +117,10 @@ public class UserProfileOperationsLikesTest {
     @Test
     public void userLikesPagerMergesInPlaylistLikeInfo() {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
-        when(profileApi.userLikes(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(profileApi.legacyUserLikes(NEXT_HREF)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist));
 
-        operations.likesPagingFunction().call(page1).subscribe(observer);
+        operations.legacyLikesPagingFunction().call(page1).subscribe(observer);
 
         assertAllItemsEmittedWithLike();
     }
@@ -129,9 +128,9 @@ public class UserProfileOperationsLikesTest {
     @Test
     public void userLikesPagerStoresNextPage() {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
-        when(profileApi.userLikes(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(profileApi.legacyUserLikes(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.likesPagingFunction().call(page1).subscribe(observer);
+        operations.legacyLikesPagingFunction().call(page1).subscribe(observer);
 
         verify(writeMixedRecordsCommand).call(page);
     }

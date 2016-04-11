@@ -15,17 +15,17 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserLikesFragment extends ScrollableProfileFragment {
+public class LegacyUserLikesFragment extends ScrollableProfileFragment {
 
-    @Inject @LightCycle UserLikesPresenter presenter;
+    @Inject @LightCycle LegacyUserLikesPresenter presenter;
 
-    public static UserLikesFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        UserLikesFragment fragment = new UserLikesFragment();
+    public static LegacyUserLikesFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        LegacyUserLikesFragment fragment = new LegacyUserLikesFragment();
         fragment.setArguments(ProfileArguments.from(userUrn,screen, searchQuerySourceInfo));
         return fragment;
     }
 
-    public UserLikesFragment() {
+    public LegacyUserLikesFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

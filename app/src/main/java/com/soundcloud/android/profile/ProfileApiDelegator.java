@@ -44,13 +44,13 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
-        return profileApiMobile.get().userLikes(user);
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
+        return profileApiMobile.get().legacyUserLikes(user);
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
-        return profileApiMobile.get().userLikes(nextPageLink);
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String nextPageLink) {
+        return profileApiMobile.get().legacyUserLikes(nextPageLink);
     }
 
     @Override

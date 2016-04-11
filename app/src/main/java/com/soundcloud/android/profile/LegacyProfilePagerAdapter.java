@@ -76,7 +76,7 @@ class LegacyProfilePagerAdapter extends FragmentPagerAdapter {
             case TAB_LIKES:
                 return isLoggedInUser
                         ? MyLikesFragment.create(Screen.YOUR_LIKES, searchQuerySourceInfo)
-                        : UserLikesFragment.create(userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
+                        : LegacyUserLikesFragment.create(userUrn, Screen.LEGACY_USER_LIKES, searchQuerySourceInfo);
             case TAB_FOLLOWINGS:
                 return isLoggedInUser
                         ? MyFollowingsFragment.create(Screen.YOUR_FOLLOWINGS, searchQuerySourceInfo)

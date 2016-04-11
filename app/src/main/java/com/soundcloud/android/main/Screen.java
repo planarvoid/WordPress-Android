@@ -47,7 +47,7 @@ public enum Screen {
     USER_POSTS("users:posts"),
     USER_INFO("users:info"),
     USER_PLAYLISTS("users:playlists"),
-    USER_LIKES("users:likes"),
+    LEGACY_USER_LIKES("users:likes"),
     USER_FOLLOWINGS("users:followings"),
     USER_FOLLOWERS("users:followers"),
     USER_SOUNDS("users:sounds"),
