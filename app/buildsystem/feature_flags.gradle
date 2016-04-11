@@ -19,7 +19,6 @@ enum Feature {
 
 android {
   defaultConfig {
-    buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), FALSE
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
