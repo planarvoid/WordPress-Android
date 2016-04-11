@@ -71,6 +71,13 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     }
 
     @Test
+    public void fadeAndPausePausesTrackThroughService() throws Exception {
+        defaultPlaybackStrategy.fadeAndPause();
+
+        verify(serviceInitiator).fadeAndPause();
+    }
+
+    @Test
     public void resumePlaysTrackThroughServiceIfServiceStarted() throws Exception {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
 

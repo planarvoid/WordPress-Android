@@ -161,6 +161,11 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
+    public void fadeAndPause() {
+        serviceInitiator.fadeAndPause();
+    }
+
+    @Override
     public void seek(long position) {
         serviceInitiator.seek(position);
     }

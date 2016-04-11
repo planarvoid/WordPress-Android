@@ -26,7 +26,7 @@ public class ConcurrentPlaybackOperations {
     public void pauseIfPlaying() {
         if (playSessionStateProvider.isPlaying()) {
             stopReasonProvider.setPendingConcurrentPause();
-            playSessionController.pause();
+            playSessionController.fadeAndPause();
             playbackToastHelper.showConcurrentStreamingStoppedToast();
         }
     }

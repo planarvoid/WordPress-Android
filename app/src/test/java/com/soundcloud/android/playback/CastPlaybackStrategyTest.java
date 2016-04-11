@@ -48,6 +48,13 @@ public class CastPlaybackStrategyTest {
     }
 
     @Test
+    public void fadeAndPauseJustPausesOnCastPlayer() {
+        strategy.fadeAndPause();
+
+        verify(castPlayer).pause();
+    }
+
+    @Test
     public void playCurrentCallsPlayCurrentOnCastPlayer() {
         strategy.playCurrent();
 

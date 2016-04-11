@@ -61,7 +61,8 @@ class PlaybackReceiver extends BroadcastReceiver {
                 playbackService.seek(seekPosition, true);
             } else if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
                 playbackService.pause();
-
+            } else if (Action.FADE_AND_PAUSE.equals(action)) {
+                playbackService.fadeAndPause();
             } else if (Action.STOP.equals(action)) {
                 // make sure we go to a stopped stat. No-op if there already
                 playbackService.stop();

@@ -28,6 +28,11 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
+    public void fadeAndPause() {
+        castPlayer.pause();
+    }
+
+    @Override
     public Observable<Void> playCurrent() {
         castPlayer.playCurrent();
         return Observable.just(null);
