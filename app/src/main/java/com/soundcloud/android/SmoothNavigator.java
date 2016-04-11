@@ -1,7 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.discovery.SearchActivity;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.payments.WebConversionActivity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -18,9 +18,6 @@ import java.util.List;
 @TargetApi(21)
 @SuppressLint("NewApi")
 public class SmoothNavigator extends Navigator {
-    public SmoothNavigator(FeatureFlags featureFlags) {
-        super(featureFlags);
-    }
 
     @Override
     public void openSearch(Activity activity) {
@@ -36,15 +33,19 @@ public class SmoothNavigator extends Navigator {
 
             activity.setExitSharedElementCallback(new SharedElementCallback() {
                 @Override
-                public void onSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements, List<View> sharedElementSnapshots) {
+                public void onSharedElementEnd(List<String> sharedElementNames,
+                                               List<View> sharedElements,
+                                               List<View> sharedElementSnapshots) {
                     searchIcon.animate().alpha(1).setDuration(mediumAnimTime).start();
                     searchItem.setAlpha(1);
                 }
             });
 
             Pair[] sharedElements = new Pair[]{
-                    Pair.create(activity.findViewById(R.id.search_text), activity.getString(R.string.search_text_transition_name)),
-                    Pair.create(activity.findViewById(R.id.search_holder), activity.getString(R.string.search_text_holder_transition_name))
+                    Pair.create(activity.findViewById(R.id.search_text),
+                            activity.getString(R.string.search_text_transition_name)),
+                    Pair.create(activity.findViewById(R.id.search_holder),
+                            activity.getString(R.string.search_text_holder_transition_name))
             };
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
             activity.startActivity(new Intent(activity, SearchActivity.class), options.toBundle());
@@ -58,6 +59,6 @@ public class SmoothNavigator extends Navigator {
     public void openUpgrade(Context activityContext) {
         Activity activity = (Activity) activityContext;
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity);
-        activity.startActivity(new Intent(activity, getUpgradeClass()), options.toBundle());
+        activity.startActivity(new Intent(activity, WebConversionActivity.class), options.toBundle());
     }
 }

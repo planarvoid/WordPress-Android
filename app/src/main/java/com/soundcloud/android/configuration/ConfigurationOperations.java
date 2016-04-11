@@ -13,8 +13,6 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageConfigurationStorage;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -53,25 +51,26 @@ public class ConfigurationOperations {
     private final FeatureOperations featureOperations;
     private final PlanChangeDetector planChangeDetector;
     private final ForceUpdateHandler forceUpdateHandler;
-    private final FeatureFlags featureFlags;
     private final ConfigurationSettingsStorage configurationSettingsStorage;
     private final ImageConfigurationStorage imageConfigurationStorage;
     private final TryWithBackOff<Configuration> tryWithBackOff;
     private final Scheduler scheduler;
 
-    private static final Func2<Object, Configuration, Configuration> TO_UPDATED_CONFIGURATION = new Func2<Object, Configuration, Configuration>() {
-        @Override
-        public Configuration call(Object ignore, Configuration configuration) {
-            return configuration;
-        }
-    };
+    private static final Func2<Object, Configuration, Configuration> TO_UPDATED_CONFIGURATION =
+            new Func2<Object, Configuration, Configuration>() {
+                @Override
+                public Configuration call(Object ignore, Configuration configuration) {
+                    return configuration;
+                }
+            };
 
-    private final Func1<Long, Observable<Configuration>> toFetchConfiguration = new Func1<Long, Observable<Configuration>>() {
-        @Override
-        public Observable<Configuration> call(Long tick) {
-            return fetchConfigurationWithRetry(configurationRequestBuilderForGet().build()).toObservable();
-        }
-    };
+    private final Func1<Long, Observable<Configuration>> toFetchConfiguration =
+            new Func1<Long, Observable<Configuration>>() {
+                @Override
+                public Observable<Configuration> call(Long tick) {
+                    return fetchConfigurationWithRetry(configurationRequestBuilderForGet().build()).toObservable();
+                }
+            };
 
     private final Action1<Configuration> saveConfiguration = new Action1<Configuration>() {
         @Override
@@ -93,15 +92,15 @@ public class ConfigurationOperations {
     public ConfigurationOperations(ApiClientRx apiClientRx,
                                    ExperimentOperations experimentOperations,
                                    FeatureOperations featureOperations,
-                                   FeatureFlags featureFlags,
                                    ConfigurationSettingsStorage configurationSettingsStorage,
                                    TryWithBackOff.Factory tryWithBackOffFactory,
                                    @Named(HIGH_PRIORITY) Scheduler scheduler,
                                    PlanChangeDetector planChangeDetector,
                                    ForceUpdateHandler forceUpdateHandler,
                                    ImageConfigurationStorage imageConfigurationStorage) {
-        this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler, featureFlags,
-                configurationSettingsStorage, imageConfigurationStorage, tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
+        this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler,
+                configurationSettingsStorage, imageConfigurationStorage,
+                tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
     }
 
     @VisibleForTesting
@@ -110,7 +109,6 @@ public class ConfigurationOperations {
                             FeatureOperations featureOperations,
                             PlanChangeDetector planChangeDetector,
                             ForceUpdateHandler forceUpdateHandler,
-                            FeatureFlags featureFlags,
                             ConfigurationSettingsStorage configurationSettingsStorage,
                             ImageConfigurationStorage imageConfigurationStorage,
                             TryWithBackOff<Configuration> tryWithBackOff,
@@ -122,7 +120,6 @@ public class ConfigurationOperations {
         this.apiClient = apiClientRx.getApiClient();
         this.experimentOperations = experimentOperations;
         this.featureOperations = featureOperations;
-        this.featureFlags = featureFlags;
         this.configurationSettingsStorage = configurationSettingsStorage;
         this.tryWithBackOff = tryWithBackOff;
         this.scheduler = scheduler;
@@ -201,7 +198,8 @@ public class ConfigurationOperations {
         return configuration.getDeviceManagement();
     }
 
-    public DeviceManagement forceRegisterDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
+    public DeviceManagement forceRegisterDevice(Token token)
+            throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Forcing device registration");
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CONFIGURATION.path())
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
@@ -246,11 +244,9 @@ public class ConfigurationOperations {
         experimentOperations.update(configuration.getAssignment());
         imageConfigurationStorage.storeAvailableSizeSpecs(configuration.getImageSizeSpecs());
 
-        if (featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)) {
-            featureOperations.updateFeatures(configuration.getFeatures());
-            planChangeDetector.handleRemotePlan(configuration.getUserPlan().currentPlan);
-            featureOperations.updatePlan(configuration.getUserPlan());
-        }
+        featureOperations.updateFeatures(configuration.getFeatures());
+        planChangeDetector.handleRemotePlan(configuration.getUserPlan().currentPlan);
+        featureOperations.updatePlan(configuration.getUserPlan());
     }
 
     public boolean isPendingHighTierUpgrade() {
