@@ -112,6 +112,10 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.setVolume(v);
     }
 
+    public float getVolume() {
+        return currentPlayer.getVolume();
+    }
+
     public void stop() {
         currentPlayer.stop();
     }

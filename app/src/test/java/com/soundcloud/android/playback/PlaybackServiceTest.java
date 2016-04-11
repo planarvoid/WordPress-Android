@@ -22,12 +22,17 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.TestDateProvider;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.robolectric.shadows.ShadowLooper;
 
 import android.content.Intent;
 import android.media.AudioManager;
@@ -35,8 +40,13 @@ import android.media.AudioManager;
 public class PlaybackServiceTest extends AndroidUnitTest {
 
     private static final long START_POSITION = 123L;
+    private static final long NORMAL_FADE_DURATION = 600;
+    private static final long PREVIEW_FADE_DURATION = 2000;
+    public static final PropertySet UPSELLABLE_TRACK = TestPropertySets.upsellableTrack();
+
     private PlaybackService playbackService;
     private PlaybackItem playbackItem = AudioPlaybackItem.create(TestPropertySets.fromApiTrack(), START_POSITION);
+    private PlaybackItem snippetPlaybackItem = AudioPlaybackItem.forSnippet(UPSELLABLE_TRACK, START_POSITION);
     private Urn track = playbackItem.getUrn();
     private TestEventBus eventBus = new TestEventBus();
     private TestDateProvider dateProvider = new TestDateProvider();
@@ -55,15 +65,19 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Mock private PlaybackSessionAnalyticsController analyticsController;
     @Mock private AdsController adsController;
     @Mock private AdsOperations adsOperations;
+    @Mock private VolumeControllerFactory volumeControllerFactory;
+    @Mock private VolumeController volumeController;
 
     @Before
     public void setUp() throws Exception {
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         playbackService = new PlaybackService(eventBus,
                 accountOperations, streamPlayer,playbackReceiverFactory,
                 InjectionSupport.lazyOf(remoteAudioManager), playbackNotificationController,
-                analyticsController, adsOperations, adsController);
+                analyticsController, adsOperations, adsController, volumeControllerFactory);
 
         when(playbackReceiverFactory.create(playbackService, accountOperations, eventBus)).thenReturn(playbackReceiver);
+        when(volumeControllerFactory.create(streamPlayer, playbackService)).thenReturn(volumeController);
     }
 
     @Test
@@ -324,5 +338,133 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, track));
 
         assertThat(playbackService).doesNotHaveLastForegroundNotification();
+    }
+
+    @Test
+    public void onProgressDoesNotFadeNonSnippet() {
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+
+        playbackService.onProgressEvent(playbackItem.getDuration()-PREVIEW_FADE_DURATION, playbackItem.getDuration());
+
+        verify(volumeController, never()).fadeOut(2000, 0);
+    }
+
+    @Test
+    public void onProgressFadesSnippet() {
+        playbackService.onCreate();
+        playbackService.play(snippetPlaybackItem);
+
+        long position = snippetPlaybackItem.getDuration() - PREVIEW_FADE_DURATION;
+        playbackService.onProgressEvent(position, snippetPlaybackItem.getDuration());
+
+        verify(volumeController).fadeOut(2000, 0);
+    }
+
+    @Test
+    public void onProgressFadesSnippetWithEarlyOffset() {
+        playbackService.onCreate();
+        playbackService.play(snippetPlaybackItem);
+
+        long position = snippetPlaybackItem.getDuration() - (PREVIEW_FADE_DURATION + 1000);
+        playbackService.onProgressEvent(position, snippetPlaybackItem.getDuration());
+
+        verify(volumeController).fadeOut(2000, -1000);
+    }
+
+    @Test
+    public void onProgressFadesSnippetAfterOffset() {
+        playbackService.onCreate();
+        playbackService.play(snippetPlaybackItem);
+
+        long position = snippetPlaybackItem.getDuration() - (PREVIEW_FADE_DURATION - 1500);
+        playbackService.onProgressEvent(position, snippetPlaybackItem.getDuration());
+
+        verify(volumeController).fadeOut(2000, 1500);
+    }
+
+    @Test
+    public void onFocusGainedUnMutesPlayer() {
+        playbackService.onCreate();
+
+        playbackService.focusGained();
+
+        verify(volumeController).unMute(NORMAL_FADE_DURATION);
+    }
+
+    @Test
+    public void onFocusLostVolumeDucksIfItCanDuck() {
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+        when(streamPlayer.isPlaying()).thenReturn(true);
+
+        playbackService.focusLost(true, true);
+
+        verify(volumeController).duck(NORMAL_FADE_DURATION);
+    }
+
+    @Test
+    public void onFocusLostVolumeMutesIfItCantDuck() {
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+        when(streamPlayer.isPlaying()).thenReturn(true);
+
+        playbackService.focusLost(true, false);
+
+        verify(volumeController).mute(NORMAL_FADE_DURATION);
+    }
+
+    @Test
+    public void onFocusLostVolumeMutesIfItsNotTransient() {
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+        when(streamPlayer.isPlaying()).thenReturn(true);
+
+        playbackService.focusLost(false, true);
+
+        verify(volumeController).mute(NORMAL_FADE_DURATION);
+    }
+
+    @Test
+    public void onFocusLostVolumeIsNotMutedIfItIsNotPlaying() {
+        playbackService.onCreate();
+        playbackService.play(playbackItem);
+        when(streamPlayer.isPlaying()).thenReturn(false);
+
+        playbackService.focusLost(false, false);
+
+        verify(volumeController, never()).mute(NORMAL_FADE_DURATION);
+    }
+
+    @Test
+    public void onSeekVolumeIsReset() {
+        playbackService.onCreate();
+
+        playbackService.seek(123L, true);
+
+        verify(volumeController).resetVolume();
+    }
+
+    @Test
+    public void onPlayNewTrackVolumeIsReset() {
+        playbackService.onCreate();
+
+        playbackService.play(playbackItem);
+
+        verify(volumeController).resetVolume();
+    }
+
+    @Test
+    public void onPlayNewTrackWithPositionFadesIfStartsInTheMiddleOfTheFade() {
+        long startPosition = UPSELLABLE_TRACK.get(TrackProperty.SNIPPET_DURATION) - 1000;
+        PlaybackItem onFadeOffset = AudioPlaybackItem.forSnippet(UPSELLABLE_TRACK, startPosition);
+        playbackService.onCreate();
+
+        playbackService.play(onFadeOffset);
+
+        InOrder inOrder = Mockito.inOrder(volumeController);
+        inOrder.verify(volumeController).resetVolume();
+        inOrder.verify(volumeController).fadeOut(2000, 1000);
+        inOrder.verifyNoMoreInteractions();
     }
 }

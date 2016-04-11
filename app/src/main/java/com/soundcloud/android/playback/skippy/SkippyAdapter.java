@@ -261,6 +261,11 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
+    public float getVolume() {
+        return skippy.getVolume();
+    }
+
+    @Override
     public void stop() {
         skippy.stop();
     }

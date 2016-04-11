@@ -316,6 +316,14 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void getVolumeCallsGetVolumeOnSkippy() {
+        when(skippy.getVolume()).thenReturn(0.42f);
+        float volume = skippyAdapter.getVolume();
+
+        assertThat(volume).isEqualTo(0.42f);
+    }
+
+    @Test
     public void resumeCallsResumeOnSkippyIfInPausedState() {
         skippyAdapter.resume();
         verify(skippy).resume();
