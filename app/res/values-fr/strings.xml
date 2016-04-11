@@ -241,7 +241,7 @@
   <string name="share_tracktitle_link">Écouter %1$s #np sur #SoundCloud\n%2$s</string>
   <string name="share_subject">%s - SoundCloud</string>
   <string name="info">Info</string>
-  <string name="uploaded_xtimeago">%s mis en ligne </string>
+  <string name="uploaded_xtimeago">Uploadé %s</string>
   <string name="track_info_no_description">Aucune description n\'est disponible</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Non jouable</string>
@@ -596,7 +596,7 @@
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_header">Bienvenue sur SoundCloud Go</string>
   <string name="go_onboarding_title">Enregistrez votre musique hors ligne</string>
-  <string name="go_onboarding_subtext">Utilisez la flèche pour enregistrer tous vos favoris ou\nvos playlists hors ligne.</string>
+  <string name="go_onboarding_subtext">Utilisez la flèche pour enregistrer tous vos favoris ou vos playlists hors ligne.</string>
   <string name="go_onboarding_start">D\'accord, j\'ai compris</string>
   <string name="go_onboarding_retry">Échec du chargement. Réessayer ?</string>
   <string name="go_onboarding_error_dialog_title">Un problème est survenu</string>
@@ -720,7 +720,7 @@
   <string name="email_notifications_newsletter">Bulletin d\'infos de SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts">
-    <item quantity="one">%d nouvelle publication</item>
+    <item quantity="one">%s nouvelle publication</item>
     <item quantity="other">%s nouvelles publications</item>
   </plurals>
   <!--__ACTIVITIES-->

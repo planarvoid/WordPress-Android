@@ -1,60 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.soundcloud.android.onboarding.auth.LoginLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <LinearLayout style="@style/SignUp.Content">
 
-        <include layout="@layout/auth_buttons_social"/>
+        <include layout="@layout/auth_buttons_social" />
 
-        <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Header"
-                  android:text="@string/login_header"
-                  android:layout_marginTop="20dp"
-                  android:layout_marginBottom="20dp"/>
+        <com.soundcloud.android.view.CustomFontTextView
+            style="@style/SignUp.Header"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/login_header" />
 
         <TableLayout style="@style/SignUp.LoginForm">
+
             <TableRow style="@style/SignUp.LabelRow">
-                <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
-                          android:text="@string/email"/>
-                <com.soundcloud.android.view.CustomFontAutoCompleteTextView android:id="@+id/auto_txt_email_address"
-                                      android:hint="@string/authentication_your_email_address"
-                                      android:requiresFadingEdge="horizontal"
-                                      style="@style/SignUp.EmailEntry"/>
+
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/SignUp.Label"
+                    android:text="@string/email" />
+
+                <com.soundcloud.android.view.CustomFontAutoCompleteTextView
+                    android:id="@+id/auto_txt_email_address"
+                    style="@style/SignUp.EmailEntry"
+                    android:hint="@string/authentication_your_email_address"
+                    android:requiresFadingEdge="horizontal" />
             </TableRow>
 
             <TableRow style="@style/SignUp.SeparatorRow">
-                <View style="@style/SignUp.SeparatorView"/>
+
+                <View style="@style/SignUp.SeparatorView" />
             </TableRow>
 
             <TableRow style="@style/SignUp.LabelRow">
-                <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Label"
-                          android:text="@string/password"/>
 
-                <com.soundcloud.android.view.ClearText style="@style/SignUp.PasswordEntry"
-                                                       android:requiresFadingEdge="horizontal"
-                                                       android:id="@+id/txt_password"
-                                                       android:hint="@string/authentication_your_password"
-                                                       android:imeOptions="actionDone"/>
+                <com.soundcloud.android.view.CustomFontTextView
+                    style="@style/SignUp.Label"
+                    android:text="@string/password" />
+
+                <com.soundcloud.android.view.ClearText
+                    android:id="@+id/txt_password"
+                    style="@style/SignUp.PasswordEntry"
+                    android:hint="@string/authentication_your_password"
+                    android:imeOptions="actionDone"
+                    android:requiresFadingEdge="horizontal" />
             </TableRow>
         </TableLayout>
 
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="@dimen/tour_buttons_height"
-                      android:layout_marginTop="10dip">
-            <com.soundcloud.android.view.CustomFontButton style="@style/Onboarding.CancelButton"
-                    android:id="@+id/btn_cancel"
-                    android:text="@string/btn_cancel"
-                    android:layout_height="@dimen/tour_buttons_height"
-                    android:layout_marginRight="10dip"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/tour_buttons_height"
+            android:layout_marginTop="10dip">
 
-            <com.soundcloud.android.view.CustomFontButton style="@style/Onboarding.NextButton"
-                    android:id="@+id/btn_login"
-                    android:text="@string/btn_done"
-                    android:layout_height="@dimen/tour_buttons_height"/>
+            <com.soundcloud.android.view.CustomFontButton
+                android:id="@+id/btn_cancel"
+                style="@style/Onboarding.CancelButton"
+                android:layout_height="@dimen/tour_buttons_height"
+                android:layout_marginRight="10dip"
+                android:text="@string/btn_cancel" />
+
+            <com.soundcloud.android.view.CustomFontButton
+                android:id="@+id/btn_login"
+                style="@style/Onboarding.NextButton"
+                android:layout_height="@dimen/tour_buttons_height"
+                android:text="@string/btn_done" />
         </LinearLayout>
 
-        <com.soundcloud.android.view.CustomFontTextView style="@style/SignUp.Info"
-                  android:id="@+id/txt_i_forgot_my_password"
-                  android:text="@string/authentication_I_forgot_my_password"/>
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/txt_i_forgot_my_password"
+            style="@style/SignUp.Info"
+            android:text="@string/authentication_I_forgot_my_password" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/email_use_notice"
@@ -64,8 +80,8 @@
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/tou_reminder"
             style="@style/SignUp.Info"
-            android:layout_marginTop="0dp"
             android:layout_marginBottom="20dp"
+            android:layout_marginTop="0dp"
             android:text="@string/onboarding_tou_reminder" />
     </LinearLayout>
 
