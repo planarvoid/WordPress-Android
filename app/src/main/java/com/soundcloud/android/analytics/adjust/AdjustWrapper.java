@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.adjust;
 import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustAttribution;
 import com.adjust.sdk.AdjustConfig;
+import com.adjust.sdk.AdjustEvent;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
 import com.soundcloud.android.R;
@@ -30,12 +31,18 @@ public class AdjustWrapper {
         Adjust.onCreate(buildAdjustConfig(context));
     }
 
-    /* package */ void onResume() {
+    void onResume() {
         Adjust.onResume();
     }
 
-    /* package */ void onPause() {
+    void onPause() {
         Adjust.onPause();
+    }
+
+    public void trackPurchase(String token, String value, String currency) {
+        AdjustEvent purchaseEvent = new AdjustEvent(token);
+        purchaseEvent.setRevenue(Double.valueOf(value), currency);
+        Adjust.trackEvent(purchaseEvent);
     }
 
     private AdjustConfig buildAdjustConfig(Context context) {

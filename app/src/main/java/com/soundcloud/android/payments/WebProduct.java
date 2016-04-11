@@ -15,6 +15,8 @@ public abstract class WebProduct implements Parcelable {
             @JsonProperty("package_urn") String packageUrn,
             @JsonProperty("price") String price,
             @JsonProperty("discount_price") String discountPrice,
+            @JsonProperty("raw_price") String rawPrice,
+            @JsonProperty("raw_currency") String rawCurrency,
             @JsonProperty("trial_days") int trialDays,
             @JsonProperty("start_date") String startDate,
             @JsonProperty("expiry_date") String expiryDate
@@ -24,6 +26,8 @@ public abstract class WebProduct implements Parcelable {
                 packageUrn,
                 price,
                 Optional.fromNullable(discountPrice),
+                rawPrice,
+                rawCurrency,
                 trialDays,
                 startDate,
                 expiryDate
@@ -34,6 +38,8 @@ public abstract class WebProduct implements Parcelable {
     public abstract String getPackageUrn();
     public abstract String getPrice();
     public abstract Optional<String> getDiscountPrice();
+    public abstract String getRawPrice();
+    public abstract String getRawCurrency();
     public abstract int getTrialDays();
     public abstract String getStartDate();
     public abstract String getExpiryDate();

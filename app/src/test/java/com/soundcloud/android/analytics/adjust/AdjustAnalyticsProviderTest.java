@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.adjust;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,4 +34,14 @@ public class AdjustAnalyticsProviderTest extends AndroidUnitTest {
         adjustAnalyticsProvider.handleActivityLifeCycleEvent(event);
         verify(adjustWrapper).onPause();
     }
+
+    @Test
+    public void shouldTrackPurchase() {
+        PurchaseEvent purchase = PurchaseEvent.forHighTierSub("9.99", "USD");
+
+        adjustAnalyticsProvider.handleTrackingEvent(purchase);
+
+        verify(adjustWrapper).trackPurchase("1n0o91", "9.99", "USD");
+    }
+
 }
