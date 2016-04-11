@@ -185,10 +185,11 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private void configureHighTierStates(PlayerTrackState trackState, TrackPageHolder holder,
                                          FeatureOperations featureOperations) {
         if (isHighTierPreview(trackState)) {
-            holder.previewIndicator.setVisibility(View.VISIBLE);
+            holder.highTierLabel.setText(R.string.upsell_track_preview);
+            holder.highTierLabel.setVisibility(View.VISIBLE);
             holder.upsellButton.setVisibility(featureOperations.upsellHighTier() ? View.VISIBLE : View.GONE);
         } else {
-            holder.previewIndicator.setVisibility(View.GONE);
+            holder.highTierLabel.setVisibility(View.GONE);
             holder.upsellButton.setVisibility(View.GONE);
         }
     }
@@ -276,7 +277,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.timestamp.setVisibility(View.GONE);
         holder.errorViewController.hideError();
 
-        holder.previewIndicator.setVisibility(View.GONE);
+        holder.highTierLabel.setVisibility(View.GONE);
         holder.upsellButton.setVisibility(View.GONE);
 
         return view;
@@ -579,7 +580,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setupShareButtons(holder);
 
         holder.upsellButton = trackView.findViewById(R.id.upsell_button);
-        holder.previewIndicator = trackView.findViewById(R.id.preview_indicator);
+        holder.highTierLabel = (TextView) trackView.findViewById(R.id.high_tier_label);
 
         // set initial media route button state
         holder.mediaRouteButton = (MediaRouteButton) trackView.findViewById(R.id.media_route_button);
@@ -708,7 +709,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         @Nullable View previousButton;
         @Nullable View playButton;
         View closeIndicator;
-        View previewIndicator;
+        TextView highTierLabel;
         View upsellButton;
         View profileLink;
         View playControlsHolder;
@@ -747,7 +748,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         };
 
         public void populateViewSets() {
-            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose, previewIndicator, upsellButton);
+            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose, highTierLabel, upsellButton);
             List<View> hideOnError = Arrays.asList(playButton, timestamp);
             List<View> clickViews = Arrays.asList(artworkView, closeIndicator, bottomClose, playButton, footer, footerPlayToggle, profileLink, upsellButton);
 

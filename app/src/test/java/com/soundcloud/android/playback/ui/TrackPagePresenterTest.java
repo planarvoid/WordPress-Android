@@ -139,7 +139,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void clearItemViewHidesSnippedAndUpsell() {
         presenter.clearItemView(trackView);
 
-        assertThat(getHolder(trackView).previewIndicator).isGone();
+        assertThat(getHolder(trackView).highTierLabel).isGone();
         assertThat(getHolder(trackView).upsellButton).isGone();
     }
 
@@ -618,14 +618,14 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void previewLabelIsNotVisibleForNormalTracks() {
         populateTrackPage();
 
-        assertThat(getHolder(trackView).previewIndicator).isGone();
+        assertThat(getHolder(trackView).highTierLabel).isGone();
     }
 
     @Test
     public void bindingSnippedTrackInHighTierShowsPreviewIcon() {
         bindSnippedTrack();
 
-        assertThat(getHolder(trackView).previewIndicator).isVisible();
+        assertThat(getHolder(trackView).highTierLabel).isVisible();
     }
 
     @Test

@@ -697,7 +697,6 @@
   <string name="concurrent_streaming_stopped">Pausado porque você começou a reproduzir em outro dispositivo</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Não disponível em\nseu país</string>
-  <string name="playback_preview_indicator">visualizar</string>
   <string name="playback_upsell_button">Ouvir faixa completa</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">

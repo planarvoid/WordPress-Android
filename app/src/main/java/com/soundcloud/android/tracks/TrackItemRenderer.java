@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.Navigator;
@@ -90,12 +91,13 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
         trackItemView.hideInfoViewsRight();
         if (isHighTierPreview(track)) {
-            trackItemView.showPreviewLabel();
+            trackItemView.showHighTierLabel(R.string.upsell_track_preview);
+        } else if (isFullHighTierTrack(track)) {
+            trackItemView.showHighTierLabel(R.string.go);
         } else if (track.isPrivate()) {
             trackItemView.showPrivateIndicator();
-        } else {
-            trackItemView.showDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
         }
+        trackItemView.showDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
     }
 
     protected void setupOverFlow(final TrackItemView itemView, final TrackItem track, final int position) {

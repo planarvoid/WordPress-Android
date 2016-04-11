@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.Navigator;
@@ -68,11 +69,19 @@ class StreamCardViewPresenter {
         itemView.setTitle(playableItem.getTitle());
         itemView.setArtist(playableItem.getCreatorName());
         itemView.setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
-        itemView.togglePreviewIndicator(showPreviewLabel(playableItem));
+        bindHighTierLabel(itemView, playableItem);
     }
 
-    private boolean showPreviewLabel(PlayableItem playableItem) {
-        return playableItem instanceof TieredTrack && isHighTierPreview((TieredTrack) playableItem);
+    private void bindHighTierLabel(StreamItemViewHolder itemView, PlayableItem playableItem) {
+        itemView.hideHighTierLabel();
+        if (playableItem instanceof TieredTrack) {
+            TieredTrack tieredTrack = ((TieredTrack) playableItem);
+            if (isHighTierPreview(tieredTrack)) {
+                itemView.showHighTierLabel(R.string.upsell_track_preview);
+            } else if (isFullHighTierTrack(tieredTrack)) {
+                itemView.showHighTierLabel(R.string.go);
+            }
+        }
     }
 
     private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {

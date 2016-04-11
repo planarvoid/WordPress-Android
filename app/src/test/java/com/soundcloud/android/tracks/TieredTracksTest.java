@@ -34,4 +34,28 @@ public class TieredTracksTest {
 
         assertThat(TieredTracks.isHighTierPreview(tieredTrack)).isFalse();
     }
+
+    @Test
+    public void shouldIndicateHighTierUnlockedTrackIfNotSnippedAndHighTier() {
+        when(tieredTrack.isSnipped()).thenReturn(false);
+        when(tieredTrack.isSubHighTier()).thenReturn(true);
+
+        assertThat(TieredTracks.isFullHighTierTrack(tieredTrack)).isTrue();
+    }
+
+    @Test
+    public void shouldNotIndicateHighTierUnlockedTrackIfSnippedAndHighTier() {
+        when(tieredTrack.isSnipped()).thenReturn(true);
+        when(tieredTrack.isSubHighTier()).thenReturn(true);
+
+        assertThat(TieredTracks.isFullHighTierTrack(tieredTrack)).isFalse();
+    }
+    
+    @Test
+    public void shouldNotIndicateHighTierUnlockedTrackIfNotSnippedAndNotHighTier() {
+        when(tieredTrack.isSnipped()).thenReturn(false);
+        when(tieredTrack.isSubHighTier()).thenReturn(false);
+
+        assertThat(TieredTracks.isFullHighTierTrack(tieredTrack)).isFalse();
+    }
 }

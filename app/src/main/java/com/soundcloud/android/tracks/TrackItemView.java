@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.ColorRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ public class TrackItemView {
     private final View privateIndicator;
     private final TextView promoted;
     private final TextView notAvailableOffline;
-    private final TextView preview;
+    private final TextView highTierLabel;
     private final TextView geoBlocked;
     private OverflowListener overflowListener;
 
@@ -42,7 +43,7 @@ public class TrackItemView {
         privateIndicator = view.findViewById(R.id.private_indicator);
         promoted = (TextView) view.findViewById(R.id.promoted_track);
         notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
-        preview = (TextView) view.findViewById(R.id.track_list_item_preview_text);
+        highTierLabel = (TextView) view.findViewById(R.id.track_list_item_high_tier_label);
         geoBlocked = (TextView) view.findViewById(R.id.track_list_item_geo_blocked_text);
 
         view.findViewById(R.id.overflow_button).setOnClickListener(new View.OnClickListener() {
@@ -90,8 +91,9 @@ public class TrackItemView {
         ViewUtils.setTouchClickable(promoted, clickListener);
     }
 
-    public void showPreviewLabel() {
-        preview.setVisibility(View.VISIBLE);
+    public void showHighTierLabel(@StringRes int labelText) {
+        highTierLabel.setVisibility(View.VISIBLE);
+        highTierLabel.setText(labelText);
     }
 
     public void showNowPlaying() {
@@ -103,7 +105,7 @@ public class TrackItemView {
     }
 
     public void hideInfoViewsRight() {
-        preview.setVisibility(View.GONE);
+        highTierLabel.setVisibility(View.GONE);
         privateIndicator.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
     }
