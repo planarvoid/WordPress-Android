@@ -63,7 +63,6 @@ public enum ApiEndpoints {
     MY_DOB("/you/profile/dob"),
     USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
     USER_POSTED_PLAYLISTS("/users/%s/posted_playlists"),
-    LEGACY_USER_LIKES("/users/%s/liked_tracks_and_playlists"),
 
     // tracks
     TRACKS("/tracks/%s"),
@@ -82,6 +81,7 @@ public enum ApiEndpoints {
     USER_REPOSTS("/users/%s/reposts"),
     USER_TRACKS("/users/%s/tracks/posted"),
     USER_RELEASES("/users/%s/releases/posted"),
+    USER_LIKES("/users/%s/likes"),
 
     // stations
     STATION("/stations/%s/station_and_tracks"),
@@ -120,6 +120,7 @@ public enum ApiEndpoints {
     LEGACY_USER_PLAYLISTS("/users/%s/playlists"),
     LEGACY_USER_FOLLOWINGS("/users/%s/followings"),
     LEGACY_USER_FOLLOWERS("/users/%s/followers"),
+    LEGACY_USER_LIKES("/users/%s/liked_tracks_and_playlists"),
 
     LEGACY_PLAYLIST_DETAILS("/playlists/%s"),
 

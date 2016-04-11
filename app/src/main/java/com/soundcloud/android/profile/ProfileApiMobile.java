@@ -195,4 +195,24 @@ public class ProfileApiMobile implements ProfileApi {
 
         return apiClientRx.mappedResponse(request, playlistPostToken);
     }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
+        return getLikesCollection(ApiEndpoints.USER_LIKES.path(user));
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
+        return getLikesCollection(nextPageLink);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<ApiEntityHolder>> getLikesCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPrivateApi()
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
+    }
 }

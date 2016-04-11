@@ -748,8 +748,10 @@
     <string name="user_profile_sounds_tracks_empty">This person doesn’t have any tracks yet.</string>
     <string name="user_reposts_empty">This person doesn’t have any reposts yet.</string>
     <string name="user_profile_sounds_releases_empty">This person doesn’t have any releases yet.</string>
+    <string name="user_profile_sounds_likes_empty">This person doesn’t have any likes yet.</string>
     <string name="user_reposts_label">Reposts</string>
     <string name="user_releases_label">Releases</string>
+    <string name="user_likes_label">Likes</string>
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Go ad-free</string>

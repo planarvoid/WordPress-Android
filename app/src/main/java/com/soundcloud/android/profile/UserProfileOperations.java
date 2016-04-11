@@ -309,6 +309,27 @@ class UserProfileOperations {
         });
     }
 
+    public Observable<PagedRemoteCollection> userLikes(Urn user) {
+        return profileApi.userLikes(user)
+                .doOnNext(writeMixedRecordsCommand.toAction1())
+                .map(TO_PAGED_REMOTE_COLLECTION)
+                .map(mergePlayableInfo)
+                .subscribeOn(scheduler);
+    }
+
+    public PagingFunction<PagedRemoteCollection> likesPagingFunction() {
+        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
+            @Override
+            public Observable<PagedRemoteCollection> call(String nextPageLink) {
+                return profileApi.userLikes(nextPageLink)
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
+                        .map(TO_PAGED_REMOTE_COLLECTION)
+                        .map(mergePlayableInfo)
+                        .subscribeOn(scheduler);
+            }
+        });
+    }
+
     public Observable<PagedRemoteCollection> pagedFollowers(Urn user) {
         return profileApi
                 .userFollowers(user)

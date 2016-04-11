@@ -26,6 +26,7 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserReleasesActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
@@ -418,7 +419,7 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openProfileReposts(activityContext, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
+                .containsExtra(UserRepostsActivity.EXTRA_USER_URN, USER_URN)
                 .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
                 .containsScreen(Screen.USERS_REPOSTS)
                 .opensActivity(UserRepostsActivity.class);
@@ -430,7 +431,7 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openProfileTracks(activityContext, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
+                .containsExtra(UserTracksActivity.EXTRA_USER_URN, USER_URN)
                 .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
                 .containsScreen(Screen.USER_TRACKS)
                 .opensActivity(UserTracksActivity.class);
@@ -442,9 +443,21 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openProfileReleases(activityContext, USER_URN, Screen.USER_RELEASES, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
+                .containsExtra(UserReleasesActivity.EXTRA_USER_URN, USER_URN)
                 .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
                 .containsScreen(Screen.USER_RELEASES)
                 .opensActivity(UserReleasesActivity.class);
+    }
+
+    @Test
+    public void opensProfileLikes() {
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        navigator.openProfileLikes(activityContext, USER_URN, Screen.USER_LIKES, searchSourceInfo);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsExtra(UserLikesActivity.EXTRA_USER_URN, USER_URN)
+                .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
+                .containsScreen(Screen.USER_LIKES)
+                .opensActivity(UserLikesActivity.class);
     }
 }
