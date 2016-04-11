@@ -54,7 +54,7 @@
   <!--__AUTHENTICATION-->
   <string name="authentication_I_forgot_my_password">Vous avez oublié votre mot de passe ?</string>
   <string name="authentication_add_info_add_image_msg">Souriez ! Cette image apparaîtra sur votre profil.</string>
-  <string name="authentication_add_info_msg">Vous avez presque terminé. Choisissez maintenant un pseudonyme et ajoutez une photo pour personnaliser votre profil. </string>
+  <string name="authentication_add_info_msg">Vous avez presque terminé. Choisissez un pseudonyme et ajoutez une photo pour personnaliser votre profil. </string>
   <string name="authentication_add_info_username_hint">Nom affiché</string>
   <string name="authentication_choose_a_password">6 caractères minimum</string>
   <string name="authentication_error_incomplete_fields">Veuillez remplir tous les champs.</string>
@@ -331,10 +331,10 @@
   <string name="cloud_recorder_event_title">Enregistrement en cours</string>
   <string name="cloud_recorder_playback_event_title">Lecture en cours</string>
   <string name="record_track_title">Nom du titre</string>
-  <string name="recording_pending_upload">Téléchargement en attente</string>
-  <string name="recording_uploading">Téléchargement...</string>
-  <string name="recording_upload_failed">Échec du téléchargement</string>
-  <string name="recording_upload_finished">Téléchargement terminé</string>
+  <string name="recording_pending_upload">Upload en attente</string>
+  <string name="recording_uploading">Upload en cours…</string>
+  <string name="recording_upload_failed">Échec de l\'upload</string>
+  <string name="recording_upload_finished">Upload terminé</string>
   <string name="record_privacy_header">Ce titre sera :</string>
   <string name="record_tap_to_post">Appuyer ici pour publier votre enregistrement</string>
   <string name="record_change_artwork">Modifier l\'image</string>
@@ -347,13 +347,13 @@
   <string name="uploader_event_uploading_percent">Mise en ligne : %d%%</string>
   <string name="uploader_event_cancelling">Annulation en cours</string>
   <string name="cloud_upload_clear_artwork">Maintenez pour effacer l\'illustration</string>
-  <string name="cloud_uploader_notification_error_message_tracktitle">Une erreur est survenue lors du chargement de %s</string>
+  <string name="cloud_uploader_notification_error_message_tracktitle">Une erreur est survenue lors de l\'upload de %s</string>
   <string name="cloud_uploader_notification_error_ticker">Erreur lors de l\'upload</string>
   <string name="cloud_uploader_notification_error_title">Erreur lors de l\'upload</string>
   <string name="cloud_uploader_notification_tracktitle_has_been_uploaded">%s a été mis en ligne</string>
-  <string name="cloud_uploader_notification_finished_ticker">Téléchargement terminé</string>
-  <string name="cloud_uploader_notification_finished_title">Téléchargement terminé</string>
-  <string name="dialog_cancel_upload_message">Annuler le téléchargement ?</string>
+  <string name="cloud_uploader_notification_finished_ticker">Upload terminé</string>
+  <string name="cloud_uploader_notification_finished_title">Upload terminé</string>
+  <string name="dialog_cancel_upload_message">Annuler l\'upload ?</string>
   <string name="sc_upload_private">\u00A0Privé</string>
   <string name="sc_upload_public">\u00A0Public</string>
   <!--__DISCOVERY SEARCH-->
@@ -418,7 +418,7 @@
   <string name="dialog_playlist_delete_title">Supprimer la playlist?</string>
   <string name="dialog_playlist_delete_message">Cette action supprimera définitivement cette playlist. Êtes-vous certain de vouloir continuer?</string>
   <!--__TIME-->
-  <string name="format_abbreviated_seconds">%d secondes</string>
+  <string name="format_abbreviated_seconds">%d s</string>
   <string name="format_abbreviated_minutes">%d min.</string>
   <plurals name="elapsed_days">
     <item quantity="one">%d jour</item>
@@ -543,12 +543,12 @@
   <string name="pref_subscription_restore_summary">Restaurer un abonnement existant</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">S\'abonner</string>
-  <string name="conversion_title">Télécharger SoundCloud Go</string>
+  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / mois</string>
-  <string name="conversion_feature_1">Écoute hors ligne, où que vous soyez</string>
+  <string name="conversion_feature_1">Écoute hors ligne</string>
   <string name="conversion_feature_2">Débloquez tous les aperçus</string>
-  <string name="conversion_feature_3">Écoutez encore plus de titres</string>
-  <string name="conversion_feature_4">Bénéficiez d\'une expérience sans aucune publicité</string>
+  <string name="conversion_feature_3">Écoutez plus de titres</string>
+  <string name="conversion_feature_4">Aucune publicité</string>
   <string name="conversion_buy_loading">Chargement…</string>
   <string name="conversion_buy_trial">Essai gratuit pendant %d jours
 </string>
@@ -560,7 +560,7 @@
   <string name="conversion_restrictions">Des restrictions s\'appliquent</string>
   <string name="conversion_restrictions_dialog_title">Des restrictions s\'appliquent</string>
   <string name="conversion_restrictions_dialog_message">Offre limitée à un essai de 30 jours par utilisateur. Une fois les 30 premiers jours écoulés, l\'utilisateur sera facturé chaque mois sauf en cas d\'annulation préalable. La période d\'essai peut être interrompue à tout moment au cours des 30 premiers jours.</string>
-  <string name="ads_why_ads_upsell_dialog_message">À chaque fois que vous voyez ou entendez une publicité, les artistes touchent des revenus. Les publicités nous permettent ainsi de conserver la gratuité de  SoundCloud pour nos auditeurs.\n\nVous souhaitez vous débarrasser des publicités ? Passez à une offre sans publicités et continuez à soutenir vos artistes préférés avec SoundCloud Go.</string>
+  <string name="ads_why_ads_upsell_dialog_message">À chaque fois que vous voyez ou entendez une publicité, les artistes touchent des revenus. Les publicités nous permettent ainsi de conserver la gratuité de  SoundCloud pour nos auditeurs.\n\nVous souhaitez vous débarrasser des publicités ? Passez à un abonnement sans publicités et continuez à soutenir vos artistes préférés avec SoundCloud Go.</string>
   <!--__PAYMENTS-->
   <string name="payments_error_title_unavailable">Produit non disponible</string>
   <string name="payments_error_title_no_billing">Facturation non disponible</string>
@@ -683,7 +683,7 @@
   <string name="user_reposts_empty">Cette personne n\'a aucun repost pour l\'instant.</string>
   <string name="user_reposts_label">Reposts</string>
   <!--__UPSELL-->
-  <string name="upsell_remove_ads">Bénéficiez d\'une expérience sans aucune publicité</string>
+  <string name="upsell_remove_ads">Abonnez-vous</string>
   <string name="upsell_stream_upgrade_button">Obtenez SoundCloud Go</string>
   <string name="upsell_stream_upgrade_title">Passez à SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Bénéficiez d\'un catalogue étendu hors ligne et sans publicités.</string>

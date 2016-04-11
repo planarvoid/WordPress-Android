@@ -538,7 +538,7 @@
   <string name="pref_subscription_restore_summary">Restablecer una suscripción existente</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Suscribirse</string>
-  <string name="conversion_title">Hazte con SoundCloud Go</string>
+  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / mes</string>
   <string name="conversion_feature_1">Escucha sin conexión, donde quieras</string>
   <string name="conversion_feature_2">Todas las canciones completas</string>
