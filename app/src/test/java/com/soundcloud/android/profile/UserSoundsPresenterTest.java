@@ -2,7 +2,10 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.R.layout.default_recyclerview_with_refresh;
 import static com.soundcloud.android.profile.UserSoundsItem.fromPlaylistItem;
+import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
 import static java.util.Collections.singletonList;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -12,6 +15,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -21,18 +25,25 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.observers.TestSubscriber;
 
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import java.util.List;
 
 public class UserSoundsPresenterTest extends AndroidUnitTest {
 
@@ -52,10 +63,12 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private UserSoundsAdapter adapter;
     @Mock private UserProfileOperations operations;
     @Mock private UserSoundsMapper userSoundsMapper;
+    @Mock private UserSoundsItemClickListener.Factory clickListenerFactory;
     @Mock private UserSoundsItemClickListener clickListener;
     @Mock private Resources resources;
-
     @Mock private UserSoundsItem userSoundsItem;
+
+    @Captor private ArgumentCaptor<Observable<List<PropertySet>>> argumentCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -68,9 +81,10 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                userSoundsMapper, clickListener, eventBus, resources);
+                userSoundsMapper, clickListenerFactory, eventBus, resources);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
+        doReturn(clickListener).when(clickListenerFactory).create(SEARCH_QUERY_SOURCE_INFO);
         when(operations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
     }
 
@@ -133,12 +147,19 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Test
     public void shouldDelegateClickEventsToClickListener() throws Exception {
         View view = mock(View.class);
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        TrackItem trackItem = TrackItem.from(track);
         when(adapter.getItem(0)).thenReturn(userSoundsItem);
+        when(adapter.getItems()).thenReturn(singletonList(fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT)));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onItemClicked(view, 0);
 
-        verify(clickListener).onItemClick(view, userSoundsItem, USER_URN, SEARCH_QUERY_SOURCE_INFO);
+        verify(clickListener).onItemClick(argumentCaptor.capture(), same(view), eq(0), same(userSoundsItem), eq(USER_URN), same(SEARCH_QUERY_SOURCE_INFO));
+
+        final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
+        argumentCaptor.getValue().subscribe(subscriber);
+        subscriber.assertValue(singletonList(trackItem.getSource()));
     }
 
     private EntityStateChangedEvent fakeLikePlaylistEvent(ApiPlaylist apiPlaylist) {

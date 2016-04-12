@@ -1,22 +1,31 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY;
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -26,20 +35,53 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsItem> {
+
+    private static final Function<UserSoundsItem, PropertySet> USER_SOUNDS_ITEM_TO_PROPERTY_SET = new Function<UserSoundsItem, PropertySet>() {
+        @Override
+        public PropertySet apply(final UserSoundsItem userSoundsItem) {
+            return userSoundsItem.getPlaylistItem()
+                    .transform(PLAYLIST_ITEM_TO_PROPERTY_SET)
+                    .or(userSoundsItem.getTrackItem().transform(TRACK_ITEM_TO_PROPERTY_SET))
+                    .orNull();
+        }
+    };
+
+    private static final Function<PlaylistItem, PropertySet> PLAYLIST_ITEM_TO_PROPERTY_SET = new Function<PlaylistItem, PropertySet>() {
+        @Override
+        public PropertySet apply(PlaylistItem input) {
+            return input.getSource();
+        }
+    };
+
+    private static final Function<TrackItem, PropertySet> TRACK_ITEM_TO_PROPERTY_SET = new Function<TrackItem, PropertySet>() {
+        @Override
+        public PropertySet apply(TrackItem input) {
+            return input.getSource();
+        }
+    };
+
+    private static final Predicate<UserSoundsItem> FILTER_PLAYABLE_USER_SOUNDS_ITEMS = new Predicate<UserSoundsItem>() {
+        @Override
+        public boolean apply(UserSoundsItem input) {
+            return input.isPlaylist() || input.isTrack();
+        }
+    };
 
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final UserSoundsAdapter adapter;
     private final UserProfileOperations operations;
     private final UserSoundsMapper userSoundsMapper;
-    private final UserSoundsItemClickListener clickListener;
+    private final UserSoundsItemClickListener.Factory clickListenerFactory;
     private final EventBus eventBus;
     private final Resources resources;
     private Urn userUrn;
     private Subscription eventSubscription = RxUtils.invalidSubscription();
     private Subscription userSubscription = RxUtils.invalidSubscription();
     private SearchQuerySourceInfo searchQuerySourceInfo;
+    private UserSoundsItemClickListener clickListener;
 
     @Inject
     UserSoundsPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener,
@@ -47,7 +89,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                         UserSoundsAdapter adapter,
                         UserProfileOperations operations,
                         UserSoundsMapper userSoundsMapper,
-                        UserSoundsItemClickListener clickListener,
+                        UserSoundsItemClickListener.Factory clickListenerFactory,
                         EventBus eventBus,
                         Resources resources) {
         super(swipeRefreshAttacher, Options.list().useDividers(Options.DividerMode.NONE).build());
@@ -55,7 +97,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         this.adapter = adapter;
         this.operations = operations;
         this.userSoundsMapper = userSoundsMapper;
-        this.clickListener = clickListener;
+        this.clickListenerFactory = clickListenerFactory;
         this.eventBus = eventBus;
         this.resources = resources;
     }
@@ -83,6 +125,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         super.onCreate(fragment, bundle);
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
         searchQuerySourceInfo = fragment.getArguments().getParcelable(SEARCH_QUERY_SOURCE_INFO_KEY);
+        clickListener = this.clickListenerFactory.create(searchQuerySourceInfo);
         getBinding().connect();
     }
 
@@ -97,7 +140,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
-        bindEmptyView(fragment.getArguments().getBoolean(UserSoundsFragment.IS_CURRENT_USER, false));
+        configureEmptyView(getEmptyView(), fragment);
     }
 
     @Override
@@ -115,19 +158,12 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
 
     @Override
     protected void onItemClicked(View view, int position) {
-        clickListener.onItemClick(view, adapter.getItem(position), userUrn, searchQuerySourceInfo);
-    }
+        final List<UserSoundsItem> userSoundsItems = adapter.getItems();
+        final UserSoundsItem clickedItem = adapter.getItem(position);
+        final List<PropertySet> playables = filterPlayableItems(userSoundsItems);
+        final int playablePosition = filterPlayableItems(userSoundsItems.subList(0, position)).size();
 
-    private void bindEmptyView(boolean isCurrentUser) {
-        getEmptyView().setImage(R.drawable.empty_lists_sounds);
-
-        if (isCurrentUser) {
-            getEmptyView().setMessageText(R.string.empty_you_sounds_message);
-            getEmptyView().setSecondaryText(R.string.empty_you_sounds_message_secondary);
-        } else {
-            getEmptyView().setMessageText(R.string.empty_user_sounds_message);
-            displaySecondaryTextForOtherUser();
-        }
+        clickListener.onItemClick(Observable.just(playables), view, playablePosition, clickedItem, userUrn, searchQuerySourceInfo);
     }
 
     private void displaySecondaryTextForOtherUser() {
@@ -143,4 +179,24 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                     }
                 });
     }
+
+    private void configureEmptyView(final EmptyView emptyView, final Fragment fragment) {
+        final Boolean isCurrentUser = fragment.getArguments().getBoolean(UserSoundsFragment.IS_CURRENT_USER, false);
+
+        emptyView.setImage(R.drawable.empty_lists_sounds);
+
+        if (isCurrentUser) {
+            emptyView.setMessageText(R.string.empty_you_sounds_message);
+            emptyView.setSecondaryText(R.string.empty_you_sounds_message_secondary);
+        } else {
+            emptyView.setMessageText(R.string.empty_user_sounds_message);
+            displaySecondaryTextForOtherUser();
+        }
+    }
+
+    private List<PropertySet> filterPlayableItems(final List<UserSoundsItem> userSoundsItems) {
+        return transform(newArrayList(filter(userSoundsItems, FILTER_PLAYABLE_USER_SOUNDS_ITEMS)),
+                USER_SOUNDS_ITEM_TO_PROPERTY_SET);
+    }
+
 }
