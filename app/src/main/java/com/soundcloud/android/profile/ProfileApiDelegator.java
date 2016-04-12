@@ -34,13 +34,13 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
-        return profileApiPublic.get().userPlaylists(user);
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(Urn user) {
+        return profileApiPublic.get().userLegacyPlaylists(user);
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(String nextPageLink) {
-        return profileApiPublic.get().userPlaylists(nextPageLink);
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(String nextPageLink) {
+        return profileApiPublic.get().userLegacyPlaylists(nextPageLink);
     }
 
     @Override

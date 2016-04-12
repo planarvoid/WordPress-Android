@@ -77,12 +77,12 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(Urn user) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

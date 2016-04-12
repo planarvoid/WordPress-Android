@@ -15,17 +15,18 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserPlaylistsFragment extends ScrollableProfileFragment {
+public class LegacyUserPlaylistsFragment extends ScrollableProfileFragment {
 
-    @Inject @LightCycle UserPlaylistsPresenter presenter;
+    @Inject @LightCycle
+    LegacyUserPlaylistsPresenter presenter;
 
-    public static UserPlaylistsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        UserPlaylistsFragment fragment = new UserPlaylistsFragment();
+    public static LegacyUserPlaylistsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        LegacyUserPlaylistsFragment fragment = new LegacyUserPlaylistsFragment();
         fragment.setArguments(ProfileArguments.from(userUrn,screen, searchQuerySourceInfo));
         return fragment;
     }
 
-    public UserPlaylistsFragment() {
+    public LegacyUserPlaylistsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserProfileOperationsPlaylistsTest {
+public class UserProfileOperationsLegacyPlaylistsTest {
 
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final String NEXT_HREF = "next-href";
@@ -74,28 +74,28 @@ public class UserProfileOperationsPlaylistsTest {
 
     @Test
     public void returnsUserPlaylistsResultFromApi() {
-        when(profileApi.userPlaylists(USER_URN)).thenReturn(Observable.just(page));
+        when(profileApi.userLegacyPlaylists(USER_URN)).thenReturn(Observable.just(page));
 
-        operations.pagedPlaylists(USER_URN).subscribe(observer);
+        operations.legacyPagedPlaylists(USER_URN).subscribe(observer);
 
         assertAllItemsEmitted();
     }
 
     @Test
     public void userPlaylistsMergesInPlaylistLikeInfo() {
-        when(profileApi.userPlaylists(USER_URN)).thenReturn(Observable.just(page));
+        when(profileApi.userLegacyPlaylists(USER_URN)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist2));
 
-        operations.pagedPlaylists(USER_URN).subscribe(observer);
+        operations.legacyPagedPlaylists(USER_URN).subscribe(observer);
 
         assertAllItemsEmittedWithLike();
     }
 
     @Test
     public void storesUserPlaylistsResultFromApi() {
-        when(profileApi.userPlaylists(USER_URN)).thenReturn(Observable.just(page));
+        when(profileApi.userLegacyPlaylists(USER_URN)).thenReturn(Observable.just(page));
 
-        operations.pagedPlaylists(USER_URN).subscribe(observer);
+        operations.legacyPagedPlaylists(USER_URN).subscribe(observer);
 
         verify(writeMixedRecordsCommand).call(playlistsCaptor.capture());
         assertThat(playlistsCaptor.getValue()).containsExactly(apiPlaylist1, apiPlaylist2);
@@ -104,9 +104,9 @@ public class UserProfileOperationsPlaylistsTest {
     @Test
     public void userPlaylistsPagerReturnsNextPage() {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
-        when(profileApi.userPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(profileApi.userLegacyPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.playlistsPagingFunction().call(page1).subscribe(observer);
+        operations.legacyPlaylistsPagingFunction().call(page1).subscribe(observer);
 
         assertAllItemsEmitted();
     }
@@ -114,10 +114,10 @@ public class UserProfileOperationsPlaylistsTest {
     @Test
     public void userPlaylistsPagerMergesInPlaylistLikeInfo() {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
-        when(profileApi.userPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(profileApi.userLegacyPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist2));
 
-        operations.playlistsPagingFunction().call(page1).subscribe(observer);
+        operations.legacyPlaylistsPagingFunction().call(page1).subscribe(observer);
 
         assertAllItemsEmittedWithLike();
     }
@@ -125,9 +125,9 @@ public class UserProfileOperationsPlaylistsTest {
     @Test
     public void userPlaylistsPagerStoresNextPage() {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
-        when(profileApi.userPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(profileApi.userLegacyPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
 
-        operations.playlistsPagingFunction().call(page1).subscribe(observer);
+        operations.legacyPlaylistsPagingFunction().call(page1).subscribe(observer);
 
         verify(writeMixedRecordsCommand).call(playlistsCaptor.capture());
         assertThat(playlistsCaptor.getValue()).containsExactly(apiPlaylist1, apiPlaylist2);

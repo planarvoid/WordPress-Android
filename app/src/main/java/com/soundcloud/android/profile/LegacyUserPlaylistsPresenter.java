@@ -20,17 +20,17 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-class UserPlaylistsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
+class LegacyUserPlaylistsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
 
     private final UserProfileOperations profileOperations;
 
     @Inject
-    UserPlaylistsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                           ImagePauseOnScrollListener imagePauseOnScrollListener,
-                           MixedPlayableRecyclerItemAdapter adapter,
-                           MixedItemClickListener.Factory clickListenerFactory,
-                           PlayableListUpdater.Factory updaterFactory,
-                           UserProfileOperations profileOperations) {
+    LegacyUserPlaylistsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                                 ImagePauseOnScrollListener imagePauseOnScrollListener,
+                                 MixedPlayableRecyclerItemAdapter adapter,
+                                 MixedItemClickListener.Factory clickListenerFactory,
+                                 PlayableListUpdater.Factory updaterFactory,
+                                 UserProfileOperations profileOperations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
                 clickListenerFactory, updaterFactory);
         this.profileOperations = profileOperations;
@@ -47,11 +47,11 @@ class UserPlaylistsPresenter extends ProfilePlayablePresenter<PagedRemoteCollect
 
 
     protected Pager.PagingFunction<PagedRemoteCollection> getPagingFunction() {
-        return profileOperations.playlistsPagingFunction();
+        return profileOperations.legacyPlaylistsPagingFunction();
     }
 
     protected Observable<PagedRemoteCollection> getPagedObservable(Urn userUrn) {
-        return profileOperations.pagedPlaylists(userUrn);
+        return profileOperations.legacyPagedPlaylists(userUrn);
     }
 
     @Override

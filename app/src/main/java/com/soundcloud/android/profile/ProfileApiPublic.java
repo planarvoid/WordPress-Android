@@ -74,12 +74,12 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(Urn user) {
         return getPlaylists(ApiEndpoints.LEGACY_USER_PLAYLISTS.path(user.getNumericId()));
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(String pageLink) {
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(String pageLink) {
         return getPlaylists(pageLink);
     }
 
