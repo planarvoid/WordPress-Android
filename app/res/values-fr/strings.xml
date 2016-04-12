@@ -21,12 +21,12 @@
   <string name="email">E-mail</string>
   <string name="password">Mot de passe</string>
   <string name="website">Site internet</string>
-  <string name="imprint">Empreinte</string>
+  <string name="imprint">À propos</string>
   <string name="terms_of_use">Conditions d\'utilisation</string>
   <string name="terms_of_use_go">Conditions d\'utilisation de SoundCloud Go</string>
   <string name="privacy_policy">Politique de confidentialité</string>
   <string name="contact_support">Contacter l\'assistance</string>
-  <string name="copyright_information">Informations droits d\'auteur</string>
+  <string name="copyright_information">Informations sur les droits d\'auteur</string>
   <!--@Todo from l10n: please explain-->
   <string name="account_one_active">Vous ne pouvez avoir qu\'un seul compte actif</string>
   <string name="comments">Commentaires</string>
@@ -229,13 +229,13 @@
   <string name="unlike_toast_overflow_action">Retiré de favoris</string>
   <string name="like_error_toast_overflow_action">L\'état du « favori » n\'a pas été modifié</string>
   <string name="reposted_to_followers">Reposté à vos abonnés</string>
-  <string name="unposted_to_followers">Non publié</string>
+  <string name="unposted_to_followers">Dépublié</string>
   <string name="repost_error_toast_overflow_action">L\'état du repost n\'a pas pu être modifié</string>
   <!--__PLAYER-->
   <string name="share">Partager</string>
   <string name="repost">Reposter sur SoundCloud</string>
   <string name="unpost">Dépublier</string>
-  <string name="comment_at_time">Commentaire à %s</string>
+  <string name="comment_at_time">Commenter à %s</string>
   <string name="comment_on_tracktitle">Commenter à %s</string>
   <string name="comment_posted">Votre commentaire a été publié</string>
   <string name="comment_error">Le commentaire n\'a pas pu être créé pour le moment</string>
@@ -250,7 +250,7 @@
   <string name="playback_error_connection">Vérifiez votre connexion et appuyez pour réessayer.</string>
   <string name="playback_error_unable_to_play">Le titre ne peut pas être diffusé</string>
   <string name="playback_missing_playable_tracks">Titres écoutables manquants</string>
-  <string name="play">Lire</string>
+  <string name="play">Écouter</string>
   <string name="pause">Pause</string>
   <string name="previous">Précédent</string>
   <string name="next">Suivant</string>
@@ -383,11 +383,11 @@
   <string name="pref_clear_cache">Vider le cache de l\'application</string>
   <string name="pref_clear_cache_desc">Videz le cache de l\'application pour libérer de la mémoire sur votre appareil</string>
   <string name="pref_privacy">Confidentialité</string>
-  <string name="pref_autoplay_related">Lecture des titres similaires</string>
-  <string name="pref_autoplay_related_desc">Lorsqu\'une playlist se termine, lire des titres similaires au dernier titre écouté</string>
+  <string name="pref_autoplay_related">Lecture automatique</string>
+  <string name="pref_autoplay_related_desc">Lorsqu\'une playlist se termine, écouter des titres similaires</string>
   <string name="pref_revoke_access">Déconnexion</string>
   <string name="pref_sync_wifi_only">Mise à jour des données par Wi-Fi</string>
-  <string name="pref_sync_wifi_only_description">Mise à jour des nouvelles favoris, etc. par Wi-Fi uniquement</string>
+  <string name="pref_sync_wifi_only_description">Mise à jour des nouveaux favoris, etc. par Wi-Fi uniquement</string>
   <string name="pref_analytics">Analytiques</string>
   <string name="pref_analytics_desc">L\'activation des fonctions d\'analyse nous permet de collecter des données concernant votre utilisation de l\'application, nous aidant ainsi à améliorer celle-ci. Consultez notre Politique de confidentialité pour plus d\'informations.</string>
   <string name="pref_crashlogs">Journal des pannes</string>
@@ -403,13 +403,13 @@
   <string name="title_legal">Légal</string>
   <string name="title_notification_settings">Paramètres de notification</string>
   <!--__STATIONS-->
-  <string name="stations_start_track_station">Démarrer la station du titre</string>
+  <string name="stations_start_track_station">Démarrer la station</string>
   <string name="stations_unable_to_start_station">Nous ne parvenons pas à démarrer cette station. Réessayez dans quelques minutes.</string>
   <string name="stations_loading_station">Chargement de la station. Veuillez patienter.</string>
   <string name="stations_collection_title_recent_stations">Stations récentes</string>
-  <string name="stations_onboarding_stream_title">Démarrez une station pour écouter une série de titres similaires, à la façon d\'une radio.</string>
-  <string name="stations_onboarding_stream_description">Appuyez sur les trois points en regard d\'un titre pour commencer.</string>
-  <string name="recent_stations_empty_view_heading">Démarrez une station pour écouter une série de titres similaires, à la façon d\'une radio.</string>
+  <string name="stations_onboarding_stream_title">Pour écouter une série de titres similaires, démarrez une station.</string>
+  <string name="stations_onboarding_stream_description">Appuyez sur les trois points à côté d\'un titre pour commencer.</string>
+  <string name="recent_stations_empty_view_heading">Pour écouter une série de titres similaires, démarrez une station.</string>
   <string name="recent_stations_empty_view_message">Appuyez sur les trois points en regard d\'un titre pour commencer.</string>
   <!--__COLLECTION-->
   <string name="collections_with_stations_onboarding_title">Vos favoris. Vos playlists. Vos stations.\nLe tout au même endroit.</string>
@@ -477,7 +477,7 @@
   <string name="age_verify_info">Cette information sera sauvegardée sur votre profil.</string>
   <string name="age_verify_button">Vérifier l\'âge</string>
   <!--__GOOGLE CAST-->
-  <string name="cast_unable_play_track">Impossible de lire ce titre</string>
+  <string name="cast_unable_play_track">Impossible d’écouter ce titre</string>
   <!--__PROMOTED TRACKS-->
   <string name="promoted">Sponsorisé</string>
   <string name="promoted_by_promotorname">Sponsorisé par %s</string>
@@ -513,7 +513,7 @@
   <string name="you_record">Enregistrer</string>
   <string name="you_notification_settings">Paramètres de notification</string>
   <string name="you_basic_settings">Configuration basique</string>
-  <string name="you_report_bug">Signaler un bogue</string>
+  <string name="you_report_bug">Signaler un bug</string>
   <string name="you_help_center">Centre d\'assistance</string>
   <string name="you_legal">Mentions légales</string>
   <string name="you_sign_out">Déconnexion</string>
@@ -626,7 +626,7 @@
   <string name="pref_offline_wifi_only_sync">Sauvegarder via Wi-Fi uniquement</string>
   <string name="pref_offline_wifi_only_description">Lorsque cette option est activée, nous sauvegardons les titres hors ligne uniquement lorsque vous êtes connecté en Wi-Fi.</string>
   <string name="pref_offline_storage_limit">Limite de stockage</string>
-  <string name="pref_offline_storage_limit_description">Cela définira quelle proportion de votre espace disponible peut être utilisée pour l\'écoute hors ligne.</string>
+  <string name="pref_offline_storage_limit_description">Ceci défini l\'espace utilisable pour l\'écoute hors ligne.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f Go libre(s) sur %2$.1f Go</string>
   <string name="pref_offline_storage_limit_gb">%1$.1f Go</string>
   <string name="pref_offline_storage_usage">Espace utilisé</string>
@@ -634,7 +634,7 @@
   <string name="pref_offline_used">Utilisé(s)</string>
   <string name="pref_offline_limit">Limite</string>
   <string name="pref_offline_remove_all_offline_content">Supprimer le contenu sauvegardé hors ligne</string>
-  <string name="pref_offline_remove_all_offline_content_description">Cette opération supprimera tout le contenu stocké sur l\'appareil.</string>
+  <string name="pref_offline_remove_all_offline_content_description">Ceci supprimera tout le contenu stocké sur l\'appareil.</string>
   <string name="remove_offline_content_title">Tout supprimer de l\'écoute hors ligne ?</string>
   <string name="remove_offline_content_body_default">Vous êtes sur le point de tout supprimer de l\'écoute hors ligne.</string>
   <string name="remove_offline_content_body_sync_collection">Vous êtes sur le point de tout supprimer de l\'écoute hors ligne. De plus, vos nouveaux favoris et vos playlists ne seront plus sauvegardés automatiquement.</string>
@@ -702,6 +702,7 @@
   <string name="concurrent_streaming_stopped">Mis en pause car vous avez commencé la lecture sur un autre appareil</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Non disponible dans\nvotre pays</string>
+  <string name="playback_preview_indicator">aperçu</string>
   <string name="playback_upsell_button">Écouter le titre en entier</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
@@ -735,7 +736,7 @@
   <string name="email_notifications_survey">Enquêtes et commentaires</string>
   <string name="email_notifications_tips">Astuces SoundCloud</string>
   <string name="email_notifications_recommendations">Nouveautés</string>
-  <string name="email_notifications_newsletter">Bulletin d\'infos de SoundCloud</string>
+  <string name="email_notifications_newsletter">Newsletter SoundCloud</string>
   <!--__STREAM-->
   <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
     <item quantity="one">1 nouvelle publication</item>

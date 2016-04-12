@@ -1,9 +1,10 @@
-<resources xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation">
-
-    <string name="url_imprint">http://pages.soundcloud.com/fr/other/imprint.html?format=ios</string>
-    <string name="url_terms">http://pages.soundcloud.com/fr/legal/plain/terms-of-use-ios.html?format=ios</string>
-    <string name="url_go_terms">http://pages.soundcloud.com/fr/legal/plain/go-terms-of-use-ios.html?format=ios</string>
-    <string name="url_privacy">http://pages.soundcloud.com/fr/legal/plain/privacy-policy.html?format=ios</string>
-
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <string name="url_site">https://soundcloud.com</string>
+  <string name="url_contact_support">http://help.soundcloud.com/customer/portal/emails/new</string>
+  <string name="url_imprint">http://pages.soundcloud.com/fr/other/imprint.html?format=ios</string>
+  <string name="url_terms">http://pages.soundcloud.com/fr/legal/plain/terms-of-use-ios.html?format=ios</string>
+  <string name="url_go_terms">http://pages.soundcloud.com/fr/legal/plain/go-terms-of-use-ios.html?format=ios</string>
+  <string name="url_privacy">http://pages.soundcloud.com/fr/legal/plain/privacy-policy.html?format=ios</string>
+  <string name="url_forgot_email_help">http://help.soundcloud.com/customer/portal/articles/2105342</string>
 </resources>
