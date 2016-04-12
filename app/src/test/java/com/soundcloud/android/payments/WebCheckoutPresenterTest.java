@@ -14,6 +14,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.LocaleFormatter;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +30,10 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Mock private WebCheckoutView view;
     @Mock private AccountOperations accountOperations;
+    @Mock private LocaleFormatter localeFormatter;
     @Mock private Navigator navigator;
     @Mock private Resources resources;
+
     TestEventBus eventBus;
 
     private AppCompatActivity activity = new AppCompatActivity();
@@ -39,11 +43,12 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(accountOperations.getSoundCloudToken()).thenReturn(Token.EMPTY);
+        when(localeFormatter.getLocale()).thenReturn(Optional.of("en-GB"));
         WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", "$1", "1.00", "USD", 30, "start", "expiry");
         activity.setIntent(new Intent().putExtra(WebConversionPresenter.PRODUCT_INFO, product));
 
         eventBus = new TestEventBus();
-        presenter = new WebCheckoutPresenter(view, accountOperations, navigator, eventBus, resources);
+        presenter = new WebCheckoutPresenter(view, accountOperations, localeFormatter, navigator, eventBus, resources);
     }
 
     @Test
@@ -104,7 +109,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         final String token = "12345";
         final String environment = "test";
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
-        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=expiry&package_urn=some%3Aproduct%3A123&env=test");
+        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=expiry&package_urn=some%3Aproduct%3A123&env=test&locale=en-GB");
         
         assertThat(actual).isEqualTo(expected);
     }
@@ -115,7 +120,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
         final String token = "12345";
         final String environment = "test";
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
-        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=expiry&package_urn=some%3Aproduct%3A123&env=test&discount_price=%241");
+        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=expiry&package_urn=some%3Aproduct%3A123&env=test&discount_price=%241&locale=en-GB");
 
         assertThat(actual).isEqualTo(expected);
     }

@@ -22,7 +22,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.LocaleHeaderFormatter;
+import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.MultiMap;
 import com.soundcloud.java.optional.Optional;
@@ -57,7 +57,7 @@ public class ApiClientTest extends AndroidUnitTest {
     @Mock private OAuth oAuth;
     @Mock private Call httpCall;
     @Mock private AccountOperations accountOperations;
-    @Mock private LocaleHeaderFormatter localeHeaderFormatter;
+    @Mock private LocaleFormatter localeFormatter;
 
     @Captor private ArgumentCaptor<Request> apiRequestCaptor;
     @Captor private ArgumentCaptor<com.squareup.okhttp.Request> httpRequestCaptor;
@@ -72,9 +72,9 @@ public class ApiClientTest extends AndroidUnitTest {
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         when(httpClient.newCall(httpRequestCaptor.capture())).thenReturn(httpCall);
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
-        when(localeHeaderFormatter.getFormattedLocale()).thenReturn(Optional.of("fr-CA"));
+        when(localeFormatter.getLocale()).thenReturn(Optional.of("fr-CA"));
         apiClient = new ApiClient(httpClient, apiUrlBuilder, jsonTransformer,
-                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry, accountOperations, localeHeaderFormatter);
+                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry, accountOperations, localeFormatter);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ApiClientTest extends AndroidUnitTest {
 
     @Test
     public void shouldOmitDeviceLocaleHeaderIfLocaleUnavailable() throws Exception {
-        when(localeHeaderFormatter.getFormattedLocale()).thenReturn(Optional.<String>absent());
+        when(localeFormatter.getLocale()).thenReturn(Optional.<String>absent());
 
         ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);
