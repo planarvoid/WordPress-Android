@@ -29,11 +29,13 @@ import java.lang.ref.WeakReference;
 
 // remove this once we remove PlayQueueManager + TrackOperations by moving url loading out
 @SuppressWarnings({"PMD.ExcessiveParameterList"})
-public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Player.PlayerListener {
+public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Player.PlayerListener, VolumeController.Listener {
     public static final String TAG = "PlaybackService";
     private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
+    private static final int SHORT_FADE_DURATION_MS = 600;
+    private static final int LONG_FADE_DURATION_MS = 2000;
+    private static final int LONG_FADE_PRELOAD_MS = 1000; // interval to start fade before fade duration
     @Nullable static PlaybackService instance;
-    private final Handler fadeHandler = new FadeHandler(this);
     private final Handler delayedStopHandler = new DelayedStopHandler(this);
     @Inject EventBus eventBus;
     @Inject AccountOperations accountOperations;
@@ -44,13 +46,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject PlaybackSessionAnalyticsController analyticsController;
     @Inject AdsController adsController;
     @Inject AdsOperations adsOperations;
+    @Inject VolumeControllerFactory volumeControllerFactory;
 
     private Optional<PlaybackItem> currentPlaybackItem = Optional.absent();
+    private boolean pauseRequested;
     // audio focus related
     private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
     private PlaybackReceiver playbackReceiver;
-
+    private VolumeController volumeController;
 
     public PlaybackService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -64,7 +68,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     PlaybackNotificationController playbackNotificationController,
                     PlaybackSessionAnalyticsController analyticsController,
                     AdsOperations adsOperations,
-                    AdsController adsController) {
+                    AdsController adsController,
+                    VolumeControllerFactory volumeControllerFactory) {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.streamPlayer = streamPlayer;
@@ -74,6 +79,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         this.analyticsController = analyticsController;
         this.adsOperations = adsOperations;
         this.adsController = adsController;
+        this.volumeControllerFactory = volumeControllerFactory;
     }
 
     @Override
@@ -81,7 +87,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         super.onCreate();
 
         streamPlayer.setListener(this);
-
+        volumeController = volumeControllerFactory.create(streamPlayer, this);
         playbackReceiver = playbackReceiverFactory.create(this, accountOperations, eventBus);
         audioManager = remoteAudioManagerProvider.get();
 
@@ -93,6 +99,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         playbackFilter.addAction(Action.RESET_ALL);
         playbackFilter.addAction(Action.STOP);
         playbackFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        playbackFilter.addAction(Action.FADE_AND_PAUSE);
         registerReceiver(playbackReceiver, playbackFilter);
 
         // If the service was idle, but got killed before it stopped itself, the
@@ -110,7 +117,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
         // make sure there aren't any other messages coming
         delayedStopHandler.removeCallbacksAndMessages(null);
-        fadeHandler.removeCallbacksAndMessages(null);
+        volumeController.resetVolume();
         audioManager.abandonMusicFocus();
         unregisterReceiver(playbackReceiver);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
@@ -147,12 +154,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Override
     public void focusGained() {
         Log.d(TAG, "[FOCUS] focusGained with state " + focusLossState);
-        if (focusLossState == FocusLossState.TRANSIENT) {
-            fadeHandler.sendEmptyMessage(FadeHandler.FADE_IN);
-        } else {
-            streamPlayer.setVolume(1.0f);
-        }
-
+        volumeController.unMute(SHORT_FADE_DURATION_MS);
         focusLossState = FocusLossState.NONE;
     }
 
@@ -163,9 +165,14 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
             if (isTransient) {
                 focusLossState = FocusLossState.TRANSIENT;
-                fadeHandler.sendEmptyMessage(canDuck ? FadeHandler.DUCK : FadeHandler.FADE_OUT);
+                if (canDuck) {
+                    volumeController.duck(SHORT_FADE_DURATION_MS);
+                } else {
+                    volumeController.mute(SHORT_FADE_DURATION_MS);
+                }
             } else {
                 focusLossState = FocusLossState.LOST;
+                volumeController.mute(SHORT_FADE_DURATION_MS);
                 pause();
             }
         }
@@ -178,18 +185,23 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     @Override
-    public void onPlaystateChanged(Player.StateTransition stateTransition) {
+    public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
         Log.d(TAG, "Received new playState " + stateTransition);
 
         // TODO : Fix threading in Skippy so we can never receive delayed messages
-        if (currentPlaybackItem.isPresent() && currentPlaybackItem.get().getUrn().equals(stateTransition.getUrn())) {
-            if (!stateTransition.isPlaying()) {
-                onIdleState();
-            }
+        if (currentPlaybackItem.isPresent()) {
+            if (currentPlaybackItem.get().getUrn().equals(stateTransition.getUrn())) {
+                if (!stateTransition.isPlaying()) {
+                    onIdleState();
+                }
 
-            analyticsController.onStateTransition(stateTransition);
-            adsController.onPlayStateTransition(stateTransition);
-            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
+                analyticsController.onStateTransition(stateTransition);
+                adsController.onPlayStateTransition(stateTransition);
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
+            } else {
+                Log.d(TAG, "resetting volume after playstate changed on different track");
+                resetVolume(0);
+            }
         }
     }
 
@@ -200,10 +212,31 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             final PlaybackProgressEvent playbackProgress = PlaybackProgressEvent.create(new PlaybackProgress(position, duration), playbackItem.getUrn());
             analyticsController.onProgressEvent(playbackProgress);
             eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgress);
+            fadeOutIfNecessary(position);
         }
     }
 
-    private static Player.StateTransition correctUnknownDuration(Player.StateTransition stateTransition, PlaybackItem playbackItem) {
+    private void fadeOutIfNecessary(long position) {
+        if (isAudioSnippet()) {
+            long duration = currentPlaybackItem.get().getDuration();
+            long fadeOffset = LONG_FADE_DURATION_MS - (duration - position);
+
+            if (isWithinSnippetFadeOut(LONG_FADE_DURATION_MS, fadeOffset)) {
+                volumeController.fadeOut(LONG_FADE_DURATION_MS, fadeOffset);
+            }
+        }
+    }
+
+    private boolean isAudioSnippet() {
+        return currentPlaybackItem.isPresent()
+                && currentPlaybackItem.get().getPlaybackType() == PlaybackType.AUDIO_SNIPPET;
+    }
+
+    private boolean isWithinSnippetFadeOut(long fadeDuration, long fadeOffset) {
+        return fadeOffset <= fadeDuration && fadeOffset >= -LONG_FADE_PRELOAD_MS;
+    }
+
+    private static PlaybackStateTransition correctUnknownDuration(PlaybackStateTransition stateTransition, PlaybackItem playbackItem) {
         final PlaybackProgress progress = stateTransition.getProgress();
         if (!progress.isDurationValid()) {
             progress.setDuration(playbackItem.getDuration());
@@ -228,6 +261,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     public long seek(long pos, boolean performSeek) {
         Log.d(TAG, "Seeking to " + pos);
+        resetVolume(pos);
         return streamPlayer.seek(pos, performSeek);
     }
 
@@ -248,8 +282,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private void onIdleState() {
         Log.d(TAG, "On Idle State (focusLossState=" + focusLossState + ")");
         scheduleServiceShutdownCheck();
-        fadeHandler.removeMessages(FadeHandler.FADE_OUT);
-        fadeHandler.removeMessages(FadeHandler.FADE_IN);
     }
 
     void preload(PreloadItem preloadItem) {
@@ -258,35 +290,49 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     void play(PlaybackItem playbackItem) {
         currentPlaybackItem = Optional.of(playbackItem);
+        resetVolume(playbackItem.getStartPosition());
         streamPlayer.play(playbackItem);
     }
 
-    /* package */ void play() {
+    void play() {
         Log.d(TAG, "Playing");
         if (!streamPlayer.isPlaying() && currentPlaybackItem.isPresent() && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
+            resetVolume(streamPlayer.getProgress());
             streamPlayer.resume();
-            resetVolume();
         }
     }
 
-    private void resetVolume() {
+    private void resetVolume(long position) {
         Log.d(TAG, "Resetting volume");
-        fadeHandler.removeCallbacksAndMessages(null);
-        streamPlayer.setVolume(1);
+        volumeController.resetVolume();
+        fadeOutIfNecessary(position);
     }
 
     // Pauses playback (call play() to resume)
-    /* package */ void pause() {
+    void pause() {
         Log.d(TAG, "Pausing");
         streamPlayer.pause();
     }
 
-    /* package */ void stop() {
+    public void fadeAndPause() {
+        pauseRequested = true;
+        volumeController.fadeOut(LONG_FADE_DURATION_MS, 0);
+    }
+
+    void stop() {
         Log.d(TAG, "Stopping");
         playbackNotificationController.unsubscribe();
         streamPlayer.stop();
         stopForeground(true);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
+    }
+
+    @Override
+    public void onFadeFinished() {
+        if (pauseRequested) {
+            pauseRequested = false;
+            pause();
+        }
     }
 
     private enum FocusLossState {
@@ -300,6 +346,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String PLAY_CURRENT = BuildConfig.APPLICATION_ID + ".playback.playcurrent";
         String RESUME = BuildConfig.APPLICATION_ID + ".playback.playcurrent";
         String PAUSE = BuildConfig.APPLICATION_ID + ".playback.pause";
+        String FADE_AND_PAUSE = BuildConfig.APPLICATION_ID + ".playback.fadeandpause";
         String SEEK = BuildConfig.APPLICATION_ID + ".playback.seek";
         String RESET_ALL = BuildConfig.APPLICATION_ID + ".playback.reset"; // used on logout
         String STOP = BuildConfig.APPLICATION_ID + ".playback.stop"; // from the notification
@@ -333,76 +380,4 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         }
     }
 
-    private static final class FadeHandler extends Handler {
-
-        private static final int FADE_IN = 1;
-        private static final int FADE_OUT = 2;
-        private static final int DUCK = 3;
-        private static final float FADE_CHANGE = 0.02f; // change to fade faster/slower
-        private static final float DUCK_VOLUME = 0.1f;
-        private final WeakReference<PlaybackService> serviceRef;
-        private float currentVolume;
-
-        private FadeHandler(PlaybackService service) {
-            this.serviceRef = new WeakReference<>(service);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            final PlaybackService service = serviceRef.get();
-            if (service == null) {
-                return;
-            }
-
-
-            switch (msg.what) {
-                case FADE_IN:
-                    removeMessages(FADE_OUT);
-                    if (!service.streamPlayer.isPlaying()) {
-                        Log.d(TAG, "Skipping fade in as we are not playing");
-                        currentVolume = 0f;
-                        service.streamPlayer.setVolume(0f);
-                        service.play();
-                        sendEmptyMessageDelayed(FADE_IN, 10);
-                    } else {
-                        currentVolume += FADE_CHANGE;
-                        Log.d(TAG, "Fading volume in at : " + currentVolume);
-                        if (currentVolume < 1.0f) {
-                            sendEmptyMessageDelayed(FADE_IN, 10);
-                        } else {
-                            Log.d(TAG, "Done fading volume in");
-                            currentVolume = 1.0f;
-                        }
-                        service.streamPlayer.setVolume(currentVolume);
-                    }
-                    break;
-                case FADE_OUT:
-                    removeMessages(FADE_IN);
-                    if (service.streamPlayer.isPlaying()) {
-                        currentVolume -= FADE_CHANGE;
-                        Log.d(TAG, "Fading out at " + currentVolume);
-                        if (currentVolume > 0f) {
-                            sendEmptyMessageDelayed(FADE_OUT, 10);
-                        } else {
-                            Log.d(TAG, "Done fading out, pausing ");
-                            service.pause();
-                            currentVolume = 0f;
-                        }
-                        service.streamPlayer.setVolume(currentVolume);
-                    } else {
-                        Log.d(TAG, "Fading out without playing, setting volume to 0");
-                        service.streamPlayer.setVolume(0f);
-                    }
-                    break;
-                case DUCK:
-                    Log.d(TAG, "Ducking");
-                    removeMessages(FADE_IN);
-                    removeMessages(FADE_OUT);
-                    service.streamPlayer.setVolume(DUCK_VOLUME);
-                    break;
-                default: // NO-OP
-                    break;
-            }
-        }
-    }
 }

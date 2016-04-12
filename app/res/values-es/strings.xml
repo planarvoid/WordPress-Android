@@ -538,7 +538,7 @@
   <string name="pref_subscription_restore_summary">Restablecer una suscripción existente</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">Suscribirse</string>
-  <string name="conversion_title">Hazte con SoundCloud Go</string>
+  <string name="conversion_title">SoundCloud Go</string>
   <string name="conversion_price">%s / mes</string>
   <string name="conversion_feature_1">Escucha sin conexión, donde quieras</string>
   <string name="conversion_feature_2">Todas las canciones completas</string>
@@ -696,7 +696,6 @@
   <string name="concurrent_streaming_stopped">Puesto en pausa porque iniciaste la reproducción en otro dispositivo</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">No disponible\nen tu país</string>
-  <string name="playback_preview_indicator">vista previa</string>
   <string name="playback_upsell_button">Escuchar la pista entera</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">

@@ -2,12 +2,16 @@ package com.soundcloud.android.analytics.adjust;
 
 import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.PurchaseEvent;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 
 import android.content.Context;
 
 import javax.inject.Inject;
 
 public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
+
     private final AdjustWrapper adjustWrapper;
 
     @Inject
@@ -28,4 +32,51 @@ public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
             adjustWrapper.onPause();
         }
     }
+
+    @Override
+    public void handleTrackingEvent(TrackingEvent event) {
+        if (event instanceof PurchaseEvent) {
+            handlePurchaseTracking((PurchaseEvent) event);
+        } else if (event instanceof UpgradeFunnelEvent) {
+            handleUpgradeTrackingEvent((UpgradeFunnelEvent) event);
+        }
+    }
+
+    private void handlePurchaseTracking(PurchaseEvent event) {
+        if (event.getKind().equals(PurchaseEvent.KIND_HIGH_TIER_SUB)) {
+            adjustWrapper.trackPurchase(AdjustEventToken.HIGH_TIER_PURCHASE, event.getPrice(), event.getCurrency());
+        }
+    }
+
+    private void handleUpgradeTrackingEvent(UpgradeFunnelEvent event) {
+        if (event.isImpression()) {
+            trackImpression(event);
+        }
+    }
+
+    private void trackImpression(UpgradeFunnelEvent event) {
+        switch (event.get(UpgradeFunnelEvent.KEY_ID)) {
+            case UpgradeFunnelEvent.ID_WHY_ADS:
+                adjustWrapper.trackEvent(AdjustEventToken.WHY_ADS);
+                break;
+            case UpgradeFunnelEvent.ID_UPGRADE_BUTTON:
+                adjustWrapper.trackEvent(AdjustEventToken.CONVERSION);
+                break;
+            case UpgradeFunnelEvent.ID_PLAYER:
+                adjustWrapper.trackEvent(AdjustEventToken.HIGH_TIER_TRACK_PLAYED);
+                break;
+            case UpgradeFunnelEvent.ID_SEARCH_RESULTS_GO:
+                adjustWrapper.trackEvent(AdjustEventToken.HIGH_TIER_SEARCH_RESULTS);
+                break;
+            case UpgradeFunnelEvent.ID_STREAM:
+                adjustWrapper.trackEvent(AdjustEventToken.STREAM_UPSELL);
+                break;
+            case UpgradeFunnelEvent.ID_SETTINGS_UPGRADE:
+                adjustWrapper.trackEvent(AdjustEventToken.OFFLINE_SETTINGS);
+            default:
+                // Not all funnel events go to Adjust
+                break;
+        }
+    }
+
 }

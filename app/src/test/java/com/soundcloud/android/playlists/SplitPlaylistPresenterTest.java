@@ -34,6 +34,7 @@ import rx.Observable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,7 +47,6 @@ public class SplitPlaylistPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistOperations operations;
     @Mock private SwipeRefreshAttacher swipeAttacher;
     @Mock private CollapsingScrollHelper profileScrollHelper;
-    @Mock private PlaylistHeaderPresenterFactory headerPresenterFactory;
     @Mock private PlaylistHeaderPresenter headerPresenter;
     @Mock private PlaylistAdapterFactory adapterFactory;
     @Mock private PlaylistAdapter adapter;
@@ -62,13 +62,13 @@ public class SplitPlaylistPresenterTest extends AndroidUnitTest {
     private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
     private final PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
     private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
+    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = providerOf(mock(ExpandPlayerSubscriber.class));
 
     @Before
     public void setUp() throws Exception {
         args = PlaylistDetailFragment.createBundle(PLAYLIST_URN, Screen.PLAYLIST_DETAILS, null, null, false);
         fragmentRule.setFragmentArguments(args);
 
-        when(headerPresenterFactory.create(any(PlaylistHeaderListener.class))).thenReturn(headerPresenter);
         when(adapterFactory.create(any(PlaylistHeaderPresenter.class))).thenReturn(adapter);
         when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
 
@@ -98,14 +98,14 @@ public class SplitPlaylistPresenterTest extends AndroidUnitTest {
                 playlistWithTracks.getTrackCount());
     }
 
-
     private List<ListItem> listItems() {
         return Arrays.<ListItem>asList(TrackItem.from(track1), TrackItem.from(track2));
     }
 
     @NonNull
     public PlaylistPresenter getPlaylistPresenter(EventBus eventBus) {
-        return new SplitPlaylistPresenter(operations, swipeAttacher, headerPresenterFactory,
-                providerOf(mock(ExpandPlayerSubscriber.class)), adapterFactory, eventBus, playbackInitiator, navigator);
+        return new SplitPlaylistPresenter(operations, swipeAttacher, SplitPlaylistPresenterTest.this.headerPresenter,
+                adapterFactory, eventBus, navigator,
+                new ViewStrategyFactory(providerOf(eventBus), providerOf(playbackInitiator), providerOf(operations), providerOf(expandPlayerSubscriberProvider)));
     }
 }

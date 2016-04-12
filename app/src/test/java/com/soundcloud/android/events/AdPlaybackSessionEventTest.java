@@ -4,7 +4,9 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 
@@ -104,7 +106,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromPlayEventWithImpressionAndStartUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, videoAd.getAdUrn(), 0L, 2000L);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, videoAd.getAdUrn(), 0L, 2000L);
         final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, sourceInfo, stateTransition);
 
         assertThat(playEvent.getKind()).isEqualTo("play");
@@ -117,7 +119,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromPlayEventWithResumeUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final Player.StateTransition stateTransition = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, videoAd.getAdUrn(), 1001L, 2000L);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, videoAd.getAdUrn(), 1001L, 2000L);
         final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, sourceInfo, stateTransition);
 
         assertThat(playEvent.getKind()).isEqualTo("play");
@@ -131,7 +133,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromStopEventWithFinishUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final Player.StateTransition stateTransition = Player.StateTransition.DEFAULT;
+        final PlaybackStateTransition stateTransition = PlaybackStateTransition.DEFAULT;
         final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd, sourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         assertThat(stopEvent.getKind()).isEqualTo("stop");
@@ -144,7 +146,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromStopEventWithPauseUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final Player.StateTransition stateTransition = Player.StateTransition.DEFAULT;
+        final PlaybackStateTransition stateTransition = PlaybackStateTransition.DEFAULT;
         final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd, sourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         assertThat(stopEvent.getKind()).isEqualTo("stop");

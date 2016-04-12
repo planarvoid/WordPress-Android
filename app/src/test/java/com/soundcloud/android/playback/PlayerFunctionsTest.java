@@ -14,9 +14,9 @@ public class PlayerFunctionsTest extends AndroidUnitTest {
 
     @Test
     public void isNotVideoAdShouldReturnTrueForTrackStateTransitions() {
-        final Player.StateTransition state = new Player.StateTransition(
-                Player.PlayerState.BUFFERING,
-                Player.Reason.NONE,
+        final PlaybackStateTransition state = new PlaybackStateTransition(
+                PlaybackState.BUFFERING,
+                PlayStateReason.NONE,
                 trackUrn
         );
         assertThat(PlayerFunctions.IS_NOT_VIDEO_AD.call(state)).isTrue();
@@ -24,9 +24,9 @@ public class PlayerFunctionsTest extends AndroidUnitTest {
 
     @Test
     public void isNotVideoAdShouldReturnTrueForUrnNotSetStateTransitions() {
-        final Player.StateTransition state = new Player.StateTransition(
-                Player.PlayerState.BUFFERING,
-                Player.Reason.NONE,
+        final PlaybackStateTransition state = new PlaybackStateTransition(
+                PlaybackState.BUFFERING,
+                PlayStateReason.NONE,
                 Urn.NOT_SET
         );
         assertThat(PlayerFunctions.IS_NOT_VIDEO_AD.call(state)).isTrue();
@@ -34,9 +34,9 @@ public class PlayerFunctionsTest extends AndroidUnitTest {
 
     @Test
     public void isNotTrackShouldReturnFalseForVideoStateTransitions() {
-        final Player.StateTransition state = new Player.StateTransition(
-                Player.PlayerState.BUFFERING,
-                Player.Reason.NONE,
+        final PlaybackStateTransition state = new PlaybackStateTransition(
+                PlaybackState.BUFFERING,
+                PlayStateReason.NONE,
                 Urn.forAd("dfp", "123"),
                 0, 0,
                 new TestDateProvider()

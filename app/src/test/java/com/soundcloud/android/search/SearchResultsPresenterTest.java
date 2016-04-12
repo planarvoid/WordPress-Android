@@ -23,7 +23,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.tracks.TrackItem;
@@ -85,7 +84,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
-                clickListenerFactory, eventBus, featureFlags, navigator, searchTracker);
+                clickListenerFactory, eventBus, navigator, searchTracker);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1));
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
@@ -95,7 +94,6 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         when(searchOperations.searchResult(anyString(), anyInt())).thenReturn(searchResultObservable);
         when(searchOperations.pagingFunction(anyInt())).thenReturn(searchPagingFunction);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class))).thenReturn(searchQuerySourceInfo);
-        when(featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)).thenReturn(false);
     }
 
     @Test

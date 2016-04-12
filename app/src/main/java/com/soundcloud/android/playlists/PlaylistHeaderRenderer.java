@@ -25,6 +25,6 @@ class PlaylistHeaderRenderer implements CellRenderer<PlaylistHeaderItem> {
     @Override
     public void bindItemView(int position, View itemView, final List<PlaylistHeaderItem> items) {
         playlistHeaderPresenter.setPlaylist(items.get(position));
-        playlistHeaderPresenter.setView(itemView);
+        playlistHeaderPresenter.bindView(itemView);
     }
 }

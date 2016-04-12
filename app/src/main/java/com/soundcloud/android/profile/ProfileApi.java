@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -40,4 +41,12 @@ interface ProfileApi {
     Observable<ModelCollection<ApiEntityHolder>> userReposts(Urn user);
 
     Observable<ModelCollection<ApiEntityHolder>> userReposts(String nextPageLink);
+
+    Observable<ModelCollection<ApiEntityHolder>> userTracks(Urn user);
+
+    Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink);
+
+    Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user);
+
+    Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink);
 }

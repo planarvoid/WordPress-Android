@@ -10,7 +10,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -80,7 +80,7 @@ public class SearchTracker {
             }
             final boolean hasPremiumContent = screenData.hasPremiumContent;
             if (hasPremiumContent && featureOperations.upsellHighTier()) {
-                eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forSearchResultsImpression(trackingScreen));
+                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSearchResultsImpression(trackingScreen));
             }
         }
     }
@@ -94,17 +94,17 @@ public class SearchTracker {
 
     void trackResultsUpsellClick(int searchType) {
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeTrackingEvent.forSearchResultsClick(getTrackingScreen(searchType)));
+                UpgradeFunnelEvent.forSearchResultsClick(getTrackingScreen(searchType)));
     }
 
     void trackPremiumResultsUpsellImpression() {
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeTrackingEvent.forSearchPremiumResultsImpression(getPremiumTrackingScreen()));
+                UpgradeFunnelEvent.forSearchPremiumResultsImpression(getPremiumTrackingScreen()));
     }
 
     void trackPremiumResultsUpsellClick() {
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeTrackingEvent.forSearchPremiumResultsClick(getPremiumTrackingScreen()));
+                UpgradeFunnelEvent.forSearchPremiumResultsClick(getPremiumTrackingScreen()));
     }
 
     void setTrackingData(int searchType, Urn queryUrn, boolean hasPremiumContent) {

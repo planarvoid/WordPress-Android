@@ -7,7 +7,8 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -25,10 +26,10 @@ public class StationsController {
     private final StationsOperations operations;
     private final Scheduler scheduler;
 
-    public static final Func2<CurrentPlayQueueItemEvent, Player.StateTransition, CollectionPlayState> TO_COLLECTION_PLAY_STATE = new Func2<CurrentPlayQueueItemEvent, Player.StateTransition, CollectionPlayState>() {
+    public static final Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, CollectionPlaybackState> TO_COLLECTION_PLAY_STATE = new Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, CollectionPlaybackState>() {
         @Override
-        public StationsController.CollectionPlayState call(CurrentPlayQueueItemEvent event, Player.StateTransition stateTransition) {
-            return new StationsController.CollectionPlayState(
+        public CollectionPlaybackState call(CurrentPlayQueueItemEvent event, PlaybackStateTransition stateTransition) {
+            return new CollectionPlaybackState(
                     event.getCollectionUrn(),
                     event.getPosition(),
                     stateTransition.getNewState()
@@ -50,19 +51,19 @@ public class StationsController {
         }
     };
 
-    private final Action1<CollectionPlayState> saveRecentStation = new Action1<CollectionPlayState>() {
+    private final Action1<CollectionPlaybackState> saveRecentStation = new Action1<CollectionPlaybackState>() {
         @Override
-        public void call(CollectionPlayState collectionPlayState) {
-            operations.saveLastPlayedTrackPosition(collectionPlayState.collectionUrn, collectionPlayState.position);
-            operations.saveRecentlyPlayedStation(collectionPlayState.collectionUrn);
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fromStationsUpdated(collectionPlayState.collectionUrn));
+        public void call(CollectionPlaybackState collectionPlaybackState) {
+            operations.saveLastPlayedTrackPosition(collectionPlaybackState.collectionUrn, collectionPlaybackState.position);
+            operations.saveRecentlyPlayedStation(collectionPlaybackState.collectionUrn);
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fromStationsUpdated(collectionPlaybackState.collectionUrn));
         }
     };
 
-    private static final Func1<CollectionPlayState, Boolean> IS_PLAYING_STATION = new Func1<CollectionPlayState, Boolean>() {
+    private static final Func1<CollectionPlaybackState, Boolean> IS_PLAYING_STATION = new Func1<CollectionPlaybackState, Boolean>() {
         @Override
-        public Boolean call(CollectionPlayState collectionPlayState) {
-            return collectionPlayState.collectionUrn.isStation() && collectionPlayState.playerState.isPlayerPlaying();
+        public Boolean call(CollectionPlaybackState collectionPlaybackState) {
+            return collectionPlaybackState.collectionUrn.isStation() && collectionPlaybackState.playbackState.isPlayerPlaying();
         }
     };
 
@@ -97,18 +98,18 @@ public class StationsController {
                 .filter(IS_PLAYING_STATION)
                 .observeOn(scheduler)
                 .doOnNext(saveRecentStation)
-                .subscribe(new DefaultSubscriber<CollectionPlayState>());
+                .subscribe(new DefaultSubscriber<CollectionPlaybackState>());
     }
 
-    private static class CollectionPlayState {
+    private static class CollectionPlaybackState {
         private final Urn collectionUrn;
         private final int position;
-        private final Player.PlayerState playerState;
+        private final PlaybackState playbackState;
 
-        public CollectionPlayState(Urn collectionUrn, int position, Player.PlayerState playerState) {
+        public CollectionPlaybackState(Urn collectionUrn, int position, PlaybackState playbackState) {
             this.collectionUrn = collectionUrn;
             this.position = position;
-            this.playerState = playerState;
+            this.playbackState = playbackState;
         }
     }
 

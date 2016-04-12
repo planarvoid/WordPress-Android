@@ -5,7 +5,7 @@ import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Iterables;
@@ -115,7 +115,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     }
 
     @Override
-    public void setPlayState(View adView, Player.StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
+    public void setPlayState(View adView, PlaybackStateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
         final Holder holder = getViewHolder(adView);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
@@ -139,11 +139,6 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         helper.configureViewsFromSlide(slideOffset, holder.footer, holder.close, holder.playerOverlayController);
         holder.close.setVisibility(slideOffset > 0 ? View.VISIBLE : View.GONE);
         holder.whyAds.setEnabled(slideOffset > 0);
-    }
-
-    @Override
-    public void onViewSelected(View view, PlayQueueItem value, boolean isExpanded) {
-        // no-op
     }
 
     private void resetAdImageLayouts(Holder holder) {

@@ -17,7 +17,7 @@ import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -131,6 +131,11 @@ public class EventLoggerV1JsonDataBuilder {
                 .monetizationType(eventData.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
+    public EventLoggerEventData buildAdClickThroughEvent(String clickName, UIEvent event) {
+        return buildClickEvent(clickName, event)
+                .clickTarget(event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL));
+    }
+
     public String buildForFacebookInvites(FacebookInvitesEvent event) {
         switch (event.getKind()) {
             case FacebookInvitesEvent.KIND_CLICK:
@@ -142,43 +147,47 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
-    public String buildForUpsell(UpgradeTrackingEvent event) {
+    public String buildForUpsell(UpgradeFunnelEvent event) {
         switch (event.getKind()) {
-            case UpgradeTrackingEvent.KIND_UPSELL_CLICK:
+            case UpgradeFunnelEvent.KIND_UPSELL_CLICK:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
                         .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
                         .clickName("clickthrough::consumer_sub_ad")
-                        .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
-                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME))
-                        .pageUrn(event.get(UpgradeTrackingEvent.KEY_PAGE_URN)));
+                        .clickObject(getUpsellTrackingCode(event))
+                        .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
+                        .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
 
-            case UpgradeTrackingEvent.KIND_UPSELL_IMPRESSION:
+            case UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
                         .impressionName("consumer_sub_ad")
-                        .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
-                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME))
-                        .pageUrn(event.get(UpgradeTrackingEvent.KEY_PAGE_URN)));
+                        .impressionObject(getUpsellTrackingCode(event))
+                        .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
+                        .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
 
-            case UpgradeTrackingEvent.KIND_UPGRADE_SUCCESS:
+            case UpgradeFunnelEvent.KIND_UPGRADE_SUCCESS:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
                         .impressionName("consumer_sub_upgrade_success"));
 
-            case UpgradeTrackingEvent.KIND_RESUBSCRIBE_CLICK:
+            case UpgradeFunnelEvent.KIND_RESUBSCRIBE_CLICK:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
                         .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
                         .clickName("clickthrough::consumer_sub_resubscribe")
-                        .clickObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
-                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)));
+                        .clickObject(getUpsellTrackingCode(event))
+                        .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
 
-            case UpgradeTrackingEvent.KIND_RESUBSCRIBE_IMPRESSION:
+            case UpgradeFunnelEvent.KIND_RESUBSCRIBE_IMPRESSION:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
                         .impressionName("consumer_sub_resubscribe")
-                        .impressionObject(event.get(UpgradeTrackingEvent.KEY_TCODE))
-                        .pageName(event.get(UpgradeTrackingEvent.KEY_PAGE_NAME)));
+                        .impressionObject(getUpsellTrackingCode(event))
+                        .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
 
             default:
                 throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
         }
+    }
+
+    private String getUpsellTrackingCode(UpgradeFunnelEvent event) {
+        return TrackingCode.fromEventId(event.get(UpgradeFunnelEvent.KEY_ID));
     }
 
     public String buildForUIEvent(UIEvent event) {
@@ -197,6 +206,8 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("ad::full_screen", event));
             case UIEvent.KIND_VIDEO_AD_SHRINK:
                 return transform(buildClickEvent("ad::exit_full_screen", event));
+            case UIEvent.KIND_VIDEO_AD_CLICKTHROUGH:
+                return transform(buildAdClickThroughEvent("clickthrough::video_ad", event));
             case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
                 return transform(buildClickEvent("ad::skip", event));
             default:

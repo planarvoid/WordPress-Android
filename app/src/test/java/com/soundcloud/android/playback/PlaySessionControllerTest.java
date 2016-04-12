@@ -119,7 +119,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playQueueTrackChangedHandlerDoesNotCallPlayCurrentForTrackIfPlaySessionIsNotActive() {
-        final Player.StateTransition lastTransition = Mockito.mock(Player.StateTransition.class);
+        final PlaybackStateTransition lastTransition = Mockito.mock(PlaybackStateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
@@ -129,7 +129,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playQueueTrackChangeHandlerDoesNotCallPlayCurrentForVideoAdIfPlaySessionIsNotActive() {
-        final Player.StateTransition lastTransition = Mockito.mock(Player.StateTransition.class);
+        final PlaybackStateTransition lastTransition = Mockito.mock(PlaybackStateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
 
@@ -160,19 +160,19 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.PLAY_QUEUE_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAY_QUEUE_COMPLETE, trackUrn));
         verify(playQueueManager, never()).saveCurrentProgress(anyInt());
     }
 
     @Test
     public void onStateTransitionForBufferingDoesNotSaveQueuePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.BUFFERING, Player.Reason.NONE, trackUrn, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, trackUrn, 123, 456));
         verify(playQueueManager, never()).saveCurrentProgress(anyInt());
     }
 
     @Test
     public void onStateTransitionForPlayingDoesNotSaveQueuePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, trackUrn, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, 123, 456));
         verify(playQueueManager, never()).saveCurrentProgress(anyInt());
     }
 

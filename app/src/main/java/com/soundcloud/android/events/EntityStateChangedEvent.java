@@ -80,6 +80,13 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.getFirstUrn().isPlaylist() && event.getKind() == ENTITY_DELETED;
+        }
+    };
+
     public static final Func1<EntityStateChangedEvent, Urn> TO_URN = new Func1<EntityStateChangedEvent, Urn>() {
         @Override
         public Urn call(EntityStateChangedEvent entityStateChangedEvent) {

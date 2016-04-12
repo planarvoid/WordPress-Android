@@ -3,8 +3,10 @@ package com.soundcloud.android.payments;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.PurchaseEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -19,7 +21,8 @@ import android.support.v7.app.AppCompatActivity;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements WebCheckoutInterface.Listener, WebCheckoutView.Listener {
+class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
+        implements WebCheckoutInterface.Listener, WebCheckoutView.Listener {
 
     private static final long TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(15);
     public static final String PAYMENT_FORM_BASE_URL = "https://soundcloud.com/android_payment.html";
@@ -97,9 +100,18 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> 
 
     @Override
     public void onPaymentSuccess() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeSuccess());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeSuccess());
+        trackPurchase();
         navigator.resetForAccountUpgrade(activity);
         activity.finish();
+    }
+
+    private void trackPurchase() {
+        final WebProduct product = getProductFromIntent();
+        if (Plan.fromId(product.getPlanId()) == Plan.HIGH_TIER) {
+            eventBus.publish(EventQueue.TRACKING,
+                    PurchaseEvent.forHighTierSub(product.getRawPrice(), product.getRawCurrency()));
+        }
     }
 
     @Override

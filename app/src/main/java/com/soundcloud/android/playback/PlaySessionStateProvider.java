@@ -5,7 +5,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.Player.StateTransition;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.functions.Func1;
@@ -24,16 +24,16 @@ import java.util.Map;
 public class PlaySessionStateProvider {
 
     private final Map<Urn, PlaybackProgress> progressMap = new HashMap<>();
-    private final Func1<StateTransition, Boolean> ignoreDefaultStateFilter = new Func1<StateTransition, Boolean>() {
+    private final Func1<PlaybackStateTransition, Boolean> ignoreDefaultStateFilter = new Func1<PlaybackStateTransition, Boolean>() {
         @Override
-        public Boolean call(StateTransition stateTransition) {
-            return !StateTransition.DEFAULT.equals(stateTransition);
+        public Boolean call(PlaybackStateTransition stateTransition) {
+            return !PlaybackStateTransition.DEFAULT.equals(stateTransition);
         }
     };
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
 
-    private StateTransition lastStateTransition = StateTransition.DEFAULT;
+    private PlaybackStateTransition lastStateTransition = PlaybackStateTransition.DEFAULT;
     private Urn currentPlayingUrn; // the urn of the item that is currently loaded in the playback service
 
     @Inject
@@ -90,9 +90,9 @@ public class PlaySessionStateProvider {
         return progressMap.containsKey(itemUrn);
     }
 
-    private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
+    private class PlayStateSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
         @Override
-        public void onNext(StateTransition stateTransition) {
+        public void onNext(PlaybackStateTransition stateTransition) {
             final boolean isItemChange = currentPlayingUrn != null &&
                     !stateTransition.isForUrn(currentPlayingUrn);
 
@@ -114,11 +114,11 @@ public class PlaySessionStateProvider {
         }
     }
 
-    private boolean playbackStoppedMidSession(StateTransition stateTransition) {
+    private boolean playbackStoppedMidSession(PlaybackStateTransition stateTransition) {
         return (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete());
     }
 
-    private boolean playingNewItemFromBeginning(StateTransition stateTransition, boolean isItemChange) {
+    private boolean playingNewItemFromBeginning(PlaybackStateTransition stateTransition, boolean isItemChange) {
         return isItemChange && !playQueueManager.wasLastSavedItem(stateTransition.getUrn());
     }
 

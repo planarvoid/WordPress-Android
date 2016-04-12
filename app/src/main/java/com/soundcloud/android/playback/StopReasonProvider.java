@@ -20,7 +20,7 @@ public class StopReasonProvider {
         pendingConcurrentPause = true;
     }
 
-    public int fromTransition(Player.StateTransition stateTransition) {
+    public int fromTransition(PlaybackStateTransition stateTransition) {
         if (stateTransition.isBuffering()) {
             return PlaybackSessionEvent.STOP_REASON_BUFFERING;
         } else {
@@ -30,8 +30,8 @@ public class StopReasonProvider {
         }
     }
 
-    private int getIdleReason(Player.StateTransition stateTransition) {
-        if (stateTransition.getReason() == Player.Reason.PLAYBACK_COMPLETE) {
+    private int getIdleReason(PlaybackStateTransition stateTransition) {
+        if (stateTransition.getReason() == PlayStateReason.PLAYBACK_COMPLETE) {
             return getTrackCompleteReason();
         } else if (stateTransition.wasError()) {
             return PlaybackSessionEvent.STOP_REASON_ERROR;

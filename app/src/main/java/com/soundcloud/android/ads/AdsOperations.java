@@ -206,7 +206,7 @@ public class AdsOperations {
     }
 
     public void clearAllAdsFromQueue() {
-        playQueueManager.removeAds(PlayQueueEvent.fromAudioAdRemoved(playQueueManager.getCollectionUrn()));
+        playQueueManager.removeAds(PlayQueueEvent.fromAdsRemoved(playQueueManager.getCollectionUrn()));
     }
 
     public Optional<AdData> getCurrentTrackAdData() {

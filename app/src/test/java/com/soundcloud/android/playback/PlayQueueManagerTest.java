@@ -592,9 +592,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueue.insertAudioAd(1, Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)), true);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
 
-        playQueueManager.removeAds(PlayQueueEvent.fromAudioAdRemoved(Urn.NOT_SET));
+        playQueueManager.removeAds(PlayQueueEvent.fromAdsRemoved(Urn.NOT_SET));
 
-        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.AUDIO_AD_REMOVED);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.ADS_REMOVED);
     }
 
     @Test

@@ -71,6 +71,13 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     }
 
     @Test
+    public void fadeAndPausePausesTrackThroughService() throws Exception {
+        defaultPlaybackStrategy.fadeAndPause();
+
+        verify(serviceInitiator).fadeAndPause();
+    }
+
+    @Test
     public void resumePlaysTrackThroughServiceIfServiceStarted() throws Exception {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
 
@@ -100,6 +107,19 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         defaultPlaybackStrategy.resume();
 
         verify(serviceInitiator).play(AudioPlaybackItem.create(track, 123L));
+    }
+
+    @Test
+    public void resumePlaysCurrentVideoThroughServiceIfServiceNotStarted() throws Exception {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
+
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
+        when(playSessionStateProvider.getLastProgressForItem(videoAd.getAdUrn())).thenReturn(new PlaybackProgress(123L, 456L));
+
+        defaultPlaybackStrategy.resume();
+
+        verify(serviceInitiator).play(VideoPlaybackItem.create(videoAd, 123L));
     }
 
     @Test
@@ -186,12 +206,13 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentPlaysVideoAdSuccessfully() {
-        final VideoAd videoAdData = AdFixtures.getVideoAd(TRACK1);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAdData));
+        final VideoAd videoAd = AdFixtures.getVideoAd(TRACK1);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
+        when(playSessionStateProvider.getLastProgressForItem(videoAd.getAdUrn())).thenReturn(PlaybackProgress.empty());
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
-        verify(serviceInitiator).play(VideoPlaybackItem.create(videoAdData));
+        verify(serviceInitiator).play(VideoPlaybackItem.create(videoAd, 0));
         playCurrentSubscriber.assertCompleted();
     }
 

@@ -22,14 +22,13 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.payments.NativeConversionActivity;
 import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.UserReleasesActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
@@ -51,24 +50,19 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Navigator {
 
     private static final int NO_FLAGS = 0;
-    private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_TASK_ON_HOME | Intent.FLAG_ACTIVITY_CLEAR_TASK;
+    private static final int FLAGS_TOP = Intent.FLAG_ACTIVITY_NEW_TASK
+            | Intent.FLAG_ACTIVITY_CLEAR_TOP
+            | Intent.FLAG_ACTIVITY_TASK_ON_HOME
+            | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
-
-    private final FeatureFlags featureFlags;
-
-    @Inject
-    public Navigator(FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
-    }
 
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));
@@ -97,13 +91,7 @@ public class Navigator {
     }
 
     public void openUpgrade(Context activityContext) {
-        activityContext.startActivity(new Intent(activityContext, getUpgradeClass()));
-    }
-
-    protected Class getUpgradeClass() {
-        return featureFlags.isEnabled(Flag.FEATURE_WEB_UPGRADE_FLOW)
-                ? WebConversionActivity.class
-                : NativeConversionActivity.class;
+        activityContext.startActivity(new Intent(activityContext, WebConversionActivity.class));
     }
 
     public void openUpgradeOnMain(Context context) {
@@ -118,7 +106,8 @@ public class Navigator {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, true));
     }
 
-    public void openPlaylist(Context context, Urn playlist, Screen screen, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
+    public void openPlaylist(Context context, Urn playlist, Screen screen,
+                             SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
     }
 
@@ -194,9 +183,19 @@ public class Navigator {
                 PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    public void openReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(createRepostsIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+    public void openProfileReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
+        context.startActivity(createProfileRepostsIntent(context, user, screen)
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
+    }
+
+    public void openProfileTracks(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
+        context.startActivity(createProfileTracksIntent(context, user, screen)
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
+    }
+
+    public void openProfileReleases(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
+        context.startActivity(createProfileReleasesIntent(context, user, screen)
+                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
     public void openActivities(Context context) {
@@ -355,9 +354,23 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createRepostsIntent(Context context, Urn user, Screen screen) {
+    private Intent createProfileRepostsIntent(Context context, Urn user, Screen screen) {
         Intent intent = new Intent(context, UserRepostsActivity.class)
                 .putExtra(UserRepostsActivity.EXTRA_USER_URN, user);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createProfileTracksIntent(Context context, Urn user, Screen screen) {
+        Intent intent = new Intent(context, UserTracksActivity.class)
+                .putExtra(UserTracksActivity.EXTRA_USER_URN, user);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createProfileReleasesIntent(Context context, Urn user, Screen screen) {
+        Intent intent = new Intent(context, UserReleasesActivity.class)
+                .putExtra(UserReleasesActivity.EXTRA_USER_URN, user);
         screen.addToIntent(intent);
         return intent;
     }

@@ -142,6 +142,10 @@ public class PlaySessionController {
         playbackStrategyProvider.get().pause();
     }
 
+    public void fadeAndPause() {
+        playbackStrategyProvider.get().fadeAndPause();
+    }
+
     public void seek(long position) {
         if (!shouldDisableSkipping()) {
             if (playSessionStateProvider.isPlayingCurrentPlayQueueItem()) {

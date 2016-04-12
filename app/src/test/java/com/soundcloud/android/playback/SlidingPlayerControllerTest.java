@@ -125,6 +125,15 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void hidesPlayerWhenHideEventIsReceived() {
+        controller.onResume(activity);
+
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.hidePlayer());
+
+        verify(slidingPanel).setPanelState(PanelState.HIDDEN);
+    }
+
+    @Test
     public void expandsPlayerWhenVisiblePlayTriggeredEventIsReceived() {
         controller.onResume(activity);
         when(slidingPanel.getPanelState()).thenReturn(PanelState.COLLAPSED);

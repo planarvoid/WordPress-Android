@@ -94,7 +94,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     @Inject PlaySessionController playSessionController;
     @Inject PlaybackInitiator playbackInitiator;
     @Inject ImageOperations imageOperations;
-    @Inject @LightCycle PlaylistEngagementsPresenter engagementsPresenter;
+    @Inject @LightCycle LegacyPlaylistEngagementsPresenter engagementsPresenter;
     @Inject @LightCycle PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
@@ -169,7 +169,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
                                  PlaylistOperations playlistOperations,
                                  EventBus eventBus,
                                  ImageOperations imageOperations,
-                                 PlaylistEngagementsPresenter engagementsPresenter,
+                                 LegacyPlaylistEngagementsPresenter engagementsPresenter,
                                  PullToRefreshController pullToRefreshController,
                                  PlayQueueManager playQueueManager,
                                  PlaylistDetailsViewFactory playlistDetailsViewFactory,
@@ -316,7 +316,9 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     }
 
     private void setupPlaylistDetails(View detailsView) {
-        playlistDetailsView = playlistDetailsViewFactory.create(detailsView, onPlayClick, onHeaderTextClick);
+        playlistDetailsView = playlistDetailsViewFactory.create(detailsView);
+        playlistDetailsView.setOnPlayButtonClickListener(onPlayClick);
+        playlistDetailsView.setOnCreatorButtonClickListener(onHeaderTextClick);
         engagementsPresenter.bindView(detailsView, new OriginProvider() {
             @Override
             public String getScreenTag() {

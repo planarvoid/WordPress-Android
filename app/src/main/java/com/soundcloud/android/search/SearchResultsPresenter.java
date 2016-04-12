@@ -13,8 +13,6 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -50,7 +48,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
             final List<PropertySet> sourceSetsItems = searchResult.getItems();
             final Optional<SearchResult> premiumContent = searchResult.getPremiumContent();
             final List<ListItem> searchItems = new ArrayList<>(sourceSetsItems.size() + PREMIUM_ITEMS_DISPLAYED);
-            if (premiumContent.isPresent() && featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)) {
+            if (premiumContent.isPresent()) {
                 final SearchResult premiumSearchResult = premiumContent.get();
                 final List<PropertySet> premiumSearchResultItems = premiumSearchResult.getItems();
                 premiumItems = buildPremiumItemsList(premiumSearchResultItems);
@@ -68,23 +66,22 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     private final SearchResultsAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
     private final Navigator navigator;
     private final SearchTracker searchTracker;
 
     private final Action1<SearchResult> trackSearch =
             new Action1<SearchResult>() {
-        @Override
-        public void call(SearchResult searchResult) {
-            queryUrn = (searchResult.queryUrn.isPresent()) ? searchResult.queryUrn.get() : Urn.NOT_SET;
-            searchTracker.setTrackingData(searchType, queryUrn, searchResult.getPremiumContent().isPresent());
-            if (publishSearchSubmissionEvent) {
-                publishSearchSubmissionEvent = false;
-                searchTracker.trackSearchSubmission(searchType, queryUrn);
-                searchTracker.trackResultsScreenEvent(searchType);
-            }
-        }
-    };
+                @Override
+                public void call(SearchResult searchResult) {
+                    queryUrn = searchResult.queryUrn.isPresent() ? searchResult.queryUrn.get() : Urn.NOT_SET;
+                    searchTracker.setTrackingData(searchType, queryUrn, searchResult.getPremiumContent().isPresent());
+                    if (publishSearchSubmissionEvent) {
+                        publishSearchSubmissionEvent = false;
+                        searchTracker.trackSearchSubmission(searchType, queryUrn);
+                        searchTracker.trackResultsScreenEvent(searchType);
+                    }
+                }
+            };
 
     private int searchType;
     private String searchQuery;
@@ -97,14 +94,13 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     @Inject
     SearchResultsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SearchOperations searchOperations,
                            SearchResultsAdapter adapter, MixedItemClickListener.Factory clickListenerFactory,
-                           EventBus eventBus, FeatureFlags featureFlags, Navigator navigator,
+                           EventBus eventBus, Navigator navigator,
                            SearchTracker searchTracker) {
         super(swipeRefreshAttacher, Options.list().build());
         this.searchOperations = searchOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
         this.navigator = navigator;
         this.searchTracker = searchTracker;
     }
@@ -210,8 +206,10 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     }
 
     @Override
-    public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource, Optional<Link> nextHref) {
+    public void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource,
+                                               Optional<Link> nextHref) {
         searchTracker.trackPremiumResultsScreenEvent(queryUrn);
-        navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource, nextHref, queryUrn);
+        navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource,
+                nextHref, queryUrn);
     }
 }

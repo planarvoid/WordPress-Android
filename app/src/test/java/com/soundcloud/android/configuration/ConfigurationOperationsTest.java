@@ -25,7 +25,6 @@ import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageConfigurationStorage;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestFeatures;
@@ -70,7 +69,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         configuration = ModelFixtures.create(Configuration.class);
         TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
         operations = new ConfigurationOperations(apiClientRx,
-                experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler, featureFlags, configurationSettingsStorage,
+                experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler, configurationSettingsStorage,
                 imageConfigurationStorage, factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1), scheduler);
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
@@ -78,7 +77,6 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(configuration);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(configuration));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
-        when(featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)).thenReturn(true);
     }
 
     @Test

@@ -115,7 +115,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
             return trackRepository.track(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
         } else if (currentPlayQueueItem.isVideo()) {
             final VideoAd videoAd = (VideoAd) currentPlayQueueItem.getAdData().get();
-            serviceInitiator.play(VideoPlaybackItem.create(videoAd));
+            serviceInitiator.play(VideoPlaybackItem.create(videoAd, getPosition(videoAd.getAdUrn())));
             return Observable.empty();
         } else {
             return Observable.empty();
@@ -158,6 +158,11 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                     }
                 })
                 .subscribeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public void fadeAndPause() {
+        serviceInitiator.fadeAndPause();
     }
 
     @Override

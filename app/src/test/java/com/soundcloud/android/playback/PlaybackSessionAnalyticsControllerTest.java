@@ -105,13 +105,13 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventDoesNotPublishEventWithInvalidTrackUrn() throws Exception {
-        analyticsController.onStateTransition(new Player.StateTransition(Player.PlayerState.IDLE, Player.Reason.NONE, Urn.NOT_SET));
+        analyticsController.onStateTransition(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.NOT_SET));
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEvent() throws Exception {
-        Player.StateTransition playEvent = publishPlayingEvent();
+        PlaybackStateTransition playEvent = publishPlayingEvent();
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -123,7 +123,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         publishPlayingEvent();
         final Urn trackUrn2 = Urn.forTrack(2L);
         when(trackRepository.track(trackUrn2)).thenReturn(Observable.<PropertySet>never());
-        Player.StateTransition playEvent2 = publishPlayingEventForTrack(trackUrn2);
+        PlaybackStateTransition playEvent2 = publishPlayingEventForTrack(trackUrn2);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent2, playbackSessionEvent);
@@ -133,14 +133,14 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEventForLocalStoragePlayback() throws Exception {
-        final Player.StateTransition startEvent = new Player.StateTransition(
-                Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, PROGRESS, DURATION);
-        startEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
-        startEvent.addExtraAttribute(Player.StateTransition.EXTRA_URI, "file://some/local/uri");
+        final PlaybackStateTransition startEvent = new PlaybackStateTransition(
+                PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, PROGRESS, DURATION);
+        startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, "file://some/local/uri");
 
         analyticsController.onStateTransition(startEvent);
 
-        Player.StateTransition playEvent = startEvent;
+        PlaybackStateTransition playEvent = startEvent;
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -149,8 +149,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStateDoesNotPublishTwoConsecutivePlayEvents() throws Exception {
-        Player.StateTransition playEvent = publishPlayingEvent();
-        Player.StateTransition nextEvent = new Player.StateTransition(Player.PlayerState.PLAYING, Player.Reason.NONE, TRACK_URN, PROGRESS + 1, DURATION);
+        PlaybackStateTransition playEvent = publishPlayingEvent();
+        PlaybackStateTransition nextEvent = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, PROGRESS + 1, DURATION);
         analyticsController.onStateTransition(nextEvent);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -158,11 +158,11 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(playbackSessionEvent.isStopEvent()).isFalse();
     }
 
-    private void expectCommonAudioEventData(Player.StateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
+    private void expectCommonAudioEventData(PlaybackStateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
         assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
         assertThat(playbackSessionEvent.getCreatorUrn()).isEqualTo(CREATOR_URN);
         assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_LOGGED_IN_USER_URN)).isEqualTo(LOGGED_IN_USER_URN.toString());
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
         assertThat(playbackSessionEvent.getUUID()).isEqualTo(UUID);
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
@@ -175,7 +175,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
-        Player.StateTransition playEvent = publishPlayingEvent();
+        PlaybackStateTransition playEvent = publishPlayingEvent();
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         // track properties
@@ -195,9 +195,9 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
 
         publishPlayingEvent();
-        publishStopEvent(Player.PlayerState.BUFFERING, Player.Reason.NONE); // make sure intermediate events don't matter
+        publishStopEvent(PlaybackState.BUFFERING, PlayStateReason.NONE); // make sure intermediate events don't matter
         publishPlayingEvent();
-        final Player.StateTransition stateTransition = publishStopEvent(Player.PlayerState.IDLE, Player.Reason.PLAYBACK_COMPLETE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        final PlaybackStateTransition stateTransition = publishStopEvent(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         when(stopReasonProvider.fromTransition(stateTransition)).thenReturn(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
@@ -239,7 +239,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
 
-        Player.StateTransition playEvent = publishPlayingEvent();
+        PlaybackStateTransition playEvent = publishPlayingEvent();
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -255,7 +255,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
 
-        Player.StateTransition playEvent = publishPlayingEvent();
+        PlaybackStateTransition playEvent = publishPlayingEvent();
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -280,7 +280,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Test
     public void stateChangeEventInNonPlayingStatePublishesStopReasonFromProvider() throws Exception {
         publishPlayingEvent();
-        publishStopEvent(Player.PlayerState.IDLE, Player.Reason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        publishStopEvent(PlaybackState.IDLE, PlayStateReason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_PAUSE);
     }
@@ -323,32 +323,32 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
     }
 
-    protected Player.StateTransition publishPlayingEvent() {
+    protected PlaybackStateTransition publishPlayingEvent() {
         return publishPlayingEventForTrack(TRACK_URN);
     }
 
-    protected Player.StateTransition publishPlayingEventForTrack(Urn trackUrn) {
-        final Player.StateTransition startEvent = new Player.StateTransition(
-                Player.PlayerState.PLAYING, Player.Reason.NONE, trackUrn, PROGRESS, DURATION);
-        startEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+    protected PlaybackStateTransition publishPlayingEventForTrack(Urn trackUrn) {
+        final PlaybackStateTransition startEvent = new PlaybackStateTransition(
+                PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, PROGRESS, DURATION);
+        startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
 
         analyticsController.onStateTransition(startEvent);
 
         return startEvent;
     }
 
-    protected Player.StateTransition publishStopEvent(Player.PlayerState newState, Player.Reason reason) {
-        final Player.StateTransition stopEvent = new Player.StateTransition(
+    protected PlaybackStateTransition publishStopEvent(PlaybackState newState, PlayStateReason reason) {
+        final PlaybackStateTransition stopEvent = new PlaybackStateTransition(
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
-        stopEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        stopEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
         analyticsController.onStateTransition(stopEvent);
         return stopEvent;
     }
 
-    private Player.StateTransition publishStopEvent(Player.PlayerState newState, Player.Reason reason, int stopReason) {
-        final Player.StateTransition stopEvent = new Player.StateTransition(
+    private PlaybackStateTransition publishStopEvent(PlaybackState newState, PlayStateReason reason, int stopReason) {
+        final PlaybackStateTransition stopEvent = new PlaybackStateTransition(
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
-        stopEvent.addExtraAttribute(Player.StateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        stopEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
         when(stopReasonProvider.fromTransition(stopEvent)).thenReturn(stopReason);
         analyticsController.onStateTransition(stopEvent);
         return stopEvent;

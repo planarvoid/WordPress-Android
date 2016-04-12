@@ -8,7 +8,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -114,7 +114,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
             subscribeForOfflineContentUpdates();
         } else if (featureOperations.upsellOfflineContent()) {
             headerView.showUpsell();
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesImpression());
+            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forLikesImpression());
         } else {
             headerView.show(OfflineState.NOT_OFFLINE);
         }
@@ -186,7 +186,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Override
     public void onUpsell() {
         navigator.openUpgrade(fragment.getActivity());
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forLikesClick());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forLikesClick());
     }
 
     @Override

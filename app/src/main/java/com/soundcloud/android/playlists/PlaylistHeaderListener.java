@@ -7,4 +7,6 @@ public interface PlaylistHeaderListener {
     void onHeaderPlay();
 
     void onGoToCreator(Urn creatorUrn);
+
+    void onEditPlaylist();
 }

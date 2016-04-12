@@ -19,7 +19,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.settings.SettingKey;
 import dagger.Lazy;
@@ -71,8 +71,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleForegroundEvent((ForegroundEvent) event);
         } else if (event instanceof PromotedTrackingEvent) {
             handlePromotedEvent((PromotedTrackingEvent) event);
-        } else if (event instanceof UpgradeTrackingEvent) {
-            handleUpsellEvent((UpgradeTrackingEvent) event);
+        } else if (event instanceof UpgradeFunnelEvent) {
+            handleUpsellEvent((UpgradeFunnelEvent) event);
         } else if (event instanceof FacebookInvitesEvent) {
             handleFacebookInvitesEvent((FacebookInvitesEvent) event);
         } else if (event instanceof CollectionEvent) {
@@ -125,7 +125,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
         trackEvent(eventData.getTimestamp(), dataBuilderV0.get().build(eventData));
     }
 
-    private void handleUpsellEvent(UpgradeTrackingEvent event) {
+    private void handleUpsellEvent(UpgradeFunnelEvent event) {
         trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUpsell(event));
     }
 
@@ -153,6 +153,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_SHARE:
             case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
             case UIEvent.KIND_VIDEO_AD_SHRINK:
+            case UIEvent.KIND_VIDEO_AD_CLICKTHROUGH:
             case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;

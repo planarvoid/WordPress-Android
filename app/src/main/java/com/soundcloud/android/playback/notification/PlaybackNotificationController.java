@@ -6,8 +6,8 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.playback.PlayQueueFunctions;
-import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PlaybackService;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlayerFunctions;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.RxUtils;
@@ -154,7 +154,7 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
         }
     }
 
-    private static class PlaybackStateSubscriber extends DefaultSubscriber<Player.StateTransition> {
+    private static class PlaybackStateSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
         private final Strategy strategy;
         private final PlaybackService playbackService;
 
@@ -164,7 +164,7 @@ public class PlaybackNotificationController extends DefaultActivityLightCycle<Ap
         }
 
         @Override
-        public void onNext(Player.StateTransition stateTransition) {
+        public void onNext(PlaybackStateTransition stateTransition) {
             if (stateTransition.getUrn().isTrack() && stateTransition.playSessionIsActive()) {
                 strategy.notifyPlaying(playbackService);
             } else {

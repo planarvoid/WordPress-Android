@@ -4,6 +4,7 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistPost;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.ApiEntityHolder;
@@ -21,26 +22,32 @@ import java.util.List;
 public class ProfileApiMobile implements ProfileApi {
 
     private final TypeToken<ModelCollection<ApiPostSource>> postSourceToken =
-            new TypeToken<ModelCollection<ApiPostSource>>() {};
+            new TypeToken<ModelCollection<ApiPostSource>>() {
+            };
 
     private final TypeToken<ModelCollection<ApiPlayableSource>> playableSourceToken =
-            new TypeToken<ModelCollection<ApiPlayableSource>>() {};
+            new TypeToken<ModelCollection<ApiPlayableSource>>() {
+            };
+
+    private final TypeToken<ModelCollection<ApiPlaylistPost>> playlistPostToken =
+            new TypeToken<ModelCollection<ApiPlaylistPost>>() {
+            };
 
     private static final Func1<ModelCollection<? extends ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>> SOURCE_TO_HOLDER =
             new Func1<ModelCollection<? extends ApiEntityHolderSource>, ModelCollection<ApiEntityHolder>>() {
-        @Override
-        public ModelCollection<ApiEntityHolder> call(ModelCollection<? extends ApiEntityHolderSource> modelCollection) {
-            final List<? extends ApiEntityHolderSource> collection = modelCollection.getCollection();
-            List<ApiEntityHolder> entityHolders = new ArrayList<>();
-            for (ApiEntityHolderSource entityHolderSource : collection) {
-                final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
-                if (entityHolder.isPresent()) {
-                    entityHolders.add(entityHolder.get());
+                @Override
+                public ModelCollection<ApiEntityHolder> call(ModelCollection<? extends ApiEntityHolderSource> modelCollection) {
+                    final List<? extends ApiEntityHolderSource> collection = modelCollection.getCollection();
+                    List<ApiEntityHolder> entityHolders = new ArrayList<>();
+                    for (ApiEntityHolderSource entityHolderSource : collection) {
+                        final Optional<ApiEntityHolder> entityHolder = entityHolderSource.getEntityHolder();
+                        if (entityHolder.isPresent()) {
+                            entityHolders.add(entityHolder.get());
+                        }
+                    }
+                    return new ModelCollection(entityHolders, modelCollection.getLinks());
                 }
-            }
-            return new ModelCollection(entityHolders, modelCollection.getLinks());
-        }
-    };
+            };
 
     private final ApiClientRx apiClientRx;
 
@@ -147,5 +154,45 @@ public class ProfileApiMobile implements ProfileApi {
                 .build();
 
         return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userTracks(Urn user) {
+        return getUserTracksCollection(ApiEndpoints.USER_TRACKS.path(user));
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink) {
+        return getUserTracksCollection(nextPageLink);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<ApiEntityHolder>> getUserTracksCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPrivateApi()
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user) {
+        return getUserReleasesCollection(ApiEndpoints.USER_RELEASES.path(user));
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink) {
+        return getUserReleasesCollection(nextPageLink);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<ApiPlaylistPost>> getUserReleasesCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPrivateApi()
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, playlistPostToken);
     }
 }

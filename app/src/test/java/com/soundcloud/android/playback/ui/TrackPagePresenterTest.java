@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.Player.Reason;
+import com.soundcloud.android.playback.PlayStateReason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,13 +18,14 @@ import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
@@ -82,6 +83,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
+    @Mock private ShareAsTextButtonExperiment shareExperiment;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -96,7 +98,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         ViewGroup container = new FrameLayout(context());
         presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, likeButtonPresenter, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, adOverlayControllerFactory,
-                errorControllerFactory, castConnectionHelper, resources(), upsellImpressionController);
+                errorControllerFactory, castConnectionHelper, resources(), upsellImpressionController, shareExperiment);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
@@ -137,7 +139,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void clearItemViewHidesSnippedAndUpsell() {
         presenter.clearItemView(trackView);
 
-        assertThat(getHolder(trackView).previewIndicator).isGone();
+        assertThat(getHolder(trackView).highTierLabel).isGone();
         assertThat(getHolder(trackView).upsellButton).isGone();
     }
 
@@ -217,7 +219,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void playingStateWithCurrentTrackSetsPlayStateOnArtwork() {
-        final Player.StateTransition state = TestPlayStates.playing(10, 20, dateProvider);
+        final PlaybackStateTransition state = TestPlayStates.playing(10, 20, dateProvider);
         presenter.setPlayState(trackView, state, true, true);
 
         verify(artworkController).setPlayState(state, true);
@@ -578,14 +580,14 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void onPlaybackErrorDismissOnLeaveBehindController() {
-        presenter.setPlayState(trackView, TestPlayStates.error(Reason.ERROR_FAILED), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.error(PlayStateReason.ERROR_FAILED), true, true);
 
         verify(adOverlayController).clear();
     }
 
     @Test
     public void onPlaybackErrorShowErrorState() {
-        presenter.setPlayState(trackView, TestPlayStates.error(Reason.ERROR_FAILED), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.error(PlayStateReason.ERROR_FAILED), true, true);
 
         verify(errorViewController).showError(ErrorViewController.ErrorState.FAILED);
     }
@@ -616,14 +618,14 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     public void previewLabelIsNotVisibleForNormalTracks() {
         populateTrackPage();
 
-        assertThat(getHolder(trackView).previewIndicator).isGone();
+        assertThat(getHolder(trackView).highTierLabel).isGone();
     }
 
     @Test
     public void bindingSnippedTrackInHighTierShowsPreviewIcon() {
         bindSnippedTrack();
 
-        assertThat(getHolder(trackView).previewIndicator).isVisible();
+        assertThat(getHolder(trackView).highTierLabel).isVisible();
     }
 
     @Test
@@ -702,6 +704,46 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         presenter.setExpanded(trackView, playQueueItem, true);
 
         verify(upsellImpressionController, never()).recordUpsellViewed(any(PlayQueueItem.class));
+    }
+
+    @Test
+    public void shouldHideShareButtonWhenCasting() {
+        when(castConnectionHelper.getDeviceName()).thenReturn("chromy");
+
+        populateTrackPage();
+
+        assertThat(getHolder(trackView).shareButton).isGone();
+        assertThat(getHolder(trackView).shareButtonText).isGone();
+    }
+
+    @Test
+    public void shouldShowShareButtonWhenNotCasting() {
+        when(castConnectionHelper.getDeviceName()).thenReturn(null);
+
+        populateTrackPage();
+
+        assertThat(getHolder(trackView).shareButton).isVisible();
+        assertThat(getHolder(trackView).shareButtonText).isGone();
+    }
+
+    @Test
+    public void shouldShowShareTextButtonWhenExperimentIsEnabled() {
+        when(shareExperiment.showAsText()).thenReturn(true);
+
+        populateTrackPage();
+
+        assertThat(getHolder(trackView).shareButton).isGone();
+        assertThat(getHolder(trackView).shareButtonText).isVisible();
+    }
+
+    @Test
+    public void shouldHideShareTextButtonWhenExperimentIsNotEnabled() {
+        when(shareExperiment.showAsText()).thenReturn(false);
+
+        populateTrackPage();
+
+        assertThat(getHolder(trackView).shareButton).isVisible();
+        assertThat(getHolder(trackView).shareButtonText).isGone();
     }
 
     private TrackPageHolder getHolder(View trackView) {

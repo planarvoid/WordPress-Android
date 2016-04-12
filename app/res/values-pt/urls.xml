@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
+
+    <string name="url_imprint">http://pages.soundcloud.com/pt_BR/other/imprint.html?format=ios</string>
+    <string name="url_terms">http://pages.soundcloud.com/pt_BR/legal/plain/terms-of-use-ios.html?format=ios</string>
+    <string name="url_go_terms">http://pages.soundcloud.com/pt_BR/legal/plain/go-terms-of-use-ios.html?format=ios</string>
+    <string name="url_privacy">http://pages.soundcloud.com/pt_BR/legal/plain/privacy-policy.html?format=ios</string>
+
+</resources>

@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
@@ -32,7 +32,7 @@ class WhyAdsDialogPresenter {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
 
         if (featureOperations.upsellRemoveAudioAds()) {
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forWhyAdsImpression());
+            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forWhyAdsImpression());
             configureForUpsell(context, view, dialog);
         } else {
             configureDefaultDialog(view, dialog);
@@ -51,7 +51,7 @@ class WhyAdsDialogPresenter {
                     @Override
                     public void onClick(DialogInterface dialog11, int which) {
                         navigator.openUpgrade(context);
-                        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forWhyAdsClick());
+                        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forWhyAdsClick());
                     }
                 })
                 .setNegativeButton(android.R.string.ok, null);

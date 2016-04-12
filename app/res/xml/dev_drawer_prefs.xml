@@ -28,6 +28,9 @@
         <Preference
             android:key="@string/dev_drawer_action_crash_key"
             android:title="@string/dev_drawer_action_crash_title"/>
+        <Preference
+            android:key="@string/dev_drawer_action_concurrent_key"
+            android:title="@string/dev_drawer_action_concurrent_title"/>
 
         <CheckBoxPreference
             android:key="@string/dev_drawer_flush_eventlogger_instantly_key"

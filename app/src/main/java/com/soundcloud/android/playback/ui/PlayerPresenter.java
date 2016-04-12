@@ -269,7 +269,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
         @Override
         public void onNext(PlayQueueEvent event) {
-            if (event.audioAdRemoved() && isLookingAtAdWithFullQueue()) {
+            if (event.adsRemoved() && isLookingAtAdWithFullQueue()) {
                 setPlayQueueAfterScroll = true;
                 trackPager.setCurrentItem(trackPager.getCurrentItem() + 1, true);
             } else if (!setPlayQueueAfterScroll) {

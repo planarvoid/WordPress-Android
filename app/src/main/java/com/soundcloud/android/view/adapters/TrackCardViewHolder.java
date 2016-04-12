@@ -33,7 +33,7 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     @Bind(R.id.overflow_button) View overflowButton;
     @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
 
-    @Nullable @Bind(R.id.preview_indicator) TextView previewIndicator;
+    @Nullable @Bind(R.id.high_tier_label) TextView previewIndicator;
 
     private CardEngagementsPresenter.CardEngagementClickListener clickListener;
     private final ImageOperations imageOperations;

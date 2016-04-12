@@ -7,6 +7,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.view.IconToggleButton;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -28,6 +30,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     private final Context context;
     private final Resources resources;
 
+    private final FeatureFlags featureFlags;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final DownloadStateView downloadStateView;
     private final LikeButtonPresenter likeButtonPresenter;
@@ -41,10 +44,12 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     @Inject
     public PlaylistEngagementsView(Context context,
+                                   FeatureFlags featureFlags,
                                    PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                    DownloadStateView downloadStateView,
                                    LikeButtonPresenter likeButtonPresenter) {
         this.context = context;
+        this.featureFlags = featureFlags;
         this.likeButtonPresenter = likeButtonPresenter;
         this.resources = context.getResources();
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -67,11 +72,11 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         downloadStateView.show(state);
     }
 
-    public void showNoWifi() {
+    void showNoWifi() {
         downloadStateView.setHeaderText(resources.getString(R.string.offline_no_wifi));
     }
 
-    public void showNoConnection() {
+    void showNoConnection() {
         downloadStateView.setHeaderText(resources.getString(R.string.offline_no_connection));
     }
 
@@ -128,7 +133,8 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.share, true);
         popupMenuWrapper.setItemVisible(R.id.repost, false);
         popupMenuWrapper.setItemVisible(R.id.unpost, false);
-        showDeletePlaylist();
+        popupMenuWrapper.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.EDIT_PLAYLIST));
+        popupMenuWrapper.setItemVisible(R.id.delete_playlist, true);
     }
 
     void showPublicOptions(boolean repostedByUser) {
@@ -141,11 +147,8 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.share, false);
         popupMenuWrapper.setItemVisible(R.id.repost, false);
         popupMenuWrapper.setItemVisible(R.id.unpost, false);
-        showDeletePlaylist();
-    }
-
-    private void showDeletePlaylist() {
-        popupMenuWrapper.setItemVisible(R.id.delete_playlist, true);
+        popupMenuWrapper.setItemVisible(R.id.edit_playlist, false);
+        popupMenuWrapper.setItemVisible(R.id.delete_playlist, false);
     }
 
     public void updateLikeItem(int likesCount, boolean likedByUser) {
@@ -189,6 +192,9 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
             case R.id.shuffle:
                 getListener().onPlayShuffled();
                 return true;
+            case R.id.edit_playlist:
+                getListener().onEditPlaylist();
+                return true;
             case R.id.delete_playlist:
                 getListener().onDeletePlaylist();
                 return true;
@@ -197,7 +203,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         }
     }
 
-    void setOnEngagement(OnEngagementListener listener) {
+    void setOnEngagementListener(OnEngagementListener listener) {
         this.listener = listener;
     }
 
@@ -245,5 +251,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         void onPlayShuffled();
 
         void onDeletePlaylist();
+
+        void onEditPlaylist();
     }
 }

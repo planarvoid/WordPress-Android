@@ -6,7 +6,6 @@ import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_TRACK;
 import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_UPSELL;
 import static com.soundcloud.android.search.SearchResultsAdapter.TYPE_USER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -16,7 +15,6 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -57,7 +55,6 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        when(featureFlags.isEnabled(Flag.SOUNDCLOUD_GO)).thenReturn(false);
         adapter = new SearchResultsAdapter(trackRenderer, playlistRenderer, userRenderer, premiumContentRenderer, searchUpsellRenderer);
     }
 

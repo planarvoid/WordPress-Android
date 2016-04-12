@@ -2,7 +2,8 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
         android:id="@+id/tour_logo"
@@ -41,8 +42,9 @@
 
         <RelativeLayout
             android:id="@+id/tour_bottom_bar"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="@dimen/landing_bottom_bar_height"
+            tools:visibility="visible"
             style="@style/Onboarding.LoginCreateAccountBar">
 
             <com.soundcloud.android.view.CustomFontButton

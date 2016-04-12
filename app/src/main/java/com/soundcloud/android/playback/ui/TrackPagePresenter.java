@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.playback.Player.StateTransition;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.R;
@@ -9,12 +8,14 @@ import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
@@ -66,6 +67,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final CastConnectionHelper castConnectionHelper;
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
+    private final ShareAsTextButtonExperiment shareExperiment;
 
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
@@ -82,7 +84,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               ErrorViewControllerFactory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper,
                               Resources resources,
-                              PlayerUpsellImpressionController upsellImpressionController) {
+                              PlayerUpsellImpressionController upsellImpressionController,
+                              ShareAsTextButtonExperiment shareExperiment) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -96,6 +99,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.castConnectionHelper = castConnectionHelper;
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
+        this.shareExperiment = shareExperiment;
     }
 
     @Override
@@ -163,6 +167,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(trackState.getUrn());
         holder.shareButton.setTag(trackState.getUrn());
+        holder.shareButtonText.setTag(trackState.getUrn());
 
         holder.footerUser.setText(trackState.getUserName());
         holder.footerTitle.setText(trackState.getTitle());
@@ -180,10 +185,11 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private void configureHighTierStates(PlayerTrackState trackState, TrackPageHolder holder,
                                          FeatureOperations featureOperations) {
         if (isHighTierPreview(trackState)) {
-            holder.previewIndicator.setVisibility(View.VISIBLE);
+            holder.highTierLabel.setText(R.string.upsell_track_preview);
+            holder.highTierLabel.setVisibility(View.VISIBLE);
             holder.upsellButton.setVisibility(featureOperations.upsellHighTier() ? View.VISIBLE : View.GONE);
         } else {
-            holder.previewIndicator.setVisibility(View.GONE);
+            holder.highTierLabel.setVisibility(View.GONE);
             holder.upsellButton.setVisibility(View.GONE);
         }
     }
@@ -228,7 +234,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     @Override
     public void setCastDeviceName(View view, String deviceName) {
-        getViewHolder(view).castDeviceName.setText(deviceName);
+        TrackPageHolder viewHolder = getViewHolder(view);
+        viewHolder.castDeviceName.setText(deviceName);
+        setupShareButtons(viewHolder);
     }
 
     @Override
@@ -269,14 +277,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.timestamp.setVisibility(View.GONE);
         holder.errorViewController.hideError();
 
-        holder.previewIndicator.setVisibility(View.GONE);
+        holder.highTierLabel.setVisibility(View.GONE);
         holder.upsellButton.setVisibility(View.GONE);
 
         return view;
     }
 
     @Override
-    public void setPlayState(View trackPage, StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
+    public void setPlayState(View trackPage, PlaybackStateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
@@ -294,7 +302,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         configureAdOverlay(stateTransition, isCurrentTrack, isForeground, holder);
     }
 
-    private void configureAdOverlay(StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
+    private void configureAdOverlay(PlaybackStateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
         if (isCurrentTrack) {
             if (stateTransition.isPlayerPlaying() && isForeground) {
                 holder.adOverlayController.show(true);
@@ -371,7 +379,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void setWaveformPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+    private void setWaveformPlayState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
         if (isCurrentTrack && state.playSessionIsActive()) {
             if (state.isPlayerPlaying()) {
                 holder.waveformController.showPlayingState(state.getProgress());
@@ -383,7 +391,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void setViewPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+    private void setViewPlayState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
         updateErrorState(holder, state, isCurrentTrack);
         holder.artworkController.setPlayState(state, isCurrentTrack);
 
@@ -394,7 +402,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setTextBackgrounds(holder, state.playSessionIsActive());
     }
 
-    private void updateErrorState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+    private void updateErrorState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
         if (isCurrentTrack && state.wasError()) {
             holder.errorViewController.showError(getErrorStateFromPlayerState(state));
         } else {
@@ -402,7 +410,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private ErrorViewController.ErrorState getErrorStateFromPlayerState(StateTransition state) {
+    private ErrorViewController.ErrorState getErrorStateFromPlayerState(PlaybackStateTransition state) {
         switch (state.getReason()) {
             case ERROR_NOT_FOUND:
             case ERROR_FORBIDDEN:
@@ -566,9 +574,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.previousButton = trackView.findViewById(R.id.player_previous);
         holder.playButton = trackView.findViewById(R.id.player_play);
         holder.profileLink = trackView.findViewById(R.id.profile_link);
+
         holder.shareButton = trackView.findViewById(R.id.track_page_share);
+        holder.shareButtonText = trackView.findViewById(R.id.track_page_share_text);
+        setupShareButtons(holder);
+
         holder.upsellButton = trackView.findViewById(R.id.upsell_button);
-        holder.previewIndicator = trackView.findViewById(R.id.preview_indicator);
+        holder.highTierLabel = (TextView) trackView.findViewById(R.id.high_tier_label);
 
         // set initial media route button state
         holder.mediaRouteButton = (MediaRouteButton) trackView.findViewById(R.id.media_route_button);
@@ -609,12 +621,15 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             }
         });
 
-        holder.shareButton.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener shareClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 holder.menuController.handleShare(view.getContext());
             }
-        });
+        };
+
+        holder.shareButton.setOnClickListener(shareClickListener);
+        holder.shareButtonText.setOnClickListener(shareClickListener);
 
         holder.likeToggle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -629,6 +644,23 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.errorViewController = errorControllerFactory.create(trackView);
     }
 
+    private void setupShareButtons(TrackPageHolder holder) {
+        boolean hasCastDeviceName = Strings.isNotBlank(castConnectionHelper.getDeviceName());
+
+        if (hasCastDeviceName) {
+            setShareButtonVisibility(holder, View.GONE, View.GONE);
+        } else if (shareExperiment.showAsText()) {
+            setShareButtonVisibility(holder, View.GONE, View.VISIBLE);
+        } else {
+            setShareButtonVisibility(holder, View.VISIBLE, View.GONE);
+        }
+    }
+
+    private void setShareButtonVisibility(TrackPageHolder holder, int iconVisibility, int textVisibility) {
+        holder.shareButton.setVisibility(iconVisibility);
+        holder.shareButtonText.setVisibility(textVisibility);
+    }
+
     private AdOverlayController.AdOverlayListener createAdOverlayListener(final TrackPageHolder holder) {
         return new AdOverlayController.AdOverlayListener() {
             @Override
@@ -640,6 +672,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 if (fullscreen) {
                     AnimUtils.hideViews(holder.hideOnAdViews);
                     castConnectionHelper.removeMediaRouterButton(holder.mediaRouteButton);
+                    setShareButtonVisibility(holder, View.GONE, View.GONE);
                 }
             }
 
@@ -652,6 +685,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 if (fullscreen) {
                     AnimUtils.showViews(holder.hideOnAdViews);
                     castConnectionHelper.addMediaRouterButton(holder.mediaRouteButton);
+                    setupShareButtons(holder);
                 }
             }
         };
@@ -675,12 +709,13 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         @Nullable View previousButton;
         @Nullable View playButton;
         View closeIndicator;
-        View previewIndicator;
+        TextView highTierLabel;
         View upsellButton;
         View profileLink;
         View playControlsHolder;
         View interstitialHolder;
         View shareButton;
+        View shareButtonText;
 
         WaveformViewController waveformController;
         TrackPageMenuController menuController;
@@ -713,7 +748,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         };
 
         public void populateViewSets() {
-            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose, previewIndicator, upsellButton);
+            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose, highTierLabel, upsellButton);
             List<View> hideOnError = Arrays.asList(playButton, timestamp);
             List<View> clickViews = Arrays.asList(artworkView, closeIndicator, bottomClose, playButton, footer, footerPlayToggle, profileLink, upsellButton);
 
@@ -724,7 +759,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
-            hideOnAdViews = Arrays.asList(close, more, likeToggle, shareButton, title, user, timestamp, castDeviceName);
+            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp, castDeviceName);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 

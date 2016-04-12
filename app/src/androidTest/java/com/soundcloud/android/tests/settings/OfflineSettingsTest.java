@@ -66,8 +66,9 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertTrue(offlineSettingsScreen.isVisible());
 
         offlineSettingsScreen.toggleSyncCollectionOn();
+        assertTrue("Sync Offline Collections should be checked", offlineSettingsScreen.isOfflineCollectionChecked());
 
-        solo.goBack();
+        getSolo().goBack();
         final DownloadImageViewElement downloadElement = mainNavHelper.goToCollections()
                 .scrollToFirstPlaylist()
                 .downloadElement();

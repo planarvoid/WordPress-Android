@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.mediaplayer;
 
+import static com.soundcloud.android.playback.PlaybackType.VIDEO_DEFAULT;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -9,6 +11,8 @@ import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoPlaybackItem;
@@ -33,11 +37,11 @@ import android.view.SurfaceHolder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-import static com.soundcloud.android.playback.PlaybackType.*;
+import static com.soundcloud.android.playback.PlaybackState.*;
+import static com.soundcloud.android.playback.PlaybackType.VIDEO_DEFAULT;
 
 @Singleton
 public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -64,6 +68,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     private PlaybackItem currentItem;
     private int connectionRetries = 0;
+    private float volume = 1.0f;
 
     private boolean waitingForSeek;
     private long seekPos = POS_NOT_SET;
@@ -105,10 +110,10 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
+            case VIDEO_DEFAULT:
                 play(playbackItem, playbackItem.getStartPosition());
                 break;
             case AUDIO_UNINTERRUPTED:
-            case VIDEO_DEFAULT:
                 play(playbackItem, 0);
                 break;
             default:
@@ -156,7 +161,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
             if (playerListener != null && playerListener.requestAudioFocus()) {
                 play();
-                publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
+                publishTimeToPlayEventIfAudio(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
 
                 if (resumePos > 0) {
                     seek(resumePos, true);
@@ -177,11 +182,13 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         connectionRetries = 0;
     }
 
-    private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
-        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
-                streamUrl, accountOperations.getLoggedInUserUrn());
-        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+    private void publishTimeToPlayEventIfAudio(long timeToPlay, String streamUrl) {
+        if (currentItem.getPlaybackType() != VIDEO_DEFAULT) {
+            final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
+                    getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
+                    streamUrl, accountOperations.getLoggedInUserUrn());
+            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+        }
     }
 
     private PlaybackProtocol getPlaybackProtocol() {
@@ -370,11 +377,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
 
         if (playerListener != null && currentItem != null) {
-            final StateTransition stateTransition = new StateTransition(getTranslatedState(), getTranslatedReason(), currentItem.getUrn(), progress, duration, dateProvider);
-            stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
-            stateTransition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
-            stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
-            stateTransition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
+            final PlaybackStateTransition stateTransition = new PlaybackStateTransition(getTranslatedState(), getTranslatedReason(), currentItem.getUrn(), progress, duration, dateProvider);
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
             playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(stateTransition,
                     getPlaybackProtocol(),
@@ -414,7 +421,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     @Override
     public void destroy() {
         stop();
-        clearVideoView();
         // make sure there aren't any other messages coming
         playerHandler.removeCallbacksAndMessages(null);
     }
@@ -500,32 +506,32 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
     }
 
-    private PlayerState getTranslatedState() {
+    private com.soundcloud.android.playback.PlaybackState getTranslatedState() {
         switch (internalState) {
             case PREPARING:
             case PAUSED_FOR_BUFFERING:
-                return PlayerState.BUFFERING;
+                return BUFFERING;
             case PLAYING:
-                return PlayerState.PLAYING;
+                return PLAYING;
             case ERROR:
             case COMPLETED:
             case PAUSED:
             case STOPPED:
             case ERROR_RETRYING:
-                return PlayerState.IDLE;
+                return IDLE;
             default:
                 throw new IllegalArgumentException("No translated state for " + internalState);
         }
     }
 
-    private Reason getTranslatedReason() {
+    private PlayStateReason getTranslatedReason() {
         switch (internalState) {
             case ERROR:
-                return networkConnectionHelper.isNetworkConnected() ? Reason.ERROR_NOT_FOUND : Reason.ERROR_FAILED;
+                return networkConnectionHelper.isNetworkConnected() ? PlayStateReason.ERROR_NOT_FOUND : PlayStateReason.ERROR_FAILED;
             case COMPLETED:
-                return Reason.PLAYBACK_COMPLETE;
+                return PlayStateReason.PLAYBACK_COMPLETE;
             default:
-                return Reason.NONE;
+                return PlayStateReason.NONE;
         }
     }
 
@@ -537,8 +543,14 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     @Override
     public void setVolume(float volume) {
         if (mediaPlayer != null) {
+            this.volume = volume;
             mediaPlayer.setVolume(volume, volume);
         }
+    }
+
+    @Override
+    public float getVolume() {
+        return volume;
     }
 
     @Override

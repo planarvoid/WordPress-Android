@@ -16,7 +16,7 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
@@ -113,7 +113,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             case R.id.upsell_offline_content:
                 navigator.openUpgrade(context);
                 eventBus.publish(EventQueue.TRACKING,
-                        UpgradeTrackingEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(), playlist.getUrn()));
+                        UpgradeFunnelEvent.forPlaylistItemClick(screenProvider.getLastScreenTag(), playlist.getUrn()));
                 return true;
             case R.id.make_offline_available:
                 saveOffline();
@@ -270,7 +270,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         }
         if (menu.findItem(R.id.upsell_offline_content).isVisible()) {
             eventBus.publish(EventQueue.TRACKING,
-                    UpgradeTrackingEvent.forPlaylistItemImpression(screenProvider.getLastScreenTag(), playlist.getUrn()));
+                    UpgradeFunnelEvent.forPlaylistItemImpression(screenProvider.getLastScreenTag(), playlist.getUrn()));
         }
     }
 

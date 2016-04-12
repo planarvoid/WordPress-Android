@@ -202,19 +202,27 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void bindsPreviewIndicatorForSnippedForMidTierUpsell() {
+    public void bindsPreviewLabelForSnippedTrack() {
         TrackItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem);
 
-        verify(itemView).togglePreviewIndicator(true);
+        verify(itemView).showHighTierLabel(R.string.upsell_track_preview);
     }
 
     @Test
-    public void doesNotBindPreviewIndicatorWhenShouldNotUpsellMidTier() {
+    public void bindsGoLabelForAvailableHighTierTrack() {
+        TrackItem trackItem = highTierTrack();
+        presenter.bind(itemView, trackItem);
+
+        verify(itemView).showHighTierLabel(R.string.go);
+    }
+
+    @Test
+    public void hidesHighTierLabelWhenOtherItem() {
         PlayableItem trackItem = repostedTrack();
         presenter.bind(itemView, trackItem);
 
-        verify(itemView).togglePreviewIndicator(false);
+        verify(itemView).hideHighTierLabel();
     }
 
     private PlaylistItem postedPlaylist() {
@@ -251,6 +259,13 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private TrackItem upsellableTrack() {
         final PropertySet track = TestPropertySets.upsellableTrack();
+        track.put(SoundStreamProperty.CREATED_AT, createdAtStream);
+
+        return TrackItem.from(track);
+    }
+
+    private TrackItem highTierTrack() {
+        final PropertySet track = TestPropertySets.highTierTrack();
         track.put(SoundStreamProperty.CREATED_AT, createdAtStream);
 
         return TrackItem.from(track);

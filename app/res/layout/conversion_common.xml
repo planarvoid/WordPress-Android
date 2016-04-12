@@ -27,6 +27,7 @@
         style="@style/ConversionText.Title"
         android:layout_below="@id/conversion_cloud"
         android:layout_marginTop="14dp"
+        android:gravity="center"
         android:text="@string/conversion_title" />
 
     <com.soundcloud.android.view.CustomFontTextView

@@ -198,6 +198,8 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         public void onNext(PlayerUICommand event) {
             if (event.isShow()) {
                 showPanelAsCollapsedIfNeeded();
+            } else if (event.isHide()) {
+                hide();
             } else if (event.isExpand()) {
                 expand();
             } else if (event.isCollapse()) {

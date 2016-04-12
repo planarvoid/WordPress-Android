@@ -9,7 +9,6 @@ import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.UpgradeScreen;
 
@@ -26,12 +25,6 @@ public class UpgradeTrackingTest extends TrackingActivityTest<MainActivity> {
     protected void logInHelper() {
         TestUser.upsellUser.logIn(getInstrumentation().getTargetContext());
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        setRequiredEnabledFeatures(Flag.SOUNDCLOUD_GO);
-        super.setUp();
     }
 
     public void testUpgradePageEvents() {

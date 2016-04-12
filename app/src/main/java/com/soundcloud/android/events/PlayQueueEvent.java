@@ -7,7 +7,7 @@ public class PlayQueueEvent {
 
     public static final int NEW_QUEUE = 0;
     public static final int QUEUE_UPDATE = 1;
-    public static final int AUDIO_AD_REMOVED = 2;
+    public static final int ADS_REMOVED = 2;
 
     private final int kind;
     private final Urn collectionUrn;
@@ -31,8 +31,8 @@ public class PlayQueueEvent {
         return new PlayQueueEvent(QUEUE_UPDATE, collectionUrn);
     }
 
-    public static PlayQueueEvent fromAudioAdRemoved(Urn collectionUrn) {
-        return new PlayQueueEvent(AUDIO_AD_REMOVED, collectionUrn);
+    public static PlayQueueEvent fromAdsRemoved(Urn collectionUrn) {
+        return new PlayQueueEvent(ADS_REMOVED, collectionUrn);
     }
 
     public boolean isQueueUpdate() {
@@ -43,8 +43,8 @@ public class PlayQueueEvent {
         return kind == NEW_QUEUE;
     }
 
-    public boolean audioAdRemoved() {
-        return kind == AUDIO_AD_REMOVED;
+    public boolean adsRemoved() {
+        return kind == ADS_REMOVED;
     }
 
     @Override
@@ -70,8 +70,8 @@ public class PlayQueueEvent {
                 return "NEW_QUEUE";
             case QUEUE_UPDATE:
                 return "QUEUE_UPDATE";
-            case AUDIO_AD_REMOVED:
-                return "AUDIO_AD_REMOVED";
+            case ADS_REMOVED:
+                return "ADS_REMOVED";
             default:
                 return "unknown";
         }

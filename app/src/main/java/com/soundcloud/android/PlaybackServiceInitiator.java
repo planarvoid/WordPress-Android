@@ -44,6 +44,10 @@ public class PlaybackServiceInitiator {
         playerAction(PlaybackService.Action.PAUSE);
     }
 
+    public void fadeAndPause() {
+        playerAction(PlaybackService.Action.FADE_AND_PAUSE);
+    }
+
     public void play(PlaybackItem playbackItem) {
         startPlayback(playbackItem, PlaybackService.Action.PLAY);
     }

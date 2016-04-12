@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.Player.StateTransition;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
 import java.util.ArrayList;
@@ -28,34 +28,37 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     public final TrackSourceInfo trackSourceInfo;
 
     private int stopReason;
-    private StateTransition stateTransition;
+    private PlaybackStateTransition stateTransition;
     private List<String> trackingUrls = Collections.emptyList();
 
     public static AdPlaybackSessionEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
-                .setQuartileTrackingUrls(FIRST_QUARTILE_TYPE, adData)
-                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, FIRST_QUARTILE_TYPE);
+        return forQuartile(adData, trackSourceInfo, FIRST_QUARTILE_TYPE);
     }
 
     public static AdPlaybackSessionEvent forSecondQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
-                .setQuartileTrackingUrls(SECOND_QUARTILE_TYPE, adData)
-                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, SECOND_QUARTILE_TYPE);
+        return forQuartile(adData, trackSourceInfo, SECOND_QUARTILE_TYPE);
     }
 
     public static AdPlaybackSessionEvent forThirdQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
-                .setQuartileTrackingUrls(THIRD_QUARTILE_TYPE, adData)
-                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, THIRD_QUARTILE_TYPE);
+        return forQuartile(adData, trackSourceInfo, THIRD_QUARTILE_TYPE);
     }
 
-    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo, StateTransition stateTransition) {
+    private static AdPlaybackSessionEvent forQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
+                                                      String quartileType)  {
+        return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
+                .setQuartileTrackingUrls(quartileType, adData)
+                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
+    }
+
+    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
+                                                 PlaybackStateTransition stateTransition) {
         return new AdPlaybackSessionEvent(EVENT_KIND_PLAY, adData, trackSourceInfo)
                 .setStateTransition(stateTransition)
                 .setPlaybackTrackingUrls(adData);
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo, StateTransition stateTransition, int stopReason) {
+    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
+                                                 PlaybackStateTransition stateTransition, int stopReason) {
         return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, trackSourceInfo)
                 .setStateTransition(stateTransition)
                 .setStopReason(stopReason)
@@ -64,16 +67,11 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
 
     private AdPlaybackSessionEvent(String kind, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
         super(kind, System.currentTimeMillis());
-
         this.trackSourceInfo = trackSourceInfo;
 
         put(AdTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
-        if (adData instanceof VideoAd) {
-            put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_VIDEO);
-        } else {
-            put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO);
-        }
+        put(AdTrackingKeys.KEY_MONETIZATION_TYPE, adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO);
     }
 
     public boolean isFirstPlay() {
@@ -101,7 +99,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
         return this;
     }
 
-    public AdPlaybackSessionEvent setStateTransition(StateTransition stateTransition) {
+    public AdPlaybackSessionEvent setStateTransition(PlaybackStateTransition stateTransition) {
         this.stateTransition = stateTransition;
         return this;
     }

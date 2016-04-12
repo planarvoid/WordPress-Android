@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 public final class PlayerUICommand {
 
     private static final int SHOW_PLAYER = 0;
+    private static final int HIDE_PLAYER = 7;
     private static final int EXPAND_PLAYER = 1;
     private static final int COLLAPSE_PLAYER = 2;
     private static final int LOCK_PLAYER_EXPANDED = 3;
@@ -17,6 +18,13 @@ public final class PlayerUICommand {
      */
     public static PlayerUICommand showPlayer() {
         return new PlayerUICommand(SHOW_PLAYER);
+    }
+
+    /**
+     * Signals any on-screen instance of the player to be hidden.
+     */
+    public static PlayerUICommand hidePlayer() {
+        return new PlayerUICommand(HIDE_PLAYER);
     }
 
     /**
@@ -67,6 +75,10 @@ public final class PlayerUICommand {
 
     public boolean isShow() {
         return kind == SHOW_PLAYER;
+    }
+
+    public boolean isHide() {
+        return kind == HIDE_PLAYER;
     }
 
     public boolean isExpand() {

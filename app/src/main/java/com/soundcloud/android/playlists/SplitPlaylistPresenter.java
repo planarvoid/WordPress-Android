@@ -1,8 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -11,7 +9,6 @@ import rx.functions.Func1;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.ArrayList;
 
 public class SplitPlaylistPresenter extends PlaylistPresenter {
@@ -19,14 +16,12 @@ public class SplitPlaylistPresenter extends PlaylistPresenter {
     @Inject
     public SplitPlaylistPresenter(PlaylistOperations playlistOperations,
                                   SwipeRefreshAttacher swipeRefreshAttacher,
-                                  PlaylistHeaderPresenterFactory headerPresenterFactory,
-                                  Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                                  PlaylistHeaderPresenter headerPresenter,
                                   PlaylistAdapterFactory adapterFactory,
                                   EventBus eventBus,
-                                  PlaybackInitiator playbackInitiator,
-                                  Navigator navigator) {
-        super(playlistOperations, swipeRefreshAttacher, headerPresenterFactory, expandPlayerSubscriberProvider,
-                adapterFactory, eventBus, playbackInitiator, navigator);
+                                  Navigator navigator,
+                                  ViewStrategyFactory viewStrategyFactory) {
+        super(playlistOperations, swipeRefreshAttacher, headerPresenter, adapterFactory, eventBus, navigator, viewStrategyFactory);
     }
 
     @Override

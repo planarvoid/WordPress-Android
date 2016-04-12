@@ -20,8 +20,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -45,11 +45,9 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.functions.Func1;
-import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
 import javax.inject.Provider;
 import java.util.ArrayList;
@@ -62,15 +60,17 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private static final Urn UPDATED_PLAYLIST_URN = Urn.forPlaylist(456);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
 
-    private TestSubscriber<PlaybackResult> playerExpandSubscriber = new TestSubscriber<>();
-    private Provider expandPlayerSubscriberProvider = providerOf(playerExpandSubscriber);
+    private final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+    private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
+    private final PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
+    private final PropertySet track3 = ModelFixtures.create(ApiTrack.class).toPropertySet();
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_details_fragment, new Bundle());
 
+    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = providerOf(mock(ExpandPlayerSubscriber.class));
     @Mock private PlaylistOperations operations;
     @Mock private SwipeRefreshAttacher swipeAttacher;
     @Mock private CollapsingScrollHelper profileScrollHelper;
-    @Mock private PlaylistHeaderPresenterFactory headerPresenterFactory;
     @Mock private PlaylistHeaderPresenter headerPresenter;
     @Mock private PlaylistAdapterFactory adapterFactory;
     @Mock private PlaylistAdapter adapter;
@@ -79,13 +79,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private Bundle args;
-
     private PlaylistPresenter presenter;
-
-    private final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-    private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
-    private final PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
-    private final PropertySet track3 = ModelFixtures.create(ApiTrack.class).toPropertySet();
     private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
     private PlaylistWithTracks updatedPlaylistWithTracks = new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(TrackItem.from(track1), TrackItem.from(track2), TrackItem.from(track3)));
 
@@ -94,11 +88,10 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         args = PlaylistDetailFragment.createBundle(PLAYLIST_URN, Screen.PLAYLIST_DETAILS, null, null, false);
         fragmentRule.setFragmentArguments(args);
 
-        when(headerPresenterFactory.create(any(PlaylistHeaderListener.class))).thenReturn(headerPresenter);
         when(adapterFactory.create(any(PlaylistHeaderPresenter.class))).thenReturn(adapter);
         when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
 
-        presenter = getPlaylistPresenter(eventBus);
+        presenter = new TestPlaylistPresenter(eventBus);
     }
 
     @Test
@@ -198,7 +191,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         when(mockEventBus.queue(any(Queue.class))).thenReturn(queueSubject);
         when(mockEventBus.subscribe(any(Queue.class), any(Observer.class))).thenReturn(mock(Subscription.class));
-        presenter = getPlaylistPresenter(mockEventBus);
+        presenter = new TestPlaylistPresenter(mockEventBus);
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -215,19 +208,20 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         return Arrays.<ListItem>asList(TrackItem.from(track1), TrackItem.from(track2), TrackItem.from(track3));
     }
 
-    @NonNull
-    public PlaylistPresenter getPlaylistPresenter(EventBus eventBus) {
-        return new PlaylistPresenter(operations, swipeAttacher, headerPresenterFactory,
-                expandPlayerSubscriberProvider, adapterFactory, eventBus, playbackInitiator, navigator) {
-            @Override
-            protected Func1<PlaylistWithTracks, Iterable<ListItem>> getListItemTransformation() {
-                return new Func1<PlaylistWithTracks, Iterable<ListItem>>() {
-                    @Override
-                    public Iterable<ListItem> call(PlaylistWithTracks playlistWithTracks) {
-                        return new ArrayList<ListItem>(playlistWithTracks.getTracks());
-                    }
-                };
-            }
-        };
+    private class TestPlaylistPresenter extends PlaylistPresenter {
+        public TestPlaylistPresenter(EventBus eventBus) {
+            super(operations, swipeAttacher, PlaylistPresenterTest.this.headerPresenter, adapterFactory, eventBus, navigator,
+                    new ViewStrategyFactory(providerOf(eventBus), providerOf(playbackInitiator), providerOf(operations), providerOf(expandPlayerSubscriberProvider)));
+        }
+
+        @Override
+        protected Func1<PlaylistWithTracks, Iterable<ListItem>> getListItemTransformation() {
+            return new Func1<PlaylistWithTracks, Iterable<ListItem>>() {
+                @Override
+                public Iterable<ListItem> call(PlaylistWithTracks playlistWithTracks) {
+                    return new ArrayList<ListItem>(playlistWithTracks.getTracks());
+                }
+            };
+        }
     }
 }

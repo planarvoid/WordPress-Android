@@ -11,7 +11,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -52,7 +52,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.trackResubscribeButtonImpression();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
-                .isEqualTo(UpgradeTrackingEvent.KIND_RESUBSCRIBE_IMPRESSION);
+                .isEqualTo(UpgradeFunnelEvent.KIND_RESUBSCRIBE_IMPRESSION);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class GoOffboardingPresenterTest extends AndroidUnitTest {
         presenter.onResubscribeClicked();
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind())
-                .isEqualTo(UpgradeTrackingEvent.KIND_RESUBSCRIBE_CLICK);
+                .isEqualTo(UpgradeFunnelEvent.KIND_RESUBSCRIBE_CLICK);
     }
 
     @Test

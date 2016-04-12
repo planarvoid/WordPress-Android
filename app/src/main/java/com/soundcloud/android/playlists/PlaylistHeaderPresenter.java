@@ -1,50 +1,45 @@
 package com.soundcloud.android.playlists;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycles;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-@AutoFactory(allowSubclasses = true)
+import javax.inject.Inject;
+
 class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
-
-    @LightCycle PlaylistEngagementsPresenter engagementsPresenter;
-
+    private final EventBus eventBus;
     private final PlaylistDetailsViewFactory playlistDetailsViewFactory;
-    private final PlaylistHeaderListener listener;
-    private Subscription loadPlaylistSubscription = RxUtils.invalidSubscription();
 
+    @LightCycle final PlaylistViewHeaderPresenter playlistViewHeaderPresenter;
+
+    private Subscription foregroundSubscription = RxUtils.invalidSubscription();
     private Optional<PlaylistDetailsView> playlistDetailsView = Optional.absent();
     private Optional<PlaylistHeaderItem> playlist = Optional.absent();
-    private Fragment fragment;
 
-    public PlaylistHeaderPresenter(@Provided PlaylistDetailsViewFactory playlistDetailsViewFactory,
-                                   @Provided PlaylistEngagementsPresenter engagementsPresenter,
-                                   PlaylistHeaderListener listener) {
+
+    @Inject
+    PlaylistHeaderPresenter(EventBus eventBus, PlaylistDetailsViewFactory playlistDetailsViewFactory, PlaylistViewHeaderPresenter playlistViewHeaderPresenter) {
+        this.eventBus = eventBus;
         this.playlistDetailsViewFactory = playlistDetailsViewFactory;
-        this.engagementsPresenter = engagementsPresenter;
-        this.listener = listener;
+        this.playlistViewHeaderPresenter = playlistViewHeaderPresenter;
     }
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
-        // this has to be called before onCreate, otherwise engagementsPresenter onCreate will not be called
         LightCycles.bind(this);
         super.onCreate(fragment, bundle);
-
-        this.fragment = fragment;
     }
 
     @Override
@@ -53,64 +48,65 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
         final View headerView = view.findViewById(R.id.playlist_details);
         if (headerView != null) {
-            setView(headerView);
+            bindView(headerView);
         }
     }
 
-    public void setView(View view) {
-        playlistDetailsView = Optional.of(playlistDetailsViewFactory.create(view,
-                getPlayButtonListener(),
-                getCreatorClickListener()));
+    @Override
+    public void onResume(Fragment fragment) {
+        super.onResume(fragment);
+        foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
+    }
 
-        engagementsPresenter.bindView(view, new OriginProvider() {
 
-            @Override
-            public String getScreenTag() {
-                return Screen.fromBundle(fragment.getArguments()).get();
-            }
-        });
+    @Override
+    public void onPause(Fragment fragment) {
+        foregroundSubscription.unsubscribe();
+        super.onPause(fragment);
+    }
 
+
+    public void setScreen(String screen) {
+        playlistViewHeaderPresenter.setScreen(screen);
+    }
+
+    public void setListener(PlaylistHeaderListener playlistPresenter) {
+        playlistViewHeaderPresenter.setListener(playlistPresenter);
+    }
+
+    public void setPlaylist(PlaylistHeaderItem playlistHeaderItem) {
+        this.playlist = Optional.of(playlistHeaderItem);
         bindPlaylistToView();
     }
 
-    public void setPlaylist(PlaylistHeaderItem playlistItem) {
-        this.playlist = Optional.of(playlistItem);
+    public void bindView(View itemView) {
+        playlistDetailsView = Optional.of(playlistDetailsViewFactory.create(itemView));
+        playlistDetailsView.get().setOnPlayButtonClickListener(playlistViewHeaderPresenter.getPlayButtonListener());
+        playlistDetailsView.get().setOnCreatorButtonClickListener(playlistViewHeaderPresenter.getCreatorClickListener());
+        playlistViewHeaderPresenter.bindView(itemView);
         bindPlaylistToView();
-    }
-
-    @NonNull
-    private View.OnClickListener getCreatorClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (playlist.isPresent()) {
-                    listener.onGoToCreator(playlist.get().getCreatorUrn());
-                }
-            }
-        };
-    }
-
-    @NonNull
-    private View.OnClickListener getPlayButtonListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onHeaderPlay();
-            }
-        };
     }
 
     private void bindPlaylistToView() {
         if (playlist.isPresent() && playlistDetailsView.isPresent()) {
             final PlaylistHeaderItem playlistHeaderItem = playlist.get();
             playlistDetailsView.get().setPlaylist(playlistHeaderItem, playlistHeaderItem.showPlayButton());
-            engagementsPresenter.setPlaylistInfo(playlistHeaderItem);
+            playlistViewHeaderPresenter.setPlaylistInfo(playlistHeaderItem);
         }
     }
 
-    @Override
-    public void onDestroyView(Fragment fragment) {
-        loadPlaylistSubscription.unsubscribe();
-        super.onDestroyView(fragment);
+    public String getTitle() {
+        return playlist.get().getTitle();
+    }
+
+    public boolean isPrivate() {
+        return playlist.get().isPrivate();
+    }
+
+    private class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+        @Override
+        public void onNext(EntityStateChangedEvent event) {
+            playlistViewHeaderPresenter.update(event);
+        }
     }
 }

@@ -11,6 +11,7 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.PlayerAdData;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -82,6 +83,19 @@ public class AdPageListenerTest extends AndroidUnitTest {
         final UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AUDIO_AD_CLICK);
         assertThat(uiEvent.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
+    }
+
+    @Test
+    public void onClickThroughShouldPublishUIEventForVideoAdClick() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(videoAd));
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
+
+        listener.onClickThrough();
+
+        final UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_CLICKTHROUGH);
     }
 
     @Test

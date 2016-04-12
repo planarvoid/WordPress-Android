@@ -11,7 +11,7 @@
 
         <item name="android:windowAnimationStyle">@style/Animation.Activity</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">@bool/light_status_bar</item>
-
+        <item name="windowActionModeOverlay">true</item>
         <item name="searchViewStyle">@style/SearchView.SoundCloud</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorPrimary">@color/primary</item>

@@ -80,7 +80,8 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
         List<String> urls;
         switch (event.getKind()) {
             case UIEvent.KIND_AUDIO_AD_CLICK:
-                urls = event.getAudioAdClickthroughUrls();
+            case UIEvent.KIND_VIDEO_AD_CLICKTHROUGH:
+                urls = event.getAdClickthroughUrls();
                 break;
             case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
             case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:

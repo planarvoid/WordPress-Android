@@ -1,5 +1,8 @@
 package com.soundcloud.android.tracks;
 
+import static android.text.Html.fromHtml;
+import static java.lang.System.getProperty;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -15,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.Locale;
 
 public class TrackInfoPresenter {
 
@@ -57,7 +61,7 @@ public class TrackInfoPresenter {
             bindNoDescription(view);
         } else {
             hideView(view, R.id.no_description);
-            setTextAndShow(view, R.id.description, Html.fromHtml(source.replace(System.getProperty("line.separator"), "<br/>")));
+            setTextAndShow(view, R.id.description, fromHtml(source.replace(getProperty("line.separator"), "<br/>")));
         }
         hideView(view, R.id.loading);
     }
@@ -100,7 +104,10 @@ public class TrackInfoPresenter {
     }
 
     private void bindUploadedSinceText(View view, PropertySet propertySet) {
-        final String timeElapsed = ScTextUtils.formatTimeElapsedSince(resources, propertySet.get(PlayableProperty.CREATED_AT).getTime(), true);
+        long createdAt = propertySet.get(PlayableProperty.CREATED_AT).getTime();
+        final String timeElapsed = ScTextUtils
+                .formatTimeElapsedSince(resources, createdAt, true)
+                .toLowerCase(Locale.getDefault());
         setTextAndShow(view, R.id.uploaded_at, resources.getString(R.string.uploaded_xtimeago, timeElapsed));
     }
 

@@ -11,6 +11,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -38,7 +39,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(accountOperations.getSoundCloudToken()).thenReturn(Token.EMPTY);
-        WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", "$1", 30, "start", "expiry");
+        WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", "$1", "1.00", "USD", 30, "start", "expiry");
         activity.setIntent(new Intent().putExtra(WebConversionPresenter.PRODUCT_INFO, product));
 
         eventBus = new TestEventBus();
@@ -89,8 +90,17 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void successfulPaymentTracksPurchaseForHighTierSub() {
+        presenter.onCreate(activity, null);
+
+        presenter.onPaymentSuccess();
+
+        eventBus.lastEventOn(EventQueue.TRACKING).getKind().equals(PurchaseEvent.KIND_HIGH_TIER_SUB);
+    }
+
+    @Test
     public void shouldBuildUrlThatIncludesCorrectQueryParamsWhenThereIsNoDiscount() {
-        final WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", null, 30, "start", "expiry");
+        final WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 30, "start", "expiry");
         final String token = "12345";
         final String environment = "test";
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
@@ -101,7 +111,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildUrlThatIncludesCorrectQueryParamsWhenThereIsADiscount() {
-        final WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", "$1", 30, "start", "expiry");
+        final WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", "$1", "1.00", "USD", 30, "start", "expiry");
         final String token = "12345";
         final String environment = "test";
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));

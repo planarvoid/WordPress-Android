@@ -9,7 +9,7 @@
               "artifacts": [
                 "app/build/outputs/apk/soundcloud*.apk"
               ], 
-              "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 buildDebug",
+              "cmd": "./gradlew buildDebug",
               "plugins": {
                 "androidLint": {
                 "failedTotalHigh": 0, 
@@ -36,7 +36,7 @@
           },
           {
             "compile_test_apk": {
-              "cmd": "http_proxy=proxy-development.int.s-cloud.net:3128 ./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "http_proxy=proxy-development.int.s-cloud.net:3128 ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
@@ -57,7 +57,7 @@
         [
           {
             "unit_tests": {
-              "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 clean runUnitTests",
+              "cmd": "./gradlew clean runUnitTests",
               "no-clean": true, 
               "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml",
               "plugins": {
@@ -107,7 +107,7 @@
       "jobs": [
         {
           "analyse_release": {
-            "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 assembleRelease ndUpload ndGetProfile",
+            "cmd": "./gradlew assembleRelease ndUpload ndGetProfile",
             "manual": true,
             "schedule": "H 3 * * 2-6"
           }
@@ -119,7 +119,7 @@
       "jobs": [
         {
           "deploy_alpha": {
-            "cmd": "./gradlew -Dhttp.proxyHost=proxy-development.int.s-cloud.net -Dhttp.proxyPort=3128 buildAlpha deployAlpha",
+            "cmd": "./gradlew buildAlpha deployAlpha",
             "manual": true,
             "schedule": "H 3 * * 2-6",
             "artifacts": [

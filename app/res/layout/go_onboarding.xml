@@ -41,7 +41,7 @@
             android:layout_above="@+id/btn_go_setup_start">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="@dimen/go_onboarding_text_width"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:orientation="vertical"
@@ -58,14 +58,14 @@
                 <com.soundcloud.android.view.CustomFontTextView
                     android:id="@+id/go_onboarding_title"
                     style="@style/GoOnboarding.Text.Title"
-                    android:layout_width="@dimen/go_onboarding_text_width"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:text="@string/go_onboarding_title" />
 
                 <com.soundcloud.android.view.CustomFontTextView
                     style="@style/GoOnboarding.Text.SubText"
-                    android:layout_width="@dimen/go_onboarding_text_width"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:text="@string/go_onboarding_subtext" />

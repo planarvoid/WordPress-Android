@@ -47,6 +47,22 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
         subject.onItemClick(view, UserSoundsItem.fromViewAll(UserSoundsTypes.REPOSTS), USER_URN, searchSourceInfo);
 
-        verify(navigator).openReposts(context, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
+        verify(navigator).openProfileReposts(context, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
+    }
+
+    @Test
+    public void shouldOpenTracks() throws Exception {
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        subject.onItemClick(view, UserSoundsItem.fromViewAll(UserSoundsTypes.TRACKS), USER_URN, searchSourceInfo);
+
+        verify(navigator).openProfileTracks(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
+    }
+
+    @Test
+    public void shouldOpenReleases() throws Exception {
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        subject.onItemClick(view, UserSoundsItem.fromViewAll(UserSoundsTypes.RELEASES), USER_URN, searchSourceInfo);
+
+        verify(navigator).openProfileReleases(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
     }
 }

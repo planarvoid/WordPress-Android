@@ -36,7 +36,7 @@ class StreamPlayer implements PlayerListener {
 
     // store start info so we can fallback and retry after Skippy failures
     private PlaybackItem lastItemPlayed;
-    private Player.StateTransition lastStateTransition = Player.StateTransition.DEFAULT;
+    private PlaybackStateTransition lastStateTransition = PlaybackStateTransition.DEFAULT;
 
     @Inject
     public StreamPlayer(MediaPlayerAdapter mediaPlayerAdapter,
@@ -60,11 +60,11 @@ class StreamPlayer implements PlayerListener {
      */
 
     @Deprecated
-    public Player.StateTransition getLastStateTransition() {
+    public PlaybackStateTransition getLastStateTransition() {
         return lastStateTransition;
     }
 
-    public Player.PlayerState getState() {
+    public PlaybackState getState() {
         return lastStateTransition.getNewState();
     }
 
@@ -112,6 +112,10 @@ class StreamPlayer implements PlayerListener {
         currentPlayer.setVolume(v);
     }
 
+    public float getVolume() {
+        return currentPlayer.getVolume();
+    }
+
     public void stop() {
         currentPlayer.stop();
     }
@@ -136,7 +140,7 @@ class StreamPlayer implements PlayerListener {
     }
 
     @Override
-    public void onPlaystateChanged(Player.StateTransition stateTransition) {
+    public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
             final long currentProgress = skippyPlayerDelegate.getProgress();
             final PlaybackItem updatedItem = AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration(), lastItemPlayed.getPlaybackType());
@@ -149,7 +153,7 @@ class StreamPlayer implements PlayerListener {
         }
     }
 
-    private boolean shouldFallbackToMediaPlayer(Player.StateTransition stateTransition) {
+    private boolean shouldFallbackToMediaPlayer(PlaybackStateTransition stateTransition) {
         return isUsingSkippyPlayer() && stateTransition.wasGeneralFailure() && networkConnectionHelper.isNetworkConnected();
     }
 

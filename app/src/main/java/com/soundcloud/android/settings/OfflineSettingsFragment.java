@@ -18,7 +18,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -75,7 +75,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
             addPreferencesFromResource(R.xml.settings_subs_free_user);
             findPreference(BUY_SUBSCRIPTION).setOnPreferenceClickListener(this);
             findPreference(RESTORE_SUBSCRIPTION).setOnPreferenceClickListener(this);
-            eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeFromSettingsImpression());
+            eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeFromSettingsImpression());
         }
     }
 
@@ -211,7 +211,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     }
 
     private void openSubscribeScreen() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forUpgradeFromSettingsClick());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forUpgradeFromSettingsClick());
         navigator.openUpgrade(getActivity());
     }
 

@@ -33,12 +33,10 @@
     </style>
 
     <style name="Onboarding.NextButton" parent="Onboarding.Button">
-        <item name="android:textAllCaps">true</item>
         <item name="android:background">@drawable/signup_next_button</item>
     </style>
 
     <style name="Onboarding.CancelButton" parent="Onboarding.Button">
-        <item name="android:textAllCaps">true</item>
         <item name="android:background">@drawable/signup_cancel_button</item>
     </style>
 

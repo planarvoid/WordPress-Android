@@ -5,7 +5,7 @@ import static com.soundcloud.android.utils.ErrorUtils.isNetworkError;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.configuration.PlanChangeOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.UpgradeTrackingEvent;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
@@ -68,7 +68,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     }
 
     void trackResubscribeButtonImpression() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forResubscribeImpression());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forResubscribeImpression());
     }
 
     @Override
@@ -161,7 +161,7 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
                     return this;
                 case USER_RESUBSCRIBE:
                     navigator.openUpgradeOnMain(fragment.getContext());
-                    eventBus.publish(EventQueue.TRACKING, UpgradeTrackingEvent.forResubscribeClick());
+                    eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forResubscribeClick());
                     view.reset();
                     fragment.getActivity().finish();
                     return this;

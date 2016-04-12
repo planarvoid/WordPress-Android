@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.Navigator;
@@ -68,11 +69,19 @@ class StreamCardViewPresenter {
         itemView.setTitle(playableItem.getTitle());
         itemView.setArtist(playableItem.getCreatorName());
         itemView.setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
-        itemView.togglePreviewIndicator(showPreviewLabel(playableItem));
+        bindHighTierLabel(itemView, playableItem);
     }
 
-    private boolean showPreviewLabel(PlayableItem playableItem) {
-        return playableItem instanceof TieredTrack && isHighTierPreview((TieredTrack) playableItem);
+    private void bindHighTierLabel(StreamItemViewHolder itemView, PlayableItem playableItem) {
+        itemView.hideHighTierLabel();
+        if (playableItem instanceof TieredTrack) {
+            TieredTrack tieredTrack = ((TieredTrack) playableItem);
+            if (isHighTierPreview(tieredTrack)) {
+                itemView.showHighTierLabel(R.string.upsell_track_preview);
+            } else if (isFullHighTierTrack(tieredTrack)) {
+                itemView.showHighTierLabel(R.string.go);
+            }
+        }
     }
 
     private void loadArtwork(StreamItemViewHolder itemView, PlayableItem playableItem) {
@@ -99,18 +108,18 @@ class StreamCardViewPresenter {
         }
     }
 
-    private void showPromoted(StreamItemViewHolder itemView, final PromotedListItem promotedListItem) {
-        if (promotedListItem.hasPromoter()) {
+    private void showPromoted(StreamItemViewHolder itemView, final PromotedListItem promoted) {
+        if (promoted.hasPromoter()) {
             final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatar(itemView, promotedListItem.getPromoterUrn().get());
+            loadAvatar(itemView, promoted.getPromoterUrn().get());
 
-            headerSpannableBuilder.actionSpannedString(action, isTrack(promotedListItem));
-            itemView.setPromoterHeader(promotedListItem.getPromoterName().get(), headerSpannableBuilder.get());
-            itemView.setPromoterClickable(new PromoterClickViewListener(promotedListItem, eventBus, screenProvider, navigator));
+            headerSpannableBuilder.actionSpannedString(action, isTrack(promoted));
+            itemView.setPromoterHeader(promoted.getPromoterName().get(), headerSpannableBuilder.get());
+            itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
         } else {
             itemView.hideUserImage();
 
-            headerSpannableBuilder.promotedSpannedString(isTrack(promotedListItem));
+            headerSpannableBuilder.promotedSpannedString(isTrack(promoted));
             itemView.setPromotedHeader(headerSpannableBuilder.get());
         }
     }

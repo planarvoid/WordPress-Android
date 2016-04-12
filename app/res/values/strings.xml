@@ -287,6 +287,7 @@
     <string name="shuffle_playlist">Shuffle playlist</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="remove_from_playlist">Remove from playlist</string>
+    <string name="edit_playlist">Edit playlist</string>
     <string name="delete_playlist">Delete playlist</string>
 
     <!-- __PLAYLIST CREATION -->
@@ -585,6 +586,7 @@
     <string name="notification_username_started_following_you">started following you</string>
 
     <!-- __SUBS -->
+    <string name="go">Go</string>
     <string name="pref_subscriptions_header">Subscriptions</string>
     <string name="pref_subscription_buy_title">Upgrade</string>
     <string name="pref_subscription_buy_summary">Upgrade your account</string>
@@ -743,8 +745,11 @@
     <string name="user_profile_sounds_view_all_playlists">View all playlists</string>
     <string name="user_profile_sounds_view_all_reposts">View all reposts</string>
     <string name="user_profile_sounds_view_all_likes">View all likes</string>
+    <string name="user_profile_sounds_tracks_empty">This person doesn’t have any tracks yet.</string>
     <string name="user_reposts_empty">This person doesn’t have any reposts yet.</string>
+    <string name="user_profile_sounds_releases_empty">This person doesn’t have any releases yet.</string>
     <string name="user_reposts_label">Reposts</string>
+    <string name="user_releases_label">Releases</string>
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Go ad-free</string>
@@ -769,7 +774,6 @@
 
     <!-- __PLAYER -->
     <string name="playback_error_blocked">Not available in\nyour country</string>
-    <string name="playback_preview_indicator">preview</string>
     <string name="playback_upsell_button">Hear full track</string>
 
     <!-- __SEARCH -->
