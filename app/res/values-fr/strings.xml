@@ -55,7 +55,7 @@
   <string name="authentication_I_forgot_my_password">Vous avez oublié votre mot de passe ?</string>
   <string name="authentication_add_info_add_image_msg">Souriez ! Cette image apparaîtra sur votre profil.</string>
   <string name="authentication_add_info_msg">Vous avez presque terminé. Choisissez un pseudonyme et ajoutez une photo pour personnaliser votre profil. </string>
-  <string name="authentication_add_info_username_hint">Nom affiché</string>
+  <string name="authentication_add_info_username_hint">Pseudonyme</string>
   <string name="authentication_choose_a_password">6 caractères minimum</string>
   <string name="authentication_error_incomplete_fields">Veuillez remplir tous les champs.</string>
   <string name="authentication_error_invalid_email">Please enter a valid email address.</string>
@@ -113,7 +113,7 @@
   <string name="list_empty_you_likes_message">Aimez vos titres préférés pour les écouter à nouveau.</string>
   <string name="list_empty_you_following_message">Suivez vos artistes et curateurs préférés pour écouter leurs derniers titres.</string>
   <string name="list_empty_you_followers_message">Vous n\'avez aucun abonné pour l\'instant.</string>
-  <string name="list_empty_you_followers_secondary">Partagez vos chansons et vos playlists favorites pour construire votre communauté</string>
+  <string name="list_empty_you_followers_secondary">Partagez vos titres et vos playlists favorites pour construire votre communauté</string>
   <string name="empty_you_sounds_message">Vous n\'avez uploadé aucun titre pour l\'instant.</string>
   <string name="empty_user_sounds_message">Cette personne n\'a uploadé aucun titre public pour l\'instant.</string>
   <!--new profile-->
@@ -149,10 +149,10 @@
   <string name="explore_category_trending_music">MUSIQUE</string>
   <string name="explore_category_trending_audio">AUDIO</string>
   <!--__IMAGES-->
-  <string name="add_image">Rajouter\nimage</string>
+  <string name="add_image">Ajouter une\nimage</string>
   <string name="image_load_error">Un problème est survenu lors du chargement de l\'image</string>
   <string name="image_where">Comment voudriez-vous ajouter une image ?</string>
-  <string name="take_new_picture">Nouvelle illustration</string>
+  <string name="take_new_picture">Photo</string>
   <string name="take_new_picture_error">La photo n\'a pas pu être prise</string>
   <string name="use_existing_image">Image existante</string>
   <string name="use_existing_image_error">Impossible d\'utiliser l\'image existante</string>
@@ -172,11 +172,11 @@
   <string name="gender">Sexe</string>
   <string name="onboarding_create_account">Créer un compte</string>
   <string name="onboarding_indicate_gender">Indiquez votre sexe</string>
-  <string name="onboarding_custom_gender_hint">Renseigner le sexe</string>
-  <string name="onboarding_gender_option_female">Femelle</string>
+  <string name="onboarding_custom_gender_hint">Indiquez</string>
+  <string name="onboarding_gender_option_female">Femme</string>
   <string name="onboarding_gender_option_male">Homme</string>
-  <string name="onboarding_gender_option_custom">Personnalisé</string>
-  <string name="onboarding_gender_option_nopref">ne préfère rien dire</string>
+  <string name="onboarding_gender_option_custom">Autre</string>
+  <string name="onboarding_gender_option_nopref">Je préfère ne pas l\'indiquer</string>
   <string name="ok_got_it">D\'accord, j\'ai compris</string>
   <string name="onboarding_email_use_notice">Nous pourrons utiliser votre e-mail pour vous envoyer des actualités et des conseils sur les produits et services SoundCloud. Vous pouvez vous désinscrire gratuitement à tout moment dans vos préférences de notification. </string>
   <string name="onboarding_tou_reminder">En vous identifiant, vous acceptez nos conditions d\'utilisation.</string>
@@ -248,7 +248,7 @@
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Non jouable</string>
   <string name="playback_error_connection">Vérifiez votre connexion et appuyez pour réessayer.</string>
-  <string name="playback_error_unable_to_play">La chanson ne peut pas être diffusée</string>
+  <string name="playback_error_unable_to_play">Le titre ne peut pas être diffusé</string>
   <string name="playback_missing_playable_tracks">Titres écoutables manquants</string>
   <string name="play">Lire</string>
   <string name="pause">Pause</string>
@@ -588,8 +588,8 @@
   <string name="offline_update_storage_limit_reached_message">Appuyez ici pour voir les paramètres de stockage</string>
   <string name="offline_update_in_progress">Enregistrement hors ligne</string>
   <string name="offline_likes_dialog_title">Sauvegardez vos favoris hors ligne</string>
-  <string name="offline_likes_dialog_message">Cette option vous permettra d\'enregistrer vos favoris actuels et à venir hors ligne pour que vous puissiez les écouter sans connexion Wi-Fi ou connexion de données.</string>
-  <string name="make_offline_available">Enregistrer hors ligne</string>
+  <string name="offline_likes_dialog_message">Cette option vous permettra de sauvegarder vos favoris actuels et à venir hors ligne pour que vous puissiez les écouter sans connexion Wi-Fi ou connexion de données.</string>
+  <string name="make_offline_available">Sauvegarder hors ligne</string>
   <string name="make_offline_unavailable">Supprimer de la disponibilité hors ligne</string>
   <string name="offline_dialog_go_online_continue">Continuer</string>
   <string name="offline_dialog_go_online_error_title">Votre abonnement n\'a pas pu être vérifié</string>
@@ -603,15 +603,15 @@
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_header">Bienvenue sur SoundCloud Go</string>
   <string name="go_onboarding_subheader">Vous pouvez désormais écouter plus de musique, hors ligne et sans publicités.</string>
-  <string name="go_onboarding_title">Enregistrez votre musique hors ligne</string>
-  <string name="go_onboarding_subtext">Utilisez la flèche pour enregistrer tous vos favoris ou vos playlists hors ligne.</string>
+  <string name="go_onboarding_title">Sauvegarder votre musique hors ligne</string>
+  <string name="go_onboarding_subtext">Utilisez la flèche pour sauvegarder tous vos favoris ou vos playlists hors ligne.</string>
   <string name="go_onboarding_start">D\'accord, j\'ai compris</string>
   <string name="go_onboarding_retry">Échec du chargement. Réessayer ?</string>
   <string name="go_onboarding_error_dialog_title">Un problème est survenu</string>
   <string name="go_onboarding_error_dialog_msg">Un problème est survenu lors de l\'activation de vos nouvelles fonctions et nouveaux contenus. Veuillez redémarrer l\'application.</string>
   <string name="go_onboarding_error_dialog_button">Réessayez ultérieurement</string>
-  <string name="go_onboarding_offline_settings_title">Tout enregistrer automatiquement</string>
-  <string name="go_onboarding_offline_settings_subtext">Cette option vous permettra d\'enregistrer automatiquement vos favoris actuels et à venir ainsi que vos playlists hors ligne.</string>
+  <string name="go_onboarding_offline_settings_title">Tout sauvegarder automatiquement</string>
+  <string name="go_onboarding_offline_settings_subtext">Cette option vous permettra de sauvegarder automatiquement vos favoris actuels et à venir ainsi que vos playlists hors ligne.</string>
   <string name="go_onboarding_offline_settings_continue">D\'accord, j\'ai compris</string>
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Votre abonnement SoundCloud Go a expiré</string>
@@ -620,11 +620,11 @@
   <string name="go_offboarding_primary_button_text">Se réabonner</string>
   <string name="go_offboarding_secondary_button_text">Continuer</string>
   <!--__OFFLINE SETTINGS-->
-  <string name="pref_offline_offline_collection">Enregistrer automatiquement</string>
-  <string name="pref_offline_offline_collection_description_off">Activez cette option pour enregistrer tous vos favoris et playlists actuels hors ligne.</string>
-  <string name="pref_offline_offline_collection_description_on">Désactivez cette option pour arrêter l\'enregistrement automatique et supprimer le contenu enregistré hors ligne.</string>
-  <string name="pref_offline_wifi_only_sync">Enregistrement via Wifi uniquement</string>
-  <string name="pref_offline_wifi_only_description">Lorsque cette option est activée, nous enregistrons les titres hors ligne uniquement lorsque vous êtes connecté en wifi.</string>
+  <string name="pref_offline_offline_collection">Sauvegarder automatiquement</string>
+  <string name="pref_offline_offline_collection_description_off">Activez cette option pour sauvegarder tous vos favoris et playlists actuels hors ligne.</string>
+  <string name="pref_offline_offline_collection_description_on">Désactivez cette option pour arrêter la sauvegarde automatique et supprimer le contenu sauvegardé hors ligne.</string>
+  <string name="pref_offline_wifi_only_sync">Sauvegarder via Wi-Fi uniquement</string>
+  <string name="pref_offline_wifi_only_description">Lorsque cette option est activée, nous sauvegardons les titres hors ligne uniquement lorsque vous êtes connecté en Wi-Fi.</string>
   <string name="pref_offline_storage_limit">Limite de stockage</string>
   <string name="pref_offline_storage_limit_description">Cela définira quelle proportion de votre espace disponible peut être utilisée pour l\'écoute hors ligne.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f Go libre(s) sur %2$.1f Go</string>
@@ -633,16 +633,16 @@
   <string name="pref_offline_used_by_other_apps">Utilisés par d\'autres applications</string>
   <string name="pref_offline_used">Utilisé(s)</string>
   <string name="pref_offline_limit">Limite</string>
-  <string name="pref_offline_remove_all_offline_content">Supprimer le contenu enregistré hors ligne</string>
+  <string name="pref_offline_remove_all_offline_content">Supprimer le contenu sauvegardé hors ligne</string>
   <string name="pref_offline_remove_all_offline_content_description">Cette opération supprimera tout le contenu stocké sur l\'appareil.</string>
   <string name="remove_offline_content_title">Tout supprimer de l\'écoute hors ligne ?</string>
   <string name="remove_offline_content_body_default">Vous êtes sur le point de tout supprimer de l\'écoute hors ligne.</string>
-  <string name="remove_offline_content_body_sync_collection">Vous êtes sur le point de tout supprimer de l\'écoute hors ligne. De plus, vos nouveaux favoris et vos playlists ne seront plus enregistrés automatiquement.</string>
+  <string name="remove_offline_content_body_sync_collection">Vous êtes sur le point de tout supprimer de l\'écoute hors ligne. De plus, vos nouveaux favoris et vos playlists ne seront plus sauvegardés automatiquement.</string>
   <string name="offline_cannot_set_limit_below_usage">La limite ne peut pas être inférieure à l\'espace utilisé actuellement.</string>
   <string name="sign_out_title_offline">Le fait de se déconnecter supprime tous les titres hors ligne</string>
-  <string name="sign_out_description_offline">La prochaine fois que vous vous connecterez, vous pourrez choisir quels titres et playlists vous souhaitez enregistrer.</string>
+  <string name="sign_out_description_offline">La prochaine fois que vous vous connecterez, vous pourrez choisir quels titres et playlists vous souhaitez sauvegarder.</string>
   <string name="disable_offline_collection_title">Arrêter l\'enregistrement automatique des playlists et des favoris ?</string>
-  <string name="disable_offline_collection_body">Vos nouveaux favoris et playlists ne seront plus enregistrés automatiquement et les titres déjà enregistrés seront supprimés de l\'écoute hors ligne.</string>
+  <string name="disable_offline_collection_body">Vos nouveaux favoris et playlists ne seront plus sauvegardés automatiquement et les titres déjà sauvegardés seront supprimés de l\'écoute hors ligne.</string>
   <!--offline playlist creation-->
   <string name="add_playlist_offline">Disponible hors ligne</string>
   <!--offline settings-->
@@ -665,7 +665,7 @@
   <string name="device_management_limit_title">Vous avez atteint votre limite d\'appareils</string>
   <string name="device_management_limit_active">Vous disposez déjà de SoundCloud Go sur trois appareils. Si vous enregistrez cet appareil, nous annulerons automatiquement l\'enregistrement de celui que vous n\'avez pas utilisé depuis le plus longtemps.</string>
   <string name="device_management_limit_registered">Vous disposez déjà de SoundCloud Go sur 10 appareils. Vous devez déconnecter l\'un d\'eux pour pouvoir vous connecter sur celui-ci.</string>
-  <string name="device_management_conflict_message">Vous avez atteint votre limite d\'appareils SoundCloud Go, nous avons donc déconnecté cet appareil et avons annulé son enregistrement. Tout ce que vous avez enregistré hors ligne a été supprimé. Vous devez vous connecter pour pouvoir enregistrer à nouveau cet appareil.</string>
+  <string name="device_management_conflict_message">Vous avez atteint votre limite d\'appareils SoundCloud Go, nous avons donc déconnecté cet appareil. Tout ce que vous avez sauvegardé hors ligne a été supprimé. Vous devez vous connecter pour pouvoir à nouveau enregistrer cet appareil.</string>
   <string name="device_management_register">Enregistrer</string>
   <!--__PROFILE-->
   <string name="user_profile_sounds_header_spotlight">Titres épinglés</string>
@@ -702,6 +702,7 @@
   <string name="concurrent_streaming_stopped">Mis en pause car vous avez commencé la lecture sur un autre appareil</string>
   <!--__PLAYER-->
   <string name="playback_error_blocked">Non disponible dans\nvotre pays</string>
+  <string name="playback_preview_indicator">aperçu</string>
   <string name="playback_upsell_button">Écouter le titre en entier</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
