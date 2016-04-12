@@ -219,6 +219,27 @@ class UserProfileOperations {
         });
     }
 
+    public Observable<PagedRemoteCollection> userPlaylists(Urn user) {
+        return profileApi.userPlaylists(user)
+                .doOnNext(writeMixedRecordsCommand.toAction1())
+                .map(TO_PAGED_REMOTE_COLLECTION)
+                .map(mergePlayableInfo)
+                .subscribeOn(scheduler);
+    }
+
+    public PagingFunction<PagedRemoteCollection> userPlaylistsPagingFunction() {
+        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
+            @Override
+            public Observable<PagedRemoteCollection> call(String nextPageLink) {
+                return profileApi.userPlaylists(nextPageLink)
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
+                        .map(TO_PAGED_REMOTE_COLLECTION)
+                        .map(mergePlayableInfo)
+                        .subscribeOn(scheduler);
+            }
+        });
+    }
+
     public Observable<PagedRemoteCollection> pagedFollowings(Urn user) {
         return profileApi
                 .userFollowings(user)

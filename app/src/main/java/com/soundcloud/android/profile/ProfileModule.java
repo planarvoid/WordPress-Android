@@ -15,6 +15,9 @@ import dagger.Provides;
                 MyFollowingsFragment.class,
                 UserPostsFragment.class,
                 LegacyUserPlaylistsFragment.class,
+                UserPlaylistsActivity.class,
+                UserPlaylistsFragment.class,
+                UserLikesActivity.class,
                 UserLikesFragment.class,
                 LegacyUserLikesFragment.class,
                 UserFollowingsFragment.class,
@@ -28,8 +31,6 @@ import dagger.Provides;
                 UserTracksFragment.class,
                 UserReleasesActivity.class,
                 UserReleasesFragment.class,
-                UserLikesActivity.class,
-                UserLikesFragment.class
         }, includes = AssociationsModule.class)
 public class ProfileModule {
 

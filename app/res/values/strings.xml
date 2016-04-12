@@ -749,6 +749,7 @@
     <string name="user_reposts_empty">This person doesn’t have any reposts yet.</string>
     <string name="user_profile_sounds_releases_empty">This person doesn’t have any releases yet.</string>
     <string name="user_profile_sounds_likes_empty">This person doesn’t have any likes yet.</string>
+    <string name="user_profile_sounds_playlists_empty">This person doesn’t have any playlists yet.</string>
     <string name="user_reposts_label">Reposts</string>
     <string name="user_releases_label">Releases</string>
     <string name="user_likes_label">Likes</string>

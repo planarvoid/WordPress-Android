@@ -27,6 +27,7 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
+import com.soundcloud.android.profile.UserPlaylistsActivity;
 import com.soundcloud.android.profile.UserReleasesActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
@@ -202,6 +203,11 @@ public class Navigator {
     public void openProfileLikes(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfileLikesIntent(context, user, screen)
                 .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
+    }
+
+    public void openProfilePlaylists(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
+        context.startActivity(createProfilePlaylistsIntent(context, user, screen)
+                .putExtra(UserPlaylistsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
     public void openActivities(Context context) {
@@ -384,6 +390,13 @@ public class Navigator {
     private Intent createProfileReleasesIntent(Context context, Urn user, Screen screen) {
         Intent intent = new Intent(context, UserReleasesActivity.class)
                 .putExtra(UserReleasesActivity.EXTRA_USER_URN, user);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createProfilePlaylistsIntent(Context context, Urn user, Screen screen) {
+        Intent intent = new Intent(context, UserPlaylistsActivity.class)
+                .putExtra(UserPlaylistsActivity.EXTRA_USER_URN, user);
         screen.addToIntent(intent);
         return intent;
     }

@@ -87,6 +87,26 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(Urn user) {
+        return getPlaylistsCollection(ApiEndpoints.USER_PLAYLISTS.path(user));
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(String nextPageLink) {
+        return getPlaylistsCollection(nextPageLink);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<ApiPlaylistPost>> getPlaylistsCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPrivateApi()
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, playlistPostToken);
+    }
+
+    @Override
     public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
         return getLegacyLikesCollection(ApiEndpoints.LEGACY_USER_LIKES.path(user));
     }

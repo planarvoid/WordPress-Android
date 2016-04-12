@@ -73,4 +73,12 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
 
         verify(navigator).openProfileLikes(context, USER_URN, Screen.USER_LIKES, searchSourceInfo);
     }
+
+    @Test
+    public void shouldOpenPlaylists() throws Exception {
+        SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
+        subject.onItemClick(view, UserSoundsItem.fromViewAll(UserSoundsTypes.PLAYLISTS), USER_URN, searchSourceInfo);
+
+        verify(navigator).openProfilePlaylists(context, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
+    }
 }
