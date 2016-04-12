@@ -123,6 +123,12 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onCreateRegistersPlaybackReceiverToListenForFadeAndPause() throws Exception {
+        playbackService.onCreate();
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.FADE_AND_PAUSE);
+    }
+
+    @Test
     public void onCreatePublishedServiceLifecycleForCreated() throws Exception {
         playbackService.onCreate();
 
@@ -467,4 +473,42 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         inOrder.verify(volumeController).fadeOut(2000, 1000);
         inOrder.verifyNoMoreInteractions();
     }
+
+    @Test
+    public void fadeAndPauseFadesSound() {
+        playbackService.onCreate();
+
+        playbackService.fadeAndPause();
+
+        verify(volumeController).fadeOut(2000, 0);
+    }
+
+    @Test
+    public void fadeAndPauseDoesNotPauseUntilFadeFinishes() {
+        playbackService.onCreate();
+
+        playbackService.fadeAndPause();
+
+        verify(streamPlayer, never()).pause();
+    }
+
+    @Test
+    public void fadeAndPausePausesWhenFadeFinishes() {
+        playbackService.onCreate();
+
+        playbackService.fadeAndPause();
+        playbackService.onFadeFinished();
+
+        verify(streamPlayer).pause();
+    }
+
+    @Test
+    public void itDoesNotPauseWhenFadeFinishesAnNoPauseWasRequested() {
+        playbackService.onCreate();
+
+        playbackService.onFadeFinished();
+
+        verify(streamPlayer, never()).pause();
+    }
+
 }

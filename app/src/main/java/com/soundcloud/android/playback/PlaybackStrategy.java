@@ -11,6 +11,8 @@ public interface PlaybackStrategy {
 
     void pause();
 
+    void fadeAndPause();
+
     Observable<Void> playCurrent();
 
     Observable<PlaybackResult> setNewQueue(final PlayQueue playQueue, Urn initialTrackUrn, int initialTrackPosition, PlaySessionSource playSessionSource);

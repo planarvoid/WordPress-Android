@@ -34,7 +34,7 @@ public class ConcurrentPlaybackOperationsTest extends AndroidUnitTest {
 
         operations.pauseIfPlaying();
 
-        verify(playSessionController).pause();
+        verify(playSessionController).fadeAndPause();
     }
 
     @Test
@@ -61,7 +61,7 @@ public class ConcurrentPlaybackOperationsTest extends AndroidUnitTest {
 
         operations.pauseIfPlaying();
 
-        verify(playSessionController, never()).pause();
+        verify(playSessionController, never()).fadeAndPause();
     }
 
     @Test

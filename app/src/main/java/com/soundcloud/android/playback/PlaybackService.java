@@ -49,6 +49,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject VolumeControllerFactory volumeControllerFactory;
 
     private Optional<PlaybackItem> currentPlaybackItem = Optional.absent();
+    private boolean pauseRequested;
     // audio focus related
     private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
@@ -98,6 +99,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         playbackFilter.addAction(Action.RESET_ALL);
         playbackFilter.addAction(Action.STOP);
         playbackFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        playbackFilter.addAction(Action.FADE_AND_PAUSE);
         registerReceiver(playbackReceiver, playbackFilter);
 
         // If the service was idle, but got killed before it stopped itself, the
@@ -312,6 +314,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         streamPlayer.pause();
     }
 
+    public void fadeAndPause() {
+        pauseRequested = true;
+        volumeController.fadeOut(LONG_FADE_DURATION_MS, 0);
+    }
+
     void stop() {
         Log.d(TAG, "Stopping");
         playbackNotificationController.unsubscribe();
@@ -322,7 +329,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public void onFadeFinished() {
-        // TODO: concurrent streaming pause after fade
+        if (pauseRequested) {
+            pauseRequested = false;
+            pause();
+        }
     }
 
     private enum FocusLossState {
@@ -336,6 +346,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         String PLAY_CURRENT = BuildConfig.APPLICATION_ID + ".playback.playcurrent";
         String RESUME = BuildConfig.APPLICATION_ID + ".playback.playcurrent";
         String PAUSE = BuildConfig.APPLICATION_ID + ".playback.pause";
+        String FADE_AND_PAUSE = BuildConfig.APPLICATION_ID + ".playback.fadeandpause";
         String SEEK = BuildConfig.APPLICATION_ID + ".playback.seek";
         String RESET_ALL = BuildConfig.APPLICATION_ID + ".playback.reset"; // used on logout
         String STOP = BuildConfig.APPLICATION_ID + ".playback.stop"; // from the notification
