@@ -21,7 +21,8 @@ import android.support.v7.app.AppCompatActivity;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements WebCheckoutInterface.Listener, WebCheckoutView.Listener {
+class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
+        implements WebCheckoutInterface.Listener, WebCheckoutView.Listener {
 
     private static final long TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(15);
     public static final String PAYMENT_FORM_BASE_URL = "https://soundcloud.com/android_payment.html";
