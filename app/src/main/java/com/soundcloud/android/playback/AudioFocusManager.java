@@ -23,10 +23,7 @@ public class AudioFocusManager implements IAudioManager {
                 public void onAudioFocusChange(int focusChange) {
                     Log.d("AudioFocusManager", "On audio focus changed " + focusChange);
                     if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-                        if (audioFocusLost) {
-                            focusable.focusGained();
-                            audioFocusLost = false;
-                        }
+                        restoreFocus(focusable);
                     } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
                         audioFocusLost = true;
                         focusable.focusLost(false, false);
@@ -46,9 +43,17 @@ public class AudioFocusManager implements IAudioManager {
 
         if (ret == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             onFocusObtained();
+            restoreFocus(focusable);
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void restoreFocus(MusicFocusable focusable) {
+        if (audioFocusLost) {
+            focusable.focusGained();
+            audioFocusLost = false;
         }
     }
 
