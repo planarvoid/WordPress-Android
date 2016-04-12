@@ -24,9 +24,9 @@ interface ProfileApi {
 
     Observable<ModelCollection<ApiPlaylist>> userPlaylists(String nextPageLink);
 
-    Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user);
+    Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user);
 
-    Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink);
+    Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String nextPageLink);
 
     Observable<ModelCollection<ApiUser>> userFollowings(Urn user);
 
@@ -49,4 +49,8 @@ interface ProfileApi {
     Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user);
 
     Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink);
+
+    Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user);
+
+    Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink);
 }

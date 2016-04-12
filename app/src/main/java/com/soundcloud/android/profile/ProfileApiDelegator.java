@@ -44,13 +44,13 @@ public class ProfileApiDelegator implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
-        return profileApiMobile.get().userLikes(user);
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
+        return profileApiMobile.get().legacyUserLikes(user);
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
-        return profileApiMobile.get().userLikes(nextPageLink);
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String nextPageLink) {
+        return profileApiMobile.get().legacyUserLikes(nextPageLink);
     }
 
     @Override
@@ -105,5 +105,15 @@ public class ProfileApiDelegator implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink) {
         return profileApiMobile.get().userReleases(nextPageLink);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
+        return profileApiMobile.get().userLikes(user);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
+        return profileApiMobile.get().userLikes(nextPageLink);
     }
 }

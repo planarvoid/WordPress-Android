@@ -47,13 +47,13 @@ public enum Screen {
     USER_POSTS("users:posts"),
     USER_INFO("users:info"),
     USER_PLAYLISTS("users:playlists"),
-    USER_LIKES("users:likes"),
     USER_FOLLOWINGS("users:followings"),
     USER_FOLLOWERS("users:followers"),
     USER_SOUNDS("users:sounds"),
     USERS_REPOSTS("users:reposts"),
     USER_TRACKS("users:tracks"),
     USER_RELEASES("users:releases"),
+    USER_LIKES("users:likes"),
 
     // player screens
     PLAYER_MAIN("tracks:main"),

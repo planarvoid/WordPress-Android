@@ -64,12 +64,12 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(Urn user) {
         throw new UnsupportedOperationException("User likes are no longer supported via Public API");
     }
 
     @Override
-    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String pageLink) {
+    public Observable<ModelCollection<ApiEntityHolder>> legacyUserLikes(String pageLink) {
         throw new UnsupportedOperationException("User likes are no longer supported via Public API");
     }
 
@@ -136,6 +136,16 @@ public class ProfileApiPublic implements ProfileApi {
     @Override
     public Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink) {
         throw new UnsupportedOperationException("User Releases will not be supported by Public API");
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(Urn user) {
+        throw new UnsupportedOperationException("User Reposts will not be supported by Public API");
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiEntityHolder>> userLikes(String nextPageLink) {
+        throw new UnsupportedOperationException("User Reposts will not be supported by Public API");
     }
 
     @NotNull

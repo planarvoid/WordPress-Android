@@ -175,20 +175,20 @@ class UserProfileOperations {
         return postForPlayback;
     }
 
-    public Observable<PagedRemoteCollection> pagedLikes(Urn user) {
+    public Observable<PagedRemoteCollection> pagedLegacyLikes(Urn user) {
         return profileApi
-                .userLikes(user)
+                .legacyUserLikes(user)
                 .doOnNext(writeMixedRecordsCommand.toAction1())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .map(mergePlayableInfo)
                 .subscribeOn(scheduler);
     }
 
-    public PagingFunction<PagedRemoteCollection> likesPagingFunction() {
+    public PagingFunction<PagedRemoteCollection> legacyLikesPagingFunction() {
         return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userLikes(nextPageLink)
+                return profileApi.legacyUserLikes(nextPageLink)
                         .doOnNext(writeMixedRecordsCommand.toAction1())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)
@@ -301,6 +301,27 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userReleases(nextPageLink)
+                        .doOnNext(writeMixedRecordsCommand.toAction1())
+                        .map(TO_PAGED_REMOTE_COLLECTION)
+                        .map(mergePlayableInfo)
+                        .subscribeOn(scheduler);
+            }
+        });
+    }
+
+    public Observable<PagedRemoteCollection> userLikes(Urn user) {
+        return profileApi.userLikes(user)
+                .doOnNext(writeMixedRecordsCommand.toAction1())
+                .map(TO_PAGED_REMOTE_COLLECTION)
+                .map(mergePlayableInfo)
+                .subscribeOn(scheduler);
+    }
+
+    public PagingFunction<PagedRemoteCollection> likesPagingFunction() {
+        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
+            @Override
+            public Observable<PagedRemoteCollection> call(String nextPageLink) {
+                return profileApi.userLikes(nextPageLink)
                         .doOnNext(writeMixedRecordsCommand.toAction1())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)

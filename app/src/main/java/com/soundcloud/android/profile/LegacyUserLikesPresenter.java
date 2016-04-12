@@ -1,5 +1,7 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.ProfileArguments.USER_URN_KEY;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -17,34 +19,35 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
+class LegacyUserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
 
-    private final UserProfileOperations operations;
+    private final UserProfileOperations profileOperations;
 
     @Inject
-    UserLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                       ImagePauseOnScrollListener imagePauseOnScrollListener,
-                       MixedPlayableRecyclerItemAdapter adapter,
-                       MixedItemClickListener.Factory clickListenerFactory,
-                       PlayableListUpdater.Factory updaterFactory,
-                       UserProfileOperations operations) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter, clickListenerFactory, updaterFactory);
-        this.operations = operations;
+    LegacyUserLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                             ImagePauseOnScrollListener imagePauseOnScrollListener,
+                             MixedPlayableRecyclerItemAdapter adapter,
+                             MixedItemClickListener.Factory clickListenerFactory,
+                             PlayableListUpdater.Factory updaterFactory,
+                             UserProfileOperations profileOperations) {
+        super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
+                clickListenerFactory, updaterFactory);
+        this.profileOperations = profileOperations;
     }
 
     @Override
     protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
-        return CollectionBinding.from(operations.userLikes(userUrn), pageTransformer)
+        final Urn userUrn = fragmentArgs.getParcelable(USER_URN_KEY);
+        return CollectionBinding.from(profileOperations.pagedLegacyLikes(userUrn), pageTransformer)
                 .withAdapter(adapter)
-                .withPager(operations.likesPagingFunction())
+                .withPager(profileOperations.legacyLikesPagingFunction())
                 .build();
     }
 
     @Override
     protected void configureEmptyView(EmptyView emptyView) {
+        emptyView.setMessageText(R.string.new_empty_user_likes_text);
         emptyView.setImage(R.drawable.empty_like);
-        emptyView.setMessageText(R.string.user_profile_sounds_likes_empty);
     }
 
     @Override
