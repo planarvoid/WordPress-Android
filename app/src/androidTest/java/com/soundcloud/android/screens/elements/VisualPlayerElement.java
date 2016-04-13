@@ -100,6 +100,10 @@ public class VisualPlayerElement extends Element {
         return testDriver.findOnScreenElement(With.id(R.id.player_close_indicator));
     }
 
+    private ViewElement video() {
+        return testDriver.findOnScreenElement(With.id(R.id.video_overlay));
+    }
+
     private ViewElement artwork() {
         return testDriver.findOnScreenElement(With.id(R.id.track_page_artwork));
     }
@@ -391,6 +395,10 @@ public class VisualPlayerElement extends Element {
 
     public void clickArtwork() {
         artwork().click();
+    }
+
+    public void clickAdVideo() {
+        video().click();
     }
 
     public void clickAdArtwork() {
