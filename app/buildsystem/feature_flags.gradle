@@ -12,12 +12,12 @@ enum Feature {
   VIDEO_ADS,
   PROFILE_NEW_TABS,
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
+  NEW_SEARCH_SUGGESTIONS,
   EDIT_PLAYLIST;
 }
 
 android {
   defaultConfig {
-    buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), FALSE
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
@@ -25,6 +25,8 @@ android {
     buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), FALSE
     buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
+    buildConfigField BOOLEAN, Feature.NEW_SEARCH_SUGGESTIONS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
   }
 
   buildTypes {

@@ -5,7 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
-import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
+import com.soundcloud.android.search.suggestions.LegacySuggestionsAdapter;
 import com.soundcloud.android.utils.KeyboardHelper;
 import com.soundcloud.android.utils.TransitionUtils;
 import com.soundcloud.java.strings.Strings;
@@ -14,13 +14,12 @@ import com.soundcloud.rx.eventbus.EventBus;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -35,14 +34,17 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
 
-class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
+class LegacySearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         implements SearchIntentResolver.DeepLinkListener, FeaturedSearchPresenter {
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
@@ -52,28 +54,34 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private EditText searchTextView;
     private ImageView searchCloseView;
+    private ListView searchListView;
     private ViewFlipper searchViewFlipper;
     private View toolbarElevation;
     private Window window;
     private FragmentManager fragmentManager;
-    private FragmentTransaction fragmentTransaction;
-    private SearchSuggestionsFragment suggestionsFragment;
 
     private final SearchIntentResolver intentResolver;
     private final SearchTracker tracker;
     private final Resources resources;
+    private final LegacySuggestionsAdapter adapter;
+    private final SuggestionsHelper suggestionsHelper;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
 
     @Inject
-    SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
+    LegacySearchPresenter(SearchIntentResolverFactory intentResolverFactory,
                     SearchTracker tracker,
                     Resources resources,
+                    LegacySuggestionsAdapter adapter,
+                    SuggestionsHelperFactory suggestionsHelperFactory,
                     EventBus eventBus,
                     KeyboardHelper keyboardHelper) {
         this.intentResolver = intentResolverFactory.create(this);
         this.tracker = tracker;
         this.resources = resources;
+        this.adapter = adapter;
+        this.suggestionsHelper = suggestionsHelperFactory.create(adapter);
+        this.adapter.registerDataSetObserver(new SuggestionsVisibilityController());
         this.eventBus = eventBus;
         this.keyboardHelper = keyboardHelper;
     }
@@ -116,21 +124,15 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private void setupViews(AppCompatActivity activity) {
         setupToolbar(activity);
-        setupSuggestionsView();
+        setupListView(activity);
         setupViewFlipper(activity);
         setSearchListeners();
         requestSearchFocus();
     }
 
-    //Android Lint only sees the chained fragment transaction calls together
-    //without a commit but fails to see the commit on a later row.
-    @SuppressLint("CommitTransaction")
-    private void setupSuggestionsView() {
-        suggestionsFragment = new SearchSuggestionsFragment();
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction
-                .replace(R.id.search_suggestions_container, suggestionsFragment, SearchSuggestionsFragment.TAG)
-                .commit();
+    private void setupListView(Activity activity) {
+        searchListView = (ListView) activity.findViewById(android.R.id.list);
+        searchListView.setAdapter(adapter);
     }
 
     private void setupViewFlipper(Activity activity) {
@@ -165,6 +167,8 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         searchTextView.addTextChangedListener(new SearchWatcher());
         searchTextView.setOnClickListener(new SearchViewClickListener());
         searchTextView.setOnEditorActionListener(new SearchActionListener());
+        searchListView.setOnItemClickListener(new SearchResultClickListener());
+        searchListView.setOnScrollListener(new SuggestionsScrollListener());
         searchCloseView.setOnClickListener(new SearchCloseClickListener());
     }
 
@@ -217,13 +221,11 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void showSuggestionsFor(String query) {
-        showSearchSuggestionsView();
-        suggestionsFragment.showSuggestionsFor(query);
+        adapter.showSuggestionsFor(query);
     }
 
     private void clearSuggestions() {
-        hideSearchSuggestionsView();
-        suggestionsFragment.clearSuggestions();
+        adapter.clearSuggestions();
     }
 
     private void showCloseButton() {
@@ -234,20 +236,22 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         searchCloseView.setVisibility(View.INVISIBLE);
     }
 
-    private void showSearchSuggestionsView() {
-        fragmentTransaction.show(suggestionsFragment);
+    private void showSearchListView() {
+        searchListView.animate().alpha(1).start();
+        searchListView.setVisibility(View.VISIBLE);
     }
 
-    private void hideSearchSuggestionsView() {
-        fragmentTransaction.hide(suggestionsFragment);
+    private void hideSearchListView() {
+        searchListView.animate().alpha(0).start();
+        searchListView.setVisibility(View.INVISIBLE);
     }
 
-    private void showSearchResultsView() {
+    private void showSearchViewResults() {
         searchViewFlipper.animate().alpha(1).start();
         searchViewFlipper.setVisibility(View.VISIBLE);
     }
 
-    private void hideSearchResultsView() {
+    private void hideSearchViewResults() {
         searchViewFlipper.animate().alpha(0).start();
         searchViewFlipper.setVisibility(View.INVISIBLE);
     }
@@ -312,10 +316,22 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             if (Strings.isBlank(searchTextView.getText().toString().trim())) {
                 clearSuggestions();
                 hideCloseButton();
-                hideSearchResultsView();
+                hideSearchViewResults();
             } else {
                 showCloseButton();
-                showSearchResultsView();
+                showSearchViewResults();
+            }
+        }
+    }
+
+    private class SearchResultClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (adapter.isSearchItem(position)) {
+                performSearch();
+            } else {
+                deactivateSearchView();
+                suggestionsHelper.launchSuggestion(view.getContext(), position);
             }
         }
     }
@@ -340,6 +356,31 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);
             tracker.trackMainScreenEvent();
+        }
+    }
+
+    private class SuggestionsScrollListener implements AbsListView.OnScrollListener {
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+            if (scrollState == SCROLL_STATE_TOUCH_SCROLL) {
+                hideKeyboard();
+            }
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        }
+    }
+
+    private class SuggestionsVisibilityController extends DataSetObserver {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            if (!adapter.isEmpty()) {
+                showSearchListView();
+            } else {
+                hideSearchListView();
+            }
         }
     }
 }

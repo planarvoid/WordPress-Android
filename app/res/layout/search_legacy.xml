@@ -29,8 +29,8 @@
             android:layout_below="@id/toolbar_id"
             android:visibility="invisible">
 
-            <FrameLayout
-                android:id="@+id/search_suggestions_container"
+            <ListView
+                android:id="@android:id/list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

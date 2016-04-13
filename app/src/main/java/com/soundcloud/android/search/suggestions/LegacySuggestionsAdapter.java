@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Deprecated
+@Deprecated // use SuggestionsAdapter
 public class LegacySuggestionsAdapter extends CursorAdapter {
     private final Context context;
 
