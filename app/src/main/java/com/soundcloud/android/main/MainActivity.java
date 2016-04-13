@@ -19,8 +19,6 @@ import javax.inject.Inject;
 
 public class MainActivity extends PlayerActivity {
 
-    public static final String EXTRA_REFRESH_STREAM = "refresh_stream";
-
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
     @Inject Navigator navigator;
@@ -74,10 +72,10 @@ public class MainActivity extends PlayerActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+    protected void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // Wait for onEnterAnimationComplete() on Marshmallow - overlapping transition crash workaround
             setupUpgradeUpsell();
         }
     }

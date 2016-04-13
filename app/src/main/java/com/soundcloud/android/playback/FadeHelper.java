@@ -83,6 +83,11 @@ class FadeHelper {
         public void onCompleted() {
             listener.onFadeFinished();
         }
+
+        @Override
+        public void onError(Throwable e) {
+            // ignore
+        }
     }
 
     private static Func1<Long, Float> toFadeVolume(final FadeRequest request) {
