@@ -124,15 +124,7 @@ At the time of this writing, we're still maintaining a legacy test suite based o
 
 ### Unit tests in Android Studio
 
-Add a file `local.properties` to the app directory containing the path to the Android SDK:
-
-    $ echo "sdk.dir=$ANDROID_HOME" > app/local.properties
-
-In your Run/Debug configuration you should have one called: `robolectric-tests` which will execute all unit tests.
-
-You should also setup your default run configuration for JUnit so it looks like this:
-
-![screen shot 2015-09-01 at 18 24 57](https://cloud.githubusercontent.com/assets/513206/9610004/22a788ee-50d7-11e5-8789-7ab7c50d60de.png)
+You can simply run unit tests by right clicking the `java` folder in `src/test/java` and selecting "Run Tests in java". This will create a working run config for you. Tip: when using the MacOS X keymap, hitting `CTRL+R` will re-run the previous test run; `CTRL+SHIFT+R` in the test class context will run that test case, and in test method context will run that individual test.
 
 ## Useful Gradle commands
 
