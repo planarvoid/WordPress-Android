@@ -210,4 +210,12 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
         verify(itemView).setClickable(false);
     }
+
+    @Test
+    public void shouldEnableClicksForUnblockedTracks() {
+        propertySet.put(TrackProperty.BLOCKED, false);
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+
+        verify(itemView).setClickable(true);
+    }
 }
