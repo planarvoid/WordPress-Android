@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import javax.inject.Inject;
 
 class ReferrerResolver {
+
     private static final String FACEBOOK_PKG_NAME = "com.facebook.application.";
     private static final String TWITTER_PKG_NAME = "com.twitter.android";
     private static final String GOOGLE_PLUS_PKG_NAME = "com.google.android.apps.plus";
@@ -31,6 +32,7 @@ class ReferrerResolver {
     private static final String ANDROID_APP_SCHEME = "android-app";
 
     private static final String PARAM_ORIGIN = "origin";
+    private static final String PARAM_REF = "ref";
 
     @Inject
     ReferrerResolver() {
@@ -41,7 +43,9 @@ class ReferrerResolver {
         try {
             if (Referrer.hasReferrer(intent)) {
                 return Referrer.fromIntent(intent).value();
-            } else if (isOriginIntent(intent)) {
+            } else if (containsParameter(intent, PARAM_REF)) {
+                return extractParam(intent, PARAM_REF);
+            } else if (containsParameter(intent, PARAM_ORIGIN)) {
                 return referrerFromOrigin(intent).value();
             } else if (isFacebookIntent(intent, resources)) {
                 return Referrer.FACEBOOK.value();
@@ -56,7 +60,7 @@ class ReferrerResolver {
             } else {
                 return Referrer.OTHER.value();
             }
-        } catch(ClassCastException exception) {
+        } catch (ClassCastException exception) {
             return Referrer.OTHER.value();
         }
     }
@@ -65,13 +69,12 @@ class ReferrerResolver {
         return getActionForSoundCloud(resources).equals(intent.getAction());
     }
 
-    private boolean isOriginIntent(Intent intent) {
-        return Strings.isNotBlank(getOrigin(intent));
+    private boolean containsParameter(Intent intent, String param) {
+        return Strings.isNotBlank(extractParam(intent, param));
     }
 
     private Referrer referrerFromOrigin(Intent intent) {
-        String origin = getOrigin(intent);
-
+        String origin = extractParam(intent, PARAM_ORIGIN);
         if (origin != null) {
             return Referrer.fromOrigin(origin);
         } else {
@@ -80,11 +83,11 @@ class ReferrerResolver {
     }
 
     @Nullable
-    private String getOrigin(Intent intent) {
+    private String extractParam(Intent intent, String param) {
         Uri data = intent.getData();
 
         if (data != null && !data.isOpaque()) {
-            return data.getQueryParameter(PARAM_ORIGIN);
+            return data.getQueryParameter(param);
         } else {
             return null;
         }
