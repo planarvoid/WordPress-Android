@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EmptyViewElement;
@@ -170,10 +171,10 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private AdapterElement getTracksContainer() {
-        if (testDriver.isElementDisplayed(With.id(android.R.id.list))) {
-            return tracksListView();
-        } else {
+        if (BuildConfig.EDIT_PLAYLIST) {
             return tracksRecyclerView();
+        } else {
+            return tracksListView();
         }
     }
 
