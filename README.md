@@ -112,19 +112,13 @@ Click the Play button in Android Studio (next to app at the top) and it should r
 
 ### Unit tests on command line
 
-You can run all or individual unit tests using Gradle. `cd` into the parent module, then run
+To run the unit test suite using Gradle, `cd` into the parent module, then run
 
     $ ./gradlew runUnitTests
 
-to run all tests, or
+At the time of this writing, we're still maintaining a legacy test suite based on Robolectric 1 (in `tests-robolectric`), which we're constantly chipping away at by either migrating useful tests to `src/test/java` or removing them. You can run these tests specifically via
 
-    $ ./gradlew runUnitTests --tests *SimpleTrackingApiTest
-
-to run all tests inside a class, or
-
-    $ ./gradlew runUnitTests --tests *SimpleTrackingApiTest.failedTest
-
-to run one single test.
+    $ ./gradlew runLegacyUnitTests
 
 **NOTE: for the legacy tests in tests-robolectric to run, you need to install the Android SDK platform v22 via the SDK manager**
 
