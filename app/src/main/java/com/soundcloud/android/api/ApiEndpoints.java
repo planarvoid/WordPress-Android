@@ -82,6 +82,7 @@ public enum ApiEndpoints {
     USER_TRACKS("/users/%s/tracks/posted"),
     USER_RELEASES("/users/%s/releases/posted"),
     USER_LIKES("/users/%s/likes"),
+    USER_PLAYLISTS("/users/%s/playlists/posted"),
 
     // stations
     STATION("/stations/%s/station_and_tracks"),

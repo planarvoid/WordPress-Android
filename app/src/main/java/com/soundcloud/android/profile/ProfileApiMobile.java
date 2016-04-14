@@ -77,13 +77,33 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(Urn user) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(String nextPageLink) {
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(String nextPageLink) {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(Urn user) {
+        return getPlaylistsCollection(ApiEndpoints.USER_PLAYLISTS.path(user));
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(String nextPageLink) {
+        return getPlaylistsCollection(nextPageLink);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<ApiPlaylistPost>> getPlaylistsCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPrivateApi()
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, playlistPostToken);
     }
 
     @Override

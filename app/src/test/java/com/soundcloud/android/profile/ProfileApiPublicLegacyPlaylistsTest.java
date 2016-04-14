@@ -26,7 +26,7 @@ import rx.observers.TestObserver;
 
 import java.util.Arrays;
 
-public class ProfileApiPublicPlaylistsTest extends AndroidUnitTest {
+public class ProfileApiPublicLegacyPlaylistsTest extends AndroidUnitTest {
 
     private static final String NEXT_HREF = "next-href";
 
@@ -58,7 +58,7 @@ public class ProfileApiPublicPlaylistsTest extends AndroidUnitTest {
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 any(TypeToken.class))).thenReturn(results);
 
-        api.userPlaylists(Urn.forUser(123L)).subscribe(observer);
+        api.userLegacyPlaylists(Urn.forUser(123L)).subscribe(observer);
         assertAllItemsEmitted();
     }
 
@@ -70,7 +70,7 @@ public class ProfileApiPublicPlaylistsTest extends AndroidUnitTest {
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 any(TypeToken.class))).thenReturn(results);
 
-        api.userPlaylists(NEXT_HREF).subscribe(observer);
+        api.userLegacyPlaylists(NEXT_HREF).subscribe(observer);
         assertAllItemsEmitted();
     }
 

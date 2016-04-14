@@ -74,13 +74,23 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(Urn user) {
         return getPlaylists(ApiEndpoints.LEGACY_USER_PLAYLISTS.path(user.getNumericId()));
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(String pageLink) {
+    public Observable<ModelCollection<ApiPlaylist>> userLegacyPlaylists(String pageLink) {
         return getPlaylists(pageLink);
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(Urn user) {
+        throw new UnsupportedOperationException("User Playlists will not be supported by Public API");
+    }
+
+    @Override
+    public Observable<ModelCollection<ApiPlaylistPost>> userPlaylists(String pageLink) {
+        throw new UnsupportedOperationException("User Playlists will not be supported by Public API");
     }
 
     @Override

@@ -57,6 +57,9 @@ public class UserSoundsItemClickListener {
             case UserSoundsTypes.LIKES:
                 navigator.openProfileLikes(view.getContext(), userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
                 break;
+            case UserSoundsTypes.PLAYLISTS:
+                navigator.openProfilePlaylists(view.getContext(), userUrn, Screen.USER_PLAYLISTS, searchQuerySourceInfo);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown collection type : " + collectionType);
         }
