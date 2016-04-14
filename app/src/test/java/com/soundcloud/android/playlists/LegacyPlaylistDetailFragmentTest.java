@@ -96,7 +96,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
                 playlistEngagementsPresenter,
                 ptrController,
                 playQueueManager,
-                new PlaylistDetailsViewFactory(InjectionSupport.providerOf(imageOperations)),
+                new PlaylistHeaderViewFactory(InjectionSupport.providerOf(imageOperations)),
                 expandPlayerSubscriberProvider,
                 accountOperations,
                 navigator

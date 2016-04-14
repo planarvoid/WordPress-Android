@@ -32,14 +32,4 @@ public class PlaylistsModule {
         }
     }
 
-    @Provides
-    public PlaylistPresenter providePlaylistPresenter(Resources resources,
-                                                      Provider<SplitPlaylistPresenter> splitPlaylistPresenterProvider,
-                                                      Provider<InlinePlaylistPresenter> inlinePlaylistPresenterProvider) {
-        if (resources.getBoolean(R.bool.split_screen_details_pages)) {
-            return splitPlaylistPresenterProvider.get();
-        } else {
-            return inlinePlaylistPresenterProvider.get();
-        }
-    }
 }

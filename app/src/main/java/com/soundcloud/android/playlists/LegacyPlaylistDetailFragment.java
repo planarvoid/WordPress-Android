@@ -98,7 +98,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     @Inject @LightCycle PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
-    @Inject PlaylistDetailsViewFactory playlistDetailsViewFactory;
+    @Inject PlaylistHeaderViewFactory playlistHeaderViewFactory;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     @Inject AccountOperations accountOperations;
     @Inject Navigator navigator;
@@ -112,7 +112,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private CompositeSubscription eventSubscription = new CompositeSubscription();
 
-    private PlaylistDetailsView playlistDetailsView;
+    private PlaylistHeaderView playlistHeaderView;
     private View headerUsernameText;
     private ImageButton playToggle;
     private PlaylistWithTracks playlistWithTracks;
@@ -172,7 +172,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
                                  LegacyPlaylistEngagementsPresenter engagementsPresenter,
                                  PullToRefreshController pullToRefreshController,
                                  PlayQueueManager playQueueManager,
-                                 PlaylistDetailsViewFactory playlistDetailsViewFactory,
+                                 PlaylistHeaderViewFactory playlistHeaderViewFactory,
                                  Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                  AccountOperations accountOperations,
                                  Navigator navigator) {
@@ -185,7 +185,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         this.engagementsPresenter = engagementsPresenter;
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
-        this.playlistDetailsViewFactory = playlistDetailsViewFactory;
+        this.playlistHeaderViewFactory = playlistHeaderViewFactory;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.accountOperations = accountOperations;
         this.navigator = navigator;
@@ -316,9 +316,9 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     }
 
     private void setupPlaylistDetails(View detailsView) {
-        playlistDetailsView = playlistDetailsViewFactory.create(detailsView);
-        playlistDetailsView.setOnPlayButtonClickListener(onPlayClick);
-        playlistDetailsView.setOnCreatorButtonClickListener(onHeaderTextClick);
+        playlistHeaderView = playlistHeaderViewFactory.create(detailsView);
+        playlistHeaderView.setOnPlayButtonClickListener(onPlayClick);
+        playlistHeaderView.setOnCreatorButtonClickListener(onHeaderTextClick);
         engagementsPresenter.bindView(detailsView, new OriginProvider() {
             @Override
             public String getScreenTag() {
@@ -384,7 +384,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         }
 
         this.playlistWithTracks = playlistWithTracks;
-        playlistDetailsView.setPlaylist(playlistWithTracks.getPlaylistItem(), !playlistWithTracks.getTracks().isEmpty());
+        playlistHeaderView.setPlaylist(playlistWithTracks.getPlaylistItem(), !playlistWithTracks.getTracks().isEmpty());
         engagementsPresenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
 
         // don't register clicks before we have a valid playlist

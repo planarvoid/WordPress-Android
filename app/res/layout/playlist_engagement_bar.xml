@@ -3,11 +3,12 @@
     style="@style/NewPlaylistActionContainer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingBottom="@dimen/playlist_action_bar_padding"
-    android:paddingTop="@dimen/playlist_action_bar_padding"
-    android:animateLayoutChanges="true">
+    android:paddingTop="@dimen/playlist_action_bar_padding">
 
     <include layout="@layout/downloadable_header" />
 

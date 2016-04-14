@@ -17,7 +17,6 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.ProfileScrollHelper;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;

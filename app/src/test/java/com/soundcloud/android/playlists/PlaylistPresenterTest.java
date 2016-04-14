@@ -38,19 +38,15 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 
 import android.os.Bundle;
 
 import javax.inject.Provider;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -72,7 +68,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeAttacher;
     @Mock private CollapsingScrollHelper profileScrollHelper;
     @Mock private PlaylistHeaderPresenter headerPresenter;
-    @Mock private PlaylistAdapterFactory adapterFactory;
+    @Mock private PlaylistContentPresenter playlistContentPresenter;
     @Mock private PlaylistAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
@@ -88,10 +84,9 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         args = PlaylistDetailFragment.createBundle(PLAYLIST_URN, Screen.PLAYLIST_DETAILS, null, null, false);
         fragmentRule.setFragmentArguments(args);
 
-        when(adapterFactory.create(any(PlaylistHeaderPresenter.class))).thenReturn(adapter);
         when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
 
-        presenter = new TestPlaylistPresenter(eventBus);
+        presenter = new PlaylistPresenter(operations, swipeAttacher, headerPresenter, playlistContentPresenter, adapter, playbackInitiator, expandPlayerSubscriberProvider, eventBus);
     }
 
     @Test
@@ -99,21 +94,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), args);
 
         verify(adapter).onNext(listItems());
-    }
-
-    @Test
-    public void shouldAddTrackToPlaylist() {
-        when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks), Observable.just(updatedPlaylistWithTracks));
-        presenter.onCreate(fragmentRule.getFragment(), args);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
-
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
-
-        final InOrder inOrder = Mockito.inOrder(adapter);
-        inOrder.verify(adapter).onNext(listItems());
-        inOrder.verify(adapter).clear();
-        inOrder.verify(adapter).onNext(updatedTrackItems());
     }
 
     @Test
@@ -191,7 +171,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         when(mockEventBus.queue(any(Queue.class))).thenReturn(queueSubject);
         when(mockEventBus.subscribe(any(Queue.class), any(Observer.class))).thenReturn(mock(Subscription.class));
-        presenter = new TestPlaylistPresenter(mockEventBus);
+        presenter = new PlaylistPresenter(operations, swipeAttacher, headerPresenter, playlistContentPresenter, adapter, playbackInitiator, expandPlayerSubscriberProvider, eventBus);
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -208,20 +188,4 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         return Arrays.<ListItem>asList(TrackItem.from(track1), TrackItem.from(track2), TrackItem.from(track3));
     }
 
-    private class TestPlaylistPresenter extends PlaylistPresenter {
-        public TestPlaylistPresenter(EventBus eventBus) {
-            super(operations, swipeAttacher, PlaylistPresenterTest.this.headerPresenter, adapterFactory, eventBus, navigator,
-                    new ViewStrategyFactory(providerOf(eventBus), providerOf(playbackInitiator), providerOf(operations), providerOf(expandPlayerSubscriberProvider)));
-        }
-
-        @Override
-        protected Func1<PlaylistWithTracks, Iterable<ListItem>> getListItemTransformation() {
-            return new Func1<PlaylistWithTracks, Iterable<ListItem>>() {
-                @Override
-                public Iterable<ListItem> call(PlaylistWithTracks playlistWithTracks) {
-                    return new ArrayList<ListItem>(playlistWithTracks.getTracks());
-                }
-            };
-        }
-    }
 }

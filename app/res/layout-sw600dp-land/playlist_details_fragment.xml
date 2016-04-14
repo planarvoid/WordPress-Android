@@ -25,28 +25,22 @@
             android:layout_height="match_parent"
             android:layout_weight="2">
 
-            <FrameLayout
+            <android.support.v7.widget.RecyclerView
+                android:id="@id/ak_recycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:headerDividersEnabled="false"
+                android:scrollbars="vertical" />
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@id/ak_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:headerDividersEnabled="false"
-                    android:scrollbars="vertical" />
+            <com.soundcloud.android.view.EmptyView
+                android:id="@android:id/empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-                <com.soundcloud.android.view.EmptyView
-                    android:id="@android:id/empty"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <View
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/shadow_right" />
-
-            </FrameLayout>
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/shadow_right" />
 
         </com.soundcloud.android.view.MultiSwipeRefreshLayout>
 

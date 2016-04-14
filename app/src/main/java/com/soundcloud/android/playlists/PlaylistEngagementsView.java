@@ -19,8 +19,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Checkable;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
@@ -38,9 +38,12 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     private PopupMenuWrapper popupMenuWrapper;
     private OnEngagementListener listener;
 
-    @Bind(R.id.toggle_like) ToggleButton likeToggle;
-    @Bind(R.id.toggle_download) IconToggleButton downloadToggle;
-    @Bind(R.id.playlist_details_overflow_button) View overflowButton;
+    @Bind(R.id.toggle_like)
+    ToggleButton likeToggle;
+    @Bind(R.id.toggle_download)
+    IconToggleButton downloadToggle;
+    @Bind(R.id.playlist_details_overflow_button)
+    View overflowButton;
 
     @Inject
     public PlaylistEngagementsView(Context context,
@@ -56,16 +59,44 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         this.downloadStateView = downloadStateView;
     }
 
-    public void onViewCreated(View view) {
-        final ViewGroup holder = (ViewGroup) view.findViewById(R.id.playlist_action_bar_holder);
-        View engagementsView = View.inflate(view.getContext(), R.layout.playlist_engagement_bar, holder);
-        ButterKnife.bind(this, engagementsView);
+    @Deprecated // For the legacy screen
+    public void bindView(View view) {
+        bindEngagementBar(view, false);
+    }
 
+    public void bindView(View view, PlaylistHeaderItem item, boolean isEditMode) {
+        final String playlistInfoText = getPlaylistInfoText(item);
+        bindEngagementBar(view, isEditMode);
+        setInfoText(playlistInfoText);
+        bindEditBar(view, playlistInfoText, isEditMode);
+    }
+
+    private void bindEngagementBar(View view, boolean isEditMode) {
+        final View bar = view.findViewById(R.id.playlist_engagement_bar);
+
+        ButterKnife.bind(this, bar);
+        bar.setVisibility(View.VISIBLE);
         popupMenuWrapper = popupMenuWrapperFactory.build(view.getContext(), overflowButton);
         popupMenuWrapper.inflate(R.menu.playlist_details_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
+        downloadStateView.onViewCreated(bar);
+        bar.setVisibility(isEditMode ? View.GONE : View.VISIBLE);
+    }
 
-        downloadStateView.onViewCreated(engagementsView);
+    private void bindEditBar(View view, String playlistInfoText, boolean isEditMode) {
+        // No inflated in the legacy playlist screen
+        final TextView editInfo = (TextView) view.findViewById(R.id.playlist_edit_bar);
+        editInfo.setText(playlistInfoText);
+        editInfo.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+    }
+
+    private String getPlaylistInfoText(PlaylistHeaderItem item) {
+        final String trackCount = context.getResources().getQuantityString(
+                R.plurals.number_of_sounds, item.getTrackCount(),
+                item.getTrackCount());
+
+        return context.getString(R.string.playlist_new_info_header_text_trackcount_duration,
+                trackCount, item.geFormattedDuration());
     }
 
     void showOfflineState(OfflineState state) {

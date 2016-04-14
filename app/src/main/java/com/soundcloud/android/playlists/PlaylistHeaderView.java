@@ -1,7 +1,9 @@
 package com.soundcloud.android.playlists;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
@@ -9,12 +11,11 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.util.AnimUtils;
 
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 @AutoFactory(allowSubclasses = true)
-class PlaylistDetailsView {
+class PlaylistHeaderView {
 
     private final ImageOperations imageOperations;
 
@@ -27,7 +28,7 @@ class PlaylistDetailsView {
     private PlaylistItem playlistInfo;
     private ApiImageSize artworkSize = ApiImageSize.Unknown;
 
-    public PlaylistDetailsView(@Provided ImageOperations imageOperations, View headerView) {
+    public PlaylistHeaderView(@Provided ImageOperations imageOperations, View headerView) {
         this.imageOperations = imageOperations;
         this.artworkSize = ApiImageSize.getFullImageSize(headerView.getResources());
 
@@ -42,17 +43,17 @@ class PlaylistDetailsView {
         usernameView.setOnClickListener(creatorClickListener);
     }
 
-    public void setPlaylist(PlaylistItem item, boolean hasTracks) {
-        playlistInfo = item;
-        getTitleView().setText(item.getTitle());
+    public void setPlaylist(PlaylistItem item, boolean showPlayButton) {
+        this.playlistInfo = item;
+        getTitleView().setText(playlistInfo.getTitle());
         getTitleView().setVisibility(View.VISIBLE);
         usernameView.setVisibility(View.VISIBLE);
-        usernameView.setText(item.getCreatorName());
+        usernameView.setText(playlistInfo.getCreatorName());
         usernameView.setEnabled(true);
 
-        imageOperations.displayWithPlaceholder(item, artworkSize, artworkView);
+        imageOperations.displayWithPlaceholder(playlistInfo, artworkSize, artworkView);
 
-        if (hasTracks) {
+        if (showPlayButton) {
             AnimUtils.showView(playButton, true);
         } else {
             playButton.setVisibility(View.GONE);

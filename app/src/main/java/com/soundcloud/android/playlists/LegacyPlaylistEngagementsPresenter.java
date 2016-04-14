@@ -133,7 +133,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     void bindView(View rootView, OriginProvider originProvider) {
         this.context = rootView.getContext();
         this.originProvider = originProvider;
-        playlistEngagementsView.onViewCreated(rootView);
+        playlistEngagementsView.bindView(rootView);
         playlistEngagementsView.setOnEngagementListener(this);
     }
 

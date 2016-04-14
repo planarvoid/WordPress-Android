@@ -20,6 +20,7 @@
         <item name="cropImageStyle">@style/Widget.CropImageView</item>
 
         <item name="android:windowContentTransitions">true</item>
+        <item name="actionModeStyle">@style/Theme.SoundCloud.ActionMode</item>
     </style>
 
     <style name="Theme.SoundCloud" parent="BaseTheme">
@@ -31,6 +32,11 @@
 
     <style name="Theme.SoundCloud.Toolbar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColorPrimary">@color/dark_gray_text</item>
+    </style>
+
+    <style name="Theme.SoundCloud.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
+        <item name="background">@color/playlist_edition_background</item>
+        <item name="backgroundSplit">@color/playlist_edition_background</item>
     </style>
 
     <style name="Theme.SoundCloud.Translucent">

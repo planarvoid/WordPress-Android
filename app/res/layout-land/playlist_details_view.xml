@@ -38,25 +38,41 @@
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginRight="@dimen/playlist_header_padding"
         android:layout_toRightOf="@id/artwork_container"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/title_private"
         style="@style/PlaylistTitle"
-        android:drawableLeft="@drawable/ic_private_playlist_lock"
-        android:drawablePadding="4dp"
         android:layout_below="@id/username"
         android:layout_marginLeft="@dimen/playlist_header_padding"
         android:layout_marginRight="@dimen/playlist_header_padding"
         android:layout_toRightOf="@id/artwork_container"
-        android:visibility="gone"/>
+        android:drawableLeft="@drawable/ic_private_playlist_lock"
+        android:drawablePadding="4dp"
+        android:visibility="gone" />
 
-    <FrameLayout
-        android:id="@+id/playlist_action_bar_holder"
+    <include
+        android:id="@+id/playlist_engagement_bar"
+        layout="@layout/playlist_engagement_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/artwork_container" />
+        android:layout_alignBottom="@id/artwork_container"
+        android:layout_toRightOf="@id/artwork_container"
+        android:visibility="gone" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/playlist_edit_bar"
+        style="@style/TextAppearance.SoundCloudLightFont"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="@dimen/playlist_action_bar_padding"
+        android:layout_marginLeft="@dimen/playlist_edit_info_left_margin"
+        android:layout_marginTop="@dimen/playlist_action_bar_padding"
+        android:layout_alignBottom="@id/artwork_container"
+        android:layout_toRightOf="@id/artwork_container"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:visibility="gone" />
 
     <View
         style="@style/PlaylistDivider"

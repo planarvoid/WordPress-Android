@@ -31,6 +31,7 @@ public class PlaylistDetailFragment extends ScrollableProfileFragment implements
 
     public PlaylistDetailFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        setRetainInstance(true);
     }
 
     @Override

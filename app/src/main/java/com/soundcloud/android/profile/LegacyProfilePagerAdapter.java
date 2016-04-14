@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.ProfileScrollHelper;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
