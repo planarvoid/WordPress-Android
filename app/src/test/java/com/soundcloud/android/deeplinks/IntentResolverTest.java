@@ -53,7 +53,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     private Context context;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         context = context();
         setupReferrer(Referrer.OTHER);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
@@ -164,7 +164,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackForegroundEventsWithResources() throws Exception {
+    public void shouldTrackForegroundEventsWithResources() {
         setupIntentForUrl("soundcloud://sounds:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
         setupReferrer(Referrer.TWITTER);
@@ -175,7 +175,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackForegroundEventsWithResourceWhenUserIsNotLoggedIn() throws Exception {
+    public void shouldTrackForegroundEventsWithResourceWhenUserIsNotLoggedIn() {
         setupIntentForUrl("soundcloud://sounds:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
         setupReferrer(Referrer.FACEBOOK);
@@ -187,7 +187,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackForegroundEventsWithoutResourcesForHome() throws Exception {
+    public void shouldTrackForegroundEventsWithoutResourcesForHome() {
         intent = new Intent();
 
         resolver.handleIntent(intent, context);
@@ -197,7 +197,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLoginCrawler() throws Exception {
+    public void shouldLoginCrawler() {
         setupIntentForUrl("soundcloud://playlists:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forPlaylist(123)));
         setupReferrer(Referrer.GOOGLE_CRAWLER);
@@ -209,7 +209,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldStartPlaybackForTracksOnCrawlersWithoutRelated() throws Exception {
+    public void shouldStartPlaybackForTracksOnCrawlersWithoutRelated() {
         setupIntentForUrl("soundcloud://sounds:123");
         setupReferrer(Referrer.GOOGLE_CRAWLER);
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
@@ -220,7 +220,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchOnboardingWithExtraUrnForLoggedOutUsers() throws Exception {
+    public void shouldLaunchOnboardingWithExtraUrnForLoggedOutUsers() {
         setupIntentForUrl("soundcloud://sounds:123");
         when(resolveOperations.resolve(uri)).thenReturn(Observable.just(Urn.forTrack(123)));
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
@@ -232,7 +232,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchSearchForWebScheme() throws Exception {
+    public void shouldLaunchSearchForWebScheme() {
         setupIntentForUrl("https://soundcloud.com/search?q=skrillex");
 
         resolver.handleIntent(intent, context);
@@ -242,7 +242,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchSearchForSoundCloudScheme() throws Exception {
+    public void shouldLaunchSearchForSoundCloudScheme() {
         setupIntentForUrl("soundcloud://search?q=skrillex");
 
         resolver.handleIntent(intent, context);
@@ -252,7 +252,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotLaunchSearchForLoggedOutUsers() throws Exception {
+    public void shouldNotLaunchSearchForLoggedOutUsers() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         setupIntentForUrl("soundcloud://search?q=skrillex");
 
@@ -263,7 +263,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchSearchForCrawlers() throws Exception {
+    public void shouldLaunchSearchForCrawlers() {
         setupReferrer(Referrer.GOOGLE_CRAWLER);
         setupIntentForUrl("soundcloud://search?q=skrillex");
 
@@ -275,7 +275,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchExploreForWebScheme() throws Exception {
+    public void shouldLaunchExploreForWebScheme() {
         setupIntentForUrl("https://soundcloud.com/explore");
 
         resolver.handleIntent(intent, context);
@@ -285,7 +285,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchExploreForSoundCloudScheme() throws Exception {
+    public void shouldLaunchExploreForSoundCloudScheme() {
         setupIntentForUrl("soundcloud://explore");
 
         resolver.handleIntent(intent, context);
@@ -295,7 +295,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotLaunchExploreForLoggedOutUsers() throws Exception {
+    public void shouldNotLaunchExploreForLoggedOutUsers() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         setupIntentForUrl("soundcloud://explore");
 
@@ -306,7 +306,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchExploreForCrawlers() throws Exception {
+    public void shouldLaunchExploreForCrawlers() {
         setupReferrer(Referrer.GOOGLE_CRAWLER);
         setupIntentForUrl("soundcloud://explore");
 
@@ -318,7 +318,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchRecordForWebScheme() throws Exception {
+    public void shouldLaunchRecordForWebScheme() {
         setupIntentForUrl("https://soundcloud.com/upload");
 
         resolver.handleIntent(intent, context);
@@ -328,7 +328,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchRecordForSoundCloudSchemeWithUpload() throws Exception {
+    public void shouldLaunchRecordForSoundCloudSchemeWithUpload() {
         setupIntentForUrl("soundcloud://upload");
 
         resolver.handleIntent(intent, context);
@@ -338,7 +338,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchRecordForSoundCloudSchemeWithRecord() throws Exception {
+    public void shouldLaunchRecordForSoundCloudSchemeWithRecord() {
         setupIntentForUrl("soundcloud://record");
 
         resolver.handleIntent(intent, context);
@@ -348,7 +348,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotLaunchRecordForLoggedOutUsers() throws Exception {
+    public void shouldNotLaunchRecordForLoggedOutUsers() {
         when(accountOperations.isUserLoggedIn()).thenReturn(false);
         setupIntentForUrl("soundcloud://record");
 
@@ -359,7 +359,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchRecordForCrawlers() throws Exception {
+    public void shouldLaunchRecordForCrawlers() {
         setupReferrer(Referrer.GOOGLE_CRAWLER);
         setupIntentForUrl("soundcloud://upload");
 
@@ -371,7 +371,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchUpgradeForSoundCloudScheme() throws Exception {
+    public void shouldLaunchUpgradeForSoundCloudScheme() {
         when(featureOperations.upsellHighTier()).thenReturn(true);
         setupIntentForUrl("soundcloud://soundcloudgo");
 
@@ -382,7 +382,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() throws Exception {
+    public void shouldNotLaunchUpgradeWhenUpsellFeatureIsDisabled() {
         when(featureOperations.upsellHighTier()).thenReturn(false);
         setupIntentForUrl("soundcloud://soundcloudgo");
 
@@ -393,13 +393,23 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldLaunchNotificationPreferences() throws Exception {
+    public void shouldLaunchNotificationPreferences() {
         setupIntentForUrl("soundcloud://notification_preferences");
 
         resolver.handleIntent(intent, context);
 
         verifyTrackingEvent(Referrer.OTHER);
         verify(navigator).openNotificationPreferencesFromDeeplink(context);
+    }
+
+    @Test
+    public void shouldLaunchCollection() {
+        setupIntentForUrl("soundcloud://collection");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openCollection(context);
     }
 
     public void setupIntentForUrl(String url) {
