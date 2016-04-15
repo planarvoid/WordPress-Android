@@ -11,13 +11,16 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -32,8 +35,10 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     private final UserSoundsMapper userSoundsMapper;
     private final UserSoundsItemClickListener clickListener;
     private final EventBus eventBus;
+    private final Resources resources;
     private Urn userUrn;
     private Subscription eventSubscription = RxUtils.invalidSubscription();
+    private Subscription userSubscription = RxUtils.invalidSubscription();
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Inject
@@ -43,7 +48,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                         UserProfileOperations operations,
                         UserSoundsMapper userSoundsMapper,
                         UserSoundsItemClickListener clickListener,
-                        EventBus eventBus) {
+                        EventBus eventBus,
+                        Resources resources) {
         super(swipeRefreshAttacher, Options.list().useDividers(Options.DividerMode.NONE).build());
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
@@ -51,6 +57,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         this.userSoundsMapper = userSoundsMapper;
         this.clickListener = clickListener;
         this.eventBus = eventBus;
+        this.resources = resources;
     }
 
     @Override
@@ -95,6 +102,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        userSubscription.unsubscribe();
         eventSubscription.unsubscribe();
         getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
         super.onDestroyView(fragment);
@@ -111,12 +119,28 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     }
 
     private void bindEmptyView(boolean isCurrentUser) {
-        getEmptyView().setImage(R.drawable.empty_stream);
+        getEmptyView().setImage(R.drawable.empty_lists_sounds);
 
         if (isCurrentUser) {
             getEmptyView().setMessageText(R.string.empty_you_sounds_message);
+            getEmptyView().setSecondaryText(R.string.empty_you_sounds_message_secondary);
         } else {
             getEmptyView().setMessageText(R.string.empty_user_sounds_message);
+            displaySecondaryTextForOtherUser();
         }
+    }
+
+    private void displaySecondaryTextForOtherUser() {
+        userSubscription.unsubscribe();
+        userSubscription = operations.getLocalProfileUser(userUrn)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DefaultSubscriber<ProfileUser>() {
+                    @Override
+                    public void onNext(ProfileUser profileUser) {
+                        getEmptyView().setSecondaryText(
+                                resources.getString(R.string.empty_user_sounds_message_secondary, profileUser.getName())
+                        );
+                    }
+                });
     }
 }

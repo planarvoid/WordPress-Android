@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -43,6 +45,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     private UserProfile userProfileResponse;
     private Bundle fragmentArgs;
     private TestEventBus eventBus = new TestEventBus();
+    private ProfileUser profileUser;
 
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacker;
@@ -50,6 +53,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private UserProfileOperations operations;
     @Mock private UserSoundsMapper userSoundsMapper;
     @Mock private UserSoundsItemClickListener clickListener;
+    @Mock private Resources resources;
 
     @Mock private UserSoundsItem userSoundsItem;
 
@@ -57,14 +61,17 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         userProfileResponse = new UserProfileFixtures.Builder().build();
         fragmentArgs = new Bundle();
+        profileUser = new ProfileUser(ModelFixtures.create(ApiUser.class).toPropertySet());
+
         fragmentArgs.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
         fragmentArgs.putParcelable(ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY, SEARCH_QUERY_SOURCE_INFO);
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                userSoundsMapper, clickListener, eventBus);
+                userSoundsMapper, clickListener, eventBus, resources);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
+        when(operations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
     }
 
     @Test
@@ -80,14 +87,18 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     public void configuresEmptyViewInOnViewCreatedForOthersProfile() throws Exception {
         EmptyView emptyView = mock(EmptyView.class);
 
+        when(resources.getString(R.string.empty_user_sounds_message_secondary, profileUser.getName()))
+                .thenReturn("Secondary Text");
+
         fragmentArgs.putBoolean(UserSoundsFragment.IS_CURRENT_USER, false);
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), view(emptyView), null);
 
-        verify(emptyView).setImage(R.drawable.empty_stream);
+        verify(emptyView).setImage(R.drawable.empty_lists_sounds);
         verify(emptyView).setMessageText(R.string.empty_user_sounds_message);
+        verify(emptyView).setSecondaryText("Secondary Text");
     }
 
     @Test
@@ -100,8 +111,9 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), view(emptyView), null);
 
-        verify(emptyView).setImage(R.drawable.empty_stream);
+        verify(emptyView).setImage(R.drawable.empty_lists_sounds);
         verify(emptyView).setMessageText(R.string.empty_you_sounds_message);
+        verify(emptyView).setSecondaryText(R.string.empty_you_sounds_message_secondary);
     }
 
     @Test
