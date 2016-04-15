@@ -301,6 +301,58 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         assertThat(skipAd()).isVisible();
     }
 
+    @Test
+    public void setProgressForUnskippableAdShouldInitiallySetTimerToDuration() {
+        bindUnskippableAd();
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 0, 30));
+
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("30 sec.");
+    }
+
+    @Test
+    public void setProgressForUnskippableAdShouldUpdateDurationRemainingAccordingToPosition() {
+        bindUnskippableAd();
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 7, 30));
+
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("23 sec.");
+    }
+
+    @Test
+    public void setProgressShouldNotEnableSkipAdAfter15secForUnskippableAd() {
+        bindUnskippableAd();
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 15, 30));
+
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(skipAd()).isGone();
+    }
+
+    @Test
+    public void setProgressForAdLessThan15SecsShouldInitiallySetATimerToDuration() {
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 0, 10));
+
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("10 sec.");
+    }
+
+    @Test
+    public void setProgressForAdLessThan15SecsShouldUpdateDurationRemainingAccordingToPosition() {
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 7, 10));
+
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("3 sec.");
+    }
+
     private Iterable<View> fadingViews() {
         VideoAdPresenter.Holder holder = (VideoAdPresenter.Holder) adView.getTag();
         return holder.fadingViews;
@@ -345,5 +397,10 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         adView.findViewById(R.id.video_container).layout(0, 0, LETTERBOX_VIDEO_WIDTH, LETTERBOX_VIDEO_HEIGHT);
         adView.findViewById(R.id.play_controls).setVisibility(playSessionActive ? View.GONE : View.VISIBLE);
         presenter.bindItemView(adView, new VideoPlayerAd(buildAd(false), PropertySet.create()));
+    }
+
+    private void bindUnskippableAd() {
+        final VideoAd videoAd = AdFixtures.getNonskippableVideoAd(Urn.forTrack(123L));
+        presenter.bindItemView(adView, new VideoPlayerAd(videoAd, PropertySet.create()));
     }
 }
