@@ -18,6 +18,7 @@ public abstract class VideoAd extends PlayerAdData {
                 videoTracking.impressionUrls,
                 videoTracking.finishUrls,
                 videoTracking.skipUrls,
+                apiVideoAd.isSkippable(),
                 VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties()),
                 Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoSource),
                 Uri.parse(apiVideoAd.getClickThroughUrl()),

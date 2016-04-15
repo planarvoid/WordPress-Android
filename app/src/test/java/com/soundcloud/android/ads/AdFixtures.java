@@ -13,6 +13,8 @@ import java.util.List;
 
 public class AdFixtures {
 
+    private static final boolean SKIPPABLE = true;
+
     public static InterstitialAd getInterstitialAd(Urn monetizableUrn) {
         final InterstitialAd interstitial = InterstitialAd.create(getApiInterstitial(), monetizableUrn);
         interstitial.setMonetizableTitle("dubstep anthem");
@@ -109,6 +111,7 @@ public class AdFixtures {
         return new ApiAudioAd(
                 Urn.forAd("dfp", "869"),
                 ModelFixtures.create(ApiTrack.class),
+                SKIPPABLE,
                 companion,
                 getApiLeaveBehind(),
                 Arrays.asList("audio_impression1", "audio_impression2"),
@@ -121,6 +124,7 @@ public class AdFixtures {
         return new ApiAudioAd(
                 Urn.forAd("dfp", "869"),
                 ModelFixtures.create(ApiTrack.class),
+                SKIPPABLE,
                 getApiCompanionAd(),
                 null,
                 Arrays.asList("audio_impression1", "audio_impression2"),
@@ -178,7 +182,8 @@ public class AdFixtures {
                 "http://clickthrough.videoad.com",
                 getApiDisplayProperties(),
                 apiVideoSources,
-                getApiVideoAdTracking()
+                getApiVideoAdTracking(),
+                SKIPPABLE
         );
     }
 

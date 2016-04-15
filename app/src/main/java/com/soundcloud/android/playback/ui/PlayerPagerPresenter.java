@@ -648,16 +648,15 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             View view;
             switch (getItemViewType(position)) {
                 case TYPE_AUDIO_AD_VIEW:
-                    view = instantiateAdView(audioAdView, audioAdPresenter, container, position);
+                    audioAdView = view = instantiateAdView(audioAdView, audioAdPresenter, container, position);
                     break;
                 case TYPE_VIDEO_AD_VIEW:
-                    view = instantiateAdView(videoAdView, videoAdPresenter, container, position);
+                    videoAdView = view = instantiateAdView(videoAdView, videoAdPresenter, container, position);
                     break;
                 default:
                     view = instantiateTrackView(position);
                     break;
             }
-
             configureInitialPageState(view);
             container.addView(view);
 

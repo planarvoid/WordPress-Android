@@ -18,6 +18,7 @@ import com.soundcloud.android.playback.ui.view.RoundedColorButton;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.strings.Strings;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -141,19 +142,25 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
         imageOperations.displayWithPlaceholder(playerAd.getMonetizableTrack(), previewSize, holder.previewArtwork);
     }
 
+    void setupSkipButton(AdHolder holder, T ad) {
+        final boolean skippable = ad.getAdData().isSkippable();
+        holder.setSkippable(skippable);
+        holder.timeUntilSkip.setText(Strings.EMPTY);
+        holder.skipAd.setVisibility(View.GONE);
+    }
+
     void updateSkipStatus(AdHolder holder, PlaybackProgress progress, Resources resources) {
-        final int secondsUntilSkip = AdConstants.UNSKIPPABLE_TIME_SECS - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
+        final int fullDuration = (int) TimeUnit.MILLISECONDS.toSeconds(progress.getDuration());
+        final int skipDuration = holder.isSkippable
+                ? Math.min(AdConstants.UNSKIPPABLE_TIME_SECS, fullDuration)
+                : fullDuration;
+        final int secondsUntilSkip = skipDuration - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
         final boolean canSkip = secondsUntilSkip <= 0;
 
         toggleSkip(holder, canSkip);
-        if (!canSkip) {
-            updateSkipCountDown(holder, secondsUntilSkip, resources);
+        if (secondsUntilSkip > 0) {
+            updateSkipCountDown(holder, secondsUntilSkip, fullDuration, resources);
         }
-    }
-
-    void resetSkipButton(AdHolder holder, Resources resources) {
-        updateSkipCountDown(holder, AdConstants.UNSKIPPABLE_TIME_SECS, resources);
-        toggleSkip(holder, false);
     }
 
     private void toggleSkip(AdHolder holder, boolean canSkip) {
@@ -163,9 +170,13 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
         setEnabled(canSkip, holder.skipDisableViews);
     }
 
-    private void updateSkipCountDown(AdHolder viewHolder, int secondsUntilSkip, Resources resources) {
+    private void updateSkipCountDown(AdHolder viewHolder, int secondsUntilSkip, int fullDuration, Resources resources) {
         String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
-        viewHolder.timeUntilSkip.setText(resources.getString(R.string.ads_skip_in_time, formattedTime));
+        String timerText = viewHolder.isSkippable && fullDuration > AdConstants.UNSKIPPABLE_TIME_SECS
+                ? resources.getString(R.string.ads_skip_in_time, formattedTime)
+                : formattedTime;
+
+        viewHolder.timeUntilSkip.setText(timerText);
     }
 
     static class AdHolder {
@@ -186,6 +197,7 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
         final View whyAds;
 
         Iterable<View> skipDisableViews;
+        boolean isSkippable;
 
         final Predicate<View> presentInConfig = new Predicate<View>() {
             @Override
@@ -209,6 +221,10 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
             this.whyAds = adView.findViewById(R.id.why_ads);
 
             skipDisableViews = Iterables.filter(Arrays.asList(previousButton, nextButton), presentInConfig);
+        }
+
+        void setSkippable(boolean skippable) {
+            isSkippable = skippable;
         }
     }
 }

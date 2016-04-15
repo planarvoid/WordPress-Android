@@ -37,6 +37,8 @@ public abstract class PlayerAdData extends AdData {
 
     public abstract List<String> getSkipUrls();
 
+    public abstract boolean isSkippable();
+
     public abstract VisualAdDisplayProperties getDisplayProperties();
 
 }
