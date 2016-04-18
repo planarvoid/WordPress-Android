@@ -665,13 +665,13 @@
   <!--__PROFILE-->
   <string name="user_profile_sounds_header_spotlight">Spotlight</string>
   <string name="user_profile_sounds_header_tracks">Faixas</string>
-  <string name="user_profile_sounds_header_releases">Versões</string>
+  <string name="user_profile_sounds_header_albums">Versões</string>
   <string name="user_profile_sounds_header_playlists">Playlists</string>
   <string name="user_profile_sounds_header_reposts">Republicações</string>
   <string name="user_profile_sounds_header_likes">Curtidas</string>
   <string name="user_profile_sounds_view_all">Exibir tudo</string>
   <string name="user_profile_sounds_view_all_tracks">Exibir todas as faixas</string>
-  <string name="user_profile_sounds_view_all_releases">Ver todas as versões</string>
+  <string name="user_profile_sounds_view_all_albums">Ver todas as versões</string>
   <string name="user_profile_sounds_view_all_playlists">Exibir todas as playlists</string>
   <string name="user_profile_sounds_view_all_reposts">Exibir todas as republicações</string>
   <string name="user_profile_sounds_view_all_likes">Exibir todas as curtidas</string>

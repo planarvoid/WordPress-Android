@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class UserProfileOperationsReleasesTest extends AndroidUnitTest {
+public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
     private static final Urn USER_URN = Urn.forUser(123L);
     private static final String NEXT_HREF = "next-href";
 
@@ -62,42 +62,42 @@ public class UserProfileOperationsReleasesTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsUserReleasesResultFromApi() throws Exception {
-        when(profileApi.userReleases(USER_URN)).thenReturn(Observable.just(page));
+    public void returnsUserAlbumsResultFromApi() throws Exception {
+        when(profileApi.userAlbums(USER_URN)).thenReturn(Observable.just(page));
 
-        operations.userReleases(USER_URN).subscribe(subscriber);
+        operations.userAlbums(USER_URN).subscribe(subscriber);
 
         assertResponse(apiPlaylistPost.toPropertySet());
     }
 
     @Test
-    public void mergesLikesInfoForUserReleases() throws Exception {
-        when(profileApi.userReleases(USER_URN)).thenReturn(Observable.just(page));
+    public void mergesLikesInfoForUserAlbums() throws Exception {
+        when(profileApi.userAlbums(USER_URN)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page))))
                 .thenReturn(addLikeStatusToPlaylist());
 
-        operations.userReleases(USER_URN).subscribe(subscriber);
+        operations.userAlbums(USER_URN).subscribe(subscriber);
 
         assertResponse(apiPlaylistPost.toPropertySet().put(PlayableProperty.IS_USER_LIKE, true));
     }
 
     @Test
-    public void mergesLikesInfoForUserReleasesWithPagination() throws Exception {
+    public void mergesLikesInfoForUserAlbumsWithPagination() throws Exception {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
-        when(profileApi.userReleases(NEXT_HREF)).thenReturn(Observable.just(page));
+        when(profileApi.userAlbums(NEXT_HREF)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page))))
                 .thenReturn(addLikeStatusToPlaylist());
 
-        operations.userReleasesPagingFunction().call(page1).subscribe(subscriber);
+        operations.userAlbumsPagingFunction().call(page1).subscribe(subscriber);
 
         assertResponse(apiPlaylistPost.toPropertySet().put(PlayableProperty.IS_USER_LIKE, true));
     }
 
     @Test
-    public void storesUserReleasesResultsFromApi() throws Exception {
-        when(profileApi.userReleases(USER_URN)).thenReturn(Observable.just(page));
+    public void storesUserAlbumsResultsFromApi() throws Exception {
+        when(profileApi.userAlbums(USER_URN)).thenReturn(Observable.just(page));
 
-        operations.userReleases(USER_URN).subscribe(subscriber);
+        operations.userAlbums(USER_URN).subscribe(subscriber);
 
         verify(writeMixedRecordsCommand).call(page);
     }

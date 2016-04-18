@@ -10,7 +10,7 @@ public interface UserProfileRecord {
 
     ModelCollection<? extends ApiEntityHolder> getTracks();
 
-    ModelCollection<? extends ApiEntityHolder> getReleases();
+    ModelCollection<? extends ApiEntityHolder> getAlbums();
 
     ModelCollection<? extends ApiEntityHolder> getPlaylists();
 

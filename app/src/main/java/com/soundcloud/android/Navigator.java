@@ -28,7 +28,7 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
-import com.soundcloud.android.profile.UserReleasesActivity;
+import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
@@ -195,8 +195,8 @@ public class Navigator {
                 .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
-    public void openProfileReleases(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
-        context.startActivity(createProfileReleasesIntent(context, user, screen)
+    public void openProfileAlbums(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
+        context.startActivity(createProfileAlbumsIntent(context, user, screen)
                 .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
@@ -387,9 +387,9 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createProfileReleasesIntent(Context context, Urn user, Screen screen) {
-        Intent intent = new Intent(context, UserReleasesActivity.class)
-                .putExtra(UserReleasesActivity.EXTRA_USER_URN, user);
+    private Intent createProfileAlbumsIntent(Context context, Urn user, Screen screen) {
+        Intent intent = new Intent(context, UserAlbumsActivity.class)
+                .putExtra(UserAlbumsActivity.EXTRA_USER_URN, user);
         screen.addToIntent(intent);
         return intent;
     }

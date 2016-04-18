@@ -197,17 +197,17 @@ public class ProfileApiMobile implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user) {
-        return getUserReleasesCollection(ApiEndpoints.USER_RELEASES.path(user));
+    public Observable<ModelCollection<ApiPlaylistPost>> userAlbums(Urn user) {
+        return getUserAlbumsCollection(ApiEndpoints.USER_ALBUMS.path(user));
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink) {
-        return getUserReleasesCollection(nextPageLink);
+    public Observable<ModelCollection<ApiPlaylistPost>> userAlbums(String nextPageLink) {
+        return getUserAlbumsCollection(nextPageLink);
     }
 
     @NotNull
-    private Observable<ModelCollection<ApiPlaylistPost>> getUserReleasesCollection(String path) {
+    private Observable<ModelCollection<ApiPlaylistPost>> getUserAlbumsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)

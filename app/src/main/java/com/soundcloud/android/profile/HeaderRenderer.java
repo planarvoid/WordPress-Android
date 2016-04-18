@@ -36,8 +36,8 @@ class HeaderRenderer implements CellRenderer<UserSoundsItem> {
                 return R.string.user_profile_sounds_header_spotlight;
             case UserSoundsTypes.TRACKS:
                 return R.string.user_profile_sounds_header_tracks;
-            case UserSoundsTypes.RELEASES:
-                return R.string.user_profile_sounds_header_releases;
+            case UserSoundsTypes.ALBUMS:
+                return R.string.user_profile_sounds_header_albums;
             case UserSoundsTypes.PLAYLISTS:
                 return R.string.user_profile_sounds_header_playlists;
             case UserSoundsTypes.REPOSTS:

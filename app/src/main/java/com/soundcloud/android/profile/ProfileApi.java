@@ -54,8 +54,8 @@ interface ProfileApi {
 
     Observable<ModelCollection<ApiEntityHolder>> userTracks(String nextPageLink);
 
-    Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user);
+    Observable<ModelCollection<ApiPlaylistPost>> userAlbums(Urn user);
 
-    Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink);
+    Observable<ModelCollection<ApiPlaylistPost>> userAlbums(String nextPageLink);
 
 }

@@ -11,7 +11,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -72,7 +71,7 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
         assertThat(actualUserProfile.getUser()).isEqualTo(expectedUserProfile.getUser());
         assertThat(actualUserProfile.getSpotlight()).isEqualTo(expectedUserProfile.getSpotlight());
         assertThat(actualUserProfile.getTracks()).isEqualTo(expectedUserProfile.getTracks());
-        assertThat(actualUserProfile.getReleases()).isEqualTo(expectedUserProfile.getReleases());
+        assertThat(actualUserProfile.getAlbums()).isEqualTo(expectedUserProfile.getAlbums());
         assertThat(actualUserProfile.getPlaylists()).isEqualTo(expectedUserProfile.getPlaylists());
         assertThat(actualUserProfile.getReposts()).isEqualTo(expectedUserProfile.getReposts());
         assertThat(actualUserProfile.getLikes()).isEqualTo(expectedUserProfile.getLikes());

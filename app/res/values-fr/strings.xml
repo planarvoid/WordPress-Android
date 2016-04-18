@@ -670,13 +670,13 @@
   <!--__PROFILE-->
   <string name="user_profile_sounds_header_spotlight">Titres épinglés</string>
   <string name="user_profile_sounds_header_tracks">Titres</string>
-  <string name="user_profile_sounds_header_releases">Publications</string>
+  <string name="user_profile_sounds_header_albums">Publications</string>
   <string name="user_profile_sounds_header_playlists">Playlists</string>
   <string name="user_profile_sounds_header_reposts">Reposts</string>
   <string name="user_profile_sounds_header_likes">Favoris</string>
   <string name="user_profile_sounds_view_all">Afficher tout</string>
   <string name="user_profile_sounds_view_all_tracks">Afficher tous les titres</string>
-  <string name="user_profile_sounds_view_all_releases">Afficher toutes les publications</string>
+  <string name="user_profile_sounds_view_all_albums">Afficher toutes les publications</string>
   <string name="user_profile_sounds_view_all_playlists">Afficher toutes les playlists</string>
   <string name="user_profile_sounds_view_all_reposts">Afficher tous les reposts</string>
   <string name="user_profile_sounds_view_all_likes">Afficher tous les favoris</string>

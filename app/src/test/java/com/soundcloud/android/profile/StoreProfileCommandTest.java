@@ -74,14 +74,14 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void shouldStoreTheUsersReleases() {
-        final ApiPlaylistPost release = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class));
-        final ModelCollection<ApiPlaylistPost> releases = new ModelCollection<>(Collections.singletonList(release));
-        final ApiUserProfile profile = new UserProfileRecordFixtures.Builder().releases(releases).build();
+    public void shouldStoreTheUsersAlbums() {
+        final ApiPlaylistPost album = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class));
+        final ModelCollection<ApiPlaylistPost> albums = new ModelCollection<>(Collections.singletonList(album));
+        final ApiUserProfile profile = new UserProfileRecordFixtures.Builder().albums(albums).build();
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertPlaylistInserted(release.getPlaylistRecord().getUrn());
+        databaseAssertions().assertPlaylistInserted(album.getPlaylistRecord().getUrn());
     }
 
     @Test

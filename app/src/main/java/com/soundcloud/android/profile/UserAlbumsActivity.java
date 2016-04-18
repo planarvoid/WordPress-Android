@@ -12,7 +12,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class UserReleasesActivity extends PlayerActivity {
+public class UserAlbumsActivity extends PlayerActivity {
 
     public static final String EXTRA_USER_URN = "userUrn";
 
@@ -33,9 +33,7 @@ public class UserReleasesActivity extends PlayerActivity {
     }
 
     @Override
-    public Screen getScreen() {
-        return Screen.USER_RELEASES;
-    }
+    public Screen getScreen() { return Screen.USER_ALBUMS; }
 
     private void attachFragment() {
         final Urn userUrn = getIntent().getParcelableExtra(EXTRA_USER_URN);
@@ -46,7 +44,7 @@ public class UserReleasesActivity extends PlayerActivity {
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container, UserReleasesFragment.create(userUrn, screen, searchQuerySourceInfo))
+                .replace(R.id.container, UserAlbumsFragment.create(userUrn, screen, searchQuerySourceInfo))
                 .commit();
     }
 

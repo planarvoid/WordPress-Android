@@ -736,23 +736,23 @@
     <string name="empty_you_sounds_message_secondary">Tracks you like, repost or upload will appear here.</string>
     <string name="user_profile_sounds_header_spotlight">Spotlight</string>
     <string name="user_profile_sounds_header_tracks">Tracks</string>
-    <string name="user_profile_sounds_header_releases">Releases</string>
+    <string name="user_profile_sounds_header_albums">Albums</string>
     <string name="user_profile_sounds_header_playlists">Playlists</string>
     <string name="user_profile_sounds_header_reposts">Reposts</string>
     <string name="user_profile_sounds_header_likes">Likes</string>
     <string name="user_profile_sounds_view_all">View all</string>
     <string name="user_profile_sounds_view_all_tracks">View all tracks</string>
-    <string name="user_profile_sounds_view_all_releases">View all releases</string>
+    <string name="user_profile_sounds_view_all_albums">View all albums</string>
     <string name="user_profile_sounds_view_all_playlists">View all playlists</string>
     <string name="user_profile_sounds_view_all_reposts">View all reposts</string>
     <string name="user_profile_sounds_view_all_likes">View all likes</string>
     <string name="user_profile_sounds_tracks_empty">This person doesn’t have any tracks yet.</string>
     <string name="user_reposts_empty">This person doesn’t have any reposts yet.</string>
-    <string name="user_profile_sounds_releases_empty">This person doesn’t have any releases yet.</string>
+    <string name="user_profile_sounds_albums_empty">This person doesn’t have any albums yet.</string>
     <string name="user_profile_sounds_likes_empty">This person doesn’t have any likes yet.</string>
     <string name="user_profile_sounds_playlists_empty">This person doesn’t have any playlists yet.</string>
     <string name="user_reposts_label">Reposts</string>
-    <string name="user_releases_label">Releases</string>
+    <string name="user_albums_label">Albums</string>
     <string name="user_likes_label">Likes</string>
 
     <!-- __UPSELL -->

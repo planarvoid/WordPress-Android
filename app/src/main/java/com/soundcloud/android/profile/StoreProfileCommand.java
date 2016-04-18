@@ -24,7 +24,7 @@ public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
     public Boolean call(UserProfileRecord profile) {
         final ModelCollection<? extends ApiEntityHolderSource> spotlight = profile.getSpotlight();
         final ModelCollection<? extends ApiEntityHolder> tracks = profile.getTracks();
-        final ModelCollection<? extends ApiEntityHolder> releases = profile.getReleases();
+        final ModelCollection<? extends ApiEntityHolder> albums = profile.getAlbums();
         final ModelCollection<? extends ApiEntityHolder> playlists = profile.getPlaylists();
         final ModelCollection<? extends ApiEntityHolderSource> reposts = profile.getReposts();
         final ModelCollection<? extends ApiEntityHolderSource> likes = profile.getLikes();
@@ -33,7 +33,7 @@ public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
                 Collections.singletonList((RecordHolder) profile.getUser()),
                 TO_RECORD_HOLDERS(spotlight),
                 tracks.getCollection(),
-                releases.getCollection(),
+                albums.getCollection(),
                 playlists.getCollection(),
                 TO_RECORD_HOLDERS(reposts),
                 TO_RECORD_HOLDERS(likes)

@@ -30,7 +30,7 @@ class UserProfileRecordFixtures {
         private ApiUser user = create(ApiUser.class);
         private ModelCollection<ApiPlayableSource> spotlight = emptyPlayableSources();
         private ModelCollection<ApiTrackPost> tracks = emptyTrackPosts();
-        private ModelCollection<ApiPlaylistPost> releases = emptyPlaylistPosts();
+        private ModelCollection<ApiPlaylistPost> albums = emptyPlaylistPosts();
         private ModelCollection<ApiPlaylistPost> playlists = emptyPlaylistPosts();
         private ModelCollection<ApiPlayableSource> reposts = emptyPlayableSources();
         private ModelCollection<ApiPlayableSource> likes = emptyPlayableSources();
@@ -50,8 +50,8 @@ class UserProfileRecordFixtures {
             return this;
         }
 
-        Builder releases(ModelCollection<ApiPlaylistPost> releases) {
-            this.releases = releases;
+        Builder albums(ModelCollection<ApiPlaylistPost> albums) {
+            this.albums = albums;
             return this;
         }
 
@@ -73,7 +73,7 @@ class UserProfileRecordFixtures {
         Builder populateAllCollections() {
             spotlight = new ModelCollection<>(singletonList(apiTrackHolder()));
             tracks = new ModelCollection<>(singletonList(new ApiTrackPost(create(ApiTrack.class))));
-            releases = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
+            albums = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
             playlists = new ModelCollection<>(singletonList(new ApiPlaylistPost(create(ApiPlaylist.class))));
             reposts = new ModelCollection<>(singletonList(apiTrackHolder()));
             likes = new ModelCollection<>(singletonList(apiTrackHolder()));
@@ -86,7 +86,7 @@ class UserProfileRecordFixtures {
                     user,
                     spotlight,
                     tracks,
-                    releases,
+                    albums,
                     playlists,
                     reposts,
                     likes

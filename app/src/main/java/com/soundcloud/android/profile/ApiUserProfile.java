@@ -16,7 +16,7 @@ abstract class ApiUserProfile implements UserProfileRecord {
             @JsonProperty("user") ApiUser user,
             @JsonProperty("spotlight") ModelCollection<ApiPlayableSource> spotlight,
             @JsonProperty("tracks") ModelCollection<ApiTrackPost> tracks,
-            @JsonProperty("releases") ModelCollection<ApiPlaylistPost> releases,
+            @JsonProperty("releases") ModelCollection<ApiPlaylistPost> albums,
             @JsonProperty("playlists") ModelCollection<ApiPlaylistPost> playlists,
             @JsonProperty("reposts") ModelCollection<ApiPlayableSource> reposts,
             @JsonProperty("likes") ModelCollection<ApiPlayableSource> likes) {
@@ -25,7 +25,7 @@ abstract class ApiUserProfile implements UserProfileRecord {
                 user,
                 spotlight,
                 tracks,
-                releases,
+                albums,
                 playlists,
                 reposts,
                 likes
@@ -38,7 +38,7 @@ abstract class ApiUserProfile implements UserProfileRecord {
 
     public abstract ModelCollection<? extends ApiEntityHolder> getTracks();
 
-    public abstract ModelCollection<? extends ApiEntityHolder> getReleases();
+    public abstract ModelCollection<? extends ApiEntityHolder> getAlbums();
 
     public abstract ModelCollection<? extends ApiEntityHolder> getPlaylists();
 
