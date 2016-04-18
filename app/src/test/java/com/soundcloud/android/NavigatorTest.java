@@ -124,6 +124,13 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void openCollection() {
+        navigator.openCollection(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.COLLECTION);
+    }
+
+    @Test
     public void openUpgrade() {
         navigator.openUpgrade(activityContext);
         assertThat(activityContext).nextStartedIntent().opensActivity(WebConversionActivity.class);

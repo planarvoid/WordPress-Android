@@ -266,6 +266,10 @@ public class Navigator {
         activity.startActivity(rootScreen(new Intent(Actions.COLLECTION).setFlags(FLAGS_TOP)));
     }
 
+    public void openCollection(Context context) {
+        context.startActivity(new Intent(Actions.COLLECTION));
+    }
+
     public void openLauncher(Context context) {
         context.startActivity(createLauncherIntent(context));
     }

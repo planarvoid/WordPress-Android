@@ -105,6 +105,9 @@ public class IntentResolver {
             case NOTIFICATION_PREFERENCES:
                 showNotificationPreferencesScreen(context, referrer);
                 break;
+            case COLLECTION:
+                showCollectionScreen(context, referrer);
+                break;
             default:
                 resolve(context, uri, referrer);
         }
@@ -190,6 +193,12 @@ public class IntentResolver {
     private void showNotificationPreferencesScreen(Context context, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openNotificationPreferencesFromDeeplink(context);
+    }
+
+
+    private void showCollectionScreen(Context context, String referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openCollection(context);
     }
 
     private void startActivityForResource(Context context, Urn urn, String referrer) {
