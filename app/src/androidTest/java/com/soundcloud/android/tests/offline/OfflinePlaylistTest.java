@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -73,6 +74,7 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(collectionsDownloadElement, is(downloadingOrDownloaded()));
     }
 
+    @Ignore
     public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
                 .scrollToAndClickPlaylistWithTitle(OFFLINE_PLAYLIST)
