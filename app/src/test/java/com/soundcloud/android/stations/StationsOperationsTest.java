@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StationsOperationsTest {
+
     @Mock SyncStateStorage syncStateStorage;
     @Mock StationsStorage stationsStorage;
     @Mock StationsApi stationsApi;
@@ -53,6 +55,7 @@ public class StationsOperationsTest {
         stationFromDisk = StationFixtures.getStation(Urn.forTrackStation(123L));
         apiStation = StationFixtures.getApiStation();
 
+        when(stationsStorage.clearExpiredPlayQueue(station)).thenReturn(Observable.just(new TxnResult()));
         when(stationsStorage.station(station)).thenReturn(Observable.just(stationFromDisk));
         when(stationsApi.fetchStation(station)).thenReturn(Observable.just(apiStation));
     }
@@ -105,6 +108,18 @@ public class StationsOperationsTest {
     @Test
     public void getStationShouldFallbackToNetwork() {
         when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
+
+        final TestSubscriber<StationRecord> subscriber  = new TestSubscriber<>();
+        operations.station(station).subscribe(subscriber);
+
+        assertThat(subscriber.getOnNextEvents()).doesNotContain(stationFromDisk);
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void getStationShouldFallBackToNetworkWhenTracksMissing() {
+        StationRecord noTracksStation = StationFixtures.getApiStation(Urn.forTrackStation(123), 0);
+        when(stationsStorage.station(station)).thenReturn(Observable.just(noTracksStation));
 
         final TestSubscriber<StationRecord> subscriber  = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);

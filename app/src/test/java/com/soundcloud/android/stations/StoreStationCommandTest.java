@@ -2,19 +2,25 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class StoreStationCommandTest extends StorageIntegrationTest {
+
+    private TestDateProvider dateProvider;
     private ApiStation station;
     private StoreStationCommand command;
 
     @Before
     public void setup() {
-        command = new StoreStationCommand(propeller());
         station = StationFixtures.getApiStation();
+        dateProvider = new TestDateProvider();
+        command = new StoreStationCommand(propeller(), dateProvider);
     }
 
     @Test
@@ -47,5 +53,14 @@ public class StoreStationCommandTest extends StorageIntegrationTest {
         command.call(station);
 
         databaseAssertions().assertStationInserted(station);
+    }
+
+    @Test
+    public void shouldUpdatePlayQueueUpdatedAtTimestamp() {
+        long previousUpdateDate = new Date(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(2)).getTime();
+        testFixtures().insertStation(station, previousUpdateDate, 0);
+
+        command.call(station);
+        databaseAssertions().assertStationUpdateTime(station.getUrn(), dateProvider.getCurrentTime());
     }
 }

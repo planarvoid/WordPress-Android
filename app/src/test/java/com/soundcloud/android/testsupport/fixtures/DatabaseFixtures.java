@@ -353,28 +353,28 @@ public class DatabaseFixtures {
         return insertStation(StationFixtures.getApiStation());
     }
 
+    public ApiStation insertStation(ApiStation station) {
+        insertInto(Stations.TABLE, getDefaultStationContentValuesBuilder(station, System.currentTimeMillis()).get());
+        insertStationPlayQueue(station);
+        return station;
+    }
+
     public ApiStation insertStation(int lastPlayedPosition) {
         return insertStation(StationFixtures.getApiStation(), lastPlayedPosition);
     }
 
-    public ApiStation insertStation(ApiStation station) {
-        insertInto(Stations.TABLE, getStationContentValues(station));
-        insertStationPlayQueue(station);
-        return station;
-    }
-
     private ApiStation insertStation(ApiStation station, int lastPlayedPosition) {
-        insertInto(Stations.TABLE, getStationContentValues(station, lastPlayedPosition));
+        return insertStation(station, System.currentTimeMillis(), lastPlayedPosition);
+    }
+
+    public ApiStation insertStation(ApiStation station, long createdAt, int lastPlayedPosition) {
+        insertInto(Stations.TABLE, getStationContentValues(station, createdAt, lastPlayedPosition));
         insertStationPlayQueue(station);
         return station;
     }
 
-    private ContentValues getStationContentValues(StationRecord station) {
-        return getDefaultStationContentValuesBuilder(station).get();
-    }
-
-    private ContentValues getStationContentValues(StationRecord station, int lastPlayedPosition) {
-        return getDefaultStationContentValuesBuilder(station)
+    private ContentValues getStationContentValues(StationRecord station, long createdAt, int lastPlayedPosition) {
+        return getDefaultStationContentValuesBuilder(station, createdAt)
                 .put(Stations.LAST_PLAYED_TRACK_POSITION, lastPlayedPosition)
                 .get();
     }
@@ -388,11 +388,12 @@ public class DatabaseFixtures {
         }
     }
 
-    private ContentValuesBuilder getDefaultStationContentValuesBuilder(StationRecord station) {
+    private ContentValuesBuilder getDefaultStationContentValuesBuilder(StationRecord station, long createdAt) {
         return ContentValuesBuilder.values()
                 .put(Stations.STATION_URN, station.getUrn().toString())
                 .put(Stations.TITLE, station.getTitle())
                 .put(Stations.TYPE, station.getType())
+                .put(Stations.PLAY_QUEUE_UPDATED_AT, createdAt)
                 .put(Stations.PERMALINK, station.getPermalink())
                 .put(Stations.ARTWORK_URL_TEMPLATE, station.getImageUrlTemplate().orNull());
     }

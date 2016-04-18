@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
@@ -15,36 +16,61 @@ import android.content.SharedPreferences;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class StationsStorageTest extends StorageIntegrationTest {
+public class StationsStorageDatabaseTest extends StorageIntegrationTest {
+
     private final TestDateProvider dateProvider = new TestDateProvider();
+    private final Urn stationUrn = Urn.forTrackStation(123L);
+    private final long BEFORE_24H = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(25L);
+
     private StationsStorage storage;
     private TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-    private final Urn stationUrn = Urn.forTrackStation(123L);
 
     @Before
     public void setup() {
         storage = new StationsStorage(
                 mock(SharedPreferences.class),
                 propeller(),
-                propellerRx(),
                 dateProvider
         );
     }
 
     @Test
     public void shouldReturnEmptyIfStationIsAbsent() {
-        storage.station(Urn.forTrackStation(999L)).subscribe(subscriber);
+        storage.station(stationUrn).subscribe(subscriber);
 
         subscriber.assertNoValues();
         subscriber.assertCompleted();
     }
 
     @Test
+    public void clearExpiredPlayQueuesWhenOlderThan24Hours() {
+        final ApiStation station = StationFixtures.getApiStation(stationUrn, 10);
+        testFixtures().insertStation(station, BEFORE_24H, 5);
+
+        storage.clearExpiredPlayQueue(stationUrn).subscribe();
+
+        databaseAssertions().assertStationPlayQueuePositionNotSet(stationUrn);
+        databaseAssertions().assertStationPlayQueueContains(stationUrn, Lists.<StationTrack>emptyList());
+    }
+
+    @Test
+    public void clearExpiredPlayQueuesNoOpWhenYoungerThan24Hours() {
+        final ApiStation station = StationFixtures.getApiStation(stationUrn, 10);
+        testFixtures().insertStation(station, System.currentTimeMillis(), 5);
+
+        storage.clearExpiredPlayQueue(stationUrn).subscribe();
+
+        databaseAssertions().assertStationPlayQueuePosition(stationUrn, 5);
+        databaseAssertions().assertStationPlayQueueContains(stationUrn, station.getTracks());
+    }
+
+    @Test
     public void loadPlayQueueReturnsEmptyWhenNoContent() {
         final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
 
-        storage.loadPlayQueue(Urn.forTrackStation(111222333L), 30).subscribe(subscriber);
+        storage.loadPlayQueue(stationUrn, 30).subscribe(subscriber);
 
         subscriber.assertNoValues();
         subscriber.assertCompleted();
@@ -53,10 +79,10 @@ public class StationsStorageTest extends StorageIntegrationTest {
     @Test
     public void loadPlayQueueReturnsAllContentWhenStartPositionIs0() {
         final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
-        final ApiStation station = StationFixtures.getApiStation(Urn.forTrackStation(123L), 10);
+        final ApiStation station = StationFixtures.getApiStation(stationUrn, 10);
         testFixtures().insertStation(station);
 
-        storage.loadPlayQueue(Urn.forTrackStation(123L), 0).subscribe(subscriber);
+        storage.loadPlayQueue(stationUrn, 0).subscribe(subscriber);
 
         subscriber.assertReceivedOnNext(station.getTracks());
         subscriber.assertCompleted();
@@ -66,10 +92,10 @@ public class StationsStorageTest extends StorageIntegrationTest {
     public void loadPlayQueueReturnsContentAfterGivenStartPosition() {
         final TestSubscriber<StationTrack> subscriber = new TestSubscriber<>();
         final int size = 10;
-        final ApiStation station = StationFixtures.getApiStation(Urn.forTrackStation(123L), size);
+        final ApiStation station = StationFixtures.getApiStation(stationUrn, size);
         testFixtures().insertStation(station);
 
-        storage.loadPlayQueue(Urn.forTrackStation(123L), 5).subscribe(subscriber);
+        storage.loadPlayQueue(stationUrn, 5).subscribe(subscriber);
 
         subscriber.assertReceivedOnNext(station.getTracks().subList(5, size));
         subscriber.assertCompleted();

@@ -1,6 +1,9 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.propeller.ContentValuesBuilder.values;
+import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static com.soundcloud.propeller.query.Query.apply;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
@@ -12,25 +15,28 @@ import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
+import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
+import android.content.ContentValues;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 class StationsStorage {
     private static final String ONBOARDING_DISABLED = "ONBOARDING_DISABLED";
+    private static final long EXPIRE_DELAY = TimeUnit.HOURS.toMillis(24);
 
     private static final Func1<CursorReader, Station> TO_STATION_WITHOUT_TRACKS = new Func1<CursorReader, Station>() {
         @Override
@@ -84,11 +90,10 @@ class StationsStorage {
     @Inject
     public StationsStorage(@Named(StorageModule.STATIONS) SharedPreferences sharedPreferences,
                            PropellerDatabase propellerDatabase,
-                           PropellerRx propellerRx,
                            CurrentDateProvider dateProvider) {
         this.sharedPreferences = sharedPreferences;
         this.propellerDatabase = propellerDatabase;
-        this.propellerRx = propellerRx;
+        this.propellerRx = new PropellerRx(propellerDatabase);
         this.dateProvider = dateProvider;
     }
 
@@ -100,6 +105,25 @@ class StationsStorage {
                         .whereGe(StationsPlayQueues.POSITION, startPosition)
                         .order(StationsPlayQueues.POSITION, Query.Order.ASC))
                 .map(TO_STATION_TRACK);
+    }
+
+    Observable<TxnResult> clearExpiredPlayQueue(final Urn stationUrn) {
+        return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                final Query isPlayQueueExpired = apply(exists(Query
+                        .from(Stations.TABLE)
+                        .whereEq(Stations.STATION_URN, stationUrn.toString())
+                        .whereLe(Stations.PLAY_QUEUE_UPDATED_AT, dateProvider.getCurrentTime() - EXPIRE_DELAY)));
+
+                if (propeller.query(isPlayQueueExpired).first(Boolean.class)) {
+                    step(propeller
+                            .delete(StationsPlayQueues.TABLE, filter()
+                                    .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())));
+                    step(resetLastPlayedTrackPosition(stationUrn));
+                }
+            }
+        });
     }
 
     void clear() {
@@ -125,7 +149,11 @@ class StationsStorage {
 
     Observable<StationRecord> station(Urn stationUrn) {
         return Observable.zip(
-                propellerRx.query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, stationUrn)).map(TO_STATION_WITHOUT_TRACKS),
+                propellerRx.query(Query
+                        .from(Stations.TABLE)
+                        .whereEq(Stations.STATION_URN, stationUrn))
+                        .map(TO_STATION_WITHOUT_TRACKS),
+
                 propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_STATION_TRACK).toList(),
                 new Func2<Station, List<StationTrack>, StationRecord>() {
                     @Override
@@ -152,9 +180,17 @@ class StationsStorage {
     }
 
     ChangeResult saveLastPlayedTrackPosition(Urn stationUrn, int position) {
+        return updateStation(stationUrn, values().put(Stations.LAST_PLAYED_TRACK_POSITION, position).get());
+    }
+
+    private ChangeResult resetLastPlayedTrackPosition(Urn stationUrn) {
+        return updateStation(stationUrn, values().put(Stations.LAST_PLAYED_TRACK_POSITION, null).get());
+    }
+
+    private ChangeResult updateStation(Urn stationUrn, ContentValues contentValues) {
         return propellerDatabase.update(
                 Stations.TABLE,
-                ContentValuesBuilder.values().put(Stations.LAST_PLAYED_TRACK_POSITION, position).get(),
+                contentValues,
                 filter().whereEq(Stations.STATION_URN, stationUrn.toString())
         );
     }
@@ -162,8 +198,7 @@ class StationsStorage {
     ChangeResult saveUnsyncedRecentlyPlayedStation(Urn stationUrn) {
         return propellerDatabase.upsert(
                 StationsCollections.TABLE,
-                ContentValuesBuilder
-                        .values()
+                values()
                         .put(StationsCollections.STATION_URN, stationUrn.toString())
                         .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
                         .put(StationsCollections.UPDATED_LOCALLY_AT, dateProvider.getCurrentTime())

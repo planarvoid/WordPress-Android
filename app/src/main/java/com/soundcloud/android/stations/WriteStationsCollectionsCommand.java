@@ -1,5 +1,6 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.stations.StationsCollectionsTypes.*;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.WriteStorageCommand;
@@ -18,8 +19,11 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WriteStationsCollectionsCommand extends WriteStorageCommand<WriteStationsCollectionsCommand.SyncCollectionsMetadata, TxnResult, Boolean> {
-    private final static Function<ApiStationMetadata, ContentValues> TO_CONTENT_VALUES = new Function<ApiStationMetadata, ContentValues>() {
+public class WriteStationsCollectionsCommand
+        extends WriteStorageCommand<WriteStationsCollectionsCommand.SyncCollectionsMetadata, TxnResult, Boolean> {
+
+    private final static Function<ApiStationMetadata, ContentValues> TO_CONTENT_VALUES = 
+            new Function<ApiStationMetadata, ContentValues>() {
         @Override
         public ContentValues apply(ApiStationMetadata station) {
             return buildStationContentValues(station);
@@ -42,12 +46,12 @@ public class WriteStationsCollectionsCommand extends WriteStorageCommand<WriteSt
                                 .orWhereNull(Tables.StationsCollections.UPDATED_LOCALLY_AT)
                 ));
 
-                final ApiStationsCollections stationsCollections = metadata.stationsCollections;
-                storeCollection(propeller, StationsCollectionsTypes.RECENT, stationsCollections.getRecents());
-                storeCollection(propeller, StationsCollectionsTypes.SAVED, stationsCollections.getSaved());
-                storeCollection(propeller, StationsCollectionsTypes.CURATOR_RECOMMENDATIONS, stationsCollections.getCuratorRecommendations());
-                storeCollection(propeller, StationsCollectionsTypes.GENRE_RECOMMENDATIONS, stationsCollections.getGenreRecommendations());
-                storeCollection(propeller, StationsCollectionsTypes.TRACK_RECOMMENDATIONS, stationsCollections.getTrackRecommendations());
+                final ApiStationsCollections collections = metadata.stationsCollections;
+                storeCollection(propeller, RECENT, collections.getRecents());
+                storeCollection(propeller, SAVED, collections.getSaved());
+                storeCollection(propeller, CURATOR_RECOMMENDATIONS, collections.getCuratorRecommendations());
+                storeCollection(propeller, GENRE_RECOMMENDATIONS, collections.getGenreRecommendations());
+                storeCollection(propeller, TRACK_RECOMMENDATIONS, collections.getTrackRecommendations());
             }
 
             private void storeCollection(PropellerDatabase propeller, int type, List<ApiStationMetadata> stations) {
@@ -69,8 +73,8 @@ public class WriteStationsCollectionsCommand extends WriteStorageCommand<WriteSt
                 SQLiteDatabase.CONFLICT_IGNORE);
     }
 
-    private ArrayList<ContentValues> toStationsCollectionsContentValues(List<ApiStationMetadata> stations, int type) {
-        ArrayList<ContentValues> stationsToSave = new ArrayList<>();
+    private List<ContentValues> toStationsCollectionsContentValues(List<ApiStationMetadata> stations, int type) {
+        List<ContentValues> stationsToSave = new ArrayList<>();
         for (int i = 0; i < stations.size(); i++) {
             stationsToSave.add(buildStationsCollectionsItemContentValues(stations.get(i), type, i));
         }

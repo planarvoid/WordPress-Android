@@ -248,6 +248,7 @@ public class DatabaseAssertions {
                         .whereEq(TYPE, station.getType())
                         .whereEq(PERMALINK, station.getPermalink())
                         .whereNull(LAST_PLAYED_TRACK_POSITION)
+                        .whereNotNull(Stations.PLAY_QUEUE_UPDATED_AT)
         )).counts(1);
     }
 
@@ -267,6 +268,12 @@ public class DatabaseAssertions {
         assertThat(select(from(Stations.TABLE).whereEq(STATION_URN, station))).counts(1);
     }
 
+    public void assertStationUpdateTime(Urn station, long lastUpdateTime) {
+        assertThat(select(from(Stations.TABLE)
+                .whereEq(STATION_URN, station)
+                .whereEq(Stations.PLAY_QUEUE_UPDATED_AT, lastUpdateTime))).counts(1);
+    }
+
     public void assertStationPlayQueuePosition(Urn station, int position) {
         assertThat(select(
                 from(Stations.TABLE)
@@ -274,6 +281,15 @@ public class DatabaseAssertions {
                         .whereEq(LAST_PLAYED_TRACK_POSITION, position)
         )).counts(1);
     }
+
+    public void assertStationPlayQueuePositionNotSet(Urn station) {
+        assertThat(select(
+                from(Stations.TABLE)
+                        .whereEq(STATION_URN, station.toString())
+                        .whereNull(LAST_PLAYED_TRACK_POSITION)
+        )).counts(1);
+    }
+
 
     public void assertStationPlayQueueContains(Urn stationUrn, List<StationTrack> stationTracks) {
         assertThat(

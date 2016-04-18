@@ -22,7 +22,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 73;
+    public static final int DATABASE_VERSION = 74;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -216,6 +216,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 73:
                             success = upgradeTo73(db, oldVersion);
+                            break;
+                        case 74:
+                            success = upgradeTo74(db, oldVersion);
                             break;
                         default:
                             break;
@@ -777,6 +780,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 73);
+        }
+        return false;
+    }
+
+    /*
+     * Added updated_at for station play queues
+     */
+    private static boolean upgradeTo74(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL("ALTER TABLE " + Tables.Stations.TABLE +
+                    " ADD COLUMN play_queue_updated_at INTEGER DEFAULT CURRENT_TIMESTAMP");
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 74);
         }
         return false;
     }
