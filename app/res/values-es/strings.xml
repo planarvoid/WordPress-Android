@@ -262,6 +262,7 @@
   <string name="shuffle_playlist">Lista aleatoria</string>
   <string name="add_to_playlist">Añadir a la lista</string>
   <string name="remove_from_playlist">Eliminar de la lista de reproducción</string>
+  <string name="edit_playlist">Editar lista</string>
   <string name="delete_playlist">Borrar lista</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Añadir a la lista...</string>
@@ -378,7 +379,7 @@
   <string name="pref_clear_cache">Borrar el caché de la aplicación</string>
   <string name="pref_clear_cache_desc">Borra el caché de aplicaciones para liberar memoria de tu dispositivo</string>
   <string name="pref_privacy">Privacidad</string>
-  <string name="pref_autoplay_related">Reproducir automáticamente pistas similares</string>
+  <string name="pref_autoplay_related">Reproducción automática</string>
   <string name="pref_autoplay_related_desc">Cuando una lista finaliza, reproduce pistas según la última pista</string>
   <string name="pref_revoke_access">Cerrar sesión</string>
   <string name="pref_sync_wifi_only">Actualizar solo datos a través de Wi-Fi</string>
@@ -531,6 +532,7 @@
   <string name="notification_username_commented_on_tracktitle">hizo un comentario sobre %s</string>
   <string name="notification_username_started_following_you">comenzó a seguirte</string>
   <!--__SUBS-->
+  <string name="go">Ir</string>
   <string name="pref_subscriptions_header">Suscripciones</string>
   <string name="pref_subscription_buy_title">Mejorar la cuenta</string>
   <string name="pref_subscription_buy_summary">Mejora tu cuenta</string>
@@ -674,8 +676,11 @@
   <string name="user_profile_sounds_view_all_playlists">Ver todas las listas</string>
   <string name="user_profile_sounds_view_all_reposts">Ver todos los reposts</string>
   <string name="user_profile_sounds_view_all_likes">Ver todos los Me gusta</string>
+  <string name="user_profile_sounds_tracks_empty">Este usuario aún no tiene ninguna pista.</string>
   <string name="user_reposts_empty">Este usuario aún no ha reposteado nada.</string>
+  <string name="user_profile_sounds_releases_empty">Este usuario aún no tiene ningún lanzamiento.</string>
   <string name="user_reposts_label">Reposts</string>
+  <string name="user_releases_label">Lanzamientos</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Sin anuncios</string>
   <string name="upsell_stream_upgrade_button">Hazte con SoundCloud Go</string>

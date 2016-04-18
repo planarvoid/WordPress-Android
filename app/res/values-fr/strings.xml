@@ -164,7 +164,7 @@
   <string name="side_menu_profile">Profil</string>
   <string name="side_menu_explore">Explorer</string>
   <string name="title_settings">Paramètres </string>
-  <string name="title_feedback">Envoyer un rapport de bogue</string>
+  <string name="title_feedback">Envoyer des rapports d\'erreurs</string>
   <!--__ONBOARDING-->
   <string name="try_again">Try again</string>
   <string name="age">Âge</string>
@@ -225,8 +225,8 @@
   <!--__PLAYABLE-->
   <string name="private_indicator">Privé</string>
   <string name="title_now_playing">Lecture en cours</string>
-  <string name="like_toast_overflow_action">Sauvegardé dans vos favoris</string>
-  <string name="unlike_toast_overflow_action">Retiré de favoris</string>
+  <string name="like_toast_overflow_action">Sauvegardé à vos favoris</string>
+  <string name="unlike_toast_overflow_action">Retiré de vos favoris</string>
   <string name="like_error_toast_overflow_action">L\'état du « favori » n\'a pas été modifié</string>
   <string name="reposted_to_followers">Reposté à vos abonnés</string>
   <string name="unposted_to_followers">Dépublié</string>
@@ -267,6 +267,7 @@
   <string name="shuffle_playlist">Lecture aléatoire</string>
   <string name="add_to_playlist">Ajouter à une playlist</string>
   <string name="remove_from_playlist">Supprimer de la playlist</string>
+  <string name="edit_playlist">Modifier la playlist</string>
   <string name="delete_playlist">Supprimer</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Ajouter à une playlist...</string>
@@ -280,7 +281,7 @@
     <item quantity="other">%d titres</item>
   </plurals>
   <!--__PLAYLIST IN NEW STREAM-->
-  <plurals name="number_of_tracks" tools:ignore="ImpliedQuantity">
+  <plurals name="number_of_tracks">
     <item quantity="one">TITRE</item>
     <item quantity="other">TITRES</item>
   </plurals>
@@ -389,7 +390,7 @@
   <string name="pref_sync_wifi_only">Mise à jour des données par Wi-Fi</string>
   <string name="pref_sync_wifi_only_description">Mise à jour des nouveaux favoris, etc. par Wi-Fi uniquement</string>
   <string name="pref_analytics">Analytiques</string>
-  <string name="pref_analytics_desc">L\'activation des fonctions d\'analyse nous permet de collecter des données concernant votre utilisation de l\'application, nous aidant ainsi à améliorer celle-ci. Consultez notre Politique de confidentialité pour plus d\'informations.</string>
+  <string name="pref_analytics_desc">L\'activation des fonctions d\'analytique nous permet de collecter des données concernant votre utilisation de l\'application, nous aidant ainsi à améliorer celle-ci. Consultez notre Politique de confidentialité pour plus d\'informations.</string>
   <string name="pref_crashlogs">Journal des pannes</string>
   <string name="pref_crashlogs_desc">L\'activation des journaux d\'incident nous permet d\'améliorer considérablement l\'application. Nous ne collectons aucune donnée personnelle. Pour en savoir plus, consultez notre Politique de confidentialité.</string>
   <string name="cache_clearing">Vider le cache</string>
@@ -489,8 +490,8 @@
   <string name="facebook_creator_invites_title">Invitez des amis à écouter vos derniers titres sur SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlists</string>
-  <string name="collections_your_liked_tracks">Mes favoris</string>
-  <string name="track_likes_title">Mes favoris</string>
+  <string name="collections_your_liked_tracks">Favoris</string>
+  <string name="track_likes_title">Favoris</string>
   <string name="collections_options_header_filters">Filtres</string>
   <string name="collections_options_header_sorting">Tri</string>
   <string name="collections_options_toggle_created">Créé</string>
@@ -536,6 +537,7 @@
   <string name="notification_username_commented_on_tracktitle">a commenté sur %s</string>
   <string name="notification_username_started_following_you">vous suit</string>
   <!--__SUBS-->
+  <string name="go">Go</string>
   <string name="pref_subscriptions_header">Abonnements</string>
   <string name="pref_subscription_buy_title">Passer à un abonnement</string>
   <string name="pref_subscription_buy_summary">Mettre à niveau votre compte</string>
@@ -543,16 +545,15 @@
   <string name="pref_subscription_restore_summary">Restaurer un abonnement existant</string>
   <!--__CONVERSION-->
   <string name="conversion_page_title">S\'abonner</string>
-  <string name="conversion_title">SoundCloud Go</string>
+  <string name="conversion_title">Avec SoundCloud Go</string>
   <string name="conversion_price">%s / mois</string>
-  <string name="conversion_feature_1">Écoute hors ligne</string>
+  <string name="conversion_feature_1">Écoutez hors connexion</string>
   <string name="conversion_feature_2">Débloquez tous les aperçus</string>
-  <string name="conversion_feature_3">Écoutez plus de titres</string>
+  <string name="conversion_feature_3">Écoutez tous les titres</string>
   <string name="conversion_feature_4">Aucune publicité</string>
   <string name="conversion_buy_loading">Chargement…</string>
-  <string name="conversion_buy_trial">Essai gratuit pendant %d jours
-</string>
-  <string name="conversion_buy_no_trial">Passer à un abonnement dès maintenant</string>
+  <string name="conversion_buy_trial">Abonnez-vous maintenant</string>
+  <string name="conversion_buy_no_trial">Abonnez-vous maintenant</string>
   <string name="conversion_retry_heading">Oups... veuillez réessayer</string>
   <string name="conversion_retry_message">Un problème semble être survenu. Veuillez réessayer</string>
   <string name="conversion_retry_button">Veuillez réessayer</string>
@@ -586,7 +587,7 @@
   <string name="offline_update_completed_message">Prêt pour l\'écoute hors ligne</string>
   <string name="offline_update_storage_limit_reached_title">Limite de stockage atteinte</string>
   <string name="offline_update_storage_limit_reached_message">Appuyez ici pour voir les paramètres de stockage</string>
-  <string name="offline_update_in_progress">Enregistrement hors ligne</string>
+  <string name="offline_update_in_progress">Sauvegarde hors ligne</string>
   <string name="offline_likes_dialog_title">Sauvegardez vos favoris hors ligne</string>
   <string name="offline_likes_dialog_message">Cette option vous permettra de sauvegarder vos favoris actuels et à venir hors ligne pour que vous puissiez les écouter sans connexion Wi-Fi ou connexion de données.</string>
   <string name="make_offline_available">Sauvegarder hors ligne</string>
@@ -594,7 +595,7 @@
   <string name="offline_dialog_go_online_continue">Continuer</string>
   <string name="offline_dialog_go_online_error_title">Votre abonnement n\'a pas pu être vérifié</string>
   <string name="offline_dialog_go_online_error_content">Cet appareil ne s\'étant pas connecté depuis plus de 30 jours, nous n\'avons pas pu vérifier votre abonnement. Pour retrouver accès à votre contenu hors ligne, connectez-vous à Internet avec cet appareil.</string>
-  <string name="offline_update_paused">Enregistrement hors ligne interrompu</string>
+  <string name="offline_update_paused">Sauvegarde hors ligne interrompu</string>
   <string name="no_network_connection">Aucune connexion réseau</string>
   <string name="no_wifi_connection">Aucune connexion Wi-Fi</string>
   <string name="offline_not_available_offline">Non disponible hors ligne</string>
@@ -641,7 +642,7 @@
   <string name="offline_cannot_set_limit_below_usage">La limite ne peut pas être inférieure à l\'espace utilisé actuellement.</string>
   <string name="sign_out_title_offline">Le fait de se déconnecter supprime tous les titres hors ligne</string>
   <string name="sign_out_description_offline">La prochaine fois que vous vous connecterez, vous pourrez choisir quels titres et playlists vous souhaitez sauvegarder.</string>
-  <string name="disable_offline_collection_title">Arrêter l\'enregistrement automatique des playlists et des favoris ?</string>
+  <string name="disable_offline_collection_title">Arrêter la sauvegarde automatique des playlists et des favoris ?</string>
   <string name="disable_offline_collection_body">Vos nouveaux favoris et playlists ne seront plus sauvegardés automatiquement et les titres déjà sauvegardés seront supprimés de l\'écoute hors ligne.</string>
   <!--offline playlist creation-->
   <string name="add_playlist_offline">Disponible hors ligne</string>
@@ -680,8 +681,11 @@
   <string name="user_profile_sounds_view_all_playlists">Afficher toutes les playlists</string>
   <string name="user_profile_sounds_view_all_reposts">Afficher tous les reposts</string>
   <string name="user_profile_sounds_view_all_likes">Afficher tous les favoris</string>
+  <string name="user_profile_sounds_tracks_empty">Cette personne n\'a aucun titre pour l\'instant</string>
   <string name="user_reposts_empty">Cette personne n\'a aucun repost pour l\'instant.</string>
+  <string name="user_profile_sounds_releases_empty">Cette personne n\'a aucune sortie pour l\'instant</string>
   <string name="user_reposts_label">Reposts</string>
+  <string name="user_releases_label">Publications</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Abonnez-vous</string>
   <string name="upsell_stream_upgrade_button">Obtenez SoundCloud Go</string>
@@ -709,7 +713,7 @@
     <item quantity="other">%1$d résultats SoundCloud Go trouvés</item>
   </plurals>
   <string name="search_premium_content_view_all">Tous les résultats SoundCloud Go</string>
-  <string name="search_premium_content_upsell">Mettre à niveau pour écouter les titres en intégralité</string>
+  <string name="search_premium_content_upsell">Abonnez-vous et écoutez les titres en entier</string>
   <!--__NOTIFICATION SETTINGS-->
   <string name="push_notifications_all_title">Notifications push</string>
   <string name="push_notifications_all_summary">Activez toutes les notifications mobiles\nou sélectionnez celles que vous souhaitez recevoir.</string>
@@ -737,12 +741,12 @@
   <string name="email_notifications_recommendations">Nouveautés</string>
   <string name="email_notifications_newsletter">Newsletter SoundCloud</string>
   <!--__STREAM-->
-  <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
+  <plurals name="stream_new_posts">
     <item quantity="one">1 nouvelle publication</item>
     <item quantity="other">%s nouvelles publications</item>
   </plurals>
   <!--__ACTIVITIES-->
-  <plurals name="activities_new_notification" tools:ignore="ImpliedQuantity">
+  <plurals name="activities_new_notification">
     <item quantity="one">1 nouvelle notification</item>
     <item quantity="other">%s nouvelles notifications</item>
   </plurals>
