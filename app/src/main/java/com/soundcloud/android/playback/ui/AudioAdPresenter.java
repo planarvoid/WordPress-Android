@@ -86,7 +86,6 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);
-        resetSkipButton(holder, resources);
         return adView;
     }
 
@@ -96,7 +95,6 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         holder.footerAdTitle.setText(Strings.EMPTY);
         holder.previewTitle.setText(Strings.EMPTY);
         resetAdImageLayouts(holder);
-        resetSkipButton(holder, resources);
         return convertView;
     }
 
@@ -107,6 +105,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         displayPreview(playerAd, holder, imageOperations, resources);
         styleCallToActionButton(holder, playerAd, resources);
         setClickListener(this, holder.onClickViews);
+        setupSkipButton(holder, playerAd);
     }
 
     @Override

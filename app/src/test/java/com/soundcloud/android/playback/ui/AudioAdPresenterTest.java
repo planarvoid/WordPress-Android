@@ -37,6 +37,8 @@ import rx.Observable;
 
 public class AudioAdPresenterTest extends AndroidUnitTest {
 
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+
     private AudioAdPresenter presenter;
     private View adView;
 
@@ -53,7 +55,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
         presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener);
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
-        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
+        bindSkippableAd();
     }
 
     @Test
@@ -175,7 +177,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void bothLayoutsInvisibleOnNullAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just((Bitmap) null));
-        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
+        bindSkippableAd();
 
         assertCenteredLayoutInvisible();
         assertFullbleedLayoutInvisible();
@@ -184,7 +186,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void centeredLayoutSetOnIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
-        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
+        bindSkippableAd();
 
         assertCenteredLayoutVisible();
         assertFullbleedLayoutInvisible();
@@ -193,7 +195,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void centeredLayoutSetOn2xIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(600, 500)));
-        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
+        bindSkippableAd();
 
         assertCenteredLayoutVisible();
         assertFullbleedLayoutInvisible();
@@ -202,7 +204,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void fullbleedLayoutSetOnLargerThan2xIABSizedAdImage() {
         when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
-        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(), buildTrack()));
+        bindSkippableAd();
 
         assertCenteredLayoutInvisible();
         assertFullbleedLayoutVisible();
@@ -240,6 +242,58 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
         assertThat(timeUntilSkip()).isGone();
         assertThat(previewArtworkOverlay()).isGone();
         assertThat(skipAd()).isVisible();
+    }
+
+    @Test
+    public void setProgressForUnskippableAdShouldInitiallySetTimerToDuration() {
+        bindUnskippableAd();
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 0, 30));
+
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("30 sec.");
+    }
+
+    @Test
+    public void setProgressForUnskippableAdShouldUpdateDurationRemainingAccordingToPosition() {
+        bindUnskippableAd();
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 7, 30));
+
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("23 sec.");
+    }
+
+    @Test
+    public void setProgressShouldNotEnableSkipAdAfter15secForUnskippableAd() {
+        bindUnskippableAd();
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 15, 30));
+
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(skipAd()).isGone();
+    }
+
+    @Test
+    public void setProgressForAdLessThan15SecsShouldInitiallySetATimerToDuration() {
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 0, 10));
+
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("10 sec.");
+    }
+
+    @Test
+    public void setProgressForAdLessThan15SecsShouldUpdateDurationRemainingAccordingToPosition() {
+        presenter.setProgress(adView, createProgress(TimeUnit.SECONDS, 7, 10));
+
+        assertThat(skipAd()).isGone();
+        assertThat(previewArtworkOverlay()).isVisible();
+        assertThat(timeUntilSkip()).isVisible();
+        assertThat(timeUntilSkip()).containsText("3 sec.");
     }
 
     @Test
@@ -300,8 +354,10 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
         return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     }
 
-    private AudioAd buildAd() {
-        return prepareAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
+    private AudioAd buildAd(boolean skippable) {
+        final AudioAd audioAd = skippable ?
+                AdFixtures.getAudioAd(TRACK_URN) : AdFixtures.getNonskippableAudioAd(TRACK_URN);
+        return prepareAd(audioAd);
     }
 
     private AudioAd prepareAd(AudioAd audioAd) {
@@ -315,5 +371,13 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
                 PlayableProperty.TITLE.bind("Ad Title"),
                 TrackProperty.URN.bind(Urn.forTrack(123L))
         );
+    }
+
+    private void bindSkippableAd() {
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(true), buildTrack()));
+    }
+
+    private void bindUnskippableAd() {
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(false), buildTrack()));
     }
 }

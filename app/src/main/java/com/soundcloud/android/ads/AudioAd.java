@@ -12,6 +12,7 @@ public abstract class AudioAd extends PlayerAdData {
                 apiAudioAd.getTrackingImpressionUrls(),
                 apiAudioAd.getTrackingFinishUrls(),
                 apiAudioAd.getTrackingSkipUrls(),
+                apiAudioAd.isSkippable(),
                 VisualAdDisplayProperties.create(apiAudioAd.getCompanion().displayProperties),
                 CompanionAd.create(apiAudioAd.getCompanion())
         );

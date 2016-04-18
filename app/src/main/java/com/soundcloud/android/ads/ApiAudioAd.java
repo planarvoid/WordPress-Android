@@ -15,6 +15,7 @@ class ApiAudioAd {
 
     private final Urn urn;
     private final ApiTrack apiTrack;
+    private final boolean skippable;
 
     private final ApiCompanionAd visualAd;
     private final ApiLeaveBehind leaveBehind;
@@ -26,18 +27,20 @@ class ApiAudioAd {
     @JsonCreator
     public ApiAudioAd(@JsonProperty("urn") Urn urn,
                       @JsonProperty("track") ApiTrack apiTrack,
+                      @JsonProperty("skippable") boolean skippable,
                       @JsonProperty("_embedded") RelatedResources relatedResources,
                       @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
                       @JsonProperty("tracking_finish_urls") List<String> trackingFinishUrls,
                       @JsonProperty("tracking_skip_urls") List<String> trackingSkipUrls) {
-        this(urn, apiTrack, relatedResources.visualAd, relatedResources.apiLeaveBehind, trackingImpressionUrls, trackingFinishUrls, trackingSkipUrls);
+        this(urn, apiTrack, skippable, relatedResources.visualAd, relatedResources.apiLeaveBehind, trackingImpressionUrls, trackingFinishUrls, trackingSkipUrls);
     }
 
     @VisibleForTesting
-    public ApiAudioAd(Urn urn, ApiTrack apiTrack, ApiCompanionAd visualAd, ApiLeaveBehind leaveBehind, List<String> trackingImpressionUrls,
+    public ApiAudioAd(Urn urn, ApiTrack apiTrack, boolean skippable, ApiCompanionAd visualAd, ApiLeaveBehind leaveBehind, List<String> trackingImpressionUrls,
                       List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
         this.urn = urn;
         this.apiTrack = apiTrack;
+        this.skippable = skippable;
         this.visualAd = visualAd;
         this.leaveBehind = leaveBehind;
         this.trackingImpressionUrls = trackingImpressionUrls;
@@ -51,6 +54,10 @@ class ApiAudioAd {
 
     public ApiTrack getApiTrack() {
         return apiTrack;
+    }
+
+    public boolean isSkippable() {
+       return skippable;
     }
 
     public List<String> getTrackingImpressionUrls() {

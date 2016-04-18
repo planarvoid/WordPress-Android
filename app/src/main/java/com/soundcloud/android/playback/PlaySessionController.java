@@ -9,6 +9,7 @@ import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -180,8 +181,13 @@ public class PlaySessionController {
     }
 
     private boolean shouldDisableSkipping() {
-        return adsOperations.isCurrentItemAd() &&
-                playSessionStateProvider.getLastProgressEventForCurrentPlayQueueItem().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
+        if (adsOperations.isCurrentItemAd()) {
+            final PlayerAdData ad = (PlayerAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
+            return !ad.isSkippable() ||
+                   playSessionStateProvider.getLastProgressEventForCurrentPlayQueueItem().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
+        } else {
+            return false;
+        }
     }
 
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {

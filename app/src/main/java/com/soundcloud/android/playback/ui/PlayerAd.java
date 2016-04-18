@@ -56,4 +56,8 @@ abstract class PlayerAd extends PlayerItem {
     int getFocusedBackgroundColor() {
         return Color.parseColor(adData.getDisplayProperties().getFocusedBackgroundColor());
     }
+
+    PlayerAdData getAdData() {
+        return adData;
+    }
 }

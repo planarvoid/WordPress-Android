@@ -97,7 +97,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         adView.setTag(holder);
         setVideoViewHolder(holder);
         holder.videoOverlay.setTag(holder);
-        resetSkipButton(holder, resources);
         return adView;
     }
 
@@ -113,10 +112,10 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         final Holder holder = getViewHolder(adView);
         setupLoadingStateViews(holder, playerAd.isLetterboxVideo(), false);
         adjustLayoutForVideo(adView, playerAd, holder);
-        resetSkipButton(holder, resources);
         displayPreview(playerAd, holder, imageOperations, resources);
         styleCallToActionButton(holder, playerAd, resources);
         setClickListener(this, holder.onClickViews);
+        setupSkipButton(holder, playerAd);
     }
 
     private void adjustLayoutForVideo(View adView, VideoPlayerAd playerAd, Holder holder) {

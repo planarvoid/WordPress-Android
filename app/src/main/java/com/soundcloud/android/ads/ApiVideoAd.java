@@ -15,12 +15,14 @@ public abstract class ApiVideoAd {
                                     @JsonProperty("clickthrough_url") String clickthroughUrl,
                                     @JsonProperty("display_properties") ApiDisplayProperties displayProperties,
                                     @JsonProperty("video_sources") List<ApiVideoSource> videoSources,
-                                    @JsonProperty("video_tracking") ApiVideoTracking videoTracking) {
+                                    @JsonProperty("video_tracking") ApiVideoTracking videoTracking,
+                                    @JsonProperty("skippable") boolean skippable) {
         return new AutoValue_ApiVideoAd(adUrn,
                                         clickthroughUrl,
                                         displayProperties,
                                         videoSources,
-                                        videoTracking);
+                                        videoTracking,
+                                        skippable);
     }
 
     public abstract Urn getAdUrn();
@@ -32,6 +34,8 @@ public abstract class ApiVideoAd {
     public abstract List<ApiVideoSource> getVideoSources();
 
     public abstract ApiVideoTracking getVideoTracking();
+
+    public abstract boolean isSkippable();
 
     @Override
     public String toString() {
