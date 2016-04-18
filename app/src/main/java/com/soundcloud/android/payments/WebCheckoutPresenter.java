@@ -7,16 +7,22 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PurchaseEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
+import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.LocaleFormatter;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
+import dagger.Lazy;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 import android.app.Activity;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 
@@ -27,6 +33,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         implements WebCheckoutInterface.Listener, WebCheckoutView.Listener {
 
     private static final long TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(15);
+
     public static final String PAYMENT_FORM_BASE_URL = "https://soundcloud.com/android_payment.html";
     public static final String OAUTH_TOKEN_KEY = "oauth_token";
     public static final String LOCALE_KEY = "locale";
@@ -40,24 +47,28 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private final WebCheckoutView view;
     private final AccountOperations operations;
     private final LocaleFormatter localeFormatter;
+    private final Lazy<WebPaymentOperations> paymentOperations;
     private final Navigator navigator;
     private final EventBus eventBus;
     private final Resources resources;
 
     private Activity activity;
 
+    private Subscription subscription = RxUtils.invalidSubscription();
     private Handler handler = new Handler();
 
     @Inject
     public WebCheckoutPresenter(WebCheckoutView view,
                                 AccountOperations operations,
                                 LocaleFormatter localeFormatter,
+                                Lazy<WebPaymentOperations> paymentOperations,
                                 Navigator navigator,
                                 EventBus eventBus,
                                 Resources resources) {
         this.view = view;
         this.operations = operations;
         this.localeFormatter = localeFormatter;
+        this.paymentOperations = paymentOperations;
         this.navigator = navigator;
         this.eventBus = eventBus;
         this.resources = resources;
@@ -67,21 +78,34 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         this.activity = activity;
         view.setupContentView(activity, this);
-        loadForm();
+        loadProduct();
     }
 
+    @Nullable
     private WebProduct getProductFromIntent() {
         return (WebProduct) activity.getIntent().getParcelableExtra(WebConversionPresenter.PRODUCT_INFO);
     }
 
-    private void loadForm() {
-        final String url = buildPaymentFormUrl(
-                operations.getSoundCloudToken().getAccessToken(),
-                getProductFromIntent(),
-                resources.getString(R.string.web_payment_form_environment));
-
+    private void loadProduct() {
         view.setLoading(true);
         startTimeout();
+
+        final WebProduct product = getProductFromIntent();
+        if (product == null) {
+            subscription = paymentOperations.get()
+                    .product()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new WebProductSubscriber());
+        } else {
+            launchWebForm(product);
+        }
+    }
+
+    private void launchWebForm(WebProduct product) {
+        final String url = buildPaymentFormUrl(
+                operations.getSoundCloudToken().getAccessToken(),
+                product,
+                resources.getString(R.string.web_payment_form_environment));
 
         view.setupJavaScriptInterface(WebCheckoutInterface.JAVASCRIPT_OBJECT_NAME, new WebCheckoutInterface(this));
         view.loadUrl(url);
@@ -89,7 +113,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Override
     public void onRetry() {
-        loadForm();
+        loadProduct();
     }
 
     @Override
@@ -114,7 +138,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private void trackPurchase() {
         final WebProduct product = getProductFromIntent();
-        if (Plan.fromId(product.getPlanId()) == Plan.HIGH_TIER) {
+        if (product != null && Plan.fromId(product.getPlanId()) == Plan.HIGH_TIER) {
             eventBus.publish(EventQueue.TRACKING,
                     PurchaseEvent.forHighTierSub(product.getRawPrice(), product.getRawCurrency()));
         }
@@ -131,6 +155,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
+        subscription.unsubscribe();
         cancelTimeout();
         this.activity = null;
     }
@@ -139,13 +164,18 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                view.setRetry();
+                setRetryState();
             }
         }, TIMEOUT_MILLIS);
     }
 
     private void cancelTimeout() {
         handler.removeCallbacksAndMessages(null);
+    }
+
+    private void setRetryState() {
+        cancelTimeout();
+        view.setRetry();
     }
 
     @VisibleForTesting
@@ -176,6 +206,27 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         if (locale.isPresent()) {
             builder.appendQueryParameter(LOCALE_KEY, locale.get());
         }
+    }
+
+    private class WebProductSubscriber extends DefaultSubscriber<Optional<WebProduct>> {
+        @Override
+        public void onNext(Optional<WebProduct> result) {
+            if (result.isPresent()) {
+                saveProduct(result.get());
+                launchWebForm(result.get());
+            } else {
+                setRetryState();
+            }
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            setRetryState();
+        }
+    }
+
+    private void saveProduct(WebProduct product) {
+        activity.getIntent().putExtra(WebConversionPresenter.PRODUCT_INFO, product);
     }
 
 }

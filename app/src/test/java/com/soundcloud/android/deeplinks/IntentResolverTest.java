@@ -393,6 +393,28 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldLaunchCheckoutForSoundCloudScheme() {
+        when(featureOperations.upsellHighTier()).thenReturn(true);
+        setupIntentForUrl("soundcloud://buysoundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER, Screen.CHECKOUT);
+        verify(navigator).openDirectCheckout(context);
+    }
+
+    @Test
+    public void shouldNotLaunchCheckoutWhenUpsellFeatureIsDisabled() {
+        when(featureOperations.upsellHighTier()).thenReturn(false);
+        setupIntentForUrl("soundcloud://buysoundcloudgo");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+    }
+
+    @Test
     public void shouldLaunchNotificationPreferences() {
         setupIntentForUrl("soundcloud://notification_preferences");
 

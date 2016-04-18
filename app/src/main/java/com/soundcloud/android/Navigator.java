@@ -22,6 +22,7 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -98,6 +99,10 @@ public class Navigator {
 
     public void openUpgradeOnMain(Context context) {
         context.startActivity(createHomeIntent(context).putExtra(EXTRA_UPGRADE_INTENT, true));
+    }
+
+    public void openDirectCheckout(Context context) {
+        context.startActivity((new Intent(context, WebCheckoutActivity.class)));
     }
 
     public void openPlaylist(Context context, Urn playlist, Screen screen) {

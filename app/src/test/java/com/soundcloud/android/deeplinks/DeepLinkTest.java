@@ -86,6 +86,7 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://soundcloudgo");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://go");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_BUY, "soundcloud://buysoundcloudgo");
         assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "soundcloud://notification_preferences");
         assertDeeplink(DeepLink.COLLECTION, "soundcloud://collection");
         assertDeeplink(DeepLink.ENTITY, "soundcloud://anythingelse");

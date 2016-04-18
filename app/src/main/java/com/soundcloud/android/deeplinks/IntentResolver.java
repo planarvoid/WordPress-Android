@@ -102,6 +102,9 @@ public class IntentResolver {
             case SOUNDCLOUD_GO_UPSELL:
                 showUpgradeScreen(context, referrer);
                 break;
+            case SOUNDCLOUD_GO_BUY:
+                showDirectCheckoutScreen(context, referrer);
+                break;
             case NOTIFICATION_PREFERENCES:
                 showNotificationPreferencesScreen(context, referrer);
                 break;
@@ -185,9 +188,22 @@ public class IntentResolver {
             trackForegroundEvent(referrer, Screen.CONVERSION);
             navigator.openUpgradeOnMain(context);
         } else {
-            trackForegroundEvent(referrer);
-            navigator.openStream(context, Screen.DEEPLINK);
+            openFallback(context, referrer);
         }
+    }
+
+    private void showDirectCheckoutScreen(Context context, String referrer) {
+        if (featureOperations.upsellHighTier()) {
+            trackForegroundEvent(referrer, Screen.CHECKOUT);
+            navigator.openDirectCheckout(context);
+        } else {
+            openFallback(context, referrer);
+        }
+    }
+
+    private void openFallback(Context context, String referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openStream(context, Screen.DEEPLINK);
     }
 
     private void showNotificationPreferencesScreen(Context context, String referrer) {

@@ -21,6 +21,7 @@ import com.soundcloud.android.main.WebViewActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -142,6 +143,13 @@ public class NavigatorTest extends AndroidUnitTest {
         assertThat(activityContext).nextStartedIntent()
                 .opensActivity(MainActivity.class)
                 .containsExtra(Navigator.EXTRA_UPGRADE_INTENT, true);
+    }
+
+    @Test
+    public void openDirectCheckout() {
+        navigator.openDirectCheckout(activityContext);
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(WebCheckoutActivity.class);
     }
 
     @Test

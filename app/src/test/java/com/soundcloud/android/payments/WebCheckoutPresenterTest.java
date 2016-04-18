@@ -1,5 +1,6 @@
 package com.soundcloud.android.payments;
 
+import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -20,39 +21,44 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 
+import java.io.IOException;
+
 public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Mock private WebCheckoutView view;
     @Mock private AccountOperations accountOperations;
     @Mock private LocaleFormatter localeFormatter;
+    @Mock private WebPaymentOperations paymentOperations;
     @Mock private Navigator navigator;
     @Mock private Resources resources;
+    @Mock private AppCompatActivity activity;
 
-    TestEventBus eventBus;
+    private static final WebProduct PRODUCT =
+            WebProduct.create("high_tier", "some:product:123", "$2", "$1", "1.00", "USD", 30, "start", "expiry");
 
-    private AppCompatActivity activity = new AppCompatActivity();
-
+    private TestEventBus eventBus;
     private WebCheckoutPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
         when(accountOperations.getSoundCloudToken()).thenReturn(Token.EMPTY);
         when(localeFormatter.getLocale()).thenReturn(Optional.of("en-GB"));
-        WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", "$1", "1.00", "USD", 30, "start", "expiry");
-        activity.setIntent(new Intent().putExtra(WebConversionPresenter.PRODUCT_INFO, product));
 
         eventBus = new TestEventBus();
-        presenter = new WebCheckoutPresenter(view, accountOperations, localeFormatter, navigator, eventBus, resources);
+        presenter = new WebCheckoutPresenter(view, accountOperations, localeFormatter, lazyOf(paymentOperations),
+                navigator, eventBus, resources);
     }
 
     @Test
     public void loadsFormOnCreate() {
+        setupIntentWithProduct();
         presenter.onCreate(activity, null);
 
         verify(view).loadUrl(any(String.class));
@@ -60,6 +66,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Test
     public void loadsFormOnRetry() {
+        setupIntentWithProduct();
         presenter.onCreate(activity, null);
 
         presenter.onRetry();
@@ -68,16 +75,39 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showsWebViewWhenFormIsLoaded() {
+    public void loadProductIfNotPassedInIntent() {
+        when(activity.getIntent()).thenReturn(new Intent());
+        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(PRODUCT)));
+
         presenter.onCreate(activity, null);
 
-        presenter.onWebAppReady();
+        verify(view).loadUrl(any(String.class));
+    }
 
-        verify(view).setLoading(false);
+    @Test
+    public void loadingProductCanBeRetried() {
+        when(activity.getIntent()).thenReturn(new Intent());
+        when(paymentOperations.product()).thenReturn(Observable.<Optional<WebProduct>>error(new IOException()));
+
+        presenter.onCreate(activity, null);
+
+        verify(view).setRetry();
+    }
+
+    @Test
+    public void loadedProductIsSavedInIntent() {
+        Intent intent = new Intent();
+        when(activity.getIntent()).thenReturn(intent);
+        when(paymentOperations.product()).thenReturn(Observable.just(Optional.of(PRODUCT)));
+
+        presenter.onCreate(activity, null);
+
+        assertThat(intent.getParcelableExtra(WebConversionPresenter.PRODUCT_INFO)).isEqualTo(PRODUCT);
     }
 
     @Test
     public void paymentErrorsShouldBeTracked() {
+        setupIntentWithProduct();
         presenter.onCreate(activity, null);
         presenter.onPaymentError("KHAAAAAAAAAAAAAAAAAAAN");
 
@@ -87,6 +117,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Test
     public void successfulPaymentTriggersAccountUpgrade() {
+        setupIntentWithProduct();
         presenter.onCreate(activity, null);
 
         presenter.onPaymentSuccess();
@@ -96,6 +127,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Test
     public void successfulPaymentTracksPurchaseForHighTierSub() {
+        setupIntentWithProduct();
         presenter.onCreate(activity, null);
 
         presenter.onPaymentSuccess();
@@ -124,4 +156,9 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         assertThat(actual).isEqualTo(expected);
     }
+
+    private void setupIntentWithProduct() {
+        when(activity.getIntent()).thenReturn(new Intent().putExtra(WebConversionPresenter.PRODUCT_INFO, PRODUCT));
+    }
+
 }
