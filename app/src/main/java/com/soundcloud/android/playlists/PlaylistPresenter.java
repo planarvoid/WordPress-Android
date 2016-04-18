@@ -6,6 +6,8 @@ import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_PROMOTED_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_QUERY_SOURCE_INFO;
 import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -15,8 +17,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.view.dragdrop.OnStartDragListener;
+import com.soundcloud.android.view.dragdrop.SimpleItemTouchHelperCallback;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
@@ -26,7 +30,9 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -37,6 +43,8 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,8 +55,9 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
+import java.util.List;
 
-class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListItem> {
+class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackItem> implements OnStartDragListener {
 
     private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -78,10 +87,10 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
     private final PlaylistOperations playlistOperations;
     private final EventBus eventBus;
     private final PlaylistAdapter adapter;
-    private static final Func1<PlaylistWithTracks, Iterable<ListItem>> TO_LIST_ITEMS = new Func1<PlaylistWithTracks, Iterable<ListItem>>() {
+    private static final Func1<PlaylistWithTracks, Iterable<TrackItem>> TO_LIST_ITEMS = new Func1<PlaylistWithTracks, Iterable<TrackItem>>() {
         @Override
-        public Iterable<ListItem> call(PlaylistWithTracks playlistWithTracks) {
-            return new ArrayList<ListItem>(playlistWithTracks.getTracks());
+        public Iterable<TrackItem> call(PlaylistWithTracks playlistWithTracks) {
+            return new ArrayList<TrackItem>(playlistWithTracks.getTracks());
         }
     };
 
@@ -92,13 +101,15 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
     private Fragment fragment;
     private Subscription subscription = RxUtils.invalidSubscription();
     private String screen;
+    private ItemTouchHelper itemTouchHelper;
+    private Optional<PlaylistWithTracks> playlistWithTracks;
 
     @Inject
     public PlaylistPresenter(PlaylistOperations playlistOperations,
                              SwipeRefreshAttacher swipeRefreshAttacher,
                              PlaylistHeaderPresenter headerPresenter,
                              PlaylistContentPresenter playlistContentPresenter,
-                             PlaylistAdapter adapter,
+                             PlaylistAdapterFactory adapter,
                              PlaybackInitiator playbackInitiator,
                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                              EventBus eventBus) {
@@ -109,8 +120,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
         this.eventBus = eventBus;
         this.headerPresenter = headerPresenter;
         this.playlistContentPresenter = playlistContentPresenter;
-        this.adapter = adapter;
-
+        this.adapter = adapter.create(this);
         headerPresenter.setPlaylistPresenter(this);
     }
 
@@ -119,6 +129,14 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
         super.onCreate(fragment, bundle);
         this.fragment = fragment;
         getBinding().connect();
+    }
+
+    @Override
+    protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onCreateCollectionView(fragment, view, savedInstanceState);
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
+        itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(getRecyclerView());
     }
 
     @Override
@@ -143,6 +161,11 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
     public void onDestroyView(Fragment fragment) {
         subscription.unsubscribe();
         super.onDestroyView(fragment);
+    }
+
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        itemTouchHelper.startDrag(viewHolder);
     }
 
     void showEditMode() {
@@ -180,6 +203,14 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
         adapter.setEditMode(isEditMode);
     }
 
+    void savePlaylist() {
+        checkState(playlistWithTracks.isPresent(), "The playlist must be loaded to be saved");
+
+        final PlaylistWithTracks playlist = playlistWithTracks.get();
+        final List<Urn> tracks = Lists.transform(adapter.getItems(), TrackItem.TO_URN);
+        fireAndForget(playlistOperations.editPlaylist(playlist.getUrn(), playlist.getTitle(), playlist.isPrivate(), new ArrayList<>(tracks)));
+    }
+
     @Override
     protected void onItemClicked(View view, int position) {
         playlistContentPresenter.onItemClicked(position);
@@ -191,7 +222,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
     }
 
     @Override
-    protected CollectionBinding<PlaylistWithTracks, ListItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PlaylistWithTracks, TrackItem> onBuildBinding(Bundle fragmentArgs) {
 
         return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)), TO_LIST_ITEMS)
                 .withAdapter(adapter).build();
@@ -221,12 +252,12 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
     }
 
     @Override
-    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, ListItem> collectionBinding, CompositeSubscription viewLifeCycle) {
+    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, TrackItem> collectionBinding, CompositeSubscription viewLifeCycle) {
         collectionBinding.source().subscribe(new PlaylistSubscriber());
     }
 
     @Override
-    protected CollectionBinding<PlaylistWithTracks, ListItem> onRefreshBinding() {
+    protected CollectionBinding<PlaylistWithTracks, TrackItem> onRefreshBinding() {
         final Urn playlistUrn = getPlaylistUrn(fragment.getArguments());
 
         return CollectionBinding.from(playlistOperations.updatedPlaylistInfo(playlistUrn), TO_LIST_ITEMS)
@@ -244,7 +275,6 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
     }
 
     void reloadPlaylist() {
-
         retryWith(CollectionBinding
                 .from(loadPlaylistObservable(getPlaylistUrn()), TO_LIST_ITEMS)
                 .withAdapter(adapter).build());
@@ -262,10 +292,12 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, ListIt
     }
 
     protected class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
+
         @Override
-        public void onNext(PlaylistWithTracks playlistWithTracks) {
-            playSessionSource = createPlaySessionSource(playlistWithTracks);
-            headerPresenter.setPlaylist(PlaylistHeaderItem.create(playlistWithTracks, playSessionSource));
+        public void onNext(PlaylistWithTracks playlist) {
+            playlistWithTracks = Optional.of(playlist);
+            playSessionSource = createPlaySessionSource(playlist);
+            headerPresenter.setPlaylist(PlaylistHeaderItem.create(playlist, playSessionSource));
         }
     }
 

@@ -15,6 +15,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
@@ -22,7 +23,6 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -31,6 +31,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
+import com.soundcloud.android.view.dragdrop.OnStartDragListener;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.Queue;
@@ -59,7 +60,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
     private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
     private final PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
-    private final PropertySet track3 = ModelFixtures.create(ApiTrack.class).toPropertySet();
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_details_fragment, new Bundle());
 
@@ -69,6 +69,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Mock private CollapsingScrollHelper profileScrollHelper;
     @Mock private PlaylistHeaderPresenter headerPresenter;
     @Mock private PlaylistContentPresenter playlistContentPresenter;
+    @Mock private PlaylistAdapterFactory adapterFactory;
     @Mock private PlaylistAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
@@ -77,7 +78,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private Bundle args;
     private PlaylistPresenter presenter;
     private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
-    private PlaylistWithTracks updatedPlaylistWithTracks = new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(TrackItem.from(track1), TrackItem.from(track2), TrackItem.from(track3)));
 
     @Before
     public void setUp() throws Exception {
@@ -85,8 +85,9 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(args);
 
         when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
+        when(adapterFactory.create(any(OnStartDragListener.class))).thenReturn(adapter);
 
-        presenter = new PlaylistPresenter(operations, swipeAttacher, headerPresenter, playlistContentPresenter, adapter, playbackInitiator, expandPlayerSubscriberProvider, eventBus);
+        presenter = new PlaylistPresenter(operations, swipeAttacher, headerPresenter, playlistContentPresenter, adapterFactory, playbackInitiator, expandPlayerSubscriberProvider, eventBus);
     }
 
     @Test
@@ -171,7 +172,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         when(mockEventBus.queue(any(Queue.class))).thenReturn(queueSubject);
         when(mockEventBus.subscribe(any(Queue.class), any(Observer.class))).thenReturn(mock(Subscription.class));
-        presenter = new PlaylistPresenter(operations, swipeAttacher, headerPresenter, playlistContentPresenter, adapter, playbackInitiator, expandPlayerSubscriberProvider, eventBus);
+        presenter = new PlaylistPresenter(operations, swipeAttacher, headerPresenter, playlistContentPresenter, adapterFactory, playbackInitiator, expandPlayerSubscriberProvider, eventBus);
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -180,12 +181,24 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         assertThat(queueSubject.hasObservers()).isFalse();
     }
 
-    private List<ListItem> listItems() {
-        return Arrays.<ListItem>asList(TrackItem.from(track1), TrackItem.from(track2));
+    @Test
+    public void savePlaylist() {
+        final PublishSubject<PropertySet> editPlaylistOperation = PublishSubject.create();
+        final List<Urn> tracks = Arrays.asList(track1.get(EntityProperty.URN), track2.get(EntityProperty.URN));
+        final List<TrackItem> trackItems = Arrays.asList(TrackItem.from(track1), TrackItem.from(track2));
+        when(adapter.getItems()).thenReturn(trackItems);
+        when(operations.editPlaylist(playlistWithTracks.getUrn(), playlistWithTracks.getTitle(), playlistWithTracks.isPrivate(), tracks)).thenReturn(editPlaylistOperation);
+
+        presenter.onCreate(fragmentRule.getFragment(), args);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
+
+        presenter.savePlaylist();
+
+        assertThat(editPlaylistOperation.hasObservers()).isTrue();
     }
 
-    private List<ListItem> updatedTrackItems() {
-        return Arrays.<ListItem>asList(TrackItem.from(track1), TrackItem.from(track2), TrackItem.from(track3));
+    private List<TrackItem> listItems() {
+        return Arrays.asList(TrackItem.from(track1), TrackItem.from(track2));
     }
 
 }

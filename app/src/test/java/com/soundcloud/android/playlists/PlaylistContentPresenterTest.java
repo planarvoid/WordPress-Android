@@ -59,4 +59,13 @@ public class PlaylistContentPresenterTest extends AndroidUnitTest {
 
         verify(playlistPresenter, never()).reloadPlaylist();
     }
+
+    @Test
+    public void onStopEditModeSavePlaylist() {
+        final PlaylistEditView playlistDefaultView = new PlaylistEditView(eventBus, playlistPresenter);
+        playlistDefaultView.start();
+        playlistDefaultView.stop();
+
+        verify(playlistPresenter).savePlaylist();
+    }
 }

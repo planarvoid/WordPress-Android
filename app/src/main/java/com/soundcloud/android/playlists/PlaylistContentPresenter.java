@@ -156,7 +156,7 @@ class PlaylistContentPresenter extends DefaultSupportFragmentLightCycle<Fragment
         @Override
         public void stop() {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
-            //TODO save (playlistOperations.editPlaylist)
+            presenter.savePlaylist();
         }
 
         @Override
