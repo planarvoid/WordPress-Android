@@ -24,6 +24,7 @@ import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
+import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -64,7 +65,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     static final long PRELOAD_DURATION = TimeUnit.SECONDS.toMillis(10);
     static final int PRELOAD_START_POSITION = 0;
 
-    private static final long POSITION_START = 0L;
     private static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;
@@ -135,18 +135,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     @Override
     public void play(PlaybackItem playbackItem) {
-        switch(playbackItem.getPlaybackType()) {
-            case AUDIO_UNINTERRUPTED:
-                play(playbackItem.getUrn(), POSITION_START, PlaybackType.AUDIO_UNINTERRUPTED);
-                break;
-            default:
-                play(playbackItem.getUrn(), playbackItem.getStartPosition(), playbackItem.getPlaybackType());
-                break;
-        }
-    }
-
-    private void play(Urn track, long fromPos, PlaybackType playType) {
-        currentTrackUrn = track;
+        final long fromPos = playbackItem.getStartPosition();
+        currentTrackUrn = playbackItem.getUrn();
 
         if (!accountOperations.isUserLoggedIn()) {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
@@ -169,7 +159,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         stateHandler.removeMessages(0);
         lastStateChangeProgress = 0;
 
-        final String trackUrl = buildStreamUrl(playType);
+        final String trackUrl = buildStreamUrl(playbackItem);
         if (trackUrl.equals(currentStreamUrl)) {
             // we are already playing it. seek and resume
             skippy.seek(fromPos);
@@ -177,32 +167,36 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         } else {
             currentStreamUrl = trackUrl;
 
-            switch (playType){
-                case AUDIO_UNINTERRUPTED:
-                    skippy.play(currentStreamUrl, fromPos);
-                    break;
-
+            switch (playbackItem.getPlaybackType()) {
                 case AUDIO_OFFLINE:
                     final DeviceSecret deviceSecret = cryptoOperations.checkAndGetDeviceKey();
                     skippy.playOffline(currentStreamUrl, fromPos, deviceSecret.getKey(), deviceSecret.getInitVector());
                     break;
-
                 default :
                     skippy.play(currentStreamUrl, fromPos);
                     break;
             }
-
         }
     }
 
-    private String buildStreamUrl(PlaybackType playType) {
+    private String buildStreamUrl(PlaybackItem playbackItem) {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
 
-        if (playType == PlaybackType.AUDIO_OFFLINE) {
-            return secureFileStorage.getFileUriForOfflineTrack(currentTrackUrn).toString();
-        } else {
-            return buildRemoteUrl(currentTrackUrn, playType);
+        final PlaybackType playType = playbackItem.getPlaybackType();
+        switch (playbackItem.getPlaybackType()) {
+            case AUDIO_OFFLINE:
+                return secureFileStorage.getFileUriForOfflineTrack(currentTrackUrn).toString();
+            case AUDIO_AD:
+                return buildAudioAdUrl((AudioAdPlaybackItem) playbackItem);
+            default:
+                return buildRemoteUrl(currentTrackUrn, playType);
         }
+    }
+
+    private String buildAudioAdUrl(AudioAdPlaybackItem adPlaybackItem) {
+        return adPlaybackItem.isThirdParty()
+                ? adPlaybackItem.getThirdPartyStreamUrl()
+                : buildRemoteUrl(adPlaybackItem.getUrn(), PlaybackType.AUDIO_AD);
     }
 
     private String buildRemoteUrl(Urn trackUrn, PlaybackType playType) {

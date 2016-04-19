@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -62,7 +63,8 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                 return Observable.error(new BlockedTrackException(trackUrn));
             } else {
                 if (adsOperations.isCurrentItemAudioAd()) {
-                    serviceInitiator.play(AudioPlaybackItem.forAudioAd(track));
+                    final AudioAd audioAd = (AudioAd) adsOperations.getCurrentTrackAdData().get();
+                    serviceInitiator.play(AudioAdPlaybackItem.create(track, audioAd));
                 } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {
                     serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
                 } else if (track.get(TrackProperty.SNIPPED)) {

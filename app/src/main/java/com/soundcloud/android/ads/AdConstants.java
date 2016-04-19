@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.android.model.Urn;
+
 import java.util.concurrent.TimeUnit;
 
 public final class AdConstants {
@@ -9,4 +11,6 @@ public final class AdConstants {
     public static final int IAB_UNIVERSAL_MED_WIDTH = 300;
     public static final int IAB_UNIVERSAL_MED_HEIGHT = 250;
     public static final int IAB_UNIVERSAL_MED_MAX_SCALE = 2;
+
+    public static final Urn THIRD_PARTY_AD_MAGIC_TRACK_URN = Urn.forTrack(9876543210L);
 }

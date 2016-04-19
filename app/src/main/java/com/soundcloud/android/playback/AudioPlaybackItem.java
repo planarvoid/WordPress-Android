@@ -30,10 +30,6 @@ public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
         return create(track, startPosition, PlaybackType.AUDIO_OFFLINE);
     }
 
-    public static AudioPlaybackItem forAudioAd(PropertySet track) {
-        return create(track, 0, PlaybackType.AUDIO_UNINTERRUPTED);
-    }
-
     @Override
     public abstract Urn getUrn();
 
@@ -45,4 +41,5 @@ public abstract class AudioPlaybackItem implements PlaybackItem, Parcelable {
 
     @Override
     public abstract PlaybackType getPlaybackType();
+
 }

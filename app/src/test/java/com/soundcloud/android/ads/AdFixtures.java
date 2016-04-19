@@ -48,6 +48,10 @@ public class AdFixtures {
         return AudioAd.create(getApiAudioAd(NOT_SKIPPABLE), monetizableUrn);
     }
 
+    public static AudioAd getThirdPartyAudioAd(Urn monetizableUrn) {
+        return AudioAd.create(getApiAudioAdForThirdParty(), monetizableUrn);
+    }
+
     public static VideoAd getVideoAd(Urn monetizableUrn) {
         return VideoAd.create(getApiVideoAd(), monetizableUrn);
     }
@@ -110,6 +114,13 @@ public class AdFixtures {
                 Arrays.asList("leave_impression1", "leave_impression2"),
                 Arrays.asList("leave_click1", "leave_click2")
         );
+    }
+
+    static ApiAudioAd getApiAudioAdForThirdParty() {
+        final ApiAudioAd audioAd = getApiAudioAdWithCompanion(getApiCompanionAd(), SKIPPABLE);
+        audioAd.getApiTrack().setUrn(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
+        audioAd.getApiTrack().setStreamUrl("https://thirdparty.streamurl/hls");
+        return audioAd;
     }
 
     static ApiAudioAd getApiAudioAd() {
