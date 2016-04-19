@@ -86,23 +86,27 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsIncludesTrackReposts() {
-        final ApiUser reposter = testFixtures().insertUser();
+        final ApiUser reposter = insertReposter();
         final ApiTrack track = testFixtures().insertTrack();
         testFixtures().insertStreamTrackRepost(track.getId(), TIMESTAMP, reposter.getId());
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        final PropertySet trackRepost =
-                createTrackPropertySet(track)
-                        .put(PostProperty.REPOSTER, reposter.getUsername())
-                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
+        final PropertySet trackRepost = createRepostedTrack(track, reposter);
 
         verify(observer).onNext(trackRepost);
         verify(observer).onCompleted();
     }
 
+    private ApiUser insertReposter() {
+        final ApiUser reposter = ModelFixtures.create(ApiUser.class);
+        reposter.setAvatarUrlTemplate("reposter-avatar"); // to distinguish from creator avatar
+        testFixtures().insertUser(reposter);
+        return reposter;
+    }
+
     @Test
     public void loadingStreamItemsFiltersOutTrackWithSameTrackReposted() {
-        final ApiUser reposter = testFixtures().insertUser();
+        final ApiUser reposter = insertReposter();
         final ApiTrack track = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
 
@@ -112,11 +116,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
         final PropertySet trackPost = createTrackPropertySet(track);
-
-        final PropertySet trackRepost =
-                createTrackPropertySet(track, new Date(repostedTimestamp))
-                        .put(PostProperty.REPOSTER, reposter.getUsername())
-                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
+        final PropertySet trackRepost = createRepostedTrack(track, reposter, new Date(repostedTimestamp));
 
         verify(observer, never()).onNext(trackPost);
         verify(observer).onNext(trackRepost);
@@ -125,7 +125,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsOnlyIncludesNewestRepost() {
-        final ApiUser reposter = testFixtures().insertUser();
+        final ApiUser reposter = insertReposter();
         final ApiTrack track = testFixtures().insertTrack();
 
         final long repostedTimestampOld = TIMESTAMP;
@@ -134,15 +134,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamTrackRepost(track.getId(), repostedTimestampOld, reposter.getId());
         testFixtures().insertStreamTrackRepost(track.getId(), repostedTimestampNew, reposter.getId());
 
-        final PropertySet trackRepostOld =
-                createTrackPropertySet(track, new Date(repostedTimestampOld))
-                        .put(PostProperty.REPOSTER, reposter.getUsername())
-                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
-
-        final PropertySet trackRepostNew =
-                createTrackPropertySet(track, new Date(repostedTimestampNew))
-                        .put(PostProperty.REPOSTER, reposter.getUsername())
-                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
+        final PropertySet trackRepostOld = createRepostedTrack(track, reposter, new Date(repostedTimestampOld));
+        final PropertySet trackRepostNew = createRepostedTrack(track, reposter, new Date(repostedTimestampNew));
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
@@ -166,18 +159,13 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingStreamItemsIncludesPlaylistReposts() {
-        final ApiUser reposter = testFixtures().insertUser();
+        final ApiUser reposter = insertReposter();
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         testFixtures().insertStreamPlaylistRepost(playlist.getId(), TIMESTAMP, reposter.getId());
 
         storage.timelineItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
-        PropertySet playlistRepost =
-                createPlaylistPropertySet(playlist)
-                        .put(PostProperty.REPOSTER, reposter.getUsername())
-                        .put(PostProperty.REPOSTER_URN, reposter.getUrn());
-
-        verify(observer).onNext(playlistRepost);
+        verify(observer).onNext(createRepostedPlaylist(playlist, reposter));
         verify(observer).onCompleted();
     }
 
@@ -333,8 +321,20 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         return createTrackPropertySet(track, new Date(TIMESTAMP));
     }
 
+    private PropertySet createRepostedTrack(ApiTrack track, ApiUser reposter, Date repostedAt) {
+        return createTrackPropertySet(track, repostedAt)
+                .put(PostProperty.REPOSTER, reposter.getUsername())
+                .put(PostProperty.REPOSTER_URN, reposter.getUrn())
+                .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, reposter.getImageUrlTemplate());
+    }
+
+    private PropertySet createRepostedTrack(ApiTrack track, ApiUser reposter) {
+        return createRepostedTrack(track, reposter, new Date(TIMESTAMP));
+    }
+
     private PropertySet createTrackPropertySet(final ApiTrack track, final Date createdAt) {
         return PropertySet.from(
+                SoundStreamProperty.AVATAR_URL_TEMPLATE.bind(track.getUser().getImageUrlTemplate()),
                 SoundStreamProperty.CREATED_AT.bind(createdAt),
                 PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
@@ -353,8 +353,16 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 TrackProperty.SNIPPED.bind(track.isSnipped()));
     }
 
+    private PropertySet createRepostedPlaylist(ApiPlaylist playlist, ApiUser reposter) {
+        return createPlaylistPropertySet(playlist)
+                .put(PostProperty.REPOSTER, reposter.getUsername())
+                .put(PostProperty.REPOSTER_URN, reposter.getUrn())
+                .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, reposter.getImageUrlTemplate());
+    }
+
     private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {
         return PropertySet.from(
+                SoundStreamProperty.AVATAR_URL_TEMPLATE.bind(playlist.getUser().getImageUrlTemplate()),
                 SoundStreamProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
                 PlayableProperty.TITLE.bind(playlist.getTitle()),

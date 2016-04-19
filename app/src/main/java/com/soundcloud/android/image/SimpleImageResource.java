@@ -9,6 +9,10 @@ import com.soundcloud.java.optional.Optional;
 @AutoValue
 public abstract class SimpleImageResource implements ImageResource {
 
+    public static SimpleImageResource create(Urn urn, Optional<String> avatarUrlTemplate) {
+        return new AutoValue_SimpleImageResource(urn, avatarUrlTemplate);
+    }
+
     public static SimpleImageResource create(PropertySet trackProperties) {
         return new AutoValue_SimpleImageResource(trackProperties.get(TrackProperty.URN),
                 trackProperties.get(TrackProperty.IMAGE_URL_TEMPLATE));

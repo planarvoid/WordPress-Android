@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -57,7 +58,7 @@ class StreamCardViewPresenter {
         if (playableItem instanceof PromotedListItem) {
             showPromoted(itemView, (PromotedListItem) playableItem);
         } else {
-            loadAvatar(itemView, avatarUrn(playableItem));
+            loadAvatar(itemView, playableItem.getAvatarImageResource());
             setHeaderText(itemView, playableItem);
             showCreatedAt(itemView, playableItem.getCreatedAt());
             itemView.togglePrivateIndicator(playableItem.isPrivate());
@@ -90,10 +91,6 @@ class StreamCardViewPresenter {
                 itemView.getImage());
     }
 
-    private Urn avatarUrn(PlayableItem playableItem) {
-        return playableItem.getReposter().isPresent() ? playableItem.getReposterUrn() : playableItem.getCreatorUrn();
-    }
-
     private void setHeaderText(StreamItemViewHolder itemView, PlayableItem playableItem) {
         boolean isRepost = playableItem.getReposter().isPresent();
         final String userName = playableItem.getReposter().or(playableItem.getCreatorName());
@@ -111,7 +108,7 @@ class StreamCardViewPresenter {
     private void showPromoted(StreamItemViewHolder itemView, final PromotedListItem promoted) {
         if (promoted.hasPromoter()) {
             final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatar(itemView, promoted.getPromoterUrn().get());
+            loadAvatarByUrn(itemView, promoted.getPromoterUrn().get());
 
             headerSpannableBuilder.actionSpannedString(action, isTrack(promoted));
             itemView.setPromoterHeader(promoted.getPromoterName().get(), headerSpannableBuilder.get());
@@ -129,10 +126,17 @@ class StreamCardViewPresenter {
         itemView.setCreatedAt(formattedTime);
     }
 
-    private void loadAvatar(StreamItemViewHolder itemView, Urn userUrn) {
-        itemView.setCreatorClickable(new ProfileClickViewListener(userUrn));
+    private void loadAvatar(StreamItemViewHolder itemView, ImageResource imageResource) {
+        itemView.setCreatorClickable(new ProfileClickViewListener(imageResource.getUrn()));
         imageOperations.displayCircularInAdapterView(
-                userUrn, ApiImageSize.getListItemImageSize(resources),
+                imageResource, ApiImageSize.getListItemImageSize(resources),
+                itemView.getUserImage());
+    }
+
+    private void loadAvatarByUrn(StreamItemViewHolder itemView, Urn urn) {
+        itemView.setCreatorClickable(new ProfileClickViewListener(urn));
+        imageOperations.displayCircularInAdapterView(
+                urn, ApiImageSize.getListItemImageSize(resources),
                 itemView.getUserImage());
     }
 
