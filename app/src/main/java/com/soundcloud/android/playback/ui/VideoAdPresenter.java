@@ -281,7 +281,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
         private final View fullscreenButton;
         private final View shrinkButton;
-        private final View advertisementLabel;
 
         private final View videoProgress;
         private final View letterboxBackground;
@@ -303,7 +302,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
             fullscreenButton = adView.findViewById(R.id.video_fullscreen_control);
             shrinkButton = adView.findViewById(R.id.video_shrink_control);
-            advertisementLabel = adView.findViewById(R.id.advertisement);
 
             videoProgress = adView.findViewById(R.id.video_progress);
             letterboxBackground = adView.findViewById(R.id.letterbox_background);
@@ -330,7 +328,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         }
 
         private List<View> getAllFadeableElementViews() {
-            return Arrays.asList(advertisementLabel, whyAds, ctaButton, previewContainer, videoLayoutControls);
+            return Arrays.asList(whyAds, ctaButton, previewContainer, videoLayoutControls);
         }
     }
 }
