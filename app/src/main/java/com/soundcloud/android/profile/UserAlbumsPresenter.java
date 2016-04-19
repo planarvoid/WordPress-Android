@@ -17,12 +17,12 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-class UserReleasesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
+class UserAlbumsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
 
     private final UserProfileOperations operations;
 
     @Inject
-    UserReleasesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+    UserAlbumsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                         ImagePauseOnScrollListener imagePauseOnScrollListener,
                         MixedPlayableRecyclerItemAdapter adapter,
                         MixedItemClickListener.Factory clickListenerFactory,
@@ -36,16 +36,16 @@ class UserReleasesPresenter extends ProfilePlayablePresenter<PagedRemoteCollecti
     @Override
     protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
-        return CollectionBinding.from(operations.userReleases(userUrn), pageTransformer)
+        return CollectionBinding.from(operations.userAlbums(userUrn), pageTransformer)
                 .withAdapter(adapter)
-                .withPager(operations.userReleasesPagingFunction())
+                .withPager(operations.userAlbumsPagingFunction())
                 .build();
     }
 
     @Override
     protected void configureEmptyView(EmptyView emptyView) {
         emptyView.setImage(R.drawable.empty_stream);
-        emptyView.setMessageText(R.string.user_profile_sounds_releases_empty);
+        emptyView.setMessageText(R.string.user_profile_sounds_albums_empty);
     }
 
     @Override

@@ -13,7 +13,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -37,7 +36,7 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
 
         mockEntityHolderMapper(UserSoundsTypes.SPOTLIGHT, profile.getSpotlight());
         mockEntityHolderMapper(UserSoundsTypes.TRACKS, profile.getTracks());
-        mockEntityHolderMapper(UserSoundsTypes.RELEASES, profile.getReleases());
+        mockEntityHolderMapper(UserSoundsTypes.ALBUMS, profile.getAlbums());
         mockEntityHolderMapper(UserSoundsTypes.PLAYLISTS, profile.getPlaylists());
         mockEntityHolderMapper(UserSoundsTypes.REPOSTS, profile.getReposts());
         mockEntityHolderMapper(UserSoundsTypes.LIKES, profile.getLikes());

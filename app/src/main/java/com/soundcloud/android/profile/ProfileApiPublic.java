@@ -139,13 +139,13 @@ public class ProfileApiPublic implements ProfileApi {
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(Urn user) {
-        throw new UnsupportedOperationException("User Releases will not be supported by Public API");
+    public Observable<ModelCollection<ApiPlaylistPost>> userAlbums(Urn user) {
+        throw new UnsupportedOperationException("User Albums will not be supported by Public API");
     }
 
     @Override
-    public Observable<ModelCollection<ApiPlaylistPost>> userReleases(String nextPageLink) {
-        throw new UnsupportedOperationException("User Releases will not be supported by Public API");
+    public Observable<ModelCollection<ApiPlaylistPost>> userAlbums(String nextPageLink) {
+        throw new UnsupportedOperationException("User Albums will not be supported by Public API");
     }
 
     @Override

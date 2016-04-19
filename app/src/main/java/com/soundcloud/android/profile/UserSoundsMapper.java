@@ -31,7 +31,7 @@ public class UserSoundsMapper implements Func1<UserProfile, Iterable<UserSoundsI
 
         items.addAll(entityHolderMapper.map(UserSoundsTypes.SPOTLIGHT, userProfile.getSpotlight()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.TRACKS, userProfile.getTracks()));
-        items.addAll(entityHolderMapper.map(UserSoundsTypes.RELEASES, userProfile.getReleases()));
+        items.addAll(entityHolderMapper.map(UserSoundsTypes.ALBUMS, userProfile.getAlbums()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.PLAYLISTS, userProfile.getPlaylists()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.REPOSTS, userProfile.getReposts()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.LIKES, userProfile.getLikes()));
@@ -43,7 +43,7 @@ public class UserSoundsMapper implements Func1<UserProfile, Iterable<UserSoundsI
         //We can guess this pretty accurately. So why now.
         return 3 + userProfile.getSpotlight().getCollection().size()
                 + 3 + userProfile.getTracks().getCollection().size()
-                + 3 + userProfile.getReleases().getCollection().size()
+                + 3 + userProfile.getAlbums().getCollection().size()
                 + 3 + userProfile.getPlaylists().getCollection().size()
                 + 3 + userProfile.getReposts().getCollection().size()
                 + 3 + userProfile.getLikes().getCollection().size();

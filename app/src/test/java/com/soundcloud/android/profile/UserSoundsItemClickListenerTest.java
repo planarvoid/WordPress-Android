@@ -59,11 +59,11 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldOpenReleases() throws Exception {
+    public void shouldOpenAlbums() throws Exception {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
-        subject.onItemClick(view, UserSoundsItem.fromViewAll(UserSoundsTypes.RELEASES), USER_URN, searchSourceInfo);
+        subject.onItemClick(view, UserSoundsItem.fromViewAll(UserSoundsTypes.ALBUMS), USER_URN, searchSourceInfo);
 
-        verify(navigator).openProfileReleases(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
+        verify(navigator).openProfileAlbums(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
     }
 
     @Test

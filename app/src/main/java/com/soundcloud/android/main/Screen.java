@@ -51,7 +51,7 @@ public enum Screen {
     USER_SOUNDS("users:sounds"),
     USERS_REPOSTS("users:reposts"),
     USER_TRACKS("users:tracks"),
-    USER_RELEASES("users:releases"),
+    USER_ALBUMS("users:albums"),
     USER_LIKES("users:likes"),
     USER_PLAYLISTS("users:playlists"),
 

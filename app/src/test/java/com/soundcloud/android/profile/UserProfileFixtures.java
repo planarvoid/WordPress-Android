@@ -20,7 +20,7 @@ public class UserProfileFixtures {
         private PropertySet user = create(ApiUser.class).toPropertySet();
         private ModelCollection<PropertySet> spotlight = emptyPropertySets();
         private ModelCollection<PropertySet> tracks = emptyPropertySets();
-        private ModelCollection<PropertySet> releases = emptyPropertySets();
+        private ModelCollection<PropertySet> albums = emptyPropertySets();
         private ModelCollection<PropertySet> playlists = emptyPropertySets();
         private ModelCollection<PropertySet> reposts = emptyPropertySets();
         private ModelCollection<PropertySet> likes = emptyPropertySets();
@@ -40,8 +40,8 @@ public class UserProfileFixtures {
             return this;
         }
 
-        Builder releases(ModelCollection<PropertySet> releases) {
-            this.releases = releases;
+        Builder albums(ModelCollection<PropertySet> albums) {
+            this.albums = albums;
             return this;
         }
 
@@ -63,7 +63,7 @@ public class UserProfileFixtures {
         Builder populateAllCollections() {
             spotlight = new ModelCollection<>(singletonList(create(ApiTrack.class).toPropertySet()));
             tracks = new ModelCollection<>(singletonList(create(ApiTrack.class).toPropertySet()));
-            releases = new ModelCollection<>(singletonList(create(ApiPlaylist.class).toPropertySet()));
+            albums = new ModelCollection<>(singletonList(create(ApiPlaylist.class).toPropertySet()));
             playlists = new ModelCollection<>(singletonList(create(ApiPlaylist.class).toPropertySet()));
             reposts = new ModelCollection<>(singletonList(create(ApiTrack.class).toPropertySet()));
             likes = new ModelCollection<>(singletonList(create(ApiTrack.class).toPropertySet()));
@@ -72,7 +72,7 @@ public class UserProfileFixtures {
         }
 
         UserProfile build() {
-            return new UserProfile(user, spotlight, tracks, releases, playlists, reposts, likes);
+            return new UserProfile(user, spotlight, tracks, albums, playlists, reposts, likes);
         }
     }
 }

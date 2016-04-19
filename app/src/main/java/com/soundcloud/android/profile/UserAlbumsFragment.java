@@ -18,17 +18,17 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserReleasesFragment extends LightCycleSupportFragment<UserReleasesFragment> implements RefreshableScreen {
+public class UserAlbumsFragment extends LightCycleSupportFragment<UserAlbumsFragment> implements RefreshableScreen {
 
-    @Inject @LightCycle UserReleasesPresenter presenter;
+    @Inject @LightCycle UserAlbumsPresenter presenter;
 
-    public static UserReleasesFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        UserReleasesFragment fragment = new UserReleasesFragment();
+    public static UserAlbumsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        UserAlbumsFragment fragment = new UserAlbumsFragment();
         fragment.setArguments(ProfileArguments.from(userUrn, screen, searchQuerySourceInfo));
         return fragment;
     }
 
-    public UserReleasesFragment() {
+    public UserAlbumsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

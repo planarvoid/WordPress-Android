@@ -17,7 +17,7 @@ public class UserProfile {
     private final PropertySet user;
     private final ModelCollection<PropertySet> spotlight;
     private final ModelCollection<PropertySet> tracks;
-    private final ModelCollection<PropertySet> releases;
+    private final ModelCollection<PropertySet> albums;
     private final ModelCollection<PropertySet> playlists;
     private final ModelCollection<PropertySet> reposts;
     private final ModelCollection<PropertySet> likes;
@@ -25,14 +25,14 @@ public class UserProfile {
     public UserProfile(PropertySet user,
                        ModelCollection<PropertySet> spotlight,
                        ModelCollection<PropertySet> tracks,
-                       ModelCollection<PropertySet> releases,
+                       ModelCollection<PropertySet> albums,
                        ModelCollection<PropertySet> playlists,
                        ModelCollection<PropertySet> reposts,
                        ModelCollection<PropertySet> likes) {
         this.user = user;
         this.spotlight = spotlight;
         this.tracks = tracks;
-        this.releases = releases;
+        this.albums = albums;
         this.playlists = playlists;
         this.reposts = reposts;
         this.likes = likes;
@@ -50,8 +50,8 @@ public class UserProfile {
         return tracks;
     }
 
-    public ModelCollection<PropertySet> getReleases() {
-        return releases;
+    public ModelCollection<PropertySet> getAlbums() {
+        return albums;
     }
 
     public ModelCollection<PropertySet> getPlaylists() {
@@ -71,12 +71,12 @@ public class UserProfile {
 
         ModelCollection<PropertySet> spotlight = fromApiEntitySourceModelCollection(userProfileRecord.getSpotlight());
         ModelCollection<PropertySet> tracks = fromApiEntityModelCollection(userProfileRecord.getTracks());
-        ModelCollection<PropertySet> releases = fromApiEntityModelCollection(userProfileRecord.getReleases());
+        ModelCollection<PropertySet> albums = fromApiEntityModelCollection(userProfileRecord.getAlbums());
         ModelCollection<PropertySet> playlists = fromApiEntityModelCollection(userProfileRecord.getPlaylists());
         ModelCollection<PropertySet> reposts = fromApiEntitySourceModelCollection(userProfileRecord.getReposts());
         ModelCollection<PropertySet> likes = fromApiEntitySourceModelCollection(userProfileRecord.getLikes());
 
-        return new UserProfile(user, spotlight, tracks, releases, playlists, reposts, likes);
+        return new UserProfile(user, spotlight, tracks, albums, playlists, reposts, likes);
     }
 
     private static ModelCollection<PropertySet> fromApiEntitySourceModelCollection(

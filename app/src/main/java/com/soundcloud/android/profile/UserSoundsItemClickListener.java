@@ -51,8 +51,8 @@ public class UserSoundsItemClickListener {
             case UserSoundsTypes.TRACKS:
                 navigator.openProfileTracks(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
                 break;
-            case UserSoundsTypes.RELEASES:
-                navigator.openProfileReleases(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
+            case UserSoundsTypes.ALBUMS:
+                navigator.openProfileAlbums(view.getContext(), userUrn, Screen.USER_TRACKS, searchQuerySourceInfo);
                 break;
             case UserSoundsTypes.LIKES:
                 navigator.openProfileLikes(view.getContext(), userUrn, Screen.USER_LIKES, searchQuerySourceInfo);

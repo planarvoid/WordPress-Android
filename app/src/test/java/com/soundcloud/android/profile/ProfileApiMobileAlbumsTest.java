@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
-public class ProfileApiMobileReleasesTest extends AndroidUnitTest {
+public class ProfileApiMobileAlbumsTest extends AndroidUnitTest {
 
     private static final String NEXT_HREF = "next-href";
 
@@ -39,24 +39,24 @@ public class ProfileApiMobileReleasesTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldReturnUserReleasesByUrn() throws Exception {
+    public void shouldReturnUserAlbumsByUrn() throws Exception {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/releases/posted")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);
 
-        api.userReleases(Urn.forUser(123L)).subscribe(subscriber);
+        api.userAlbums(Urn.forUser(123L)).subscribe(subscriber);
         subscriber.assertValue(new ModelCollection<>(newArrayList(playlistPost), NEXT_HREF));
     }
 
     @Test
-    public void shouldReturnUserReleasesByNextPageLink() throws Exception {
+    public void shouldReturnUserAlbumsByNextPageLink() throws Exception {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);
 
-        api.userReleases(NEXT_HREF).subscribe(subscriber);
+        api.userAlbums(NEXT_HREF).subscribe(subscriber);
         subscriber.assertValue(new ModelCollection<>(newArrayList(playlistPost), NEXT_HREF));
     }
 }

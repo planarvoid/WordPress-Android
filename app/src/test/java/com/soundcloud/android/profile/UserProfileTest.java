@@ -20,7 +20,7 @@ public class UserProfileTest extends AndroidUnitTest {
 
         assertApiEntityHolderSourceMapping(userProfileRecord.getSpotlight(), userProfile.getSpotlight());
         assertApiEntityHolderMapping(userProfileRecord.getTracks(), userProfile.getTracks());
-        assertApiEntityHolderMapping(userProfileRecord.getReleases(), userProfile.getReleases());
+        assertApiEntityHolderMapping(userProfileRecord.getAlbums(), userProfile.getAlbums());
         assertApiEntityHolderMapping(userProfileRecord.getPlaylists(), userProfile.getPlaylists());
         assertApiEntityHolderSourceMapping(userProfileRecord.getReposts(), userProfile.getReposts());
         assertApiEntityHolderSourceMapping(userProfileRecord.getLikes(), userProfile.getLikes());

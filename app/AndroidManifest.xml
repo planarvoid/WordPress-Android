@@ -202,7 +202,7 @@
         </activity>
         <activity android:label="@string/user_reposts_label" android:name=".profile.UserRepostsActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:label="@string/user_profile_sounds_header_tracks" android:name=".profile.UserTracksActivity" android:theme="@style/Theme.SoundCloud"/>
-        <activity android:label="@string/user_releases_label" android:name=".profile.UserReleasesActivity" android:theme="@style/Theme.SoundCloud"/>
+        <activity android:label="@string/user_albums_label" android:name=".profile.UserAlbumsActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:label="@string/user_likes_label" android:name=".profile.UserLikesActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:label="@string/user_profile_sounds_header_playlists" android:name=".profile.UserPlaylistsActivity" android:theme="@style/Theme.SoundCloud"/>
 

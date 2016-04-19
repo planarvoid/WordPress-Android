@@ -33,8 +33,8 @@ public class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
         switch (item.getCollectionType()) {
             case UserSoundsTypes.TRACKS:
                 return R.string.user_profile_sounds_view_all_tracks;
-            case UserSoundsTypes.RELEASES:
-                return R.string.user_profile_sounds_view_all_releases;
+            case UserSoundsTypes.ALBUMS:
+                return R.string.user_profile_sounds_view_all_albums;
             case UserSoundsTypes.PLAYLISTS:
                 return R.string.user_profile_sounds_view_all_playlists;
             case UserSoundsTypes.REPOSTS:

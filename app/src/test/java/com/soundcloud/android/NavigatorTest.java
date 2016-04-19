@@ -29,7 +29,7 @@ import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
-import com.soundcloud.android.profile.UserReleasesActivity;
+import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
@@ -450,15 +450,15 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensProfileReleases() {
+    public void openProfileAlbums() {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
-        navigator.openProfileReleases(activityContext, USER_URN, Screen.USER_RELEASES, searchSourceInfo);
+        navigator.openProfileAlbums(activityContext, USER_URN, Screen.USER_ALBUMS, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
-                .containsExtra(UserReleasesActivity.EXTRA_USER_URN, USER_URN)
+                .containsExtra(UserAlbumsActivity.EXTRA_USER_URN, USER_URN)
                 .intentExtraIsNotNull(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
-                .containsScreen(Screen.USER_RELEASES)
-                .opensActivity(UserReleasesActivity.class);
+                .containsScreen(Screen.USER_ALBUMS)
+                .opensActivity(UserAlbumsActivity.class);
     }
 
     @Test

@@ -309,19 +309,19 @@ class UserProfileOperations {
         });
     }
 
-    public Observable<PagedRemoteCollection> userReleases(Urn user) {
-        return profileApi.userReleases(user)
+    public Observable<PagedRemoteCollection> userAlbums(Urn user) {
+        return profileApi.userAlbums(user)
                 .doOnNext(writeMixedRecordsCommand.toAction1())
                 .map(TO_PAGED_REMOTE_COLLECTION)
                 .map(mergePlayableInfo)
                 .subscribeOn(scheduler);
     }
 
-    public PagingFunction<PagedRemoteCollection> userReleasesPagingFunction() {
+    public PagingFunction<PagedRemoteCollection> userAlbumsPagingFunction() {
         return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
-                return profileApi.userReleases(nextPageLink)
+                return profileApi.userAlbums(nextPageLink)
                         .doOnNext(writeMixedRecordsCommand.toAction1())
                         .map(TO_PAGED_REMOTE_COLLECTION)
                         .map(mergePlayableInfo)
