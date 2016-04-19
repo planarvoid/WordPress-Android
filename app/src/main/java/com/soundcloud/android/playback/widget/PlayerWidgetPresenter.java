@@ -4,8 +4,8 @@ import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -55,7 +55,7 @@ class PlayerWidgetPresenter {
     /* package */ void updateTrackInformation(final Context context, final PropertySet trackProperties) {
         artworkSubscription.unsubscribe();
         widgetTrack = new WidgetTrack(trackProperties);
-        Bitmap cachedArtwork = getCachedBitmap(context, widgetTrack.getUrn());
+        Bitmap cachedArtwork = getCachedBitmap(context, widgetTrack);
         updateRemoveViews(context, cachedArtwork);
 
         if (cachedArtwork == null){
@@ -64,7 +64,7 @@ class PlayerWidgetPresenter {
     }
 
     private void loadArtwork(Context context) {
-        artworkSubscription = imageOperations.artwork(widgetTrack.getUrn(),
+        artworkSubscription = imageOperations.artwork(widgetTrack,
                 getApiImageSize(context.getResources()),
                 context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_width),
                 context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))
@@ -115,8 +115,8 @@ class PlayerWidgetPresenter {
         appWidgetManager.updateAppWidget(PLAYER_WIDGET_PROVIDER, views);
     }
 
-    private Bitmap getCachedBitmap(Context context, final Urn trackUrn) {
-        return imageOperations.getCachedBitmap(trackUrn, getApiImageSize(context.getResources()),
+    private Bitmap getCachedBitmap(Context context, final ImageResource imageResource) {
+        return imageOperations.getCachedBitmap(imageResource, getApiImageSize(context.getResources()),
                 context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_width),
                 context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_height));
     }

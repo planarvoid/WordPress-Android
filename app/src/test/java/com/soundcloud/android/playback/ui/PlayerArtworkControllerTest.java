@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
@@ -41,6 +42,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     @Mock private PlaybackProgress playbackProgress;
     @Mock private PlayerArtworkLoader playerArtworkLoader;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
+    @Mock private ImageResource imageResource;
 
     private Provider<PlayerArtworkLoader> playerArtworkLoaderProvider;
     private View artworkHolder;
@@ -202,7 +204,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
         when(wrappedImageView.getResources()).thenReturn(resources());
         when(wrappedImageView.getContext()).thenReturn(context());
 
-        playerArtworkController.loadArtwork(urn, true, viewVisibilityProvider);
-        verify(playerArtworkLoader).loadArtwork(eq(urn), same(wrappedImageView), same(artworkOverlayImage), eq(true), same(viewVisibilityProvider));
+        playerArtworkController.loadArtwork(imageResource, true, viewVisibilityProvider);
+        verify(playerArtworkLoader).loadArtwork(same(imageResource), same(wrappedImageView), same(artworkOverlayImage), eq(true), same(viewVisibilityProvider));
     }
 }

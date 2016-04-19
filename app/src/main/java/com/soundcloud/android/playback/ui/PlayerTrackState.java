@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -12,7 +13,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
-public class PlayerTrackState extends PlayerItem implements TieredTrack, PropertySetSource {
+public class PlayerTrackState extends PlayerItem implements TieredTrack, PropertySetSource, ImageResource {
 
     static final PlayerTrackState EMPTY = new PlayerTrackState(PropertySet.from(
             TrackProperty.URN.bind(Urn.NOT_SET),
@@ -71,6 +72,11 @@ public class PlayerTrackState extends PlayerItem implements TieredTrack, Propert
 
     public Urn getUrn() {
         return source.get(TrackProperty.URN);
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return source.get(TrackProperty.IMAGE_URL_TEMPLATE);
     }
 
     public String getTitle() {

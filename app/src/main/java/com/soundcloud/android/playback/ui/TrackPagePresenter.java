@@ -150,7 +150,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setCastDeviceName(trackView, castConnectionHelper.getDeviceName());
         bindStationsContext(trackState, holder);
 
-        holder.artworkController.loadArtwork(trackState.getUrn(), trackState.isCurrentTrack(),
+        holder.artworkController.loadArtwork(trackState, trackState.isCurrentTrack(),
                 trackState.getViewVisibilityProvider());
 
         holder.timestamp.setInitialProgress(trackState.getPlayableDuration(), trackState.getFullDuration());

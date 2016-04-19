@@ -1,15 +1,22 @@
 package com.soundcloud.android.playback.notification;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.net.Uri;
+import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
+import static com.soundcloud.android.testsupport.matchers.ImageResourceMatcher.isImageResourceFor;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackService;
@@ -19,26 +26,20 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-
 import rx.Observable;
 import rx.Subscription;
 import rx.subjects.PublishSubject;
 
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
 
 public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTest {
 
@@ -107,13 +108,14 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
 
         controller.setTrack(playbackService, PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
 
-        verify(imageOperations, never()).getCachedBitmap(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt());
+        verify(imageOperations, never()).getCachedBitmap(any(ImageResource.class), any(ApiImageSize.class), anyInt(), anyInt());
     }
 
     @Test
     public void playQueueEventSetsBitmapWhenArtworkCapableAndNoCachedBitmap() {
         when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
+        when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
+                any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
 
         controller.setTrack(playbackService, PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
 
@@ -123,7 +125,8 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
     @Test
     public void playQueueEventUnsubscribesExistingImageLoadingObservable() {
         PublishSubject<Bitmap> imageObservable = PublishSubject.create();
-        when(imageOperations.artwork(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(imageObservable, Observable.<Bitmap>never());
+        when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
+                any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(imageObservable, Observable.<Bitmap>never());
         when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
 
         controller.setTrack(playbackService, PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));

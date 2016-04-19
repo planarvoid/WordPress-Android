@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +22,7 @@ public class PlayerArtworkLoaderTest extends AndroidUnitTest {
     @Mock ImageView imageOverlayView;
     @Mock ImageListener listener;
     @Mock ViewVisibilityProvider viewVisibilityProvider;
+    @Mock ImageResource imageResource;
 
     private PlayerArtworkLoader playerArtworkLoader;
 
@@ -32,13 +33,12 @@ public class PlayerArtworkLoaderTest extends AndroidUnitTest {
 
     @Test
     public void loadArtworkLoadsArtworkThroughImageOperations() {
-        final Urn urn = Urn.forTrack(123L);
         final Bitmap cachedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
-        when(imageOperations.getCachedListItemBitmap(resources(), urn)).thenReturn(cachedBitmap);
+        when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
 
-        playerArtworkLoader.loadArtwork(urn, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(imageResource, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
 
-        verify(imageOperations).displayInPlayer(urn, ApiImageSize.getFullImageSize(resources()),
+        verify(imageOperations).displayInPlayer(imageResource, ApiImageSize.getFullImageSize(resources()),
                 wrappedImageView, cachedBitmap, true);
     }
 }

@@ -1,7 +1,10 @@
 package com.soundcloud.android.playback.widget;
 
+import static com.soundcloud.android.testsupport.matchers.ImageResourceMatcher.isImageResourceFor;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -16,7 +19,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlayerAppWidgetProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,10 +97,10 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     }
 
     private void setupArtworkLoad(PropertySet trackProperties, Observable<Bitmap> bitmapObservable) {
-        when(imageOperations.artwork(trackProperties.get(TrackProperty.URN),
-                ApiImageSize.getNotificationLargeIconImageSize(resources()),
-                resources().getDimensionPixelSize(R.dimen.widget_image_estimated_width),
-                resources().getDimensionPixelSize(R.dimen.widget_image_estimated_height)))
+        when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
+                same(ApiImageSize.getNotificationLargeIconImageSize(resources())),
+                eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_width)),
+                eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))))
                 .thenReturn(bitmapObservable);
     }
 

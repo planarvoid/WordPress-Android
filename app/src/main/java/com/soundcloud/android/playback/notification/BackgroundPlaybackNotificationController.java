@@ -2,12 +2,12 @@ package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.SimpleImageResource;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.PlaybackStateProvider;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
@@ -30,12 +30,13 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
     private final ImageOperations imageOperations;
     private final Provider<NotificationBuilder> builderProvider;
     private final PlaybackStateProvider playbackStateProvider;
+
     private final Func1<PropertySet, Observable<NotificationBuilder>> toNotification = new Func1<PropertySet, Observable<NotificationBuilder>>() {
         @Override
         public Observable<NotificationBuilder> call(final PropertySet trackProperties) {
             presenter.updateTrackInfo(notificationBuilder, trackProperties);
             if (notificationBuilder.hasArtworkSupport()) {
-                loadAndSetArtwork(trackProperties.get(TrackProperty.URN), notificationBuilder);
+                loadAndSetArtwork(SimpleImageResource.create(trackProperties), notificationBuilder);
             }
             return Observable.just(notificationBuilder);
         }
@@ -79,12 +80,12 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
         notificationManager.cancel(NotificationConstants.PLAYBACK_NOTIFY_ID);
     }
 
-    private void loadAndSetArtwork(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
-        final Bitmap cachedBitmap = getCachedBitmap(trackUrn, notificationBuilder);
+    private void loadAndSetArtwork(final ImageResource imageResource, final NotificationBuilder notificationBuilder) {
+        final Bitmap cachedBitmap = getCachedBitmap(imageResource, notificationBuilder);
         if (cachedBitmap != null) {
             notificationBuilder.setIcon(cachedBitmap);
         } else {
-            subscriptions.add(getBitmap(trackUrn, notificationBuilder)
+            subscriptions.add(getBitmap(imageResource, notificationBuilder)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override
                         public void onNext(Bitmap bitmap) {
@@ -95,16 +96,16 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
         }
     }
 
-    private Bitmap getCachedBitmap(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
+    private Bitmap getCachedBitmap(final ImageResource imageResource, final NotificationBuilder notificationBuilder) {
         if (notificationBuilder.getTargetImageSize() == NotificationBuilder.NOT_SET) {
-            return imageOperations.getCachedBitmap(trackUrn, notificationBuilder.getImageSize());
+            return imageOperations.getCachedBitmap(imageResource, notificationBuilder.getImageSize());
         } else {
-            return imageOperations.getCachedBitmap(trackUrn, notificationBuilder.getImageSize(), notificationBuilder.getTargetImageSize(), notificationBuilder.getTargetImageSize());
+            return imageOperations.getCachedBitmap(imageResource, notificationBuilder.getImageSize(), notificationBuilder.getTargetImageSize(), notificationBuilder.getTargetImageSize());
         }
     }
 
-    private Observable<Bitmap> getBitmap(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
-        return imageOperations.artwork(trackUrn, notificationBuilder.getImageSize(), notificationBuilder.getTargetImageSize(), notificationBuilder.getTargetImageSize());
+    private Observable<Bitmap> getBitmap(final ImageResource imageResource, final NotificationBuilder notificationBuilder) {
+        return imageOperations.artwork(imageResource, notificationBuilder.getImageSize(), notificationBuilder.getTargetImageSize(), notificationBuilder.getTargetImageSize());
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -21,10 +21,10 @@ public class PlayerArtworkLoader {
         this.resources = resources;
     }
 
-    public void loadArtwork(Urn urn, ImageView wrappedImageView, ImageView imageOverlay, boolean isHighPriority,
+    public void loadArtwork(ImageResource imageResource, ImageView wrappedImageView, ImageView imageOverlay, boolean isHighPriority,
                             ViewVisibilityProvider viewVisibilityProvider){
         final ApiImageSize size = ApiImageSize.getFullImageSize(resources);
-        final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, urn);
-        imageOperations.displayInPlayer(urn, size, wrappedImageView, cachedListBitmap, isHighPriority);
+        final Bitmap cachedListBitmap = imageOperations.getCachedListItemBitmap(resources, imageResource);
+        imageOperations.displayInPlayer(imageResource, size, wrappedImageView, cachedListBitmap, isHighPriority);
     }
 }

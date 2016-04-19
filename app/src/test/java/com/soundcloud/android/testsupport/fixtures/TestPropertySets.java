@@ -36,6 +36,7 @@ public abstract class TestPropertySets {
     public static PropertySet expectedTrackForWidget() {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
+                TrackProperty.IMAGE_URL_TEMPLATE.bind(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")),
                 PlayableProperty.TITLE.bind("someone's favorite song"),
                 PlayableProperty.CREATOR_NAME.bind("someone's favorite band"),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L)),
@@ -52,6 +53,7 @@ public abstract class TestPropertySets {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.WAVEFORM_URL.bind("http://waveform.url"),
+                TrackProperty.IMAGE_URL_TEMPLATE.bind(Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg")),
                 TrackProperty.PLAY_COUNT.bind(1),
                 TrackProperty.COMMENTS_COUNT.bind(1),
                 TrackProperty.IS_COMMENTABLE.bind(true),
