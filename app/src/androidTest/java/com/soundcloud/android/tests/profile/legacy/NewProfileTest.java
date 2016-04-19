@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.profile;
+package com.soundcloud.android.tests.profile.legacy;
 
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;

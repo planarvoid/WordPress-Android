@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.profile;
+package com.soundcloud.android.tests.profile.legacy;
 
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 import static org.hamcrest.MatcherAssert.assertThat;
