@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/search_suggestions_container"
+        style="@style/Search.Suggestion.Container">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/Search.Suggestion.Text"
+            android:layout_width="match_parent" />
+    </FrameLayout>
+
+    <View style="@style/Divider.Item" />
+
+</LinearLayout>

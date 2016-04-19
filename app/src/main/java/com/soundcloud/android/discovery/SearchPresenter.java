@@ -42,8 +42,9 @@ import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
 
-class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
-        implements SearchIntentResolver.DeepLinkListener, FeaturedSearchPresenter {
+class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements
+        SearchIntentResolver.DeepLinkListener,
+        FeaturedSearchPresenter {
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
@@ -109,6 +110,12 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         displaySearchView(bundle.getInt(CURRENT_DISPLAYING_VIEW_KEY));
     }
 
+    @Override
+    public void performSearch(String searchQuery) {
+        deactivateSearchView();
+        showResultsFor(searchQuery);
+    }
+
     private void setupTransitionAnimation(Window window) {
         TransitionUtils.setChangeBoundsEnterTransition(window, TransitionUtils.ENTER_DURATION, new DecelerateInterpolator());
         TransitionUtils.setChangeBoundsExitTransition(window, TransitionUtils.EXIT_DURATION, new DecelerateInterpolator());
@@ -166,11 +173,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         searchTextView.setOnClickListener(new SearchViewClickListener());
         searchTextView.setOnEditorActionListener(new SearchActionListener());
         searchCloseView.setOnClickListener(new SearchCloseClickListener());
-    }
-
-    private void performSearch() {
-        deactivateSearchView();
-        showResultsFor(searchTextView.getText().toString());
     }
 
     private void activateSearchView() {
@@ -324,7 +326,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         @Override
         public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
             if (actionId == EditorInfo.IME_NULL || actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch();
+                performSearch(searchTextView.getText().toString());
                 return true;
             }
             return false;

@@ -5,7 +5,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import rx.Observable;
+import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
 
 import android.os.Bundle;
@@ -18,24 +18,36 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult, SuggestionItem>
+public class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult, SuggestionItem>
         implements SuggestionsAdapter.SuggestionItemListener {
 
-    private static final Func1<SuggestionsResult, List<SuggestionItem>> TO_PRESENTATION_MODELS = new Func1<SuggestionsResult, List<SuggestionItem>>() {
-        @Override
-        public List<SuggestionItem> call(SuggestionsResult searchResult) {
-            final List<SuggestionItem> itemList = new ArrayList<>();
-            itemList.add(new SearchSuggestionItem());
-            return itemList;
-        }
-    };
+    public interface SearchListener {
+        void onSearchClicked(String searchQuery);
+    }
+
+    private Func1<SuggestionsResult, List<SuggestionItem>> toPresentationModels(final String query) {
+        return new Func1<SuggestionsResult, List<SuggestionItem>>() {
+            @Override
+            public List<SuggestionItem> call(SuggestionsResult searchResult) {
+                final List<SuggestionItem> itemList = new ArrayList<>();
+                itemList.add(new SearchSuggestionItem(query));
+                return itemList;
+            }
+        };
+    }
 
     private final SuggestionsAdapter adapter;
+    private final SearchSuggestionOperations operations;
+
+    private SearchListener searchListener;
 
     @Inject
-    SearchSuggestionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher, SuggestionsAdapter adapter) {
+    SearchSuggestionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                               SuggestionsAdapter adapter,
+                               SearchSuggestionOperations operations) {
         super(swipeRefreshAttacher, Options.list().build());
         this.adapter = adapter;
+        this.operations = operations;
     }
 
     @Override
@@ -43,6 +55,15 @@ class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult
         super.onCreate(fragment, bundle);
         this.adapter.registerAdapterDataObserver(new SuggestionsVisibilityController());
         this.adapter.setSuggestionListener(this);
+        if (fragment instanceof SearchListener) {
+            this.searchListener = (SearchListener) fragment;
+        }
+    }
+
+    @Override
+    public void onDestroy(Fragment fragment) {
+        super.onDestroy(fragment);
+        this.searchListener = null;
     }
 
     @Override
@@ -53,10 +74,7 @@ class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult
 
     @Override
     protected CollectionBinding<SuggestionsResult, SuggestionItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding
-                .from(items(), TO_PRESENTATION_MODELS)
-                .withAdapter(adapter)
-                .build();
+        return createCollection(Strings.EMPTY);
     }
 
     @Override
@@ -64,12 +82,16 @@ class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private Observable<SuggestionsResult> items() {
-        return Observable.empty();
+    private CollectionBinding<SuggestionsResult, SuggestionItem> createCollection(String query) {
+        return CollectionBinding
+                .from(operations.suggestionsFor(query), toPresentationModels(query))
+                .withAdapter(adapter)
+                .build();
     }
 
     void showSuggestionsFor(String query) {
-        //TODO
+        adapter.clear();
+        retryWith(createCollection(query));
     }
 
     void clearSuggestions() {
@@ -78,8 +100,9 @@ class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult
 
     @Override
     public void onSearchClicked(String searchQuery) {
-        //TODO
-//        performSearch();
+        if (searchListener != null) {
+            searchListener.onSearchClicked(searchQuery);
+        }
     }
 
     @Override
