@@ -8,7 +8,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.nostra13.universalimageloader.cache.disc.DiskCache;
@@ -29,6 +28,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -63,11 +63,24 @@ public class ImageOperationsTest extends AndroidUnitTest {
     private static final int RES_ID = 123;
     private static final String URL = "https://i1.sndcdn.com/artworks-000058493054-vcrifw-t500x500.jpg?b09b136";
     private static final String RESOLVER_URL = "https://api-mobile.soundcloud.com/images/soundcloud:tracks:1/large";
+    private static final String CDN_URL = "https://i1.sndcdn.com/artworks-000004997420-uc1lir-t120x120.jpg";
     private static final Urn URN = new Urn("soundcloud:tracks:1");
+    private static final Optional<String> ARTWORK_TEMPLATE_URL = Optional.of("https://i1.sndcdn.com/artworks-000004997420-uc1lir-{size}.jpg");
 
     private ImageOperations imageOperations;
     private Scheduler scheduler;
     private DisplayMetrics displayMetrics = new DisplayMetricsStub();
+    private ImageResource imageResource = new ImageResource() {
+        @Override
+        public Urn getUrn() {
+            return URN;
+        }
+
+        @Override
+        public Optional<String> getImageUrlTemplate() {
+            return ARTWORK_TEMPLATE_URL;
+        }
+    };
 
     @Mock ImageLoader imageLoader;
     @Mock ApiUrlBuilder apiUrlBuilder;
@@ -129,19 +142,6 @@ public class ImageOperationsTest extends AndroidUnitTest {
         inOrder.verify(imageLoader).displayImage((String) isNull(), any(ImageViewAware.class),
                 any(DisplayImageOptions.class), any(SimpleImageLoadingListener.class));
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
-    }
-
-    @Test
-    public void shouldReturnNullForCachedBitmapWhenPreviousAttemptToLoadFailedWithNotFound() {
-        when(failReason.getCause()).thenReturn(new FileNotFoundException());
-
-        imageOperations.displayInAdapterView(URN, ApiImageSize.T120, imageView);
-        verify(imageLoader).displayImage(eq(RESOLVER_URL), any(ImageViewAware.class),
-                any(DisplayImageOptions.class), imageLoadingListenerCaptor.capture());
-        imageLoadingListenerCaptor.getValue().onLoadingFailed(RESOLVER_URL, imageView, failReason);
-
-        assertThat(imageOperations.getCachedBitmap(URN, ApiImageSize.T120, 100, 100)).isNull();
-        verifyZeroInteractions(imageLoader);
     }
 
     @Test
@@ -255,13 +255,12 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayInPlayerShouldLoadImageFromMobileApiAndPlaceholderOptions() throws ExecutionException {
-        final String imageUrl = RESOLVER_URL;
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
-        imageOperations.displayInPlayer(URN, ApiImageSize.T120, imageView, bitmap, true);
+        imageOperations.displayInPlayer(imageResource, ApiImageSize.T120, imageView, bitmap, true);
 
-        verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(),
+        verify(imageLoader).displayImage(eq(CDN_URL), imageViewAwareCaptor.capture(),
                 displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
 
         verifyFullCacheOptions();
@@ -272,13 +271,12 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
     @Test
     public void displayInPlayerShouldDelayLoadingIfHighPriorityFlagIsNotSet() throws ExecutionException {
-        final String imageUrl = RESOLVER_URL;
         when(placeholderCache.get(anyString(), any(ValueProvider.class))).thenReturn(transitionDrawable);
 
         Bitmap bitmap = Bitmap.createBitmap(1, 2, Bitmap.Config.RGB_565);
-        imageOperations.displayInPlayer(URN, ApiImageSize.T120, imageView, bitmap, false);
+        imageOperations.displayInPlayer(imageResource, ApiImageSize.T120, imageView, bitmap, false);
 
-        verify(imageLoader).displayImage(eq(imageUrl), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
+        verify(imageLoader).displayImage(eq(CDN_URL), imageViewAwareCaptor.capture(), displayOptionsCaptor.capture(), any(SimpleImageLoadingListener.class));
         assertThat(displayOptionsCaptor.getValue().getDelayBeforeLoading()).isEqualTo(DELAY_BEFORE_LOADING);
     }
 
@@ -366,13 +364,13 @@ public class ImageOperationsTest extends AndroidUnitTest {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.T120);
+        Observable<Bitmap> observable = imageOperations.artwork(imageResource, ApiImageSize.T120);
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class)))
                 .thenReturn(fallbackBitmapLoadingAdapter);
         observable.subscribe(subscriber);
 
-        verify(imageLoader).loadImage(eq(RESOLVER_URL), captor.capture());
+        verify(imageLoader).loadImage(eq(CDN_URL), captor.capture());
         captor.getValue().onLoadingComplete("asdf", imageView, bitmap);
         verify(fallbackBitmapLoadingAdapter).onLoadingComplete("asdf", imageView, bitmap);
     }
@@ -381,13 +379,13 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void artworkObservablePassesLoadFailedToLoadingAdapter() {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.artwork(URN, ApiImageSize.T120);
+        Observable<Bitmap> observable = imageOperations.artwork(imageResource, ApiImageSize.T120);
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         when(viewlessLoadingAdapterFactory.create(any(Subscriber.class), any(Bitmap.class)))
                 .thenReturn(fallbackBitmapLoadingAdapter);
         observable.subscribe(subscriber);
 
-        verify(imageLoader).loadImage(eq(RESOLVER_URL), captor.capture());
+        verify(imageLoader).loadImage(eq(CDN_URL), captor.capture());
         captor.getValue().onLoadingFailed("asdf", imageView,
                 new FailReason(FailReason.FailType.DECODING_ERROR, new Exception("Decoding error")));
         verify(fallbackBitmapLoadingAdapter).onLoadingFailed("asdf", imageView, "Decoding error");
@@ -400,7 +398,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
 
         when(blurCache.get(URN)).thenReturn(blurredBitmap);
 
-        imageOperations.blurredPlayerArtwork(resources(), URN,
+        imageOperations.blurredPlayerArtwork(resources(), imageResource,
                 scheduler, scheduler).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).containsExactly(blurredBitmap);
@@ -415,7 +413,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(memoryCache.get(anyString())).thenReturn(cachedBitmap);
         when(imageProcessor.blurBitmap(cachedBitmap)).thenReturn(blurredBitmap);
 
-        imageOperations.blurredPlayerArtwork(resources(), URN,
+        imageOperations.blurredPlayerArtwork(resources(), imageResource,
                 scheduler, scheduler).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).containsExactly(blurredBitmap);
@@ -430,7 +428,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(memoryCache.get(anyString())).thenReturn(cachedBitmaop);
         when(imageProcessor.blurBitmap(cachedBitmaop)).thenReturn(blurredBitmap);
 
-        imageOperations.blurredPlayerArtwork(resources(), URN,
+        imageOperations.blurredPlayerArtwork(resources(), imageResource,
                 scheduler, scheduler).subscribe(subscriber);
 
         verify(blurCache).put(URN, blurredBitmap);

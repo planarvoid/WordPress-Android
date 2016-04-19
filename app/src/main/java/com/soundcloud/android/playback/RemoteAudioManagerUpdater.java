@@ -6,6 +6,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -49,9 +50,8 @@ public class RemoteAudioManagerUpdater {
     private final Func1<PropertySet, Observable<TrackAndBitmap>> loadArtwork = new Func1<PropertySet, Observable<TrackAndBitmap>>() {
         @Override
         public Observable<TrackAndBitmap> call(final PropertySet track) {
-            final Urn resourceUrn = track.get(TrackProperty.URN);
-            return imageOperations.artwork(resourceUrn, ApiImageSize.getFullImageSize(resources))
-                    .filter(validateBitmap(resourceUrn))
+            return imageOperations.artwork(SimpleImageResource.create(track), ApiImageSize.getFullImageSize(resources))
+                    .filter(validateBitmap(track.get(TrackProperty.URN)))
                     .map(copyBitmap)
                     .map(new Func1<Bitmap, TrackAndBitmap>() {
                         @Override

@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -39,13 +39,13 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
     }
 
     @Override
-    public void loadArtwork(Urn urn, ImageView wrappedImageView, ImageView imageOverlay,
+    public void loadArtwork(ImageResource imageResource, ImageView wrappedImageView, ImageView imageOverlay,
                             boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
 
-        super.loadArtwork(urn, wrappedImageView, imageOverlay, isHighPriority, viewVisibilityProvider);
+        super.loadArtwork(imageResource, wrappedImageView, imageOverlay, isHighPriority, viewVisibilityProvider);
 
         blurSubscription.unsubscribe();
-        blurSubscription = imageOperations.blurredPlayerArtwork(resources, urn, graphicsScheduler, observeOnScheduler)
+        blurSubscription = imageOperations.blurredPlayerArtwork(resources, imageResource, graphicsScheduler, observeOnScheduler)
                 .subscribe(new BlurredOverlaySubscriber(imageOverlay, viewVisibilityProvider));
     }
 

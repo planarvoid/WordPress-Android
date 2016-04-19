@@ -1,7 +1,9 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
+import static com.soundcloud.android.testsupport.matchers.ImageResourceMatcher.isImageResourceFor;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -84,7 +86,7 @@ public class RemoteAudioManagerUpdaterTest extends AndroidUnitTest {
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentAudioAdTrack() {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
-        when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.just(bitmap));
+        when(imageOperations.artwork(argThat(isImageResourceFor(track)), eq(ApiImageSize.T500))).thenReturn(Observable.just(bitmap));
 
 
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn, AdFixtures.getAudioAd(Urn.forTrack(123L)));
@@ -99,7 +101,7 @@ public class RemoteAudioManagerUpdaterTest extends AndroidUnitTest {
     @Test
     public void playQueueTrackChangedHandlerSetsLockScreenStateWithNullBitmapForCurrentTrackOnImageLoadError() {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
-        when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
+        when(imageOperations.artwork(argThat(isImageResourceFor(track)), eq(ApiImageSize.T500))).thenReturn(Observable.<Bitmap>error(new Exception("Could not load image")));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(audioManager).onTrackChanged(track, null);
@@ -117,7 +119,7 @@ public class RemoteAudioManagerUpdaterTest extends AndroidUnitTest {
     @Test
     public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentTrack() {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
-        when(imageOperations.artwork(trackUrn, ApiImageSize.T500)).thenReturn(Observable.just(bitmap));
+        when(imageOperations.artwork(argThat(isImageResourceFor(track)), eq(ApiImageSize.T500))).thenReturn(Observable.just(bitmap));
 
         InOrder inOrder = Mockito.inOrder(audioManager);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
