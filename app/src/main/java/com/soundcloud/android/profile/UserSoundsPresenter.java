@@ -10,13 +10,12 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
@@ -42,23 +41,15 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     private static final Function<UserSoundsItem, PropertySet> USER_SOUNDS_ITEM_TO_PROPERTY_SET = new Function<UserSoundsItem, PropertySet>() {
         @Override
         public PropertySet apply(final UserSoundsItem userSoundsItem) {
-            return userSoundsItem.getPlaylistItem()
-                    .transform(PLAYLIST_ITEM_TO_PROPERTY_SET)
-                    .or(userSoundsItem.getTrackItem().transform(TRACK_ITEM_TO_PROPERTY_SET))
+            return userSoundsItem.getPlayableItem()
+                    .transform(PLAYABLE_ITEM_TO_PROPERTY_SET)
                     .orNull();
         }
     };
 
-    private static final Function<PlaylistItem, PropertySet> PLAYLIST_ITEM_TO_PROPERTY_SET = new Function<PlaylistItem, PropertySet>() {
+    private static final Function<PlayableItem, PropertySet> PLAYABLE_ITEM_TO_PROPERTY_SET = new Function<PlayableItem, PropertySet>() {
         @Override
-        public PropertySet apply(PlaylistItem input) {
-            return input.getSource();
-        }
-    };
-
-    private static final Function<TrackItem, PropertySet> TRACK_ITEM_TO_PROPERTY_SET = new Function<TrackItem, PropertySet>() {
-        @Override
-        public PropertySet apply(TrackItem input) {
+        public PropertySet apply(PlayableItem input) {
             return input.getSource();
         }
     };

@@ -12,32 +12,17 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import rx.Observable;
 
+import android.support.annotation.Nullable;
 import android.view.View;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class UserSoundsItemClickListener {
+class UserSoundsItemClickListener {
 
-    private static final Function<PlaylistItem, PlayableItem> PLAYLIST_ITEM_TO_PLAYABLE_ITEM = new Function<PlaylistItem, PlayableItem>() {
-        @Override
-        public PlayableItem apply(final PlaylistItem playlistItem) {
-            return PlayableItem.from(playlistItem.getSource());
-        }
-    };
-
-    private static final Function<TrackItem, PlayableItem> TRACK_ITEM_TO_PLAYABLE_ITEM = new Function<TrackItem, PlayableItem>() {
-        @Override
-        public PlayableItem apply(final TrackItem trackItem) {
-            return PlayableItem.from(trackItem.getSource());
-        }
-    };
-
+    @Nullable
     private static PlayableItem userSoundsItemToPlayableItem(final UserSoundsItem userSoundsItem) {
-        return userSoundsItem.getPlaylistItem()
-                .transform(PLAYLIST_ITEM_TO_PLAYABLE_ITEM)
-                .or(userSoundsItem.getTrackItem().transform(TRACK_ITEM_TO_PLAYABLE_ITEM))
-                .orNull();
+        return userSoundsItem.getPlayableItem().orNull();
     }
 
     private final Navigator navigator;
