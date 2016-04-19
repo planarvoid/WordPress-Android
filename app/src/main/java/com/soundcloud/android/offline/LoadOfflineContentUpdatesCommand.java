@@ -32,7 +32,7 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
     private final Function<DownloadRequest, Urn> TO_URN = new Function<DownloadRequest, Urn>() {
         @Override
         public Urn apply(DownloadRequest request) {
-            return request.getTrack();
+            return request.getUrn();
         }
     };
 
@@ -175,9 +175,9 @@ class LoadOfflineContentUpdatesCommand extends Command<ExpectedOfflineContent, O
         return MoreCollections.filter(expectedRequests, new Predicate<DownloadRequest>() {
             @Override
             public boolean apply(DownloadRequest request) {
-                return !downloadedTracks.contains(request.getTrack()) &&
-                        !tracksToRestore.contains(request.getTrack()) &&
-                        !downloadedContent.contains(request.getTrack());
+                return !downloadedTracks.contains(request.getUrn()) &&
+                        !tracksToRestore.contains(request.getUrn()) &&
+                        !downloadedContent.contains(request.getUrn());
             }
         });
     }

@@ -38,22 +38,22 @@ public final class DownloadState {
     }
 
     public static DownloadState success(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Successful download result: " + request.getTrack());
+        Log.d(OfflineContentService.TAG, "Successful download result: " + request.getUrn());
         return new DownloadState(Status.SUCCESS, request, calculateFileSizeInBytes(request.getDuration()));
     }
 
     public static DownloadState unavailable(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Unavailable download result: " + request.getTrack());
+        Log.d(OfflineContentService.TAG, "Unavailable download result: " + request.getUrn());
         return new DownloadState(Status.UNAVAILABLE, request);
     }
 
     public static DownloadState disconnectedNetworkError(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Connection error download result: " + request.getTrack());
+        Log.d(OfflineContentService.TAG, "Connection error download result: " + request.getUrn());
         return new DownloadState(Status.CONNECTIVITY_ERROR, request, true);
     }
 
     public static DownloadState invalidNetworkError(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Invalid network error download result: " + request.getTrack());
+        Log.d(OfflineContentService.TAG, "Invalid network error download result: " + request.getUrn());
         return new DownloadState(Status.CONNECTIVITY_ERROR, request, false);
     }
 
@@ -62,7 +62,7 @@ public final class DownloadState {
     }
 
     public static DownloadState notEnoughSpace(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Not enough space download result: " + request.getTrack());
+        Log.d(OfflineContentService.TAG, "Not enough space download result: " + request.getUrn());
         return new DownloadState(Status.NOT_ENOUGH_SPACE, request);
     }
 
@@ -72,7 +72,7 @@ public final class DownloadState {
     }
 
     public static DownloadState canceled(DownloadRequest request) {
-        Log.d(OfflineContentService.TAG, "Download cancelled: " + request.getTrack());
+        Log.d(OfflineContentService.TAG, "Download cancelled: " + request.getUrn());
         return new DownloadState(Status.CANCELLED, request);
     }
 
@@ -113,7 +113,7 @@ public final class DownloadState {
     }
 
     public Urn getTrack() {
-        return request.getTrack();
+        return request.getUrn();
     }
 
     public long getTimestamp() {

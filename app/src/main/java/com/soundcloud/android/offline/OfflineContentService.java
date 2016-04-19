@@ -144,7 +144,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "onSuccess> Download finished state = [" + state + "]");
 
         notificationController.onDownloadSuccess(state);
-        publisher.publishDownloaded(state.request.getTrack());
+        publisher.publishDownloaded(state.request.getUrn());
         offlineContentOperations.setHasOfflineContent(true);
 
         downloadNextOrFinish(state);
@@ -155,9 +155,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "onError> Download failed. state = [" + state + "]");
 
         if (state.isUnavailable()) {
-            publisher.publishUnavailable(state.request.getTrack());
+            publisher.publishUnavailable(state.request.getUrn());
         } else {
-            publisher.publishRequested(state.request.getTrack());
+            publisher.publishRequested(state.request.getUrn());
         }
         notificationController.onDownloadError(state);
 
@@ -222,7 +222,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
         downloadHandler.sendMessage(message);
-        publisher.publishDownloading(request.getTrack());
+        publisher.publishDownloading(request.getUrn());
     }
 
     @Override
@@ -279,21 +279,21 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(OfflineContentService.TAG, "Cancelling " + currentRequest);
         setNewRequests(requests, noContentRequested);
         downloadHandler.cancel();
-        publisher.publishRemoved(currentRequest.getTrack());
+        publisher.publishRemoved(currentRequest.getUrn());
     }
 
     private void cancelledByInvalidConnection(List<DownloadRequest> requests, boolean noContentRequested, DownloadRequest currentRequest) {
         Log.d(OfflineContentService.TAG, "Canceling, no valid connection " + currentRequest);
         setNewRequests(requests, noContentRequested);
         downloadHandler.cancel();
-        publisher.publishRequested(currentRequest.getTrack());
+        publisher.publishRequested(currentRequest.getUrn());
     }
 
     private void continueCurrentDownload(List<DownloadRequest> requests, boolean noContentRequested, DownloadRequest currentRequest) {
         Log.d(OfflineContentService.TAG, "Keep downloading." + currentRequest);
         requests.remove(currentRequest);
         setNewRequests(requests, noContentRequested);
-        publisher.publishDownloading(currentRequest.getTrack());
+        publisher.publishDownloading(currentRequest.getUrn());
     }
 
     private void setNewRequests(List<DownloadRequest> requests, boolean muteNotification) {

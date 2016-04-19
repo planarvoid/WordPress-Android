@@ -158,7 +158,7 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
         handler.handleMessage(successMessage);
 
-        verify(secureFileStorage).deleteTrack(downloadRequest.getTrack());
+        verify(secureFileStorage).deleteTrack(downloadRequest.getUrn());
         verify(listener).onError(downloadStateCaptor.capture());
 
         DownloadState errorState = downloadStateCaptor.getValue();

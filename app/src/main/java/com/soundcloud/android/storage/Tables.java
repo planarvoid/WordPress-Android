@@ -274,6 +274,7 @@ public interface Tables {
         public static final Column USER_ID = Column.create(TABLE, "user_id");
         public static final Column DURATION = Column.create(TABLE, "duration");
         public static final Column WAVEFORM_URL = Column.create(TABLE, "waveform_url");
+        public static final Column ARTWORK_URL = Column.create(TABLE, "artwork_url");
         public static final Column SYNCABLE = Column.create(TABLE, "syncable");
         public static final Column LAST_POLICY_UPDATE = Column.create(TABLE, "last_policy_update");
         public static final Column CREATED_AT = Column.create(TABLE, "created_at");
@@ -286,6 +287,7 @@ public interface Tables {
                 "Sounds.user_id as user_id, " +
                 "Sounds.full_duration as duration, " +
                 "Sounds.waveform_url as waveform_url, " +
+                "Sounds.artwork_url as artwork_url, " +
                 "TrackPolicies.syncable as syncable, " +
                 "TrackPolicies.last_updated as last_policy_update, " +
                 "PlaylistTracks.position as position, " +

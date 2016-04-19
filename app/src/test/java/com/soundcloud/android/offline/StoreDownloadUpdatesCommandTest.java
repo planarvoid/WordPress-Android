@@ -54,7 +54,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     public void storesRestoredRequestsAsDownloaded() {
         testFixtures().insertTrackDownloadPendingRemoval(TRACK, 1L, 2L);
         final OfflineContentUpdates offlineContentUpdates = OfflineContentUpdates.builder()
-                .tracksToRestore(singletonList(request.getTrack()))
+                .tracksToRestore(singletonList(request.getUrn()))
                 .build();
 
         command.call(offlineContentUpdates);
@@ -67,7 +67,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
         final DownloadRequest creatorOptOut = ModelFixtures.creatorOptOutRequest(TRACK);
 
         final OfflineContentUpdates offlineContentUpdates = OfflineContentUpdates.builder()
-                .unavailableTracks(singletonList(creatorOptOut.getTrack()))
+                .unavailableTracks(singletonList(creatorOptOut.getUrn()))
                 .build();
 
         command.call(offlineContentUpdates);

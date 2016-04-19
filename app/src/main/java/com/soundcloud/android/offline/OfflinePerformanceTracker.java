@@ -18,7 +18,7 @@ class OfflinePerformanceTracker {
     public void downloadStarted(DownloadRequest request) {
         eventBus.publish(EventQueue.TRACKING,
                 OfflinePerformanceEvent.fromStarted(
-                        request.getTrack(),
+                        request.getUrn(),
                         request.getTrackingData()));
     }
 

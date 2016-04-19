@@ -71,10 +71,10 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         operations.download(downloadRequest, listener);
 
         InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, assetDownloader, response);
-        inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.getTrack());
+        inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.getUrn());
         inOrder.verify(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
-        inOrder.verify(assetDownloader).fetchTrackArtwork(downloadRequest.getTrack());
-        inOrder.verify(assetDownloader).fetchTrackWaveform(downloadRequest.getTrack(), downloadRequest.getWaveformUrl());
+        inOrder.verify(assetDownloader).fetchTrackArtwork(downloadRequest);
+        inOrder.verify(assetDownloader).fetchTrackWaveform(downloadRequest.getUrn(), downloadRequest.getWaveformUrl());
         inOrder.verify(response).close();
     }
 

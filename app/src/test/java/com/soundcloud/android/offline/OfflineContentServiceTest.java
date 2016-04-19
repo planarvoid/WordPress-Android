@@ -112,7 +112,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         startService();
 
-        verify(publisher).publishRequested(singletonList(downloadRequest1.getTrack()));
+        verify(publisher).publishRequested(singletonList(downloadRequest1.getUrn()));
     }
 
     @Test
@@ -126,8 +126,8 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
 
         final InOrder inOrder = inOrder(publisher);
-        inOrder.verify(publisher).publishRequested(singletonList(downloadRequest2.getTrack()));
-        inOrder.verify(publisher).publishDownloading(downloadHandler.getCurrentRequest().getTrack());
+        inOrder.verify(publisher).publishRequested(singletonList(downloadRequest2.getUrn()));
+        inOrder.verify(publisher).publishDownloading(downloadHandler.getCurrentRequest().getUrn());
     }
 
     @Test
@@ -164,7 +164,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         setUpsDownloads(downloadRequest1);
         startService();
 
-        verify(publisher).publishDownloading(downloadRequest1.getTrack());
+        verify(publisher).publishDownloading(downloadRequest1.getUrn());
     }
 
     @Test
@@ -172,7 +172,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onSuccess(downloadState1);
 
-        verify(publisher).publishDownloaded(downloadRequest1.getTrack());
+        verify(publisher).publishDownloaded(downloadRequest1.getUrn());
     }
 
     @Test
@@ -188,7 +188,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onError(unavailableTrackResult1);
 
-        verify(publisher).publishUnavailable(downloadRequest1.getTrack());
+        verify(publisher).publishUnavailable(downloadRequest1.getUrn());
     }
 
     @Test
@@ -206,7 +206,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         startService();
         service.onError(failedResult1);
 
-        verify(publisher).publishRequested(downloadRequest1.getTrack());
+        verify(publisher).publishRequested(downloadRequest1.getUrn());
         verify(offlineContentScheduler).scheduleRetryForConnectivityError();
         verify(downloadHandler).quit();
     }
@@ -325,7 +325,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         startService();
 
-        verify(publisher).publishRemoved(downloadRequest1.getTrack());
+        verify(publisher).publishRemoved(downloadRequest1.getUrn());
     }
 
     @Test
@@ -349,7 +349,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         startService();
 
-        verify(publisher).publishRequested(downloadRequest1.getTrack());
+        verify(publisher).publishRequested(downloadRequest1.getUrn());
     }
 
     @Test
@@ -360,7 +360,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
         startService();
 
-        verify(publisher).publishDownloading(downloadRequest1.getTrack());
+        verify(publisher).publishDownloading(downloadRequest1.getUrn());
     }
 
     @Test
