@@ -63,6 +63,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     private static final String CONTEXT_TAG = "context_tag";
     private static final String PAGE_NAME = "page_name";
     private static final String UUID = "uuid";
+    private static final String MEDIA_TYPE = "mp3";
+    private static final int BIT_RATE = 128000;
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -597,7 +599,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaybackPerformanceJsonForPlayEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, LOGGED_IN_USER);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, MEDIA_TYPE, BIT_RATE, LOGGED_IN_USER);
 
         jsonDataBuilder.build(event);
 
@@ -606,7 +608,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaybackPerformanceJsonForBufferEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToBuffer(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, LOGGED_IN_USER);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToBuffer(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, MEDIA_TYPE, BIT_RATE, LOGGED_IN_USER);
 
         jsonDataBuilder.build(event);
 
@@ -615,7 +617,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaybackPerformanceJsonForPlaylistEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlaylist(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, LOGGED_IN_USER);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlaylist(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, MEDIA_TYPE, BIT_RATE, LOGGED_IN_USER);
 
         jsonDataBuilder.build(event);
 
@@ -624,7 +626,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaybackPerformanceJsonForSeekEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToSeek(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, LOGGED_IN_USER);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToSeek(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, MEDIA_TYPE, BIT_RATE, LOGGED_IN_USER);
 
         jsonDataBuilder.build(event);
 
@@ -633,7 +635,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaybackPerformanceJsonForFragmentDownloadRateEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.fragmentDownloadRate(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, LOGGED_IN_USER);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.fragmentDownloadRate(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, MEDIA_TYPE, BIT_RATE, LOGGED_IN_USER);
 
         jsonDataBuilder.build(event);
 
@@ -644,7 +646,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsPlaybackErrorJsonForErrorEvent() throws Exception {
         final String userAgent = "SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)";
         when(deviceHelper.getUserAgent()).thenReturn(userAgent);
-        PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HTTPS, "cdn-uri", PlaybackErrorEvent.BITRATE_128, PlaybackErrorEvent.FORMAT_MP3, ConnectionType.FOUR_G);
+        PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HTTPS, "cdn-uri", MEDIA_TYPE, BIT_RATE, ConnectionType.FOUR_G);
 
         jsonDataBuilder.build(event);
 
@@ -652,7 +654,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .protocol("https")
                 .connectionType("4g")
                 .os(userAgent)
-                .bitrate("128")
+                .bitrate("128000")
                 .format("mp3")
                 .errorCode("category")
                 .url("cdn-uri"));
@@ -912,6 +914,8 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .playerType("MediaPlayer")
                 .connectionType("4g")
                 .type(type)
+                .format("mp3")
+                .bitrate("128000")
                 .host("host.com");
     }
 

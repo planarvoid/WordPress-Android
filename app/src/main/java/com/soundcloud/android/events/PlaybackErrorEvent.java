@@ -1,13 +1,13 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.skippy.Skippy.SkippyMediaType;
 
 public class PlaybackErrorEvent {
 
     public static final String CATEGORY_OFFLINE_PLAY_UNAVAILABLE = "offline_play_unavailable";
 
-    public static final String BITRATE_128 = "128";
-    public static final String FORMAT_MP3 = "mp3";
+    public static final int BITRATE_128 = 128000;
 
     private final String category;
     private final PlaybackProtocol protocol;
@@ -15,10 +15,10 @@ public class PlaybackErrorEvent {
 
     private final String format;
     private final ConnectionType connectionType;
-    private final String bitrate;
+    private final int bitrate;
     private final long timestamp;
 
-    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost, String bitrate, String format,
+    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost, String format, int bitrate,
                               ConnectionType connectionType){
         this.category = category;
         this.protocol = protocol;
@@ -30,7 +30,7 @@ public class PlaybackErrorEvent {
     }
 
     public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost, ConnectionType connectionType){
-        this(category, protocol, cdnHost, BITRATE_128, FORMAT_MP3, connectionType);
+        this(category, protocol, cdnHost, SkippyMediaType.MP3.name(), BITRATE_128, connectionType);
     }
 
     public String getCategory() {
@@ -41,7 +41,7 @@ public class PlaybackErrorEvent {
         return protocol;
     }
 
-    public String getBitrate() {
+    public int getBitrate() {
         return bitrate;
     }
 

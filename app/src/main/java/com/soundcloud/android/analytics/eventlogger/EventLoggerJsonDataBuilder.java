@@ -300,6 +300,8 @@ public class EventLoggerJsonDataBuilder {
                 .playerType(event.getPlayerType().getValue())
                 .type(getPerformanceEventType(event.getMetric()))
                 .host(event.getCdnHost())
+                .format(event.getFormat())
+                .bitrate(String.valueOf(event.getBitrate()))
                 .connectionType(event.getConnectionType().getValue());
     }
 
@@ -343,7 +345,7 @@ public class EventLoggerJsonDataBuilder {
         return buildBaseEvent(AUDIO_ERROR_EVENT, event.getTimestamp())
                 .protocol(event.getProtocol().getValue())
                 .os(deviceHelper.getUserAgent())
-                .bitrate(event.getBitrate())
+                .bitrate(String.valueOf(event.getBitrate()))
                 .format(event.getFormat())
                 .url(event.getCdnHost())
                 .errorCode(event.getCategory())

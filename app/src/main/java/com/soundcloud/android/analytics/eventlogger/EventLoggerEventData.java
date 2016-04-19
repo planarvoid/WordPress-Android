@@ -70,6 +70,7 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 class EventLoggerEventData {
 
@@ -299,7 +300,7 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData format(String format) {
-        addToPayload(FORMAT, format);
+        addToPayload(FORMAT, format.toLowerCase(Locale.US));
         return this;
     }
 
