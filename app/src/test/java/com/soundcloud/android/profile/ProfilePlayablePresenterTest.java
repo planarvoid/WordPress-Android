@@ -1,5 +1,7 @@
 package com.soundcloud.android.profile;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +14,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -21,8 +24,11 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
+import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -59,6 +65,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
     @Mock private Resources resources;
     @Mock private Drawable divider;
     @Mock private EmptyViewBuilder emptyViewBuilder;
+    @Captor private ArgumentCaptor<Observable<List<PropertySet>>> argumentCaptor;
 
     private final Bundle arguments = new Bundle();
     private final Screen screen = Screen.USER_POSTS;
@@ -85,13 +92,11 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
     @Test
     public void presenterUsesMixedPlayableClickListener() throws Exception {
-        List<PlayableItem> items = Collections.emptyList();
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, fragmentView, null);
-
         presenter.onItemClicked(itemView, 1);
 
-        verify(itemClickListener).onItemClick(items, itemView, 1);
+        verify(itemClickListener).onPostClick(argumentCaptor.capture(), same(itemView), eq(1), same((ListItem) null));
     }
 
     @Test

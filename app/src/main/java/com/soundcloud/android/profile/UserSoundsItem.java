@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -64,6 +65,12 @@ public abstract class UserSoundsItem implements ListItem {
     public abstract Optional<TrackItem> getTrackItem();
 
     public abstract Optional<PlaylistItem> getPlaylistItem();
+
+    public Optional<? extends PlayableItem> getPlayableItem() {
+        if (isTrack()) return getTrackItem();
+        else if (isPlaylist()) return getPlaylistItem();
+        else return Optional.absent();
+    }
 
     public boolean isTrack() {
         return getItemType() == TYPE_TRACK && getTrackItem().isPresent();

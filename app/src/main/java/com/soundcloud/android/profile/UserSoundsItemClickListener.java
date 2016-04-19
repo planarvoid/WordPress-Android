@@ -5,38 +5,49 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.view.adapters.MixedItemClickListener;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
+import rx.Observable;
 
+import android.support.annotation.Nullable;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.List;
 
-public class UserSoundsItemClickListener {
+class UserSoundsItemClickListener {
 
-    private final Navigator navigator;
-
-    @Inject
-    public UserSoundsItemClickListener(Navigator navigator) {
-        this.navigator = navigator;
+    @Nullable
+    private static PlayableItem userSoundsItemToPlayableItem(final UserSoundsItem userSoundsItem) {
+        return userSoundsItem.getPlayableItem().orNull();
     }
 
-    public void onItemClick(View view, UserSoundsItem item, Urn userUrn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        // In the future, this method should gather the playables from the list of items in the adapter
-        // and forward them to the mixedItemClickListener.
-        // Note: The mixed item click listener may need additional love to play through both tracks and playlists, as
-        // that is now supported by the playback functionality.
-        // mixedItemClickListener.onItemClick(Collections.<ListItem>emptyList(), view, position);
+    private final Navigator navigator;
+    private final MixedItemClickListener mixedItemClickListener;
+
+    UserSoundsItemClickListener(Navigator navigator, MixedItemClickListener mixedItemClickListener) {
+        this.navigator = navigator;
+        this.mixedItemClickListener = mixedItemClickListener;
+    }
+
+    public void onItemClick(Observable<List<PropertySet>> playables, View view, int position, UserSoundsItem item, Urn userUrn, SearchQuerySourceInfo searchQuerySourceInfo) {
         final int itemType = item.getItemType();
 
         switch (itemType) {
-            case UserSoundsItem.TYPE_PLAYLIST:
-                PlaylistItem playlist = item.getPlaylistItem().get();
-                navigator.openPlaylist(view.getContext(), playlist.getUrn(), Screen.PROFILE_SOUNDS_PLAYLIST);
-                break;
             case UserSoundsItem.TYPE_VIEW_ALL:
                 handleViewAllClickEvent(view, item, userUrn, searchQuerySourceInfo);
                 break;
+            case UserSoundsItem.TYPE_PLAYLIST:
+            case UserSoundsItem.TYPE_TRACK:
+                this.mixedItemClickListener.onPostClick(playables, view, position, userSoundsItemToPlayableItem(item));
+                break;
+            case UserSoundsItem.TYPE_HEADER:
+            case UserSoundsItem.TYPE_DIVIDER:
             default:
-                throw new IllegalArgumentException("Unknown item type : " + itemType);
+                // do nothing, this is not an interactive item
         }
     }
 
@@ -62,6 +73,22 @@ public class UserSoundsItemClickListener {
                 break;
             default:
                 throw new IllegalArgumentException("Unknown collection type : " + collectionType);
+        }
+    }
+
+    public static class Factory {
+        private final Navigator navigator;
+        private final MixedItemClickListener.Factory mixedItemClickListenerFactory;
+
+        @Inject
+        Factory(Navigator navigator, MixedItemClickListener.Factory mixedItemClickListenerFactory) {
+            this.navigator = navigator;
+            this.mixedItemClickListenerFactory = mixedItemClickListenerFactory;
+        }
+
+        public UserSoundsItemClickListener create(SearchQuerySourceInfo searchQuerySourceInfo) {
+            final MixedItemClickListener clickListener = this.mixedItemClickListenerFactory.create(Screen.PROFILE_SOUNDS_PLAYLIST, searchQuerySourceInfo);
+            return new UserSoundsItemClickListener(navigator, clickListener);
         }
     }
 }

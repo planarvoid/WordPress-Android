@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
 import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY;
+import static com.soundcloud.java.collections.Iterables.transform;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -19,8 +20,10 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.functions.Func1;
 
 import android.os.Bundle;
@@ -31,6 +34,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> extends RecyclerViewPresenter<DataT, PlayableItem> {
+
+    private static final Function<PlayableItem, PropertySet> PLAYABLE_ITEM_TO_PROPERTY_SET = new Function<PlayableItem, PropertySet>() {
+        @Override
+        public PropertySet apply(PlayableItem input) {
+            return input.getSource();
+        }
+    };
 
     final MixedPlayableRecyclerItemAdapter adapter;
     private final MixedItemClickListener.Factory clickListenerFactory;
@@ -90,7 +100,7 @@ abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> ext
 
     @Override
     protected void onItemClicked(View view, int position) {
-        clickListener.onItemClick(adapter.getItems(), view, position);
+        clickListener.onPostClick(getPlayables(adapter), view, position, adapter.getItem(position));
     }
 
     @Override
@@ -102,5 +112,9 @@ abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> ext
         final Screen screen = (Screen) fragmentArgs.getSerializable(SCREEN_KEY);
         final SearchQuerySourceInfo searchQuerySourceInfo = fragmentArgs.getParcelable(SEARCH_QUERY_SOURCE_INFO_KEY);
         return clickListenerFactory.create(screen, searchQuerySourceInfo);
+    }
+
+    private Observable<List<PropertySet>> getPlayables(final MixedPlayableRecyclerItemAdapter adapter) {
+        return Observable.from(transform(adapter.getItems(), PLAYABLE_ITEM_TO_PROPERTY_SET)).toList();
     }
 }
