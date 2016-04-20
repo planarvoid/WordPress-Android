@@ -148,6 +148,7 @@ public class ImageOperations {
      * This kind of resolution puts more pressure on our backends, so always prefer to load via {@link ImageResource}
      * if possible.
      */
+    @Deprecated // use the ImageResource variant instead
     public void displayInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         displayInAdapterView(urn, apiImageSize, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
     }
@@ -173,6 +174,7 @@ public class ImageOperations {
     /**
      * @see {@link #displayInAdapterView(Urn, ApiImageSize, ImageView)}
      */
+    @Deprecated // use the ImageResource variant instead
     public void displayCircularInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         final String imageUrl = buildUrlIfNotPreviouslyMissing(urn, apiImageSize);
         displayCircularInAdapterView(urn, apiImageSize, imageView, imageUrl);
@@ -194,6 +196,7 @@ public class ImageOperations {
                 buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
     }
 
+    @Deprecated // use the ImageResource variant instead
     public void displayWithPlaceholder(Urn urn, ApiImageSize apiImageSize, ImageView imageView) {
         displayWithPlaceholder(urn, imageView, buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
     }
@@ -212,6 +215,7 @@ public class ImageOperations {
                 buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
     }
 
+    @Deprecated // use the ImageResource variant instead
     public void displayCircularWithPlaceholder(Urn urn,  ApiImageSize apiImageSize, ImageView imageView) {
         displayCircularWithPlaceholder(urn, imageView,
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
@@ -249,6 +253,7 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
+    @Deprecated // use the ImageResource variant instead
     public void displayInFullDialogView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
