@@ -215,12 +215,6 @@ public class ImageOperations {
                 buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
     }
 
-    @Deprecated // use the ImageResource variant instead
-    public void displayCircularWithPlaceholder(Urn urn,  ApiImageSize apiImageSize, ImageView imageView) {
-        displayCircularWithPlaceholder(urn, imageView,
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize));
-    }
-
     private void displayCircularWithPlaceholder(Urn urn, ImageView imageView, String imageUrl) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final DisplayImageOptions options = ImageOptionsFactory.placeholderCircular(

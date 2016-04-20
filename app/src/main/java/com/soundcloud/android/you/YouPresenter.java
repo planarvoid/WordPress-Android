@@ -16,7 +16,6 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.java.collections.PropertySet;
@@ -50,7 +49,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private final OfflineSettingsStorage settingsStorage;
 
     private Optional<YouView> youViewOpt = Optional.absent();
-    private Optional<PropertySet> youOpt = Optional.absent();
+    private Optional<You> youOpt = Optional.absent();
 
     @Inject
     public YouPresenter(YouViewFactory youViewFactory,
@@ -133,14 +132,14 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private void bindUserIfPresent() {
         if (youViewOpt.isPresent() && youOpt.isPresent()) {
             final YouView headerView = youViewOpt.get();
-            final PropertySet you = youOpt.get();
+            final You you = youOpt.get();
             bindUser(headerView, you);
         }
     }
 
-    private void bindUser(YouView headerView, PropertySet you) {
-        headerView.setUsername(you.get(UserProperty.USERNAME));
-        imageOperations.displayCircularWithPlaceholder(you.get(UserProperty.URN),
+    private void bindUser(YouView headerView, You you) {
+        headerView.setUsername(you.getUsername());
+        imageOperations.displayCircularWithPlaceholder(you,
                 ApiImageSize.getFullImageSize(resources),
                 headerView.getProfileImageView());
     }
@@ -148,7 +147,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private class YouSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
         public void onNext(PropertySet user) {
-            youOpt = Optional.of(user);
+            youOpt = Optional.of(new You(user));
             bindUserIfPresent();
         }
 
