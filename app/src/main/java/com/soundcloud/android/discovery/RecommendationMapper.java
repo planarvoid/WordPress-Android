@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.RecommendationSeeds;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
@@ -14,6 +15,7 @@ class RecommendationMapper extends RxResultMapper<PropertySet> {
     static final String RECOMMENDATION_TITLE = "recommendation_title";
     static final String RECOMMENDATION_USERNAME = "recommendation_username";
     static final String RECOMMENDATION_ID = "recommendation_id";
+    static final String RECOMMENDATION_ARTWORK_URL = "recommendation_ARTWORK_URL";
     static final String RECOMMENDATION_COUNT = "recommendations_count";
 
     @Override
@@ -25,6 +27,7 @@ class RecommendationMapper extends RxResultMapper<PropertySet> {
         propertySet.put(RecommendationProperty.RECOMMENDED_TRACKS_COUNT, cursorReader.getInt(RECOMMENDATION_COUNT));
         propertySet.put(RecommendationProperty.REASON, getReason(cursorReader.getInt(RecommendationSeeds.RECOMMENDATION_REASON)));
         propertySet.put(RecommendedTrackProperty.URN, Urn.forTrack(cursorReader.getLong(RECOMMENDATION_ID)));
+        propertySet.put(RecommendedTrackProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(cursorReader.getString(RECOMMENDATION_ARTWORK_URL)));
         propertySet.put(RecommendedTrackProperty.TITLE, cursorReader.getString(RECOMMENDATION_TITLE));
         propertySet.put(RecommendedTrackProperty.USERNAME, cursorReader.getString(RECOMMENDATION_USERNAME));
         return propertySet;

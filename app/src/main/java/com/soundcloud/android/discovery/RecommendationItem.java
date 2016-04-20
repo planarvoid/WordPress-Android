@@ -1,15 +1,27 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
-class RecommendationItem extends DiscoveryItem {
+class RecommendationItem extends DiscoveryItem implements ImageResource {
 
     private final PropertySet source;
 
     RecommendationItem(PropertySet source) {
         super(Kind.TrackRecommendationItem);
         this.source = source;
+    }
+
+    @Override
+    public Urn getUrn() {
+        return getRecommendationUrn();
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return source.get(RecommendedTrackProperty.IMAGE_URL_TEMPLATE);
     }
 
     String getSeedTrackTitle() {

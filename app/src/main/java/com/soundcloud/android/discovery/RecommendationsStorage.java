@@ -52,6 +52,7 @@ class RecommendationsStorage {
                         //TODO: wait for Fernandos branch to land which adds min/max column functions (PR: https://github.com/soundcloud/propeller/pull/58)
                         "MIN(" + Recommendations._ID + ")",
                         field(RECOMMENDATIONS_SOUND_VIEW + "." + TableColumns.SoundView._ID).as(RecommendationMapper.RECOMMENDATION_ID),
+                        field(RECOMMENDATIONS_SOUND_VIEW + "." + TableColumns.SoundView.ARTWORK_URL).as(RecommendationMapper.RECOMMENDATION_ARTWORK_URL),
                         field(RECOMMENDATIONS_SOUND_VIEW + "." + TableColumns.SoundView.TITLE).as(RecommendationMapper.RECOMMENDATION_TITLE),
                         field(RECOMMENDATIONS_SOUND_VIEW + "." + TableColumns.SoundView.USERNAME).as(RecommendationMapper.RECOMMENDATION_USERNAME),
                         count(RecommendationSeeds.SEED_SOUND_ID).as(RecommendationMapper.RECOMMENDATION_COUNT))

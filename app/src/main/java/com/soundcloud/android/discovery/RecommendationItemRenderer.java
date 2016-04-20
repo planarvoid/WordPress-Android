@@ -125,7 +125,7 @@ class RecommendationItemRenderer implements CellRenderer<RecommendationItem> {
 
     private void loadArtwork(View itemView, RecommendationItem recommendationItem) {
         final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
-        imageOperations.displayInAdapterView(recommendationItem.getRecommendationUrn(),
+        imageOperations.displayInAdapterView(recommendationItem,
                 apiImageSize, (ImageView) itemView.findViewById(R.id.track_image));
     }
 
