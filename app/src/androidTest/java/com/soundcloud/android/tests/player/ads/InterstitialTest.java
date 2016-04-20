@@ -4,7 +4,6 @@ import static com.soundcloud.android.utils.Log.ADS_TAG;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.utils.Log;
 

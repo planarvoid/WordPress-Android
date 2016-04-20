@@ -21,7 +21,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
     }
 
     public void testVisualPlayerIsAccessibleFromSearch() {

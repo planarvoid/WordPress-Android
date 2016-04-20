@@ -262,6 +262,7 @@
   <string name="shuffle_playlist">Playlist aleatória</string>
   <string name="add_to_playlist">Adicionar à playlist</string>
   <string name="remove_from_playlist">Remover da playlist</string>
+  <string name="edit_playlist">Editar playlist</string>
   <string name="delete_playlist">Excluir playlist</string>
   <!--__PLAYLIST CREATION-->
   <string name="add_track_to_playlist">Adicionar à playlist...</string>
@@ -532,6 +533,7 @@
   <string name="notification_username_commented_on_tracktitle">comentou %s</string>
   <string name="notification_username_started_following_you">começou a seguir você</string>
   <!--__SUBS-->
+  <string name="go">Ir</string>
   <string name="pref_subscriptions_header">Assinaturas</string>
   <string name="pref_subscription_buy_title">Atualizar</string>
   <string name="pref_subscription_buy_summary">Atualize sua conta</string>
@@ -675,8 +677,11 @@
   <string name="user_profile_sounds_view_all_playlists">Exibir todas as playlists</string>
   <string name="user_profile_sounds_view_all_reposts">Exibir todas as republicações</string>
   <string name="user_profile_sounds_view_all_likes">Exibir todas as curtidas</string>
+  <string name="user_profile_sounds_tracks_empty">Essa pessoa ainda não tem faixas.</string>
   <string name="user_reposts_empty">Essa pessoa ainda não tem republicações.</string>
+  <string name="user_profile_sounds_releases_empty">Essa pessoas ainda não têm liberações.</string>
   <string name="user_reposts_label">Republicações</string>
+  <string name="user_releases_label">Versões</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Retirar anúncios</string>
   <string name="upsell_stream_upgrade_button">Obter SoundCloud Go</string>

@@ -114,8 +114,9 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         super.onCreate(fragment, bundle);
         if (featureOperations.upsellOfflineContent()) {
             Urn playlistUrn = fragment.getArguments().getParcelable(LegacyPlaylistDetailFragment.EXTRA_URN);
-            eventBus.publish(EventQueue.TRACKING,
-                    UpgradeFunnelEvent.forPlaylistPageImpression(playlistUrn));
+            if (playlistUrn != null) {
+                eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistPageImpression(playlistUrn));
+            }
         }
     }
 

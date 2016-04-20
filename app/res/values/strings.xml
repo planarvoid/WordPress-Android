@@ -300,7 +300,7 @@
     </plurals>
 
     <!-- __PLAYLIST IN NEW STREAM -->
-    <plurals name="number_of_tracks">
+    <plurals name="number_of_tracks" tools:ignore="ImpliedQuantity">
         <item quantity="one">TRACK</item>
         <item quantity="other">TRACKS</item>
     </plurals>
@@ -817,13 +817,13 @@
     <string name="email_notifications_newsletter">SoundCloud newsletter</string>
 
     <!-- __STREAM -->
-    <plurals name="stream_new_posts">
+    <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
         <item quantity="one">1 new post</item>
         <item quantity="other">%s new posts</item>
     </plurals>
 
     <!-- __ACTIVITIES -->
-    <plurals name="activities_new_notification">
+    <plurals name="activities_new_notification" tools:ignore="ImpliedQuantity">
         <item quantity="one">1 new notification</item>
         <item quantity="other">%s new notifications</item>
     </plurals>
