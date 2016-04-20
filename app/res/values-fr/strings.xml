@@ -281,7 +281,7 @@
     <item quantity="other">%d titres</item>
   </plurals>
   <!--__PLAYLIST IN NEW STREAM-->
-  <plurals name="number_of_tracks">
+  <plurals name="number_of_tracks" tools:ignore="ImpliedQuantity">
     <item quantity="one">TITRE</item>
     <item quantity="other">TITRES</item>
   </plurals>
@@ -683,9 +683,7 @@
   <string name="user_profile_sounds_view_all_likes">Afficher tous les favoris</string>
   <string name="user_profile_sounds_tracks_empty">Cette personne n\'a aucun titre pour l\'instant</string>
   <string name="user_reposts_empty">Cette personne n\'a aucun repost pour l\'instant.</string>
-  <string name="user_profile_sounds_releases_empty">Cette personne n\'a aucune sortie pour l\'instant</string>
   <string name="user_reposts_label">Reposts</string>
-  <string name="user_releases_label">Publications</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Abonnez-vous</string>
   <string name="upsell_stream_upgrade_button">Obtenez SoundCloud Go</string>
@@ -741,12 +739,12 @@
   <string name="email_notifications_recommendations">Nouveautés</string>
   <string name="email_notifications_newsletter">Newsletter SoundCloud</string>
   <!--__STREAM-->
-  <plurals name="stream_new_posts">
+  <plurals name="stream_new_posts" tools:ignore="ImpliedQuantity">
     <item quantity="one">1 nouvelle publication</item>
     <item quantity="other">%s nouvelles publications</item>
   </plurals>
   <!--__ACTIVITIES-->
-  <plurals name="activities_new_notification">
+  <plurals name="activities_new_notification" tools:ignore="ImpliedQuantity">
     <item quantity="one">1 nouvelle notification</item>
     <item quantity="other">%s nouvelles notifications</item>
   </plurals>
