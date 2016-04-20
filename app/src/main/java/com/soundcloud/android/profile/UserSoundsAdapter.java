@@ -3,7 +3,9 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -16,6 +18,12 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
     static final int TYPE_TRACK_ITEM = 4;
     static final int TYPE_PLAYLIST_CARD = 5;
     static final int TYPE_PLAYLIST_ITEM = 6;
+
+    @NonNull
+    private static Boolean spansFullWidth(final UserSoundsItem item) {
+        return !item.getPlayableItem().isPresent()
+                || item.getCollectionType() != UserSoundsTypes.SPOTLIGHT;
+    }
 
     @Inject
     UserSoundsAdapter(DividerRenderer dividerRenderer,
@@ -60,6 +68,15 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
             default:
                 throw new IllegalArgumentException("No User Sound Item of the given type");
         }
+    }
+
+    @Override
+    public void onBindViewHolder(final UserSoundsAdapter.ViewHolder holder, final int position) {
+        super.onBindViewHolder(holder, position);
+
+        final UserSoundsItem item = getItem(position);
+        final StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
+        layoutParams.setFullSpan(spansFullWidth(item));
     }
 
     @Override

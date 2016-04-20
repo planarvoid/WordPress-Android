@@ -9,4 +9,7 @@
     <integer name="collection_grid_span_count">3</integer>
     <integer name="collection_preview_thumbnail_count">5</integer>
 
+    <!-- User Profile -->
+    <integer name="user_profile_card_grid_span_count">2</integer>
+
 </resources>
