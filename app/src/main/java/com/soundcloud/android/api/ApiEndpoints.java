@@ -80,7 +80,7 @@ public enum ApiEndpoints {
     PROFILE("/users/%s/profile/v2"),
     USER_REPOSTS("/users/%s/reposts"),
     USER_TRACKS("/users/%s/tracks/posted"),
-    USER_ALBUMS("/users/%s/releases/posted"),
+    USER_ALBUMS("/users/%s/albums/posted"),
     USER_LIKES("/users/%s/likes"),
     USER_PLAYLISTS("/users/%s/playlists/posted"),
 

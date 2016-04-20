@@ -41,7 +41,7 @@ public class ProfileApiMobileAlbumsTest extends AndroidUnitTest {
     @Test
     public void shouldReturnUserAlbumsByUrn() throws Exception {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/releases/posted")
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/albums/posted")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 isA(TypeToken.class))).thenReturn(results);
 

@@ -16,7 +16,7 @@ abstract class ApiUserProfile implements UserProfileRecord {
             @JsonProperty("user") ApiUser user,
             @JsonProperty("spotlight") ModelCollection<ApiPlayableSource> spotlight,
             @JsonProperty("tracks") ModelCollection<ApiTrackPost> tracks,
-            @JsonProperty("releases") ModelCollection<ApiPlaylistPost> albums,
+            @JsonProperty("albums") ModelCollection<ApiPlaylistPost> albums,
             @JsonProperty("playlists") ModelCollection<ApiPlaylistPost> playlists,
             @JsonProperty("reposts") ModelCollection<ApiPlayableSource> reposts,
             @JsonProperty("likes") ModelCollection<ApiPlayableSource> likes) {
