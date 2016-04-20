@@ -2,6 +2,7 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +15,17 @@ class Station implements StationRecord {
     private final Urn urn;
     private final String title;
     private final String permalink;
+    private final Optional<String> artworkUrlTemplate;
 
-    public Station(Urn urn, String title, String type, List<StationTrack> tracks, String permalink, Integer lastPosition) {
+    public Station(Urn urn, String title, String type, List<StationTrack> tracks,
+                   String permalink, Integer lastPosition, Optional<String> artworkUrlTemplate) {
         this.type = type;
         this.tracks = tracks;
         this.urn = urn;
         this.lastPosition = lastPosition;
         this.title = title;
         this.permalink = permalink;
+        this.artworkUrlTemplate = artworkUrlTemplate;
     }
 
     static Station stationWithSeedTrack(StationRecord station, Urn seed) {
@@ -35,8 +39,8 @@ class Station implements StationRecord {
                 station.getType(),
                 tracks,
                 station.getPermalink(),
-                station.getPreviousPosition()
-        );
+                station.getPreviousPosition(),
+                station.getImageUrlTemplate());
     }
 
     @Override
@@ -44,10 +48,12 @@ class Station implements StationRecord {
         return tracks;
     }
 
+    @Override
     public Urn getUrn() {
         return urn;
     }
 
+    @Override
     public String getTitle() {
         return title;
     }
@@ -57,6 +63,12 @@ class Station implements StationRecord {
         return permalink;
     }
 
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return artworkUrlTemplate;
+    }
+
+    @Override
     public String getType() {
         return type;
     }

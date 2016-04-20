@@ -16,7 +16,7 @@ import android.content.SharedPreferences;
 import java.util.Collections;
 import java.util.List;
 
-public class StationsDatabaseStorageTest extends StorageIntegrationTest {
+public class StationsStorageTest extends StorageIntegrationTest {
     private final TestDateProvider dateProvider = new TestDateProvider();
     private StationsStorage storage;
     private TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();

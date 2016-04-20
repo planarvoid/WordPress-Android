@@ -59,7 +59,7 @@ class StationRenderer implements CellRenderer<StationViewModel> {
         }
 
         imageOperations.displayInAdapterView(
-                station.getUrn(),
+                station,
                 ApiImageSize.getFullImageSize(resources),
                 artwork
         );

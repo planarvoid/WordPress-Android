@@ -10,6 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -67,6 +68,11 @@ public final class ApiStation implements StationRecord {
 
     public String getPermalink() {
         return metadata.getPermalink();
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return metadata.getArtworkUrlTemplate();
     }
 
     @Override

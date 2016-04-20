@@ -393,7 +393,8 @@ public class DatabaseFixtures {
                 .put(Stations.STATION_URN, station.getUrn().toString())
                 .put(Stations.TITLE, station.getTitle())
                 .put(Stations.TYPE, station.getType())
-                .put(Stations.PERMALINK, station.getPermalink());
+                .put(Stations.PERMALINK, station.getPermalink())
+                .put(Stations.ARTWORK_URL_TEMPLATE, station.getImageUrlTemplate().orNull());
     }
 
     private ContentValues getTrackContentValues(int position, StationRecord stationInfo, StationTrack track) {

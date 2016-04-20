@@ -1,11 +1,12 @@
 package com.soundcloud.android.stations;
 
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.functions.Function;
 
 import java.util.List;
 
-public interface StationRecord {
+public interface StationRecord extends ImageResource {
 
     Function<StationRecord, Urn> TO_URN = new Function<StationRecord, Urn>() {
         @Override
@@ -15,8 +16,6 @@ public interface StationRecord {
     };
 
     List<StationTrack> getTracks();
-
-    Urn getUrn();
 
     String getType();
 

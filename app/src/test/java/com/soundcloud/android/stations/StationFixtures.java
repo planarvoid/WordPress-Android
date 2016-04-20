@@ -52,7 +52,8 @@ public class StationFixtures {
                 station,
                 "stationWithSeed " + System.currentTimeMillis(),
                 "http://permalink",
-                "fixture-stations"
+                "fixture-stations",
+                "https://i1.sndcdn.com/artworks-000056536728-bjjprz-{size}.jpg"
         );
     }
 
@@ -71,8 +72,8 @@ public class StationFixtures {
                 apiStation.getType(),
                 apiStation.getTracks(),
                 apiStation.getPermalink(),
-                apiStation.getPreviousPosition()
-        );
+                apiStation.getPreviousPosition(),
+                apiStation.getImageUrlTemplate());
     }
 
     public static ApiStationsCollections collections() {

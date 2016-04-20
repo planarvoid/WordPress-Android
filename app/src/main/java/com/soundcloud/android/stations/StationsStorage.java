@@ -10,6 +10,7 @@ import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
@@ -42,8 +43,8 @@ class StationsStorage {
                     cursorReader.getString(Stations.PERMALINK),
                     cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION)
                             ? com.soundcloud.android.stations.Stations.NEVER_PLAYED
-                            : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION)
-            );
+                            : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
+                    Optional.fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
         }
     };
 
@@ -135,8 +136,8 @@ class StationsStorage {
                                 station.getType(),
                                 tracks,
                                 station.getPermalink(),
-                                station.getPreviousPosition()
-                        );
+                                station.getPreviousPosition(),
+                                station.getImageUrlTemplate());
                     }
                 }
         );
