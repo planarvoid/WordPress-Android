@@ -128,6 +128,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
                 RecommendationProperty.RECOMMENDED_TRACKS_COUNT.bind(recommendedTracks.size()),
                 RecommendationProperty.REASON.bind(reason),
                 RecommendedTrackProperty.URN.bind(recommendedTracks.get(0).getUrn()),
+                RecommendedTrackProperty.IMAGE_URL_TEMPLATE.bind(recommendedTracks.get(0).getImageUrlTemplate()),
                 RecommendedTrackProperty.TITLE.bind(recommendedTracks.get(0).getTitle()),
                 RecommendedTrackProperty.USERNAME.bind(recommendedTracks.get(0).getUserName())
         );
