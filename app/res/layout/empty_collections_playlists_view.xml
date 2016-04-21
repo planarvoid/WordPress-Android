@@ -3,21 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:gravity="center"
+    android:orientation="vertical"
     android:paddingTop="16dp"
     tools:ignore="Overdraw,UseCompoundDrawables">
 
     <ImageView
+        style="@style/Collections.PlaylistsEmptyImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/collection_empty_playlists"
-        style="@style/Collections.PlaylistsEmptyImage"/>
+        android:src="@drawable/collection_empty_playlists" />
 
     <com.soundcloud.android.view.CustomFontTextView
+        style="@style/Collections.PlaylistsEmptyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/collections_empty_playlists"
-        style="@style/Collections.PlaylistsEmptyText" />
+        android:gravity="center"
+        android:text="@string/collections_empty_playlists" />
 
 </LinearLayout>
