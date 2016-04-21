@@ -5,6 +5,7 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.LoadingButton;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -70,6 +71,8 @@ class ConversionView {
         priceView.setVisibility(View.VISIBLE);
     }
 
+    @SuppressLint("StringFormatInvalid")
+    // Design decision, in FR conversion by trial does not include days
     public void showTrialDays(int trialDays) {
         buyButton.setActionText(trialDays > 0
                 ? resources.getString(R.string.conversion_buy_trial, trialDays)
