@@ -49,24 +49,24 @@ public class NewProfileTest extends ActivityTest<LauncherActivity> {
     }
 
     public void ignore_testReflectsFollowingChanges() {
-        screen.touchFollowingsTab();
+        screen.touchLegacyFollowingsTab();
 
         assertTrue(screen.emptyView().isVisible());
 
-        screen = screen.touchFollowersTab().clickUserAt(0);
+        screen = screen.touchLegacyFollowersTab().clickUserAt(0);
         String followerName = screen.getUserName();
         screen.clickFollowToggle();
 
         solo.goBack();
 
-        screen = new ProfileScreen(solo).touchFollowingsTab();
+        screen = new ProfileScreen(solo).touchLegacyFollowingsTab();
         screen = screen.clickUserAt(0);
         assertEquals(screen.getUserName(), followerName);
 
         screen.clickFollowToggle();
 
         solo.goBack();
-        screen = new ProfileScreen(solo).touchFollowingsTab();
+        screen = new ProfileScreen(solo).touchLegacyFollowingsTab();
         assertTrue(screen.emptyView().isVisible());
     }
 }

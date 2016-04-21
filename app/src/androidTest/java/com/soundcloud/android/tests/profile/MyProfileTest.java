@@ -1,10 +1,10 @@
-package com.soundcloud.android.tests.profile.legacy;
+package com.soundcloud.android.tests.profile;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -20,9 +20,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     @Override
-    protected void logInHelper() {
-        TestUser.scAccount.logIn(getInstrumentation().getTargetContext());
-    }
+    protected void logInHelper() { TestUser.profileTestUser.logIn(getInstrumentation().getTargetContext()); }
 
     @Override
     protected void setUp() throws Exception {
@@ -32,34 +30,26 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void testPostsLoadNextPage() {
-        int postItemsBefore = profileScreen.currentItemCount();
-        profileScreen.scrollToBottomAndLoadMoreItems();
-        assertThat(postItemsBefore, is(lessThan(profileScreen.currentItemCount())));
+    public void testShowsSoundsTab() {
+        profileScreen.touchSoundsTab();
     }
 
-    public void testPostsTrackClickStartsPlayer() {
+    public void testTrackClickStartsPlayer() {
         assertThat(profileScreen.playTrack(0), is(visible()));
     }
 
-    public void testPostsPlaylistClickOpensPlaylistPage() {
-        final PlaylistElement expectedPlaylist = profileScreen
-                .scrollToFirstPlaylist();
-
-        String targetPlaylistTitle = expectedPlaylist.getTitle();
-        assertEquals(expectedPlaylist.click().getTitle(), targetPlaylistTitle);
-    }
-
-    public void testPlaylistsLoadsNextPage() {
-        profileScreen.touchPlaylistsTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-
-        int playlistItemsBefore = profileScreen.currentItemCount();
-        profileScreen.scrollToBottomAndLoadMoreItems();
-        assertThat(playlistItemsBefore, is(lessThan(profileScreen.currentItemCount())));
+    public void testTracksViewAllOpensTracksPage() {
+        profileScreen.clickViewAllTracks();
+        assertEquals(profileScreen.getActionBarTitle(), ressourceString(R.string.user_profile_sounds_header_tracks));
     }
 
     public void testPlaylistClickOpensPlaylistPage() {
+        PlaylistElement expectedPlaylist = profileScreen.getPlaylists().get(0);
+
+        assertEquals(profileScreen.scrollToFirstPlaylist().click().getTitle(), expectedPlaylist.getTitle());
+    }
+
+    /*public void testPlaylistClickOpensPlaylistPage() {
         profileScreen.touchPlaylistsTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
 
@@ -97,12 +87,25 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         assertThat(profileScreen.playTrack(0), is(visible()));
     }
 
+    */
     public void testFollowingsClickOpensProfilePage() {
-        profileScreen.touchLegacyFollowingsTab();
+        profileScreen.touchFollowingsTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
 
         assertTrue(profileScreen.clickUserAt(0).isVisible());
     }
+
+    public void testFollowersClickOpensProfilePage() {
+        profileScreen.touchFollowersTab();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+
+        assertTrue(profileScreen.clickUserAt(0).isVisible());
+    }
+
+    public void testSpotlightExists() {
+        assertTrue(profileScreen.getSpotlightTitle().hasVisibility());
+    }
+    /*
 
     public void testFollowingsLoadsNextPage() {
         profileScreen.touchLegacyFollowingsTab();
@@ -111,5 +114,9 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         int followingsBefore = profileScreen.currentItemCount();
         profileScreen.scrollToBottomAndLoadMoreItems();
         assertThat(followingsBefore, is(lessThan(profileScreen.currentItemCount())));
+    }*/
+
+    public void testClickFirstRepostOpensPlayer() {
+        assertThat(profileScreen.testttt(), is(visible()));
     }
 }

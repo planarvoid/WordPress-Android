@@ -77,6 +77,18 @@ public class ProfileScreen extends Screen {
                 With.id(R.id.playlist_list_item)));
     }
 
+    public void scrollToReposts() {
+        scrollToItem(With.id(R.id.track_list_item));
+    }
+
+    public ViewElement getSpotlightTitle() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_spotlight));
+    }
+
+    public void clickViewAllTracks() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_tracks)).click();
+    }
+
     public List<PlaylistElement> getPlaylists() {
         return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
     }
@@ -122,6 +134,24 @@ public class ProfileScreen extends Screen {
         return visualPlayer;
     }
 
+    public static With WithProfileHeader(final Han testDriver, final int headerTitle) {
+        return new With() {
+
+            @Override
+            public boolean apply(ViewElement view) {
+                return view.findOnScreenElement(
+                        With.id(R.id.sounds_header_text),
+                        With.text(headerTitle)
+                );
+            }
+
+            @Override
+            public String getSelector() {
+                return "Header profile item with title " + headerTitle;
+            }
+        };
+    }
+
     private RecyclerViewElement currentRecyclerView() {
         return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
@@ -164,7 +194,7 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
-    public ProfileScreen touchFollowingsTab() {
+    public ProfileScreen touchLegacyFollowingsTab() {
         final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
@@ -173,10 +203,26 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
-    public ProfileScreen touchFollowersTab() {
+    public ProfileScreen touchFollowingsTab() {
+        final Tabs tabs = tabs();
+        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
+        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followings))).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public ProfileScreen touchLegacyFollowersTab() {
         final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
+        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followers))).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public ProfileScreen touchFollowersTab() {
+        final Tabs tabs = tabs();
+        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followers))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
@@ -187,11 +233,39 @@ public class ProfileScreen extends Screen {
         return new ExpandedProfileImageScreen(testDriver);
     }
 
+    public ProfileScreen touchSoundsTab() {
+        tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_sounds))).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public VisualPlayerElement testttt() {
+        ViewElement repostHeader = testDriver.scrollToItem(
+                With.id(R.id.user_sounds_list_item),
+                WithProfileHeader(testDriver, R.string.user_profile_sounds_header_reposts)
+        );
+        List<ViewElement> viewElements = testDriver.findOnScreenElements(With.id(R.id.user_sounds_list_item));
+        int indexOfHeader = viewElements.indexOf(repostHeader);
+        List<ViewElement> afterHeader = viewElements.subList(indexOfHeader, viewElements.size());
+
+        for (ViewElement ve : afterHeader) {
+            ViewElement trackListElement = ve.findElement(With.id(R.id.track_list_item));
+            if (trackListElement != null) {
+                trackListElement.click();
+                break;
+            }
+        }
+
+        VisualPlayerElement visualPlayer = new VisualPlayerElement(testDriver);
+        visualPlayer.waitForExpandedPlayer();
+        return visualPlayer;
+    }
+
     private ViewElement profileImage() {
         return testDriver.findOnScreenElement(With.id(R.id.image));
     }
 
-    private Tabs tabs() {
+    Tabs tabs() {
         return testDriver.findOnScreenElement(With.id(R.id.tab_indicator)).toTabs();
     }
 

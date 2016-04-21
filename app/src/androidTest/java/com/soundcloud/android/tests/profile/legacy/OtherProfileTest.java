@@ -57,7 +57,7 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testClickFollowingsLoadsProfile() {
-        profileScreen.touchFollowingsTab();
+        profileScreen.touchLegacyFollowingsTab();
 
         final UserItemElement expectedUser = profileScreen
                 .getUsers()

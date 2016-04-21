@@ -27,7 +27,7 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
         super.setUp();
 
         profileScreen = mainNavHelper.goToMyProfile()
-                .touchFollowingsTab();
+                .touchLegacyFollowingsTab();
 
         networkManagerClient.switchWifiOff();
 
