@@ -3,7 +3,9 @@ package com.soundcloud.android.explore;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.utils.ScTextUtils;
 
+import android.content.res.Resources;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,10 +40,23 @@ class GenreCellRenderer implements CellRenderer<ExploreGenre> {
         TextView sectionHeader = (TextView) itemView.findViewById(R.id.list_section_header);
 
         updateSectionHeader(itemView, descriptor, sectionHeader);
-        String genreTitle = genres.get(position).getTitle();
-        categoryTitle.setText(genreTitle);
 
+        final String genreTitle = getGenreTitle(itemView, genres, position);
+        categoryTitle.setText(genreTitle);
         setTrackingTag(position, itemView, genreTitle);
+    }
+
+    private String getGenreTitle(View itemView, List<ExploreGenre> genres, int position) {
+        final String title = genres.get(position).getTitle();
+        final String genreKey = ScTextUtils.toResourceKey("explore_", title);
+        final Resources resources = itemView.getResources();
+
+        int genreStringResId = resources.getIdentifier(genreKey, "string", itemView.getContext().getPackageName());
+        if (genreStringResId != 0) {
+            return resources.getString(genreStringResId);
+        } else {
+            return title;
+        }
     }
 
     private void updateSectionHeader(View itemView, RowDescriptor descriptor, TextView sectionHeader) {

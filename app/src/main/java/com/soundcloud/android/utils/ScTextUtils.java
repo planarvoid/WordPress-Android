@@ -55,6 +55,12 @@ public class ScTextUtils {
         }
     }
 
+    public static String toResourceKey(String prefix, String string) {
+        return prefix + string.toLowerCase(Locale.US)
+                .replaceAll("&", "and")
+                .replaceAll("[\\t-(\\-|\\+)?]", "_");
+    }
+
     /**
      * Like {@link android.text.Html#fromHtml(String)}, but with line separation handling
      * and guard against RuntimeExceptions.

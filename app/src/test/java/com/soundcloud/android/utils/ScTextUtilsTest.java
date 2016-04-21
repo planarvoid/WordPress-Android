@@ -11,22 +11,31 @@ import java.util.concurrent.TimeUnit;
 public class ScTextUtilsTest extends AndroidUnitTest {
 
     @Test
-    public void shouldGetClippedStringWhenLongerThanMaxLength() throws Exception {
+    public void shouldGetClippedStringWhenLongerThanMaxLength() {
         assertThat(ScTextUtils.getClippedString("1234567890", 5)).isEqualTo("12345");
     }
 
     @Test
-    public void shouldGetClippedStringWhenSmallerThanMaxLength() throws Exception {
+    public void shouldGetClippedStringWhenSmallerThanMaxLength() {
         assertThat(ScTextUtils.getClippedString("123", 5)).isEqualTo("123");
     }
 
     @Test
-    public void shouldGetClippedStringWhenLengthEqualToMaxLength() throws Exception {
+    public void shouldGetClippedStringWhenLengthEqualToMaxLength() {
         assertThat(ScTextUtils.getClippedString("1234567890", 10)).isEqualTo("1234567890");
     }
 
     @Test
-    public void shouldFormatLocation() throws Exception {
+    public void shouldReturnValidResourceKey() {
+        assertThat(ScTextUtils.toResourceKey("key_", "escape me")).isEqualTo("key_escape_me");
+        assertThat(ScTextUtils.toResourceKey("key_", "& escape me")).isEqualTo("key_and_escape_me");
+        assertThat(ScTextUtils.toResourceKey("key_", " me-2")).isEqualTo("key__me_2");
+        assertThat(ScTextUtils.toResourceKey("key_", "+ me 2")).isEqualTo("key___me_2");
+        assertThat(ScTextUtils.toResourceKey("key_", "")).isEqualTo("key_");
+    }
+
+    @Test
+    public void shouldFormatLocation() {
         assertThat(ScTextUtils.getLocation(null, null)).isEqualTo("");
         assertThat(ScTextUtils.getLocation("Berlin", null)).isEqualTo("Berlin");
         assertThat(ScTextUtils.getLocation("Berlin", "Germany")).isEqualTo("Berlin, Germany");
@@ -34,7 +43,7 @@ public class ScTextUtilsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldFormatTimeString() throws Exception {
+    public void shouldFormatTimeString() {
         assertThat(ScTextUtils.formatTimestamp(5, TimeUnit.SECONDS)).isEqualTo("0:05");
         assertThat(ScTextUtils.formatTimestamp(5, TimeUnit.MINUTES)).isEqualTo("5:00");
         assertThat(ScTextUtils.formatTimestamp(3, TimeUnit.HOURS)).isEqualTo("3:00:00");
@@ -42,7 +51,7 @@ public class ScTextUtilsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldGetTimeString() throws Exception {
+    public void shouldGetTimeString() {
         expectTime(1, "1 second");
         expectTime(20, "20 seconds");
         expectTime(60, "1 minute");
@@ -62,14 +71,14 @@ public class ScTextUtilsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldGetElapsedTime() throws Exception {
+    public void shouldGetElapsedTime() {
         assertThat(ScTextUtils.formatTimeElapsed(
                 resources(),
                 System.currentTimeMillis() - 1000 * 60)).isEqualTo("1 minute");
     }
 
     @Test
-    public void shouldGetElapsedTimeSinceTimestamp() throws Exception {
+    public void shouldGetElapsedTimeSinceTimestamp() {
         final long timestamp = System.currentTimeMillis() - 1000 * 60;
         assertThat(ScTextUtils.formatTimeElapsedSince(resources(), timestamp, false)).isEqualTo("1 minute");
     }

@@ -34,6 +34,7 @@ public class GenreCellRendererTest extends AndroidUnitTest {
     @Before
     public void setup() {
         when(itemView.getResources()).thenReturn(resources());
+        when(itemView.getContext()).thenReturn(context());
         when(itemView.findViewById(android.R.id.text1)).thenReturn(genreTitleText);
         when(itemView.findViewById(R.id.list_section_header)).thenReturn(sectionHeaderText);
         when(section.getTitleId()).thenReturn(R.string.explore_category_trending_audio);
