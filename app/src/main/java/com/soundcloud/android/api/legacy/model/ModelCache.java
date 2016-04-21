@@ -1,6 +1,7 @@
 package com.soundcloud.android.api.legacy.model;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -90,8 +91,8 @@ class ModelCache<V extends ScModel> {
 
     public String toString() {
         return "LruCache{lru: " + lruMap.size() +
-                " lru ratio: " + String.format("%.2f", lruHits.doubleValue() / requests.doubleValue()) +
-                "}";
+                " lru ratio: " + String.format(Locale.getDefault(), "%.2f",
+                lruHits.doubleValue() / requests.doubleValue()) + "}";
     }
 
 }

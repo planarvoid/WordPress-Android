@@ -124,7 +124,6 @@
 
     <!-- Toolbar -->
     <dimen name="toolbar_elevation">4dp</dimen>
-    <dimen name="toolbar_title_left_margin">72dp</dimen>
     <dimen name="fixed_tab_padding">4dp</dimen>
 
     <!-- Profile -->

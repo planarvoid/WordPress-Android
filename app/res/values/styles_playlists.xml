@@ -80,23 +80,6 @@
         <item name="android:visibility">gone</item>
     </style>
 
-    <style name="Playlist">
-        <item name="android:windowBackground">@android:color/black</item>
-        <item name="android:background">@android:color/black</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginTop">60dip</item>
-    </style>
-
-    <style name="LegacyPlaylistActionContainer">
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingTop">6dp</item>
-        <item name="android:paddingBottom">6dp</item>
-    </style>
-
     <style name="NewPlaylistActionContainer">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

@@ -130,23 +130,31 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     static class TrackInfoCommentClickListener implements TrackInfoPresenter.CommentClickListener {
 
         private final WeakReference<TrackInfoFragment> trackInfoFragmentRef;
+        private final CollapseDelayHandler collapseDelayHandler;
         private final EventBus eventBus;
         private final Urn trackurn;
         private final Navigator navigator;
 
-        private final Handler collapseDelayHandler = new Handler(){
+        private static class CollapseDelayHandler extends Handler {
+            private EventBus eventBus;
+
+            private CollapseDelayHandler(EventBus eventBus) {
+                this.eventBus = eventBus;
+            }
+
             @Override
             public void handleMessage(Message msg) {
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_COMMENTS_OPEN));
             }
-        };
+        }
 
         public TrackInfoCommentClickListener(TrackInfoFragment fragment, EventBus eventBus, Urn trackurn, Navigator navigator) {
             this.navigator = navigator;
-            trackInfoFragmentRef = new WeakReference<>(fragment);
+            this.trackInfoFragmentRef = new WeakReference<>(fragment);
             this.eventBus = eventBus;
             this.trackurn = trackurn;
+            this.collapseDelayHandler = new CollapseDelayHandler(eventBus);
         }
 
         @Override
@@ -179,6 +187,4 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             };
         }
     }
-
-
 }

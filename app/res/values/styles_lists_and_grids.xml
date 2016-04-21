@@ -99,14 +99,6 @@
         <item name="android:layout_marginBottom">6dp</item>
     </style>
 
-    <style name="EngagementOverflowButton">
-        <item name="android:background">@drawable/btn_engagements_overflow</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_marginBottom">8dp</item>
-        <item name="android:layout_marginLeft">2dp</item>
-        <item name="android:layout_marginRight">8dp</item>
-    </style>
-
     <!-- grid styles -->
     <style name="Explore.GridView" parent="@android:style/Widget.GridView">
         <item name="android:clipToPadding">false</item>
@@ -158,14 +150,6 @@
         <item name="movement">-15dp</item>
     </style>
 
-    <style name="GridItemTextHolder">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentLeft">true</item>
-        <item name="android:layout_alignParentTop">true</item>
-        <item name="android:orientation">vertical</item>
-    </style>
-
     <!-- cards style -->
 
     <style name="Card" parent="TextAppearance.SoundCloudLightFont">
@@ -179,6 +163,14 @@
     <style name="Cards" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Cards.Header">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:minHeight">@dimen/cards_header_min_height</item>
     </style>
 
     <style name="Cards.Image" parent="GridItemImageView" />

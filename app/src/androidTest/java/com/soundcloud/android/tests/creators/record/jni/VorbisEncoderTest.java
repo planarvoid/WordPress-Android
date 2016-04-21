@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.creators.record.jni;
 
+import static java.util.Locale.getDefault;
+
 import com.soundcloud.android.creators.record.AudioConfig;
 import com.soundcloud.android.creators.record.PlaybackFilter;
 import com.soundcloud.android.creators.record.WavHeader;
@@ -11,9 +13,9 @@ import com.soundcloud.android.creators.record.jni.VorbisDecoder;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
 import com.soundcloud.android.creators.record.jni.VorbisInfo;
 import com.soundcloud.android.creators.upload.UserCanceledException;
-import com.soundcloud.android.tests.AudioTest;
 import com.soundcloud.android.framework.annotation.NonUiTest;
 import com.soundcloud.android.framework.annotation.SlowTest;
+import com.soundcloud.android.tests.AudioTest;
 import com.soundcloud.android.utils.IOUtils;
 import junit.framework.AssertionFailedError;
 
@@ -320,7 +322,7 @@ public class VorbisEncoderTest extends AudioTest {
 
         checkAudioFile(out, expectedDuration);
 
-        assertTrue(String.format("encoding took more than 5x (%.2f)", factor), factor < 5 * wavHeader.getNumChannels());
+        assertTrue(String.format(getDefault(), "encoding took more than 5x (%.2f)", factor), factor < 5 * wavHeader.getNumChannels());
 
         return factor;
     }

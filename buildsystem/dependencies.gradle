@@ -6,7 +6,7 @@ allprojects {
 }
 
 ext {
-  androidBuildToolsVersion = '23.0.1'
+  androidBuildToolsVersion = '23.0.3'
 
   // Dependency versions
   androidMultiDex = "1.0.1"

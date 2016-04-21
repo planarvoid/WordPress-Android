@@ -26,11 +26,6 @@
         <item name="android:background">@drawable/btn_player_previous</item>
     </style>
 
-    <style name="PlayerSkipTouchTarget">
-        <item name="android:layout_width">@dimen/player_skip_touch</item>
-        <item name="android:layout_height">@dimen/player_skip_touch</item>
-    </style>
-
     <style name="FooterUser" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

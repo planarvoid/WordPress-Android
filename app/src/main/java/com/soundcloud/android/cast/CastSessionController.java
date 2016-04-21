@@ -1,6 +1,8 @@
 package com.soundcloud.android.cast;
 
-import static java.util.Collections.singletonList;
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.MediaStatus;
@@ -21,17 +23,18 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.functions.Action1;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import java.util.Collections;
-import java.util.List;
+
+import rx.functions.Action1;
+
+import static java.util.Collections.singletonList;
 
 @Singleton
 public class CastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
@@ -116,7 +119,9 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
         final Urn remoteCurrentUrn = remotePlayQueue.getCurrentTrackUrn();
         final int remotePosition = remotePlayQueue.getCurrentPosition();
 
-        Log.d(CastOperations.TAG, String.format("Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d", remoteCurrentUrn, remoteTrackList.size()));
+        Log.d(CastOperations.TAG, String.format(Locale.US,
+                "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
+                remoteCurrentUrn, remoteTrackList.size()));
         if (playQueueManager.hasSameTrackList(remoteTrackList)) {
             Log.d(CastOperations.TAG, "Has the same tracklist, setting remotePosition");
             playQueueManager.setPosition(remotePosition, true);

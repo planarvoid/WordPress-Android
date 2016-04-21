@@ -1,16 +1,15 @@
 package com.soundcloud.android.utils;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-
-import com.soundcloud.java.strings.Charsets;
-import com.soundcloud.java.strings.Strings;
-import org.jetbrains.annotations.NotNull;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.soundcloud.java.strings.Charsets;
+import com.soundcloud.java.strings.Strings;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +18,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 
 public final class DebugUtils {
@@ -30,7 +32,8 @@ public final class DebugUtils {
     public static String getLogDump(int logTailLineCount) {
         BufferedReader bufferedReader = null;
         try {
-            Process process = Runtime.getRuntime().exec(String.format("logcat -v time -d -t %d", logTailLineCount));
+            Process process = Runtime.getRuntime().exec(
+                    String.format(Locale.US, "logcat -v time -d -t %d", logTailLineCount));
             bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             StringBuilder logDump = new StringBuilder();

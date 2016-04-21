@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class PlayQueue implements Iterable<PlayQueueItem> {
@@ -212,7 +213,8 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return playQueueItems.get(position).getAdData();
     }
 
-    public static PlayQueue shuffled(List<Urn> offlineAvailable, List<Urn> tracks, PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracks) {
+    public static PlayQueue shuffled(List<Urn> offlineAvailable, List<Urn> tracks,
+                                     PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracks) {
         List<Urn> shuffled = newArrayList(tracks);
         Collections.shuffle(shuffled);
 
@@ -227,7 +229,8 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         return fromTrackUrnList(shuffled, playSessionSource, blockedTracks);
     }
 
-    public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracks) {
+    public static PlayQueue shuffled(List<Urn> tracks, PlaySessionSource playSessionSource,
+                                     Map<Urn, Boolean> blockedTracks) {
         List<Urn> shuffled = newArrayList(tracks);
         Collections.shuffle(shuffled);
         return fromTrackUrnList(shuffled, playSessionSource, blockedTracks);
@@ -267,12 +270,14 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     void insertPlayQueueItem(int position, PlayQueueItem playQueueItem) {
-        checkArgument(position >= 0 && position <= size(), String.format("Cannot insert item at position:%d, size:%d", position, playQueueItems.size()));
+        checkArgument(position >= 0 && position <= size(),
+                String.format(Locale.getDefault(), "Cannot insert item at position:%d, size:%d", position, playQueueItems.size()));
         playQueueItems.add(position, playQueueItem);
     }
 
     void replaceItem(int position, List<PlayQueueItem> newItems) {
-        checkArgument(position >= 0 && position < size(), String.format("Cannot replace item at position:%d, size:%d", position, newItems.size()));
+        checkArgument(position >= 0 && position < size(),
+                String.format(Locale.getDefault(), "Cannot replace item at position:%d, size:%d", position, newItems.size()));
         playQueueItems.remove(position);
         playQueueItems.addAll(position, newItems);
     }

@@ -1,14 +1,15 @@
 package com.soundcloud.android.tests.utils;
 
-import com.soundcloud.android.framework.annotation.NonUiTest;
-import com.soundcloud.android.tests.ScAndroidTest;
-import com.soundcloud.android.utils.images.ImageUtils;
-
 import android.graphics.BitmapFactory;
 import android.test.FlakyTest;
 import android.test.suitebuilder.annotation.Suppress;
 
+import com.soundcloud.android.framework.annotation.NonUiTest;
+import com.soundcloud.android.tests.ScAndroidTest;
+import com.soundcloud.android.utils.images.ImageUtils;
+
 import java.io.File;
+import java.util.Locale;
 
 @NonUiTest
 public class ImageUtilsTest extends ScAndroidTest {
@@ -25,7 +26,7 @@ public class ImageUtilsTest extends ScAndroidTest {
         assertTrue("resizeImageFile returned false", ImageUtils.resizeImageFile(input, resized, 800, 800));
         assertTrue("resized file should exist", resized.exists());
         double factor = (double) resized.length() / (double) input.length();
-        assertTrue(String.format("resized file should be smaller (factor=%.2f)", factor), factor < 1.0d);
+        assertTrue(String.format(Locale.US, "resized file should be smaller (factor=%.2f)", factor), factor < 1.0d);
         return resized;
     }
 
