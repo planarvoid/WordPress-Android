@@ -21,6 +21,12 @@
             android:layout_height="match_parent"
             android:layout_below="@id/toolbar_id" />
 
+        <FrameLayout
+            android:id="@+id/snackbar_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toolbar_id"/>
+
         <View style="@style/ToolbarShadow" />
 
     </RelativeLayout>
