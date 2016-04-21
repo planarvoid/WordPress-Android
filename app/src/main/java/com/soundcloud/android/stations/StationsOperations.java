@@ -70,17 +70,22 @@ public class StationsOperations {
     }
 
     private Observable<StationRecord> station(Urn station, Func1<StationRecord, StationRecord> toStation) {
+        return stationsStorage
+                .clearExpiredPlayQueue(station)
+                .flatMap(continueWith(loadStation(station, toStation)))
+                .subscribeOn(scheduler);
+    }
+
+    private Observable<StationRecord> loadStation(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return Observable
-                .concat(
-                        stationsStorage.station(station).filter(HAS_TRACKS),
+                .concat(stationsStorage.station(station).filter(HAS_TRACKS),
                         stationsApi
                                 .fetchStation(station)
                                 .doOnNext(storeTracks)
                                 .map(toStation)
                                 .doOnNext(storeStationCommand.toAction1())
                 )
-                .first()
-                .subscribeOn(scheduler);
+                .first();
     }
 
     private Func1<StationRecord, StationRecord> prependSeed(final Urn seed) {

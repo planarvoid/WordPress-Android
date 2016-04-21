@@ -3,6 +3,8 @@ package com.soundcloud.android.stations;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -15,9 +17,12 @@ import java.util.List;
 
 class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, WriteResult> {
 
+    private final DateProvider dateProvider;
+
     @Inject
-    public StoreStationCommand(PropellerDatabase database) {
+    public StoreStationCommand(PropellerDatabase database, CurrentDateProvider dateProvider) {
         super(database);
+        this.dateProvider = dateProvider;
     }
 
     @Override
@@ -36,7 +41,9 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                         .first(Integer.class);
 
                 for (int position = 0; position < tracks.size(); position++) {
-                    step(propeller.upsert(StationsPlayQueues.TABLE, buildContentValues(station, tracks.get(position), playQueueSize + position)));
+                    step(propeller
+                            .upsert(StationsPlayQueues.TABLE,
+                                    buildContentValues(station, tracks.get(position), playQueueSize + position)));
                 }
             }
         });
@@ -59,6 +66,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                 .put(Stations.TYPE, station.getType())
                 .put(Stations.TITLE, station.getTitle())
                 .put(Stations.PERMALINK, station.getPermalink())
+                .put(Stations.PLAY_QUEUE_UPDATED_AT, dateProvider.getCurrentTime())
                 .get();
     }
 }

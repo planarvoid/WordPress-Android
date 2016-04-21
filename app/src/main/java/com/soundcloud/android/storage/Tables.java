@@ -100,6 +100,7 @@ public interface Tables {
         public static final Column PERMALINK = Column.create(TABLE, "permalink");
         public static final Column ARTWORK_URL_TEMPLATE = Column.create(TABLE, "artwork_url_template");
         public static final Column LAST_PLAYED_TRACK_POSITION = Column.create(TABLE, "last_played_track_position");
+        public static final Column PLAY_QUEUE_UPDATED_AT = Column.create(TABLE, "play_queue_updated_at");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS Stations (" +
                 "station_urn TEXT," +
@@ -108,6 +109,7 @@ public interface Tables {
                 "permalink TEXT," +
                 "artwork_url_template TEXT," +
                 "last_played_track_position INTEGER DEFAULT NULL," +
+                "play_queue_updated_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
                 "PRIMARY KEY(station_urn) ON CONFLICT REPLACE" +
                 ");";
 
