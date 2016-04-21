@@ -599,7 +599,7 @@
     <string name="conversion_feature_3">Get even more tracks</string>
     <string name="conversion_feature_4">Go ad-free</string>
     <string name="conversion_buy_loading">Loading</string>
-    <string name="conversion_buy_trial">Try it free for %d days</string>
+    <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Try it free for %d days</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>
     <string name="conversion_retry_heading">Oops... try again</string>
     <string name="conversion_retry_message">Looks like something went wrong. Please try again.</string>
