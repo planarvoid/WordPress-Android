@@ -33,9 +33,8 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
-
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
-        assertThat(progressEvent.getTrackingUrls()).isEmpty();
+        assertThat(progressEvent.getTrackingUrls()).containsExactly("audio_quartile1_1", "audio_quartile1_2");
     }
 
     @Test
@@ -48,7 +47,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
-        assertThat(progressEvent.getTrackingUrls()).isEmpty();
+        assertThat(progressEvent.getTrackingUrls()).containsExactly("audio_quartile2_1", "audio_quartile2_2");
     }
 
     @Test
@@ -61,7 +60,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
         assertThat(progressEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
-        assertThat(progressEvent.getTrackingUrls()).isEmpty();
+        assertThat(progressEvent.getTrackingUrls()).containsExactly("audio_quartile3_1", "audio_quartile3_2");
     }
 
     @Test

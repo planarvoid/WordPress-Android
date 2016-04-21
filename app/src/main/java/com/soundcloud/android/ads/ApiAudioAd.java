@@ -20,9 +20,10 @@ class ApiAudioAd {
     private final ApiCompanionAd visualAd;
     private final ApiLeaveBehind leaveBehind;
 
-    public final List<String> trackingImpressionUrls;
-    public final List<String> trackingFinishUrls;
-    public final List<String> trackingSkipUrls;
+    private final List<String> trackingImpressionUrls;
+    private final List<String> trackingFinishUrls;
+    private final List<String> trackingSkipUrls;
+    private final ApiAdTracking apiAdTracking;
 
     @JsonCreator
     public ApiAudioAd(@JsonProperty("urn") Urn urn,
@@ -31,21 +32,17 @@ class ApiAudioAd {
                       @JsonProperty("_embedded") RelatedResources relatedResources,
                       @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
                       @JsonProperty("tracking_finish_urls") List<String> trackingFinishUrls,
-                      @JsonProperty("tracking_skip_urls") List<String> trackingSkipUrls) {
-        this(urn, apiTrack, skippable, relatedResources.visualAd, relatedResources.apiLeaveBehind, trackingImpressionUrls, trackingFinishUrls, trackingSkipUrls);
-    }
-
-    @VisibleForTesting
-    public ApiAudioAd(Urn urn, ApiTrack apiTrack, boolean skippable, ApiCompanionAd visualAd, ApiLeaveBehind leaveBehind, List<String> trackingImpressionUrls,
-                      List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
+                      @JsonProperty("tracking_skip_urls") List<String> trackingSkipUrls,
+                      @JsonProperty("audio_tracking") ApiAdTracking apiAdTracking) {
         this.urn = urn;
         this.apiTrack = apiTrack;
         this.skippable = skippable;
-        this.visualAd = visualAd;
-        this.leaveBehind = leaveBehind;
+        this.visualAd = relatedResources.visualAd;
+        this.leaveBehind = relatedResources.apiLeaveBehind;
         this.trackingImpressionUrls = trackingImpressionUrls;
         this.trackingFinishUrls = trackingFinishUrls;
         this.trackingSkipUrls = trackingSkipUrls;
+        this.apiAdTracking = apiAdTracking;
     }
 
     public Urn getUrn() {
@@ -72,6 +69,10 @@ class ApiAudioAd {
         return trackingSkipUrls;
     }
 
+    public ApiAdTracking getApiAdTracking() {
+        return apiAdTracking;
+    }
+
     public boolean hasApiLeaveBehind() {
         return leaveBehind != null;
     }
@@ -86,14 +87,14 @@ class ApiAudioAd {
         return visualAd;
     }
 
-    private static class RelatedResources {
+    static class RelatedResources {
 
         private final ApiCompanionAd visualAd;
         private final ApiLeaveBehind apiLeaveBehind;
 
         @JsonCreator
-        private RelatedResources(@JsonProperty("visual_ad") ApiCompanionAd visualAd,
-                                 @JsonProperty("leave_behind") ApiLeaveBehind apiLeaveBehind) {
+        RelatedResources(@JsonProperty("visual_ad") ApiCompanionAd visualAd,
+                         @JsonProperty("leave_behind") ApiLeaveBehind apiLeaveBehind) {
             this.visualAd = visualAd;
             this.apiLeaveBehind = apiLeaveBehind;
         }

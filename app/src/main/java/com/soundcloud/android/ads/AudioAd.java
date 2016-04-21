@@ -8,11 +8,18 @@ import com.soundcloud.android.model.Urn;
 public abstract class AudioAd extends PlayerAdData {
 
     private static AudioAd create(ApiAudioAd apiAudioAd) {
+        final ApiAdTracking adTracking = apiAudioAd.getApiAdTracking();
         return new AutoValue_AudioAd(
                 apiAudioAd.getUrn(),
                 apiAudioAd.getTrackingImpressionUrls(),
+                adTracking.startUrls,
                 apiAudioAd.getTrackingFinishUrls(),
                 apiAudioAd.getTrackingSkipUrls(),
+                adTracking.firstQuartileUrls,
+                adTracking.secondQuartileUrls,
+                adTracking.thirdQuartileUrls,
+                adTracking.pauseUrls,
+                adTracking.resumeUrls,
                 apiAudioAd.isSkippable(),
                 VisualAdDisplayProperties.create(apiAudioAd.getCompanion().displayProperties),
                 CompanionAd.create(apiAudioAd.getCompanion()),

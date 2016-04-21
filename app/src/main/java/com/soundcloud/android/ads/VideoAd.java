@@ -12,23 +12,23 @@ import java.util.List;
 public abstract class VideoAd extends PlayerAdData {
 
     private static VideoAd create(ApiVideoAd apiVideoAd) {
-        final ApiVideoTracking videoTracking = apiVideoAd.getVideoTracking();
+        final ApiAdTracking videoTracking = apiVideoAd.getVideoTracking();
         return new AutoValue_VideoAd(
                 apiVideoAd.getAdUrn(),
                 videoTracking.impressionUrls,
+                videoTracking.startUrls,
                 videoTracking.finishUrls,
                 videoTracking.skipUrls,
-                apiVideoAd.isSkippable(),
-                VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties()),
-                Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoSource),
-                Uri.parse(apiVideoAd.getClickThroughUrl()),
-                videoTracking.clickUrls,
-                videoTracking.startUrls,
                 videoTracking.firstQuartileUrls,
                 videoTracking.secondQuartileUrls,
                 videoTracking.thirdQuartileUrls,
                 videoTracking.pauseUrls,
                 videoTracking.resumeUrls,
+                apiVideoAd.isSkippable(),
+                VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties()),
+                Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoSource),
+                Uri.parse(apiVideoAd.getClickThroughUrl()),
+                videoTracking.clickUrls,
                 videoTracking.fullScreenUrls,
                 videoTracking.exitFullScreenUrls
         );
@@ -45,18 +45,6 @@ public abstract class VideoAd extends PlayerAdData {
     public abstract Uri getClickThroughUrl();
 
     public abstract List<String> getClickUrls();
-
-    public abstract List<String> getStartUrls();
-
-    public abstract List<String> getFirstQuartileUrls();
-
-    public abstract List<String> getSecondQuartileUrls();
-
-    public abstract List<String> getThirdQuartileUrls();
-
-    public abstract List<String> getPauseUrls();
-
-    public abstract List<String> getResumeUrls();
 
     public abstract List<String> getFullScreenUrls();
 

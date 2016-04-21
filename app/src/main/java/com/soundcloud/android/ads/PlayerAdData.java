@@ -33,9 +33,21 @@ public abstract class PlayerAdData extends AdData {
 
     public abstract List<String> getImpressionUrls();
 
+    public abstract List<String> getStartUrls();
+
     public abstract List<String> getFinishUrls();
 
     public abstract List<String> getSkipUrls();
+
+    public abstract List<String> getFirstQuartileUrls();
+
+    public abstract List<String> getSecondQuartileUrls();
+
+    public abstract List<String> getThirdQuartileUrls();
+
+    public abstract List<String> getPauseUrls();
+
+    public abstract List<String> getResumeUrls();
 
     public abstract boolean isSkippable();
 

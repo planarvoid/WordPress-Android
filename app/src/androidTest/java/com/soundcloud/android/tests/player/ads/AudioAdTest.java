@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
@@ -19,9 +20,21 @@ import android.net.Uri;
 @AdsTest
 public class AudioAdTest extends AdBaseTest {
 
+    public static final String SCENARIO_AUDIO_AD_QUARTILES = "audio_ad_quartiles";
+
     @Override
     protected Uri getUri() {
         return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
+    }
+
+    @EventTrackingTest
+    public void testQuartileEvents() {
+        startEventTracking();
+
+        swipeToAd();
+
+        playerElement.waitForAdToBeDone();
+        finishEventTracking(SCENARIO_AUDIO_AD_QUARTILES);
     }
 
     public void testSkipIsNotAllowedOnAd() {

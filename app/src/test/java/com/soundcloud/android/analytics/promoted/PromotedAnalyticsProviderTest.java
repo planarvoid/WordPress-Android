@@ -295,14 +295,54 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void noQuartileEventsForAudioAdsAreTracked() {
+    public void tracksFirstQuartileAdProgressEventsForAudio() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forFirstQuartile(audioAd, sourceInfo);
+
+        analyticsProvider.handleTrackingEvent(playbackProgressEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "audio_quartile1_1", playbackProgressEvent.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "audio_quartile1_2", playbackProgressEvent.getTimestamp());
+    }
+
+    @Test
+    public void tracksSecondQuartileAdProgressEventsForAudio() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
+        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forSecondQuartile(audioAd, sourceInfo);
+
+        analyticsProvider.handleTrackingEvent(playbackProgressEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "audio_quartile2_1", playbackProgressEvent.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "audio_quartile2_2", playbackProgressEvent.getTimestamp());
+    }
+
+    @Test
+    public void tracksThirdQuartileAdProgressEventsForAudio() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
         final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forThirdQuartile(audioAd, sourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
-        verify(eventTracker, never()).trackEvent(any(TrackingRecord.class));
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        assertPromotedTrackingRecord(event1, "audio_quartile3_1", playbackProgressEvent.getTimestamp());
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        assertPromotedTrackingRecord(event2, "audio_quartile3_2", playbackProgressEvent.getTimestamp());
     }
 
     @Test

@@ -109,50 +109,44 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     }
 
     private AdPlaybackSessionEvent setQuartileTrackingUrls(String quartileType, PlayerAdData adData) {
-        if (adData instanceof VideoAd) {
-            final VideoAd videoData = (VideoAd) adData;
-            switch (quartileType) {
-                case FIRST_QUARTILE_TYPE:
-                    trackingUrls = videoData.getFirstQuartileUrls();
-                    break;
-                case SECOND_QUARTILE_TYPE:
-                    trackingUrls = videoData.getSecondQuartileUrls();
-                    break;
-                case THIRD_QUARTILE_TYPE:
-                    trackingUrls = videoData.getThirdQuartileUrls();
-                    break;
-            }
+        switch (quartileType) {
+            case FIRST_QUARTILE_TYPE:
+                trackingUrls = adData.getFirstQuartileUrls();
+                break;
+            case SECOND_QUARTILE_TYPE:
+                trackingUrls = adData.getSecondQuartileUrls();
+                break;
+            case THIRD_QUARTILE_TYPE:
+                trackingUrls = adData.getThirdQuartileUrls();
+                break;
         }
         return this;
     }
 
     private AdPlaybackSessionEvent setPlaybackTrackingUrls(PlayerAdData adData) {
-        if (adData instanceof VideoAd) {
-            final VideoAd videoData = (VideoAd) adData;
-            if (isKind(EVENT_KIND_PLAY)) {
-                setPlayEventTrackingUrls(videoData);
-            } else {
-                setStopEventTrackingUrls(videoData);
-            }
+        if (isKind(EVENT_KIND_PLAY)) {
+            setPlayEventTrackingUrls(adData);
+        } else {
+            setStopEventTrackingUrls(adData);
         }
         return this;
     }
 
-    private void setPlayEventTrackingUrls(VideoAd videoData) {
+    private void setPlayEventTrackingUrls(PlayerAdData adData) {
         if (isFirstPlay()) {
             trackingUrls = new ArrayList<>();
-            trackingUrls.addAll(videoData.getImpressionUrls());
-            trackingUrls.addAll(videoData.getStartUrls());
+            trackingUrls.addAll(adData.getImpressionUrls());
+            trackingUrls.addAll(adData.getStartUrls());
         } else {
-            trackingUrls = videoData.getResumeUrls();
+            trackingUrls = adData.getResumeUrls();
         }
     }
 
-    private void setStopEventTrackingUrls(VideoAd videoData) {
+    private void setStopEventTrackingUrls(PlayerAdData adData) {
         if (hasAdFinished()) {
-            trackingUrls = videoData.getFinishUrls();
+            trackingUrls = adData.getFinishUrls();
         } else if (wasAdPaused()) {
-            trackingUrls = videoData.getPauseUrls();
+            trackingUrls = adData.getPauseUrls();
         }
     }
 

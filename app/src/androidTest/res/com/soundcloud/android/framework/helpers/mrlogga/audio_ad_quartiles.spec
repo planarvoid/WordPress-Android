@@ -1,0 +1,83 @@
+--- !ruby/object:MrLoggerLogger::ResultSpec
+whitelisted_events:
+- click
+- ad_delivery
+expected_events:
+- !ruby/object:MrLoggerLogger::Event
+  name: ad_delivery
+  params:
+    anonymous_id: (\w|-)+
+    client_id: 3152
+    monetized_object: soundcloud:tracks:163824437
+    request_endpoint: /tracks/soundcloud%3Atracks%3A163824437/ads
+    user: soundcloud:users:18173653
+    selection_optimized: false
+    request_success: true
+    is_player_visible: true
+    ts: '[0-9]+'
+    app_version: '[0-9]+'
+    ad_urn: dfp:ads:110000021-12000000021
+    connection_type: wifi
+    ads_received: '{"audio_ad":{"urn":"dfp:ads:110000021-12000000021"}}'
+    in_foreground: true
+    request_made: true
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: click
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: '[0-9]+'
+    client_id: 3152
+    monetized_object: soundcloud:tracks:163824437
+    ad_urn: dfp:ads:110000021-12000000021
+    connection_type: wifi
+    click_name: ad::first_quartile
+    page_name: deeplink
+    user: soundcloud:users:18173653
+    monetization_type: audio_ad
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: click
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: '[0-9]+'
+    client_id: 3152
+    monetized_object: soundcloud:tracks:163824437
+    ad_urn: dfp:ads:110000021-12000000021
+    connection_type: wifi
+    click_name: ad::second_quartile
+    page_name: deeplink
+    user: soundcloud:users:18173653
+    monetization_type: audio_ad
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: click
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    app_version: '[0-9]+'
+    client_id: 3152
+    monetized_object: soundcloud:tracks:163824437
+    ad_urn: dfp:ads:110000021-12000000021
+    connection_type: wifi
+    click_name: ad::third_quartile
+    page_name: deeplink
+    user: soundcloud:users:18173653
+    monetization_type: audio_ad
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: click
+  params:
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
+    client_id: '3152'
+    monetized_object: soundcloud:tracks:163824437
+    ad_urn: dfp:ads:110000021-12000000021
+    click_name: ad::finish
+    click_object: soundcloud:tracks:135376655
+    page_name: deeplink
+    user: soundcloud:users:18173653
+    monetization_type: audio_ad
+  version: '0'

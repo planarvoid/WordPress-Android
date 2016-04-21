@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.ads.ApiAudioAd.RelatedResources;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -132,28 +133,30 @@ public class AdFixtures {
     }
 
     static ApiAudioAd getApiAudioAdWithCompanion(ApiCompanionAd companion, boolean skippable) {
+        RelatedResources relatedResources = new RelatedResources(companion, getApiLeaveBehind());
         return new ApiAudioAd(
                 Urn.forAd("dfp", "869"),
                 ModelFixtures.create(ApiTrack.class),
                 skippable,
-                companion,
-                getApiLeaveBehind(),
+                relatedResources,
                 Arrays.asList("audio_impression1", "audio_impression2"),
                 Arrays.asList("audio_finish1", "audio_finish2"),
-                Arrays.asList("audio_skip1", "audio_skip2")
+                Arrays.asList("audio_skip1", "audio_skip2"),
+                getApiAudioAdTracking()
         );
     }
 
     static ApiAudioAd getApiAudioAdWithoutLeaveBehind() {
+        RelatedResources relatedResources = new RelatedResources(getApiCompanionAd(), null);
         return new ApiAudioAd(
                 Urn.forAd("dfp", "869"),
                 ModelFixtures.create(ApiTrack.class),
                 SKIPPABLE,
-                getApiCompanionAd(),
-                null,
+                relatedResources,
                 Arrays.asList("audio_impression1", "audio_impression2"),
                 Arrays.asList("audio_finish1", "audio_finish2"),
-                Arrays.asList("audio_skip1", "audio_skip2")
+                Arrays.asList("audio_skip1", "audio_skip2"),
+                getApiAudioAdTracking()
         );
     }
 
@@ -175,8 +178,25 @@ public class AdFixtures {
         );
     }
 
-    public static ApiVideoTracking getApiVideoAdTracking() {
-        return new ApiVideoTracking(
+    public static ApiAdTracking getApiAudioAdTracking() {
+        return new ApiAdTracking(
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                Arrays.asList("audio_start_1", "audio_start_2"),
+                Arrays.asList("audio_quartile1_1", "audio_quartile1_2"),
+                Arrays.asList("audio_quartile2_1", "audio_quartile2_2"),
+                Arrays.asList("audio_quartile3_1", "audio_quartile3_2"),
+                Collections.<String>emptyList(),
+                Arrays.asList("audio_pause1", "audio_pause2"),
+                Arrays.asList("audio_resume1", "audio_resume2"),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList()
+        );
+    }
+
+    public static ApiAdTracking getApiVideoAdTracking() {
+        return new ApiAdTracking(
                 Arrays.asList("video_click1", "video_click2"),
                 Arrays.asList("video_impression1", "video_impression2"),
                 Arrays.asList("video_skip1", "video_skip2"),
