@@ -8,7 +8,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class MyProfileTest extends ActivityTest<ResolveActivity> {
@@ -30,64 +29,21 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void testShowsSoundsTab() {
-        profileScreen.touchSoundsTab();
-    }
-
     public void testTrackClickStartsPlayer() {
         assertThat(profileScreen.playTrack(0), is(visible()));
     }
 
     public void testTracksViewAllOpensTracksPage() {
         profileScreen.clickViewAllTracks();
-        assertEquals(profileScreen.getActionBarTitle(), ressourceString(R.string.user_profile_sounds_header_tracks));
+        assertEquals(profileScreen.getActionBarTitle(),
+                    ressourceString(R.string.user_profile_sounds_header_tracks));
     }
 
     public void testPlaylistClickOpensPlaylistPage() {
-        PlaylistElement expectedPlaylist = profileScreen.getPlaylists().get(0);
-
-        assertEquals(profileScreen.scrollToFirstPlaylist().click().getTitle(), expectedPlaylist.getTitle());
+        profileScreen.scrollToFirstPlaylist().click();
+        assertEquals(profileScreen.getActionBarTitle(), "Playlist");
     }
 
-    /*public void testPlaylistClickOpensPlaylistPage() {
-        profileScreen.touchPlaylistsTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-
-        final PlaylistElement expectedPlaylist = profileScreen
-                .getPlaylists()
-                .get(0);
-
-        String targetPlaylistTitle = expectedPlaylist.getTitle();
-        assertEquals(expectedPlaylist.click().getTitle(), targetPlaylistTitle);
-    }
-
-    public void testLikesLoadsNextPage() {
-        profileScreen.touchLikesTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-
-        int likesBefore = profileScreen.currentItemCount();
-        profileScreen.scrollToBottomAndLoadMoreItems();
-        assertThat(likesBefore, is(lessThan(profileScreen.currentItemCount())));
-    }
-
-    public void testLikedPlaylistClickOpensPlaylistPage() {
-        profileScreen.touchLikesTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-
-        final PlaylistElement expectedPlaylist = profileScreen.scrollToFirstPlaylist();
-
-        String targetPlaylistTitle = expectedPlaylist.getTitle();
-        assertEquals(expectedPlaylist.click().getTitle(), targetPlaylistTitle);
-    }
-
-    public void testLikedTrackClickStartsPlayer() {
-        profileScreen.touchLikesTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-
-        assertThat(profileScreen.playTrack(0), is(visible()));
-    }
-
-    */
     public void testFollowingsClickOpensProfilePage() {
         profileScreen.touchFollowingsTab();
         waiter.waitForContentAndRetryIfLoadingFailed();
@@ -102,21 +58,27 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         assertTrue(profileScreen.clickUserAt(0).isVisible());
     }
 
-    public void testSpotlightExists() {
-        assertTrue(profileScreen.getSpotlightTitle().hasVisibility());
+    public void testHasRepostBucket() {
+        assertTrue(profileScreen.getRepostsTitle().hasVisibility());
     }
-    /*
 
-    public void testFollowingsLoadsNextPage() {
-        profileScreen.touchLegacyFollowingsTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
+    public void testViewAllReposts() {
+        profileScreen.clickViewAllReposts();
+        assertEquals(profileScreen.getActionBarTitle(),
+                    ressourceString(R.string.user_profile_sounds_header_reposts));
+    }
 
-        int followingsBefore = profileScreen.currentItemCount();
-        profileScreen.scrollToBottomAndLoadMoreItems();
-        assertThat(followingsBefore, is(lessThan(profileScreen.currentItemCount())));
-    }*/
+    public void testHasLikesBucket() {
+        assertTrue(profileScreen.getLikesTitle().hasVisibility());
+    }
 
-    public void testClickFirstRepostOpensPlayer() {
+    public void testViewAllLikes() {
+        profileScreen.clickViewAllLikes();
+        assertEquals(profileScreen.getActionBarTitle(),
+                    ressourceString(R.string.user_profile_sounds_header_likes));
+    }
+
+    public void ignore_testClickFirstRepostOpensPlayer() {
         assertThat(profileScreen.testttt(), is(visible()));
     }
 }

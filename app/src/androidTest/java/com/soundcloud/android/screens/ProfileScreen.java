@@ -89,6 +89,22 @@ public class ProfileScreen extends Screen {
         scrollToItem(With.text(R.string.user_profile_sounds_view_all_tracks)).click();
     }
 
+    public ViewElement getRepostsTitle() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_reposts));
+    }
+
+    public void clickViewAllReposts() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_reposts)).click();
+    }
+
+    public ViewElement getLikesTitle() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_likes));
+    }
+
+    public void clickViewAllLikes() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_likes)).click();
+    }
+
     public List<PlaylistElement> getPlaylists() {
         return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
     }
@@ -142,7 +158,7 @@ public class ProfileScreen extends Screen {
                 return view.findOnScreenElement(
                         With.id(R.id.sounds_header_text),
                         With.text(headerTitle)
-                );
+                ) != null;
             }
 
             @Override
