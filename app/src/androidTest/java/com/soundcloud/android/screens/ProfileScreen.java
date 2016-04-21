@@ -89,6 +89,14 @@ public class ProfileScreen extends Screen {
         scrollToItem(With.text(R.string.user_profile_sounds_view_all_tracks)).click();
     }
 
+    public ViewElement getAlbumsTitle() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_albums));
+    }
+
+    public void clickViewAllAlbums() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_albums)).click();
+    }
+
     public ViewElement getRepostsTitle() {
         return scrollToItem(With.text(R.string.user_profile_sounds_header_reposts));
     }

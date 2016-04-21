@@ -58,6 +58,16 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         assertTrue(profileScreen.clickUserAt(0).isVisible());
     }
 
+    public void testHasAlbumsBucket() {
+        assertTrue(profileScreen.getAlbumsTitle().hasVisibility());
+    }
+
+    public void testViewAllAlbums() {
+        profileScreen.clickViewAllAlbums();
+        assertEquals(profileScreen.getActionBarTitle(),
+                    ressourceString(R.string.user_profile_sounds_header_albums));
+    }
+
     public void testHasRepostBucket() {
         assertTrue(profileScreen.getRepostsTitle().hasVisibility());
     }
