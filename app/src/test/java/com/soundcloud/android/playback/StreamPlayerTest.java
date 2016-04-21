@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.model.Urn;
@@ -105,8 +106,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playWithUninterruptedPlaybackItemCallsPlayOnSkippyByDefault() {
-        final AudioPlaybackItem uninterruptedItem = AudioPlaybackItem.forAudioAd(track);
+    public void playWithAudioAdPlaybackItemCallsPlayOnSkippyByDefault() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
+        final AudioAdPlaybackItem uninterruptedItem = AudioAdPlaybackItem.create(track, audioAd);
         instantiateStreamPlaya();
 
         streamPlayerWrapper.play(uninterruptedItem);

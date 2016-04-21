@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback.skippy;
 
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;
 import static com.soundcloud.android.skippy.Skippy.Error;
@@ -76,6 +79,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private SkippyAdapter skippyAdapter;
 
+    private static final String THIRD_PARTY_AD_STREAM_URL = "https://thirdparty.streamurl/hls";
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access";
     private static final String SNIPPET_STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls/snippet?oauth_token=access";
     private static final long PROGRESS = 500L;
@@ -202,9 +206,17 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playUninterruptedUsesPlayAd() {
-        skippyAdapter.play(AudioPlaybackItem.forAudioAd(track));
+    public void playFirstPartyAudioAdPlaysUrlOnSkippy() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
+        skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
         verify(skippy).play(STREAM_URL, 0);
+    }
+
+    @Test
+    public void playThirdPartyAudioAdPlaysThirdPartyStreamUrlOnSkippy() {
+        final AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(trackUrn);
+        skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
+        verify(skippy).play(THIRD_PARTY_AD_STREAM_URL, 0);
     }
 
     @Test

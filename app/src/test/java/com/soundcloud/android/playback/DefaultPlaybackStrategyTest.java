@@ -9,8 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -24,6 +26,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -179,14 +182,16 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentPlaysAudioAdSuccessfully() {
+        final PropertySet track = onlineTrack();
+        final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-        final PropertySet track = onlineTrack();
         when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
-        verify(serviceInitiator).play(AudioPlaybackItem.forAudioAd(track));
+        verify(serviceInitiator).play(AudioAdPlaybackItem.create(track, audioAd));
         playCurrentSubscriber.assertCompleted();
     }
 

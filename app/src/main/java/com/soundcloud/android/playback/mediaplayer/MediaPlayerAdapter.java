@@ -4,9 +4,11 @@ import static com.soundcloud.android.playback.PlaybackType.VIDEO_DEFAULT;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
@@ -41,7 +43,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import static com.soundcloud.android.playback.PlaybackState.*;
-import static com.soundcloud.android.playback.PlaybackType.VIDEO_DEFAULT;
 
 @Singleton
 public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -113,7 +114,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             case VIDEO_DEFAULT:
                 play(playbackItem, playbackItem.getStartPosition());
                 break;
-            case AUDIO_UNINTERRUPTED:
+            case AUDIO_AD:
                 play(playbackItem, 0);
                 break;
             default:
@@ -138,18 +139,31 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
 
         try {
-            if (playbackItem.getPlaybackType() == VIDEO_DEFAULT) {
-                final VideoPlaybackItem videoItem = (VideoPlaybackItem) playbackItem;
-                currentStreamUrl = videoSourceProvider.selectOptimalSource(videoItem).getUrl();
-                updateVideoView(surfaceHolder.orNull());
-            } else {
-                currentStreamUrl = urlBuilder.buildHttpsStreamUrl(playbackItem.getUrn());
-            }
+            currentStreamUrl = getStreamUrl(playbackItem);
+            updateVideoView(surfaceHolder.orNull());
             mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             handleMediaPlayerError(mediaPlayer, resumePos);
         }
+    }
+
+    private String getStreamUrl(PlaybackItem playbackItem) {
+        switch (playbackItem.getPlaybackType()) {
+            case VIDEO_DEFAULT:
+                final VideoSource source = videoSourceProvider.selectOptimalSource((VideoPlaybackItem) playbackItem);
+                return source.getUrl();
+            case AUDIO_AD:
+                return getAudioAdStream((AudioAdPlaybackItem) playbackItem);
+            default:
+                return urlBuilder.buildHttpsStreamUrl(playbackItem.getUrn());
+        }
+    }
+
+    private String getAudioAdStream(AudioAdPlaybackItem adPlaybackItem) {
+        return adPlaybackItem.isThirdParty()
+                ? adPlaybackItem.getThirdPartyStreamUrl()
+                : urlBuilder.buildHttpsStreamUrl(adPlaybackItem.getUrn());
     }
 
     @Override

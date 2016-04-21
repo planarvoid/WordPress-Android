@@ -100,6 +100,10 @@ class ApiAudioAd {
 
     }
 
+    public boolean isThirdParty() {
+        return apiTrack.getUrn().equals(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(getClass())

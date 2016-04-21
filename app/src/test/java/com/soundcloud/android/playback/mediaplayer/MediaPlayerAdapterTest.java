@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.mediaplayer;
 
+import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlayStateReason;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +39,10 @@ import com.soundcloud.android.playback.VideoPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,8 +65,8 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     private static final String ACCESS_TOKEN = "access";
     private static final Token TOKEN = new Token(ACCESS_TOKEN,"refresh");
+    private static final String THIRD_PARTY_AD_STREAM_URL = "https://thirdparty.streamurl/hls";
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/http?oauth_token=access";
-
     private MediaPlayerAdapter mediaPlayerAdapter;
 
     @Mock private Context context;
@@ -83,6 +87,12 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     private PlaybackItem trackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
     private VideoPlaybackItem videoItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L);
     private int duration = 20000;
+    private PropertySet track = PropertySet.from(
+            TrackProperty.URN.bind(trackUrn),
+            TrackProperty.SNIPPET_DURATION.bind(345L),
+            TrackProperty.FULL_DURATION.bind(456L),
+            TrackProperty.SNIPPED.bind(false)
+    );
 
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
@@ -370,6 +380,22 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void playUrlSetsDataSourceOnMediaPlayer() throws IOException {
         mediaPlayerAdapter.play(trackItem);
         verify(mediaPlayer).setDataSource(STREAM_URL);
+    }
+
+    @Test
+    public void playUrlForAudioAdSetsDataSourceOnMediaPlayer() throws IOException {
+        final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
+        final AudioAdPlaybackItem adPlaybackItem = AudioAdPlaybackItem.create(track, audioAd);
+        mediaPlayerAdapter.play(adPlaybackItem);
+        verify(mediaPlayer).setDataSource(STREAM_URL);
+    }
+
+    @Test
+    public void playUrlForThirdPartyAudioAdSetsDataSourceOnMediaPlayer() throws IOException {
+        final AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(trackUrn);
+        final AudioAdPlaybackItem adPlaybackItem = AudioAdPlaybackItem.create(track, audioAd);
+        mediaPlayerAdapter.play(adPlaybackItem);
+        verify(mediaPlayer).setDataSource(THIRD_PARTY_AD_STREAM_URL);
     }
 
     @Test

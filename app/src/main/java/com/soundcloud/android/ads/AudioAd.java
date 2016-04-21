@@ -1,6 +1,7 @@
 package com.soundcloud.android.ads;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 
 @AutoValue
@@ -14,8 +15,9 @@ public abstract class AudioAd extends PlayerAdData {
                 apiAudioAd.getTrackingSkipUrls(),
                 apiAudioAd.isSkippable(),
                 VisualAdDisplayProperties.create(apiAudioAd.getCompanion().displayProperties),
-                CompanionAd.create(apiAudioAd.getCompanion())
-        );
+                CompanionAd.create(apiAudioAd.getCompanion()),
+                apiAudioAd.isThirdParty(),
+                apiAudioAd.getApiTrack().getStreamUrl());
     }
 
     public static AudioAd create(ApiAudioAd apiAudioAd, Urn monetizableUrn) {
@@ -26,4 +28,7 @@ public abstract class AudioAd extends PlayerAdData {
 
     public abstract CompanionAd getVisualAd();
 
+    public abstract boolean isThirdParty();
+
+    public abstract String getStreamUrl();
 }
