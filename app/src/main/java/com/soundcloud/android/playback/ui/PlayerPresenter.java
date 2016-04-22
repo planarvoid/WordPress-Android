@@ -5,6 +5,7 @@ import static com.soundcloud.java.collections.Lists.newArrayList;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -51,12 +52,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private final Observable<PlaybackProgressEvent> checkAdProgress;
     private final PlayerPagerScrollListener playerPagerScrollListener;
-    private final Predicate<PlayQueueItem> playableItemsPredicate = new Predicate<PlayQueueItem>() {
-        @Override
-        public boolean apply(PlayQueueItem input) {
-            return input.isTrack() || input.isVideo();
-        }
-    };
+
     private CompositeSubscription subscription = new CompositeSubscription();
     private Subscription unblockPagerSubscription = RxUtils.invalidSubscription();
     private Handler changeTracksHandler;
@@ -115,10 +111,24 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     };
 
+    private static final Predicate<PlayQueueItem> IS_PLAYABLE = new Predicate<PlayQueueItem>() {
+        @Override
+        public boolean apply(PlayQueueItem input) {
+            return input.isTrack() || input.isVideo();
+        }
+    };
+
+    private static final Func1<PlaybackProgressEvent, Boolean> IS_PAST_UNSKIPPABLE_TIME = new Func1<PlaybackProgressEvent, Boolean>() {
+        @Override
+        public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
+            return playbackProgressEvent.getPlaybackProgress().getPosition() >= AdConstants.UNSKIPPABLE_TIME_MS;
+        }
+    };
+
     @Inject
     public PlayerPresenter(PlayerPagerPresenter presenter, EventBus eventBus,
                            PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                           PlayerPagerScrollListener playerPagerScrollListener, AdsOperations adsOperations) {
+                           PlayerPagerScrollListener playerPagerScrollListener, final AdsOperations adsOperations) {
         this.presenter = presenter;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
@@ -129,13 +139,14 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         LightCycles.bind(this);
 
         changeTracksHandler = new ChangeTracksHandler(this);
-
-        checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(new Func1<PlaybackProgressEvent, Boolean>() {
-            @Override
-            public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
-                return playbackProgressEvent.getPlaybackProgress().getPosition() >= AdConstants.UNSKIPPABLE_TIME_MS;
-            }
-        });
+        checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
+                .first(IS_PAST_UNSKIPPABLE_TIME)
+                .filter(new Func1<PlaybackProgressEvent, Boolean>() {
+                    @Override
+                    public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
+                        return ((PlayerAdData) adsOperations.getCurrentTrackAdData().get()).isSkippable();
+                    }
+                });
     }
 
     private void setPositionToDisplayedTrack(){
@@ -216,7 +227,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setFullQueue() {
-        final List<PlayQueueItem> playQueueItems = playQueueManager.getPlayQueueItems(playableItemsPredicate);
+        final List<PlayQueueItem> playQueueItems = playQueueManager.getPlayQueueItems(IS_PLAYABLE);
         final int indexOfCurrentPlayQueueitem = getIndexOfPlayQueueItem(playQueueItems);
 
         presenter.setCurrentPlayQueue(playQueueItems, indexOfCurrentPlayQueueitem);
@@ -287,7 +298,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public void onNext(Integer ignored) {
             if(setPlayQueueAfterScroll){
-                if (adsOperations.isCurrentItemAd()){
+                if (adsOperations.isCurrentItemAd()) {
                     setAdPlayQueue();
                 } else {
                     refreshPlayQueue();

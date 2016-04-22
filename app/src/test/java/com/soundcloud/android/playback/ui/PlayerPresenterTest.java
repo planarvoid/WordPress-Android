@@ -1,12 +1,15 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueItemsEqual;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -36,6 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
@@ -194,7 +198,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void trackChangeEventPreventsPagerUnlockFromPreviousAudioAd() throws Exception {
+    public void trackChangeEventPreventsPagerUnlockFromPreviousAudioAd() {
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(TRACK_PLAY_QUEUE_ITEM, Urn.NOT_SET, 0));
         when(adsOperations.isCurrentItemAd()).thenReturn(false);
@@ -216,6 +220,39 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(AUDIO_AD_PLAY_QUEUE_ITEM, Urn.NOT_SET, 1));
 
         assertLastQueueWasAdQueue();
+    }
+
+    @Test
+    public void skippableAudioAdUnlocksPagerAfterSkipInterval() {
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM.getAdData());
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
+        setupPositionsForAd(2);
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(AUDIO_AD_PLAY_QUEUE_ITEM, Urn.NOT_SET, 1));
+        InOrder inOrder = inOrder(playerPagerPresenter);
+        inOrder.verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyList(), anyInt());
+        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1, 1L);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, AUDIO_AD_PLAY_QUEUE_ITEM.getUrn()));
+
+        inOrder.verify(playerPagerPresenter).setCurrentPlayQueue(playQueueItemsCaptor.capture(), anyInt());
+        assertThat(playQueueItemsCaptor.getValue().size()).isGreaterThan(1);
+    }
+
+    @Test
+    public void unskippableAudioAdDoesNotUnlockPagerAfterSkipInterval() {
+        final PlayQueueItem audioItem = TestPlayQueueItem.createTrack(TRACK_URN, AdFixtures.getNonskippableAudioAd(TRACK_URN));
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(audioItem);
+        setupPositionsForAd(2);
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(audioItem, Urn.NOT_SET, 1));
+        InOrder inOrder = inOrder(playerPagerPresenter);
+        inOrder.verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyList(), anyInt());
+        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1, 1L);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, audioItem.getUrn()));
+
+        inOrder.verify(playerPagerPresenter, never()).setCurrentPlayQueue(anyList(), anyInt());
     }
 
     @Test
