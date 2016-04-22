@@ -6,4 +6,4 @@
     android:background="?attr/colorPrimary"
     android:elevation="@dimen/toolbar_elevation"
     android:theme="@style/Theme.SoundCloud.Toolbar"
-    android:transitionName="@string/search_text_holder_transition_name" />
+    android:transitionName="@string/search_text_holder_transition_name"/>
