@@ -49,6 +49,10 @@ public class AdFixtures {
         return AudioAd.create(getApiAudioAd(NOT_SKIPPABLE), monetizableUrn);
     }
 
+    public static AudioAd getNonClickableAudioAd(Urn monetizableUrn) {
+        return AudioAd.create(getNonClickableApiAudioAd(), monetizableUrn);
+    }
+
     public static AudioAd getThirdPartyAudioAd(Urn monetizableUrn) {
         return AudioAd.create(getApiAudioAdForThirdParty(), monetizableUrn);
     }
@@ -130,6 +134,19 @@ public class AdFixtures {
 
     static ApiAudioAd getApiAudioAd(boolean skippable) {
         return getApiAudioAdWithCompanion(getApiCompanionAd(), skippable);
+    }
+
+    static ApiAudioAd getNonClickableApiAudioAd() {
+        final ApiCompanionAd nonClickableCompanion = new ApiCompanionAd(
+                Urn.forAd("dfp", "companion"),
+                "imageurl",
+                null,
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                null,
+                getApiDisplayProperties()
+        );
+        return getApiAudioAdWithCompanion(nonClickableCompanion, SKIPPABLE);
     }
 
     static ApiAudioAd getApiAudioAdWithCompanion(ApiCompanionAd companion, boolean skippable) {

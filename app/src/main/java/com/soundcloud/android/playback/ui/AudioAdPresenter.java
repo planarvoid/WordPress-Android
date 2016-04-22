@@ -9,8 +9,10 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.NotNull;
+
 import rx.Subscription;
 
 import android.content.res.Resources;
@@ -65,7 +67,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
             case R.id.footer_controls:
                 listener.onFooterTap();
                 break;
-            case R.id.centered_ad_overlay:
+            case R.id.centered_ad_clickable_overlay:
             case R.id.centered_ad_artwork:
             case R.id.cta_button:
                 listener.onClickThrough();
@@ -144,37 +146,40 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         holder.centeredAdArtworkView.setImageDrawable(null);
         holder.fullbleedAdArtworkView.setImageDrawable(null);
         holder.adImageSubscription.unsubscribe();
-
-        setVisibility(false, holder.centeredAdViews);
-        setVisibility(false, holder.fullbleedAdViews);
+        setVisibility(false, holder.companionViews);
     }
 
     private void displayAdvertisement(AudioPlayerAd playerAd, Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
         holder.footerAdTitle.setText(playerAd.getAdTitle());
-        holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork()).subscribe(getAdImageSubscriber(holder));
+        holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork()).subscribe(getAdImageSubscriber(holder, playerAd));
     }
 
     @NotNull
-    private DefaultSubscriber<Bitmap> getAdImageSubscriber(final Holder holder) {
+    private DefaultSubscriber<Bitmap> getAdImageSubscriber(final Holder holder, final AudioPlayerAd playerAd) {
         return new DefaultSubscriber<Bitmap>(){
             @Override
             public void onNext(Bitmap adImage) {
                 if (adImage != null) {
-                    updateAdvertisementLayout(holder, adImage);
+                    updateAdvertisementLayout(holder, adImage, playerAd);
                 }
             }
         };
     }
 
-    private void updateAdvertisementLayout(Holder holder, Bitmap adImage)  {
+    private void updateAdvertisementLayout(Holder holder, Bitmap adImage, AudioPlayerAd playerAd)  {
+        final Optional<String> clickthrough = playerAd.getClickThroughUrl();
         if (isBelowStandardIabSize(adImage.getWidth(), adImage.getHeight())) {
-            holder.centeredAdArtworkView.setImageBitmap(adImage);
-            setVisibility(true, holder.centeredAdViews);
+            setCompanionViews(holder.centeredAdArtworkView, holder.centeredAdClickableOverlay, clickthrough.isPresent(), adImage);
         } else {
-            holder.fullbleedAdArtworkView.setImageBitmap(adImage);
-            setVisibility(true, holder.fullbleedAdViews);
+            setCompanionViews(holder.fullbleedAdArtworkView, holder.ctaButton, clickthrough.isPresent(), adImage);
         }
+    }
+
+    private void setCompanionViews(ImageView artworkView, View clickableView, boolean hasCTA, Bitmap adImage) {
+        artworkView.setImageBitmap(adImage);
+        artworkView.setVisibility(View.VISIBLE);
+        clickableView.setVisibility(hasCTA ? View.VISIBLE : View.GONE);
     }
 
     private boolean isBelowStandardIabSize(int width, int height) {
@@ -189,7 +194,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     static class Holder extends AdHolder {
         private final ImageView fullbleedAdArtworkView;
         private final ImageView centeredAdArtworkView;
-        private final View centeredAdOverlay;
+        private final View centeredAdClickableOverlay;
         private final View artworkIdleOverlay;
 
         private final ToggleButton footerPlayToggle;
@@ -203,8 +208,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
 
         // View sets
         Iterable<View> onClickViews;
-        Iterable<View> centeredAdViews;
-        Iterable<View> fullbleedAdViews;
+        Iterable<View> companionViews;
 
         private Subscription adImageSubscription = RxUtils.invalidSubscription();
 
@@ -212,7 +216,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
             super(adView);
             fullbleedAdArtworkView = (ImageView) adView.findViewById(R.id.fullbleed_ad_artwork);
             centeredAdArtworkView = (ImageView) adView.findViewById(R.id.centered_ad_artwork);
-            centeredAdOverlay = adView.findViewById(R.id.centered_ad_overlay);
+            centeredAdClickableOverlay = adView.findViewById(R.id.centered_ad_clickable_overlay);
             artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
 
             footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
@@ -228,16 +232,11 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         }
 
         private void populateViewSets() {
-            List<View> centeredLayoutViews = Arrays.asList(centeredAdOverlay, centeredAdArtworkView);
-            List<View> fullbleedLayoutViews = Arrays.asList(fullbleedAdArtworkView, ctaButton);
-            List<View> clickViews = Arrays.asList(centeredAdArtworkView, fullbleedAdArtworkView, centeredAdOverlay,
+            List<View> clickViews = Arrays.asList(centeredAdArtworkView, fullbleedAdArtworkView, centeredAdClickableOverlay,
                     artworkIdleOverlay, playButton, nextButton, previousButton, ctaButton, whyAds, skipAd, previewContainer,
                     footerPlayToggle, close, footer);
-
-
             onClickViews = Iterables.filter(clickViews, presentInConfig);
-            centeredAdViews = Iterables.filter(centeredLayoutViews, presentInConfig);
-            fullbleedAdViews = Iterables.filter(fullbleedLayoutViews, presentInConfig);
+            companionViews = Arrays.asList(centeredAdArtworkView, centeredAdClickableOverlay, fullbleedAdArtworkView, ctaButton);
         }
     }
 }

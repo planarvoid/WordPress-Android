@@ -2,6 +2,8 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -129,6 +131,15 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openCollection(activityContext);
         assertThat(activityContext).nextStartedIntent()
                 .containsAction(Actions.COLLECTION);
+    }
+
+    @Test
+    public void openAdClickthrough() {
+        navigator.openAdClickthrough(activityContext, "http://clickthroughurl.com");
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Intent.ACTION_VIEW)
+                .containsUri(Uri.parse("http://clickthroughurl.com"))
+                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK);
     }
 
     @Test

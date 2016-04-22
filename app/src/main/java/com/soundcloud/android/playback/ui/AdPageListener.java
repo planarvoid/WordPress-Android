@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
@@ -19,14 +20,13 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 
 import javax.inject.Inject;
 
 class AdPageListener extends PageListener {
 
     private final Context context;
+    private final Navigator navigator;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final AccountOperations accountOperations;
@@ -34,6 +34,7 @@ class AdPageListener extends PageListener {
 
     @Inject
     public AdPageListener(Context context,
+                          Navigator navigator,
                           PlaySessionStateProvider playSessionStateProvider,
                           PlaySessionController playSessionController,
                           PlayQueueManager playQueueManager,
@@ -42,6 +43,7 @@ class AdPageListener extends PageListener {
                           WhyAdsDialogPresenter whyAdsPresenter) {
         super(playSessionController, playSessionStateProvider, eventBus);
         this.context = context;
+        this.navigator = navigator;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
         this.accountOperations = accountOperations;
@@ -88,23 +90,17 @@ class AdPageListener extends PageListener {
 
     private void audioAdClickThrough(AudioAd audioAd) {
         final Urn trackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
-        startActivity(audioAd.getVisualAd().getClickThroughUrl());
+        navigator.openAdClickthrough(context, audioAd.getVisualAd().getClickThroughUrl().get());
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick(audioAd, trackUrn, accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
     }
 
     private void videoAdClickThrough(VideoAd videoAd) {
-        startActivity(videoAd.getClickThroughUrl());
+        navigator.openAdClickthrough(context, videoAd.getClickThroughUrl());
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdClickThrough(videoAd, playQueueManager.getCurrentTrackSourceInfo()));
     }
 
     public void onAboutAds(Context context) {
         whyAdsPresenter.show(context);
-    }
-
-    private void startActivity(Uri uri) {
-        final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
     }
 
 }

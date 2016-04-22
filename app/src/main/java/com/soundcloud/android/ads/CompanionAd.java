@@ -15,7 +15,7 @@ public abstract class CompanionAd {
         return new AutoValue_CompanionAd(
                 apiCompanionAd.urn,
                 Uri.parse(apiCompanionAd.imageUrl),
-                Uri.parse(apiCompanionAd.clickthroughUrl),
+                Optional.fromNullable(apiCompanionAd.clickthroughUrl),
                 apiCompanionAd.trackingImpressionUrls,
                 apiCompanionAd.trackingClickUrls,
                 apiCompanionAd.ctaButtonText
@@ -26,7 +26,7 @@ public abstract class CompanionAd {
 
     public abstract Uri getImageUrl();
 
-    public abstract Uri getClickThroughUrl();
+    public abstract Optional<String> getClickThroughUrl();
 
     public abstract List<String> getImpressionUrls();
 

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
@@ -46,10 +47,11 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private WhyAdsDialogPresenter whyAdsPresenter;
     @Mock private Activity activity;
+    @Mock private Navigator navigator;
 
     @Before
     public void setUp() throws Exception {
-        listener = new AdPageListener(context(),
+        listener = new AdPageListener(context(), navigator,
                  playSessionStateProvider, playSessionController, playQueueManager,
                  eventBus, adsOperations, accountOperations, whyAdsPresenter);
 
@@ -62,16 +64,25 @@ public class AdPageListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onClickThroughShouldOpenUrlWhenCurrentTrackIsAudioAd() throws CreateModelException {
+    public void onClickThroughShouldOpenUrlForAudioAd() throws CreateModelException {
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
         listener.onClickThrough();
 
         final AudioAd audioAd = (AudioAd) adData;
-        Intent intent = Shadows.shadowOf(context()).getShadowApplication().getNextStartedActivity();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getAction()).isEqualTo(Intent.ACTION_VIEW);
-        assertThat(intent.getData()).isSameAs(audioAd.getVisualAd().getClickThroughUrl());
+        verify(navigator).openAdClickthrough(context(), audioAd.getVisualAd().getClickThroughUrl().get());
+    }
+
+    @Test
+    public void onClickThroughShouldOpenUrlForVideoAd() throws CreateModelException {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(videoAd));
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
+
+        listener.onClickThrough();
+
+        verify(navigator).openAdClickthrough(context(), videoAd.getClickThroughUrl());
     }
 
     @Test

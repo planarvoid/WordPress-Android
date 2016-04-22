@@ -1,12 +1,13 @@
 package com.soundcloud.android.playback.ui;
 
-import android.content.res.Resources;
-import android.net.Uri;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
+
+import android.content.res.Resources;
+import android.net.Uri;
 
 public class AudioPlayerAd extends PlayerAd {
 
@@ -22,6 +23,10 @@ public class AudioPlayerAd extends PlayerAd {
         return audioData.getVisualAd().getCallToActionButtonText().or(
                 resources.getString(R.string.ads_call_to_action)
         );
+    }
+
+    Optional<String> getClickThroughUrl() {
+        return audioData.getVisualAd().getClickThroughUrl();
     }
 
     Uri getArtwork() {

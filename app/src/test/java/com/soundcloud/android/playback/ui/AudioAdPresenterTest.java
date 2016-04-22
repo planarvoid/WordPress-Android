@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.playback.PlayStateReason;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -14,7 +12,9 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -22,6 +22,7 @@ import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -32,8 +33,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.concurrent.TimeUnit;
-
-import rx.Observable;
 
 public class AudioAdPresenterTest extends AndroidUnitTest {
 
@@ -95,7 +94,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void toggleClickThroughOnCenteredOverlayClick() {
-        adView.findViewById(R.id.centered_ad_overlay).performClick();
+        adView.findViewById(R.id.centered_ad_clickable_overlay).performClick();
 
         verify(pageListener).onClickThrough();
     }
@@ -199,6 +198,26 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
         assertCenteredLayoutVisible();
         assertFullbleedLayoutInvisible();
+    }
+
+    @Test
+    public void centeredAdWithoutClickthroughIsNotClickable() {
+        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
+        bindNonClickableAd();
+
+        assertThat(adView.findViewById(R.id.centered_ad_clickable_overlay)).isGone();
+        assertThat(adView.findViewById(R.id.centered_ad_artwork)).isVisible();
+        assertFullbleedLayoutInvisible();
+    }
+
+    @Test
+    public void fullbleedAdWithoutClickthroughDoesNotShowCallToAction() {
+        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
+        bindNonClickableAd();
+
+        assertCenteredLayoutInvisible();
+        assertThat(adView.findViewById(R.id.cta_button)).isGone();
+        assertThat(adView.findViewById(R.id.fullbleed_ad_artwork)).isVisible();
     }
 
     @Test
@@ -341,12 +360,12 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     }
 
     private void assertCenteredLayoutVisible() {
-        assertThat(adView.findViewById(R.id.centered_ad_overlay)).isVisible();
+        assertThat(adView.findViewById(R.id.centered_ad_clickable_overlay)).isVisible();
         assertThat(adView.findViewById(R.id.centered_ad_artwork)).isVisible();
     }
 
     private void assertCenteredLayoutInvisible() {
-        assertThat(adView.findViewById(R.id.centered_ad_overlay)).isInvisible();
+        assertThat(adView.findViewById(R.id.centered_ad_clickable_overlay)).isInvisible();
         assertThat(adView.findViewById(R.id.centered_ad_artwork)).isInvisible();
     }
 
@@ -380,4 +399,9 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     private void bindUnskippableAd() {
         presenter.bindItemView(adView, new AudioPlayerAd(buildAd(false), buildTrack()));
     }
+
+    private void bindNonClickableAd() {
+        presenter.bindItemView(adView, new AudioPlayerAd(AdFixtures.getNonClickableAudioAd(TRACK_URN), buildTrack()));
+    }
+
 }
