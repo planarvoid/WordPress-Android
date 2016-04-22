@@ -1,10 +1,11 @@
 package com.soundcloud.android.ads;
 
-import android.net.Uri;
-
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
+
+import android.net.Uri;
 
 import java.util.List;
 
@@ -15,11 +16,17 @@ public abstract class CompanionAd {
         return new AutoValue_CompanionAd(
                 apiCompanionAd.urn,
                 Uri.parse(apiCompanionAd.imageUrl),
-                Optional.fromNullable(apiCompanionAd.clickthroughUrl),
+                extractClickThrough(apiCompanionAd),
                 apiCompanionAd.trackingImpressionUrls,
                 apiCompanionAd.trackingClickUrls,
                 apiCompanionAd.ctaButtonText
         );
+    }
+
+    private static Optional<String> extractClickThrough(ApiCompanionAd apiCompanionAd) {
+        return Strings.isBlank(apiCompanionAd.clickthroughUrl)
+                ? Optional.<String>absent()
+                : Optional.of(apiCompanionAd.clickthroughUrl);
     }
 
     public abstract Urn getAdUrn();
