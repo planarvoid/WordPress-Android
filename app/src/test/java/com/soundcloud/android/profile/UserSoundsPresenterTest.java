@@ -86,6 +86,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
         doReturn(clickListener).when(clickListenerFactory).create(SEARCH_QUERY_SOURCE_INFO);
         when(operations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(resources.getInteger(R.integer.user_profile_card_grid_span_count)).thenReturn(1);
     }
 
     @Test
@@ -170,6 +171,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         View view = mock(View.class);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(mock(RecyclerView.class));
+        when(view.getResources()).thenReturn(resources);
         return view;
     }
 }

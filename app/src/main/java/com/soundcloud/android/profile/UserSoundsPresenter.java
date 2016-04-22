@@ -83,7 +83,9 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                         UserSoundsItemClickListener.Factory clickListenerFactory,
                         EventBus eventBus,
                         Resources resources) {
-        super(swipeRefreshAttacher, Options.list().useDividers(Options.DividerMode.NONE).build());
+        super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.user_profile_card_grid_span_count)
+                .useDividers(Options.DividerMode.NONE)
+                .build());
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.operations = operations;
@@ -130,6 +132,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         configureEmptyView(getEmptyView(), fragment);
     }
