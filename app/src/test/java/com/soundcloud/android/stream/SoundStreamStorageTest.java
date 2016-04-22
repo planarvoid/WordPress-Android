@@ -41,16 +41,17 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new SoundStreamStorage(propellerRx(), propeller());
+        storage = new SoundStreamStorage(propeller());
     }
 
     @Test
     public void loadingInitialStreamItemsIncludesPromotedTrack() {
-        ApiTrack track = testFixtures().insertPromotedStreamTrack(TIMESTAMP);
+        ApiUser promoter = ModelFixtures.create(ApiUser.class);
+        ApiTrack track = testFixtures().insertPromotedStreamTrack(promoter, TIMESTAMP);
 
         storage.timelineItems(50).subscribe(observer);
 
-        final PropertySet promotedTrack = createPromotedTrackPropertySet(track);
+        final PropertySet promotedTrack = createPromotedTrackPropertySet(track, promoter);
 
         verify(observer).onNext(promotedTrack);
         verify(observer).onCompleted();
@@ -58,12 +59,12 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void promotedTrackIsNotDeduplicatedWithSameTrack() {
-        final ApiTrack track = testFixtures().insertTrack();
+        ApiUser promoter = ModelFixtures.create(ApiUser.class);
+        ApiTrack track = testFixtures().insertPromotedStreamTrack(promoter, TIMESTAMP);
         testFixtures().insertStreamTrackPost(track.getId(), TIMESTAMP);
-        ApiTrack promotedTrack = testFixtures().insertPromotedStreamTrack(track, TIMESTAMP);
 
         final PropertySet normalTrackProperties = createTrackPropertySet(track);
-        final PropertySet promotedTrackProperties = createPromotedTrackPropertySet(promotedTrack);
+        final PropertySet promotedTrackProperties = createPromotedTrackPropertySet(track, promoter);
 
         storage.timelineItems(50).subscribe(observer);
 
@@ -379,11 +380,12 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
     }
 
-    private PropertySet createPromotedTrackPropertySet(final ApiTrack track) {
+    private PropertySet createPromotedTrackPropertySet(ApiTrack track, ApiUser promoter) {
         return createTrackPropertySet(track)
+                .put(SoundStreamProperty.AVATAR_URL_TEMPLATE, promoter.getImageUrlTemplate())
                 .put(PromotedItemProperty.AD_URN, "promoted:track:123")
-                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(83)))
-                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of("SoundCloud"))
+                .put(PromotedItemProperty.PROMOTER_URN, Optional.of(promoter.getUrn()))
+                .put(PromotedItemProperty.PROMOTER_NAME, Optional.of(promoter.getUsername()))
                 .put(PromotedItemProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
                 .put(PromotedItemProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
                 .put(PromotedItemProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))

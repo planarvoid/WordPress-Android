@@ -3,6 +3,7 @@ package com.soundcloud.android.stream;
 import static com.soundcloud.propeller.query.Query.from;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -37,7 +38,7 @@ public class RemoveStalePromotedItemsCommandTest extends StorageIntegrationTest 
 
     @Test
     public void removesStalePromotedTrackFromStreamAndReportsChange() throws Exception {
-        testFixtures().insertPromotedStreamTrack(testFixtures().insertTrack(), now, 123L);
+        testFixtures().insertPromotedStreamTrack(Urn.forTrack(1), testFixtures().insertUser(), now, 123L);
         dateProvider.advanceBy(RemoveStalePromotedItemsCommand.STALE_TIME_MILLIS + 1, TimeUnit.MILLISECONDS);
 
         assertThat(command.call(null)).containsExactly(123L);

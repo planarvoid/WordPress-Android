@@ -16,6 +16,8 @@ public interface PromotedListItem extends StreamItem {
 
     Optional<Urn> getPromoterUrn();
 
+    Optional<String> getAvatarUrlTemplate();
+
     List<String> getPlayUrls();
 
     List<String> getImpressionUrls();

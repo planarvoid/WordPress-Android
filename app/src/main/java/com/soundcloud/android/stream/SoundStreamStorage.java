@@ -30,6 +30,7 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -81,6 +82,25 @@ public class SoundStreamStorage implements TimelineStorage {
 
     private static final Object[] PROMOTED_STREAM_SELECTION = buildPromotedSelection();
 
+    // Users for promoted items are not currently joined into the SoundStreamView, so we need
+    // to do another round-trip to the DB.
+    private final Action1<PropertySet> backfillPromoterAvatar = new Action1<PropertySet>() {
+        @Override
+        public void call(PropertySet propertySet) {
+            final Optional<Urn> maybePromoterUrn = propertySet.getOrElse(
+                    PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent());
+            if (maybePromoterUrn.isPresent()) {
+                final long promoterId = maybePromoterUrn.get().getNumericId();
+                final Query promoterArtworkQuery = Query
+                        .from(Table.Users)
+                        .select(TableColumns.Users.AVATAR_URL)
+                        .whereEq(TableColumns.Users._ID, promoterId);
+                final String avatarUrlTemplate = propeller.query(promoterArtworkQuery).firstOrDefault(String.class, null);
+                propertySet.put(SoundStreamProperty.AVATAR_URL_TEMPLATE, Optional.fromNullable(avatarUrlTemplate));
+            }
+        }
+    };
+
     private static Object[] buildPromotedSelection() {
         Object[] promotedSelection = new Object[STREAM_SELECTION.length + PROMOTED_EXTRAS.length];
         System.arraycopy(STREAM_SELECTION, 0, promotedSelection, 0, STREAM_SELECTION.length);
@@ -89,12 +109,12 @@ public class SoundStreamStorage implements TimelineStorage {
     }
 
     private final PropellerRx propellerRx;
-    private final PropellerDatabase database;
+    private final PropellerDatabase propeller;
 
     @Inject
-    public SoundStreamStorage(PropellerRx propellerRx, PropellerDatabase database) {
-        this.propellerRx = propellerRx;
-        this.database = database;
+    public SoundStreamStorage(PropellerDatabase propeller) {
+        this.propellerRx = new PropellerRx(propeller);
+        this.propeller = propeller;
     }
 
     @Override
@@ -108,7 +128,9 @@ public class SoundStreamStorage implements TimelineStorage {
                 .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
-        return propellerRx.query(query).map(new PromotedStreamItemMapper());
+        return propellerRx.query(query)
+                .map(new PromotedStreamItemMapper())
+                .doOnNext(backfillPromoterAvatar);
     }
 
     @Override
@@ -130,7 +152,7 @@ public class SoundStreamStorage implements TimelineStorage {
                 .whereNull(SoundStreamView.PROMOTED_ID)
                 .limit(limit);
 
-        return database.query(query).toList(new StreamItemMapper());
+        return propeller.query(query).toList(new StreamItemMapper());
     }
 
     public Observable<Integer> timelineItemCountSince(final long timestamp) {

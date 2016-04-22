@@ -618,32 +618,40 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertPromotedStreamTrack(long timestamp) {
-        return insertPromotedStreamTrack(insertTrack(), timestamp);
+        ApiUser promoter = ModelFixtures.create(ApiUser.class);
+        return insertPromotedStreamTrack(promoter, timestamp);
     }
 
-    public ApiTrack insertPromotedStreamTrack(ApiTrack apiTrack, long timestasmp) {
-        return insertPromotedStreamTrack(apiTrack, timestasmp, 26 /** why 26? - JS**/);
+    public ApiTrack insertPromotedStreamTrack(UserRecord promoter, long timestamp) {
+        ApiTrack track = insertTrack();
+        insertPromotedStreamTrack(track.getUrn(), promoter, timestamp, 0);
+        return track;
     }
 
-    public ApiTrack insertPromotedStreamTrack(ApiTrack track, long timestamp, long promotedId) {
+    public void insertPromotedStreamTrack(Urn trackUrn, UserRecord promoter, long timestamp, long promotedId) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.SoundStream.SOUND_ID, track.getUrn().getNumericId());
+        cv.put(TableColumns.SoundStream.SOUND_ID, trackUrn.getNumericId());
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.SoundStream.CREATED_AT, timestamp);
         cv.put(TableColumns.SoundStream.PROMOTED_ID, promotedId);
         insertInto(Table.SoundStream, cv);
 
-        insertPromotedTrackMetadata(promotedId, timestamp);
-        return track;
+        insertPromotedTrackMetadata(promoter, promotedId, timestamp);
     }
 
     public void insertPromotedTrackMetadata(long promotedId, long timestamp) {
+        ApiUser promoter = ModelFixtures.create(ApiUser.class);
+        insertPromotedTrackMetadata(promoter, promotedId, timestamp);
+    }
+
+    public void insertPromotedTrackMetadata(UserRecord promoter, long promotedId, long timestamp) {
+        insertUser(promoter);
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.PromotedTracks._ID, promotedId);
         cv.put(TableColumns.PromotedTracks.CREATED_AT, timestamp);
         cv.put(TableColumns.PromotedTracks.AD_URN, "promoted:track:123");
-        cv.put(TableColumns.PromotedTracks.PROMOTER_ID, 83);
-        cv.put(TableColumns.PromotedTracks.PROMOTER_NAME, "SoundCloud");
+        cv.put(TableColumns.PromotedTracks.PROMOTER_ID, promoter.getUrn().getNumericId());
+        cv.put(TableColumns.PromotedTracks.PROMOTER_NAME, promoter.getUsername());
         cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, "promoted1 promoted2");
         cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, "promoted3 promoted4");
         cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, "promoted5 promoted6");

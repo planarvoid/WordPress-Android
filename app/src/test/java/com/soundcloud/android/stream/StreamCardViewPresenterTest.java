@@ -4,6 +4,7 @@ import static com.soundcloud.android.testsupport.matchers.ImageResourceMatcher.i
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -174,10 +175,9 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = repostedPlaylist();
         presenter.bind(itemView, playlistItem);
 
-        ImageResource imageResource = playlistItem.getAvatarImageResource();
         verify(imageOperations)
                 .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(playlistItem.getReposterUrn(), imageResource.getImageUrlTemplate())),
+                        argThat(isImageResourceFor(playlistItem.getReposterUrn(), playlistItem.getAvatarUrlTemplate())),
                         any(ApiImageSize.class),
                         any(ImageView.class));
     }
@@ -202,22 +202,33 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = postedPlaylist();
         presenter.bind(itemView, playlistItem);
 
-        ImageResource imageResource = playlistItem.getAvatarImageResource();
         verify(imageOperations)
                 .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(playlistItem.getCreatorUrn(), imageResource.getImageUrlTemplate())),
+                        argThat(isImageResourceFor(playlistItem.getCreatorUrn(), playlistItem.getAvatarUrlTemplate())),
                         any(ApiImageSize.class),
                         any(ImageView.class));
     }
 
     @Test
-    public void bindsHeaderAvatarForPromotedPlaylist() {
-        PromotedPlaylistItem playlistItem = promotedPlaylistItem();
-        presenter.bind(itemView, playlistItem);
+    public void bindsHeaderAvatarForPromotedItemWithPromoter() {
+        PromotedPlaylistItem promotedItem = promotedPlaylistItem();
+        presenter.bind(itemView, promotedItem);
 
         verify(imageOperations)
                 .displayCircularInAdapterView(
-                        eq(playlistItem.getPromoterUrn().get()),
+                        argThat(isImageResourceFor(promotedItem.getPromoterUrn().get(), promotedItem.getAvatarUrlTemplate())),
+                        any(ApiImageSize.class),
+                        any(ImageView.class));
+    }
+
+    @Test
+    public void doesNotBindHeaderAvatarForPromotedItemWithoutPromoter() {
+        PromotedPlaylistItem promotedItem = promotedPlaylistWithoutPromoter();
+        presenter.bind(itemView, promotedItem);
+
+        verify(imageOperations, never())
+                .displayCircularInAdapterView(
+                        any(ImageResource.class),
                         any(ApiImageSize.class),
                         any(ImageView.class));
     }
@@ -248,6 +259,10 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private PromotedPlaylistItem promotedPlaylistItem() {
         return PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+    }
+
+    private PromotedPlaylistItem promotedPlaylistWithoutPromoter() {
+        return PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylistWithoutPromoter());
     }
 
     private PlaylistItem postedPlaylist() {

@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -17,6 +18,7 @@ import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -58,7 +60,7 @@ class StreamCardViewPresenter {
         if (playableItem instanceof PromotedListItem) {
             showPromoted(itemView, (PromotedListItem) playableItem);
         } else {
-            loadAvatar(itemView, playableItem.getAvatarImageResource());
+            loadAvatar(itemView, playableItem.getUserUrn(), playableItem.getAvatarUrlTemplate());
             setHeaderText(itemView, playableItem);
             showCreatedAt(itemView, playableItem.getCreatedAt());
             itemView.togglePrivateIndicator(playableItem.isPrivate());
@@ -105,11 +107,10 @@ class StreamCardViewPresenter {
         }
     }
 
-    private void showPromoted(StreamItemViewHolder itemView, final PromotedListItem promoted) {
+    private void showPromoted(StreamItemViewHolder itemView, PromotedListItem promoted) {
         if (promoted.hasPromoter()) {
             final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatarByUrn(itemView, promoted.getPromoterUrn().get());
-
+            loadAvatar(itemView, promoted.getPromoterUrn().get(), promoted.getAvatarUrlTemplate());
             headerSpannableBuilder.actionSpannedString(action, isTrack(promoted));
             itemView.setPromoterHeader(promoted.getPromoterName().get(), headerSpannableBuilder.get());
             itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
@@ -126,17 +127,11 @@ class StreamCardViewPresenter {
         itemView.setCreatedAt(formattedTime);
     }
 
-    private void loadAvatar(StreamItemViewHolder itemView, ImageResource imageResource) {
-        itemView.setCreatorClickable(new ProfileClickViewListener(imageResource.getUrn()));
+    private void loadAvatar(StreamItemViewHolder itemView, Urn userUrn, Optional<String> avatarUrl) {
+        final ImageResource avatar = SimpleImageResource.create(userUrn, avatarUrl);
+        itemView.setCreatorClickable(new ProfileClickViewListener(userUrn));
         imageOperations.displayCircularInAdapterView(
-                imageResource, ApiImageSize.getListItemImageSize(resources),
-                itemView.getUserImage());
-    }
-
-    private void loadAvatarByUrn(StreamItemViewHolder itemView, Urn urn) {
-        itemView.setCreatorClickable(new ProfileClickViewListener(urn));
-        imageOperations.displayCircularInAdapterView(
-                urn, ApiImageSize.getListItemImageSize(resources),
+                avatar, ApiImageSize.getListItemImageSize(resources),
                 itemView.getUserImage());
     }
 

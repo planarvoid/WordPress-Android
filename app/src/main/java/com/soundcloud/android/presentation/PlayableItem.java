@@ -2,8 +2,6 @@ package com.soundcloud.android.presentation;
 
 import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
 
-import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
@@ -61,6 +59,10 @@ public abstract class PlayableItem implements StreamItem {
     @Override
     public Urn getUrn() {
         return source.get(PlayableProperty.URN);
+    }
+
+    public Urn getUserUrn() {
+        return getReposter().isPresent() ? getReposterUrn() : getCreatorUrn();
     }
 
     @Override
@@ -128,10 +130,8 @@ public abstract class PlayableItem implements StreamItem {
         return source.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
     }
 
-    public ImageResource getAvatarImageResource() {
-        final Urn urn = getReposter().isPresent() ? getReposterUrn() : getCreatorUrn();
-        return SimpleImageResource.create(urn,
-                source.getOrElse(SoundStreamProperty.AVATAR_URL_TEMPLATE, Optional.<String>absent()));
+    public Optional<String> getAvatarUrlTemplate() {
+        return source.getOrElse(SoundStreamProperty.AVATAR_URL_TEMPLATE, Optional.<String>absent());
     }
 
     public PropertySet getSource() {
