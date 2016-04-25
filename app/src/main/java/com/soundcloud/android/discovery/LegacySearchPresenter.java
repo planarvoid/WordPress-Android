@@ -290,6 +290,12 @@ class LegacySearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         }
     }
 
+    @Override
+    public void performSearch(String searchQuery) {
+        //No operation here, since this is gonna be removed when
+        //enabling feature flag NEW_SEARCH_SUGGESTIONS
+    }
+
     private class SearchViewClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {

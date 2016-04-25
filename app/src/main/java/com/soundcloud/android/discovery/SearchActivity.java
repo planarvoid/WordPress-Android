@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import android.view.MenuItem;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
@@ -7,12 +8,11 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
-
-import android.view.MenuItem;
-
 import javax.inject.Inject;
 
-public class SearchActivity extends PlayerActivity {
+import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresenter.SearchListener;
+
+public class SearchActivity extends PlayerActivity implements SearchListener {
 
     @Inject @LightCycle FeaturedSearchPresenter presenter;
 
@@ -39,5 +39,10 @@ public class SearchActivity extends PlayerActivity {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onSearchClicked(String searchQuery) {
+        presenter.performSearch(searchQuery);
     }
 }

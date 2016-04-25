@@ -10,4 +10,6 @@ import android.support.v7.app.AppCompatActivity;
  */
 public interface FeaturedSearchPresenter extends ActivityLightCycle<AppCompatActivity> {
     void dismiss(AppCompatActivity activity);
+
+    void performSearch(String searchQuery);
 }

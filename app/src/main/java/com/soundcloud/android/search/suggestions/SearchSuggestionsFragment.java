@@ -12,21 +12,14 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchSuggestionsFragment> {
+import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresenter.*;
+
+public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchSuggestionsFragment>
+    implements SearchListener {
 
     public static final String TAG = "suggestions_search";
 
-    static final String EXTRA_QUERY = "query";
-
     @Inject @LightCycle SearchSuggestionsPresenter presenter;
-
-    public static SearchSuggestionsFragment create(String query) {
-        final Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_QUERY, query);
-        final SearchSuggestionsFragment fragment = new SearchSuggestionsFragment();
-        fragment.setArguments(bundle);
-        return fragment;
-    }
 
     public SearchSuggestionsFragment() {
         setRetainInstance(true);
@@ -44,5 +37,12 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
 
     public void clearSuggestions() {
         presenter.clearSuggestions();
+    }
+
+    @Override
+    public void onSearchClicked(String searchQuery) {
+        if (getActivity() instanceof SearchListener) {
+            ((SearchListener) getActivity()).onSearchClicked(searchQuery);
+        }
     }
 }
