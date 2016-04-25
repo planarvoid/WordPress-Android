@@ -21,6 +21,7 @@ import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import java.util.List;
 
 public class PlaylistOperations {
@@ -55,7 +56,7 @@ public class PlaylistOperations {
 
     private final Scheduler scheduler;
     private final PlaylistStorage playlistStorage;
-    private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
+    private final Provider<LoadPlaylistTrackUrnsCommand> loadPlaylistTrackUrnsProvider;
     private final PlaylistTracksStorage playlistTracksStorage;
     private final AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
@@ -85,7 +86,7 @@ public class PlaylistOperations {
                        SyncInitiator syncInitiator,
                        PlaylistTracksStorage playlistTracksStorage,
                        PlaylistStorage playlistStorage,
-                       LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns,
+                       Provider<LoadPlaylistTrackUrnsCommand> loadPlaylistTrackUrnsProvider,
                        AddTrackToPlaylistCommand addTrackToPlaylistCommand,
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
                        EditPlaylistCommand editPlaylistCommand, EventBus eventBus) {
@@ -93,7 +94,7 @@ public class PlaylistOperations {
         this.syncInitiator = syncInitiator;
         this.playlistTracksStorage = playlistTracksStorage;
         this.playlistStorage = playlistStorage;
-        this.loadPlaylistTrackUrns = loadPlaylistTrackUrns;
+        this.loadPlaylistTrackUrnsProvider = loadPlaylistTrackUrnsProvider;
         this.addTrackToPlaylistCommand = addTrackToPlaylistCommand;
         this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
         this.editPlaylistCommand = editPlaylistCommand;
@@ -164,7 +165,7 @@ public class PlaylistOperations {
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback(final Urn playlistUrn) {
-        return loadPlaylistTrackUrns.with(playlistUrn)
+        return loadPlaylistTrackUrnsProvider.get().with(playlistUrn)
                 .toObservable()
                 .subscribeOn(scheduler)
                 .flatMap(new Func1<List<Urn>, Observable<List<Urn>>>() {
@@ -202,7 +203,7 @@ public class PlaylistOperations {
                 .flatMap(new Func1<SyncResult, Observable<List<Urn>>>() {
                     @Override
                     public Observable<List<Urn>> call(SyncResult syncResult) {
-                        return loadPlaylistTrackUrns.with(playlistUrn)
+                        return loadPlaylistTrackUrnsProvider.get().with(playlistUrn)
                                 .toObservable()
                                 .subscribeOn(scheduler);
                     }

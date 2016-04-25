@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -72,7 +73,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     public void setUp() {
         eventBus = new TestEventBus();
         operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, tracksStorage,
-                playlistStorage, loadPlaylistTrackUrns,
+                playlistStorage, providerOf(loadPlaylistTrackUrns),
                 addTrackToPlaylistCommand, removeTrackFromPlaylistCommand, editPlaylistCommand, eventBus);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
 
@@ -357,6 +358,4 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
         assertThat(editPlaylistCommandParamsCaptor.getValue().isPrivate).isEqualTo(IS_PRIVATE);
         assertThat(editPlaylistCommandParamsCaptor.getValue().playlistTitle).isEqualTo(NEW_TITLE);
     }
-
-
 }
