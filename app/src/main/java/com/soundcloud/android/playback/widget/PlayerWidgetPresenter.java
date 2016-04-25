@@ -43,7 +43,6 @@ class PlayerWidgetPresenter {
     }
 
     /* package */ void updatePlayState(Context context, boolean isPlaying) {
-
         if (widgetTrack != null) {
             PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
                     .forIsPlaying(widgetTrack, isPlaying)
@@ -54,11 +53,22 @@ class PlayerWidgetPresenter {
 
     /* package */ void updateTrackInformation(final Context context, final PropertySet trackProperties) {
         artworkSubscription.unsubscribe();
-        widgetTrack = new WidgetTrack(trackProperties);
+        widgetTrack = new WidgetTrack(context.getResources(), trackProperties);
+        if (widgetTrack.isAudioAd()) {
+            updateWithoutArtwork(context);
+        } else {
+            updateAndLoadArtwork(context);
+        }
+    }
+
+    private void updateWithoutArtwork(Context context) {
+        updateRemoveViews(context, null);
+    }
+
+    private void updateAndLoadArtwork(Context context) {
         Bitmap cachedArtwork = getCachedBitmap(context, widgetTrack);
         updateRemoveViews(context, cachedArtwork);
-
-        if (cachedArtwork == null){
+        if (cachedArtwork == null) {
             loadArtwork(context);
         }
     }
@@ -84,8 +94,8 @@ class PlayerWidgetPresenter {
     private DefaultSubscriber<Bitmap> getArtworkSubscriber(final Context context) {
         return new DefaultSubscriber<Bitmap>(){
             @Override
-            public void onNext(Bitmap args) {
-                updateRemoveViews(context, args);
+            public void onNext(Bitmap bitmap) {
+                updateRemoveViews(context, bitmap);
             }
         };
     }
@@ -94,7 +104,7 @@ class PlayerWidgetPresenter {
         Log.d(PlayerWidgetPresenter.this, "resetting widget");
         artworkSubscription.unsubscribe();
         widgetTrack = null;
-
+        
         pushUpdate(buildEmptyRemoteViews(context));
     }
 

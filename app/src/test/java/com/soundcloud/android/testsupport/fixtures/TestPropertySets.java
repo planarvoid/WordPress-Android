@@ -45,6 +45,11 @@ public abstract class TestPropertySets {
         );
     }
 
+    public static PropertySet expectedAudioAdForWidget() {
+        return expectedTrackForWidget()
+                .put(AdProperty.IS_AUDIO_AD, true);
+    }
+
     public static PropertySet upsellableTrackForPlayer() {
         return expectedTrackForPlayer().put(TrackProperty.SNIPPED, true).put(TrackProperty.SUB_HIGH_TIER, true);
     }

@@ -40,10 +40,17 @@ public class RemoteAudioManagerUpdater {
 
     private Subscription currentTrackSubscription = RxUtils.invalidSubscription();
 
-    private final Func1<Bitmap, Bitmap> copyBitmap = new Func1<Bitmap, Bitmap>() {
+    private static final Func1<Bitmap, Bitmap> COPY_BITMAP = new Func1<Bitmap, Bitmap>() {
         @Override
         public Bitmap call(Bitmap bitmap) {
             return bitmap.copy(Bitmap.Config.ARGB_8888, false);
+        }
+    };
+
+    private static final Func1<PropertySet, Boolean> IS_NOT_AUDIO_AD = new Func1<PropertySet, Boolean>() {
+        @Override
+        public Boolean call(PropertySet track) {
+            return !track.get(AdProperty.IS_AUDIO_AD);
         }
     };
 
@@ -52,7 +59,7 @@ public class RemoteAudioManagerUpdater {
         public Observable<TrackAndBitmap> call(final PropertySet track) {
             return imageOperations.artwork(SimpleImageResource.create(track), ApiImageSize.getFullImageSize(resources))
                     .filter(validateBitmap(track.get(TrackProperty.URN)))
-                    .map(copyBitmap)
+                    .map(COPY_BITMAP)
                     .map(new Func1<Bitmap, TrackAndBitmap>() {
                         @Override
                         public RemoteAudioManagerUpdater.TrackAndBitmap call(Bitmap bitmap) {
@@ -114,6 +121,7 @@ public class RemoteAudioManagerUpdater {
                                 audioManager.onTrackChanged(propertyBindings, null);
                             }
                         })
+                        .filter(IS_NOT_AUDIO_AD)
                         .flatMap(loadArtwork)
                         .subscribe(new ArtworkSubscriber());
             }

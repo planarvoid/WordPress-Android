@@ -7,16 +7,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.NotificationConstants;
+import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackService;
@@ -38,6 +37,7 @@ import rx.subjects.PublishSubject;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
@@ -60,12 +60,15 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
     @Mock private PlaybackStateProvider playbackStateProvider;
     @Mock private PlaybackService playbackService;
     @Captor private ArgumentCaptor<PropertySet> propertySetCaptor;
+
     private PropertySet trackProperties;
 
     @Before
     public void setUp() throws Exception {
         trackProperties = expectedTrackForPlayer().put(AdProperty.IS_AUDIO_AD, false);
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
+        when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
+                any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
 
         controller = new BackgroundPlaybackNotificationController(
                 trackRepository,
@@ -73,7 +76,8 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
                 notificationManager,
                 imageOperations,
                 InjectionSupport.providerOf(notificationBuilder),
-                playbackStateProvider
+                playbackStateProvider,
+                resources()
         );
     }
 
@@ -88,6 +92,9 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
 
     @Test
     public void playQueueEventCreatesNewNotificationWhenTrackSet() {
+        when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
+                any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.<Bitmap>never());
+
         controller.setTrack(playbackService, trackProperties);
 
         verify(notificationManager).notify(eq(NotificationConstants.PLAYBACK_NOTIFY_ID), any(Notification.class));
@@ -103,20 +110,7 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
     }
 
     @Test
-    public void playQueueEventDoesNotCheckBitmapCacheIfPresenterNotArtworkCapable() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(false);
-
-        controller.setTrack(playbackService, PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
-
-        verify(imageOperations, never()).getCachedBitmap(any(ImageResource.class), any(ApiImageSize.class), anyInt(), anyInt());
-    }
-
-    @Test
     public void playQueueEventSetsBitmapWhenArtworkCapableAndNoCachedBitmap() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
-                any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
-
         controller.setTrack(playbackService, PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
 
         verify(notificationBuilder).setIcon(bitmap);
@@ -127,12 +121,21 @@ public class BackgroundPlaybackNotificationControllerTest extends AndroidUnitTes
         PublishSubject<Bitmap> imageObservable = PublishSubject.create();
         when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
                 any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(imageObservable, Observable.<Bitmap>never());
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
 
         controller.setTrack(playbackService, PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
         controller.setTrack(playbackService, PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
 
         assertThat(imageObservable.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void playQueueEventSetsDefaultImageForAudioAd() {
+        PropertySet adTrackProperties = trackProperties.put(AdProperty.IS_AUDIO_AD, true);
+        when(imageOperations.decodeResource(any(Resources.class), eq(R.drawable.notification_loading))).thenReturn(loadingBitmap);
+
+        controller.setTrack(playbackService, adTrackProperties);
+
+        verify(notificationBuilder).setIcon(loadingBitmap);
     }
 
     @Test

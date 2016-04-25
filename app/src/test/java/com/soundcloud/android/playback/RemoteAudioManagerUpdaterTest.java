@@ -7,6 +7,7 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
@@ -84,18 +85,17 @@ public class RemoteAudioManagerUpdaterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playQueueChangedHandlerSetsLockScreenStateWithBitmapForCurrentAudioAdTrack() {
+    public void playQueueChangedHandlerSetsLockScreenStateNullBitmapForCurrentAudioAdTrack() {
         when(audioManager.isTrackChangeSupported()).thenReturn(true);
         when(imageOperations.artwork(argThat(isImageResourceFor(track)), eq(ApiImageSize.T500))).thenReturn(Observable.just(bitmap));
 
 
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn, AdFixtures.getAudioAd(Urn.forTrack(123L)));
         track.put(AdProperty.IS_AUDIO_AD, true);
-        InOrder inOrder = Mockito.inOrder(audioManager);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
-        inOrder.verify(audioManager).onTrackChanged(track, null);
-        inOrder.verify(audioManager).onTrackChanged(eq(track), any(Bitmap.class));
+        verify(audioManager).onTrackChanged(track, null);
+        verifyZeroInteractions(imageOperations);
     }
 
     @Test
@@ -126,4 +126,5 @@ public class RemoteAudioManagerUpdaterTest extends AndroidUnitTest {
         inOrder.verify(audioManager).onTrackChanged(track, null);
         inOrder.verify(audioManager).onTrackChanged(eq(track), any(Bitmap.class));
     }
+
 }

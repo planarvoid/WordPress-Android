@@ -44,11 +44,6 @@ public class RichNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void clearIcon() {
-        remoteViews.setIcon(null);
-    }
-
-    @Override
     public void setContentIntent(PendingIntent pendingIntent) {
         builder.setContentIntent(pendingIntent);
     }
@@ -70,11 +65,6 @@ public class RichNotificationBuilder implements NotificationBuilder {
 
     @Override
     public boolean hasPlayStateSupport() {
-        return true;
-    }
-
-    @Override
-    public boolean hasArtworkSupport() {
         return true;
     }
 

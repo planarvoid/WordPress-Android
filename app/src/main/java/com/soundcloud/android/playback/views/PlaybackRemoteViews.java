@@ -35,7 +35,7 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
     }
 
     public void setCurrentCreator(CharSequence creator) {
-        if (TextUtils.isEmpty(creator)){
+        if (TextUtils.isEmpty(creator)) {
             setViewVisibility(R.id.separator_txt, View.GONE);
             setViewVisibility(R.id.user_txt, View.GONE);
         } else {

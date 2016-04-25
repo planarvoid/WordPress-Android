@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.widget;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.PlayableProperty;
@@ -7,12 +8,17 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
+
+import android.content.res.Resources;
 
 class WidgetTrack implements ImageResource{
 
+    private final Resources resources;
     private final PropertySet source;
 
-    WidgetTrack(PropertySet source) {
+    WidgetTrack(Resources resources, PropertySet source) {
+        this.resources = resources;
         this.source = source;
     }
 
@@ -27,11 +33,15 @@ class WidgetTrack implements ImageResource{
     }
 
     String getTitle() {
-        return source.get(PlayableProperty.TITLE);
+        return isAudioAd()
+                ? resources.getString(R.string.ads_advertisement)
+                : source.get(PlayableProperty.TITLE);
     }
 
     String getUserName() {
-        return source.get(PlayableProperty.CREATOR_NAME);
+        return isAudioAd()
+                ? Strings.EMPTY
+                : source.get(PlayableProperty.CREATOR_NAME);
     }
 
     Urn getUserUrn() {

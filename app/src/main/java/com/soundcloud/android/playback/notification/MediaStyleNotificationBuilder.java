@@ -118,12 +118,6 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void clearIcon() {
-        this.largeIcon = null;
-        builder.setLargeIcon((Bitmap) null);
-    }
-
-    @Override
     public void setContentIntent(PendingIntent pendingIntent) {
         this.pendingIntent = pendingIntent;
         builder.setContentIntent(pendingIntent);
@@ -158,11 +152,6 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
 
     @Override
     public boolean hasPlayStateSupport() {
-        return true;
-    }
-
-    @Override
-    public boolean hasArtworkSupport() {
         return true;
     }
 

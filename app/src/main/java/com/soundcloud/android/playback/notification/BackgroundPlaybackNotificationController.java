@@ -1,9 +1,11 @@
 package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.NotificationConstants;
+import com.soundcloud.android.R;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.playback.PlaybackStateProvider;
@@ -18,24 +20,29 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 class BackgroundPlaybackNotificationController implements PlaybackNotificationController.Strategy {
+
     private final PlaybackNotificationPresenter presenter;
     private final TrackRepository trackRepository;
     private final NotificationManager notificationManager;
     private final ImageOperations imageOperations;
     private final Provider<NotificationBuilder> builderProvider;
     private final PlaybackStateProvider playbackStateProvider;
+    private final Resources resources;
 
     private final Func1<PropertySet, Observable<NotificationBuilder>> toNotification = new Func1<PropertySet, Observable<NotificationBuilder>>() {
         @Override
         public Observable<NotificationBuilder> call(final PropertySet trackProperties) {
             presenter.updateTrackInfo(notificationBuilder, trackProperties);
-            if (notificationBuilder.hasArtworkSupport()) {
+            if (trackProperties.get(AdProperty.IS_AUDIO_AD)) {
+                notificationBuilder.setIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));
+            } else {
                 loadAndSetArtwork(SimpleImageResource.create(trackProperties), notificationBuilder);
             }
             return Observable.just(notificationBuilder);
@@ -48,13 +55,15 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
     @Inject
     BackgroundPlaybackNotificationController(TrackRepository trackRepository, PlaybackNotificationPresenter presenter,
                                              NotificationManager notificationManager, ImageOperations imageOperations,
-                                             Provider<NotificationBuilder> builderProvider, PlaybackStateProvider playbackStateProvider) {
+                                             Provider<NotificationBuilder> builderProvider,
+                                             PlaybackStateProvider playbackStateProvider, Resources resources) {
         this.trackRepository = trackRepository;
         this.presenter = presenter;
         this.notificationManager = notificationManager;
         this.imageOperations = imageOperations;
         this.builderProvider = builderProvider;
         this.playbackStateProvider = playbackStateProvider;
+        this.resources = resources;
     }
 
     @Override

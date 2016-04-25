@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 
@@ -18,17 +19,18 @@ public class NotificationTrack {
     }
 
     public String getTitle() {
-        return source.get(PlayableProperty.TITLE);
+        return isAudioAd()
+                ? Strings.EMPTY
+                : source.get(PlayableProperty.TITLE);
     }
 
     public String getCreatorName() {
-        if (isAnAdvertisement()) {
-            return resources.getString(R.string.ads_advertisement);
-        }
-        return source.get(PlayableProperty.CREATOR_NAME);
+        return isAudioAd()
+                ? resources.getString(R.string.ads_advertisement)
+                : source.get(PlayableProperty.CREATOR_NAME);
     }
 
-    public boolean isAnAdvertisement() {
+    public boolean isAudioAd() {
         return source.get(AdProperty.IS_AUDIO_AD);
     }
 

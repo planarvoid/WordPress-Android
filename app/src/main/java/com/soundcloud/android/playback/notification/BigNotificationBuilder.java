@@ -51,12 +51,6 @@ public class BigNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void clearIcon() {
-        smallRemoteViews.setIcon(null);
-        bigRemoteViews.setIcon(null);
-    }
-
-    @Override
     public void setContentIntent(PendingIntent pendingIntent) {
         builder.setContentIntent(pendingIntent);
     }
@@ -81,11 +75,6 @@ public class BigNotificationBuilder implements NotificationBuilder {
 
     @Override
     public boolean hasPlayStateSupport() {
-        return true;
-    }
-
-    @Override
-    public boolean hasArtworkSupport() {
         return true;
     }
 

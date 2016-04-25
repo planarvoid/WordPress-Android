@@ -14,8 +14,6 @@ public interface NotificationBuilder {
 
     void setSmallIcon(int icon);
 
-    void clearIcon();
-
     void setContentIntent(PendingIntent pendingIntent);
 
     void setTrackTitle(String title);
@@ -25,8 +23,6 @@ public interface NotificationBuilder {
     void setPlayingStatus(boolean isPlaying);
 
     boolean hasPlayStateSupport();
-
-    boolean hasArtworkSupport();
 
     ApiImageSize getImageSize();
 

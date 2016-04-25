@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.widget;
 
 import static com.soundcloud.android.testsupport.matchers.ImageResourceMatcher.isImageResourceFor;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -33,6 +34,7 @@ import android.graphics.Bitmap;
 import android.widget.RemoteViews;
 
 public class PlayerWidgetPresenterTest extends AndroidUnitTest {
+
     @Mock private AppWidgetManager appWidgetManager;
     @Mock private ImageOperations imageOperations;
 
@@ -44,7 +46,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdateWidgetUsingPlayerAppWidgetProviderWhenPlayStateChange() throws Exception {
+    public void updatesWidgetStateWhenPlayStateChanges() {
         final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
         setupArtworkLoad(trackProperties, Observable.<Bitmap>empty());
         presenter.updateTrackInformation(context(), trackProperties);
@@ -55,7 +57,7 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdateTrackUsingPlayerAppWidgetProviderWhenPlayableChange() throws Exception {
+    public void updatesTrackWhenPlayableChanges() {
         final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
         setupArtworkLoad(trackProperties, Observable.<Bitmap>empty());
         presenter.updateTrackInformation(context(), trackProperties);
@@ -64,10 +66,21 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdateWidgetUsingPlayerAppWidgetProviderOnReset() throws Exception {
+    public void resetsWidgetState() {
         presenter.reset(context());
 
         verifyUpdateViaPlayBackWidgetProvider();
+    }
+
+    @Test
+    public void doesNotLoadArtworkForAudioAd() {
+        final PropertySet trackProperties = TestPropertySets.expectedAudioAdForWidget();
+        final PublishSubject<Bitmap> subject = PublishSubject.create();
+        setupArtworkLoad(trackProperties, subject);
+
+        presenter.updateTrackInformation(context(), trackProperties);
+
+        assertThat(subject.hasObservers()).isFalse();
     }
 
     @Test
