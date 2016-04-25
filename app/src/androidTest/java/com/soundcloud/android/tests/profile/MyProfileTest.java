@@ -87,8 +87,4 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         assertEquals(profileScreen.getActionBarTitle(),
                     ressourceString(R.string.user_profile_sounds_header_likes));
     }
-
-    public void ignore_testClickFirstRepostOpensPlayer() {
-        assertThat(profileScreen.testttt(), is(visible()));
-    }
 }

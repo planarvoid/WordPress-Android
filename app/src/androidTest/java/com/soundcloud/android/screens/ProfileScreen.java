@@ -263,28 +263,6 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
-    public VisualPlayerElement testttt() {
-        ViewElement repostHeader = testDriver.scrollToItem(
-                With.id(R.id.user_sounds_list_item),
-                WithProfileHeader(testDriver, R.string.user_profile_sounds_header_reposts)
-        );
-        List<ViewElement> viewElements = testDriver.findOnScreenElements(With.id(R.id.user_sounds_list_item));
-        int indexOfHeader = viewElements.indexOf(repostHeader);
-        List<ViewElement> afterHeader = viewElements.subList(indexOfHeader, viewElements.size());
-
-        for (ViewElement ve : afterHeader) {
-            ViewElement trackListElement = ve.findElement(With.id(R.id.track_list_item));
-            if (trackListElement != null) {
-                trackListElement.click();
-                break;
-            }
-        }
-
-        VisualPlayerElement visualPlayer = new VisualPlayerElement(testDriver);
-        visualPlayer.waitForExpandedPlayer();
-        return visualPlayer;
-    }
-
     private ViewElement profileImage() {
         return testDriver.findOnScreenElement(With.id(R.id.image));
     }
