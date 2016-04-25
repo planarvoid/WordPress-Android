@@ -6,11 +6,11 @@ import javax.inject.Inject;
 import java.util.Arrays;
 
 public class ShareAsTextButtonExperiment {
-    static final String NAME = "android_share_as_text_button";
-    static final String VARIATION_TEXT = "text";
-    static final String VARIATION_ICON = "icon";
-    static final Experiment EXPERIMENT =
-            Experiment.create(LISTENING_LAYER, NAME, Arrays.asList(VARIATION_TEXT, VARIATION_ICON));
+    private static final String NAME = "android_share_as_text_button";
+    private static final String VARIATION_TEXT = "text";
+    private static final String VARIATION_ICON = "icon";
+    static final ExperimentConfiguration CONFIGURATION = ExperimentConfiguration
+            .fromName(LISTENING_LAYER, NAME, Arrays.asList(VARIATION_TEXT, VARIATION_ICON));
 
     private final ExperimentOperations experimentOperations;
 
@@ -20,7 +20,7 @@ public class ShareAsTextButtonExperiment {
     }
 
     public boolean showAsText() {
-        switch (experimentOperations.getExperimentVariant(NAME)) {
+        switch (experimentOperations.getExperimentVariant(CONFIGURATION)) {
             case VARIATION_TEXT:
                 return true;
             case VARIATION_ICON:

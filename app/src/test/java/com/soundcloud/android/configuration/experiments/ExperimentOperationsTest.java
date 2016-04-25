@@ -1,7 +1,7 @@
 package com.soundcloud.android.configuration.experiments;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 
+import java.util.Collections;
 import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -71,7 +72,7 @@ public class ExperimentOperationsTest {
     public void shouldGenerateTrackingParametersMapForActiveExperiments() {
         Assignment assignment = ModelFixtures.create(Assignment.class);
         when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
-        when(activeExperiments.isActive(anyString())).thenReturn(true);
+        when(activeExperiments.isActive(any(Layer.class))).thenReturn(true);
 
         operations.loadAssignment().subscribe();
 
@@ -86,9 +87,11 @@ public class ExperimentOperationsTest {
 
     @Test
     public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() {
-        Assignment assignment = ModelFixtures.create(Assignment.class);
+        final Layer layer = new Layer("android-ui", 1, "experiment", 1, "variant");
+        final Assignment assignment = new Assignment(Collections.singletonList(layer));
+
         when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
-        when(activeExperiments.isActive("experiment 5")).thenReturn(true);
+        when(activeExperiments.isActive(layer)).thenReturn(true);
 
         operations.loadAssignment().subscribe();
 
@@ -97,4 +100,27 @@ public class ExperimentOperationsTest {
         assertThat(params.containsKey("exp_android-ui")).isTrue();
         assertThat(params.containsKey("exp_android-listen")).isFalse();
     }
+
+    @Test
+    public void shouldReturnLayerWhenAssigned() {
+        final Layer layer = new Layer("layer", 1, "experiment", 1, "variant");
+        final Assignment assignment = new Assignment(Collections.singletonList(layer));
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "experiment", Collections.<String>emptyList());
+        when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
+
+        operations.loadAssignment().subscribe();
+        assertThat(operations.findLayer(configuration).get()).isEqualTo(layer);
+    }
+
+    @Test
+    public void shouldReturnAbsentWhenNotAssigned() {
+        final Layer layer = new Layer("layer", 1, "experiment", 1, "variant");
+        final Assignment assignment = new Assignment(Collections.singletonList(layer));
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "unknown", Collections.<String>emptyList());
+        when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
+
+        operations.loadAssignment().subscribe();
+        assertThat(operations.findLayer(configuration).isPresent()).isFalse();
+    }
+
 }

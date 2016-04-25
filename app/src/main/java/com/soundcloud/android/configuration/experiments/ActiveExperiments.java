@@ -3,14 +3,13 @@ package com.soundcloud.android.configuration.experiments;
 import com.soundcloud.android.properties.ApplicationProperties;
 
 import javax.inject.Inject;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class ActiveExperiments {
 
     public static final String LISTENING_LAYER = "android_listening";
-    public static final List<Experiment> ACTIVE_EXPERIMENTS = Collections.singletonList(
-            ShareAsTextButtonExperiment.EXPERIMENT);
+    public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = Arrays.asList(ShareAsTextButtonExperiment.CONFIGURATION, StationsRecoAlgorithmExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};
 
@@ -25,10 +24,10 @@ public class ActiveExperiments {
         return ACTIVE_LAYERS;
     }
 
-    public boolean isActive(String experimentName) {
+    public boolean isActive(Layer layer) {
         if (!applicationProperties.isDebugBuild()) {
-            for (Experiment experiment : ACTIVE_EXPERIMENTS) {
-                if (experiment.getName().equals(experimentName)) {
+            for (ExperimentConfiguration experiment : ACTIVE_EXPERIMENTS) {
+                if (experiment.matches(layer)) {
                     return true;
                 }
             }

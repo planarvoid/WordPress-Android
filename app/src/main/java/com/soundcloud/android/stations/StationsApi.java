@@ -6,8 +6,10 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.configuration.experiments.StationsRecoAlgorithmExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -17,16 +19,22 @@ import java.util.List;
 class StationsApi {
     private final ApiClientRx apiClientRx;
     private final ApiClient apiClient;
+    private final StationsRecoAlgorithmExperiment stationsExperiment;
 
     @Inject
-    public StationsApi(ApiClientRx apiClientRx, ApiClient apiClient) {
+    public StationsApi(ApiClientRx apiClientRx, ApiClient apiClient, StationsRecoAlgorithmExperiment stationsExperiment) {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
+        this.stationsExperiment = stationsExperiment;
     }
 
     Observable<ApiStation> fetchStation(Urn stationUrn) {
-        final ApiRequest request = ApiRequest
-                .get(ApiEndpoints.STATION.path(stationUrn.toString()))
+        final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION.path(stationUrn.toString()));
+        final Optional<String> variant = stationsExperiment.getVariantName();
+        if (variant.isPresent()) {
+            builder.addQueryParam("variant", variant.get());
+        }
+        final ApiRequest request = builder
                 .forPrivateApi()
                 .build();
 

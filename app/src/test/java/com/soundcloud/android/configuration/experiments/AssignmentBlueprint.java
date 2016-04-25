@@ -16,18 +16,8 @@ public class AssignmentBlueprint {
     };
 
     private List<Layer> createLayers() {
-        Layer androidUi = new Layer();
-        androidUi.setExperimentId(5);
-        androidUi.setExperimentName("experiment 5");
-        androidUi.setLayerName("android-ui");
-        androidUi.setVariantId(3);
-        androidUi.setVariantName("variant 3");
-        Layer androidListeningTime = new Layer();
-        androidListeningTime.setExperimentId(3);
-        androidListeningTime.setExperimentName("experiment 3");
-        androidListeningTime.setLayerName("android-listen");
-        androidListeningTime.setVariantId(9);
-        androidListeningTime.setVariantName("variant 9");
+        final Layer androidUi = new Layer("android-ui", 5, "experiment 5", 3, "variant 3");
+        final Layer androidListeningTime = new Layer("android-listen", 3, "experiment 3", 9, "variant 9");
 
         return Lists.newArrayList(androidUi, androidListeningTime);
     }
