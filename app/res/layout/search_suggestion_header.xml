@@ -5,7 +5,6 @@
     android:orientation="vertical">
 
     <FrameLayout
-        android:id="@+id/search_suggestions_container"
         style="@style/Search.Suggestion.Container">
 
         <com.soundcloud.android.view.CustomFontTextView

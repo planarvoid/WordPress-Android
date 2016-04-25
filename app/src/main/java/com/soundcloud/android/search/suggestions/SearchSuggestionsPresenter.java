@@ -1,10 +1,12 @@
 package com.soundcloud.android.search.suggestions;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
 
@@ -18,19 +20,30 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult, SuggestionItem>
-        implements SuggestionsAdapter.SuggestionItemListener {
+public class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult, SuggestionItem> {
 
-    public interface SearchListener {
+    public interface SuggestionListener {
+        void onDataChanged(boolean isEmpty);
+        void onScrollChanged();
         void onSearchClicked(String searchQuery);
+        void onTrackClicked(Urn trackUrn);
+        void onUserClicked(Urn userUrn);
     }
 
     private Func1<SuggestionsResult, List<SuggestionItem>> toPresentationModels(final String query) {
         return new Func1<SuggestionsResult, List<SuggestionItem>>() {
             @Override
             public List<SuggestionItem> call(SuggestionsResult searchResult) {
-                final List<SuggestionItem> itemList = new ArrayList<>();
-                itemList.add(new SearchSuggestionItem(query));
+                final List<SuggestionItem> itemList = new ArrayList<>(searchResult.getItems().size() + 1);
+                itemList.add(SuggestionItem.forSearch(query));
+                for (PropertySet propertySet : searchResult.getItems()) {
+                    Urn urn = propertySet.get(SearchSuggestionProperty.URN);
+                    if (urn.isTrack()) {
+                        itemList.add(SuggestionItem.forTrack(propertySet, query));
+                    } else if (urn.isUser()) {
+                        itemList.add(SuggestionItem.forUser(propertySet, query));
+                    }
+                }
                 return itemList;
             }
         };
@@ -39,7 +52,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     private final SuggestionsAdapter adapter;
     private final SearchSuggestionOperations operations;
 
-    private SearchListener searchListener;
+    private SuggestionListener suggestionListener;
 
     @Inject
     SearchSuggestionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -54,16 +67,15 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         this.adapter.registerAdapterDataObserver(new SuggestionsVisibilityController());
-        this.adapter.setSuggestionListener(this);
-        if (fragment instanceof SearchListener) {
-            this.searchListener = (SearchListener) fragment;
+        if (fragment instanceof SuggestionListener) {
+            this.suggestionListener = (SuggestionListener) fragment;
         }
     }
 
     @Override
     public void onDestroy(Fragment fragment) {
         super.onDestroy(fragment);
-        this.searchListener = null;
+        this.suggestionListener = null;
     }
 
     @Override
@@ -94,48 +106,40 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
         retryWith(createCollection(query));
     }
 
-    void clearSuggestions() {
-        //TODO
-    }
-
     @Override
-    public void onSearchClicked(String searchQuery) {
-        if (searchListener != null) {
-            searchListener.onSearchClicked(searchQuery);
+    protected void onItemClicked(View view, int position) {
+        super.onItemClicked(view, position);
+        final SuggestionItem item = adapter.getItem(position);
+        if (suggestionListener != null) {
+            switch (item.getKind()) {
+                case SearchItem:
+                    suggestionListener.onSearchClicked(item.getQuery());
+                    break;
+                case TrackItem:
+                    suggestionListener.onTrackClicked(item.getUrn());
+                    break;
+                case UserItem:
+                    suggestionListener.onUserClicked(item.getUrn());
+                    break;
+            }
         }
-    }
-
-    @Override
-    public void onTrackClicked(String searchQuery) {
-//        deactivateSearchView();
-        //TODO: start track
-    }
-
-    @Override
-    public void onUserClicked(String searchQuery) {
-//        deactivateSearchView();
-        //TODO: view profile
     }
 
     private class SuggestionsVisibilityController extends RecyclerView.AdapterDataObserver {
         @Override
         public void onChanged() {
             super.onChanged();
-            //TODO
-//            if (!adapter.isEmpty()) {
-//                showSearchSuggestionsView();
-//            } else {
-//                hideSearchSuggestionsView();
-//            }
+            if (suggestionListener != null) {
+                suggestionListener.onDataChanged(adapter.isEmpty());
+            }
         }
     }
 
     private class SuggestionsScrollListener extends RecyclerView.OnScrollListener {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            if (newState == NumberPicker.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                //TODO
-//                hideKeyboard();
+            if (newState == NumberPicker.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL && suggestionListener != null) {
+                suggestionListener.onScrollChanged();
             }
         }
     }

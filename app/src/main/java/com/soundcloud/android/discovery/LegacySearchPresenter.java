@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.LegacySuggestionsAdapter;
@@ -291,7 +292,31 @@ class LegacySearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     @Override
+    public void onDataChanged(boolean isEmpty) {
+        //No operation here, since this is gonna be removed when
+        //enabling feature flag NEW_SEARCH_SUGGESTIONS
+    }
+
+    @Override
+    public void onScrollChanged() {
+        //No operation here, since this is gonna be removed when
+        //enabling feature flag NEW_SEARCH_SUGGESTIONS
+    }
+
+    @Override
     public void performSearch(String searchQuery) {
+        //No operation here, since this is gonna be removed when
+        //enabling feature flag NEW_SEARCH_SUGGESTIONS
+    }
+
+    @Override
+    public void playTrack(Urn trackUrn) {
+        //No operation here, since this is gonna be removed when
+        //enabling feature flag NEW_SEARCH_SUGGESTIONS
+    }
+
+    @Override
+    public void showUserProfile(Urn userUrn) {
         //No operation here, since this is gonna be removed when
         //enabling feature flag NEW_SEARCH_SUGGESTIONS
     }

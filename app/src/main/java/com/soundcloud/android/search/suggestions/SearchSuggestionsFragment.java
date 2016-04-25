@@ -1,7 +1,10 @@
 package com.soundcloud.android.search.suggestions;
 
+import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresenter.SuggestionListener;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -12,10 +15,8 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresenter.*;
-
 public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchSuggestionsFragment>
-    implements SearchListener {
+    implements SuggestionListener {
 
     public static final String TAG = "suggestions_search";
 
@@ -35,14 +36,38 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
         presenter.showSuggestionsFor(query);
     }
 
-    public void clearSuggestions() {
-        presenter.clearSuggestions();
+    @Override
+    public void onDataChanged(boolean isEmpty) {
+        if (getActivity() instanceof SuggestionListener) {
+            ((SuggestionListener) getActivity()).onDataChanged(isEmpty);
+        }
+    }
+
+    @Override
+    public void onScrollChanged() {
+        if (getActivity() instanceof SuggestionListener) {
+            ((SuggestionListener) getActivity()).onScrollChanged();
+        }
     }
 
     @Override
     public void onSearchClicked(String searchQuery) {
-        if (getActivity() instanceof SearchListener) {
-            ((SearchListener) getActivity()).onSearchClicked(searchQuery);
+        if (getActivity() instanceof SuggestionListener) {
+            ((SuggestionListener) getActivity()).onSearchClicked(searchQuery);
+        }
+    }
+
+    @Override
+    public void onTrackClicked(Urn trackUrn) {
+        if (getActivity() instanceof SuggestionListener) {
+            ((SuggestionListener) getActivity()).onTrackClicked(trackUrn);
+        }
+    }
+
+    @Override
+    public void onUserClicked(Urn userUrn) {
+        if (getActivity() instanceof SuggestionListener) {
+            ((SuggestionListener) getActivity()).onUserClicked(userUrn);
         }
     }
 }

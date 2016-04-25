@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.lightcycle.ActivityLightCycle;
 
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +10,10 @@ import android.support.v7.app.AppCompatActivity;
  * based on {@link com.soundcloud.android.properties.Flag#NEW_SEARCH_SUGGESTIONS} feature flag.
  */
 public interface FeaturedSearchPresenter extends ActivityLightCycle<AppCompatActivity> {
+    void onDataChanged(boolean isEmpty);
+    void onScrollChanged();
     void dismiss(AppCompatActivity activity);
-
     void performSearch(String searchQuery);
+    void playTrack(Urn trackUrn);
+    void showUserProfile(Urn userUrn);
 }

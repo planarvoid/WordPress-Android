@@ -56,9 +56,13 @@ public class DiscoveryModule {
                                                           LegacySuggestionsAdapter adapter,
                                                           SuggestionsHelperFactory suggestionsHelperFactory,
                                                           EventBus eventBus,
-                                                          KeyboardHelper keyboardHelper) {
+                                                          KeyboardHelper keyboardHelper,
+                                                          Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                                                          PlaybackInitiator playbackInitiator,
+                                                          Navigator navigator) {
         if (featureFlags.isEnabled(Flag.NEW_SEARCH_SUGGESTIONS)) {
-            return new SearchPresenter(intentResolverFactory, tracker, resources, eventBus, keyboardHelper);
+            return new SearchPresenter(intentResolverFactory, tracker, resources, eventBus, keyboardHelper,
+                    expandPlayerSubscriberProvider, playbackInitiator, navigator);
         } else {
             return new LegacySearchPresenter(intentResolverFactory, tracker, resources, adapter,
                     suggestionsHelperFactory, eventBus, keyboardHelper);
