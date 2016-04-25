@@ -140,7 +140,7 @@ public class AdFixtures {
         final ApiCompanionAd nonClickableCompanion = new ApiCompanionAd(
                 Urn.forAd("dfp", "companion"),
                 "imageurl",
-                null,
+                "",
                 Collections.<String>emptyList(),
                 Collections.<String>emptyList(),
                 null,
