@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.ui;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
@@ -13,7 +12,6 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -75,9 +73,7 @@ class AdPageListener extends PageListener {
     }
 
     public void onClickThrough() {
-        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
-
-        if (AdUtils.isAudioAd(currentPlayQueueItem)) {
+        if (adsOperations.isCurrentItemAudioAd()) {
             audioAdClickThrough((AudioAd) adsOperations.getCurrentTrackAdData().get());
         } else {
             videoAdClickThrough((VideoAd) adsOperations.getCurrentTrackAdData().get());

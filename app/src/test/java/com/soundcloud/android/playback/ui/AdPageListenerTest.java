@@ -29,10 +29,8 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.robolectric.Shadows;
 
 import android.app.Activity;
-import android.content.Intent;
 
 public class AdPageListenerTest extends AndroidUnitTest {
 
@@ -65,6 +63,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldOpenUrlForAudioAd() throws CreateModelException {
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
         listener.onClickThrough();
@@ -87,6 +86,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Test
     public void onClickThroughShouldPublishUIEventForAudioAdClick() {
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>absent());
 
         listener.onClickThrough();
@@ -112,6 +112,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Test
     public void onClickThroughShouldSetMonetizableTrackMetaAdClicked() {
         final LeaveBehindAd monetizableLeaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(321L));
+        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(monetizableLeaveBehindAd));
 
         listener.onClickThrough();
