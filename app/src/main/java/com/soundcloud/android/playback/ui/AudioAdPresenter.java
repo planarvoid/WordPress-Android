@@ -94,7 +94,6 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     @Override
     public View clearItemView(View convertView) {
         final Holder holder = getViewHolder(convertView);
-        holder.footerAdTitle.setText(Strings.EMPTY);
         holder.previewTitle.setText(Strings.EMPTY);
         resetAdImageLayouts(holder);
         return convertView;
@@ -151,7 +150,6 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
 
     private void displayAdvertisement(AudioPlayerAd playerAd, Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
-        holder.footerAdTitle.setText(playerAd.getAdTitle());
         holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork()).subscribe(getAdImageSubscriber(holder, playerAd));
     }
 
@@ -201,7 +199,6 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         private final View close;
 
         private final View footer;
-        private final TextView footerAdTitle;
         private final TextView footerAdvertisement;
 
         private final PlayerOverlayController playerOverlayController;
@@ -223,8 +220,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
             close = adView.findViewById(R.id.player_close);
 
             footer = adView.findViewById(R.id.footer_controls);
-            footerAdTitle = (TextView) adView.findViewById(R.id.footer_title);
-            footerAdvertisement = (TextView) adView.findViewById(R.id.footer_user);
+            footerAdvertisement = (TextView) adView.findViewById(R.id.footer_ad_text);
 
             playerOverlayController = playerOverlayControllerFactory.create(artworkIdleOverlay);
 

@@ -8,7 +8,7 @@
 
     <include layout="@layout/player_ad_artwork_view"/>
     <include layout="@layout/player_gradient"/>
-    <include layout="@layout/player_footer_controls"/>
+    <include layout="@layout/player_ad_footer_controls"/>
     <include layout="@layout/player_ad_expanded_header"/>
 
     <com.soundcloud.android.playback.ui.view.RoundedColorButton
