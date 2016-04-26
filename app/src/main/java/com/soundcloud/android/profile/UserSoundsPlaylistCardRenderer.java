@@ -31,6 +31,7 @@ class UserSoundsPlaylistCardRenderer implements CellRenderer<UserSoundsItem> {
         final Optional<PlaylistItem> playlistItem = items.get(position).getPlaylistItem();
 
         if (playlistItem.isPresent()) {
+            itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
             playlistCardRenderer.bindPlaylistCardView(playlistItem.get(), itemView);
         }
     }

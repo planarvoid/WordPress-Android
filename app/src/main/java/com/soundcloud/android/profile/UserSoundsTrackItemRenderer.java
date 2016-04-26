@@ -34,6 +34,7 @@ class UserSoundsTrackItemRenderer implements CellRenderer<UserSoundsItem> {
         final Optional<TrackItem> trackItem = items.get(position).getTrackItem();
 
         if (trackItem.isPresent()) {
+            itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
             trackItemRenderer.bindTrackView(trackItem.get(), itemView, position);
         }
     }
