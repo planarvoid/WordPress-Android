@@ -4,7 +4,6 @@ import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Lists.newArrayList;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -43,7 +42,7 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
 
         ArrayList<UserSoundsItem> result = newArrayList(new UserSoundsMapper(entityHolderMapper).call(profile));
 
-        assertThat(result.size()).isEqualTo(6);
+        assertThat(result.size()).isEqualTo(7);
 
         assertThat(result.get(0)).isEqualTo(mockUserSoundsItem);
         assertThat(result.get(1)).isEqualTo(mockUserSoundsItem);
@@ -51,6 +50,7 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
         assertThat(result.get(3)).isEqualTo(mockUserSoundsItem);
         assertThat(result.get(4)).isEqualTo(mockUserSoundsItem);
         assertThat(result.get(5)).isEqualTo(mockUserSoundsItem);
+        assertThat(result.get(6).getItemType()).isEqualTo(UserSoundsItem.TYPE_END_OF_LIST_DIVIDER);
     }
 
     @Test

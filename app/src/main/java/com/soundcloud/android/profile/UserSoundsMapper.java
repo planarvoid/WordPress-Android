@@ -36,6 +36,10 @@ public class UserSoundsMapper implements Func1<UserProfile, Iterable<UserSoundsI
         items.addAll(entityHolderMapper.map(UserSoundsTypes.REPOSTS, userProfile.getReposts()));
         items.addAll(entityHolderMapper.map(UserSoundsTypes.LIKES, userProfile.getLikes()));
 
+        if (!items.isEmpty()) {
+            items.add(UserSoundsItem.fromEndOfListDivider());
+        }
+
         return items;
     }
 

@@ -18,6 +18,7 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
     static final int TYPE_TRACK_ITEM = 4;
     static final int TYPE_PLAYLIST_CARD = 5;
     static final int TYPE_PLAYLIST_ITEM = 6;
+    static final int TYPE_END_OF_LIST_DIVIDER = 7;
 
     @NonNull
     private static Boolean spansFullWidth(final UserSoundsItem item) {
@@ -32,14 +33,16 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
                       UserSoundsTrackCardRenderer trackCardRenderer,
                       UserSoundsTrackItemRenderer trackItemRenderer,
                       UserSoundsPlaylistCardRenderer playlistCardRenderer,
-                      UserSoundsPlaylistItemRenderer playlistItemRenderer) {
+                      UserSoundsPlaylistItemRenderer playlistItemRenderer,
+                      EndOfListDividerRenderer endOfListDividerRenderer) {
         super(new CellRendererBinding<>(TYPE_DIVIDER, dividerRenderer),
                 new CellRendererBinding<>(TYPE_HEADER, headerRenderer),
                 new CellRendererBinding<>(TYPE_VIEW_ALL, viewAllRenderer),
                 new CellRendererBinding<>(TYPE_TRACK_CARD, trackCardRenderer),
                 new CellRendererBinding<>(TYPE_TRACK_ITEM, trackItemRenderer),
                 new CellRendererBinding<>(TYPE_PLAYLIST_CARD, playlistCardRenderer),
-                new CellRendererBinding<>(TYPE_PLAYLIST_ITEM, playlistItemRenderer));
+                new CellRendererBinding<>(TYPE_PLAYLIST_ITEM, playlistItemRenderer),
+                new CellRendererBinding<>(TYPE_END_OF_LIST_DIVIDER, endOfListDividerRenderer));
     }
 
     @Override
@@ -65,6 +68,8 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
                 } else {
                     return TYPE_PLAYLIST_ITEM;
                 }
+            case UserSoundsItem.TYPE_END_OF_LIST_DIVIDER:
+                return TYPE_END_OF_LIST_DIVIDER;
             default:
                 throw new IllegalArgumentException("No User Sound Item of the given type");
         }
