@@ -44,6 +44,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
             TrackProperty.FULL_DURATION.bind(456L)
     );
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
+    private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(track, AdFixtures.getThirdPartyAudioAd(trackUrn));
     private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);
     private VideoPlaybackItem videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(trackUrn), 0L);
 
@@ -512,6 +513,17 @@ public class StreamPlayerTest extends AndroidUnitTest {
         instantiateStreamPlaya();
         streamPlayerWrapper.destroy();
         verify(skippyAdapter, never()).destroy();
+    }
+
+    @Test
+    public void shouldFallbackToMediaPlayerOnSkippyFailureForAudioAds() {
+        instantiateStreamPlaya();
+
+        streamPlayerWrapper.play(audioAdPlaybackItem);
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, trackUrn));
+
+        verify(mediaPlayerAdapter).play(audioAdPlaybackItem);
     }
 
     private void fallBackToMediaPlayer() {

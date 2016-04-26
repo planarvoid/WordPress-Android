@@ -38,7 +38,6 @@ public enum ApiEndpoints {
 
     // ads + monetization
     ADS("/tracks/%s/ads"),
-    AUDIO_AD("/tracks/%s/ads/audio"),
     POLICIES("/policies/tracks"),
 
     // consumer subs
@@ -92,11 +91,14 @@ public enum ApiEndpoints {
     STREAM("/stream"),
     ACTIVITIES("/activities"),
 
-    // other
+    // streams
+    STREAMS_TO_HLS("/streams/to-hls"),
     HLS_STREAM("/tracks/%s/streams/hls"),
     HLS_SNIPPET_STREAM("/tracks/%s/streams/hls/snippet"),
     HTTP_STREAM("/tracks/%s/streams/http"),
     HTTPS_STREAM("/tracks/%s/streams/https"),
+
+    // other
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),

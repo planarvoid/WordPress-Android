@@ -143,13 +143,22 @@ class StreamPlayer implements PlayerListener {
     public void onPlaystateChanged(PlaybackStateTransition stateTransition) {
         if (shouldFallbackToMediaPlayer(stateTransition)) {
             final long currentProgress = skippyPlayerDelegate.getProgress();
-            final PlaybackItem updatedItem = AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration(), lastItemPlayed.getPlaybackType());
             configureNextPlayerToUse(mediaPlayerDelegate);
-            mediaPlayerDelegate.play(updatedItem);
+            mediaPlayerDelegate.play(getUpdatedItem(currentProgress));
         } else {
             checkNotNull(playerListener, "Stream Player Listener is unexpectedly null when passing state");
             lastStateTransition = stateTransition;
             playerListener.onPlaystateChanged(stateTransition);
+        }
+    }
+
+    private PlaybackItem getUpdatedItem(long currentProgress) {
+        switch (lastItemPlayed.getPlaybackType()) {
+            case AUDIO_AD:
+            case VIDEO_DEFAULT:
+                return lastItemPlayed;
+            default:
+                return AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration(), lastItemPlayed.getPlaybackType());
         }
     }
 

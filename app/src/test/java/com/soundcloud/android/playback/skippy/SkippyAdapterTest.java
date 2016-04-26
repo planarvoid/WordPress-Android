@@ -81,7 +81,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private static final String CDN_HOST = "ec-rtmp-media.soundcloud.com";
     private SkippyAdapter skippyAdapter;
 
-    private static final String THIRD_PARTY_AD_STREAM_URL = "https://thirdparty.streamurl/hls";
+    private static final String THIRD_PARTY_AD_STREAM_URL = "https://api-mobile.soundcloud.com/streams/to-hls?duration=456&url=http%3A%2F%2Fthirdparty.com%2Fad.mp3&oauth_token=access";
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access";
     private static final String SNIPPET_STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls/snippet?oauth_token=access";
     private static final long PROGRESS = 500L;
@@ -211,15 +211,19 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void playFirstPartyAudioAdPlaysUrlOnSkippy() {
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
+
         skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
-        verify(skippy).play(STREAM_URL, 0);
+
+        verify(skippy).play(STREAM_URL, 0, true);
     }
 
     @Test
     public void playThirdPartyAudioAdPlaysThirdPartyStreamUrlOnSkippy() {
-        final AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(trackUrn);
+        final AudioAd audioAd = setupThirdPartyAudioAd();
+
         skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
-        verify(skippy).play(THIRD_PARTY_AD_STREAM_URL, 0);
+
+        verify(skippy).play(THIRD_PARTY_AD_STREAM_URL, 0, false);
     }
 
     @Test
@@ -538,9 +542,9 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void performanceMetricDoesNotPublishTimeToPlayEventEventForThirdPartyAd() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
-        track.put(EntityProperty.URN, AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
 
-        skippyAdapter.play(AudioAdPlaybackItem.create(track, AdFixtures.getThirdPartyAudioAd(Urn.forTrack(321L))));
+        final AudioAd audioAd = setupThirdPartyAudioAd();
+        skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST);
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
@@ -680,6 +684,16 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, STREAM_URL, CDN_HOST);
         verify(accountOperations, never()).getLoggedInUserUrn();
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+    }
+
+    private AudioAd setupThirdPartyAudioAd() {
+        track.put(EntityProperty.URN, AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
+        final AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(trackUrn);
+        when(apiUrlBuilder.from(ApiEndpoints.STREAMS_TO_HLS)).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.withQueryParam(SkippyAdapter.PARAM_URL, "http://thirdparty.com/ad.mp3")).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.withQueryParam(SkippyAdapter.PARAM_DURATION, "456")).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.build()).thenReturn(THIRD_PARTY_AD_STREAM_URL);
+        return audioAd;
     }
 
     @NonNull

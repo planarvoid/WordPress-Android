@@ -67,7 +67,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     private static final String ACCESS_TOKEN = "access";
     private static final Token TOKEN = new Token(ACCESS_TOKEN,"refresh");
-    private static final String THIRD_PARTY_AD_STREAM_URL = "https://thirdparty.streamurl/hls";
+    private static final String THIRD_PARTY_AD_STREAM_URL = "http://thirdparty.com/ad.mp3";
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/http?oauth_token=access";
     private MediaPlayerAdapter mediaPlayerAdapter;
 

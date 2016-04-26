@@ -65,6 +65,9 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     static final String SKIPPY_INIT_SUCCESS_COUNT_KEY = "SkippyAdapter.initSuccessCount";
     static final long PRELOAD_DURATION = TimeUnit.SECONDS.toMillis(10);
     static final int PRELOAD_START_POSITION = 0;
+    static final String PARAM_URL = "url";
+    static final String PARAM_DURATION = "duration";
+    private static final String PARAM_CAN_SNIP = "can_snip";
 
     private static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
     private final SkippyFactory skippyFactory;
@@ -168,14 +171,14 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         } else {
             currentStreamUrl = trackUrl;
 
-            switch (playbackItem.getPlaybackType()) {
-                case AUDIO_OFFLINE:
-                    final DeviceSecret deviceSecret = cryptoOperations.checkAndGetDeviceKey();
-                    skippy.playOffline(currentStreamUrl, fromPos, deviceSecret.getKey(), deviceSecret.getInitVector());
-                    break;
-                default :
-                    skippy.play(currentStreamUrl, fromPos);
-                    break;
+            if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_OFFLINE) {
+                final DeviceSecret deviceSecret = cryptoOperations.checkAndGetDeviceKey();
+                skippy.playOffline(currentStreamUrl, fromPos, deviceSecret.getKey(), deviceSecret.getInitVector());
+            } else if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_AD) {
+                final boolean shouldCache = !AdUtils.isThirdPartyAd(playbackItem.getUrn());
+                skippy.play(currentStreamUrl, playbackItem.getStartPosition(), shouldCache);
+            } else {
+                skippy.play(currentStreamUrl, fromPos);
             }
         }
     }
@@ -196,15 +199,26 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private String buildAudioAdUrl(AudioAdPlaybackItem adPlaybackItem) {
         return adPlaybackItem.isThirdParty()
-                ? adPlaybackItem.getThirdPartyStreamUrl()
+                ? buildThirdPartyAdHlsUrl(adPlaybackItem)
                 : buildRemoteUrl(adPlaybackItem.getUrn(), PlaybackType.AUDIO_AD);
+    }
+
+    private String buildThirdPartyAdHlsUrl(AudioAdPlaybackItem adPlaybackItem) {
+        Token token = accountOperations.getSoundCloudToken();
+        ApiUrlBuilder builder = urlBuilder.from(ApiEndpoints.STREAMS_TO_HLS);
+        if (token.valid()) {
+            builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
+        }
+        return builder.withQueryParam(PARAM_URL, adPlaybackItem.getThirdPartyStreamUrl())
+                .withQueryParam(PARAM_DURATION, String.valueOf(adPlaybackItem.getDuration()))
+                .build();
     }
 
     private String buildRemoteUrl(Urn trackUrn, PlaybackType playType) {
         if (playType == PlaybackType.AUDIO_SNIPPET){
             return getApiUrlBuilder(trackUrn, ApiEndpoints.HLS_SNIPPET_STREAM).build();
         } else {
-            return getApiUrlBuilder(trackUrn, ApiEndpoints.HLS_STREAM).withQueryParam("can_snip", false).build();
+            return getApiUrlBuilder(trackUrn, ApiEndpoints.HLS_STREAM).withQueryParam(PARAM_CAN_SNIP, false).build();
         }
     }
 

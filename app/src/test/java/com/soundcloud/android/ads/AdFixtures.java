@@ -124,7 +124,7 @@ public class AdFixtures {
     static ApiAudioAd getApiAudioAdForThirdParty() {
         final ApiAudioAd audioAd = getApiAudioAdWithCompanion(getApiCompanionAd(), SKIPPABLE);
         audioAd.getApiTrack().setUrn(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
-        audioAd.getApiTrack().setStreamUrl("https://thirdparty.streamurl/hls");
+        audioAd.getApiTrack().setStreamUrl("http://thirdparty.com/ad.mp3");
         return audioAd;
     }
 
