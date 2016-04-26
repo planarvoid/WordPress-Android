@@ -82,10 +82,13 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     };
 
-    private final Action1<CurrentPlayQueueItemEvent> allowScrollAfterTimeout = new Action1<CurrentPlayQueueItemEvent>() {
+    private final Action1<CurrentPlayQueueItemEvent> allowScrollAfterAdSkipTimeout = new Action1<CurrentPlayQueueItemEvent>() {
         @Override
         public void call(CurrentPlayQueueItemEvent currentItemEvent) {
-            unblockPagerSubscription = checkAdProgress.observeOn(AndroidSchedulers.mainThread()).subscribe(getRestoreQueueSubscriber());
+            final PlayerAdData adData = (PlayerAdData) adsOperations.getCurrentTrackAdData().get();
+            if (adData.isSkippable()) {
+                unblockPagerSubscription = checkAdProgress.observeOn(AndroidSchedulers.mainThread()).subscribe(getRestoreQueueSubscriber());
+            }
         }
     };
 
@@ -139,14 +142,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         LightCycles.bind(this);
 
         changeTracksHandler = new ChangeTracksHandler(this);
-        checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
-                .first(IS_PAST_UNSKIPPABLE_TIME)
-                .filter(new Func1<PlaybackProgressEvent, Boolean>() {
-                    @Override
-                    public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
-                        return ((PlayerAdData) adsOperations.getCurrentTrackAdData().get()).isSkippable();
-                    }
-                });
+        checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(IS_PAST_UNSKIPPABLE_TIME);
     }
 
     private void setPositionToDisplayedTrack(){
@@ -186,7 +182,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
                 .doOnNext(onTrackChanged)
                 .filter(isCurrentTrackAd)
-                .doOnNext(allowScrollAfterTimeout)
+                .doOnNext(allowScrollAfterAdSkipTimeout)
                 .subscribe(new ShowAudioAdSubscriber()));
 
         // set position from track change

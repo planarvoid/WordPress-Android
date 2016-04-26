@@ -18,6 +18,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -34,6 +35,7 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -199,9 +201,9 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackChangeEventPreventsPagerUnlockFromPreviousAudioAd() {
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        setupCurrentItemAsAd(true);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(TRACK_PLAY_QUEUE_ITEM, Urn.NOT_SET, 0));
-        when(adsOperations.isCurrentItemAd()).thenReturn(false);
+        setupCurrentItemAsAd(false);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(TRACK_PLAY_QUEUE_ITEM, Urn.NOT_SET, 0));
         Mockito.reset(viewPager);
 
@@ -213,7 +215,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackChangeToAdSetsQueueOfSingleAdIfLookingAtAd() {
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        setupCurrentItemAsAd(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         setupPositionsForAd(2);
 
@@ -224,8 +226,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void skippableAudioAdUnlocksPagerAfterSkipInterval() {
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM.getAdData());
+        setupCurrentItemAsAd(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         setupPositionsForAd(2);
 
@@ -243,6 +244,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     public void unskippableAudioAdDoesNotUnlockPagerAfterSkipInterval() {
         final PlayQueueItem audioItem = TestPlayQueueItem.createTrack(TRACK_URN, AdFixtures.getNonskippableAudioAd(TRACK_URN));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(audioItem.getAdData());
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(audioItem);
         setupPositionsForAd(2);
 
@@ -257,7 +259,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackChangeToAdSetsAdPlayQueueIfNotLookingAtItAndNotResumed() {
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        setupCurrentItemAsAd(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         setupPositionsForAd(1);
 
@@ -269,7 +271,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackChangeToAdAdvancesToAdIfNotLookingAtItAndResumed() {
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        setupCurrentItemAsAd(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         setupPositionsForAd(1);
         controller.onResume(fragment);
@@ -281,7 +283,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void pageChangedAfterTrackChangeToAdSetsAdPlayQueue() {
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        setupCurrentItemAsAd(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(AUDIO_AD_PLAY_QUEUE_ITEM);
         setupPositionsForAd(1);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(AUDIO_AD_PLAY_QUEUE_ITEM, Urn.NOT_SET, 0));
@@ -290,6 +292,13 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
         assertLastQueueWasAdQueue();
+    }
+
+    private void setupCurrentItemAsAd(boolean isAd) {
+        when(adsOperations.isCurrentItemAd()).thenReturn(isAd);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(isAd
+                ? AUDIO_AD_PLAY_QUEUE_ITEM.getAdData()
+                : Optional.<AdData>absent());
     }
 
     @Test
