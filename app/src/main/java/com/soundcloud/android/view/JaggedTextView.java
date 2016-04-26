@@ -8,6 +8,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.VisibleForTesting;
 import android.text.Layout;
 import android.text.TextUtils;
@@ -99,7 +100,7 @@ public class JaggedTextView extends CustomFontTextView {
                 top -= compoundPaddingTop;
             }
 
-            if (line == layout.getLineCount() - 1) {
+            if (shouldAddExtraPadding(layout, line)) {
                 bottom += compoundPaddingBottom;
             }
 
@@ -110,6 +111,11 @@ public class JaggedTextView extends CustomFontTextView {
             backgroundPaint.setColor(backgroundColor);
             canvas.drawRect(left, top, right, bottom, backgroundPaint);
         }
+    }
+
+    private boolean shouldAddExtraPadding(Layout layout, int line) {
+        final boolean isAndroidVersionMissingExtraSpacingAfterLastLine = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return isAndroidVersionMissingExtraSpacingAfterLastLine && line == layout.getLineCount() - 1;
     }
 
     private int getDrawablePaddingLeft() {
