@@ -94,13 +94,13 @@ class DownloadOperations {
     private DownloadState downloadAndStore(DownloadRequest request, DownloadProgressListener listener) {
         TrackFileResponse response = null;
         try {
-            response = strictSSLHttpClient.getFileStream(urlBuilder.buildHttpsStreamUrl(request.getTrack()));
+            response = strictSSLHttpClient.getFileStream(urlBuilder.buildHttpsStreamUrl(request.getUrn()));
 
             if (response.isSuccess()) {
                 saveTrack(request, response, listener);
 
-                assetDownloader.fetchTrackArtwork(request.getTrack());
-                assetDownloader.fetchTrackWaveform(request.getTrack(), request.getWaveformUrl());
+                assetDownloader.fetchTrackArtwork(request);
+                assetDownloader.fetchTrackWaveform(request.getUrn(), request.getWaveformUrl());
 
                 return DownloadState.success(request);
             } else {
@@ -132,14 +132,14 @@ class DownloadOperations {
     private void saveTrack(DownloadRequest request, TrackFileResponse response, final DownloadProgressListener listener)
             throws IOException, EncryptionException {
 
-        fileStorage.storeTrack(request.getTrack(), response.getInputStream(), new Encryptor.EncryptionProgressListener() {
+        fileStorage.storeTrack(request.getUrn(), response.getInputStream(), new Encryptor.EncryptionProgressListener() {
             @Override
             public void onBytesEncrypted(long totalProcessed) {
                 listener.onProgress(totalProcessed);
             }
         });
 
-        Log.d(OfflineContentService.TAG, "Track stored on device: " + request.getTrack());
+        Log.d(OfflineContentService.TAG, "Track stored on device: " + request.getUrn());
     }
 
     public interface DownloadProgressListener {

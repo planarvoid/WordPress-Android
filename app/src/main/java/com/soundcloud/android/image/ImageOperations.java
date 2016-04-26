@@ -256,8 +256,8 @@ public class ImageOperations {
                 new ImageListenerUILAdapter(imageListener));
     }
 
-    public void precacheTrackArtwork(Urn track, ApiImageSize apiImageSize) {
-        String url = buildUrlIfNotPreviouslyMissing(track, apiImageSize);
+    public void precacheArtwork(ImageResource imageResource, ApiImageSize apiImageSize) {
+        String url = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
         imageLoader.loadImage(url, ImageOptionsFactory.prefetch(), null);
     }
 

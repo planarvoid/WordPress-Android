@@ -39,7 +39,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
         final OfflineContentUpdates offlineContentUpdates = command.call(createExpectedContent(downloadRequest));
 
-        assertThat(offlineContentUpdates.tracksToRestore()).containsExactly(downloadRequest.getTrack());
+        assertThat(offlineContentUpdates.tracksToRestore()).containsExactly(downloadRequest.getUrn());
         assertThat(offlineContentUpdates.tracksToDownload()).isEmpty();
         assertThat(offlineContentUpdates.newTracksToDownload()).isEmpty();
         assertThat(offlineContentUpdates.tracksToRemove()).isEmpty();
@@ -53,7 +53,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
         assertThat(offlineContentUpdates.tracksToRestore()).isEmpty();
         assertThat(offlineContentUpdates.tracksToDownload()).containsExactly(downloadRequest);
-        assertThat(offlineContentUpdates.newTracksToDownload()).containsExactly(downloadRequest.getTrack());
+        assertThat(offlineContentUpdates.newTracksToDownload()).containsExactly(downloadRequest.getUrn());
         assertThat(offlineContentUpdates.tracksToRemove()).isEmpty();
     }
 
@@ -79,7 +79,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         OfflineContentUpdates updates = command.call(createExpectedContent(creatorOptOut, downloadRequest));
 
         assertThat(updates.tracksToDownload()).contains(downloadRequest);
-        assertThat(updates.unavailableTracks()).contains(creatorOptOut.getTrack());
+        assertThat(updates.unavailableTracks()).contains(creatorOptOut.getUrn());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
         OfflineContentUpdates updates = command.call(createExpectedContent(creatorOptOutRequest));
 
-        assertThat(updates.unavailableTracks()).contains(creatorOptOutRequest.getTrack());
+        assertThat(updates.unavailableTracks()).contains(creatorOptOutRequest.getUrn());
         assertThat(updates.tracksToRemove()).isEmpty();
     }
 
@@ -106,7 +106,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
 
         assertThat(offlineContentUpdates.tracksToRemove()).isEmpty();
         assertThat(offlineContentUpdates.tracksToDownload()).containsExactly(downloadRequest2, downloadRequest3);
-        assertThat(offlineContentUpdates.newTracksToDownload()).containsExactly(downloadRequest3.getTrack());
+        assertThat(offlineContentUpdates.newTracksToDownload()).containsExactly(downloadRequest3.getUrn());
         assertThat(offlineContentUpdates.tracksToRestore()).isEmpty();
     }
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -26,13 +27,13 @@ class OfflineTrackAssetDownloader {
         this.resources = resources;
     }
 
-    public void fetchTrackArtwork(Urn trackUrn) {
-        Log.d(OfflineContentService.TAG, "Prefetch artwork called for: " + trackUrn);
+    public void fetchTrackArtwork(ImageResource imageResource) {
+        Log.d(OfflineContentService.TAG, "Prefetch artwork called for: " + imageResource);
         final ApiImageSize playerSize = ApiImageSize.getFullImageSize(resources);
-        imageOperations.precacheTrackArtwork(trackUrn, playerSize);
+        imageOperations.precacheArtwork(imageResource, playerSize);
 
         final ApiImageSize listItemSize = ApiImageSize.getListItemImageSize(resources);
-        imageOperations.precacheTrackArtwork(trackUrn, listItemSize);
+        imageOperations.precacheArtwork(imageResource, listItemSize);
     }
 
     public void fetchTrackWaveform(Urn trackUrn, String waveformUrl) {

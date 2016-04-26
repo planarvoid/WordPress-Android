@@ -22,7 +22,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 74;
+    public static final int DATABASE_VERSION = 75;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -219,6 +219,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 74:
                             success = upgradeTo74(db, oldVersion);
+                            break;
+                        case 75:
+                            success = upgradeTo75(db, oldVersion);
                             break;
                         default:
                             break;
@@ -797,6 +800,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
         return false;
     }
+
+    /*
+ * Added avatar_url to offline playlist tracks view for new image requirements
+ */
+    private static boolean upgradeTo75(SQLiteDatabase db, int oldVersion) {
+        try {
+            SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
+            db.execSQL(Tables.OfflinePlaylistTracks.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 75);
+        }
+        return false;
+    }
+
 
     private static void migratePolicies(SQLiteDatabase db) {
         final List<String> oldSoundColumns = Arrays.asList(

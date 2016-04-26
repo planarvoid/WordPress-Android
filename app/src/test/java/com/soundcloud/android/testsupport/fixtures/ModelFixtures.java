@@ -44,6 +44,7 @@ import com.soundcloud.android.sync.posts.ApiPostItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemBlueprint;
 import com.soundcloud.android.users.UserItemBlueprint;
+import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
@@ -159,28 +160,27 @@ public class ModelFixtures {
 
     public static DownloadRequest downloadRequestFromLikes(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), true, false);
-        return DownloadRequest.create(track.getUrn(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(), track.getImageUrlTemplate(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
     }
 
     public static DownloadRequest downloadRequestFromLikes(Urn track) {
         TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), true, false);
-        return DownloadRequest.create(track, 1234, "http://waveform.url", true, trackContext);
+        return DownloadRequest.create(track, Optional.of("http://artwork.url"), 1234, "http://waveform.url", true, trackContext);
     }
 
     public static DownloadRequest downloadRequestFromPlaylists(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), false, true);
-        return DownloadRequest.create(track.getUrn(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(), track.getImageUrlTemplate(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
     }
 
     public static DownloadRequest downloadRequestFromLikesAndPlaylists(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), true, true);
-        return DownloadRequest.create(track.getUrn(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(), track.getImageUrlTemplate(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
     }
-
 
     public static DownloadRequest creatorOptOutRequest(Urn track) {
         TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), false, true);
-        return DownloadRequest.create(track, 1234, "http://waveform.url", false, trackContext);
+        return DownloadRequest.create(track, Optional.of("http://artwork.url"), 1234, "http://waveform.url", false, trackContext);
     }
 
     public static ApiActivityItem apiActivityWithLikedTrack(ApiTrack track) {

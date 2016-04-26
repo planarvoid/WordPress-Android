@@ -79,7 +79,7 @@ public class OfflinePerformanceTrackerTest extends AndroidUnitTest {
 
     private void assertTrackingEventSent(OfflinePerformanceEvent event, String kind) {
         assertThat(event.getKind()).isEqualTo(kind);
-        assertThat(event.getTrackUrn()).isEqualTo(DOWNLOAD_REQUEST.getTrack());
+        assertThat(event.getTrackUrn()).isEqualTo(DOWNLOAD_REQUEST.getUrn());
         assertThat(event.getTrackOwner()).isEqualTo(DOWNLOAD_REQUEST.getTrackingData().getCreatorUrn());
         assertThat(event.partOfPlaylist()).isEqualTo(DOWNLOAD_REQUEST.getTrackingData().isFromPlaylists());
         assertThat(event.isFromLikes()).isEqualTo(DOWNLOAD_REQUEST.getTrackingData().isFromLikes());
