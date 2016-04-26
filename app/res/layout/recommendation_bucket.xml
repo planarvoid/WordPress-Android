@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/Recommendation.RecommendationBucket"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <View style="@style/Divider.Section" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/recommendations_header"
+        style="@style/Recommendation.DiscoverNewTracks"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/recommendations_cell_text_recommended_height"
+        android:layout_marginLeft="@dimen/recommendations_cell_text_recommended_margin"
+        android:layout_marginRight="@dimen/recommendations_cell_text_recommended_margin"
+        android:gravity="center_vertical"
+        android:paddingBottom="@dimen/recommendations_cell_text_recommended_padding_bottom"
+        android:paddingLeft="@dimen/discovery_cell_text_padding"
+        android:paddingRight="@dimen/discovery_cell_text_padding"
+        android:paddingTop="@dimen/recommendations_cell_text_recommended_padding_top"
+        android:text="@string/recommendation_seeds_header" />
+
+    <View style="@style/Divider.Item" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/reason"
+        style="@style/Recommendation.ReasonText"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginLeft="@dimen/recommendations_cell_text_recommended_margin"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/discovery_cell_text_padding"
+        android:paddingRight="@dimen/discovery_cell_text_padding"
+        tools:text="Because you liked bla bla bla" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
+
+            <View
+                android:id="@+id/spacer_left"
+                android:layout_width="12dp"
+                android:layout_height="1dp" />
+
+            <LinearLayout
+                android:id="@+id/recommendations_carousel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_toRightOf="@+id/spacer_left">
+            </LinearLayout>
+
+            <View
+                android:layout_toRightOf="@+id/recommendations_carousel"
+                android:layout_width="4dp"
+                android:layout_height="1dp" />
+
+        </RelativeLayout>
+
+    </HorizontalScrollView>
+
+    <View style="@style/Divider.Item" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:paddingBottom="@dimen/discovery_cell_text_view_all_padding">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/view_all"
+            style="@style/Recommendation.ViewAllText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableRight="@drawable/inset_chevron_light"
+            android:drawablePadding="@dimen/discovery_cell_image_view_all_padding"
+            android:text="@string/recommendation_view_all" />
+
+    </RelativeLayout>
+
+    <View style="@style/Divider.Section" />
+
+    <View
+        android:id="@+id/recommendation_separator"
+        style="@style/Divider.Background" />
+
+</LinearLayout>

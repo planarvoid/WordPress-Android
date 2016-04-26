@@ -15,10 +15,17 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.concurrent.TimeUnit;
 
-class DiscoverySyncer {
+class RecommendationsSyncInitiator {
 
     private static final String KEY_LAST_SYNC_TIME = "last_recommendations_sync_time";
     private static final long CACHE_EXPIRATION_TIME = TimeUnit.DAYS.toMillis(1);
+    private static final String SYNC_RECOMMENDATIONS_ACTION = "syncRecommendations";
+    private static final Func1<Throwable, Observable<SyncResult>> RESUME_ON_SYNC_FAILURE = new Func1<Throwable, Observable<SyncResult>>() {
+        @Override
+        public Observable<SyncResult> call(Throwable throwable) {
+            return Observable.just(SyncResult.failure(SYNC_RECOMMENDATIONS_ACTION, new Exception(throwable)));
+        }
+    };
 
     private final SyncInitiator syncInitiator;
     private final SharedPreferences sharedPreferences;
@@ -41,9 +48,9 @@ class DiscoverySyncer {
     };
 
     @Inject
-    DiscoverySyncer(SyncInitiator syncInitiator,
-                    @Named(StorageModule.RECOMMENDATIONS_SYNC) SharedPreferences sharedPreferences,
-                    CurrentDateProvider dateProvider) {
+    RecommendationsSyncInitiator(SyncInitiator syncInitiator,
+                                 @Named(StorageModule.RECOMMENDATIONS_SYNC) SharedPreferences sharedPreferences,
+                                 CurrentDateProvider dateProvider) {
         this.syncInitiator = syncInitiator;
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;
@@ -51,7 +58,7 @@ class DiscoverySyncer {
 
     Observable<Boolean> syncRecommendations() {
         if (isRecommendationsCacheExpired()) {
-            return syncInitiator.syncRecommendations().doOnNext(setLastSyncTime).map(FROM_SYNC_RESULT);
+            return syncInitiator.syncRecommendations().onErrorResumeNext(RESUME_ON_SYNC_FAILURE).doOnNext(setLastSyncTime).map(FROM_SYNC_RESULT);
         } else {
             return Observable.just(false);
         }

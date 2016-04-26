@@ -134,11 +134,14 @@
     <!-- Discovery -->
     <color name="recommendation_reason_text">#999999</color>
     <color name="seed_track_text">#333333</color>
-    <color name="recommended_for_you_text">#666666</color>
+    <color name="recommended_for_you_text">#999999</color>
     <color name="search_query_text">#333333</color>
     <color name="search_hint_text">#CCCCCC</color>
     <color name="discovery_tags_title">#666666</color>
     <color name="discovery_search_premium_view_all">#666666</color>
+    <color name="recommendation_card_track_title">#333333</color>
+    <color name="recommendation_card_artist_name">#999999</color>
+    <color name="recommendations_view_all">#999999</color>
 
     <!-- Stations -->
     <color name="stations_home_background">@color/page_background</color>

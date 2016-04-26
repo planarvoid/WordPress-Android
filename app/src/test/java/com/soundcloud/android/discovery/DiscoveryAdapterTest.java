@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public class DiscoveryAdapterTest extends AndroidUnitTest {
 
-    @Mock private RecommendationItemRenderer recommendationItemRenderer;
+    @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private PlaylistTagRenderer playlistTagRenderer;
     @Mock private SearchItemRenderer searchItemRenderer;
 
@@ -23,7 +23,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new DiscoveryAdapter(recommendationItemRenderer, playlistTagRenderer, searchItemRenderer);
+        adapter = new DiscoveryAdapter(recommendationBucketRenderer, playlistTagRenderer, searchItemRenderer);
     }
 
     @Test
@@ -47,7 +47,6 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         final DiscoveryItemListener itemListener = mock(DiscoveryItemListener.class);
         adapter.setDiscoveryListener(itemListener);
 
-        verify(recommendationItemRenderer).setOnRecommendationClickListener(itemListener);
         verify(playlistTagRenderer).setOnTagClickListener(itemListener);
     }
 }

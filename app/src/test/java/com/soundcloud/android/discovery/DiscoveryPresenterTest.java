@@ -4,7 +4,6 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,8 +56,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     private TestSubscriber testSubscriber = new TestSubscriber();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
 
-    @Mock RecommendationItem recommendationItemOne;
-    @Mock RecommendationItem recommendationItemTwo;
+    @Mock RecommendationBucket recommendationBucketOne;
+    @Mock RecommendationBucket recommendationBucketTwo;
 
     @Rule public ExpectedException exception = ExpectedException.none();
 
@@ -68,20 +67,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 adapter, imagePauseOnScrollListener, expandPlayerSubscriberProvider, playbackInitiator,
                 navigator, featureFlags);
 
-        when(recommendationItemOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
-        when(recommendationItemOne.getRecommendationUrn()).thenReturn(RECOMMENDATION_URN);
+        when(recommendationBucketOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
-    }
-
-    @Test
-    public void clickOnViewAllShouldOpenRecommendations() {
-        Context context = mock(Context.class);
-        RecommendationItem recommendationItem = mock(RecommendationItem.class);
-        when(recommendationItem.getSeedTrackLocalId()).thenReturn(1L);
-
-        presenter.onRecommendationViewAllClicked(context, recommendationItem);
-
-        verify(navigator).openRecommendation(context, 1L);
     }
 
     @Test
@@ -90,9 +77,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(discoveryOperations.discoveryItemsAndRecommendations()).thenReturn(discoveryItems);
 
         PublishSubject<List<Urn>> recommendedTracksForSeed = PublishSubject.create();
-        when(discoveryOperations.recommendedTracksWithSeed(any(RecommendationItem.class))).thenReturn(recommendedTracksForSeed);
+        when(discoveryOperations.recommendedTracksWithSeed(any(RecommendationBucket.class))).thenReturn(recommendedTracksForSeed);
 
-        discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationItemOne, recommendationItemTwo));
+        discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationBucketOne, recommendationBucketTwo));
         recommendedTracksForSeed.onNext(Arrays.asList(SEED_TRACK_URN, RECOMMENDED_TRACK_URN));
 
         when(playbackInitiator.playTracks(eq(recommendedTracksForSeed), eq(SEED_TRACK_URN), eq(0), isA(PlaySessionSource.class)))
@@ -100,7 +87,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-        presenter.onRecommendationReasonClicked(recommendationItemOne);
     }
 
     @Test
@@ -111,7 +97,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         PublishSubject<List<Urn>> recommendedTracks = PublishSubject.create();
         when(discoveryOperations.recommendedTracks()).thenReturn(recommendedTracks);
 
-        discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationItemOne, recommendationItemTwo));
+        discoveryItems.onNext(Arrays.<DiscoveryItem>asList(recommendationBucketOne, recommendationBucketTwo));
         recommendedTracks.onNext(Collections.singletonList(RECOMMENDED_TRACK_URN));
 
         when(playbackInitiator.playTracks(eq(recommendedTracks), eq(RECOMMENDATION_URN), eq(0), isA(PlaySessionSource.class)))
@@ -119,7 +105,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-        presenter.onRecommendationArtworkClicked(recommendationItemOne);
     }
 
     @Test
