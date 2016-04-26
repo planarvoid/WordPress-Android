@@ -4,7 +4,7 @@ import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -477,7 +477,7 @@ public class PlayQueueManager implements OriginProvider {
         int i = 0;
         for (final Iterator<PlayQueueItem> iterator = playQueue.iterator(); iterator.hasNext(); ) {
             final PlayQueueItem item = iterator.next();
-            if (AdFunctions.IS_PLAYER_AD_ITEM.apply(item)) {
+            if (AdUtils.IS_PLAYER_AD_ITEM.apply(item)) {
                 iterator.remove();
                 queueUpdated = true;
                 if (i <= currentPosition) {
@@ -496,7 +496,7 @@ public class PlayQueueManager implements OriginProvider {
     public List<PlayQueueItem> filterAdQueueItems() {
         List<PlayQueueItem> matchingQueueItems = new ArrayList<>();
         for (PlayQueueItem playQueueItem : playQueue) {
-            if (!AdFunctions.IS_PLAYER_AD_ITEM.apply(playQueueItem)) {
+            if (!AdUtils.IS_PLAYER_AD_ITEM.apply(playQueueItem)) {
                 matchingQueueItems.add(playQueueItem);
             }
         }

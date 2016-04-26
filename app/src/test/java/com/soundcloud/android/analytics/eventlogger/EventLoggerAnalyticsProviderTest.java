@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
@@ -40,10 +41,10 @@ import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
-import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -77,7 +78,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp()  {
         eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, InjectionSupport.lazyOf(dataBuilderv0),
                 InjectionSupport.lazyOf(dataBuilderv1), sharedPreferences);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
@@ -85,90 +86,106 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpression() throws Exception {
+    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpression()  {
         PlaybackSessionEvent event = mock(PlaybackSessionEvent.class);
         when(event.isAd()).thenReturn(true);
         when(event.isFirstPlay()).thenReturn(true);
         when(event.getTimestamp()).thenReturn(12345L);
-        when(dataBuilderv0.buildForAudioAdImpression(event)).thenReturn("adUrl");
-        when(dataBuilderv0.buildForAudioEvent(event)).thenReturn("url");
+        when(dataBuilderv0.buildForAudioAdImpression(event)).thenReturn("impressionUrl");
+        when(dataBuilderv1.buildForAudioEvent(event)).thenReturn("audioEventUrl");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
-
         List<TrackingRecord> allValues = captor.getAllValues();
         assertThat(allValues).hasSize(2);
-
-        TrackingRecord adEvent = allValues.get(0);
-        assertThat(adEvent.getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(adEvent.getTimeStamp()).isEqualTo(12345L);
-        assertThat(adEvent.getData()).isEqualTo("adUrl");
+        assertEventTracked(allValues.get(0), "impressionUrl", event.getTimestamp());
+        assertEventTracked(allValues.get(1), "audioEventUrl", event.getTimestamp());
     }
 
     @Test
-    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick() throws Exception {
+    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick()  {
         AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
         when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
-        when(dataBuilderv0.buildForAudioEvent(event)).thenReturn("audioEventUrl");
+        when(dataBuilderv1.buildForAudioEvent(event)).thenReturn("audioEventUrl");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
-
         List<TrackingRecord> allValues = captor.getAllValues();
         assertThat(allValues.size()).isEqualTo(2);
-
-        TrackingRecord adEvent = allValues.get(0);
-        assertThat(adEvent.getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(adEvent.getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(adEvent.getData()).isEqualTo("clickUrl");
+        assertEventTracked(captor.getAllValues().get(0), "clickUrl", event.getTimestamp());
+        assertEventTracked(captor.getAllValues().get(1), "audioEventUrl", event.getTimestamp());
     }
 
     @Test
-    public void shouldTrackPlaybackEventAsEventLoggerEvent() throws Exception {
-        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEvent();
-        when(dataBuilderv1.buildForAudioEvent(event)).thenReturn("url");
+    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpressionForThirdPartyAd()  {
+        AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(Urn.forTrack(123L));
+        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0, AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN).withAudioAd(audioAd);
+        when(dataBuilderv0.buildForAudioAdImpression(event)).thenReturn("impressionUrl");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker).trackEvent(captor.capture());
-        assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(captor.getValue().getData()).isEqualTo("url");
+        verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
+        assertThat(captor.getAllValues().size()).isEqualTo(1);
+        assertEventTracked(captor.getValue(), "impressionUrl", event.getTimestamp());
+        verify(dataBuilderv1, never()).buildForAudioEvent(event);
     }
 
     @Test
-    public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
+    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClickForThirdPartyAd()  {
+        AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(Urn.forTrack(123L));
+        PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN).withAudioAd(audioAd);
+        when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
+        assertThat(captor.getAllValues().size()).isEqualTo(1);
+        assertEventTracked(captor.getValue(), "clickUrl", event.getTimestamp());
+        verify(dataBuilderv1, never()).buildForAudioEvent(event);
+    }
+
+    @Test
+    public void shouldTrackPlaybackEventAsEventLoggerEvent()  {
+        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEvent();
+        when(dataBuilderv1.buildForAudioEvent(event)).thenReturn("url");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        verify(eventTracker).trackEvent(captor.capture());
+        assertEventTracked(captor.getValue(), "url", event.getTimestamp());
+    }
+
+    @Test
+    public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent()  {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
                 ConnectionType.FOUR_G, "uri", userUrn);
         when(dataBuilderv0.build(event)).thenReturn("url");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(captor.getValue().getData()).isEqualTo("url");
+        assertEventTracked(captor.getValue(), "url", event.getTimestamp());
     }
 
     @Test
-    public void shouldTrackPlaybackErrorEventAsEventLoggerEvent() throws Exception {
+    public void shouldTrackPlaybackErrorEventAsEventLoggerEvent()  {
         PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HLS, "uri", "bitrate", "format", ConnectionType.FOUR_G);
         when(dataBuilderv0.build(event)).thenReturn("url");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handlePlaybackErrorEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
-        assertThat(captor.getValue().getData()).isEqualTo("url");
+        assertEventTracked(captor.getValue(), "url", event.getTimestamp());
     }
 
     @Test
@@ -177,19 +194,16 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(456), userUrn, trackSourceInfo, 1000);
         when(dataBuilderv0.build(event1)).thenReturn("url1");
         when(dataBuilderv0.build(event2)).thenReturn("url2");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event1);
         eventLoggerAnalyticsProvider.handleTrackingEvent(event2);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
         assertThat(captor.getAllValues()).hasSize(2);
-        assertThat(captor.getAllValues().get(0).getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(captor.getAllValues().get(0).getTimeStamp()).isEqualTo(event1.getTimestamp());
-        assertThat(captor.getAllValues().get(0).getData()).isEqualTo("url1");
-        assertThat(captor.getAllValues().get(1).getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        assertThat(captor.getAllValues().get(1).getTimeStamp()).isEqualTo(event2.getTimestamp());
-        assertThat(captor.getAllValues().get(1).getData()).isEqualTo("url2");
+        List<TrackingRecord> allValues = captor.getAllValues();
+        assertEventTracked(allValues.get(0), "url1", event1.getTimestamp());
+        assertEventTracked(allValues.get(1), "url2", event2.getTimestamp());
     }
 
     @Test
@@ -198,12 +212,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
         UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.EMPTY);
-
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForLikeEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForLikeEvent");
     }
@@ -214,12 +227,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
         UIEvent event = UIEvent.fromToggleLike(false, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.EMPTY);
-
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnlikeEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUnlikeEvent");
     }
@@ -231,12 +243,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleRepost(true, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.from(trackProperties));
-
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForRepostEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForRepostEvent");
     }
@@ -248,12 +259,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
         UIEvent event = UIEvent.fromToggleRepost(false, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.from(trackProperties));
-
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnRepostEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUnRepostEvent");
     }
@@ -262,11 +272,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
         VisualAdImpressionEvent event = new VisualAdImpressionEvent(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(123L), Urn.forUser(456L), sourceInfo);
-
         when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForVisualAdImpression");
     }
@@ -276,9 +286,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
         AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForAudioAdImpression");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForAudioAdImpression");
     }
@@ -288,9 +299,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
         AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForAudioAdClick");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForAudioAdClick");
     }
@@ -300,10 +312,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedTrackingEvent event = PromotedTrackingEvent.forPromoterClick(promotedTrack, "stream");
         when(dataBuilderv0.build(event)).thenReturn("ForPromotedEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForPromotedEvent");
     }
@@ -321,10 +333,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackScreenEvent() {
         ScreenEvent event = ScreenEvent.create(Screen.ACTIVITIES);
         when(dataBuilderv0.build(event)).thenReturn("ForScreenEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForScreenEvent");
     }
@@ -333,10 +345,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackUpsellEvent() {
         UpgradeFunnelEvent event = UpgradeFunnelEvent.forSettingsClick();
         when(dataBuilderv1.buildForUpsell(event)).thenReturn("ForUpsellEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUpsellEvent");
     }
@@ -345,10 +357,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackCollectionEvent() {
         CollectionEvent event = CollectionEvent.forClearFilter();
         when(dataBuilderv1.buildForCollectionEvent(event)).thenReturn("ForCollectionEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForCollectionEvent");
     }
@@ -357,10 +369,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackAdPlaybackQuartileEvents() {
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forFirstQuartile(AdFixtures.getAudioAd(Urn.forTrack(321L)), trackSourceInfo);
         when(dataBuilderv1.buildForAdProgressQuartileEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
     }
@@ -371,10 +383,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, videoAd.getAdUrn(), 0L, 1000L);
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo, stateTransition);
         when(dataBuilderv1.buildForAdImpression(adEvent)).thenReturn("AdPlaybackSessionEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
     }
@@ -407,10 +419,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, videoAd.getAdUrn(), 2000L, 2000L);
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         when(dataBuilderv1.buildForAdFinished(adEvent)).thenReturn("AdPlaybackSessionEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
     }
@@ -420,10 +432,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         UIEvent adEvent = UIEvent.fromSkipVideoAdClick(videoAd, trackSourceInfo);
         when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("UIEvent");
     }
@@ -433,10 +445,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         UIEvent adEvent = UIEvent.fromVideoAdClickThrough(videoAd, trackSourceInfo);
         when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("UIEvent");
     }
@@ -446,10 +458,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
         AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123), Urn.NOT_SET, "endpoint", adsReceived, false, false, false);
         when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdDeliveredEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdDeliveredEvent");
     }
@@ -458,10 +470,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackAdFetchFailedEvents() {
         AdDeliveryEvent event = AdDeliveryEvent.adsRequestFailed(Urn.forTrack(123), "endpoint", false, false);
         when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdFetchFailedEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdFetchFailedEvent");
     }
@@ -540,40 +552,30 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     private String v1OfflinePerformanceEventCaptor(String name, OfflinePerformanceEvent event) {
         when(dataBuilderv1.buildForOfflinePerformanceEvent(event)).thenReturn(name);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         return captor.getValue().getData();
     }
 
     private String v1OfflineInteractionEventCaptor(String name, OfflineInteractionEvent event) {
         when(dataBuilderv1.buildForOfflineInteractionEvent(event)).thenReturn(name);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker).trackEvent(captor.capture());
-        return captor.getValue().getData();
-    }
-
-    private String v1UIEventCaptor(String name, UIEvent event) {
-        when(dataBuilderv1.buildForUIEvent(event)).thenReturn(name);
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
-
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         return captor.getValue().getData();
     }
 
     private String searchEventUrlCaptor(String name, SearchEvent event) {
         when(dataBuilderv0.build(event)).thenReturn(name);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         return captor.getValue().getData();
     }
@@ -583,5 +585,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                 .contextScreen("context_screen")
                 .pageName("page_name")
                 .pageUrn(Urn.NOT_SET);
+    }
+
+    private void assertEventTracked(TrackingRecord record, String data, long ts) {
+        assertThat(record.getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(record.getTimeStamp()).isEqualTo(ts);
+        assertThat(record.getData()).isEqualTo(data);
     }
 }

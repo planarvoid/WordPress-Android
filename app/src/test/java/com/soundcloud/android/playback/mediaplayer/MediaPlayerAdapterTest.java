@@ -1,9 +1,5 @@
 package com.soundcloud.android.playback.mediaplayer;
 
-import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.playback.AudioAdPlaybackItem;
-import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.playback.PlayStateReason;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -19,18 +15,24 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
@@ -87,18 +89,20 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     private PlaybackItem trackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
     private VideoPlaybackItem videoItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L);
     private int duration = 20000;
-    private PropertySet track = PropertySet.from(
-            TrackProperty.URN.bind(trackUrn),
-            TrackProperty.SNIPPET_DURATION.bind(345L),
-            TrackProperty.FULL_DURATION.bind(456L),
-            TrackProperty.SNIPPED.bind(false)
-    );
+    private PropertySet track;
 
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
+        track = PropertySet.from(
+                TrackProperty.URN.bind(trackUrn),
+                TrackProperty.SNIPPET_DURATION.bind(345L),
+                TrackProperty.FULL_DURATION.bind(456L),
+                TrackProperty.SNIPPED.bind(false)
+        );
+
         userUrn = ModelFixtures.create(Urn.class);
         when(context.getApplicationContext()).thenReturn(context);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
@@ -186,9 +190,9 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void preparedListenerShouldReportTimeToPlay() {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(0));
+        when(dateProvider.getCurrentDate()).thenReturn(new Date(0), new Date(1000));
+
         mediaPlayerAdapter.play(AudioPlaybackItem.create(trackUrn, 123L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT));
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(1000));
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
@@ -204,9 +208,21 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void preparedListenerShouldntReportTimeToPlayOnVideoPlayback() {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(0));
+        when(dateProvider.getCurrentDate()).thenReturn(new Date(0), new Date(1000));
+
         mediaPlayerAdapter.play(videoItem);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(1000));
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
+    }
+
+    @Test
+    public void preparedListenerShouldntReportTimeToPlayOnThirdPartyAudioAds() {
+        track.put(EntityProperty.URN, AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
+        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
+        when(dateProvider.getCurrentDate()).thenReturn(new Date(0), new Date(1000));
+
+        mediaPlayerAdapter.play(AudioAdPlaybackItem.create(track, AdFixtures.getThirdPartyAudioAd(trackUrn)));
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -65,10 +66,12 @@ public class BufferUnderrunListener {
     }
 
     private void emitUninterruptedPlaytimeEvent(Urn track, PlaybackProtocol playbackProtocol, PlayerType playerType, ConnectionType currentConnectionType, long uninterruptedPlayTime) {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(uninterruptedPlayTime,
-                playbackProtocol, playerType, currentConnectionType, track.toString());
-        Log.i(TAG, "Playa buffer underrun. " + event);
-        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+        if (!AdUtils.isThirdPartyAd(track)) {
+            final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(uninterruptedPlayTime,
+                    playbackProtocol, playerType, currentConnectionType, track.toString());
+            Log.i(TAG, "Playa buffer underrun. " + event);
+            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
+        }
     }
 
     // This should be removed when we discover why we are getting empty player types

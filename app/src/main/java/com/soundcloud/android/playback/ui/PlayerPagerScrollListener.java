@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -100,7 +101,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     @Override
     public void onPageSelected(int position) {
         final PlayQueueItem itemAtPosition = presenter.getItemAtPosition(position);
-        final boolean notAd = !AdsOperations.isAd(itemAtPosition);
+        final boolean notAd = !AdUtils.isAd(itemAtPosition);
         final boolean currentPosition = playQueueManager.isCurrentItem(itemAtPosition);
         trackPager.setPagingEnabled(notAd || currentPosition);
         wasSwipeNext = previousIndex < position;

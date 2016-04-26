@@ -1,19 +1,23 @@
 package com.soundcloud.android.playback.mediaplayer;
 
+import static com.soundcloud.android.playback.PlaybackState.BUFFERING;
+import static com.soundcloud.android.playback.PlaybackState.IDLE;
+import static com.soundcloud.android.playback.PlaybackState.PLAYING;
 import static com.soundcloud.android.playback.PlaybackType.VIDEO_DEFAULT;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
@@ -41,8 +45,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-
-import static com.soundcloud.android.playback.PlaybackState.*;
 
 @Singleton
 public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -197,12 +199,16 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     private void publishTimeToPlayEventIfAudio(long timeToPlay, String streamUrl) {
-        if (currentItem.getPlaybackType() != VIDEO_DEFAULT) {
+        if (isSoundCloudTrack()) {
             final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
                     getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
                     streamUrl, accountOperations.getLoggedInUserUrn());
             eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
         }
+    }
+
+    private boolean isSoundCloudTrack() {
+        return currentItem.getPlaybackType() != VIDEO_DEFAULT && !AdUtils.isThirdPartyAd(currentItem.getUrn());
     }
 
     private PlaybackProtocol getPlaybackProtocol() {

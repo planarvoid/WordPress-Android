@@ -20,10 +20,10 @@ public final class PlaybackPerformanceEvent {
     private final PlayerType playerType;
     private final String cdnHost;
     private final ConnectionType connectionType;
-    private final Urn urn;
+    private final Urn userUrn;
 
     private PlaybackPerformanceEvent(int metric, long value, PlaybackProtocol protocol, PlayerType playerType,
-                                     ConnectionType connectionType, String cdnHost, Urn urn) {
+                                     ConnectionType connectionType, String cdnHost, Urn userUrn) {
         this.metric = metric;
         this.metricValue = value;
         this.timestamp = System.currentTimeMillis();
@@ -31,7 +31,7 @@ public final class PlaybackPerformanceEvent {
         this.playerType = playerType;
         this.cdnHost = cdnHost;
         this.connectionType = connectionType;
-        this.urn = urn;
+        this.userUrn = userUrn;
     }
     public static PlaybackPerformanceEvent uninterruptedPlaytimeMs(long value, PlaybackProtocol protocol, PlayerType playerType,
                                                       ConnectionType connectionType, String cdnHost) {
@@ -102,7 +102,7 @@ public final class PlaybackPerformanceEvent {
     }
 
     public Urn getUserUrn() {
-        return urn;
+        return userUrn;
     }
 
 }

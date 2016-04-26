@@ -1,10 +1,5 @@
 package com.soundcloud.android.playback.skippy;
 
-import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.playback.AudioAdPlaybackItem;
-import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackState;
 import static com.soundcloud.android.skippy.Skippy.Error;
 import static com.soundcloud.android.skippy.Skippy.PlayListener;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
@@ -24,6 +19,9 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
@@ -37,12 +35,16 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
+import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
@@ -109,17 +111,18 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
     private Urn trackUrn = Urn.forTrack(123L);
-    private PropertySet track = PropertySet.from(
-            TrackProperty.URN.bind(trackUrn),
-            TrackProperty.SNIPPET_DURATION.bind(345L),
-            TrackProperty.FULL_DURATION.bind(456L),
-            TrackProperty.SNIPPED.bind(false)
-    );
+    private PropertySet track;
     private PlaybackItem playbackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
     private TestDateProvider dateProvider;
 
     @Before
     public void setUp() {
+        track = PropertySet.from(
+                TrackProperty.URN.bind(trackUrn),
+                TrackProperty.SNIPPET_DURATION.bind(345L),
+                TrackProperty.FULL_DURATION.bind(456L),
+                TrackProperty.SNIPPED.bind(false)
+        );
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         when(skippyFactory.createPreloader()).thenReturn(skippyPreloader);
@@ -519,6 +522,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void performanceMetricPublishesTimeToPlayEventEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
@@ -531,8 +536,21 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void performanceMetricDoesNotPublishTimeToPlayEventEventForThirdPartyAd() {
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+        track.put(EntityProperty.URN, AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
+
+        skippyAdapter.play(AudioAdPlaybackItem.create(track, AdFixtures.getThirdPartyAudioAd(Urn.forTrack(321L))));
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST);
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
+    }
+
+    @Test
     public void performanceMetricPublishesTimeToPlaylistEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_GET_PLAYLIST, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
@@ -547,6 +565,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void performanceMetricPublishesTimeToSeekEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_SEEK, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
@@ -561,6 +581,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void performanceMetricPublishesFragmentDownloadRateEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+
+        skippyAdapter.play(playbackItem);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
@@ -575,6 +597,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void performanceMetricPublishesTimeToLoadEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_LOAD_LIBRARY, 1000L, STREAM_URL, CDN_HOST);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);

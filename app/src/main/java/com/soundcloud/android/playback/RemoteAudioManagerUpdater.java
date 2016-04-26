@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.ads.AdFunctions;
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -104,7 +104,7 @@ public class RemoteAudioManagerUpdater {
 
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack()) {
-                final boolean isAudioAd = AdFunctions.IS_AUDIO_AD_ITEM.apply(playQueueItem);
+                final boolean isAudioAd = AdUtils.IS_AUDIO_AD_ITEM.apply(playQueueItem);
                 currentTrackSubscription = trackRepository
                         .track(playQueueItem.getUrn())
                         .map(PropertySetFunctions.mergeWith(PropertySet.from(AdProperty.IS_AUDIO_AD.bind(isAudioAd))))

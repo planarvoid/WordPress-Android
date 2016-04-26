@@ -1,3 +1,4 @@
+
 package com.soundcloud.android.ads;
 
 import static com.soundcloud.android.utils.Log.ADS_TAG;
@@ -174,35 +175,19 @@ public class AdsOperations {
     }
 
     public boolean isCurrentItemAd() {
-        return isAd(playQueueManager.getCurrentPlayQueueItem());
+        return AdUtils.isAd(playQueueManager.getCurrentPlayQueueItem());
     }
 
     public boolean isNextItemAd() {
-        return isAd(playQueueManager.getNextPlayQueueItem());
+        return AdUtils.isAd(playQueueManager.getNextPlayQueueItem());
     }
 
     public boolean isCurrentItemAudioAd() {
-        return isAudioAd(playQueueManager.getCurrentPlayQueueItem());
+        return AdUtils.isAudioAd(playQueueManager.getCurrentPlayQueueItem());
     }
 
     public boolean isCurrentItemVideoAd() {
-        return isVideoAd(playQueueManager.getCurrentPlayQueueItem());
-    }
-
-    public static boolean isAd(PlayQueueItem playQueueItem) {
-        return isAudioAd(playQueueItem) || isVideoAd(playQueueItem);
-    }
-
-    public static boolean isAudioAd(PlayQueueItem playQueueItem) {
-        return playQueueItem.getAdData().isPresent() && playQueueItem.getAdData().get() instanceof AudioAd;
-    }
-
-    public static boolean isVideoAd(PlayQueueItem playQueueItem) {
-        return playQueueItem.isVideo();
-    }
-
-    public static boolean hasAdOverlay(PlayQueueItem playQueueItem) {
-        return playQueueItem.getAdData().isPresent() && playQueueItem.getAdData().get() instanceof OverlayAdData;
+        return AdUtils.isVideoAd(playQueueManager.getCurrentPlayQueueItem());
     }
 
     public void clearAllAdsFromQueue() {

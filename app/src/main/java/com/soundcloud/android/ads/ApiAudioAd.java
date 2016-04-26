@@ -102,7 +102,7 @@ class ApiAudioAd {
     }
 
     public boolean isThirdParty() {
-        return apiTrack.getUrn().equals(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
+        return AdUtils.isThirdPartyAd(apiTrack.getUrn());
     }
 
     @Override

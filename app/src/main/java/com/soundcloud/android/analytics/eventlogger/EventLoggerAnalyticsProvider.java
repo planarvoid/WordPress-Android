@@ -137,7 +137,10 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
                 trackAudioAdFinished(event);
             }
         }
-        trackAudioSessionEvent(event);
+
+        if (!event.isThirdPartyAd()) {
+            trackAudioSessionEvent(event);
+        }
     }
 
     private void handleUIEvent(UIEvent event) {

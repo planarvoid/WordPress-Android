@@ -1,10 +1,11 @@
 package com.soundcloud.android.playback.ui;
 
-import static com.soundcloud.android.ads.AdsOperations.hasAdOverlay;
+import static com.soundcloud.android.ads.AdUtils.hasAdOverlay;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
@@ -169,7 +170,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     boolean isAdPageAtPosition(int position) {
-        return AdsOperations.isAd(currentPlayQueue.get(position));
+        return AdUtils.isAd(currentPlayQueue.get(position));
     }
 
     @Override
@@ -299,7 +300,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     public int getItemViewType(int position) {
         final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
-        if (AdsOperations.isAd(playQueueItem)) {
+        if (AdUtils.isAd(playQueueItem)) {
             return playQueueItem.isVideo() ? TYPE_VIDEO_AD_VIEW : TYPE_AUDIO_AD_VIEW;
         } else {
             return TYPE_TRACK_VIEW;
@@ -312,7 +313,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     private int getPagerAdViewPosition() {
         for (int i = 0, size = currentPlayQueue.size(); i < size; i++) {
-            if (AdsOperations.isAd(currentPlayQueue.get(i)) && adOperations.isCurrentItemAd()) {
+            if (AdUtils.isAd(currentPlayQueue.get(i)) && adOperations.isCurrentItemAd()) {
                 return i;
             }
         }
@@ -357,7 +358,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     private PlayerPagePresenter pagePresenter(PlayQueueItem playQueueItem) {
-        if (AdsOperations.isAd(playQueueItem)) {
+        if (AdUtils.isAd(playQueueItem)) {
             return playQueueItem.isVideo() ? videoAdPresenter : audioAdPresenter;
         } else {
             return trackPagePresenter;
@@ -369,7 +370,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             return getAdObservable(playQueueItem.getAdData().get(), Optional.<Urn>absent());
         }
 
-        if (AdsOperations.isAd(playQueueItem)) {
+        if (AdUtils.isAd(playQueueItem)) {
             return getAdObservable(playQueueItem.getAdData().get(), Optional.of(playQueueItem.getUrn()));
         } else if (playQueueItem.isTrack() && playQueueManager.getCollectionUrn().isStation()) {
             return getStationObservable(playQueueItem);
@@ -484,7 +485,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         if (item instanceof PlayerAd) {
             final Urn itemAdUrn = ((PlayerAd) item).getAdUrn();
             return pagesInPlayer.containsKey(pageView)
-                    && AdsOperations.isAd(pagesInPlayer.get(pageView))
+                    && AdUtils.isAd(pagesInPlayer.get(pageView))
                     && pagesInPlayer.get(pageView).getAdData().get().getAdUrn().equals(itemAdUrn);
         } else {
             return isTrackViewRelatedToUrn(pageView, item.getTrackUrn());

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -20,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 public class BufferUnderrunListenerTest extends AndroidUnitTest {
-    private final Urn track = Urn.forTrack(123L);
+    private Urn track;
     private BufferUnderrunListener listener;
     private TestEventBus eventBus;
     @Mock private BufferUnderrunListener.Detector detector;
@@ -29,6 +30,7 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
+        track = Urn.forTrack(123L);
         eventBus = new TestEventBus();
         listener = new BufferUnderrunListener(
                 detector,
@@ -57,6 +59,16 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
         assertThat(event.getMetricValue()).isEqualTo(900L);
+    }
+
+    @Test
+    public void shouldNotSendBufferUnderrunEventsForThirdPartyAudioAds() {
+        track = AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN;
+
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
+        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), true);
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
     }
 
     @Test

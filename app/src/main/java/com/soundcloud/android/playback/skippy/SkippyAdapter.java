@@ -9,6 +9,7 @@ import static com.soundcloud.java.checks.Preconditions.checkState;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
@@ -26,13 +27,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
-import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PreloadItem;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
@@ -333,7 +334,15 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         if (!accountOperations.isUserLoggedIn() || metric.equals(PlaybackMetric.TIME_TO_BUFFER)) {
             return;
         }
-        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, createPerformanceEvent(metric, value, cdnHost));
+
+        if (allowPerformanceMeasureEvent(metric)) {
+            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, createPerformanceEvent(metric, value, cdnHost));
+        }
+    }
+
+    private boolean allowPerformanceMeasureEvent(PlaybackMetric metric) {
+        // Time to load library & cache usage events are not specific to the current playing track
+        return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY || metric == PlaybackMetric.CACHE_USAGE_PERCENT || !AdUtils.isThirdPartyAd(currentTrackUrn);
     }
 
     @Override
