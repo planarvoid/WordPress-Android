@@ -287,6 +287,10 @@ public class VisualPlayerElement extends Element {
         return new TextElement(footerUser()).getText();
     }
 
+    public boolean isFooterAdTextVisible() {
+        return testDriver.findOnScreenElement(With.id(R.id.footer_ad_text)).hasVisibility();
+    }
+
     public void waitForContent() {
         waiter.waitForElement(With.id(R.id.player_track_pager));
         waiter.waitForContent(getViewPager());

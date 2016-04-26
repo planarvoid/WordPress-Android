@@ -6,13 +6,12 @@ import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static com.soundcloud.android.framework.matcher.player.IsSkipAllowed.SkipAllowed;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.screens.WhyAdsScreen;
-import com.soundcloud.android.framework.annotation.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
@@ -79,14 +78,13 @@ public class AudioAdTest extends AdBaseTest {
     public void testDoesNotOpenTrackWhileAdIsPlaying() {
         swipeToAd();
         playerElement.pressBackToCollapse();
-        String footerTrackCreator = playerElement.getFooterTrackCreator();
         waiter.waitForPlaybackToBePlaying();
         playlistDetailsScreen
                 .scrollToBottom()
                 .clickFirstTrack();
 
         assertThat(playerElement, is(collapsed()));
-        assertThat(playerElement.getFooterTrackCreator(), equalTo(footerTrackCreator));
+        assertThat(playerElement.isFooterAdTextVisible(), is(true));
     }
 
     public void testShowWhyAdsDialogWhenClickingWhyAds() {
