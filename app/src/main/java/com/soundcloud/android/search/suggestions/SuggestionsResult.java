@@ -1,31 +1,30 @@
 package com.soundcloud.android.search.suggestions;
 
 import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
-import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 class SuggestionsResult implements Iterable<PropertySet> {
     private final List<PropertySet> items;
-    final Optional<Urn> queryUrn;
+    private final boolean isLocalResult;
 
-    private SuggestionsResult(List<PropertySet> items, Optional<Urn> queryUrn) {
+    private SuggestionsResult(List<PropertySet> items, boolean isLocalResult) {
         this.items = items;
-        this.queryUrn = queryUrn;
+        this.isLocalResult = isLocalResult;
     }
 
-    static SuggestionsResult fromPropertySets(List<PropertySet> items, Urn queryUrn) {
-        return new SuggestionsResult(items, Optional.of(queryUrn));
+    static SuggestionsResult fromPropertySets(List<PropertySet> items) {
+        return new SuggestionsResult(items, true);
     }
 
-    static SuggestionsResult fromPropertySetSource(List<? extends PropertySetSource> items, Optional<Urn> queryUrn) {
+    static SuggestionsResult fromPropertySetSource(List<? extends PropertySetSource> items) {
         int emptyItems = 0;
         List<PropertySet> propertySets = new ArrayList<>(items.size());
         for (PropertySetSource source : items) {
@@ -38,7 +37,23 @@ class SuggestionsResult implements Iterable<PropertySet> {
         if (emptyItems > 0) {
             ErrorUtils.handleSilentException(getMissingItemException(items, emptyItems));
         }
-        return new SuggestionsResult(propertySets, queryUrn);
+        return new SuggestionsResult(propertySets, false);
+    }
+
+    static SuggestionsResult emptyLocal() {
+        return new SuggestionsResult(Collections.<PropertySet>emptyList(), true);
+    }
+
+    static SuggestionsResult emptyRemote() {
+        return new SuggestionsResult(Collections.<PropertySet>emptyList(), false);
+    }
+
+    boolean isLocal() {
+        return isLocalResult;
+    }
+
+    int size() {
+        return (items != null) ? items.size() : 0;
     }
 
     private static IllegalStateException getMissingItemException(List<? extends PropertySetSource> items, int emptyItems) {
@@ -64,11 +79,11 @@ class SuggestionsResult implements Iterable<PropertySet> {
             return false;
         }
         final SuggestionsResult that = (SuggestionsResult) o;
-        return MoreObjects.equal(items, that.items) && MoreObjects.equal(queryUrn, that.queryUrn);
+        return MoreObjects.equal(items, that.items);
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(items, queryUrn);
+        return MoreObjects.hashCode(items);
     }
 }

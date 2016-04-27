@@ -28,4 +28,8 @@ class SearchSuggestionItem extends SuggestionItem implements ImageResource {
     public Optional<String> getImageUrlTemplate() {
         return source.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
     }
+
+    Optional<SuggestionHighlight> getSuggestionHighlight() {
+        return source.get(SearchSuggestionProperty.HIGHLIGHT);
+    }
 }

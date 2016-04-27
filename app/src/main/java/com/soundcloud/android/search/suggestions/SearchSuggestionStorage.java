@@ -64,6 +64,7 @@ class SearchSuggestionStorage {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
             propertySet.put(SearchSuggestionProperty.URN, getUrn(cursorReader));
             propertySet.put(SearchSuggestionProperty.DISPLAY_TEXT, cursorReader.getString(SearchSuggestions.DISPLAY_TEXT));
+            propertySet.put(SearchSuggestionProperty.HIGHLIGHT, Optional.<SuggestionHighlight>absent());
             propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(cursorReader.getString(SearchSuggestions.IMAGE_URL)));
             return propertySet;
         }

@@ -36,7 +36,7 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
                             SearchSuggestionItem suggestionItem,
                             int iconRes) {
         ButterKnife.bind(this, itemView);
-        this.titleText.setText(highlight(suggestionItem.getDisplayedText(), suggestionItem.getQuery()));
+        this.titleText.setText(highlight(suggestionItem));
         this.searchType.setImageResource(iconRes);
         loadIcon(itemView, suggestionItem);
     }
@@ -48,20 +48,29 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
 
     protected abstract void loadIcon(View itemView, ImageResource imageResource);
 
-    private Spanned highlight(String displayText, String query) {
-        final Locale locale = Locale.getDefault();
-        final int startIndex = displayText.toLowerCase(locale).indexOf(query.toLowerCase(locale));
-        final int stopIndex = startIndex + query.length();
-        final SpannableString spanned = new SpannableString(displayText);
-        setHighlightSpans(spanned, startIndex, stopIndex);
+    private Spanned highlight(SearchSuggestionItem suggestionItem) {
+        final SuggestionHighlight suggestionHighlight =
+                suggestionItem.getSuggestionHighlight().or(findLocalSuggestionHighlight(suggestionItem));
+        final SpannableString spanned = new SpannableString(suggestionItem.getDisplayedText());
+        setHighlightSpans(spanned, suggestionHighlight);
         return spanned;
     }
 
-    private void setHighlightSpans(SpannableString spanned, int start, int end) {
+    private SuggestionHighlight findLocalSuggestionHighlight(SearchSuggestionItem suggestionItem) {
+        final Locale locale = Locale.getDefault();
+        final String query = suggestionItem.getQuery();
+        final int startIndex = suggestionItem.getDisplayedText().toLowerCase(locale).indexOf(query.toLowerCase(locale));
+        final int stopIndex = startIndex + query.length();
+        return new SuggestionHighlight(startIndex, stopIndex);
+    }
+
+    private void setHighlightSpans(SpannableString spanned, SuggestionHighlight suggestionHighlight) {
         spanned.setSpan(new ForegroundColorSpan(ContextCompat.getColor(titleText.getContext(), R.color.search_suggestion_unhighlighted_text)),
                 0, spanned.length(),
                 Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
+        int start = suggestionHighlight.getStart();
+        int end = suggestionHighlight.getEnd();
         if (start >= 0 && start < end && end > 0 && end <= spanned.length()) {
             spanned.setSpan(new ForegroundColorSpan(ContextCompat.getColor(titleText.getContext(), R.color.search_suggestion_text)),
                     start, end,
