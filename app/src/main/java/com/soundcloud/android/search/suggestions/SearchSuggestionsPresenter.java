@@ -23,7 +23,6 @@ import java.util.List;
 public class SearchSuggestionsPresenter extends RecyclerViewPresenter<SuggestionsResult, SuggestionItem> {
 
     public interface SuggestionListener {
-        void onDataChanged(boolean isEmpty);
         void onScrollChanged();
         void onSearchClicked(String searchQuery);
         void onTrackClicked(Urn trackUrn);
@@ -66,7 +65,6 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
-        this.adapter.registerAdapterDataObserver(new SuggestionsVisibilityController());
         if (fragment instanceof SuggestionListener) {
             this.suggestionListener = (SuggestionListener) fragment;
         }
@@ -121,16 +119,6 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
                 case UserItem:
                     suggestionListener.onUserClicked(item.getUrn());
                     break;
-            }
-        }
-    }
-
-    private class SuggestionsVisibilityController extends RecyclerView.AdapterDataObserver {
-        @Override
-        public void onChanged() {
-            super.onChanged();
-            if (suggestionListener != null) {
-                suggestionListener.onDataChanged(adapter.isEmpty());
             }
         }
     }

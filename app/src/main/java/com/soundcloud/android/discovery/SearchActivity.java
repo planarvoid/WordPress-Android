@@ -45,11 +45,6 @@ public class SearchActivity extends PlayerActivity implements SuggestionListener
     }
 
     @Override
-    public void onDataChanged(boolean isEmpty) {
-        presenter.onDataChanged(isEmpty);
-    }
-
-    @Override
     public void onScrollChanged() {
         presenter.onScrollChanged();
     }

@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
  * based on {@link com.soundcloud.android.properties.Flag#NEW_SEARCH_SUGGESTIONS} feature flag.
  */
 public interface FeaturedSearchPresenter extends ActivityLightCycle<AppCompatActivity> {
-    void onDataChanged(boolean isEmpty);
     void onScrollChanged();
     void dismiss(AppCompatActivity activity);
     void performSearch(String searchQuery);

@@ -37,13 +37,6 @@ public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchS
     }
 
     @Override
-    public void onDataChanged(boolean isEmpty) {
-        if (getActivity() instanceof SuggestionListener) {
-            ((SuggestionListener) getActivity()).onDataChanged(isEmpty);
-        }
-    }
-
-    @Override
     public void onScrollChanged() {
         if (getActivity() instanceof SuggestionListener) {
             ((SuggestionListener) getActivity()).onScrollChanged();

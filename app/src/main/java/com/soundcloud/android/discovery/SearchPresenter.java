@@ -126,15 +126,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     }
 
     @Override
-    public void onDataChanged(boolean isEmpty) {
-        if (!isEmpty) {
-            showSearchSuggestionsView();
-        } else {
-            hideSearchSuggestionsView();
-        }
-    }
-
-    @Override
     public void onScrollChanged() {
         hideKeyboard();
     }

@@ -9,14 +9,14 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, SuggestionsAdapter.SuggestionViewHolder> {
+class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, SuggestionsAdapter.SuggestionViewHolder> {
 
     final static int TYPE_SEARCH = ViewTypes.DEFAULT_VIEW_TYPE;
     final static int TYPE_TRACK = ViewTypes.DEFAULT_VIEW_TYPE + 1;
     final static int TYPE_USER = ViewTypes.DEFAULT_VIEW_TYPE + 2;
 
     @Inject
-    public SuggestionsAdapter(SearchSuggestionItemRenderer searchItemRenderer,
+    SuggestionsAdapter(SearchSuggestionItemRenderer searchItemRenderer,
                               TrackSuggestionItemRenderer trackItemRenderer,
                               UserSuggestionItemRenderer userItemRenderer) {
         super(new CellRendererBinding<>(TYPE_SEARCH, searchItemRenderer),

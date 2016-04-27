@@ -292,12 +292,6 @@ class LegacySearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     @Override
-    public void onDataChanged(boolean isEmpty) {
-        //No operation here, since this is gonna be removed when
-        //enabling feature flag NEW_SEARCH_SUGGESTIONS
-    }
-
-    @Override
     public void onScrollChanged() {
         //No operation here, since this is gonna be removed when
         //enabling feature flag NEW_SEARCH_SUGGESTIONS
