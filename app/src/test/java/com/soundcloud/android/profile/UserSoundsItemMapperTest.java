@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserSoundsMapperTest extends AndroidUnitTest {
+public class UserSoundsItemMapperTest extends AndroidUnitTest {
 
-    @Mock UserSoundsMapper.EntityHolderMapper entityHolderMapper;
+    @Mock UserSoundsItemMapper.EntityHolderMapper entityHolderMapper;
     @Mock UserSoundsItem mockUserSoundsItem;
 
     @Test
@@ -40,7 +40,7 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
         mockEntityHolderMapper(UserSoundsTypes.REPOSTS, profile.getReposts());
         mockEntityHolderMapper(UserSoundsTypes.LIKES, profile.getLikes());
 
-        ArrayList<UserSoundsItem> result = newArrayList(new UserSoundsMapper(entityHolderMapper).call(profile));
+        ArrayList<UserSoundsItem> result = newArrayList(new UserSoundsItemMapper(entityHolderMapper).call(profile));
 
         assertThat(result.size()).isEqualTo(7);
 
@@ -59,7 +59,7 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
         final PropertySet playlistPost = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class)).toPropertySet();
         final ModelCollection<PropertySet> tracks = new ModelCollection<>(newArrayList(trackPost, playlistPost));
 
-        List<UserSoundsItem> result = new UserSoundsMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
+        List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.size()).isEqualTo(4);
         assertThat(result.get(0).getItemType()).isEqualTo(UserSoundsItem.TYPE_DIVIDER);
@@ -85,7 +85,7 @@ public class UserSoundsMapperTest extends AndroidUnitTest {
         final ModelCollection<PropertySet> tracks = new ModelCollection<>(
                 singletonList(create(ApiTrack.class).toPropertySet()), links);
 
-        List<UserSoundsItem> result = new UserSoundsMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
+        List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.get(3).getItemType()).isEqualTo(UserSoundsItem.TYPE_VIEW_ALL);
     }

@@ -16,12 +16,12 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserSoundsMapper implements Func1<UserProfile, Iterable<UserSoundsItem>> {
+public class UserSoundsItemMapper implements Func1<UserProfile, Iterable<UserSoundsItem>> {
 
     private final EntityHolderMapper entityHolderMapper;
 
     @Inject
-    public UserSoundsMapper(EntityHolderMapper entityHolderMapper) {
+    public UserSoundsItemMapper(EntityHolderMapper entityHolderMapper) {
         this.entityHolderMapper = entityHolderMapper;
     }
 

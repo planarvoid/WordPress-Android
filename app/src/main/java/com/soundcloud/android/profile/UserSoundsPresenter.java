@@ -64,7 +64,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final UserSoundsAdapter adapter;
     private final UserProfileOperations operations;
-    private final UserSoundsMapper userSoundsMapper;
+    private final UserSoundsItemMapper userSoundsItemMapper;
     private final UserSoundsItemClickListener.Factory clickListenerFactory;
     private final EventBus eventBus;
     private final Resources resources;
@@ -79,7 +79,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                         SwipeRefreshAttacher swipeRefreshAttacher,
                         UserSoundsAdapter adapter,
                         UserProfileOperations operations,
-                        UserSoundsMapper userSoundsMapper,
+                        UserSoundsItemMapper userSoundsItemMapper,
                         UserSoundsItemClickListener.Factory clickListenerFactory,
                         EventBus eventBus,
                         Resources resources) {
@@ -89,7 +89,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.operations = operations;
-        this.userSoundsMapper = userSoundsMapper;
+        this.userSoundsItemMapper = userSoundsItemMapper;
         this.clickListenerFactory = clickListenerFactory;
         this.eventBus = eventBus;
         this.resources = resources;
@@ -100,7 +100,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
 
         return CollectionBinding
-                .from(operations.userProfile(userUrn), userSoundsMapper)
+                .from(operations.userProfile(userUrn), userSoundsItemMapper)
                 .withAdapter(adapter)
                 .build();
     }
@@ -108,7 +108,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     @Override
     protected CollectionBinding<UserProfile, UserSoundsItem> onRefreshBinding() {
         return CollectionBinding
-                .from(operations.userProfile(userUrn), userSoundsMapper)
+                .from(operations.userProfile(userUrn), userSoundsItemMapper)
                 .withAdapter(adapter)
                 .build();
     }
