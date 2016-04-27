@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
 
     @Bind(R.id.icon) ImageView icon;
@@ -47,7 +49,8 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
     protected abstract void loadIcon(View itemView, ImageResource imageResource);
 
     private Spanned highlight(String displayText, String query) {
-        final int startIndex = displayText.toLowerCase().indexOf(query.toLowerCase());
+        final Locale locale = Locale.getDefault();
+        final int startIndex = displayText.toLowerCase(locale).indexOf(query.toLowerCase(locale));
         final int stopIndex = startIndex + query.length();
         final SpannableString spanned = new SpannableString(displayText);
         setHighlightSpans(spanned, startIndex, stopIndex);
