@@ -249,10 +249,9 @@ public class PlaySessionController {
                     if (playSessionStateProvider.isPlaying() && !lastKnownPlayQueueTrackUrn.equals(playQueueItem.getUrn())) {
                         playCurrent();
                     }
-                } else if (playSessionStateProvider.isPlaying()) {
+                } else if (playSessionStateProvider.isPlaying() || playSessionStateProvider.isInErrorState()) {
                     playCurrent();
                 }
-
             } else if (playQueueItem.isVideo()) {
                 if (playSessionStateProvider.isPlaying()) {
                     playCurrent();
