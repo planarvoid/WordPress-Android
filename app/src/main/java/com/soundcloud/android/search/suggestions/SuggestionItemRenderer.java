@@ -47,7 +47,7 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
     protected abstract void loadIcon(View itemView, ImageResource imageResource);
 
     private Spanned highlight(String displayText, String query) {
-        final int startIndex = displayText.indexOf(query);
+        final int startIndex = displayText.toLowerCase().indexOf(query.toLowerCase());
         final int stopIndex = startIndex + query.length();
         final SpannableString spanned = new SpannableString(displayText);
         setHighlightSpans(spanned, startIndex, stopIndex);
