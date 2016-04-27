@@ -62,7 +62,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private SwipeRefreshAttacher swipeRefreshAttacker;
     @Mock private UserSoundsAdapter adapter;
     @Mock private UserProfileOperations operations;
-    @Mock private UserSoundsMapper userSoundsMapper;
+    @Mock private UserSoundsItemMapper userSoundsItemMapper;
     @Mock private UserSoundsItemClickListener.Factory clickListenerFactory;
     @Mock private UserSoundsItemClickListener clickListener;
     @Mock private Resources resources;
@@ -81,7 +81,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                userSoundsMapper, clickListenerFactory, eventBus, resources);
+                userSoundsItemMapper, clickListenerFactory, eventBus, resources);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
         doReturn(clickListener).when(clickListenerFactory).create(SEARCH_QUERY_SOURCE_INFO);
@@ -91,7 +91,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadInitialItemsInOnCreate() throws Exception {
-        when(userSoundsMapper.call(userProfileResponse)).thenReturn(singletonList(userSoundsItem));
+        when(userSoundsItemMapper.call(userProfileResponse)).thenReturn(singletonList(userSoundsItem));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
 

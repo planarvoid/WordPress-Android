@@ -11,14 +11,15 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-public abstract class UserSoundsItem implements ListItem {
+abstract class UserSoundsItem implements ListItem {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;
     static final int TYPE_TRACK = 3;
     static final int TYPE_PLAYLIST = 4;
+    static final int TYPE_END_OF_LIST_DIVIDER = 5;
 
-    public static UserSoundsItem fromPlaylistItem(PlaylistItem playlistItem, int collectionType) {
+    static UserSoundsItem fromPlaylistItem(PlaylistItem playlistItem, int collectionType) {
         return new AutoValue_UserSoundsItem(
                 UserSoundsItem.TYPE_PLAYLIST,
                 collectionType,
@@ -26,7 +27,7 @@ public abstract class UserSoundsItem implements ListItem {
                 Optional.fromNullable(playlistItem));
     }
 
-    public static UserSoundsItem fromTrackItem(TrackItem trackItem, int collectionType) {
+    static UserSoundsItem fromTrackItem(TrackItem trackItem, int collectionType) {
         return new AutoValue_UserSoundsItem(
                 UserSoundsItem.TYPE_TRACK,
                 collectionType,
@@ -34,7 +35,7 @@ public abstract class UserSoundsItem implements ListItem {
                 Optional.<PlaylistItem>absent());
     }
 
-    public static UserSoundsItem fromViewAll(int collectionType) {
+    static UserSoundsItem fromViewAll(int collectionType) {
         return new AutoValue_UserSoundsItem(
                 TYPE_VIEW_ALL,
                 collectionType,
@@ -42,7 +43,7 @@ public abstract class UserSoundsItem implements ListItem {
                 Optional.<PlaylistItem>absent());
     }
 
-    public static UserSoundsItem fromHeader(int collectionType) {
+    static UserSoundsItem fromHeader(int collectionType) {
         return new AutoValue_UserSoundsItem(
                 TYPE_HEADER,
                 collectionType,
@@ -50,9 +51,17 @@ public abstract class UserSoundsItem implements ListItem {
                 Optional.<PlaylistItem>absent());
     }
 
-    public static UserSoundsItem fromDivider() {
+    static UserSoundsItem fromDivider() {
         return new AutoValue_UserSoundsItem(
                 TYPE_DIVIDER,
+                Consts.NOT_SET,
+                Optional.<TrackItem>absent(),
+                Optional.<PlaylistItem>absent());
+    }
+
+    static UserSoundsItem fromEndOfListDivider() {
+        return new AutoValue_UserSoundsItem(
+                TYPE_END_OF_LIST_DIVIDER,
                 Consts.NOT_SET,
                 Optional.<TrackItem>absent(),
                 Optional.<PlaylistItem>absent());
