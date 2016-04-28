@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.offline;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
+import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloaded.downloaded;
 import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloading.downloading;
 import static com.soundcloud.android.screens.elements.DownloadImageViewElement.IsDownloadingOrDownloaded.downloadingOrDownloaded;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -9,7 +10,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -19,7 +19,7 @@ import com.soundcloud.android.tests.ActivityTest;
 import android.content.Context;
 
 public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
-
+    public static final String TAG = "OfflineTests";
     private static final String UNAVAILABLE_PLAYLIST = "Unavailable playlist";
     private static final String EMPTY_PLAYLIST = "Empty playlist";
     private static final String MIXED_PLAYLIST = "Mixed playlist";
@@ -74,7 +74,6 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
         assertThat(collectionsDownloadElement, is(downloadingOrDownloaded()));
     }
 
-    @Ignore
     public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
                 .scrollToAndClickPlaylistWithTitle(OFFLINE_PLAYLIST)
@@ -82,12 +81,14 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
         assertThat(downloadElement, is(downloading()));
+        playlistDetailsScreen.waitForDownloadToFinish();
+        assertThat(downloadElement, is(downloaded()));
 
         final DownloadImageViewElement collectionsDownloadElement = playlistDetailsScreen
                 .goBackToCollections()
                 .scrollToPlaylistWithTitle(OFFLINE_PLAYLIST)
                 .downloadElement();
-        assertThat(collectionsDownloadElement, is(downloadingOrDownloaded()));
+        assertThat(collectionsDownloadElement, is(downloaded()));
     }
 
     public void testEmptyPlaylistsAreMarkedAsRequested() {

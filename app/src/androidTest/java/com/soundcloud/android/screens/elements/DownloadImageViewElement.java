@@ -4,6 +4,8 @@ import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.tests.offline.OfflinePlaylistTest;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.objects.MoreObjects;
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -82,6 +84,36 @@ public class DownloadImageViewElement {
         @Factory
         public static Matcher<DownloadImageViewElement> downloading() {
             return new IsDownloading();
+        }
+
+    }
+
+    public static class IsDownloaded extends TypeSafeMatcher<DownloadImageViewElement> {
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("downloaded");
+        }
+
+        @Override
+        protected boolean matchesSafely(final DownloadImageViewElement element) {
+            return element.waiter.waitForElementCondition(new Condition() {
+                @Override
+                public boolean isSatisfied() {
+                    Log.d(OfflinePlaylistTest.TAG, new StringBuilder()
+                            .append("IsDownloaded.matchesSafely ")
+                            .append("isVisible=").append(element.isVisible())
+                            .append("state=").append(element.getStateString())
+                            .append("=>").append(element.isDownloaded())
+                            .toString()
+                    );
+                    return element.isDownloaded();
+                }
+            });
+        }
+
+        @Factory
+        public static Matcher<DownloadImageViewElement> downloaded() {
+            return new IsDownloaded();
         }
 
     }

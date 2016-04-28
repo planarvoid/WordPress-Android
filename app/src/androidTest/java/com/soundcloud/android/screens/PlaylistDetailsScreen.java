@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens;
 
+import com.robotium.solo.Condition;
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
@@ -119,6 +120,28 @@ public class PlaylistDetailsScreen extends Screen {
     public TrackItemMenuElement findAndClickFirstTrackOverflowButton() {
         return scrollToAndGetFirstTrackItem()
                 .clickOverflowButton();
+    }
+
+    private void waitForDownloadToStart() {
+        waiter.waitForElement(headerText(), offlineUpdateInProgress());
+    }
+
+    private TextElement headerText() {
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.header_text)));
+    }
+
+    public boolean waitForDownloadToFinish() {
+        waitForDownloadToStart();
+        return waiter.waitForNetworkCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return !testDriver.isElementDisplayed(With.text(offlineUpdateInProgress()));
+            }
+        });
+    }
+
+    private String offlineUpdateInProgress() {
+        return testDriver.getString(R.string.offline_update_in_progress);
     }
 
     @Override
