@@ -7,9 +7,11 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
+@Ignore
 public class MyProfileTest extends ActivityTest<ResolveActivity> {
 
     private ProfileScreen profileScreen;

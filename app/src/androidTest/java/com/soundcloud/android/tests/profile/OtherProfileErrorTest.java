@@ -5,10 +5,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
+@Ignore
 public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
 
     private ProfileScreen profileScreen;
