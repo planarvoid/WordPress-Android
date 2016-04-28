@@ -305,6 +305,18 @@ public class ProfileScreen extends Screen {
         return followButton().isOnScreen();
     }
 
+    public boolean showsEmptySoundsMessage() {
+        return testDriver.findOnScreenElement(With.text(R.string.empty_user_sounds_message)).hasVisibility();
+    }
+
+    public boolean showsEmptyInfoMessage() {
+        return testDriver.findOnScreenElement(With.text(R.string.info_empty_other_message)).hasVisibility();
+    }
+
+    public boolean showsEmptyFollowingsMessage() {
+        return testDriver.findOnScreenElement(With.text(R.string.new_empty_user_followings_text)).hasVisibility();
+    }
+
     public boolean areCurrentlyFollowing() {
         final String captionIfNotFollowing = getActionFollowText();
         final String currentCaption = new TextElement(followButton()).getText();
