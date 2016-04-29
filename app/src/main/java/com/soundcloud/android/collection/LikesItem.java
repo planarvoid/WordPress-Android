@@ -1,6 +1,5 @@
 package com.soundcloud.android.collection;
 
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.java.collections.PropertySet;
@@ -9,15 +8,15 @@ import java.util.List;
 
 final class LikesItem {
 
-    private final List<Urn> likes;
+    private final List<LikedTrackPreview> trackPreviews;
     private final PropertySet properties;
 
-    static LikesItem fromUrns(List<Urn> likes) {
-        return new LikesItem(likes, PropertySet.create());
+    static LikesItem fromTrackPreviews(List<LikedTrackPreview> trackPreviews) {
+        return new LikesItem(trackPreviews, PropertySet.create());
     }
 
-    LikesItem(List<Urn> likes, PropertySet properties) {
-        this.likes = likes;
+    LikesItem(List<LikedTrackPreview> trackPreviews, PropertySet properties) {
+        this.trackPreviews = trackPreviews;
         this.properties = properties;
     }
 
@@ -25,8 +24,8 @@ final class LikesItem {
         this.properties.update(properties);
     }
 
-    public List<Urn> getUrns() {
-        return likes;
+    public List<LikedTrackPreview> getTrackPreviews() {
+        return trackPreviews;
     }
 
     public OfflineState getDownloadState() {

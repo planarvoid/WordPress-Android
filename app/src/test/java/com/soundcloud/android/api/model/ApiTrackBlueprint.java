@@ -60,10 +60,10 @@ public class ApiTrackBlueprint {
     AfterCreateCallback<ApiTrack> afterCreate = new AfterCreateCallback<ApiTrack>() {
         @Override
         public ApiTrack afterCreate(ApiTrack model) {
-            if (model.getUser() == null){
+            if (model.getUser() == null) {
                 model.setUser(ModelFixtures.create(ApiUser.class));
             }
-            model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-000151307749-v2r7oy-{size}.jpg");
+            model.setArtworkUrlTemplate("https://i1.sndcdn.com/artworks-" + runningId + "-{size}.jpg");
             model.setMonetizationModel("SUB_MID_TIER");
             model.setSubMidTier(true);
             model.setSubHighTier(true);

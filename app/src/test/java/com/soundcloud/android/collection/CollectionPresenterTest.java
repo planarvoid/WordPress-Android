@@ -1,7 +1,9 @@
 package com.soundcloud.android.collection;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -11,6 +13,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -31,8 +34,9 @@ import java.util.List;
 
 public class CollectionPresenterTest extends AndroidUnitTest {
 
-    public static final List<Urn> RECENT_STATIONS = Collections.singletonList(Urn.forTrackStation(123L));
-    public static final LikesItem LIKES = LikesItem.fromUrns(Collections.singletonList(Urn.forTrack(123L)));
+    public static final List<StationRecord> RECENT_STATIONS = singletonList(mock(StationRecord.class));
+    public static final LikesItem LIKES = LikesItem.fromTrackPreviews(singletonList(
+            LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url")));
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
@@ -200,7 +204,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     public void collectionsItemsShouldContainPreviewCollectionItemWhenThereAreNoLikesOrStations() {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollection myCollection = getMyCollection(playlistItems,
-                LikesItem.fromUrns(Collections.<Urn>emptyList()), Collections.<Urn>emptyList(), false);
+                LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()),
+                Collections.<StationRecord>emptyList(), false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
@@ -267,12 +272,13 @@ public class CollectionPresenterTest extends AndroidUnitTest {
 
     private void setupDefaultCollection() {
         final MyCollection myCollection = getMyCollection(Collections.<PlaylistItem>emptyList(),
-                LikesItem.fromUrns(Collections.<Urn>emptyList()), Collections.<Urn>emptyList(), false);
+                LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()),
+                Collections.<StationRecord>emptyList(), false);
         when(collectionOperations.collections(any(PlaylistsOptions.class))).thenReturn(Observable.just(myCollection));
     }
 
     @NonNull
-    private MyCollection getMyCollection(List<PlaylistItem> playlistItems, LikesItem likes, List<Urn> recentStations, boolean atLeastOneError) {
+    private MyCollection getMyCollection(List<PlaylistItem> playlistItems, LikesItem likes, List<StationRecord> recentStations, boolean atLeastOneError) {
         return new MyCollection(likes, playlistItems, recentStations, atLeastOneError);
     }
 }

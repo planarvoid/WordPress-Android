@@ -3,13 +3,11 @@ package com.soundcloud.android.collection;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
@@ -58,7 +56,7 @@ public class CollectionOperations {
     private final SyncStateStorage syncStateStorage;
     private final PlaylistPostStorage playlistPostStorage;
     private final PlaylistLikesStorage playlistLikesStorage;
-    private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
+    private final LoadLikedTrackPreviewsCommand loadLikedTrackPreviews;
     private final SyncInitiator syncInitiator;
     private final StationsOperations stationsOperations;
     private final CollectionOptionsStorage collectionOptionsStorage;
@@ -125,14 +123,14 @@ public class CollectionOperations {
     private static final Func3<List<PlaylistItem>, LikesItem, List<StationRecord>, MyCollection> TO_MY_COLLECTIONS = new Func3<List<PlaylistItem>, LikesItem, List<StationRecord>, MyCollection>() {
         @Override
         public MyCollection call(List<PlaylistItem> playlistItems, LikesItem likes, List<StationRecord> recentStations) {
-            return new MyCollection(likes, playlistItems, transform(recentStations, StationRecord.TO_URN), false);
+            return new MyCollection(likes, playlistItems, recentStations, false);
         }
     };
 
-    private static final Func2<List<Urn>, OfflineState, LikesItem> TO_LIKES_ITEM = new Func2<List<Urn>, OfflineState, LikesItem>() {
+    private static final Func2<List<LikedTrackPreview>, OfflineState, LikesItem> TO_LIKES_ITEM = new Func2<List<LikedTrackPreview>, OfflineState, LikesItem>() {
         @Override
-        public LikesItem call(List<Urn> urns, OfflineState offlineState) {
-            return new LikesItem(urns, PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(offlineState)));
+        public LikesItem call(List<LikedTrackPreview> likedTracks, OfflineState offlineState) {
+            return new LikesItem(likedTracks, PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(offlineState)));
         }
     };
 
@@ -146,9 +144,9 @@ public class CollectionOperations {
                         return Notification.createOnCompleted();
                     }
                     return Notification.createOnNext(new MyCollection(
-                            likes.isOnError() ? LikesItem.fromUrns(Collections.<Urn>emptyList()) : likes.getValue(),
+                            likes.isOnError() ? LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()) : likes.getValue(),
                             playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue(),
-                            transform(recentStations.isOnError() ? Collections.<StationRecord>emptyList() : recentStations.getValue(), StationRecord.TO_URN),
+                            recentStations.isOnError() ? Collections.<StationRecord>emptyList() : recentStations.getValue(),
                             likes.isOnError() || playlists.isOnError() || recentStations.isOnError()
                     ));
                 }
@@ -190,7 +188,7 @@ public class CollectionOperations {
                          SyncStateStorage syncStateStorage,
                          PlaylistPostStorage playlistPostStorage,
                          PlaylistLikesStorage playlistLikesStorage,
-                         LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
+                         LoadLikedTrackPreviewsCommand loadLikedTrackPreviews,
                          SyncInitiator syncInitiator,
                          StationsOperations stationsOperations,
                          CollectionOptionsStorage collectionOptionsStorage,
@@ -200,7 +198,7 @@ public class CollectionOperations {
         this.syncStateStorage = syncStateStorage;
         this.playlistPostStorage = playlistPostStorage;
         this.playlistLikesStorage = playlistLikesStorage;
-        this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
+        this.loadLikedTrackPreviews = loadLikedTrackPreviews;
         this.syncInitiator = syncInitiator;
         this.stationsOperations = stationsOperations;
         this.collectionOptionsStorage = collectionOptionsStorage;
@@ -258,16 +256,16 @@ public class CollectionOperations {
         return offlineStateOperations.loadLikedTracksOfflineState();
     }
 
-    private Observable<List<Urn>> tracksLiked() {
+    private Observable<List<LikedTrackPreview>> tracksLiked() {
         return syncStateStorage
                 .hasSyncedBefore(SyncContent.MyLikes.content.uri)
-                .flatMap(new Func1<Boolean, Observable<List<Urn>>>() {
+                .flatMap(new Func1<Boolean, Observable<List<LikedTrackPreview>>>() {
                     @Override
-                    public Observable<List<Urn>> call(Boolean hasSynced) {
+                    public Observable<List<LikedTrackPreview>> call(Boolean hasSynced) {
                         if (hasSynced) {
-                            return loadTracksLiked();
+                            return likedTrackPreviews();
                         } else {
-                            return refreshLikesAndLoadTracksLiked();
+                            return refreshLikesAndLoadPreviews();
                         }
                     }
                 }).subscribeOn(scheduler);
@@ -276,7 +274,7 @@ public class CollectionOperations {
     Observable<MyCollection> updatedCollections(final PlaylistsOptions options) {
         return Observable.zip(
                 refreshAndLoadPlaylists(options),
-                Observable.zip(refreshLikesAndLoadTracksLiked(),
+                Observable.zip(refreshLikesAndLoadPreviews(),
                         likedTracksOfflineState(),
                         TO_LIKES_ITEM),
                 refreshRecentStationsAndLoad(),
@@ -288,12 +286,12 @@ public class CollectionOperations {
         return stationsOperations.sync().flatMap(continueWith(recentStations()));
     }
 
-    private Observable<List<Urn>> refreshLikesAndLoadTracksLiked() {
-        return syncInitiator.refreshLikes().flatMap(continueWith(loadTracksLiked()));
+    private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {
+        return syncInitiator.refreshLikes().flatMap(continueWith(likedTrackPreviews()));
     }
 
-    private Observable<List<Urn>> loadTracksLiked() {
-        return loadLikedTrackUrnsCommand.toObservable(null).subscribeOn(scheduler);
+    private Observable<List<LikedTrackPreview>> likedTrackPreviews() {
+        return loadLikedTrackPreviews.toObservable(null).subscribeOn(scheduler);
     }
 
     private Observable<List<StationRecord>> recentStations() {

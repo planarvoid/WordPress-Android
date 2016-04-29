@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +22,9 @@ import java.util.Collections;
 public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
 
     private static final CollectionItem PREVIEW = CollectionItem.fromCollectionsPreview(
-            LikesItem.fromUrns(Collections.singletonList(Urn.forTrack(123L))), Collections.<Urn>emptyList());
+            LikesItem.fromTrackPreviews(singletonList(
+                    LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url"))),
+            Collections.<StationRecord>emptyList());
 
     private UpdateCollectionDownloadSubscriber subscriber;
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.collection;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -74,12 +74,12 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     private void bindLikesView(LikesItem likes, View view) {
         final CollectionPreviewView likesPreviewView = getLikesPreviewView(view);
-        setThumbnails(likes.getUrns(), likesPreviewView);
+        setThumbnails(likes.getTrackPreviews(), likesPreviewView);
         setLikesDownloadProgressIndicator(likes, view);
     }
 
-    private void setThumbnails(List<Urn> entities, CollectionPreviewView previewView) {
-        previewView.refreshThumbnails(entities, resources.getInteger(R.integer.collection_preview_thumbnail_count));
+    private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {
+        previewView.refreshThumbnails(imageResources, resources.getInteger(R.integer.collection_preview_thumbnail_count));
     }
 
     private void setLikesDownloadProgressIndicator(LikesItem likes, View likesView) {

@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.image.ImageResource;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -52,13 +52,13 @@ public class CollectionPreviewView extends FrameLayout {
         thumbnailContainer = (ViewGroup) findViewById(R.id.thumbnail_container);
     }
 
-    public void refreshThumbnails(List<Urn> entities, int numThumbnails) {
-        final int numEmptyThumbnails = Math.max(numThumbnails - entities.size(), 0);
+    public void refreshThumbnails(List<? extends ImageResource> imageResources, int numThumbnails) {
+        final int numEmptyThumbnails = Math.max(numThumbnails - imageResources.size(), 0);
         this.numThumbnails = numThumbnails;
 
         thumbnailContainer.removeAllViews();
         populateEmptyThumbnails(numEmptyThumbnails);
-        populateArtwork(entities, numEmptyThumbnails);
+        populateArtwork(imageResources, numEmptyThumbnails);
     }
 
     void populateEmptyThumbnails(int numEmptyThumbnails) {
@@ -67,14 +67,15 @@ public class CollectionPreviewView extends FrameLayout {
         }
     }
 
-    void populateArtwork(List<Urn> entities, int numEmptyThumbnails) {
+    void populateArtwork(List<? extends ImageResource> imageResources, int numEmptyThumbnails) {
         final int numImages = numThumbnails - numEmptyThumbnails;
 
         for (int j = 0; j < numImages; j++) {
             inflateThumbnailViewIntoHolder();
 
             ImageView thumbnail = (ImageView) thumbnailContainer.getChildAt(j + numEmptyThumbnails);
-            imageOperations.displayWithPlaceholder(entities.get(j), ApiImageSize.getListItemImageSize(thumbnailContainer.getResources()), thumbnail);
+            imageOperations.displayWithPlaceholder(imageResources.get(j),
+                    ApiImageSize.getListItemImageSize(thumbnailContainer.getResources()), thumbnail);
         }
     }
 

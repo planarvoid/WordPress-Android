@@ -1,7 +1,7 @@
 package com.soundcloud.android.collection;
 
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.stations.StationRecord;
 
 import java.util.List;
 
@@ -9,11 +9,11 @@ public class MyCollection {
 
     private final LikesItem likes;
     private final List<PlaylistItem> likedAndPostedPlaylists;
-    private final List<Urn> recentStations;
+    private final List<StationRecord> recentStations;
     private final boolean atLeastOneError;
 
     public MyCollection(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
-                        List<Urn> recentStations, boolean atLeastOneError) {
+                        List<StationRecord> recentStations, boolean atLeastOneError) {
         this.likes = likes;
         this.likedAndPostedPlaylists = likedAndPostedPlaylists;
         this.recentStations = recentStations;
@@ -28,7 +28,7 @@ public class MyCollection {
         return likes;
     }
 
-    public List<Urn> getRecentStations() {
+    public List<StationRecord> getRecentStations() {
         return recentStations;
     }
 

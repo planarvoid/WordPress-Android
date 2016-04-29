@@ -3,6 +3,7 @@ package com.soundcloud.android.collection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -20,10 +21,10 @@ public class CollectionItem implements ListItem {
 
     private final int type;
     private final LikesItem likes;
-    private final List<Urn> stations;
+    private final List<StationRecord> stations;
     private final PlaylistItem playlistItem;
 
-    private CollectionItem(int type, LikesItem likes, List<Urn> stations, PlaylistItem playlistItem) {
+    private CollectionItem(int type, LikesItem likes, List<StationRecord> stations, PlaylistItem playlistItem) {
         this.type = type;
         this.likes = likes;
         this.stations = stations;
@@ -31,7 +32,7 @@ public class CollectionItem implements ListItem {
     }
 
     // TODO avoid null (CollectionItem<T> { T getEntity() ; getType()}) or use @nullable
-    public static CollectionItem fromCollectionsPreview(LikesItem likes, List<Urn> stations) {
+    public static CollectionItem fromCollectionsPreview(LikesItem likes, List<StationRecord> stations) {
         return new CollectionItem(CollectionItem.TYPE_COLLECTIONS_PREVIEW, likes, stations, null);
     }
 
@@ -67,7 +68,7 @@ public class CollectionItem implements ListItem {
         return likes;
     }
 
-    public List<Urn> getStations() {
+    public List<StationRecord> getStations() {
         return stations;
     }
 
