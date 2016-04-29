@@ -179,7 +179,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
         if (mediaPlayer.equals(this.mediaPlayer) && internalState == PlaybackState.PREPARING) {
 
-            if (playerListener != null && playerListener.requestAudioFocus()) {
+            if (playerListener != null) {
                 play();
                 publishTimeToPlayEventIfAudio(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
 
@@ -431,7 +431,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
-    public void resume() {
+    public void resume(PlaybackItem ignored) {
         if (mediaPlayer != null && internalState.isStartable()) {
             play();
         } else {

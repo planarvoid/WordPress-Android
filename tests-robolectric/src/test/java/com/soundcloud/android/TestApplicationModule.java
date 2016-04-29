@@ -20,9 +20,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.IRemoteAudioManager;
 import com.soundcloud.android.playback.PlaybackStrategy;
-import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
@@ -137,16 +135,6 @@ public class TestApplicationModule {
     @Provides
     public PlaylistTagStorage providePlaylistTagStorage() {
         return mock(PlaylistTagStorage.class);
-    }
-
-    @Provides
-    public IRemoteAudioManager provideIRemoteAudioManager() {
-        return mock(IRemoteAudioManager.class);
-    }
-
-    @Provides
-    public PlaybackNotificationController providePlaybackNotificationController() {
-        return mock(PlaybackNotificationController.class);
     }
 
     @Provides

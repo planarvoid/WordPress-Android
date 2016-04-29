@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
@@ -8,12 +9,13 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.playback.notification.PlaybackNotificationController;
+import com.soundcloud.android.playback.mediasession.MediaSessionController;
+import com.soundcloud.android.playback.mediasession.MediaSessionControllerFactory;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -29,7 +31,7 @@ import java.lang.ref.WeakReference;
 
 // remove this once we remove PlayQueueManager + TrackOperations by moving url loading out
 @SuppressWarnings({"PMD.ExcessiveParameterList"})
-public class PlaybackService extends Service implements IAudioManager.MusicFocusable, Player.PlayerListener, VolumeController.Listener {
+public class PlaybackService extends Service implements Player.PlayerListener, VolumeController.Listener, MediaSessionController.Listener {
     public static final String TAG = "PlaybackService";
     private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
     private static final int SHORT_FADE_DURATION_MS = 600;
@@ -41,20 +43,19 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Inject AccountOperations accountOperations;
     @Inject StreamPlayer streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
-    @Inject Lazy<IRemoteAudioManager> remoteAudioManagerProvider;
-    @Inject PlaybackNotificationController playbackNotificationController;
     @Inject PlaybackSessionAnalyticsController analyticsController;
     @Inject AdsController adsController;
     @Inject AdsOperations adsOperations;
     @Inject VolumeControllerFactory volumeControllerFactory;
+    @Inject MediaSessionControllerFactory mediaSessionControllerFactory;
 
     private Optional<PlaybackItem> currentPlaybackItem = Optional.absent();
     private boolean pauseRequested;
     // audio focus related
-    private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
     private PlaybackReceiver playbackReceiver;
     private VolumeController volumeController;
+    private MediaSessionController mediaSessionController;
 
     public PlaybackService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -64,22 +65,21 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     PlaybackService(EventBus eventBus,
                     AccountOperations accountOperations,
                     StreamPlayer streamPlayer,
-                    PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
-                    PlaybackNotificationController playbackNotificationController,
+                    PlaybackReceiver.Factory playbackReceiverFactory,
                     PlaybackSessionAnalyticsController analyticsController,
                     AdsOperations adsOperations,
                     AdsController adsController,
-                    VolumeControllerFactory volumeControllerFactory) {
+                    VolumeControllerFactory volumeControllerFactory,
+                    MediaSessionControllerFactory mediaSessionControllerFactory) {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.streamPlayer = streamPlayer;
         this.playbackReceiverFactory = playbackReceiverFactory;
-        this.remoteAudioManagerProvider = remoteAudioManagerProvider;
-        this.playbackNotificationController = playbackNotificationController;
         this.analyticsController = analyticsController;
         this.adsOperations = adsOperations;
         this.adsController = adsController;
         this.volumeControllerFactory = volumeControllerFactory;
+        this.mediaSessionControllerFactory = mediaSessionControllerFactory;
     }
 
     @Override
@@ -87,9 +87,9 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         super.onCreate();
 
         streamPlayer.setListener(this);
+        mediaSessionController = mediaSessionControllerFactory.create(this, this);
         volumeController = volumeControllerFactory.create(streamPlayer, this);
-        playbackReceiver = playbackReceiverFactory.create(this, accountOperations, eventBus);
-        audioManager = remoteAudioManagerProvider.get();
+        playbackReceiver = playbackReceiverFactory.create(this, accountOperations);
 
         IntentFilter playbackFilter = new IntentFilter();
         playbackFilter.addAction(Action.TOGGLE_PLAYBACK);
@@ -113,13 +113,14 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @Override
     public void onDestroy() {
         stop();
+        volumeController.resetVolume();
+        mediaSessionController.onDestroy();
         streamPlayer.destroy();
 
         // make sure there aren't any other messages coming
         delayedStopHandler.removeCallbacksAndMessages(null);
-        volumeController.resetVolume();
-        audioManager.abandonMusicFocus();
         unregisterReceiver(playbackReceiver);
+
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         instance = null;
         super.onDestroy();
@@ -132,17 +133,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        playbackNotificationController.subscribe(this);
-
         delayedStopHandler.removeCallbacksAndMessages(null);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
 
         if (intent != null) {
             playbackReceiver.onReceive(this, intent);
             scheduleServiceShutdownCheck();
+            mediaSessionController.onStartCommand(intent);
             return START_STICKY;
         } else {
-
             // the system will automatically re-start a service that was killed by the user.
             // Shutdown to go through normal shutdown logic
             delayedStopHandler.removeCallbacksAndMessages(null);
@@ -152,17 +151,19 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     @Override
-    public void focusGained() {
+    public void showNotification(Notification notification) {
+        startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notification);
+    }
+
+    public void onFocusGain() {
         Log.d(TAG, "[FOCUS] focusGained with state " + focusLossState);
         volumeController.unMute(SHORT_FADE_DURATION_MS);
         focusLossState = FocusLossState.NONE;
     }
 
-    @Override
-    public void focusLost(boolean isTransient, boolean canDuck) {
+    public void onFocusLoss(boolean isTransient, boolean canDuck) {
         Log.d(TAG, "[FOCUS] focusLost(playing=" + streamPlayer.isPlaying() + ", transient=" + isTransient + ", canDuck=" + canDuck + ")");
         if (streamPlayer.isPlaying()) {
-
             if (isTransient) {
                 focusLossState = FocusLossState.TRANSIENT;
                 if (canDuck) {
@@ -181,7 +182,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void resetAll() {
         stop();
         currentPlaybackItem = Optional.absent();
-        audioManager.abandonMusicFocus(); // kills lockscreen
     }
 
     @Override
@@ -198,6 +198,15 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 analyticsController.onStateTransition(stateTransition);
                 adsController.onPlayStateTransition(stateTransition);
                 eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
+
+                long position = stateTransition.getProgress().getPosition();
+
+                if (stateTransition.isBuffering()) {
+                    mediaSessionController.onBuffering(position);
+                } else if (stateTransition.isPlaying()) {
+                    mediaSessionController.onPlaying(position);
+                }
+
             } else {
                 Log.d(TAG, "resetting volume after playstate changed on different track");
                 resetVolume(0);
@@ -212,6 +221,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             final PlaybackProgressEvent playbackProgress = PlaybackProgressEvent.create(new PlaybackProgress(position, duration), playbackItem.getUrn());
             analyticsController.onProgressEvent(playbackProgress);
             eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgress);
+            mediaSessionController.onProgress(position);
             fadeOutIfNecessary(position);
         }
     }
@@ -244,12 +254,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         return stateTransition;
     }
 
-    @Override
-    public boolean requestAudioFocus() {
-        Log.d(TAG, "Requesting audio focus");
-        return audioManager.requestMusicFocus(PlaybackService.this, IAudioManager.FOCUS_GAIN);
-    }
-
     public void togglePlayback() {
         Log.d(TAG, "Toggling playback");
         if (streamPlayer.isPlaying()) {
@@ -262,6 +266,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public long seek(long pos, boolean performSeek) {
         Log.d(TAG, "Seeking to " + pos);
         resetVolume(pos);
+        mediaSessionController.onSeek(pos);
         return streamPlayer.seek(pos, performSeek);
     }
 
@@ -286,32 +291,37 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     void preload(PreloadItem preloadItem) {
         streamPlayer.preload(preloadItem);
+        mediaSessionController.onPreload(preloadItem.getUrn());
     }
 
     void play(PlaybackItem playbackItem) {
         currentPlaybackItem = Optional.of(playbackItem);
-        resetVolume(playbackItem.getStartPosition());
-        streamPlayer.play(playbackItem);
+        if (mediaSessionController.onPlay(playbackItem)) {
+            resetVolume(playbackItem.getStartPosition());
+            streamPlayer.play(playbackItem);
+        }
     }
 
-    void play() {
+    public void play() {
         Log.d(TAG, "Playing");
-        if (!streamPlayer.isPlaying() && currentPlaybackItem.isPresent() && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
-            resetVolume(streamPlayer.getProgress());
-            streamPlayer.resume();
+        if (!streamPlayer.isPlaying() && currentPlaybackItem.isPresent()) {
+            if (mediaSessionController.onPlay()) {
+                resetVolume(streamPlayer.getProgress());
+                streamPlayer.resume(currentPlaybackItem.get());
+            }
         }
     }
 
     private void resetVolume(long position) {
-        Log.d(TAG, "Resetting volume");
         volumeController.resetVolume();
         fadeOutIfNecessary(position);
     }
 
-    // Pauses playback (call play() to resume)
-    void pause() {
+    public void pause() {
         Log.d(TAG, "Pausing");
         streamPlayer.pause();
+        mediaSessionController.onPause();
+        unpinNotification(false);
     }
 
     public void fadeAndPause() {
@@ -319,11 +329,11 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         volumeController.fadeOut(LONG_FADE_DURATION_MS, 0);
     }
 
-    void stop() {
+    public void stop() {
         Log.d(TAG, "Stopping");
-        playbackNotificationController.unsubscribe();
         streamPlayer.stop();
-        stopForeground(true);
+        mediaSessionController.onStop();
+        unpinNotification(true);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
     }
 
@@ -378,6 +388,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 service.stopSelf();
             }
         }
+    }
+
+    private void unpinNotification(boolean remove) {
+        stopForeground(remove);
     }
 
 }

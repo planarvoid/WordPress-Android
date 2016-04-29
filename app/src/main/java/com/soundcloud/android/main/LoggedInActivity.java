@@ -7,7 +7,6 @@ import com.soundcloud.android.accounts.LoggedInController;
 import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.policies.PolicyUpdateController;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.stream.StreamRefreshController;
@@ -30,7 +29,6 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle UserRemovedController userRemovedController;
     @Inject @LightCycle LoggedInController loggedInController;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
-    @Inject @LightCycle PlaybackNotificationController playbackNotificationController;
     @Inject @LightCycle ActionBarHelper actionMenuController;
     @Inject @LightCycle ForegroundController foregroundController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;

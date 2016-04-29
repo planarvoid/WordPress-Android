@@ -536,7 +536,6 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         return new ScrubController.OnScrubListener() {
             @Override
             public void scrubStateChanged(int newScrubState) {
-                listener.onScrub(newScrubState);
                 for (View v : holder.hideOnScrubViews) {
                     ObjectAnimator animator = ObjectAnimator.ofFloat(v, "alpha", v.getAlpha(),
                             newScrubState == ScrubController.SCRUB_STATE_SCRUBBING ? 0 : 1);

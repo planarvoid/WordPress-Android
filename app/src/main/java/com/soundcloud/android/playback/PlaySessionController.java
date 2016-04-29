@@ -136,7 +136,11 @@ public class PlaySessionController {
     }
 
     public void play() {
-        playbackStrategyProvider.get().resume();
+        if (playSessionStateProvider.isPlayingCurrentPlayQueueItem()) {
+            playbackStrategyProvider.get().resume();
+        } else {
+            playCurrent();
+        }
     }
 
     public void pause() {

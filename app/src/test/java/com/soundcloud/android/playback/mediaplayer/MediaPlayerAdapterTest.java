@@ -107,7 +107,6 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         when(context.getApplicationContext()).thenReturn(context);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
         when(accountOperations.getSoundCloudToken()).thenReturn(TOKEN);
-        when(listener.requestAudioFocus()).thenReturn(true);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
@@ -153,14 +152,6 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         mediaPlayerAdapter.play(trackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         verify(mediaPlayer).start();
-    }
-
-    @Test
-    public void preparedListenerShouldNotStartPlaybackIfFocusNotGranted() {
-        when(listener.requestAudioFocus()).thenReturn(false);
-        mediaPlayerAdapter.play(trackItem);
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-        verify(mediaPlayer, never()).start();
     }
 
     @Test
@@ -312,7 +303,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void resumeShouldCreateNewMediaPlayerWithNoMediaPlayer() {
         playUrlAndSetPrepared(trackItem);
         mediaPlayerAdapter.destroy();
-        mediaPlayerAdapter.resume();
+        mediaPlayerAdapter.resume(trackItem);
         verify(mediaPlayerManager).create();
     }
 
@@ -320,7 +311,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void resumeShouldCreateNewMediaPlayerIfInPreparingState() {
         mediaPlayerAdapter.play(trackItem);
         reset(mediaPlayer);
-        mediaPlayerAdapter.resume();
+        mediaPlayerAdapter.resume(trackItem);
         verify(mediaPlayerManager, times(2)).create();
     }
 
@@ -823,7 +814,6 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         reset(listener);
         when(mediaPlayer.getDuration()).thenReturn(duration);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
-        when(listener.requestAudioFocus()).thenReturn(true);
     }
 
     private void causeMediaPlayerErrors(int numberOfErrors) {

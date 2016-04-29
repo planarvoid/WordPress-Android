@@ -181,9 +181,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
         instantiateStreamPlaya();
         startPlaybackOnVideoPlayerAdapter(videoPlaybackItem);
 
-        streamPlayerWrapper.resume();
+        streamPlayerWrapper.resume(videoPlaybackItem);
 
-        verify(mediaPlayerAdapter).resume();
+        verify(mediaPlayerAdapter).resume(videoPlaybackItem);
     }
 
     @Test
@@ -246,8 +246,8 @@ public class StreamPlayerTest extends AndroidUnitTest {
     public void resumeCallsResumeOnMediaPlayer() {
         instantiateStreamPlaya();
         fallBackToMediaPlayer();
-        streamPlayerWrapper.resume();
-        verify(mediaPlayerAdapter).resume();
+        streamPlayerWrapper.resume(videoPlaybackItem);
+        verify(mediaPlayerAdapter).resume(videoPlaybackItem);
     }
 
     @Test
@@ -310,8 +310,8 @@ public class StreamPlayerTest extends AndroidUnitTest {
     public void resumeCallsResumeOnSkippyPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
-        streamPlayerWrapper.resume();
-        verify(skippyAdapter).resume();
+        streamPlayerWrapper.resume(audioPlaybackItem);
+        verify(skippyAdapter).resume(audioPlaybackItem);
     }
 
     @Test
@@ -443,20 +443,6 @@ public class StreamPlayerTest extends AndroidUnitTest {
         final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_NOT_FOUND, Urn.forTrack(123L));
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
         verify(playerListener).onPlaystateChanged(stateTransition);
-    }
-
-    @Test
-    public void requestsFocusOnListener() {
-        instantiateStreamPlaya();
-        streamPlayerWrapper.requestAudioFocus();
-        verify(playerListener).requestAudioFocus();
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void requestsFocusThrowsNPEWithNoListener() {
-        instantiateStreamPlaya();
-        streamPlayerWrapper.setListener(null);
-        streamPlayerWrapper.requestAudioFocus();
     }
 
     @Test

@@ -2,12 +2,9 @@ package com.soundcloud.android.playback.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -28,54 +25,13 @@ public class PageListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new PageListener(playSessionController,
-                playSessionStateProvider, eventBus);
-    }
-
-    @Test
-    public void onToggleFooterPlayEmitsPauseEventWhenWasPlaying() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-
-        listener.onFooterTogglePlay();
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.pause(PlayControlEvent.SOURCE_FOOTER_PLAYER));
-    }
-
-    @Test
-    public void onToggleFooterPlayEmitsPlayEventWhenWasPaused() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        listener.onFooterTogglePlay();
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.play(PlayControlEvent.SOURCE_FOOTER_PLAYER));
+        listener = new PageListener(playSessionController, eventBus);
     }
 
     @Test
     public void onToggleFooterPlayTogglesPlaybackViaPlaybackOperations() {
         listener.onFooterTogglePlay();
         verify(playSessionController).togglePlayback();
-    }
-
-    @Test
-    public void onTogglePlayEmitsPauseEventWhenWasPlaying() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-
-        listener.onTogglePlay();
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.pause(PlayControlEvent.SOURCE_FULL_PLAYER));
-    }
-
-    @Test
-    public void onTogglePlayEmitsPlayEventWhenWasPaused() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-
-        listener.onTogglePlay();
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.play(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test

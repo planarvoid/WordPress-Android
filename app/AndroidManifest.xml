@@ -289,7 +289,13 @@
         <!-- services -->
         <service android:name=".sync.ApiSyncService"/>
         <service android:name=".creators.record.SoundRecorderService"/>
-        <service android:exported="false" android:name=".playback.PlaybackService"/>
+
+        <service android:exported="false" android:name=".playback.PlaybackService">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
+
         <service android:exported="false" android:name=".offline.OfflineContentService"/>
         <service android:exported="false" android:name=".policies.DailyUpdateService"/>
 
@@ -338,6 +344,12 @@
           <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_player"/>
         </receiver>
 
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:label="SoundCloud Recorder" android:name=".creators.record.RecordAppWidgetProvider">
 
              <intent-filter>
@@ -359,13 +371,6 @@
             </intent-filter>
         </receiver>
 
-
-        <!-- headphone + remoteclient control -->
-        <receiver android:name=".playback.RemoteControlReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON"/>
-            </intent-filter>
-        </receiver>
 
         <receiver android:name="com.appboy.AppboyGcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -406,8 +411,6 @@
         <!-- Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">
             <intent-filter>
-                <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
-                <action android:name="android.intent.action.MEDIA_BUTTON"/>
                 <action android:name="com.google.android.libraries.cast.companionlibrary.action.toggleplayback"/>
                 <action android:name="com.google.android.libraries.cast.companionlibrary.action.stop"/>
             </intent-filter>

@@ -8,7 +8,6 @@ import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -17,8 +16,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
@@ -38,10 +35,9 @@ class TrackPageListener extends PageListener {
     @Inject
     public TrackPageListener(PlaySessionController playSessionController,
                              PlayQueueManager playQueueManager,
-                             PlaySessionStateProvider playSessionStateProvider,
                              EventBus eventBus, LikeOperations likeOperations, Navigator navigator,
                              EngagementsTracking engagementsTracking) {
-        super(playSessionController, playSessionStateProvider, eventBus);
+        super(playSessionController, eventBus);
         this.playQueueManager = playQueueManager;
         this.likeOperations = likeOperations;
         this.navigator = navigator;
@@ -80,12 +76,6 @@ class TrackPageListener extends PageListener {
 
         requestPlayerCollapse();
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN));
-    }
-
-    public void onScrub(int newScrubState) {
-        if (newScrubState == ScrubController.SCRUB_STATE_SCRUBBING) {
-            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
-        }
     }
 
     private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final Urn userUrn) {

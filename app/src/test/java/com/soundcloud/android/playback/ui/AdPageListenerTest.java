@@ -14,12 +14,10 @@ import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -40,7 +38,6 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AdsOperations adsOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private WhyAdsDialogPresenter whyAdsPresenter;
@@ -50,7 +47,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         listener = new AdPageListener(context(), navigator,
-                 playSessionStateProvider, playSessionController, playQueueManager,
+                 playSessionController, playQueueManager,
                  eventBus, adsOperations, accountOperations, whyAdsPresenter);
 
         adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
@@ -132,30 +129,6 @@ public class AdPageListenerTest extends AndroidUnitTest {
         listener.onShrink();
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isForcePortrait()).isTrue();
-    }
-
-    @Test
-    public void onNextEmitsSkipEventWithFullPlayer() {
-        listener.onNext();
-
-        PlayControlEvent expectedEvent = PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isEqualTo(expectedEvent);
-    }
-
-    @Test
-    public void onPreviousEmitsPreviousEventWithFullPlayer() {
-        listener.onPrevious();
-
-        PlayControlEvent expectedEvent = PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isEqualTo(expectedEvent);
-    }
-
-    @Test
-    public void skipAdEmitsSkipADEventWithFullPlayer() {
-        listener.onSkipAd();
-
-        PlayControlEvent expectedEvent = PlayControlEvent.skipAd();
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isEqualTo(expectedEvent);
     }
 
     @Test

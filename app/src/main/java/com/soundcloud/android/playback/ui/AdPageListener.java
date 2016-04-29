@@ -8,13 +8,11 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -34,13 +32,12 @@ class AdPageListener extends PageListener {
     @Inject
     public AdPageListener(Context context,
                           Navigator navigator,
-                          PlaySessionStateProvider playSessionStateProvider,
                           PlaySessionController playSessionController,
                           PlayQueueManager playQueueManager,
                           EventBus eventBus, AdsOperations adsOperations,
                           AccountOperations accountOperations,
                           WhyAdsDialogPresenter whyAdsPresenter) {
-        super(playSessionController, playSessionStateProvider, eventBus);
+        super(playSessionController, eventBus);
         this.context = context;
         this.navigator = navigator;
         this.playQueueManager = playQueueManager;
@@ -51,17 +48,14 @@ class AdPageListener extends PageListener {
 
     public void onNext() {
         playSessionController.nextTrack();
-        eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     public void onPrevious() {
         playSessionController.previousTrack();
-        eventBus.publish(EventQueue.TRACKING, PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     public void onSkipAd() {
         playSessionController.nextTrack();
-        eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skipAd());
     }
 
     public void onFullscreen() {

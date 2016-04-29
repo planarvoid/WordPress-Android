@@ -1,11 +1,8 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.playback.PlaybackService.Action;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,14 +18,12 @@ class PlaybackReceiver extends BroadcastReceiver {
     private final PlaybackService playbackService;
     private final PlayQueueManager playQueueManager;
     private final AccountOperations accountOperations;
-    private final EventBus eventBus;
 
     private PlaybackReceiver(PlaybackService playbackService, AccountOperations accountOperations,
-                             PlayQueueManager playQueueManager, EventBus eventBus) {
+                             PlayQueueManager playQueueManager) {
         this.playbackService = playbackService;
         this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
-        this.eventBus = eventBus;
     }
 
     @Override
@@ -36,10 +31,6 @@ class PlaybackReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         Log.d(PlaybackService.TAG, "BroadcastReceiver#onReceive(" + action + ")");
-
-        if (intent.hasExtra(PlayControlEvent.EXTRA_EVENT_SOURCE)) {
-            trackPlayControlEvent(intent);
-        }
 
         if (Action.RESET_ALL.equals(action)) {
             playbackService.resetAll();
@@ -60,7 +51,11 @@ class PlaybackReceiver extends BroadcastReceiver {
                 long seekPosition = getPositionFromIntent(intent);
                 playbackService.seek(seekPosition, true);
             } else if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
-                playbackService.pause();
+                if (playbackService.isPlayerPlaying()) {
+                    // avoid moving to paused state when unplugging headphones
+                    // and not playing locally (i.e. when casting).
+                    playbackService.pause();
+                }
             } else if (Action.FADE_AND_PAUSE.equals(action)) {
                 playbackService.fadeAndPause();
             } else if (Action.STOP.equals(action)) {
@@ -84,16 +79,6 @@ class PlaybackReceiver extends BroadcastReceiver {
         return (PreloadItem) intent.getParcelableExtra(PlaybackService.ActionExtras.PRELOAD_ITEM);
     }
 
-    private void trackPlayControlEvent(Intent intent) {
-        String source = intent.getStringExtra(PlayControlEvent.EXTRA_EVENT_SOURCE);
-
-        if (Action.RESUME.equals(intent.getAction())) {
-            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.play(source));
-        } else if (Action.PAUSE.equals(intent.getAction())) {
-            eventBus.publish(EventQueue.TRACKING, PlayControlEvent.pause(source));
-        }
-    }
-
     static class Factory {
         private final PlayQueueManager playQueueManager;
 
@@ -102,9 +87,8 @@ class PlaybackReceiver extends BroadcastReceiver {
             this.playQueueManager = playQueueManager;
         }
 
-        PlaybackReceiver create(PlaybackService playbackService, AccountOperations accountOperations,
-                                EventBus eventBus) {
-            return new PlaybackReceiver(playbackService, accountOperations, playQueueManager, eventBus);
+        PlaybackReceiver create(PlaybackService playbackService, AccountOperations accountOperations) {
+            return new PlaybackReceiver(playbackService, accountOperations, playQueueManager);
         }
 
     }
