@@ -19,6 +19,7 @@ import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -58,6 +59,10 @@ public class StartStationPresenter {
 
     public void startStation(Context context, Urn stationUrn) {
         startStation(context, stationsOperations.station(stationUrn));
+    }
+
+    public void startStationForUser(Context context, final Urn userUrn) {
+        Toast.makeText(context, "About to start a station for user: " + userUrn, Toast.LENGTH_SHORT).show();
     }
 
     public void startStationForTrack(Context context, final Urn seed) {

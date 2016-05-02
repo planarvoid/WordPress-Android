@@ -13,7 +13,8 @@ enum Feature {
   PROFILE_NEW_TABS,
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
   NEW_SEARCH_SUGGESTIONS,
-  EDIT_PLAYLIST;
+  EDIT_PLAYLIST,
+  USER_STATIONS;
 }
 
 android {
@@ -27,6 +28,7 @@ android {
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
     buildConfigField BOOLEAN, Feature.NEW_SEARCH_SUGGESTIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
+    buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), FALSE
   }
 
   buildTypes {
@@ -48,6 +50,7 @@ android {
       buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
+      buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
     }
 
     release {

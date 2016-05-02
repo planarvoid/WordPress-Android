@@ -38,7 +38,7 @@
     <dimen name="btn_text_size">13sp</dimen>
     <dimen name="btn_min_height">48dp</dimen>
     <dimen name="btn_padding">15dp</dimen>
-    <dimen name="follow_btn_height">42dp</dimen>
+    <dimen name="profile_btn_height">36dp</dimen>
 
     <dimen name="header_icon_size">70dp</dimen>
 
