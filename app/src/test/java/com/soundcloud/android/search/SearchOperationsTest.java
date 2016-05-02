@@ -558,6 +558,16 @@ public class SearchOperationsTest extends AndroidUnitTest {
         assertThat(pagingFunction.getAllUrns()).containsExactly(TRACK_ONE_URN, TRACK_TWO_URN);
     }
 
+    @Test
+    public void pagingShouldReturnAnEmptyPageWhenResultIsEmpty() {
+        final SearchResult searchResult = SearchResult.fromPropertySets(Collections.<PropertySet>emptyList(), Optional.<Link>absent(), Urn.NOT_SET);
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchOperations.TYPE_ALL);
+
+        pagingFunction.call(searchResult);
+
+        assertThat(pagingFunction.getAllUrns()).isEmpty();
+    }
+
     private <T> void mockPremiumSearchApiResponse(List<T> searchItems, SearchModelCollection<T> apiPremiumItems) {
         final Observable observable = Observable.just(new SearchModelCollection<>(searchItems,
                 Collections.<String, Link>emptyMap(), "queryUrn", apiPremiumItems,

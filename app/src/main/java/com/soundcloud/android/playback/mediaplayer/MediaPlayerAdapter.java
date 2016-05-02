@@ -24,6 +24,7 @@ import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -146,6 +147,9 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
+            if (isPlayingVideo()) { // Temporarily logging to understand #5310 and what errors we're seeing with video playback
+                ErrorUtils.handleSilentException(new IllegalStateException("MediaPlayer video playback error: " + e.getMessage()));
+            }
             handleMediaPlayerError(mediaPlayer, resumePos);
         }
     }
@@ -211,6 +215,10 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         return currentItem.getPlaybackType() != VIDEO_DEFAULT && !AdUtils.isThirdPartyAd(currentItem.getUrn());
     }
 
+    private boolean isPlayingVideo() {
+        return currentItem.getPlaybackType() == VIDEO_DEFAULT;
+    }
+
     private PlaybackProtocol getPlaybackProtocol() {
         return PlaybackProtocol.HTTPS;
     }
@@ -224,14 +232,16 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        if (isPlayingVideo()) { // Temporarily logging to understand #5310 and what errors we're seeing with video playback
+            ErrorUtils.handleSilentException(new IllegalStateException("MediaPlayer video playback error what:" + what + " extra:" + extra));
+        }
         return handleMediaPlayerError(mp, getAdjustedProgress());
     }
 
     private boolean handleMediaPlayerError(MediaPlayer mp, long resumePosition) {
         //noinspection ObjectEquality
         if (mp.equals(mediaPlayer) && internalState != PlaybackState.STOPPED) {
-
-            if (connectionRetries++ < MAX_CONNECT_RETRIES) {
+            if (!isPlayingVideo() && connectionRetries++ < MAX_CONNECT_RETRIES) {
                 Log.d(TAG, "stream disconnected, retrying (try=" + connectionRetries + ")");
                 setInternalState(PlaybackState.ERROR_RETRYING);
                 play(currentItem, resumePosition);
@@ -241,6 +251,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                 mp.release();
                 resetConnectionRetries();
                 mediaPlayer = null;
+                clearVideoView();
             }
         }
         return true;

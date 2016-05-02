@@ -159,6 +159,15 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playQueueTrackChangeHandlerShouldPlayCurrentOnTrackIfPreviousItemEndedInError() {
+        when(playSessionStateProvider.isInErrorState()).thenReturn(true);
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        assertThat(playCurrentSubject.hasObservers()).isTrue();
+    }
+
+    @Test
     public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAY_QUEUE_COMPLETE, trackUrn));
         verify(playQueueManager, never()).saveCurrentProgress(anyInt());

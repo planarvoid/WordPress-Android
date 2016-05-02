@@ -794,8 +794,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo74(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL("ALTER TABLE " + Tables.Stations.TABLE +
-                    " ADD COLUMN play_queue_updated_at INTEGER DEFAULT CURRENT_TIMESTAMP");
+            db.execSQL("ALTER TABLE Stations ADD COLUMN play_queue_updated_at INTEGER DEFAULT 0");
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 74);

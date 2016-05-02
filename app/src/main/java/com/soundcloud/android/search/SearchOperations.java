@@ -388,16 +388,16 @@ class SearchOperations {
         }
 
         @Override
-        public Observable<SearchResult> call(SearchResult searchResultsCollection) {
-            addPremiumItem(searchResultsCollection.getPremiumContent());
-            allUrns.addAll(PropertySets.extractUrns(filterUrnCollection(searchResultsCollection.getItems())));
+        public Observable<SearchResult> call(SearchResult searchResult) {
+            addPremiumItem(searchResult.getPremiumContent());
+            allUrns.addAll(PropertySets.extractUrns(removeFirstUpsellItemIfAny(searchResult.getItems())));
 
-            final Optional<Urn> queryUrn = searchResultsCollection.queryUrn;
+            final Optional<Urn> queryUrn = searchResult.queryUrn;
             if (queryUrn.isPresent()) {
                 this.queryUrn = queryUrn.or(Urn.NOT_SET);
             }
 
-            final Optional<Link> nextHref = searchResultsCollection.nextHref;
+            final Optional<Link> nextHref = searchResult.nextHref;
             if (nextHref.isPresent()) {
                 return nextResultPage(nextHref.get(), searchType, contentType);
             } else {
@@ -411,11 +411,15 @@ class SearchOperations {
             }
         }
 
-        private List<PropertySet> filterUrnCollection(List<PropertySet> propertySets) {
-            if (propertySets.get(0).get(EntityProperty.URN).equals(SearchUpsellItem.UPSELL_URN)) {
-                return propertySets.subList(1, propertySets.size());
+        private List<PropertySet> removeFirstUpsellItemIfAny(List<PropertySet> resultItems) {
+            if (isFirstItemForUpsell(resultItems)) {
+                return resultItems.subList(1, resultItems.size());
             }
-            return propertySets;
+            return resultItems;
+        }
+
+        private boolean isFirstItemForUpsell(List<PropertySet> propertySets) {
+            return !propertySets.isEmpty() && propertySets.get(0).get(EntityProperty.URN).equals(SearchUpsellItem.UPSELL_URN);
         }
 
         @VisibleForTesting
