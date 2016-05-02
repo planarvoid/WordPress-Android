@@ -89,12 +89,11 @@ class ProfileHeaderPresenter {
     }
 
     private void updateStationButton() {
-        stationButton.setChecked(!followButton.isChecked());
+        stationButton.setChecked(!(followButton.isChecked() || followButton.getVisibility() == View.GONE));
     }
 
     void setUserDetails(ProfileUser user) {
         username.setText(user.getName());
-
         setProfileButtons(user);
 
         if (!user.getUrn().equals(lastUser)) {
@@ -115,7 +114,6 @@ class ProfileHeaderPresenter {
 
         if (featureFlags.isEnabled(Flag.USER_STATIONS)) {
             stationButton.setVisibility(View.VISIBLE);
-            updateStationButton();
         } else {
             // keep unchanged functionality unchanged until we ship user stations
             if (followButton instanceof ProfileToggleButton) {
@@ -124,6 +122,7 @@ class ProfileHeaderPresenter {
         }
 
         followButton.setChecked(user.isFollowed());
+        updateStationButton();
     }
 
     public static class ProfileHeaderPresenterFactory {
