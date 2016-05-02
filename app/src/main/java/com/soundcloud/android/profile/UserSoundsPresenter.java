@@ -22,6 +22,7 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -68,6 +69,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
     private final UserSoundsItemClickListener.Factory clickListenerFactory;
     private final EventBus eventBus;
     private final Resources resources;
+    @LightCycle final ProfileNowPlayingController nowPlayingController;
     private Urn userUrn;
     private Subscription eventSubscription = RxUtils.invalidSubscription();
     private Subscription userSubscription = RxUtils.invalidSubscription();
@@ -82,7 +84,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                         UserSoundsItemMapper userSoundsItemMapper,
                         UserSoundsItemClickListener.Factory clickListenerFactory,
                         EventBus eventBus,
-                        Resources resources) {
+                        Resources resources,
+                        ProfileNowPlayingController nowPlayingController) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.user_profile_card_grid_span_count)
                 .useDividers(Options.DividerMode.NONE)
                 .build());
@@ -93,6 +96,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         this.clickListenerFactory = clickListenerFactory;
         this.eventBus = eventBus;
         this.resources = resources;
+        this.nowPlayingController = nowPlayingController;
+        nowPlayingController.setAdapter(adapter);
     }
 
     @Override

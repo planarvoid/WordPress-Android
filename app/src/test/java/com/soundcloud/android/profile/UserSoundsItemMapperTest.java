@@ -13,8 +13,11 @@ import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,6 +31,7 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
 
     @Mock UserSoundsItemMapper.EntityHolderMapper entityHolderMapper;
     @Mock UserSoundsItem mockUserSoundsItem;
+    @Mock PlayQueueManager playQueueManager;
 
     @Test
     public void shouldMapItemsToUserSoundsItems() throws Exception {
@@ -59,6 +63,8 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
         final PropertySet playlistPost = new ApiPlaylistPost(ModelFixtures.create(ApiPlaylist.class)).toPropertySet();
         final ModelCollection<PropertySet> tracks = new ModelCollection<>(newArrayList(trackPost, playlistPost));
 
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1L)));
+
         List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 
         assertThat(result.size()).isEqualTo(4);
@@ -84,6 +90,8 @@ public class UserSoundsItemMapperTest extends AndroidUnitTest {
 
         final ModelCollection<PropertySet> tracks = new ModelCollection<>(
                 singletonList(create(ApiTrack.class).toPropertySet()), links);
+
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(1L)));
 
         List<UserSoundsItem> result = new UserSoundsItemMapper.EntityHolderMapper().map(UserSoundsTypes.TRACKS, tracks);
 

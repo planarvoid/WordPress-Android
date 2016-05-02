@@ -67,6 +67,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
     @Mock private UserSoundsItemClickListener clickListener;
     @Mock private Resources resources;
     @Mock private UserSoundsItem userSoundsItem;
+    @Mock private ProfileNowPlayingController nowPlayingController;
 
     @Captor private ArgumentCaptor<Observable<List<PropertySet>>> argumentCaptor;
 
@@ -81,7 +82,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                userSoundsItemMapper, clickListenerFactory, eventBus, resources);
+                userSoundsItemMapper, clickListenerFactory, eventBus, resources, nowPlayingController);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
         doReturn(clickListener).when(clickListenerFactory).create(SEARCH_QUERY_SOURCE_INFO);

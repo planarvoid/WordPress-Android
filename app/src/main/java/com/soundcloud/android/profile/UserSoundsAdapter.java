@@ -1,7 +1,11 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +14,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserSoundsAdapter.ViewHolder> {
+public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserSoundsAdapter.ViewHolder> implements NowPlayingAdapter {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;
@@ -19,6 +23,21 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
     static final int TYPE_PLAYLIST_CARD = 5;
     static final int TYPE_PLAYLIST_ITEM = 6;
     static final int TYPE_END_OF_LIST_DIVIDER = 7;
+
+    @Override
+    public void updateNowPlaying(Urn currentlyPlayingUrn) {
+        for (UserSoundsItem userSoundsItem : getItems()) {
+            if (userSoundsItem.getItemType() == UserSoundsItem.TYPE_TRACK) {
+                Optional<TrackItem> trackItem = userSoundsItem.getTrackItem();
+
+                if (trackItem.isPresent()) {
+                    trackItem.get().setIsPlaying(currentlyPlayingUrn.equals(trackItem.get().getUrn()));
+                }
+            }
+        }
+
+        notifyDataSetChanged();
+    }
 
     @NonNull
     private static Boolean spansFullWidth(final UserSoundsItem item) {
