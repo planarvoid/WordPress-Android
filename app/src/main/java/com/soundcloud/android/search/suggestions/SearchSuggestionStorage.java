@@ -29,20 +29,20 @@ class SearchSuggestionStorage {
         this.propellerRx = new PropellerRx(propeller);
     }
 
-    public Observable<List<PropertySet>> getSuggestions(String query, int limit) {
-        return propellerRx.query(getQuery(query, limit)).map(new SearchSuggestionMapper()).toList();
+    public Observable<List<PropertySet>> getSuggestions(String searchQuery, int limit) {
+        return propellerRx.query(getQuery(searchQuery, limit)).map(new SearchSuggestionMapper()).toList();
     }
 
     @NonNull
-    private Query getQuery(String query, int limit) {
+    private Query getQuery(String searchQuery, int limit) {
         return from(SearchSuggestions.TABLE)
                 .select(SearchSuggestions.KIND,
                         SearchSuggestions._ID,
                         SearchSuggestions._TYPE,
                         SearchSuggestions.DISPLAY_TEXT,
                         SearchSuggestions.IMAGE_URL)
-                .where(SearchSuggestions.DISPLAY_TEXT + " LIKE '" + query + "%' or "
-                        + SearchSuggestions.DISPLAY_TEXT + " LIKE '% " + query + "%'")
+                .where(SearchSuggestions.DISPLAY_TEXT + " LIKE '" + searchQuery + "%' or "
+                        + SearchSuggestions.DISPLAY_TEXT + " LIKE '% " + searchQuery + "%'")
                 .limit(limit);
     }
 

@@ -119,6 +119,8 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
                 case UserItem:
                     suggestionListener.onUserClicked(item.getUrn());
                     break;
+                default:
+                    throw new IllegalArgumentException("Unhandled clicked item kind " + item.getKind());
             }
         }
     }
