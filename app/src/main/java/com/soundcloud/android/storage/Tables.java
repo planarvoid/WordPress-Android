@@ -238,6 +238,39 @@ public interface Tables {
         }
     }
 
+    class SearchSuggestions extends BaseTable {
+
+        public static final SearchSuggestions TABLE = new SearchSuggestions();
+
+        public static final Column KIND = Column.create(TABLE, "kind");
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column _TYPE = Column.create(TABLE, "_type");
+        public static final Column DISPLAY_TEXT = Column.create(TABLE, "display_text");
+        public static final Column IMAGE_URL = Column.create(TABLE, "image_url");
+
+        public static final String KIND_LIKE = "like";
+        public static final String KIND_FOLLOWING = "following";
+
+        static final String SQL = "CREATE VIEW IF NOT EXISTS SearchSuggestions AS SELECT '" +
+                KIND_LIKE + "' AS kind, " +
+                "Sounds._id AS _id, " +
+                "Sounds._type AS _type, " +
+                "title AS display_text, " +
+                "artwork_url AS image_url " +
+                "FROM Likes INNER JOIN Sounds ON Likes._id = Sounds._id " +
+                "AND Likes._type = Sounds._type" +
+                " UNION" +
+                " SELECT '" + KIND_FOLLOWING + "' AS kind, " +
+                "Users._id, 0 AS _type, " +
+                "username AS text, " +
+                "avatar_url AS image_url " +
+                "from UserAssociations INNER JOIN Users ON UserAssociations.target_id = Users._id";
+
+        protected SearchSuggestions() {
+            super("SearchSuggestions", PrimaryKey.of(BaseColumns._ID, "kind"));
+        }
+    }
+
     class Comments extends BaseTable {
 
         public static final Comments TABLE = new Comments();

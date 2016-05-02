@@ -1,5 +1,6 @@
 package com.soundcloud.android.search.suggestions;
 
+import static com.soundcloud.android.search.suggestions.SuggestionItem.Kind;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -34,7 +35,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         presenter.showSuggestionsFor(SEARCH_QUERY);
         final SuggestionItem firstSuggestionItem = presenter.getBinding().items().toBlocking().first().iterator().next();
 
-        assertThat(firstSuggestionItem).isInstanceOf(SearchSuggestionItem.class);
+        assertThat(firstSuggestionItem.getKind()).isEqualTo(Kind.SearchItem);
         verify(adapter).clear();
     }
 }

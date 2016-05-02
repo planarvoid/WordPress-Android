@@ -4,7 +4,6 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.RecordHolder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.WriteMixedRecordsCommand;
@@ -13,6 +12,7 @@ import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,9 +21,20 @@ import java.util.List;
 
 class SearchSuggestionOperations {
 
+    private static final int MAX_SUGGESTIONS_NUMBER = 5;
+
     private final ApiClientRx apiClientRx;
     private final WriteMixedRecordsCommand writeMixedRecordsCommand;
     private final Scheduler scheduler;
+    private final SearchSuggestionStorage suggestionStorage;
+
+    private static final Func1<List<PropertySet>, SuggestionsResult> TO_SUGGESTION_RESULT =
+            new Func1<List<PropertySet>, SuggestionsResult>() {
+                @Override
+                public SuggestionsResult call(List<PropertySet> propertySets) {
+                    return SuggestionsResult.fromPropertySets(propertySets, Urn.NOT_SET);
+                }
+            };
 
     private final Action1<ApiSearchSuggestions> writeDependencies = new Action1<ApiSearchSuggestions>() {
         @Override
@@ -44,10 +55,12 @@ class SearchSuggestionOperations {
     @Inject
     SearchSuggestionOperations(ApiClientRx apiClientRx,
                                WriteMixedRecordsCommand writeMixedRecordsCommand,
-                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                               SearchSuggestionStorage suggestionStorage) {
         this.apiClientRx = apiClientRx;
         this.writeMixedRecordsCommand = writeMixedRecordsCommand;
         this.scheduler = scheduler;
+        this.suggestionStorage = suggestionStorage;
     }
 
     Observable<ApiSearchSuggestions> searchSuggestions(String query) {
@@ -63,15 +76,13 @@ class SearchSuggestionOperations {
     }
 
     Observable<SuggestionsResult> suggestionsFor(String query) {
-        //TODO: return localSuggestions(query).concatWith(remoteSuggestions(query));
-        final List<PropertySet> propertySets = new ArrayList<>();
-        propertySets.add(PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L)));
-        return Observable.just(SuggestionsResult.fromPropertySets(propertySets, Urn.forTrack(1234L)));
+        return localSuggestions(query);
     }
 
     private Observable<SuggestionsResult> localSuggestions(String query) {
-        //TODO: get local suggestions
-        return Observable.empty();
+        return suggestionStorage.getSuggestions(query, MAX_SUGGESTIONS_NUMBER)
+                .map(TO_SUGGESTION_RESULT)
+                .subscribeOn(scheduler);
     }
 
     private Observable<SuggestionsResult> remoteSuggestions(String query) {

@@ -1,38 +1,29 @@
 package com.soundcloud.android.search.suggestions;
 
-import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.java.checks.Preconditions;
+import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageResource;
 
 import android.view.View;
-import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import java.util.List;
 
-class UserSuggestionItemRenderer implements CellRenderer<UserSuggestionItemRenderer> {
-
-    interface OnUserClickListener {
-        void onUserClicked(String searchQuery);
-    }
-
-    private OnUserClickListener onUserClickListener;
+class UserSuggestionItemRenderer extends SuggestionItemRenderer {
 
     @Inject
-    UserSuggestionItemRenderer() {
+    UserSuggestionItemRenderer(ImageOperations imageOperations) {
+        super(imageOperations);
     }
 
     @Override
-    public View createItemView(ViewGroup parent) {
-        return null;
+    public void bindItemView(int position, View itemView, List<SuggestionItem> items) {
+        final SearchSuggestionItem userSuggestionItem = (SearchSuggestionItem) items.get(position);
+        bindView(itemView, userSuggestionItem, R.drawable.ic_search_user);
     }
 
-    @Override
-    public void bindItemView(int position, View itemView, List<UserSuggestionItemRenderer> items) {
-
-    }
-
-    void setOnUserClickListener(OnUserClickListener listener) {
-        Preconditions.checkArgument(listener != null, "Click listener must not be null");
-        this.onUserClickListener = listener;
+    protected void loadIcon(View itemView, ImageResource imageResource) {
+        imageOperations.displayCircularInAdapterView(imageResource, ApiImageSize.getListItemImageSize(itemView.getResources()), icon);
     }
 }

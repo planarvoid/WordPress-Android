@@ -1,38 +1,29 @@
 package com.soundcloud.android.search.suggestions;
 
-import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.java.checks.Preconditions;
+import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
+import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.ImageResource;
 
 import android.view.View;
-import android.view.ViewGroup;
 
 import javax.inject.Inject;
 import java.util.List;
 
-class TrackSuggestionItemRenderer implements CellRenderer<TrackSuggestionItem> {
-
-    interface OnTrackClickListener {
-        void onTrackClicked(String searchQuery);
-    }
-
-    private OnTrackClickListener onTrackClickListener;
+class TrackSuggestionItemRenderer extends SuggestionItemRenderer {
 
     @Inject
-    TrackSuggestionItemRenderer() {
+    TrackSuggestionItemRenderer(ImageOperations imageOperations) {
+        super(imageOperations);
     }
 
     @Override
-    public View createItemView(ViewGroup parent) {
-        return null;
+    public void bindItemView(int position, View itemView, List<SuggestionItem> items) {
+        final SearchSuggestionItem trackSuggestionItem = (SearchSuggestionItem) items.get(position);
+        bindView(itemView, trackSuggestionItem, R.drawable.ic_search_sound);
     }
 
-    @Override
-    public void bindItemView(int position, View itemView, List<TrackSuggestionItem> items) {
-
-    }
-
-    void setOnTrackClickListener(OnTrackClickListener listener) {
-        Preconditions.checkArgument(listener != null, "Click listener must not be null");
-        this.onTrackClickListener = listener;
+    protected void loadIcon(View itemView, ImageResource imageResource) {
+        imageOperations.displayInAdapterView(imageResource, ApiImageSize.getListItemImageSize(itemView.getResources()), icon);
     }
 }

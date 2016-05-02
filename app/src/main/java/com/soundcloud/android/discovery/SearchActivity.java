@@ -1,18 +1,21 @@
 package com.soundcloud.android.discovery;
 
-import android.view.MenuItem;
+import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresenter.SuggestionListener;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
+
+import android.view.MenuItem;
+
 import javax.inject.Inject;
 
-import static com.soundcloud.android.search.suggestions.SearchSuggestionsPresenter.SearchListener;
-
-public class SearchActivity extends PlayerActivity implements SearchListener {
+public class SearchActivity extends PlayerActivity implements SuggestionListener {
 
     @Inject @LightCycle FeaturedSearchPresenter presenter;
 
@@ -42,7 +45,22 @@ public class SearchActivity extends PlayerActivity implements SearchListener {
     }
 
     @Override
+    public void onScrollChanged() {
+        presenter.onScrollChanged();
+    }
+
+    @Override
     public void onSearchClicked(String searchQuery) {
         presenter.performSearch(searchQuery);
+    }
+
+    @Override
+    public void onTrackClicked(Urn trackUrn) {
+        presenter.playTrack(trackUrn);
+    }
+
+    @Override
+    public void onUserClicked(Urn userUrn) {
+        presenter.showUserProfile(userUrn);
     }
 }

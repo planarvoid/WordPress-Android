@@ -38,6 +38,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
+    @Mock private SearchSuggestionStorage suggestionStorage;
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
 
     private TestSubscriber<ApiSearchSuggestions> subscriber;
@@ -46,7 +47,8 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
 
     @Before
     public void setUp() throws Exception {
-        operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand, Schedulers.immediate());
+        operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
+                Schedulers.immediate(), suggestionStorage);
         subscriber = new TestSubscriber<>();
         track = ModelFixtures.create(ApiTrack.class);
         user = ModelFixtures.create(ApiUser.class);

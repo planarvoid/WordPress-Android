@@ -9,32 +9,19 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, SuggestionsAdapter.SuggestionViewHolder> {
-
-    public interface SuggestionItemListener extends
-            SearchSuggestionItemRenderer.OnSearchClickListener,
-            TrackSuggestionItemRenderer.OnTrackClickListener,
-            UserSuggestionItemRenderer.OnUserClickListener {
-    }
+class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, SuggestionsAdapter.SuggestionViewHolder> {
 
     final static int TYPE_SEARCH = ViewTypes.DEFAULT_VIEW_TYPE;
     final static int TYPE_TRACK = ViewTypes.DEFAULT_VIEW_TYPE + 1;
     final static int TYPE_USER = ViewTypes.DEFAULT_VIEW_TYPE + 2;
 
-    private final SearchSuggestionItemRenderer searchItemRenderer;
-    private final TrackSuggestionItemRenderer trackItemRenderer;
-    private final UserSuggestionItemRenderer userItemRenderer;
-
     @Inject
-    public SuggestionsAdapter(SearchSuggestionItemRenderer searchItemRenderer,
+    SuggestionsAdapter(SearchSuggestionItemRenderer searchItemRenderer,
                               TrackSuggestionItemRenderer trackItemRenderer,
                               UserSuggestionItemRenderer userItemRenderer) {
         super(new CellRendererBinding<>(TYPE_SEARCH, searchItemRenderer),
                 new CellRendererBinding<>(TYPE_TRACK, trackItemRenderer),
-                new CellRendererBinding<>(TYPE_USER, searchItemRenderer));
-        this.searchItemRenderer = searchItemRenderer;
-        this.trackItemRenderer = trackItemRenderer;
-        this.userItemRenderer = userItemRenderer;
+                new CellRendererBinding<>(TYPE_USER, userItemRenderer));
     }
 
     @Override
@@ -54,12 +41,6 @@ public class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, Sugg
             default:
                 throw new IllegalArgumentException("Unhandled suggestion item kind " + getItem(position).getKind());
         }
-    }
-
-    public void setSuggestionListener(SuggestionItemListener listener) {
-        searchItemRenderer.setOnSearchClickListener(listener);
-        trackItemRenderer.setOnTrackClickListener(listener);
-        userItemRenderer.setOnUserClickListener(listener);
     }
 
     static class SuggestionViewHolder extends RecyclerView.ViewHolder {

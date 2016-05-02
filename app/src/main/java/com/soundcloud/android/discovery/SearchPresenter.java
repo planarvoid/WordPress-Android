@@ -1,8 +1,13 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.search.SearchTracker;
 import com.soundcloud.android.search.TabbedSearchFragment;
 import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
@@ -41,6 +46,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements
         SearchIntentResolver.DeepLinkListener,
@@ -65,18 +71,27 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     private final Resources resources;
     private final EventBus eventBus;
     private final KeyboardHelper keyboardHelper;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final PlaybackInitiator playbackInitiator;
+    private final Navigator navigator;
 
     @Inject
     SearchPresenter(SearchIntentResolverFactory intentResolverFactory,
                     SearchTracker tracker,
                     Resources resources,
                     EventBus eventBus,
-                    KeyboardHelper keyboardHelper) {
+                    KeyboardHelper keyboardHelper,
+                    Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                    PlaybackInitiator playbackInitiator,
+                    Navigator navigator) {
+        this.navigator = navigator;
         this.intentResolver = intentResolverFactory.create(this);
         this.tracker = tracker;
         this.resources = resources;
         this.eventBus = eventBus;
         this.keyboardHelper = keyboardHelper;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.playbackInitiator = playbackInitiator;
     }
 
     @Override
@@ -111,9 +126,27 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     }
 
     @Override
+    public void onScrollChanged() {
+        hideKeyboard();
+    }
+
+    @Override
     public void performSearch(String searchQuery) {
         deactivateSearchView();
         showResultsFor(searchQuery);
+    }
+
+    @Override
+    public void playTrack(Urn trackUrn) {
+        deactivateSearchView();
+        playbackInitiator.startPlaybackWithRecommendations(trackUrn, Screen.SEARCH_SUGGESTIONS, null)
+                .subscribe(expandPlayerSubscriberProvider.get());
+    }
+
+    @Override
+    public void showUserProfile(Urn userUrn) {
+        deactivateSearchView();
+        navigator.openProfile(window.getContext(), userUrn, Screen.SEARCH_SUGGESTIONS, null);
     }
 
     private void setupTransitionAnimation(Window window) {
@@ -223,11 +256,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
         suggestionsFragment.showSuggestionsFor(query);
     }
 
-    private void clearSuggestions() {
-        hideSearchSuggestionsView();
-        suggestionsFragment.clearSuggestions();
-    }
-
     private void showCloseButton() {
         searchCloseView.setVisibility(View.VISIBLE);
     }
@@ -312,7 +340,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
         @Override
         public void afterTextChanged(Editable editable) {
             if (Strings.isBlank(searchTextView.getText().toString().trim())) {
-                clearSuggestions();
+                hideSearchSuggestionsView();
                 hideCloseButton();
                 hideSearchResultsView();
             } else {
@@ -337,7 +365,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
         @Override
         public void onClick(View view) {
             searchTextView.setText(Strings.EMPTY);
-            clearSuggestions();
+            hideSearchSuggestionsView();
             hideCloseButton();
             activateSearchView();
             displaySearchView(SUGGESTIONS_VIEW_INDEX);

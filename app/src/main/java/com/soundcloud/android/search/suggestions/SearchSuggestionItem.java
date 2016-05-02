@@ -1,15 +1,31 @@
 package com.soundcloud.android.search.suggestions;
 
-class SearchSuggestionItem extends SuggestionItem {
+import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
-    private final String query;
+class SearchSuggestionItem extends SuggestionItem implements ImageResource {
 
-    SearchSuggestionItem(String query) {
-        super(Kind.SearchItem);
-        this.query = query;
+    private final PropertySet source;
+
+    SearchSuggestionItem(Kind kind, PropertySet source, String query) {
+        super(kind, query);
+        this.source = source;
     }
 
-    String getQuery() {
-        return query;
+    @Override
+    public Urn getUrn() {
+        return source.get(SearchSuggestionProperty.URN);
+    }
+
+    String getDisplayedText() {
+        return source.get(SearchSuggestionProperty.DISPLAY_TEXT);
+    }
+
+    @Override
+    public Optional<String> getImageUrlTemplate() {
+        return source.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE, Optional.<String>absent());
     }
 }

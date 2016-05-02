@@ -63,6 +63,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
             // views
             db.execSQL(Tables.Shortcuts.SQL);
+            db.execSQL(Tables.SearchSuggestions.SQL);
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
 
         } catch (SQLException e) {
@@ -89,6 +90,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             SchemaMigrationHelper.drop(t, db);
         }
         dropView(Tables.Shortcuts.TABLE.name(), db);
+        dropView(Tables.SearchSuggestions.TABLE.name(), db);
 
         onCreate(db);
     }
@@ -801,20 +803,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    /*
- * Added avatar_url to offline playlist tracks view for new image requirements
- */
+    /**
+     * Added avatar_url to offline playlist tracks view for new image requirements
+     * Create view for querying local search suggestions
+     */
     private static boolean upgradeTo75(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
+            db.execSQL(Tables.SearchSuggestions.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 75);
         }
         return false;
     }
-
 
     private static void migratePolicies(SQLiteDatabase db) {
         final List<String> oldSoundColumns = Arrays.asList(
