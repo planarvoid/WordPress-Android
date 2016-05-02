@@ -496,6 +496,17 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onErrorShouldReportErrorForVideoAdsWithoutPlaybackRetries() throws IOException {
+        mediaPlayerAdapter.play(videoItem);
+        mediaPlayerAdapter.onPrepared(mediaPlayer);
+        causeMediaPlayerErrors(1);
+
+        InOrder inOrder = inOrder(listener);
+        inOrder.verify(listener, times(1)).onPlaystateChanged(eq(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, videoItem.getUrn(), 0, -1, dateProvider)));
+        inOrder.verify(listener).onPlaystateChanged(eq(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, videoItem.getUrn(), 0, -1, dateProvider)));
+    }
+
+    @Test
     public void onErrorShouldRetryStreamPlaybacksMaxRetryTimesThenReportError() throws IOException {
         mediaPlayerAdapter.play(trackItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
