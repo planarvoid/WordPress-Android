@@ -41,7 +41,7 @@ public class ProfileNowPlayingController extends DefaultSupportFragmentLightCycl
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {
             if (adapter != null) {
-                adapter.updateNowPlaying(event.getCurrentPlayQueueItem().getUrn()); // implement our own verision of this!!!
+                adapter.updateNowPlaying(event.getCurrentPlayQueueItem().getUrn());
             }
         }
     }
