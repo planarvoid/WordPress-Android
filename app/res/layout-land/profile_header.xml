@@ -41,13 +41,14 @@
             style="@style/Profile.ToggleButton.Follow.Large"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@id/username"
+            android:layout_marginLeft="12dp"
             tools:checked="true" />
 
         <com.soundcloud.android.view.ProfileToggleButton
             android:id="@+id/btn_station"
             style="@style/Profile.ToggleButton.Station.Large"
             android:layout_alignBaseline="@id/toggle_btn_follow"
-            android:layout_marginRight="12dp"
+            android:layout_alignWithParentIfMissing="true"
             android:layout_toLeftOf="@id/toggle_btn_follow"
             android:visibility="gone"
             app:textOff="@string/stations_start_user_station"

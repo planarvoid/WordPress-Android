@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:id="@+id/profile_header"
-    style="@style/Profile.HeaderContainer"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile_header"
+    style="@style/Profile.HeaderContainer"
     tools:ignore="MergeRootFrame">
 
     <RelativeLayout
@@ -40,8 +40,8 @@
         <com.soundcloud.android.view.ProfileToggleButton
             android:id="@+id/toggle_btn_follow"
             style="@style/Profile.ToggleButton.Follow.CustomTextToggle"
-            android:layout_marginRight="12dp"
             android:layout_alignBottom="@id/image"
+            android:layout_marginRight="12dp"
             android:layout_toEndOf="@id/image"
             android:layout_toRightOf="@id/image"
             tools:checked="true" />
@@ -50,8 +50,8 @@
             android:id="@+id/btn_station"
             style="@style/Profile.ToggleButton.Station.Large"
             android:layout_alignBaseline="@id/toggle_btn_follow"
-            android:layout_toRightOf="@id/toggle_btn_follow"
             android:layout_alignBottom="@id/image"
+            android:layout_toRightOf="@id/toggle_btn_follow"
             android:visibility="gone"
             app:textOff="@string/stations_start_user_station"
             app:textPaddingRight="12dp"
