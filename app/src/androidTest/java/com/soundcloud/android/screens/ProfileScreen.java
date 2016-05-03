@@ -158,24 +158,6 @@ public class ProfileScreen extends Screen {
         return visualPlayer;
     }
 
-    public static With WithProfileHeader(final Han testDriver, final int headerTitle) {
-        return new With() {
-
-            @Override
-            public boolean apply(ViewElement view) {
-                return view.findOnScreenElement(
-                        With.id(R.id.sounds_header_text),
-                        With.text(headerTitle)
-                ) != null;
-            }
-
-            @Override
-            public String getSelector() {
-                return "Header profile item with title " + headerTitle;
-            }
-        };
-    }
-
     private RecyclerViewElement currentRecyclerView() {
         return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
     }
