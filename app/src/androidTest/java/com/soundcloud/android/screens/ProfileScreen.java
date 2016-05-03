@@ -229,9 +229,7 @@ public class ProfileScreen extends Screen {
 
     public ProfileScreen touchFollowingsTab() {
         final Tabs tabs = tabs();
-        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followings))).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
 
@@ -246,21 +244,13 @@ public class ProfileScreen extends Screen {
 
     public ProfileScreen touchFollowersTab() {
         final Tabs tabs = tabs();
-        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followers))).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
 
     public ExpandedProfileImageScreen touchProfileImage() {
         profileImage().click();
         return new ExpandedProfileImageScreen(testDriver);
-    }
-
-    public ProfileScreen touchSoundsTab() {
-        tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_sounds))).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return this;
     }
 
     private ViewElement profileImage() {

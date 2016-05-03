@@ -48,14 +48,12 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
 
     public void testFollowingsClickOpensProfilePage() {
         profileScreen.touchFollowingsTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
 
         assertTrue(profileScreen.clickUserAt(0).isVisible());
     }
 
     public void testFollowersClickOpensProfilePage() {
         profileScreen.touchFollowersTab();
-        waiter.waitForContentAndRetryIfLoadingFailed();
 
         assertTrue(profileScreen.clickUserAt(0).isVisible());
     }
