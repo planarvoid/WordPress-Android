@@ -8,7 +8,7 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
-import com.soundcloud.android.framework.annotation.Ignore;
+import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -16,7 +16,7 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 @EventTrackingTest
-@Ignore
+@NewProfileTest
 public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActivity> {
     private static final String TEST_SCENARIO_POSTS = "audio-events-v1-you-posts";
     private static final String TEST_SCENARIO_LIKES = "audio-events-v1-you-likes";

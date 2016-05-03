@@ -1,16 +1,18 @@
+package com.soundcloud.android.tests.profile;
+
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.Ignore;
+import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-@Ignore
-public class NewProfileTest extends ActivityTest<LauncherActivity> {
+@NewProfileTest
+public class ProfileInfoTest extends ActivityTest<LauncherActivity> {
 
     private static final String EXPECTED_DESCRIPTION = "Hashtag literally PBR art party, blog master cleanse taxidermy 3 wolf moon 8-bit squid fingerstache Austin. Flannel American Apparel deep v photo booth, locavore fixie meditation banjo pickled. IPhone fap Wes Anderson, organic distillery health goth tilde fingerstache heirloom biodiesel asymmetrical. Readymade 90's leggings cred banh mi McSweeney's, Williamsburg tattooed cardigan stumptown cliche Brooklyn Thundercats raw denim. Gluten-free heirloom gastropub freegan ennui, pork belly Helvetica pop-up swag post-ironic dreamcatcher. Farm-to-table listicle four loko Pitchfork, salvia wayfarers skateboard sartorial hashtag chillwave street art McSweeney's food truck aesthetic. Hoodie drinking vinegar kogi, Shoreditch Portland single-origin coffee direct trade brunch mustache.\n" +
             "\n" +
@@ -18,7 +20,7 @@ public class NewProfileTest extends ActivityTest<LauncherActivity> {
 
     private ProfileScreen screen;
 
-    public NewProfileTest() {
+    public ProfileInfoTest() {
         super(LauncherActivity.class);
     }
 
