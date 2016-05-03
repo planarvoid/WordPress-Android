@@ -22,7 +22,7 @@ expected_events:
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    policy: ALLOW
+    policy: (ALLOW|SNIP)
     app_version: '[0-9]+'
     client_event_id: (\w|-)+
     monetization_model: (\w|-)+
@@ -50,7 +50,7 @@ expected_events:
     pause_reason: skip
     trigger: manual
     local_storage_playback: false
-    policy: ALLOW
+    policy: (ALLOW|SNIP)
     app_version: '[0-9]+'
     client_event_id: (\w|-)+
     monetization_model: (\w|-)+
