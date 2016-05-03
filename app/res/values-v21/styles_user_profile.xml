@@ -10,12 +10,14 @@
     </style>
 
     <style name="Profile.ToggleButton.Follow.Large">
-        <item name="android:minWidth">0dp</item>
         <item name="android:textSize">@dimen/follow_btn_text</item>
         <item name="android:textColor">@drawable/toggle_txt_user_follow_states</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:drawableLeft">@drawable/ic_toggle_follow</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingLeft">12dp</item>
         <item name="android:textOn">@string/btn_following</item>
         <item name="android:textOff">@string/btn_follow</item>
-        <item name="android:paddingRight">12dp</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 
