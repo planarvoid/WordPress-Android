@@ -57,6 +57,7 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
 
         startEventTracking();
 
+        // TODO: event tracking has not been implemented for the new profile yet, theses tests will fail
         final VisualPlayerElement playerElement =
                 playlistDetailsScreen.clickFirstTrack();
 
@@ -76,7 +77,7 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
 
         startEventTracking();
 
-        // TODO: see todo notes in OtherProfileEventGatewayAudioTest
+        // TODO: figure out how to trigger a track from a specific bucket
         final VisualPlayerElement playerElement =
                 profileScreen.playTrack(0);
 
