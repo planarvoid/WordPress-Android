@@ -9,6 +9,7 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 @NewProfileTest
@@ -42,8 +43,11 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testPlaylistClickOpensPlaylistPage() {
-        profileScreen.scrollToFirstPlaylist().click();
-        assertEquals(profileScreen.getActionBarTitle(), "Playlist");
+        final PlaylistElement expectedPlaylist = profileScreen
+                .getPlaylists()
+                .get(0);
+
+        assertEquals(profileScreen.scrollToFirstPlaylist().click().getTitle(), expectedPlaylist.getTitle());
     }
 
     public void testFollowingsClickOpensProfilePage() {
