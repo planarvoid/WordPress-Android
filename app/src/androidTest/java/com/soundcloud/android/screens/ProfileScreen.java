@@ -203,8 +203,8 @@ public class ProfileScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.username));
     }
 
-    private String getFollowButtonText() {
-        return testDriver.getString(R.string.btn_following);
+    private String getActionFollowText() {
+        return testDriver.getString(R.string.btn_follow);
     }
 
     @Override
@@ -222,7 +222,7 @@ public class ProfileScreen extends Screen {
     }
 
     public void waitToBeFollowing() {
-        waiter.waitForElement(new TextElement(followButton()), getFollowButtonText());
+        waiter.waitForElementTextToChange(new TextElement(followButton()), getActionFollowText());
     }
 
     public boolean isFollowButtonVisible() {
@@ -230,9 +230,9 @@ public class ProfileScreen extends Screen {
     }
 
     public boolean areCurrentlyFollowing() {
-        final String captionIfFollowing = getFollowButtonText();
+        final String captionIfNotFollowing = getActionFollowText();
         final String currentCaption = new TextElement(followButton()).getText();
-        return currentCaption.equals(captionIfFollowing);
+        return !currentCaption.equals(captionIfNotFollowing);
     }
 
 }
