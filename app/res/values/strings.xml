@@ -563,7 +563,7 @@
     <string name="facebook_creator_invites_title">Invite friends to listen to your latest track on SoundCloud</string>
 
     <!-- __COLLECTION -->
-    <string name="collections_playlists_header">Playlists & Albums</string>
+    <string name="collections_playlists_header">Playlists &amp; Albums</string>
     <string name="collections_your_liked_tracks">Liked tracks</string>
     <string name="track_likes_title">Liked tracks</string>
     <string name="collections_options_header_filters">Filters</string>
