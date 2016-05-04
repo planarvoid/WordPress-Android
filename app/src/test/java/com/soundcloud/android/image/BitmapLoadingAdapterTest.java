@@ -45,20 +45,4 @@ public class BitmapLoadingAdapterTest {
         adapter.onLoadingComplete("uri", view, bitmap);
         subscriber.assertReceivedOnNext(Collections.<Bitmap>emptyList());
     }
-
-    @Test
-    public void onLoadingCompleteDoesNotEmitNullBitmap() throws Exception {
-        adapter = new BitmapLoadingAdapter(subscriber);
-        adapter.onLoadingComplete("uri", view, null);
-        subscriber.assertReceivedOnNext(Collections.<Bitmap>emptyList());
-    }
-
-    @Test
-    public void onLoadingCompleteDoesNotCopyBitmapIfUnsubscribed() throws Exception {
-        adapter = new BitmapLoadingAdapter(subscriber);
-        subscriber.unsubscribe();
-        adapter.onLoadingComplete("uri", view, bitmap);
-        verify(bitmap, never()).copy(any(Bitmap.Config.class), anyBoolean());
-    }
-
 }

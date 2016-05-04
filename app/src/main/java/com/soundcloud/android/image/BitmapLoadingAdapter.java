@@ -17,30 +17,33 @@ public class BitmapLoadingAdapter extends ImageUtils.ViewlessLoadingListener {
     }
 
     @Override
-    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-        if (subscriber.isUnsubscribed()) {
-            loadedImage.recycle();
-        } else {
-            if (loadedImage != null) {
-                subscriber.onNext(loadedImage);
-                subscriber.onCompleted();
-            }
-        }
+    public void onLoadingFailed(String imageUri, View view, String failedReason) {
+        subscriber.onError(new BitmapLoadingException(failedReason));
     }
 
     @Override
-    public void onLoadingFailed(String imageUri, View view, String failedReason) {
-        // No-op
+    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+        if (!subscriber.isUnsubscribed()) {
+            subscriber.onNext(loadedImage);
+            subscriber.onCompleted();
+        }
     }
 
     public static class Factory {
         @Inject
-        public Factory() {
+        Factory() {
             // No-op
         }
 
         public BitmapLoadingAdapter create(Subscriber<? super Bitmap> subscriber) {
             return new BitmapLoadingAdapter(subscriber);
+        }
+    }
+
+    private static class BitmapLoadingException extends Exception {
+
+        public BitmapLoadingException(String message) {
+            super(message);
         }
     }
 }

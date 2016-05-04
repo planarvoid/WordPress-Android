@@ -243,7 +243,7 @@ public class ImageOperations {
         imageLoader.displayImage(
                 uri.toString(),
                 imageAware,
-                ImageOptionsFactory.playerLeaveBehind(),
+                ImageOptionsFactory.adImage(),
                 new ImageListenerUILAdapter(imageListener));
     }
 
@@ -261,10 +261,6 @@ public class ImageOperations {
         imageLoader.loadImage(url, ImageOptionsFactory.prefetch(), null);
     }
 
-    private void load(Uri uri, ImageListener imageListener) {
-        imageLoader.loadImage(uri.toString(), new ImageListenerUILAdapter(imageListener));
-    }
-
     private void load(ImageResource imageResource, ApiImageSize apiImageSize, int targetWidth, int targetHeight, ImageListener imageListener) {
         ImageSize targetSize = new ImageSize(targetWidth, targetHeight);
         ImageAware imageAware = new NonViewAware(targetSize, ViewScaleType.CROP);
@@ -280,7 +276,9 @@ public class ImageOperations {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                load(uri, bitmapAdapterFactory.create(subscriber));
+                // We pass NonViewAware to circumvent ImageLoader cancelling requests (https://github.com/nostra13/Android-Universal-Image-Loader/issues/681)
+                imageLoader.displayImage(uri.toString(), new NonViewAware(new ImageSize(0, 0), ViewScaleType.CROP), ImageOptionsFactory.adImage(),
+                        new ImageListenerUILAdapter(bitmapAdapterFactory.create(subscriber)));
             }
         });
     }
