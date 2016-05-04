@@ -57,7 +57,7 @@ ext {
           rxAndroid                   : "io.reactivex:rxandroid:1.1.0",
           rxJava                      : "io.reactivex:rxjava:1.1.0",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
-          universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.2",
+          universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
 
           // UI libraries
           slidingUpPanel              : "com.sothree.slidinguppanel:library:3.0.0-SC@aar",
