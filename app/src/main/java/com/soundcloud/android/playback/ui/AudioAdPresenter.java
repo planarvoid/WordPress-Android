@@ -11,8 +11,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import org.jetbrains.annotations.NotNull;
-
 import rx.Subscription;
 
 import android.content.res.Resources;
@@ -148,21 +146,27 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         setVisibility(false, holder.companionViews);
     }
 
-    private void displayAdvertisement(AudioPlayerAd playerAd, Holder holder) {
+    private void displayAdvertisement(AudioPlayerAd playerAd, final Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
-        holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork()).subscribe(getAdImageSubscriber(holder, playerAd));
+        holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork())
+                .subscribe(new AdImageSubscriber(holder, playerAd));
     }
 
-    @NotNull
-    private DefaultSubscriber<Bitmap> getAdImageSubscriber(final Holder holder, final AudioPlayerAd playerAd) {
-        return new DefaultSubscriber<Bitmap>(){
-            @Override
-            public void onNext(Bitmap adImage) {
-                if (adImage != null) {
-                    updateAdvertisementLayout(holder, adImage, playerAd);
-                }
+    private final class AdImageSubscriber extends DefaultSubscriber<Bitmap> {
+        private Holder holder;
+        private AudioPlayerAd audioPlayerAd;
+
+        public AdImageSubscriber(Holder holder, AudioPlayerAd audioPlayerAd) {
+            this.holder = holder;
+            this.audioPlayerAd = audioPlayerAd;
+        }
+
+        @Override
+        public void onNext(Bitmap adImage) {
+            if (adImage != null) {
+                updateAdvertisementLayout(holder, adImage, audioPlayerAd);
             }
-        };
+        }
     }
 
     private void updateAdvertisementLayout(Holder holder, Bitmap adImage, AudioPlayerAd playerAd)  {

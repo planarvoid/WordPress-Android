@@ -19,6 +19,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.imageaware.NonViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -339,7 +340,9 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
         observable.subscribe(subscriber);
 
-        verify(imageLoader).loadImage(eq(URL), captor.capture());
+        verify(imageLoader).displayImage(eq(URL), any(NonViewAware.class), displayOptionsCaptor.capture(), captor.capture());
+        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isFalse();
+        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
         captor.getValue().onLoadingComplete("ad-image-url", imageView, bitmap);
         verify(bitmapLoadingAdapter).onLoadingComplete(eq("ad-image-url"), any(ImageView.class), eq(bitmap));
     }
@@ -353,7 +356,9 @@ public class ImageOperationsTest extends AndroidUnitTest {
         when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
         observable.subscribe(subscriber);
 
-        verify(imageLoader).loadImage(eq(URL), captor.capture());
+        verify(imageLoader).displayImage(eq(URL), any(NonViewAware.class), displayOptionsCaptor.capture(), captor.capture());
+        assertThat(displayOptionsCaptor.getValue().isCacheOnDisk()).isFalse();
+        assertThat(displayOptionsCaptor.getValue().isCacheInMemory()).isTrue();
         captor.getValue().onLoadingFailed("ad-image-url", imageView,
                 new FailReason(FailReason.FailType.DECODING_ERROR, new Exception("Decoding error")));
         verify(bitmapLoadingAdapter).onLoadingFailed("ad-image-url", imageView, "Decoding error");
