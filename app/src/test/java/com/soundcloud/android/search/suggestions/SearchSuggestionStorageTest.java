@@ -1,5 +1,7 @@
 package com.soundcloud.android.search.suggestions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -85,7 +87,10 @@ public class SearchSuggestionStorageTest  extends StorageIntegrationTest {
         final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions("", 3);
         suggestions.subscribe(subscriber);
 
-        subscriber.assertValue(toList(userPropertySet, trackPropertySet, playlistPropertySet));
+        final List<PropertySet> emmittedElements = subscriber.getOnNextEvents().get(0);
+        final List<PropertySet> expectedElements = toList(userPropertySet, trackPropertySet, playlistPropertySet);
+
+        assertThat(emmittedElements).containsAll(expectedElements);
     }
 
     @Test
