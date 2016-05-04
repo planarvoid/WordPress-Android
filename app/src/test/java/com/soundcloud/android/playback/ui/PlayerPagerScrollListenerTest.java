@@ -8,10 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -20,7 +16,6 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,7 +33,6 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
     @Mock PlayerPagerPresenter presenter;
 
     private PlayerPagerScrollListener pagerScrollListener;
-    private TestEventBus eventBus = new TestEventBus();
     private TestObserver<Integer> observer;
 
     private PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(1));
@@ -46,7 +40,7 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         observer = new TestObserver<>();
-        pagerScrollListener = new PlayerPagerScrollListener(playQueueManager, playbackToastHelper, eventBus, adsOperations);
+        pagerScrollListener = new PlayerPagerScrollListener(playQueueManager, playbackToastHelper, adsOperations);
         pagerScrollListener.initialize(playerTrackPager, presenter);
         pagerScrollListener.getPageChangedObservable().subscribe(observer);
     }
@@ -66,50 +60,6 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
-    }
-
-    @Test
-    public void emitsPlayerControlSwipeSkipEventOnSwipeNextWithExpandedPlayer() {
-        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 1, 2);
-
-        pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.swipeSkip(true));
-    }
-
-    @Test
-    public void emitsPlayerControlSwipeSkipEventOnSwipeNextWithCollapsedPlayer() {
-        startPagerSwipe(PlayerUIEvent.fromPlayerCollapsed(), 1, 2);
-
-        pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.swipeSkip(false));
-    }
-
-    @Test
-    public void emitsPlayerControlSwipePreviousEventOnSwipePreviousWithExpandedPlayer() {
-        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 2, 1);
-        pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
-
-        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 1, 2);
-        pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.swipePrevious(true));
-    }
-
-    @Test
-    public void emitsPlayerControlSwipePreviousEventOnSwipePreviousWithCollapsedPlayer() {
-        startPagerSwipe(PlayerUIEvent.fromPlayerExpanded(), 2, 1);
-        pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
-
-        startPagerSwipe(PlayerUIEvent.fromPlayerCollapsed(), 1, 2);
-        pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.swipePrevious(false));
     }
 
     @Test
@@ -169,12 +119,4 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
         verify(playerTrackPager).setPagingEnabled(true);
     }
 
-    private void startPagerSwipe(PlayerUIEvent lastSlidingPlayerEvent, int newPosition, int oldPosition) {
-        eventBus.publish(EventQueue.PLAYER_UI, lastSlidingPlayerEvent);
-        when(presenter.getItemAtPosition(newPosition)).thenReturn(playQueueItem);
-        when(playQueueManager.isCurrentItem(playQueueItem)).thenReturn(true);
-        when(playerTrackPager.getCurrentItem()).thenReturn(oldPosition);
-        pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_DRAGGING);
-        pagerScrollListener.onPageSelected(newPosition);
-    }
 }

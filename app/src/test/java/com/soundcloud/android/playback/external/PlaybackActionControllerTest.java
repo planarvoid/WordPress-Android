@@ -1,18 +1,11 @@
 package com.soundcloud.android.playback.external;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.ads.AdsController;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -21,16 +14,13 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
 
     private PlaybackActionController controller;
 
-    private TestEventBus eventBus = new TestEventBus();
-
     @Mock private PlaySessionController playSessionController;
     @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private AdsController adsController;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setup() {
-        controller = new PlaybackActionController(playSessionController, serviceInitiator, playSessionStateProvider, adsController, eventBus);
+        controller = new PlaybackActionController(playSessionController, serviceInitiator, adsController);
     }
 
     @Test
@@ -38,15 +28,6 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
         controller.handleAction(PlaybackAction.PREVIOUS, "source");
 
         verify(playSessionController).previousTrack();
-    }
-
-    @Test
-    public void shouldTrackPreviousEventWithSource() {
-        controller.handleAction(PlaybackAction.PREVIOUS, "source");
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("action")).isEqualTo("prev");
-        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
     @Test
@@ -64,48 +45,10 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void closeActionCallsTracksCloseEventWithSource() {
-        controller.handleAction(PlaybackAction.CLOSE, "source");
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("action")).isEqualTo("close");
-        assertThat(event.getAttributes().get("location")).isEqualTo("source");
-    }
-
-    @Test
-    public void shouldTrackSkipEventWithSource() {
-        controller.handleAction(PlaybackAction.NEXT, "source");
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("action")).isEqualTo("skip");
-        assertThat(event.getAttributes().get("location")).isEqualTo("source");
-    }
-
-    @Test
     public void shouldTogglePlaybackWhenTogglePlaybackActionIsHandled() {
         controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
 
         verify(playSessionController).togglePlayback();
-    }
-
-    @Test
-    public void shouldTrackTogglePlayEventWithSource() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(false);
-        controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("action")).isEqualTo("play");
-        assertThat(event.getAttributes().get("location")).isEqualTo("source");
-    }
-
-    @Test
-    public void shouldTrackTogglePauseEventWithSource() {
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        controller.handleAction(PlaybackAction.TOGGLE_PLAYBACK, "source");
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("action")).isEqualTo("pause");
-        assertThat(event.getAttributes().get("location")).isEqualTo("source");
     }
 
     @Test
@@ -115,32 +58,14 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackPlayEventWithSource() {
-        controller.handleAction(PlaybackAction.PLAY, "source");
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("action")).isEqualTo("play");
-        assertThat(event.getAttributes().get("location")).isEqualTo("source");
-    }
-
-    @Test
     public void shouldPauseWhenPauseActionIsHandled() {
         controller.handleAction(PlaybackAction.PAUSE, "source");
         verify(playSessionController).pause();
     }
 
     @Test
-    public void shouldTrackPauseEventWithSource() {
-        controller.handleAction(PlaybackAction.PAUSE, "source");
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getAttributes().get("action")).isEqualTo("pause");
-        assertThat(event.getAttributes().get("location")).isEqualTo("source");
-    }
-
-    @Test
     public void shouldReconfigureAdAndAttemptAdDeliveryEventPublishIfTrackSkipFromNotification() {
-        controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_NOTIFICATION);
+        controller.handleAction(PlaybackAction.NEXT, PlaybackActionReceiver.SOURCE_REMOTE);
 
         verify(adsController).reconfigureAdForNextTrack();
         verify(adsController).publishAdDeliveryEventIfUpcoming();
@@ -148,15 +73,7 @@ public class PlaybackActionControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReconfigureAdAndAttemptAdDeliveryEventPublishIfTrackSkipFromWidget() {
-        controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_WIDGET);
-
-        verify(adsController).reconfigureAdForNextTrack();
-        verify(adsController).publishAdDeliveryEventIfUpcoming();
-    }
-
-    @Test
-    public void shouldReconfigureAdAndAttemptAdDeliveryEventPublishIfTrackSkipFromLockScreen() {
-        controller.handleAction(PlaybackAction.NEXT, PlayControlEvent.SOURCE_REMOTE);
+        controller.handleAction(PlaybackAction.NEXT, PlaybackActionReceiver.SOURCE_WIDGET);
 
         verify(adsController).reconfigureAdForNextTrack();
         verify(adsController).publishAdDeliveryEventIfUpcoming();

@@ -3,6 +3,9 @@ package com.soundcloud.android.ads;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioPlaybackItem;
+import com.soundcloud.android.playback.PlaybackItem;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -50,4 +53,29 @@ public class AdUtilsTest extends AndroidUnitTest {
         final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
         assertThat(AdUtils.IS_AUDIO_AD_ITEM.apply(trackItem)).isFalse();
     }
+
+    @Test
+    public void isAdForPlaybackItemReturnsTrueWhenPlaybackTypeIsAudioAd() {
+        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forTrack(123L), 0L, 1000L, PlaybackType.AUDIO_AD);
+        assertThat(AdUtils.isAd(playbackItem)).isTrue();
+    }
+
+    @Test
+    public void isAdForPlaybackItemReturnsTrueWhenPlaybackTypeIsVideoDefault() {
+        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forTrack(123L), 0L, 1000L, PlaybackType.VIDEO_DEFAULT);
+        assertThat(AdUtils.isAd(playbackItem)).isTrue();
+    }
+
+    @Test
+    public void isAdForPlaybackItemReturnsTrueWhenUrnIsAd() {
+        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forAd("totally-an-ad", "yes-it-is"), 0L, 1000L, PlaybackType.AUDIO_DEFAULT);
+        assertThat(AdUtils.isAd(playbackItem)).isTrue();
+    }
+
+    @Test
+    public void isAdForPlaybackItemReturnsFalseWhenIsANormalAudioItem() {
+        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forTrack(123L), 0L, 1000L, PlaybackType.AUDIO_DEFAULT);
+        assertThat(AdUtils.isAd(playbackItem)).isFalse();
+    }
+
 }

@@ -4,7 +4,7 @@ public interface Player {
 
     void play(PlaybackItem playbackItem);
 
-    void resume();
+    void resume(PlaybackItem playbackItem);
 
     void pause();
 
@@ -33,7 +33,5 @@ public interface Player {
 
         void onProgressEvent(long progress, long duration);
 
-        // we might be able to get rid of this, if we just request focus before setting data source, however this is a change in behavior
-        boolean requestAudioFocus();
     }
 }

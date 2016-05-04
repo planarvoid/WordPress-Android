@@ -14,7 +14,6 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -280,13 +279,11 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             @Override
             public void onNext() {
                 trackPager.setCurrentItem(trackPager.getCurrentItem() + 1);
-                eventBus.publish(EventQueue.TRACKING, PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
             }
 
             @Override
             public void onPrevious() {
                 trackPager.setCurrentItem(trackPager.getCurrentItem() - 1);
-                eventBus.publish(EventQueue.TRACKING, PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
             }
         };
     }

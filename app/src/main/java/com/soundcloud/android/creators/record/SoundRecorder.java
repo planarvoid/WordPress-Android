@@ -1,11 +1,12 @@
 package com.soundcloud.android.creators.record;
 
+import static android.media.AudioManager.AUDIOFOCUS_LOSS;
+import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
-import com.soundcloud.android.playback.AudioFocusManager;
-import com.soundcloud.android.playback.IAudioManager;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.os.Build;
@@ -30,7 +32,7 @@ import java.util.EnumSet;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class SoundRecorder implements IAudioManager.MusicFocusable {
+public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
     public static final int PIXELS_PER_SECOND = hasFPUSupport() ? 30 : 15;
     public static final int MAX_PLAYBACK_READ_SIZE = 1024;
@@ -67,7 +69,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
     /* package */ static final String TAG = SoundRecorder.class.getSimpleName();
     private static SoundRecorder instance;
     private static float[] EMPTY_TRIM_WINDOW = new float[]{0f, 1f};
-    private final IAudioManager audioFocusManager;
 
     private final Context context;
     private final RecordAppWidgetProvider appWidgetProvider = RecordAppWidgetProvider.getInstance();
@@ -140,8 +141,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         // small reads for performance, but no larger than our audiotrack buffer size
         playBufferReadSize = playbackBufferSize < MAX_PLAYBACK_READ_SIZE ? playbackBufferSize : MAX_PLAYBACK_READ_SIZE;
         playBuffer = BufferUtils.allocateAudioBuffer(playBufferReadSize);
-
-        audioFocusManager = new AudioFocusManager(context);
 
         recordStream = new RecordStream(this.audioConfig);
         reset();
@@ -436,19 +435,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         return !"armeabi".equals(Build.CPU_ABI);
     }
 
-    @Override
-    public void focusGained() {
-        Log.d(TAG, "Audio Focus gained ");
-    }
-
-    @Override
-    public void focusLost(boolean isTransient, boolean canDuck) {
-        Log.d(TAG, "Focus Lost " + isTransient + " and " + canDuck);
-        if (!canDuck && isActive()) {
-            gotoIdleState();
-        }
-    }
-
     public void gotoIdleState() {
         if (isRecording()) {
             stopRecording();
@@ -553,9 +539,9 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void run() {
             synchronized (audioRecord) {
-                if (!audioFocusManager.requestMusicFocus(SoundRecorder.this, IAudioManager.FOCUS_GAIN)) {
-                    Log.e(TAG, "could not obtain audio focus");
-                    broadcast(PLAYBACK_ERROR);
+                AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+                if (!requestFocus(audioManager)) {
                     return;
                 }
 
@@ -593,9 +579,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                     state = SoundRecorder.State.ERROR;
 
                 } finally {
-                    // TODO, close on destroy, playbackStream.close();
                     audioTrack.stop();
-                    audioFocusManager.abandonMusicFocus();
+                    audioManager.abandonAudioFocus(SoundRecorder.this);
                 }
 
                 //noinspection ObjectEquality
@@ -785,5 +770,25 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
                 }
             }
         }
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        boolean focusLost = focusChange == AUDIOFOCUS_LOSS
+                || focusChange == AUDIOFOCUS_LOSS_TRANSIENT;
+
+        if (isActive() && focusLost) {
+            gotoIdleState();
+        }
+    }
+
+    private boolean requestFocus(AudioManager audioManager) {
+        int status = audioManager.requestAudioFocus(SoundRecorder.this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        if (status != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            Log.e(TAG, "could not obtain audio focus");
+            broadcast(PLAYBACK_ERROR);
+            return false;
+        }
+        return true;
     }
 }

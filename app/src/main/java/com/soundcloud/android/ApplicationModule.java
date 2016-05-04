@@ -14,7 +14,6 @@ import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
 import com.soundcloud.android.collection.CollectionNavigationTarget;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
@@ -24,20 +23,12 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
-import com.soundcloud.android.playback.FallbackRemoteAudioManager;
-import com.soundcloud.android.playback.IRemoteAudioManager;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackStrategy;
-import com.soundcloud.android.playback.RemoteAudioManager;
-import com.soundcloud.android.playback.notification.BigNotificationBuilder;
-import com.soundcloud.android.playback.notification.MediaStyleNotificationBuilder;
-import com.soundcloud.android.playback.notification.NotificationBuilder;
-import com.soundcloud.android.playback.notification.RichNotificationBuilder;
 import com.soundcloud.android.playback.ui.CompatLikeButtonPresenter;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
-import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -48,7 +39,6 @@ import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.stream.StreamNavigationTarget;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.you.YouNavigationTarget;
 import com.soundcloud.reporting.FabricReporter;
@@ -195,33 +185,6 @@ public class ApplicationModule {
     @Provides
     public NotificationCompat.Builder provideNotificationBuilder(Context context) {
         return new NotificationCompat.Builder(context);
-    }
-
-    @Provides
-    @Singleton
-    public NotificationBuilder providesNotificationBuilderWrapper(Context context,
-                                                                  ApplicationProperties applicationProperties,
-                                                                  NotificationPlaybackRemoteViews.Factory remoteViewsFactory,
-                                                                  ImageOperations imageOperations) {
-        if (applicationProperties.shouldUseMediaStyleNotifications()) {
-            return new MediaStyleNotificationBuilder(context, imageOperations);
-        } else if (applicationProperties.shouldUseBigNotifications()) {
-            return new BigNotificationBuilder(context, remoteViewsFactory, imageOperations);
-        } else {
-            return new RichNotificationBuilder(context, remoteViewsFactory, imageOperations);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Provides
-    @Singleton
-    public IRemoteAudioManager provideRemoteAudioManager(Context context) {
-        try {
-            return new RemoteAudioManager(context);
-        } catch (Exception e) {
-            ErrorUtils.handleSilentException("Could not create remote audio manager", e);
-        }
-        return new FallbackRemoteAudioManager(context);
     }
 
     @Singleton

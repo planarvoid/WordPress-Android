@@ -92,8 +92,8 @@ class StreamPlayer implements PlayerListener {
         configureNextPlayerToUse(playbackItem);
     }
 
-    public void resume() {
-        currentPlayer.resume();
+    public void resume(PlaybackItem playbackItem) {
+        currentPlayer.resume(playbackItem);
     }
 
     public void pause() {
@@ -169,12 +169,6 @@ class StreamPlayer implements PlayerListener {
     @Override
     public void onProgressEvent(long progress, long duration) {
         playerListener.onProgressEvent(progress, duration);
-    }
-
-    @Override
-    public boolean requestAudioFocus() {
-        checkNotNull(playerListener, "Stream Player Listener is unexpectedly null when requesting audio focus");
-        return playerListener.requestAudioFocus();
     }
 
     private void configureNextPlayerToUse(PlaybackItem playbackItem) {

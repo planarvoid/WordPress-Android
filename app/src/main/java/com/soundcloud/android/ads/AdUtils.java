@@ -2,6 +2,8 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlaybackItem;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.java.functions.Predicate;
 
 public final class AdUtils {
@@ -24,6 +26,12 @@ public final class AdUtils {
 
     public static boolean isAd(PlayQueueItem playQueueItem) {
         return isAudioAd(playQueueItem) || isVideoAd(playQueueItem);
+    }
+
+    public static boolean isAd(PlaybackItem playbackItem) {
+        return playbackItem.getPlaybackType() == PlaybackType.AUDIO_AD
+                || playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT
+                || playbackItem.getUrn().isAd();
     }
 
     public static boolean isAudioAd(PlayQueueItem playQueueItem) {

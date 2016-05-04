@@ -11,7 +11,6 @@ import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -22,10 +21,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -53,8 +51,8 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackPageListener(playSessionController, playQueueManager, playSessionStateProvider,
-                eventBus, likeOperations, navigator, engagementsTracking);
+        listener = new TrackPageListener(playSessionController, playQueueManager, eventBus,
+                likeOperations, navigator, engagementsTracking);
     }
 
     @Test
@@ -134,20 +132,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN);
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
-    }
-
-    @Test
-    public void onScrubbingShouldEmitPlayerControlScrubEvent() {
-        listener.onScrub(ScrubController.SCRUB_STATE_SCRUBBING);
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.scrub(PlayControlEvent.SOURCE_FULL_PLAYER));
-    }
-
-    @Test
-    public void onScrubbingCancelledShouldNotEmitPlayerControlScrubEvent() {
-        listener.onScrub(ScrubController.SCRUB_STATE_CANCELLED);
-        eventBus.verifyNoEventsOn(EventQueue.TRACKING);
     }
 
     @Test

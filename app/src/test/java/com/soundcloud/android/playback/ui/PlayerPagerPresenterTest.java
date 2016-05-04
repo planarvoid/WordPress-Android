@@ -20,19 +20,17 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -170,17 +168,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onNextOnSkipListenerEmitsPlayerSkipClickEvent() {
-        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
-        when(playerTrackPager.getCurrentItem()).thenReturn(3);
-
-        skipListenerArgumentCaptor.getValue().onNext();
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.skip(PlayControlEvent.SOURCE_FULL_PLAYER));
-    }
-
-    @Test
     public void onPreviousOnSkipListenerSetsPagerToPreviousPosition() {
         verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
         when(playerTrackPager.getCurrentItem()).thenReturn(3);
@@ -188,17 +175,6 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         skipListenerArgumentCaptor.getValue().onPrevious();
 
         verify(playerTrackPager).setCurrentItem(eq(2));
-    }
-
-    @Test
-    public void onPreviousOnSkipListenerEmitsPlayerPreviousClickEvent() {
-        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
-        when(playerTrackPager.getCurrentItem()).thenReturn(3);
-
-        skipListenerArgumentCaptor.getValue().onPrevious();
-
-        TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event).isEqualTo(PlayControlEvent.previous(PlayControlEvent.SOURCE_FULL_PLAYER));
     }
 
     @Test

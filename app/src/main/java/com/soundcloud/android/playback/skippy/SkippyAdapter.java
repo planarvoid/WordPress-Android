@@ -7,7 +7,6 @@ import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -146,20 +145,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
         }
 
-        // TODO : move audiofocus requesting into PlaybackService when we kill MediaPlayer
-        if (playerListener == null){
-            Log.e(TAG, "No Player Listener, unable to request audio focus");
-            return;
-        }
-
-        if (!playerListener.requestAudioFocus()){
-            Log.e(TAG,"Unable to acquire audio focus, aborting playback");
-            final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, currentTrackUrn, fromPos, Consts.NOT_SET, dateProvider);
-            playerListener.onPlaystateChanged(stateTransition);
-            bufferUnderrunListener.onPlaystateChanged(stateTransition, getPlaybackProtocol(), PlayerType.SKIPPY, connectionHelper.getCurrentConnectionType());
-            return;
-        }
-
         stateHandler.removeMessages(0);
         lastStateChangeProgress = 0;
 
@@ -169,17 +154,24 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             skippy.seek(fromPos);
             skippy.resume();
         } else {
-            currentStreamUrl = trackUrl;
+            startPlayback(playbackItem, fromPos);
+        }
+    }
 
-            if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_OFFLINE) {
+    private void startPlayback(PlaybackItem playbackItem, long fromPos) {
+        currentStreamUrl = buildStreamUrl(playbackItem);
+        switch (playbackItem.getPlaybackType()) {
+            case AUDIO_OFFLINE:
                 final DeviceSecret deviceSecret = cryptoOperations.checkAndGetDeviceKey();
                 skippy.playOffline(currentStreamUrl, fromPos, deviceSecret.getKey(), deviceSecret.getInitVector());
-            } else if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_AD) {
+                break;
+            case AUDIO_AD:
                 final boolean shouldCache = !AdUtils.isThirdPartyAd(playbackItem.getUrn());
-                skippy.play(currentStreamUrl, playbackItem.getStartPosition(), shouldCache);
-            } else {
+                skippy.play(currentStreamUrl, fromPos, shouldCache);
+                break;
+            default:
                 skippy.play(currentStreamUrl, fromPos);
-            }
+                break;
         }
     }
 
@@ -215,7 +207,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     private String buildRemoteUrl(Urn trackUrn, PlaybackType playType) {
-        if (playType == PlaybackType.AUDIO_SNIPPET){
+        if (playType == PlaybackType.AUDIO_SNIPPET) {
             return getApiUrlBuilder(trackUrn, ApiEndpoints.HLS_SNIPPET_STREAM).build();
         } else {
             return getApiUrlBuilder(trackUrn, ApiEndpoints.HLS_STREAM).withQueryParam(PARAM_CAN_SNIP, false).build();
@@ -232,8 +224,16 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public void resume() {
-        skippy.resume();
+    public void resume(PlaybackItem playbackItem) {
+        if (playbackItem.getUrn().equals(currentTrackUrn)) {
+            if (currentStreamUrl != null) {
+                skippy.resume();
+            } else {
+                startPlayback(playbackItem, lastStateChangeProgress);
+            }
+        } else {
+            play(playbackItem);
+        }
     }
 
     @Override
@@ -248,7 +248,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             skippy.seek(position);
 
             long duration = skippy.getDuration();
-            if (playerListener != null && duration != 0){
+            if (playerListener != null && duration != 0) {
                 playerListener.onProgressEvent(position, duration);
             }
         }
@@ -257,7 +257,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     @Override
     public long getProgress() {
-        if (currentStreamUrl != null){
+        if (currentStreamUrl != null) {
             return skippy.getPosition();
         } else {
             return lastStateChangeProgress;
@@ -277,6 +277,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void stop() {
         skippy.stop();
+        currentStreamUrl = null;
     }
 
     @Override
@@ -325,7 +326,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, String.valueOf(true));
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, uri);
 
-            if (transition.playbackHasStopped()){
+            if (transition.playbackHasStopped()) {
                 currentStreamUrl = null;
             }
 
@@ -336,7 +337,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     private void configureLockBasedOnNewState(PlaybackStateTransition transition) {
-        if (transition.isPlayerPlaying() || transition.isBuffering()){
+        if (transition.isPlayerPlaying() || transition.isBuffering()) {
             lockUtil.lock();
         } else {
             lockUtil.unlock();
@@ -435,14 +436,14 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void onProgressChange(long position, long duration, String uri) {
         final long adjustedPosition = fixPosition(position, duration);
-        if (playerListener != null && uri.equals(currentStreamUrl)){
+        if (playerListener != null && uri.equals(currentStreamUrl)) {
             playerListener.onProgressEvent(adjustedPosition, duration);
         }
     }
 
     private long fixPosition(long position, long duration) {
-        if (position > duration){
-            ErrorUtils.handleSilentException("track ["+ currentTrackUrn + "] : position [" + position + "] > duration [" + duration + "].",
+        if (position > duration) {
+            ErrorUtils.handleSilentException("track [" + currentTrackUrn + "] : position [" + position + "] > duration [" + duration + "].",
                     new IllegalStateException("Skippy inconsistent state : position > duration"));
             return duration;
         }
@@ -453,7 +454,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     public void onErrorMessage(String category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
         // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
-        if (!ConnectionType.OFFLINE.equals(currentConnectionType)){
+        if (!ConnectionType.OFFLINE.equals(currentConnectionType)) {
             // Use Log as Skippy dumps can be rather large
             ErrorUtils.handleSilentExceptionWithLog(new SkippyException(category, line, sourceFile), errorMsg);
         }

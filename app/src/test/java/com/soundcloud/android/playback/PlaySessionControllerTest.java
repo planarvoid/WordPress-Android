@@ -43,7 +43,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class PlaySessionControllerTest extends AndroidUnitTest {
 
@@ -514,7 +514,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.ACTIVITIES);
-        final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(track), playSessionSource);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Collections.singletonList(track), playSessionSource);
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
         controller.playNewQueue(playQueue, track, 0, playSessionSource)
@@ -530,7 +530,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(TestPlayQueue.fromUrns(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
+        controller.playNewQueue(TestPlayQueue.fromUrns(Collections.singletonList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
                 .subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
@@ -544,7 +544,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(TestPlayQueue.fromUrns(Arrays.asList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
+        controller.playNewQueue(TestPlayQueue.fromUrns(Collections.singletonList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
                 .subscribe(subscriber);
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
@@ -555,7 +555,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         Urn track = Urn.forTrack(123L);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.ACTIVITIES);
-        final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(track), playSessionSource);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Collections.singletonList(track), playSessionSource);
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.<PlaybackResult>never());
 
         controller.playCurrent();
@@ -569,7 +569,9 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentUnsubscribesFromPreviousTrackLoad() {
-        when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject, Observable.<Void>never());
+        when(playbackStrategy.playCurrent())
+                .thenReturn(playCurrentSubject)
+                .thenReturn(Observable.<Void>never());
 
         controller.playCurrent();
 
@@ -588,7 +590,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.ACTIVITIES);
-        final PlayQueue playQueue = TestPlayQueue.fromUrns(Arrays.asList(track), playSessionSource);
+        final PlayQueue playQueue = TestPlayQueue.fromUrns(Collections.singletonList(track), playSessionSource);
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
@@ -626,6 +628,26 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         verify(playbackServiceInitiator).resetPlaybackService();
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_UI, PlayerUIEvent.class).getKind())
                 .isEqualTo(PlayerUIEvent.fromPlayerCollapsed().getKind());
+    }
+
+    @Test
+    public void playResumesWhenIsPlayingCurrent() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueItem()).thenReturn(true);
+
+        controller.play();
+
+        verify(playbackStrategy).resume();
+        assertThat(playCurrentSubject.hasObservers()).isFalse();
+    }
+
+    @Test
+    public void playPlaysCurrentWhenIsNotPlayingCurrent() {
+        when(playSessionStateProvider.isPlayingCurrentPlayQueueItem()).thenReturn(false);
+
+        controller.play();
+
+        verify(playbackStrategy, never()).resume();
+        assertThat(playCurrentSubject.hasObservers()).isTrue();
     }
 
     private void setupSetNewQueue(Urn track, PlaySessionSource playSessionSource, PlayQueue playQueue, Observable<PlaybackResult> result) {

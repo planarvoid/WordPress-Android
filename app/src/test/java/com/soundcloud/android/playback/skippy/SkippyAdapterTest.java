@@ -14,7 +14,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
@@ -134,7 +133,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
-        when(listener.requestAudioFocus()).thenReturn(true);
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
@@ -172,27 +170,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public void preloadCallsCueOnSkippyPreloader() {
         skippyAdapter.preload(getPreloadItem());
         verify(skippyPreloader).fetch(SNIPPET_STREAM_URL, SkippyAdapter.PRELOAD_START_POSITION, SkippyAdapter.PRELOAD_DURATION);
-    }
-
-    @Test
-    public void playDoesNotInteractWithSkippyIfNoListenerPresent() {
-        skippyAdapter.setListener(null);
-        skippyAdapter.play(playbackItem);
-        verifyZeroInteractions(skippy);
-    }
-
-    @Test
-    public void playDoesNotInteractWithSkippyIfAudioFocusFailsToBeGranted() {
-        when(listener.requestAudioFocus()).thenReturn(false);
-        skippyAdapter.play(playbackItem);
-        verifyZeroInteractions(skippy);
-    }
-
-    @Test
-    public void playBroadcastsErrorStateIfAudioFocusFailsToBeGranted() {
-        when(listener.requestAudioFocus()).thenReturn(false);
-        skippyAdapter.play(playbackItem);
-        verify(listener).onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, trackUrn, 0, -1, dateProvider));
     }
 
     @Test
@@ -344,8 +321,30 @@ public class SkippyAdapterTest extends AndroidUnitTest {
 
     @Test
     public void resumeCallsResumeOnSkippyIfInPausedState() {
-        skippyAdapter.resume();
+        skippyAdapter.play(playbackItem);
+
+        skippyAdapter.pause();
+        skippyAdapter.resume(playbackItem);
+
         verify(skippy).resume();
+    }
+
+    @Test
+    public void resumeRestartsPlaybackWhenStoppedAtItsPreviousPosition() {
+        skippyAdapter.play(playbackItem);
+        skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, 1500L, 3000L, STREAM_URL);
+
+        skippyAdapter.stop();
+        skippyAdapter.resume(playbackItem);
+
+        verify(skippy).play(STREAM_URL, 1500L);
+    }
+
+    @Test
+    public void resumeStartsPlaybackWhenNeverPlayed() {
+        skippyAdapter.resume(playbackItem);
+
+        verify(skippy).play(STREAM_URL, playbackItem.getStartPosition());
     }
 
     @Test
