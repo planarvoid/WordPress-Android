@@ -20,13 +20,15 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     private final PlaylistTagRenderer playlistTagRenderer;
     private final SearchItemRenderer searchItemRenderer;
 
-    interface DiscoveryItemListener extends
+    interface DiscoveryItemListenerBucket extends
             PlaylistTagsPresenter.Listener,
-            SearchItemRenderer.SearchListener {
+            SearchItemRenderer.SearchListener,
+            RecommendationBucketRenderer.OnRecommendationBucketClickListener {
     }
 
     @Inject
-    DiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer, PlaylistTagRenderer playlistTagRenderer,
+    DiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer,
+                     PlaylistTagRenderer playlistTagRenderer,
                      SearchItemRenderer searchItemRenderer) {
         super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, recommendationBucketRenderer),
                 new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer),
@@ -64,8 +66,9 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
         }
     }
 
-    void setDiscoveryListener(DiscoveryItemListener itemListener) {
+    void setDiscoveryListener(DiscoveryItemListenerBucket itemListener) {
         this.playlistTagRenderer.setOnTagClickListener(itemListener);
         this.searchItemRenderer.setSearchListener(itemListener);
+        this.recommendationBucketRenderer.setOnRecommendationBucketClickListener(itemListener);
     }
 }

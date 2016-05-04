@@ -29,19 +29,39 @@ import java.util.Locale;
 
 class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket> {
 
-    interface OnRecommendationClickListener {
-        void onRecommendationReasonClicked(RecommendationBucket recommendationBucket);
+    private View.OnClickListener onRecommendationClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (onRecommendationBucketClickListener != null) {
+                RecommendationBucket recommendationBucket = (RecommendationBucket) view.getTag(R.id.recommendation_bucket_tag);
+                TrackItem trackItem = (TrackItem) view.getTag(R.id.recommendation_track_item_tag);
 
-        void onRecommendationArtworkClicked(RecommendationBucket recommendationBucket);
+                onRecommendationBucketClickListener.onRecommendationClicked(recommendationBucket, trackItem);
+            }
+        }
+    };
+    private View.OnClickListener onReasonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (onRecommendationBucketClickListener != null) {
+                RecommendationBucket recommendationBucket = (RecommendationBucket) view.getTag(R.id.recommendation_bucket_tag);
+                onRecommendationBucketClickListener.onReasonClicked(recommendationBucket);
+            }
+        }
+    };
 
-        void onRecommendationViewAllClicked(Context context, RecommendationBucket recommendationBucket);
+    interface OnRecommendationBucketClickListener {
+        void onReasonClicked(RecommendationBucket recommendationBucket);
+
+        void onRecommendationClicked(RecommendationBucket recommendationBucket, TrackItem trackItem);
+
+        void onViewAllClicked();
     }
 
     private final Resources resources;
     private final ImageOperations imageOperations;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
-    private OnRecommendationClickListener onRecommendationClickListener;
-
+    private OnRecommendationBucketClickListener onRecommendationBucketClickListener;
     @Inject
     RecommendationBucketRenderer(
             Resources resources,
@@ -59,24 +79,42 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<RecommendationBucket> list) {
+    public void bindItemView(int position, View bucketView, List<RecommendationBucket> list) {
+        // TODO : Unbind before binding the listeners
+
         final RecommendationBucket recommendationBucket = list.get(position);
-        final LinearLayout carouselContainer = ButterKnife.findById(itemView, R.id.recommendations_carousel);
-        ButterKnife.<TextView>findById(itemView, R.id.reason).setText(getReasonText(recommendationBucket, itemView.getContext()));
+        final LinearLayout carouselContainer = ButterKnife.findById(bucketView, R.id.recommendations_carousel);
+        TextView reasonView = ButterKnife.findById(bucketView, R.id.reason);
+        reasonView.setTag(R.id.recommendation_bucket_tag, recommendationBucket);
+
+        reasonView.setText(getReasonText(recommendationBucket, bucketView.getContext()));
 
         for (TrackItem trackItem : recommendationBucket.getRecommendations()) {
-            final View view = LayoutInflater.from(carouselContainer.getContext()).inflate(R.layout.recommendation_item, carouselContainer, false);
-            ButterKnife.<TextView>findById(view, R.id.recommendation_title).setText(trackItem.getTitle());
-            ButterKnife.<TextView>findById(view, R.id.recommendation_artist).setText(trackItem.getCreatorName());
-            setOverflowClickListener(ButterKnife.<ImageView>findById(view, R.id.overflow_button), trackItem);
-            loadArtwork(view, trackItem);
-            carouselContainer.addView(view);
+            final View recommendationView = LayoutInflater.from(carouselContainer.getContext()).inflate(R.layout.recommendation_item, carouselContainer, false);
+            ButterKnife.<TextView>findById(recommendationView, R.id.recommendation_title).setText(trackItem.getTitle());
+            ButterKnife.<TextView>findById(recommendationView, R.id.recommendation_artist).setText(trackItem.getCreatorName());
+            setOverflowClickListener(ButterKnife.<ImageView>findById(recommendationView, R.id.overflow_button), trackItem);
+            loadArtwork(recommendationView, trackItem);
+            carouselContainer.addView(recommendationView);
+            recommendationView.setTag(R.id.recommendation_bucket_tag, recommendationBucket);
+            recommendationView.setTag(R.id.recommendation_track_item_tag, trackItem);
+            setOnRecommendationItemListener(recommendationView);
         }
+
+        setOnReasonClickListener(reasonView);
     }
 
-    void setOnRecommendationClickListener(OnRecommendationClickListener listener) {
+    private void setOnRecommendationItemListener(View recommendationView) {
+        recommendationView.setOnClickListener(onRecommendationClickListener);
+    }
+
+    private void setOnReasonClickListener(TextView reasonView) {
+        reasonView.setOnClickListener(onReasonClickListener);
+    }
+
+    void setOnRecommendationBucketClickListener(OnRecommendationBucketClickListener listener) {
         Preconditions.checkArgument(listener != null, "Click listener must not be null");
-        this.onRecommendationClickListener = listener;
+        this.onRecommendationBucketClickListener = listener;
     }
 
     private void setOverflowClickListener(final ImageView button, final TrackItem trackItem) {

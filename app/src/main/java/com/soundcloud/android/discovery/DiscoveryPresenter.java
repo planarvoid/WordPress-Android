@@ -1,5 +1,10 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.java.collections.Iterables.concat;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
+import static java.util.Collections.singleton;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
@@ -8,10 +13,12 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
@@ -21,6 +28,7 @@ import rx.Observable;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -28,7 +36,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListener {
+class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListenerBucket {
 
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;
@@ -79,6 +87,35 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     }
 
     @Override
+    public void onReasonClicked(RecommendationBucket recommendationBucket) {
+        playTracks(recommendationBucket, recommendationBucket.getSeedTrackUrn());
+    }
+
+    @Override
+    public void onRecommendationClicked(RecommendationBucket recommendationBucket, TrackItem recommendation) {
+        playTracks(recommendationBucket, recommendation.getUrn());
+    }
+
+    private void playTracks(RecommendationBucket recommendationBucket, Urn urnToPlay) {
+        List<Urn> trackUrnsToPlay = buildPlayQueue(recommendationBucket);
+        int startPosition = trackUrnsToPlay.indexOf(urnToPlay);
+        playbackInitiator.playTracks(trackUrnsToPlay, startPosition, new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
+    }
+
+    @Override
+    public void onViewAllClicked() {
+        // TODO: Implement in a future story where we support the full list of recommendations
+    }
+
+    @NonNull
+    @SuppressWarnings("unchecked")
+    private List<Urn> buildPlayQueue(RecommendationBucket recommendationBucket) {
+        Iterable<Urn> seedUrn = singleton(recommendationBucket.getSeedTrackUrn());
+        Iterable<Urn> recommendationUrns = transform(recommendationBucket.getRecommendations(), PlayableItem.TO_URN);
+        return newArrayList(concat(seedUrn, recommendationUrns));
+    }
+
+    @Override
     protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onBuildBinding(Bundle bundle) {
         adapter.setDiscoveryListener(this);
         return CollectionBinding
@@ -106,8 +143,4 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
-        playbackInitiator.playTracks(playQueue, firstTrackUrn, 0,
-                new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
-    }
 }

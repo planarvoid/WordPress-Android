@@ -3,9 +3,11 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.discovery.RecommendationBucketRenderer.OnRecommendationBucketClickListener;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -37,6 +39,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
+    @Mock private OnRecommendationBucketClickListener listener;
 
     private View itemView;
     private List<RecommendationBucket> recommendationBuckets;
@@ -65,6 +68,19 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, recommendationBuckets);
 
         assertThat(textView(R.id.reason)).containsText("Because you liked " + seedTrack.getTitle());
+    }
+
+    @Test
+    public void tappingOnSeedTrackShouldTriggerRecommendationsBucketListenerIfAvailable() {
+        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final TextView reasonView = textView(R.id.reason);
+
+        reasonView.performClick();
+        verifyZeroInteractions(listener);
+
+        renderer.setOnRecommendationBucketClickListener(listener);
+        reasonView.performClick();
+        verify(listener).onReasonClicked(recommendationBuckets.get(0));
     }
 
     @Test
@@ -99,6 +115,19 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
                 recommendedTrack,
                 ApiImageSize.getFullImageSize(itemView.getResources()),
                 (ImageView) itemView.findViewById(R.id.recommendation_artwork));
+    }
+
+    @Test
+    public void tappingOnRecommendationShouldTriggerRecommendationsBucketListenerIfAvailable() {
+        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final FrameLayout recommendation = (FrameLayout) itemView.findViewById(R.id.recommendation_item);
+
+        recommendation.performClick();
+        verifyZeroInteractions(listener);
+
+        renderer.setOnRecommendationBucketClickListener(listener);
+        recommendation.performClick();
+        verify(listener).onRecommendationClicked(recommendationBuckets.get(0), recommendedTrack);
     }
 
     @Test
