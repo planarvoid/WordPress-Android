@@ -49,7 +49,7 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
 
     public void testPostsPlaylistClickOpensPlaylistPage() {
         final PlaylistElement expectedPlaylist = profileScreen
-                .getPlaylists()
+                .playlists()
                 .get(0);
 
         String targetPlaylistTitle = expectedPlaylist.getTitle();

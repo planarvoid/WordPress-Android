@@ -35,6 +35,10 @@ public class ProfileScreen extends Screen {
         waiter.waitForElement(new TextElement(userName()), username);
     }
 
+    public void goBack() {
+        testDriver.goBack();
+    }
+
     public VisualPlayerElement playTrack(int index) {
 
         VisualPlayerElement visualPlayerElement = getTracks().get(index).click();
@@ -62,7 +66,7 @@ public class ProfileScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
-        final List<PlaylistElement> playlists = getPlaylists();
+        final List<PlaylistElement> playlists = playlists();
         for (PlaylistElement playlistElement : playlists) {
             final String trackCount = playlistElement.getTrackCount();
             if (Strings.isNotBlank(trackCount) && !trackCount.equalsIgnoreCase("0 tracks")) {
@@ -77,47 +81,51 @@ public class ProfileScreen extends Screen {
                 With.id(R.id.playlist_list_item)));
     }
 
-    public void scrollToReposts() {
-        scrollToItem(With.id(R.id.track_list_item));
-    }
-
     public ViewElement getSpotlightTitle() {
         return scrollToItem(With.text(R.string.user_profile_sounds_header_spotlight));
     }
 
-    public void clickViewAllTracks() {
-        scrollToItem(With.text(R.string.user_profile_sounds_view_all_tracks)).click();
+    public ViewElement tracksHeader() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_tracks));
     }
 
-    public ViewElement getAlbumsTitle() {
+    public ProfileScreen clickViewAllTracks() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_tracks)).click();
+        return this;
+    }
+
+    public ViewElement albumsHeader() {
         return scrollToItem(With.text(R.string.user_profile_sounds_header_albums));
     }
 
-    public void clickViewAllAlbums() {
+    public ProfileScreen clickViewAllAlbums() {
         scrollToItem(With.text(R.string.user_profile_sounds_view_all_albums)).click();
+        return this;
     }
 
-    public ViewElement getRepostsTitle() {
+    public ViewElement repostHeader() {
         return scrollToItem(With.text(R.string.user_profile_sounds_header_reposts));
     }
 
-    public void clickViewAllReposts() {
+    public ProfileScreen clickViewAllReposts() {
         scrollToItem(With.text(R.string.user_profile_sounds_view_all_reposts)).click();
+        return this;
     }
 
-    public ViewElement getLikesTitle() {
+    public ViewElement likesHeader() {
         return scrollToItem(With.text(R.string.user_profile_sounds_header_likes));
     }
 
-    public void clickViewAllLikes() {
+    public ProfileScreen clickViewAllLikes() {
         scrollToItem(With.text(R.string.user_profile_sounds_view_all_likes)).click();
+        return this;
     }
 
-    public List<PlaylistElement> getPlaylists() {
-        return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
+    public List<PlaylistElement> playlists() {
+        return playlists(com.soundcloud.android.R.id.playlist_list_item);
     }
 
-    protected List<PlaylistElement> getPlaylists(int withId) {
+    protected List<PlaylistElement> playlists(int withId) {
         return Lists.transform(
                 testDriver.findOnScreenElements(With.id(withId)),
                 toPlaylistItemElement

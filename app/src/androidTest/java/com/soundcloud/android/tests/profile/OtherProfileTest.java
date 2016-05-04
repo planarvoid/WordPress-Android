@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
@@ -42,8 +43,11 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testPostsPlaylistClickOpensPlaylistPage() {
-        profileScreen.scrollToFirstPlaylist().click();
-        assertEquals(profileScreen.getActionBarTitle(), "Playlist");
+        final PlaylistElement expectedPlaylist = profileScreen
+                .playlists()
+                .get(0);
+
+        assertEquals(profileScreen.scrollToFirstPlaylist().click().getTitle(), expectedPlaylist.getTitle());
     }
 
     public void testClickFollowingsLoadsProfile() {
@@ -52,7 +56,6 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
         final UserItemElement expectedUser = profileScreen
                 .getUsers()
                 .get(0);
-        waiter.waitForContentAndRetryIfLoadingFailed();
 
         String targetUsername = expectedUser.getUsername();
         assertEquals(expectedUser.click().getUserName(), targetUsername);

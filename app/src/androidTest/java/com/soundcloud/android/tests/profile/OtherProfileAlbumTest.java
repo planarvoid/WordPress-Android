@@ -35,7 +35,7 @@ public class OtherProfileAlbumTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testHasAlbumsBucket() {
-        assertTrue(profileScreen.getAlbumsTitle().hasVisibility());
+        assertTrue(profileScreen.albumsHeader().hasVisibility());
     }
 
     public void testViewAllAlbums() {

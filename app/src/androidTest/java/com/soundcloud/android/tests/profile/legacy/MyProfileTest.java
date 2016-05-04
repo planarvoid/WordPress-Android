@@ -64,7 +64,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
 
         final PlaylistElement expectedPlaylist = profileScreen
-                .getPlaylists()
+                .playlists()
                 .get(0);
 
         String targetPlaylistTitle = expectedPlaylist.getTitle();

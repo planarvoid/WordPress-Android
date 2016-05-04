@@ -36,15 +36,37 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         assertThat(profileScreen.playTrack(0), is(visible()));
     }
 
-    public void testTracksViewAllOpensTracksPage() {
-        profileScreen.clickViewAllTracks();
-        assertEquals(profileScreen.getActionBarTitle(),
-                    ressourceString(R.string.user_profile_sounds_header_tracks));
+    public void testHasAllBucketsAndOpensListOnViewAll() {
+        // TRACKS
+        assertTrue(profileScreen.tracksHeader().hasVisibility());
+        assertEquals(profileScreen.clickViewAllTracks().getActionBarTitle(),
+                ressourceString(R.string.user_profile_sounds_header_tracks));
+
+        profileScreen.goBack();
+
+        // ALBUMS
+        assertTrue(profileScreen.albumsHeader().hasVisibility());
+        assertEquals(profileScreen.clickViewAllAlbums().getActionBarTitle(),
+                ressourceString(R.string.user_profile_sounds_header_albums));
+
+        profileScreen.goBack();
+
+        // REPOSTS
+        assertTrue(profileScreen.repostHeader().hasVisibility());
+        assertEquals(profileScreen.clickViewAllReposts().getActionBarTitle(),
+                ressourceString(R.string.user_profile_sounds_header_reposts));
+
+        profileScreen.goBack();
+
+        // LIKES
+        assertTrue(profileScreen.likesHeader().hasVisibility());
+        assertEquals(profileScreen.clickViewAllLikes().getActionBarTitle(),
+                ressourceString(R.string.user_profile_sounds_header_likes));
     }
 
     public void testPlaylistClickOpensPlaylistPage() {
         final PlaylistElement expectedPlaylist = profileScreen
-                .getPlaylists()
+                .playlists()
                 .get(0);
 
         assertEquals(profileScreen.scrollToFirstPlaylist().click().getTitle(), expectedPlaylist.getTitle());
@@ -60,35 +82,5 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         profileScreen.touchFollowersTab();
 
         assertTrue(profileScreen.clickUserAt(0).isVisible());
-    }
-
-    public void testHasAlbumsBucket() {
-        assertTrue(profileScreen.getAlbumsTitle().hasVisibility());
-    }
-
-    public void testViewAllAlbums() {
-        profileScreen.clickViewAllAlbums();
-        assertEquals(profileScreen.getActionBarTitle(),
-                    ressourceString(R.string.user_profile_sounds_header_albums));
-    }
-
-    public void testHasRepostBucket() {
-        assertTrue(profileScreen.getRepostsTitle().hasVisibility());
-    }
-
-    public void testViewAllReposts() {
-        profileScreen.clickViewAllReposts();
-        assertEquals(profileScreen.getActionBarTitle(),
-                    ressourceString(R.string.user_profile_sounds_header_reposts));
-    }
-
-    public void testHasLikesBucket() {
-        assertTrue(profileScreen.getLikesTitle().hasVisibility());
-    }
-
-    public void testViewAllLikes() {
-        profileScreen.clickViewAllLikes();
-        assertEquals(profileScreen.getActionBarTitle(),
-                    ressourceString(R.string.user_profile_sounds_header_likes));
     }
 }
