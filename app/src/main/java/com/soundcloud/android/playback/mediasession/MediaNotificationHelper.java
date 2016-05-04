@@ -44,12 +44,13 @@ class MediaNotificationHelper {
                     .setContentIntent(getContentIntent(context))
                     .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                     .setShowWhen(false)
+                    .setAutoCancel(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setDeleteIntent(getActionIntent(context, KEYCODE_MEDIA_STOP))
                     .addAction(createAction(context, Action.PREVIOUS))
                     .addAction(createAction(context, playing ? Action.PAUSE : Action.PLAY))
                     .addAction(createAction(context, Action.NEXT))
-                    .setStyle(createMediaStyle(mediaSession)));
+                    .setStyle(createMediaStyle(context, mediaSession)));
         } else {
             return Optional.absent();
         }
@@ -69,8 +70,10 @@ class MediaNotificationHelper {
         return Optional.absent();
     }
 
-    private static NotificationCompat.MediaStyle createMediaStyle(MediaSessionCompat mediaSession) {
+    private static NotificationCompat.MediaStyle createMediaStyle(Context context, MediaSessionCompat mediaSession) {
         return new NotificationCompat.MediaStyle()
+                .setShowCancelButton(true)
+                .setCancelButtonIntent(getActionIntent(context, KEYCODE_MEDIA_STOP))
                 .setShowActionsInCompactView(
                         PREVIOUS_ACTION_POSITION, PLAY_PAUSE_ACTION_POSITION, NEXT_ACTION_POSITION)
                 .setMediaSession(mediaSession.getSessionToken());
