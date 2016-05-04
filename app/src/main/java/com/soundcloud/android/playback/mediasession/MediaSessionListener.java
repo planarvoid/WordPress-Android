@@ -50,18 +50,17 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
 
     @Override
     public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
-        boolean handled = false;
         String intentAction = mediaButtonEvent.getAction();
 
         if (Intent.ACTION_MEDIA_BUTTON.equals(intentAction)) {
             KeyEvent event = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             if (isHeadsetHookEvent(event)) {
                 handleHeadsetHook(event);
-                handled = true;
+                return true;
             }
         }
 
-        return handled;
+        return false;
     }
 
     @Override
