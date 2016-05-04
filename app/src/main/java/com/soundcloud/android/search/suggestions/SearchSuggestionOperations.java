@@ -32,7 +32,7 @@ class SearchSuggestionOperations {
             new Func1<ApiSearchSuggestions, SuggestionsResult>() {
                 @Override
                 public SuggestionsResult call(ApiSearchSuggestions apiSearchSuggestions) {
-                    return SuggestionsResult.fromPropertySetSource(apiSearchSuggestions.getCollection());
+                    return SuggestionsResult.remoteFromPropertySetSource(apiSearchSuggestions.getCollection());
                 }
             };
 
@@ -40,7 +40,7 @@ class SearchSuggestionOperations {
             new Func1<List<PropertySet>, SuggestionsResult>() {
                 @Override
                 public SuggestionsResult call(List<PropertySet> propertySets) {
-                    return SuggestionsResult.fromPropertySets(propertySets);
+                    return SuggestionsResult.localFromPropertySets(propertySets);
                 }
             };
 
