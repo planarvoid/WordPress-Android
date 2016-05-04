@@ -67,7 +67,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
 
         operations.searchSuggestions(SEARCH_QUERY).subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(Arrays.asList(suggestions));
+        subscriber.assertReceivedOnNext(Collections.singletonList(suggestions));
     }
 
     @Test
