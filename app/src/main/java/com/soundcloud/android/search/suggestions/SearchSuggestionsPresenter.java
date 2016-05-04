@@ -8,6 +8,8 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
+import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.os.Bundle;
@@ -29,28 +31,47 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
         void onUserClicked(Urn userUrn);
     }
 
-    private Func1<SuggestionsResult, List<SuggestionItem>> toPresentationModels(final String query) {
+    private Func1<SuggestionsResult, List<SuggestionItem>> toPresentationModels(final String searchQuery) {
         return new Func1<SuggestionsResult, List<SuggestionItem>>() {
             @Override
-            public List<SuggestionItem> call(SuggestionsResult searchResult) {
-                final List<SuggestionItem> itemList = new ArrayList<>(searchResult.getItems().size() + 1);
-                itemList.add(SuggestionItem.forSearch(query));
+            public List<SuggestionItem> call(SuggestionsResult suggestionsResult) {
+                final List<SuggestionItem> itemList = new ArrayList<>(localSuggestionResult.size() + remoteSuggestionResult.size() + 1);
+                itemList.add(SuggestionItem.forSearch(searchQuery));
+                addSuggestionItemsToList(localSuggestionResult, itemList, searchQuery);
+                addSuggestionItemsToList(remoteSuggestionResult, itemList, searchQuery);
+                return itemList;
+            }
+
+            private void addSuggestionItemsToList(SuggestionsResult searchResult, List<SuggestionItem> itemList, String searchQuery) {
                 for (PropertySet propertySet : searchResult.getItems()) {
-                    Urn urn = propertySet.get(SearchSuggestionProperty.URN);
+                    final Urn urn = propertySet.get(SearchSuggestionProperty.URN);
                     if (urn.isTrack()) {
-                        itemList.add(SuggestionItem.forTrack(propertySet, query));
+                        itemList.add(SuggestionItem.forTrack(propertySet, searchQuery));
                     } else if (urn.isUser()) {
-                        itemList.add(SuggestionItem.forUser(propertySet, query));
+                        itemList.add(SuggestionItem.forUser(propertySet, searchQuery));
                     }
                 }
-                return itemList;
             }
         };
     }
 
+    private Action1<SuggestionsResult> cacheSuggestionsResults = new Action1<SuggestionsResult>() {
+        @Override
+        public void call(SuggestionsResult suggestionsResult) {
+            if (suggestionsResult.isLocal()) {
+                localSuggestionResult = suggestionsResult;
+            } else {
+                remoteSuggestionResult = suggestionsResult;
+            }
+        }
+    };
+
     private final SuggestionsAdapter adapter;
     private final SearchSuggestionOperations operations;
 
+    private CollectionBinding<SuggestionsResult, SuggestionItem> collectionBinding;
+    private SuggestionsResult localSuggestionResult = SuggestionsResult.emptyLocal();
+    private SuggestionsResult remoteSuggestionResult = SuggestionsResult.emptyRemote();
     private SuggestionListener suggestionListener;
 
     @Inject
@@ -94,14 +115,21 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
 
     private CollectionBinding<SuggestionsResult, SuggestionItem> createCollection(String query) {
         return CollectionBinding
-                .from(operations.suggestionsFor(query), toPresentationModels(query))
+                .from(buildCollectionBinding(query), toPresentationModels(query))
                 .withAdapter(adapter)
                 .build();
     }
 
+    private Observable<SuggestionsResult> buildCollectionBinding(String query) {
+        return operations.suggestionsFor(query).doOnNext(cacheSuggestionsResults);
+    }
+
     void showSuggestionsFor(String query) {
-        adapter.clear();
-        retryWith(createCollection(query));
+        if (collectionBinding != null) {
+            collectionBinding.disconnect();
+        }
+        collectionBinding = createCollection(query);
+        retryWith(collectionBinding);
     }
 
     @Override

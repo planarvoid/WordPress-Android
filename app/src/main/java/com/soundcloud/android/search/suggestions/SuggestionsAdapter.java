@@ -48,4 +48,16 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, Suggestions
             super(itemView);
         }
     }
+
+    @Override
+    public void onNext(Iterable<SuggestionItem> items) {
+        //We need to clear the adapter at this point because we
+        //want to keep the existing items in it (search suggestions)
+        //until the last moment, in order to replace them exactly
+        //when they arrive (so we avoid blinking effect).
+        //It is a bit hacky solution but this is gonna be removed when
+        //we swap from serving content to serving search queries.
+        clear();
+        super.onNext(items);
+    }
 }
