@@ -7,9 +7,11 @@ import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.Recommendations;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -31,6 +33,29 @@ class RecommendationsStorage {
         this.propellerRx = propellerRx;
     }
 
+
+
+    Observable<Optional<PropertySet>> firstSeed() {
+        final Where soundsViewJoin = filter()
+                .whereEq(RecommendationSeeds.SEED_SOUND_TYPE, SoundView.field(TableColumns.SoundView._TYPE))
+                .whereEq(RecommendationSeeds.SEED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
+
+        Query query = Query.from(RecommendationSeeds.TABLE)
+                .select(RecommendationSeeds._ID,
+                        RecommendationSeeds.SEED_SOUND_ID,
+                        RecommendationSeeds.RECOMMENDATION_REASON,
+                        field(SoundView.field(TableColumns.SoundView.TITLE)).as(RecommendationSeedMapper.SEED_TITLE))
+                .limit(1)
+                .order(RecommendationSeeds._ID, Query.Order.ASC)
+                .innerJoin(SoundView.name(), soundsViewJoin);
+
+        return propellerRx.query(query)
+                .map(new RecommendationSeedMapper())
+                .map(RxUtils.<PropertySet>TO_OPTIONAL())
+                .switchIfEmpty(Observable.just(Optional.<PropertySet>absent()));
+    }
+
+    // TODO in the next PR this needs to return a more constrained list of PropertySet to line up with RecommendationSeedMapper
     Observable<List<PropertySet>> seedTracks() {
         final Where soundsViewJoin = filter()
                 .whereEq(RecommendationSeeds.SEED_SOUND_TYPE, SoundView.field(TableColumns.SoundView._TYPE))
@@ -120,6 +145,32 @@ class RecommendationsStorage {
         @Override
         public Urn map(CursorReader cursorReader) {
             return Urn.forTrack(cursorReader.getLong(Recommendations.RECOMMENDED_SOUND_ID));
+        }
+    }
+
+    private static final class RecommendationSeedMapper extends RxResultMapper<PropertySet> {
+        static final String SEED_TITLE = "seed_title";
+
+        @Override
+        public PropertySet map(CursorReader cursorReader) {
+            PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
+            propertySet.put(RecommendationProperty.SEED_TRACK_LOCAL_ID, cursorReader.getLong(RecommendationSeeds._ID));
+            propertySet.put(RecommendationProperty.SEED_TRACK_URN, Urn.forTrack(cursorReader.getLong(RecommendationSeeds.SEED_SOUND_ID)));
+            propertySet.put(RecommendationProperty.SEED_TRACK_TITLE, cursorReader.getString(SEED_TITLE));
+            propertySet.put(RecommendationProperty.REASON, getReason(cursorReader.getInt(RecommendationSeeds.RECOMMENDATION_REASON)));
+
+            return propertySet;
+        }
+
+        private RecommendationReason getReason(int dbReason) {
+            switch (dbReason) {
+                case RecommendationSeeds.REASON_LIKED:
+                    return RecommendationReason.LIKED;
+                case RecommendationSeeds.REASON_LISTENED_TO:
+                    return RecommendationReason.LISTENED_TO;
+                default:
+                    throw new IllegalStateException("Could not find reason for database value " + dbReason);
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
@@ -46,6 +47,28 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
 
         subscriber.assertReceivedOnNext(Collections.singletonList(Arrays.asList(first, second)));
     }
+
+    @Test
+    public void shouldLoadFirstSeedAsOptional() {
+        ApiUser user = testFixtures().insertUser();
+        PropertySet first = insertSeedTrack(ModelFixtures.create(ApiTrack.class), user, RecommendationReason.LIKED);
+        insertSeedTrack(ModelFixtures.create(ApiTrack.class), user, RecommendationReason.LISTENED_TO);
+        TestSubscriber<Optional<PropertySet>> firstSeedSubscriber = new TestSubscriber<>();
+
+        storage.firstSeed().subscribe(firstSeedSubscriber);
+
+        firstSeedSubscriber.assertReceivedOnNext(Collections.singletonList(Optional.of(first)));
+    }
+
+    @Test
+    public void shouldReturnAbsentOptionalWhenNoFirstSeed() {
+        TestSubscriber<Optional<PropertySet>> firstSeedSubscriber = new TestSubscriber<>();
+
+        storage.firstSeed().subscribe(firstSeedSubscriber);
+
+        firstSeedSubscriber.assertReceivedOnNext(Collections.singletonList(Optional.<PropertySet>absent()));
+    }
+
 
     @Test
     public void recommendedTracksReturnTracksFromStorage() {
@@ -117,7 +140,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
 
     private PropertySet insertRecommendation(ApiTrack seedTrack, RecommendationReason reason, List<ApiTrack> recommendedTracks) {
         ApiUser user = testFixtures().insertUser();
-        long seedId = insertSeedTrack(seedTrack, user, reason);
+        long seedId = insertSeedTrack(seedTrack, user, reason).get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
         for (ApiTrack track : recommendedTracks) {
             insertRecommendedTrack(track, user, seedId);
         }
@@ -134,14 +157,21 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         );
     }
 
-    private long insertSeedTrack(ApiTrack seedTrack, ApiUser apiUser, RecommendationReason reason) {
+    private PropertySet insertSeedTrack(ApiTrack seedTrack, ApiUser apiUser, RecommendationReason reason) {
         testFixtures().insertTrackWithUser(seedTrack, apiUser);
 
         ContentValues cv = new ContentValues();
         cv.put(RecommendationSeeds.SEED_SOUND_ID.name(), seedTrack.getUrn().getNumericId());
         cv.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
         cv.put(RecommendationSeeds.RECOMMENDATION_REASON.name(), getDbReason(reason));
-        return testFixtures().insertInto(RecommendationSeeds.TABLE, cv);
+        long seedId = testFixtures().insertInto(RecommendationSeeds.TABLE, cv);
+
+        return PropertySet.from(
+                RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(seedId),
+                RecommendationProperty.SEED_TRACK_URN.bind(seedTrack.getUrn()),
+                RecommendationProperty.SEED_TRACK_TITLE.bind(seedTrack.getTitle()),
+                RecommendationProperty.REASON.bind(reason)
+        );
     }
 
     private int getDbReason(RecommendationReason reason) {

@@ -16,23 +16,22 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     static final int PLAYLIST_TAGS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 1;
     static final int SEARCH_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 2;
 
-    private final RecommendationItemRenderer trackRecommendationRenderer;
+    private final RecommendationBucketRenderer recommendationBucketRenderer;
     private final PlaylistTagRenderer playlistTagRenderer;
     private final SearchItemRenderer searchItemRenderer;
 
     interface DiscoveryItemListener extends
-            RecommendationItemRenderer.OnRecommendationClickListener,
             PlaylistTagsPresenter.Listener,
             SearchItemRenderer.SearchListener {
     }
 
     @Inject
-    DiscoveryAdapter(RecommendationItemRenderer trackRecommendationRenderer, PlaylistTagRenderer playlistTagRenderer,
+    DiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer, PlaylistTagRenderer playlistTagRenderer,
                      SearchItemRenderer searchItemRenderer) {
-        super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, trackRecommendationRenderer),
+        super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, recommendationBucketRenderer),
                 new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer),
                 new CellRendererBinding<>(SEARCH_TYPE, searchItemRenderer));
-        this.trackRecommendationRenderer = trackRecommendationRenderer;
+        this.recommendationBucketRenderer = recommendationBucketRenderer;
         this.playlistTagRenderer = playlistTagRenderer;
         this.searchItemRenderer = searchItemRenderer;
     }
@@ -66,7 +65,6 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     }
 
     void setDiscoveryListener(DiscoveryItemListener itemListener) {
-        this.trackRecommendationRenderer.setOnRecommendationClickListener(itemListener);
         this.playlistTagRenderer.setOnTagClickListener(itemListener);
         this.searchItemRenderer.setSearchListener(itemListener);
     }

@@ -106,21 +106,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    @Override
-    public void onRecommendationReasonClicked(RecommendationItem recommendationItem) {
-        playRecommendations(recommendationItem.getSeedTrackUrn(), discoveryOperations.recommendedTracksWithSeed(recommendationItem));
-    }
-
-    @Override
-    public void onRecommendationArtworkClicked(RecommendationItem recommendationItem) {
-        playRecommendations(recommendationItem.getRecommendationUrn(), discoveryOperations.recommendedTracks());
-    }
-
-    @Override
-    public void onRecommendationViewAllClicked(Context context, RecommendationItem recommendationItem) {
-        navigator.openRecommendation(context, recommendationItem.getSeedTrackLocalId());
-    }
-
     private void playRecommendations(Urn firstTrackUrn, Observable<List<Urn>> playQueue) {
         playbackInitiator.playTracks(playQueue, firstTrackUrn, 0,
                 new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
