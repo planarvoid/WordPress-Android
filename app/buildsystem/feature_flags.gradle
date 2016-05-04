@@ -52,7 +52,6 @@ android {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
     }
 
     release {
