@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.java.optional.Optional;
 
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Locale;
@@ -54,24 +55,28 @@ public abstract class WebProduct implements Parcelable {
     }
 
     private static String reformatPrice(String price) {
-        char first = price.charAt(0);
-        if (first == '€') {
-            return reformatForLocale(price.charAt(0), price.substring(1, price.length()));
-        } else {
-            return price;
-        }
+        return price.charAt(0) == '€'
+                ? reformatForLocale(price.charAt(0), price.substring(1, price.length()))
+                : price;
     }
 
     private static String reformatForLocale(char symbol, String value) {
-        if (isEnglish()) {
+        if (isLanguage(Locale.ENGLISH)) {
             return symbol + value;
+        } else if (isLanguage(Locale.FRENCH)) {
+            return reformatValue(value) + " " + symbol;
         } else {
-            return value.replace('.', ',') + symbol;
+            return reformatValue(value) + symbol;
         }
     }
 
-    private static boolean isEnglish() {
-        return Locale.getDefault().getISO3Language().equals(Locale.ENGLISH.getISO3Language());
+    @NonNull
+    private static String reformatValue(String value) {
+        return value.replace('.', ',');
+    }
+
+    private static boolean isLanguage(Locale locale) {
+        return Locale.getDefault().getISO3Language().equals(locale.getISO3Language());
     }
 
 }

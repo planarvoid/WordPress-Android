@@ -48,8 +48,26 @@ public class WebProductTest extends AndroidUnitTest {
     }
 
     @Test
-    public void reformattedCurrencyForNonEnglishLocale() {
+    public void reformattedCurrencyForFrance() {
         setLocale("fr");
+
+        final WebProduct product = buildWebProduct("€9.99", null);
+
+        assertThat(product.getPrice()).isEqualTo("9,99 €");
+    }
+
+    @Test
+    public void reformattedDiscountCurrencyForFrance() {
+        setLocale("fr");
+
+        final WebProduct product = buildWebProduct("€9.99", "€4.99");
+
+        assertThat(product.getDiscountPrice().get()).isEqualTo("4,99 €");
+    }
+
+    @Test
+    public void reformattedCurrencyForOtherNonEnglishLocale() {
+        setLocale("de");
 
         final WebProduct product = buildWebProduct("€9.99", null);
 
@@ -57,14 +75,14 @@ public class WebProductTest extends AndroidUnitTest {
     }
 
     @Test
-    public void reformattedDiscountCurrencyForNonEnglishLocale() {
-        setLocale("fr");
+    public void reformattedDiscountCurrencyForOtherNonEnglishLocale() {
+        setLocale("de");
 
         final WebProduct product = buildWebProduct("€9.99", "€4.99");
 
         assertThat(product.getDiscountPrice().get()).isEqualTo("4,99€");
     }
-
+    
     @After
     public void tearDown() {
         Locale.setDefault(defaultLocale);
