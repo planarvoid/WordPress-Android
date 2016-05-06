@@ -11,11 +11,13 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -34,6 +36,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     private RecommendationBucketRenderer renderer;
 
     @Mock private ImageOperations imageOperations;
+    @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
 
     private View itemView;
     private List<RecommendationBucket> recommendationBuckets;
@@ -43,11 +46,11 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         PropertySet propertySet = createSeed();
 
         final RecommendationBucket recommendationBucket = new RecommendationBucket(propertySet, Collections.singletonList(recommendedTrack));
-        final LayoutInflater layoutInflater = LayoutInflater.from(context());
+        final LayoutInflater layoutInflater = LayoutInflater.from(fragmentActivity());
 
         itemView = layoutInflater.inflate(R.layout.recommendation_bucket, new FrameLayout(context()), false);
         recommendationBuckets = Collections.singletonList(recommendationBucket);
-        renderer = new RecommendationBucketRenderer(context().getResources(), imageOperations);
+        renderer = new RecommendationBucketRenderer(context().getResources(), imageOperations, trackItemMenuPresenter);
     }
 
     @Test
@@ -76,6 +79,16 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, recommendationBuckets);
 
         assertThat(textView(R.id.recommendation_title)).containsText(recommendedTrack.getTitle());
+    }
+
+    @Test
+    public void shouldBindOverflowMenuToView() {
+        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final ImageView overflowButton = (ImageView) itemView.findViewById(R.id.overflow_button);
+
+        overflowButton.performClick();
+
+        verify(trackItemMenuPresenter).show((FragmentActivity) overflowButton.getContext(), overflowButton, recommendedTrack, 0);
     }
 
     @Test
