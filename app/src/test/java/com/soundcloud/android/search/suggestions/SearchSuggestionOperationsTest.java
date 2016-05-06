@@ -67,7 +67,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
 
         operations.searchSuggestions(SEARCH_QUERY).subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(Arrays.asList(suggestions));
+        subscriber.assertReceivedOnNext(Collections.singletonList(suggestions));
     }
 
     @Test
@@ -91,8 +91,8 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
 
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
-        final SuggestionsResult localSuggestionsResult = SuggestionsResult.fromPropertySets(localSuggestions);
-        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.fromPropertySetSource(apiSearchSuggestions);
+        final SuggestionsResult localSuggestionsResult = SuggestionsResult.localFromPropertySets(localSuggestions);
+        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.remoteFromPropertySetSource(apiSearchSuggestions);
         suggestionsResultSubscriber.assertReceivedOnNext(Arrays.asList(localSuggestionsResult, remoteSuggestionsResult));
     }
 
@@ -106,8 +106,8 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
 
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
-        final SuggestionsResult localSuggestionsResult = SuggestionsResult.fromPropertySets(localSuggestions);
-        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.fromPropertySetSource(apiSearchSuggestions);
+        final SuggestionsResult localSuggestionsResult = SuggestionsResult.localFromPropertySets(localSuggestions);
+        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.remoteFromPropertySetSource(apiSearchSuggestions);
         suggestionsResultSubscriber.assertReceivedOnNext(Arrays.asList(localSuggestionsResult, remoteSuggestionsResult));
     }
 

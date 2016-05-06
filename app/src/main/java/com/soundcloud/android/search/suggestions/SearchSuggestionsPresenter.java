@@ -6,6 +6,7 @@ import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
 import rx.Observable;
@@ -13,6 +14,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -84,14 +86,6 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     }
 
     @Override
-    public void onCreate(Fragment fragment, Bundle bundle) {
-        super.onCreate(fragment, bundle);
-        if (fragment instanceof SuggestionListener) {
-            this.suggestionListener = (SuggestionListener) fragment;
-        }
-    }
-
-    @Override
     public void onDestroy(Fragment fragment) {
         super.onDestroy(fragment);
         this.suggestionListener = null;
@@ -132,9 +126,12 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
         retryWith(collectionBinding);
     }
 
+    void setSuggestionListener(@NonNull SuggestionListener suggestionlistener) {
+        this.suggestionListener = suggestionlistener;
+    }
+
     @Override
     protected void onItemClicked(View view, int position) {
-        super.onItemClicked(view, position);
         final SuggestionItem item = adapter.getItem(position);
         if (suggestionListener != null) {
             switch (item.getKind()) {
@@ -160,5 +157,10 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
                 suggestionListener.onScrollChanged();
             }
         }
+    }
+
+    @VisibleForTesting
+    CollectionBinding<SuggestionsResult, SuggestionItem> getCollectionBinding() {
+        return collectionBinding;
     }
 }

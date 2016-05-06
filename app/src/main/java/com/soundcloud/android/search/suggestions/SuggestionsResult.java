@@ -20,11 +20,11 @@ class SuggestionsResult implements Iterable<PropertySet> {
         this.isLocalResult = isLocalResult;
     }
 
-    static SuggestionsResult fromPropertySets(List<PropertySet> items) {
+    static SuggestionsResult localFromPropertySets(List<PropertySet> items) {
         return new SuggestionsResult(items, true);
     }
 
-    static SuggestionsResult fromPropertySetSource(List<? extends PropertySetSource> items) {
+    static SuggestionsResult remoteFromPropertySetSource(List<? extends PropertySetSource> items) {
         int emptyItems = 0;
         List<PropertySet> propertySets = new ArrayList<>(items.size());
         for (PropertySetSource source : items) {
