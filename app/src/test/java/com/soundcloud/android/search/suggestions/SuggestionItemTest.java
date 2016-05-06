@@ -23,4 +23,5 @@ public class SuggestionItemTest {
         assertThat(trackItem.getKind()).isEqualTo(Kind.TrackItem);
         assertThat(userItem.getKind()).isEqualTo(Kind.UserItem);
     }
+
 }

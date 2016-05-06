@@ -37,4 +37,5 @@ public class SuggestionsAdapterTest extends AndroidUnitTest {
         assertThat(adapter.getBasicItemViewType(1)).isEqualTo(SuggestionsAdapter.TYPE_TRACK);
         assertThat(adapter.getBasicItemViewType(2)).isEqualTo(SuggestionsAdapter.TYPE_USER);
     }
+
 }
