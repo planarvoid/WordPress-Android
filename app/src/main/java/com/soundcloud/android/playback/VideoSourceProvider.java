@@ -54,7 +54,7 @@ public class VideoSourceProvider {
         this.networkConnectionHelper = networkConnectionHelper;
     }
 
-    public VideoSource selectOptimalSource(VideoPlaybackItem videoPlaybackItem) {
+    public VideoSource selectOptimalSource(VideoAdPlaybackItem videoPlaybackItem) {
         final List<VideoSource> sources = new ArrayList<>(videoPlaybackItem.getSources());
         Collections.sort(sources, VideoSource.BITRATE_COMPARATOR);
 
@@ -67,7 +67,7 @@ public class VideoSourceProvider {
                 return selectSuitableBitrate(supportedResolutionSources);
             }
         } else {
-            throw new IllegalArgumentException("VideoPlaybackItem has no supported video source formats");
+            throw new IllegalArgumentException("VideoAdPlaybackItem has no supported video source formats");
         }
     }
 

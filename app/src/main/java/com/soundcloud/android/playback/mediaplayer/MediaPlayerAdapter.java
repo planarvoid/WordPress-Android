@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.mediaplayer;
 import static com.soundcloud.android.playback.PlaybackState.BUFFERING;
 import static com.soundcloud.android.playback.PlaybackState.IDLE;
 import static com.soundcloud.android.playback.PlaybackState.PLAYING;
-import static com.soundcloud.android.playback.PlaybackType.VIDEO_DEFAULT;
+import static com.soundcloud.android.playback.PlaybackType.VIDEO_AD;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -21,7 +21,7 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
-import com.soundcloud.android.playback.VideoPlaybackItem;
+import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -114,7 +114,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_DEFAULT:
             case AUDIO_SNIPPET:
-            case VIDEO_DEFAULT:
+            case VIDEO_AD:
                 play(playbackItem, playbackItem.getStartPosition());
                 break;
             case AUDIO_AD:
@@ -156,8 +156,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     private String getStreamUrl(PlaybackItem playbackItem) {
         switch (playbackItem.getPlaybackType()) {
-            case VIDEO_DEFAULT:
-                final VideoSource source = videoSourceProvider.selectOptimalSource((VideoPlaybackItem) playbackItem);
+            case VIDEO_AD:
+                final VideoSource source = videoSourceProvider.selectOptimalSource((VideoAdPlaybackItem) playbackItem);
                 return source.getUrl();
             case AUDIO_AD:
                 return getAudioAdStream((AudioAdPlaybackItem) playbackItem);
@@ -212,11 +212,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     private boolean isSoundCloudTrack() {
-        return currentItem.getPlaybackType() != VIDEO_DEFAULT && !AdUtils.isThirdPartyAd(currentItem.getUrn());
+        return currentItem.getPlaybackType() != VIDEO_AD && !AdUtils.isThirdPartyAd(currentItem.getUrn());
     }
 
     private boolean isPlayingVideo() {
-        return currentItem.getPlaybackType() == VIDEO_DEFAULT;
+        return currentItem.getPlaybackType() == VIDEO_AD;
     }
 
     private PlaybackProtocol getPlaybackProtocol() {

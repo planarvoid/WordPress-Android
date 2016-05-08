@@ -30,7 +30,7 @@ public final class AdUtils {
 
     public static boolean isAd(PlaybackItem playbackItem) {
         return playbackItem.getPlaybackType() == PlaybackType.AUDIO_AD
-                || playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT
+                || playbackItem.getPlaybackType() == PlaybackType.VIDEO_AD
                 || playbackItem.getUrn().isAd();
     }
 

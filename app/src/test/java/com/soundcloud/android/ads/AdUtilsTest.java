@@ -62,7 +62,7 @@ public class AdUtilsTest extends AndroidUnitTest {
 
     @Test
     public void isAdForPlaybackItemReturnsTrueWhenPlaybackTypeIsVideoDefault() {
-        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forTrack(123L), 0L, 1000L, PlaybackType.VIDEO_DEFAULT);
+        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forTrack(123L), 0L, 1000L, PlaybackType.VIDEO_AD);
         assertThat(AdUtils.isAd(playbackItem)).isTrue();
     }
 

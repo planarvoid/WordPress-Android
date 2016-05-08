@@ -117,7 +117,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
             return trackRepository.track(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
         } else if (currentPlayQueueItem.isVideo()) {
             final VideoAd videoAd = (VideoAd) currentPlayQueueItem.getAdData().get();
-            serviceInitiator.play(VideoPlaybackItem.create(videoAd, getPosition(videoAd.getAdUrn())));
+            serviceInitiator.play(VideoAdPlaybackItem.create(videoAd, getPosition(videoAd.getAdUrn())));
             return Observable.empty();
         } else {
             return Observable.empty();

@@ -46,7 +46,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
     private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(track, AdFixtures.getThirdPartyAudioAd(trackUrn));
     private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);
-    private VideoPlaybackItem videoPlaybackItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(trackUrn), 0L);
+    private VideoAdPlaybackItem videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(trackUrn), 0L);
 
     @Before
     public void setUp() throws Exception {
@@ -522,7 +522,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         streamPlayerWrapper.play(audioPlaybackItem);
     }
 
-    private void startPlaybackOnVideoPlayerAdapter(VideoPlaybackItem videoPlaybackItem) {
+    private void startPlaybackOnVideoPlayerAdapter(VideoAdPlaybackItem videoPlaybackItem) {
         streamPlayerWrapper.play(videoPlaybackItem);
     }
 }

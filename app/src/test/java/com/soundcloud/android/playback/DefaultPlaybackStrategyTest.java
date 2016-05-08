@@ -122,7 +122,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
         defaultPlaybackStrategy.resume();
 
-        verify(serviceInitiator).play(VideoPlaybackItem.create(videoAd, 123L));
+        verify(serviceInitiator).play(VideoAdPlaybackItem.create(videoAd, 123L));
     }
 
     @Test
@@ -217,7 +217,7 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
-        verify(serviceInitiator).play(VideoPlaybackItem.create(videoAd, 0));
+        verify(serviceInitiator).play(VideoAdPlaybackItem.create(videoAd, 0));
         playCurrentSubscriber.assertCompleted();
     }
 

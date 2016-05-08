@@ -37,7 +37,7 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
-import com.soundcloud.android.playback.VideoPlaybackItem;
+import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -87,7 +87,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     private Urn trackUrn = Urn.forTrack(123L);
     private PlaybackItem trackItem = AudioPlaybackItem.create(trackUrn, 0L, Consts.NOT_SET, PlaybackType.AUDIO_DEFAULT);
-    private VideoPlaybackItem videoItem = VideoPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L);
+    private VideoAdPlaybackItem videoItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(321L)), 0L);
     private int duration = 20000;
     private PropertySet track;
 

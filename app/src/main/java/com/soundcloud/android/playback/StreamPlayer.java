@@ -155,7 +155,7 @@ class StreamPlayer implements PlayerListener {
     private PlaybackItem getUpdatedItem(long currentProgress) {
         switch (lastItemPlayed.getPlaybackType()) {
             case AUDIO_AD:
-            case VIDEO_DEFAULT:
+            case VIDEO_AD:
                 return lastItemPlayed;
             default:
                 return AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration(), lastItemPlayed.getPlaybackType());
@@ -190,7 +190,7 @@ class StreamPlayer implements PlayerListener {
         if (playbackItem.getPlaybackType() == PlaybackType.AUDIO_OFFLINE && skippyFailedToInitialize) {
             logOfflinePlayNotAvailable();
         }
-        if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_DEFAULT || skippyFailedToInitialize) {
+        if (playbackItem.getPlaybackType() == PlaybackType.VIDEO_AD || skippyFailedToInitialize) {
             return mediaPlayerDelegate;
         } else {
             return skippyPlayerDelegate;
