@@ -1,16 +1,14 @@
-package com.soundcloud.android.tests.profile;
+package com.soundcloud.android.tests.profile.legacy;
 
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 
-import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-@NewProfileTest
 public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
 
     private ProfileScreen profileScreen;
@@ -29,14 +27,13 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
         super.setUp();
 
         profileScreen = mainNavHelper.goToMyProfile()
-                .touchFollowingsTab();
+                .touchLegacyFollowingsTab();
 
         networkManagerClient.switchWifiOff();
 
         profileScreen.getUsers().get(0).click();
     }
 
-    // TODO: this test seems pretty flaky but it is pretty much the same code than before
     public void testConnectionErrorAndRetryInPosts() {
         assertTrue(profileScreen.emptyConnectionErrorMessage().isOnScreen());
 

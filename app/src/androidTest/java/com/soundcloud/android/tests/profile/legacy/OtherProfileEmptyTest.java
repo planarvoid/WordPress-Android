@@ -1,16 +1,17 @@
-package com.soundcloud.android.tests.profile;
+package com.soundcloud.android.tests.profile.legacy;
 
 import static com.soundcloud.android.framework.TestUser.playerUser;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Intent;
 import android.net.Uri;
 
-@NewProfileTest
 public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
 
     private ProfileScreen screen;
@@ -32,18 +33,15 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
         screen = new ProfileScreen(solo);
     }
 
-    public void testShowsEmptyInfoView() {
-        screen.touchInfoTab();
-        assertTrue(screen.showsEmptyInfoMessage());
+    // this is ridiculously unstable
+    public void ignore_ShowsEmptyPostsView() {
+        assertThat(solo.getString(R.string.new_empty_user_posts_message), is(screen.emptyViewMessage()));
     }
 
-    public void testShowsEmptyFollowingView() {
-        screen.touchFollowingsTab();
-        assertTrue(screen.showsEmptyFollowingsMessage());
-    }
+    public void testShowsEmptyLikesViewView() {
+        ProfileScreen profileScreen = screen.touchLikesTab();
 
-    public void testShowsEmptySoundsMessage() {
-        assertTrue(screen.showsEmptySoundsMessage());
+        assertThat(solo.getString(R.string.new_empty_user_likes_text), is(profileScreen.emptyViewMessage()));
     }
 
 }

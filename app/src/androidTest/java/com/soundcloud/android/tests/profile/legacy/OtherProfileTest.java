@@ -1,12 +1,12 @@
-package com.soundcloud.android.tests.profile;
+package com.soundcloud.android.tests.profile.legacy;
 
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
@@ -15,7 +15,6 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-@NewProfileTest
 public class OtherProfileTest extends ActivityTest<ResolveActivity> {
 
     private ProfileScreen profileScreen;
@@ -38,6 +37,12 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
+    public void testPostsLoadNextPage() {
+        int postItemsBefore = profileScreen.currentItemCount();
+        profileScreen.scrollToBottomAndLoadMoreItems();
+        assertThat(postItemsBefore, is(lessThan(profileScreen.currentItemCount())));
+    }
+
     public void testPostsTrackClickStartsPlayer() {
         assertThat(profileScreen.playTrack(0), is(visible()));
     }
@@ -47,15 +52,17 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
                 .playlists()
                 .get(0);
 
-        assertEquals(profileScreen.scrollToFirstPlaylist().click().getTitle(), expectedPlaylist.getTitle());
+        String targetPlaylistTitle = expectedPlaylist.getTitle();
+        assertEquals(expectedPlaylist.click().getTitle(), targetPlaylistTitle);
     }
 
     public void testClickFollowingsLoadsProfile() {
-        profileScreen.touchFollowingsTab();
+        profileScreen.touchLegacyFollowingsTab();
 
         final UserItemElement expectedUser = profileScreen
                 .getUsers()
                 .get(0);
+        waiter.waitForContentAndRetryIfLoadingFailed();
 
         String targetUsername = expectedUser.getUsername();
         assertEquals(expectedUser.click().getUserName(), targetUsername);

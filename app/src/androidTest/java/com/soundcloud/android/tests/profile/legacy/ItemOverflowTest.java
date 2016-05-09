@@ -1,17 +1,15 @@
-package com.soundcloud.android.tests.profile;
+package com.soundcloud.android.tests.profile.legacy;
 
 import static com.soundcloud.android.framework.TestUser.streamUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-@NewProfileTest
 public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
 
     private ProfileScreen screen;
@@ -33,10 +31,8 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
-        // TODO: fix selector here.
-        // It currently fails to select the overflow menu even though it's there
         screen.clickFirstTrackOverflowButton()
-                .clickAddToPlaylist();
+              .clickAddToPlaylist();
 
         final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         assertThat(addToPlaylistScreen, is(visible()));

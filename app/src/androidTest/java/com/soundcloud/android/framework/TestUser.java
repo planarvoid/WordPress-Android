@@ -351,4 +351,11 @@ public class TestUser {
             "1-21686-190502894-422edfa8ddf43c",
             190502894,
             true);
+    public static final TestUser profileTestUser = new TestUser(
+            "super-cute-hyper-profile",
+            "creators-team+new-profile@soundcloud.com",
+            "creators-team",
+            "1-21686-218682740-522313271be9c6",
+            218682740,
+            true);
 }

@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.profile;
+package com.soundcloud.android.tests.profile.legacy;
 
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
@@ -8,7 +8,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
-import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -19,7 +18,6 @@ import com.soundcloud.android.tests.TestConsts;
 import android.content.Intent;
 
 @EventTrackingTest
-@NewProfileTest
 public class OtherProfileEventGatewayAudioTest extends TrackingActivityTest<MainActivity> {
     private static final String TEST_SCENARIO_POSTS = "audio-events-v1-user-posts";
     private static final String TEST_SCENARIO_LIKES = "audio-events-v1-user-likes";
@@ -62,11 +60,12 @@ public class OtherProfileEventGatewayAudioTest extends TrackingActivityTest<Main
     }
 
     public void testPlayAndPauseTrackFromMyPlaylist() {
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToFirstPlaylist().click();
+        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
+                .touchPlaylistsTab()
+                .clickFirstPlaylistWithTracks();
 
         startEventTracking();
 
-        // TODO: event tracking has not been implemented for the new profile yet, theses tests will fail
         final VisualPlayerElement playerElement =
                 playlistDetailsScreen.clickFirstTrack();
 
@@ -81,9 +80,10 @@ public class OtherProfileEventGatewayAudioTest extends TrackingActivityTest<Main
     }
 
     public void testPlayAndPauseTrackFromLikes() {
+        profileScreen.touchLikesTab();
+
         startEventTracking();
 
-        // TODO: figure out how to trigger a track from a specific bucket
         final VisualPlayerElement playerElement =
                 profileScreen.playTrack(0);
 

@@ -35,6 +35,10 @@ public class ProfileScreen extends Screen {
         waiter.waitForElement(new TextElement(userName()), username);
     }
 
+    public void goBack() {
+        testDriver.goBack();
+    }
+
     public VisualPlayerElement playTrack(int index) {
 
         VisualPlayerElement visualPlayerElement = getTracks().get(index).click();
@@ -62,7 +66,7 @@ public class ProfileScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
-        final List<PlaylistElement> playlists = getPlaylists();
+        final List<PlaylistElement> playlists = playlists();
         for (PlaylistElement playlistElement : playlists) {
             final String trackCount = playlistElement.getTrackCount();
             if (Strings.isNotBlank(trackCount) && !trackCount.equalsIgnoreCase("0 tracks")) {
@@ -77,11 +81,51 @@ public class ProfileScreen extends Screen {
                 With.id(R.id.playlist_list_item)));
     }
 
-    public List<PlaylistElement> getPlaylists() {
-        return getPlaylists(com.soundcloud.android.R.id.playlist_list_item);
+    public ViewElement getSpotlightTitle() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_spotlight));
     }
 
-    protected List<PlaylistElement> getPlaylists(int withId) {
+    public ViewElement tracksHeader() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_tracks));
+    }
+
+    public ProfileScreen clickViewAllTracks() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_tracks)).click();
+        return this;
+    }
+
+    public ViewElement albumsHeader() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_albums));
+    }
+
+    public ProfileScreen clickViewAllAlbums() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_albums)).click();
+        return this;
+    }
+
+    public ViewElement repostHeader() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_reposts));
+    }
+
+    public ProfileScreen clickViewAllReposts() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_reposts)).click();
+        return this;
+    }
+
+    public ViewElement likesHeader() {
+        return scrollToItem(With.text(R.string.user_profile_sounds_header_likes));
+    }
+
+    public ProfileScreen clickViewAllLikes() {
+        scrollToItem(With.text(R.string.user_profile_sounds_view_all_likes)).click();
+        return this;
+    }
+
+    public List<PlaylistElement> playlists() {
+        return playlists(com.soundcloud.android.R.id.playlist_list_item);
+    }
+
+    protected List<PlaylistElement> playlists(int withId) {
         return Lists.transform(
                 testDriver.findOnScreenElements(With.id(withId)),
                 toPlaylistItemElement
@@ -164,7 +208,7 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
-    public ProfileScreen touchFollowingsTab() {
+    public ProfileScreen touchLegacyFollowingsTab() {
         final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
@@ -173,12 +217,24 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
-    public ProfileScreen touchFollowersTab() {
+    public ProfileScreen touchFollowingsTab() {
+        final Tabs tabs = tabs();
+        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followings))).click();
+        return this;
+    }
+
+    public ProfileScreen touchLegacyFollowersTab() {
         final Tabs tabs = tabs();
         // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_likes))).click();
         tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followers))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public ProfileScreen touchFollowersTab() {
+        final Tabs tabs = tabs();
+        tabs.getTabWith(text(testDriver.getString(R.string.tab_title_user_followers))).click();
         return this;
     }
 
@@ -191,7 +247,7 @@ public class ProfileScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.image));
     }
 
-    private Tabs tabs() {
+    Tabs tabs() {
         return testDriver.findOnScreenElement(With.id(R.id.tab_indicator)).toTabs();
     }
 
@@ -227,6 +283,18 @@ public class ProfileScreen extends Screen {
 
     public boolean isFollowButtonVisible() {
         return followButton().isOnScreen();
+    }
+
+    public boolean showsEmptySoundsMessage() {
+        return testDriver.findOnScreenElement(With.text(R.string.empty_user_sounds_message)).hasVisibility();
+    }
+
+    public boolean showsEmptyInfoMessage() {
+        return testDriver.findOnScreenElement(With.text(R.string.info_empty_other_message)).hasVisibility();
+    }
+
+    public boolean showsEmptyFollowingsMessage() {
+        return testDriver.findOnScreenElement(With.text(R.string.new_empty_user_followings_text)).hasVisibility();
     }
 
     public boolean areCurrentlyFollowing() {

@@ -39,6 +39,7 @@ public final class TestConsts {
     public static final Uri UPGRADE_URI = Uri.parse("soundcloud://soundcloudgo");
 
     public static final Uri OTHER_PROFILE_USER_URI = Uri.parse("https://soundcloud.com/"+ TestUser.otherProfileUser.getPermalink());
+    public static final Uri OTHER_PROFILE_ALBUM_USER_URI = Uri.parse("https://soundcloud.com/"+ TestUser.profileTestUser.getPermalink());
     public static final Uri PRIVATE_SHARED_TRACK = Uri.parse("https://soundcloud.com/slawek-smiechura/sounds-from-thursday-afternoon/s-vw1Yl");
 
     public static final Uri HT_CREATOR_PROFILE_URI = Uri.parse("https://soundcloud.com/"+ TestUser.htCreator.getPermalink());
