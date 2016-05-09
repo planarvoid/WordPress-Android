@@ -38,7 +38,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
+public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final TrackRepository trackRepository;

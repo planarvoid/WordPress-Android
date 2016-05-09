@@ -7,6 +7,7 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -15,6 +16,7 @@ import org.robolectric.fakes.RoboSharedPreferences;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.support.v4.app.FragmentActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +47,14 @@ public abstract class AndroidUnitTest {
 
     protected static Context context() {
         return RuntimeEnvironment.application;
+    }
+
+    protected static FragmentActivity fragmentActivity() {
+        return Robolectric.buildActivity(FragmentActivity.class)
+                .create()
+                .start()
+                .resume()
+                .get();
     }
 
     protected static Resources resources() {
