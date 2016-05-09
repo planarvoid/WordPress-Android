@@ -80,19 +80,23 @@
     </style>
 
     <style name="AdVideoFullscreen">
-        <item name="android:layout_width">15dp</item>
-        <item name="android:layout_height">15dp</item>
-        <item name="android:layout_marginLeft">10dp</item>
-        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">1.5dp</item>
+        <item name="android:layout_marginLeft">1.5dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
         <item name="android:visibility">gone</item>
         <item name="android:background">@drawable/btn_video_ad_fullscreen</item>
     </style>
 
     <style name="AdVideoShrink">
-        <item name="android:layout_width">15dp</item>
-        <item name="android:layout_height">15dp</item>
-        <item name="android:layout_marginLeft">20dp</item>
-        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">12.5dp</item>
+        <item name="android:layout_marginLeft">3dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
         <item name="android:visibility">gone</item>
         <item name="android:background">@drawable/btn_video_ad_shrink</item>
     </style>
