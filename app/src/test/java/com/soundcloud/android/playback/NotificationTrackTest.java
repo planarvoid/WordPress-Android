@@ -25,10 +25,10 @@ public class NotificationTrackTest extends AndroidUnitTest {
     }
 
     @Test
-    public void creatorIsReplacedWithAdvertisementTextForAudioAd() {
+    public void titleIsReplacedWithAdvertisementTextForAudioAd() {
         NotificationTrack viewModel = setupAudioAd();
 
-        assertThat(viewModel.getCreatorName()).isEqualTo(resources().getString(R.string.ads_advertisement));
+        assertThat(viewModel.getTitle()).isEqualTo(resources().getString(R.string.ads_advertisement));
     }
 
     @Test
@@ -39,10 +39,10 @@ public class NotificationTrackTest extends AndroidUnitTest {
     }
 
     @Test
-    public void titleIsEmptyForAudioAd() {
+    public void creatorIsEmptyForAudioAd() {
         NotificationTrack viewModel = setupAudioAd();
 
-        assertThat(viewModel.getTitle()).isEqualTo(Strings.EMPTY);
+        assertThat(viewModel.getCreatorName()).isEqualTo(Strings.EMPTY);
     }
 
     @Test
