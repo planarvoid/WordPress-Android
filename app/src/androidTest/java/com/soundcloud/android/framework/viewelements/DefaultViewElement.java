@@ -1,5 +1,13 @@
 package com.soundcloud.android.framework.viewelements;
 
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.ViewFetcher;
+import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.Tabs;
+
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
@@ -11,14 +19,6 @@ import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.webkit.WebView;
 import android.widget.ToggleButton;
-
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.ViewFetcher;
-import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.offline.DownloadImageView;
-import com.soundcloud.android.screens.elements.ListElement;
-import com.soundcloud.android.screens.elements.Tabs;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -375,5 +375,14 @@ public class DefaultViewElement extends ViewElement {
 
     private Display getDisplay() {
         return testDriver.getDisplay();
+    }
+
+    public String debugOfflineTest() {
+        return new StringBuilder()
+                .append("wrapped class").append(getClass().getName())
+                .append("wrapped isShown").append(isShown())
+                .append("wrapped hasVisibility").append(hasVisibility())
+                .append("wrapped isPartiallyOnScreen").append(isPartiallyOnScreen())
+                .toString();
     }
 }

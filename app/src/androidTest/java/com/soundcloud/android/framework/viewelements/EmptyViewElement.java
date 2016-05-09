@@ -191,5 +191,7 @@ public final class EmptyViewElement extends ViewElement {
         throw new ViewNotFoundException(selector);
     }
 
-
+    public String debugOfflineTest() {
+        return getClass().getName();
+    }
 }

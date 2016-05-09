@@ -142,6 +142,7 @@ public class DownloadImageViewElement {
         Log.d(OfflinePlaylistTest.TAG, new StringBuilder()
                 .append(name)
                 .append("isVisible=").append(element.isVisible())
+                .append("wrappedElement details [").append(element.wrappedElement.debugOfflineTest()).append(']')
                 .append("state=").append(element.getStateString())
                 .append("=>").append(element.isDownloaded())
                 .toString()

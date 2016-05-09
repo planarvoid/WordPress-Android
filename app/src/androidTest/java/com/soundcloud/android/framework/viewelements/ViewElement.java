@@ -89,4 +89,7 @@ public abstract class ViewElement {
     abstract public List<ViewElement> getDirectChildren();
 
     public abstract boolean isElementOnScreen(With id);
+
+    // This is temporary. Sorry.
+    public abstract String debugOfflineTest();
 }
