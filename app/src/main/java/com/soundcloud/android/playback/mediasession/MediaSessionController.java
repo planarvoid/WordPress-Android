@@ -73,7 +73,7 @@ public class MediaSessionController {
         audioFocusListener = new AudioFocusListener(listener);
         audioManager = mediaSessionWrapper.getAudioManager(context);
         mediaSession = mediaSessionWrapper.getMediaSession(context, TAG);
-        mediaSession.setCallback(new MediaSessionListener(this, playbackActionController));
+        mediaSession.setCallback(new MediaSessionListener(this, playbackActionController, context.getApplicationContext()));
         mediaSession.setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         updatePlaybackState();
     }
