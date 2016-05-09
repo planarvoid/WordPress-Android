@@ -1,6 +1,6 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.discovery.DiscoveryAdapter.DiscoveryItemListener;
+import static com.soundcloud.android.discovery.DiscoveryAdapter.DiscoveryItemListenerBucket;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -44,7 +44,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Test
     public void setsClickListeners() {
-        final DiscoveryItemListener itemListener = mock(DiscoveryItemListener.class);
+        final DiscoveryItemListenerBucket itemListener = mock(DiscoveryItemListenerBucket.class);
         adapter.setDiscoveryListener(itemListener);
 
         verify(playlistTagRenderer).setOnTagClickListener(itemListener);

@@ -15,4 +15,8 @@
     <item name="offline_retry_request_id" type="id" />
     <item name="policy_update_request_id" type="id" />
     <item name="player_widget_request_id" type="id" />
+
+    <!-- Recommendation Ids-->
+    <item name="recommendation_bucket_tag" type="id" />
+    <item name="recommendation_track_item_tag" type="id" />
 </resources>
