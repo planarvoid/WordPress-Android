@@ -50,6 +50,7 @@ public class DownloadImageViewElement {
 
         @Override
         protected boolean matchesSafely(final DownloadImageViewElement element) {
+            debugLog("IsRequested.matchesSafely ", element);
             return element.waiter.waitForElementCondition(new Condition() {
                 @Override
                 public boolean isSatisfied() {
@@ -76,6 +77,7 @@ public class DownloadImageViewElement {
             return element.waiter.waitForElementCondition(new Condition() {
                 @Override
                 public boolean isSatisfied() {
+                    debugLog("IsDownloading.matchesSafely ", element);
                     return element.isDownloading();
                 }
             });
@@ -99,13 +101,7 @@ public class DownloadImageViewElement {
             return element.waiter.waitForElementCondition(new Condition() {
                 @Override
                 public boolean isSatisfied() {
-                    Log.d(OfflinePlaylistTest.TAG, new StringBuilder()
-                            .append("IsDownloaded.matchesSafely ")
-                            .append("isVisible=").append(element.isVisible())
-                            .append("state=").append(element.getStateString())
-                            .append("=>").append(element.isDownloaded())
-                            .toString()
-                    );
+                    debugLog("IsDownloaded.matchesSafely ", element);
                     return element.isDownloaded();
                 }
             });
@@ -130,6 +126,7 @@ public class DownloadImageViewElement {
             return element.waiter.waitForElementCondition(new Condition() {
                 @Override
                 public boolean isSatisfied() {
+                    debugLog("IsDownloadingOrDownloaded.matchesSafely ", element);
                     return element.isDownloading() || element.isDownloaded();
                 }
             });
@@ -139,6 +136,16 @@ public class DownloadImageViewElement {
         public static Matcher<DownloadImageViewElement> downloadingOrDownloaded() {
             return new IsDownloadingOrDownloaded();
         }
+    }
+
+    private static void debugLog(String name, DownloadImageViewElement element) {
+        Log.d(OfflinePlaylistTest.TAG, new StringBuilder()
+                .append(name)
+                .append("isVisible=").append(element.isVisible())
+                .append("state=").append(element.getStateString())
+                .append("=>").append(element.isDownloaded())
+                .toString()
+        );
     }
 
     @Override
