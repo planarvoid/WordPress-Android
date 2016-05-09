@@ -16,6 +16,8 @@ public final class PlaybackPerformanceEvent {
     private final long timestamp;
     private final int metric;
     private final long metricValue;
+    private final String format;
+    private final int bitrate;
     private final PlaybackProtocol protocol;
     private final PlayerType playerType;
     private final String cdnHost;
@@ -23,9 +25,11 @@ public final class PlaybackPerformanceEvent {
     private final Urn userUrn;
 
     private PlaybackPerformanceEvent(int metric, long value, PlaybackProtocol protocol, PlayerType playerType,
-                                     ConnectionType connectionType, String cdnHost, Urn userUrn) {
+                                     ConnectionType connectionType, String cdnHost, String format, int bitrate, Urn userUrn) {
         this.metric = metric;
         this.metricValue = value;
+        this.format = format;
+        this.bitrate = bitrate;
         this.timestamp = System.currentTimeMillis();
         this.protocol = protocol;
         this.playerType = playerType;
@@ -34,43 +38,43 @@ public final class PlaybackPerformanceEvent {
         this.userUrn = userUrn;
     }
     public static PlaybackPerformanceEvent uninterruptedPlaytimeMs(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String cdnHost) {
-        return new PlaybackPerformanceEvent(METRIC_UNINTERRUPTED_PLAYTIME_MS, value, protocol, playerType, connectionType, cdnHost, Urn.NOT_SET);
+                                                      ConnectionType connectionType, String cdnHost, String format, int bitRate) {
+        return new PlaybackPerformanceEvent(METRIC_UNINTERRUPTED_PLAYTIME_MS, value, protocol, playerType, connectionType, cdnHost, format, bitRate, Urn.NOT_SET);
     }
 
     public static PlaybackPerformanceEvent cacheUsagePercent(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                                   ConnectionType connectionType, String cdnHost) {
-        return new PlaybackPerformanceEvent(METRIC_CACHE_USAGE_PERCENT, value, protocol, playerType, connectionType, cdnHost, Urn.NOT_SET);
+                                                                   ConnectionType connectionType, String cdnHost, String format, int bitRate) {
+        return new PlaybackPerformanceEvent(METRIC_CACHE_USAGE_PERCENT, value, protocol, playerType, connectionType, cdnHost, format, bitRate, Urn.NOT_SET);
     }
 
     public static PlaybackPerformanceEvent timeToPlay(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String cdnHost, Urn urn) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAY, value, protocol, playerType, connectionType, cdnHost, urn);
+                                                      ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAY, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn);
     }
 
     public static PlaybackPerformanceEvent timeToPlaylist(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                          ConnectionType connectionType, String cdnHost, Urn urn) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAYLIST, value, protocol, playerType, connectionType, cdnHost, urn);
+                                                          ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAYLIST, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn);
     }
 
     public static PlaybackPerformanceEvent timeToBuffer(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                        ConnectionType connectionType, String cdnHost, Urn urn) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_BUFFER, value, protocol, playerType, connectionType, cdnHost, urn);
+                                                        ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_BUFFER, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn);
     }
 
     public static PlaybackPerformanceEvent timeToSeek(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String cdnHost, Urn urn) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_SEEK, value, protocol, playerType, connectionType, cdnHost, urn);
+                                                      ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_SEEK, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn);
     }
 
     public static PlaybackPerformanceEvent timeToLoad(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String cdnHost, Urn urn) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_LOAD, value, protocol, playerType, connectionType, cdnHost, urn);
+                                                      ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_LOAD, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn);
     }
 
     public static PlaybackPerformanceEvent fragmentDownloadRate(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                                ConnectionType connectionType, String cdnHost, Urn urn) {
-        return new PlaybackPerformanceEvent(METRIC_FRAGMENT_DOWNLOAD_RATE, value, protocol, playerType, connectionType, cdnHost, urn);
+                                                                ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn) {
+        return new PlaybackPerformanceEvent(METRIC_FRAGMENT_DOWNLOAD_RATE, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn);
     }
 
     public int getMetric() {
@@ -105,4 +109,11 @@ public final class PlaybackPerformanceEvent {
         return userUrn;
     }
 
+    public String getFormat() {
+        return format;
+    }
+
+    public int getBitrate() {
+        return bitrate;
+    }
 }

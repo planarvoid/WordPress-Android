@@ -23,6 +23,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
+import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -206,7 +207,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         if (isSoundCloudTrack()) {
             final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
                     getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
-                    streamUrl, accountOperations.getLoggedInUserUrn());
+                    streamUrl, Skippy.SkippyMediaType.UNKNOWN.name(), 0, accountOperations.getLoggedInUserUrn());
             eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
         }
     }

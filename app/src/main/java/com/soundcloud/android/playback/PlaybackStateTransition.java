@@ -1,10 +1,11 @@
 package com.soundcloud.android.playback;
 
-import android.util.SparseArray;
-
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.java.objects.MoreObjects;
+
+import android.util.SparseArray;
 
 public class PlaybackStateTransition {
     public static final int EXTRA_PLAYBACK_PROTOCOL = 0;
@@ -17,6 +18,8 @@ public class PlaybackStateTransition {
     private final PlayStateReason reason;
     private final PlaybackProgress progress;
     private final Urn itemUrn;
+    private final String format;
+    private final int bitrate;
 
     // used to pass various additional meta data with the event, often for tracking/analytics
     private final SparseArray<String> extraAttributes = new SparseArray<>(2);
@@ -31,15 +34,23 @@ public class PlaybackStateTransition {
         this(newState, reason, itemUrn, currentProgress, duration, new CurrentDateProvider());
     }
 
+    public PlaybackStateTransition(PlaybackState newState, PlayStateReason reason, Urn itemUrn, long currentProgress, long duration, CurrentDateProvider dateProvider) {
+        this(newState, reason, itemUrn, currentProgress, duration, Skippy.SkippyMediaType.UNKNOWN.name(), 0, dateProvider);
+    }
+
     public PlaybackStateTransition(PlaybackState newState,
                                    PlayStateReason reason,
                                    Urn itemUrn,
                                    long currentProgress,
                                    long duration,
+                                   String format,
+                                   int bitrate,
                                    CurrentDateProvider dateProvider) {
         this.newState = newState;
         this.reason = reason;
         this.itemUrn = itemUrn;
+        this.format = format;
+        this.bitrate = bitrate;
         this.progress = new PlaybackProgress(currentProgress, duration, dateProvider);
     }
 
@@ -61,6 +72,14 @@ public class PlaybackStateTransition {
 
     public PlaybackProgress getProgress() {
         return progress;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public int getBitrate() {
+        return bitrate;
     }
 
     boolean isPlaying() {
