@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.discovery;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
@@ -37,6 +38,6 @@ public class SearchScreen extends Screen {
     }
 
     public boolean hasSearchResults() {
-        return testDriver.findOnScreenElement(With.id(android.R.id.list)).isOnScreen();
+        return testDriver.findOnScreenElement(With.id(R.id.ak_recycler_view)).isOnScreen();
     }
 }
