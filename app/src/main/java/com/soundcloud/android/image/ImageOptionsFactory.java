@@ -81,7 +81,7 @@ final class ImageOptionsFactory {
         return options.build();
     }
 
-    public static DisplayImageOptions playerLeaveBehind() {
+    public static DisplayImageOptions adImage() {
         return new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(false)
