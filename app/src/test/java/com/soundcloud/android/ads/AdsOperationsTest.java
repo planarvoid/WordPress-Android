@@ -3,8 +3,8 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQueueItemsEqual;
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -21,8 +21,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
@@ -51,17 +49,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private ApiClientRx apiClientRx;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private FeatureFlags featureFlags;
     @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<List> listArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), eventBus, featureFlags);
+        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), eventBus);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
-
-        when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(false);
     }
 
     @Test
@@ -199,7 +194,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         adsOperations.applyAdToUpcomingTrack(adsWithOnlyInterstitial);
 
-        assertInterstitialInserted(adsWithOnlyInterstitial.interstitialAd().get());
+        verifyInterstitialInserted(adsWithOnlyInterstitial.interstitialAd().get());
     }
 
     @Test
@@ -207,7 +202,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final ApiAdsForTrack allAds = AdFixtures.fullAdsForTrack();
         adsOperations.applyInterstitialToTrack(trackQueueItem, allAds);
 
-        assertInterstitialInserted(allAds.interstitialAd().get());
+        verifyInterstitialInserted(allAds.interstitialAd().get());
     }
 
     @Test
@@ -222,18 +217,21 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void applyAdPrefersInterstitialWhenBothAreAvailable() throws Exception {
+    public void applyAdPrefersInterstitialWhenAudioAndInterstitialAreAvailable() throws Exception {
+        ApiAdsForTrack adsForTrack = new ApiAdsForTrack(newArrayList(
+                ApiAdWrapper.create(AdFixtures.getApiAudioAd()),
+                ApiAdWrapper.create(AdFixtures.getApiInterstitial())));
+        adsOperations.applyAdToUpcomingTrack(adsForTrack);
+
+        verifyInterstitialInserted(adsForTrack.interstitialAd().get());
+    }
+
+    @Test
+    public void applyAdPrefersVideoWhenAllAdTypesAreAvailable() throws Exception {
         ApiAdsForTrack fullAdsForTrack = AdFixtures.fullAdsForTrack();
         adsOperations.applyAdToUpcomingTrack(fullAdsForTrack);
 
-        assertInterstitialInserted(fullAdsForTrack.interstitialAd().get());
-    }
-
-    private void assertInterstitialInserted(ApiInterstitial apiInterstitial) {
-        verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
-        final InterstitialAd interstitialAd = InterstitialAd.create(apiInterstitial, TRACK_URN);
-        final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(trackQueueItem).withAdData(interstitialAd).build();
-        assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(interstitialItem));
+        verifyVideoInserted(fullAdsForTrack.videoAd().get());
     }
 
     @Test
@@ -315,7 +313,6 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void insertVideoAdShouldInsertVideoAd() throws Exception {
-        when(featureFlags.isEnabled(Flag.VIDEO_ADS)).thenReturn(true);
         final ApiVideoAd videoAd = AdFixtures.getApiVideoAd();
         final ApiAdsForTrack ads = new ApiAdsForTrack(Arrays.asList(ApiAdWrapper.create(videoAd)));
 
@@ -342,5 +339,19 @@ public class AdsOperationsTest extends AndroidUnitTest {
             builder = builder.withAdData(LeaveBehindAd.create(adsForTrack.audioAd().get().getLeaveBehind(), audioAdTrackUrn));
         }
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, builder.build()));
+    }
+
+    private void verifyVideoInserted(ApiVideoAd apiVideoAd) {
+        verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
+        final VideoAd videoAd = VideoAd.create(apiVideoAd, TRACK_URN);
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(videoAd);
+        assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(videoItem, TestPlayQueueItem.createTrack(TRACK_URN)));
+    }
+
+    private void verifyInterstitialInserted(ApiInterstitial apiInterstitial) {
+        verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
+        final InterstitialAd interstitialAd = InterstitialAd.create(apiInterstitial, TRACK_URN);
+        final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(trackQueueItem).withAdData(interstitialAd).build();
+        assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(interstitialItem));
     }
 }

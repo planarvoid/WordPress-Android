@@ -9,7 +9,6 @@ enum Feature {
   PUBLISH_PLAY_EVENTS_TO_TPUB,
   DISCOVERY_CHARTS,
   DISCOVERY_RECOMMENDATIONS,
-  VIDEO_ADS,
   PROFILE_NEW_TABS,
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
   NEW_SEARCH_SUGGESTIONS,
@@ -23,7 +22,6 @@ android {
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), FALSE
     buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
     buildConfigField BOOLEAN, Feature.NEW_SEARCH_SUGGESTIONS.name(), FALSE
@@ -33,7 +31,6 @@ android {
 
   buildTypes {
     alpha {
-      buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
@@ -41,7 +38,6 @@ android {
     }
 
     beta {
-      buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_SEARCH_SUGGESTIONS.name(), TRUE
@@ -49,7 +45,6 @@ android {
 
     debug {
       buildConfigField BOOLEAN, Feature.STATIONS_HOME.name(), TRUE
-      buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
@@ -57,21 +52,18 @@ android {
     }
 
     release {
-      buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_SEARCH_SUGGESTIONS.name(), TRUE
     }
 
     releaseNoProguard {
-      buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_SEARCH_SUGGESTIONS.name(), TRUE
     }
 
     releaseNonPlayStore {
-      buildConfigField BOOLEAN, Feature.VIDEO_ADS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_SEARCH_SUGGESTIONS.name(), TRUE

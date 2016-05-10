@@ -17,8 +17,6 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -39,7 +37,6 @@ public class AdsOperations {
     private final PlayQueueManager playQueueManager;
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
-    private final FeatureFlags featureFlags;
     private final EventBus eventBus;
     private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
         @Override
@@ -55,13 +52,12 @@ public class AdsOperations {
     @Inject
     AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  EventBus eventBus, FeatureFlags featureFlags) {
+                  EventBus eventBus) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.eventBus = eventBus;
-        this.featureFlags = featureFlags;
     }
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn, boolean playerVisible, boolean inForeground) {
@@ -100,7 +96,7 @@ public class AdsOperations {
 
         if (monetizableItem instanceof TrackQueueItem) {
             TrackQueueItem trackQueueItem = (TrackQueueItem) monetizableItem;
-            if (featureFlags.isEnabled(Flag.VIDEO_ADS) && ads.videoAd().isPresent()) {
+            if (ads.videoAd().isPresent()) {
                 insertVideoAd(trackQueueItem, ads.videoAd().get());
             } else if (ads.interstitialAd().isPresent()) {
                 applyInterstitialAd(ads.interstitialAd().get(), trackQueueItem);
