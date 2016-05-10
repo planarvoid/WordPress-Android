@@ -121,7 +121,10 @@ public class PolicyOperations {
     }
 
     private void handlePolicyUpdateFailure(Throwable error, boolean isBackgroundUpdate) {
-        ErrorUtils.handleSilentException("Policy update failed", error);
+        if (ErrorUtils.isNetworkError(error.getCause())) {
+            String context = isBackgroundUpdate ? "background" : "foreground";
+            ErrorUtils.handleSilentException("Policy update failed: " + context, error);
+        }
         Throwable cause = error instanceof PolicyUpdateFailure ? error.getCause() : error;
         final PolicyUpdateFailureEvent failureEvent =
                 cause instanceof PropellerWriteException
