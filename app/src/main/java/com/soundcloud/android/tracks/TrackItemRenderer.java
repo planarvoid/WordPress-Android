@@ -91,9 +91,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
         trackItemView.hideInfoViewsRight();
         if (isHighTierPreview(track)) {
-            trackItemView.showHighTierLabel(R.string.upsell_track_preview);
-        } else if (isFullHighTierTrack(track)) {
-            trackItemView.showHighTierLabel(R.string.go);
+            trackItemView.showPreviewLabel();
         } else if (track.isPrivate()) {
             trackItemView.showPrivateIndicator();
         }
@@ -131,6 +129,9 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             itemView.showNotAvailableOffline();
         } else {
             showPlayCount(itemView, track);
+            if (isFullHighTierTrack(track)) {
+                itemView.showGoLabel();
+            }
         }
     }
 

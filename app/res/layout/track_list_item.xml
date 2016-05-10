@@ -61,11 +61,19 @@
                 android:layout_alignParentRight="true" />
 
         <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/track_list_item_high_tier_label"
-                style="@style/ListItemText.HighTierTrack"
+                android:id="@+id/track_list_item_preview_label"
+                style="@style/ListItemText.HighTierTrack.Preview"
                 android:layout_marginRight="5dp"
                 android:layout_alignBaseline="@id/list_item_right_info"
                 android:layout_toLeftOf="@id/list_item_right_info"
+                android:visibility="gone" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/track_list_item_go_label"
+                style="@style/ListItemText.HighTierTrack.Go"
+                android:layout_marginLeft="12dp"
+                android:layout_alignBaseline="@id/list_item_counter"
+                android:layout_toRightOf="@id/list_item_counter"
                 android:visibility="gone" />
 
         <com.soundcloud.android.view.CustomFontTextView

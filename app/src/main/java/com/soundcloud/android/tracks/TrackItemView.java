@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.ColorRes;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,8 @@ public class TrackItemView {
     private final View privateIndicator;
     private final TextView promoted;
     private final TextView notAvailableOffline;
-    private final TextView highTierLabel;
+    private final TextView previewLabel;
+    private final TextView goLabel;
     private final TextView geoBlocked;
     private OverflowListener overflowListener;
 
@@ -43,7 +43,8 @@ public class TrackItemView {
         privateIndicator = view.findViewById(R.id.private_indicator);
         promoted = (TextView) view.findViewById(R.id.promoted_track);
         notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
-        highTierLabel = (TextView) view.findViewById(R.id.track_list_item_high_tier_label);
+        previewLabel = (TextView) view.findViewById(R.id.track_list_item_preview_label);
+        goLabel = (TextView) view.findViewById(R.id.track_list_item_go_label);
         geoBlocked = (TextView) view.findViewById(R.id.track_list_item_geo_blocked_text);
 
         view.findViewById(R.id.overflow_button).setOnClickListener(new View.OnClickListener() {
@@ -91,9 +92,12 @@ public class TrackItemView {
         ViewUtils.setTouchClickable(promoted, clickListener);
     }
 
-    public void showHighTierLabel(@StringRes int labelText) {
-        highTierLabel.setVisibility(View.VISIBLE);
-        highTierLabel.setText(labelText);
+    public void showPreviewLabel() {
+        previewLabel.setVisibility(View.VISIBLE);
+    }
+
+    public void showGoLabel() {
+        goLabel.setVisibility(View.VISIBLE);
     }
 
     public void showNowPlaying() {
@@ -105,7 +109,7 @@ public class TrackItemView {
     }
 
     public void hideInfoViewsRight() {
-        highTierLabel.setVisibility(View.GONE);
+        previewLabel.setVisibility(View.GONE);
         privateIndicator.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
     }
@@ -114,6 +118,7 @@ public class TrackItemView {
         playCount.setVisibility(View.INVISIBLE);
         nowPlaying.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
+        goLabel.setVisibility(View.GONE);
         notAvailableOffline.setVisibility(View.GONE);
         geoBlocked.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);
