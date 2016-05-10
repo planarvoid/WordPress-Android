@@ -1,29 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:id="@+id/user_sounds_list_item">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ViewAllContainer">
 
-    <LinearLayout
-        style="@style/Profile.Sounds.ViewAll.Container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/sounds_view_all_text"
+        style="@style/ViewAllText"
+        android:text="@string/recommendation_view_all" />
 
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/sounds_view_all_text"
-            style="@style/Profile.Sounds.ViewAll.Text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+</RelativeLayout>
 
-        <ImageView
-            style="@style/Profile.Sounds.ViewAll.Chevron"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/chevron" />
-    </LinearLayout>
-
-    <View style="@style/Divider.Item" />
-
-</LinearLayout>

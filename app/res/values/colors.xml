@@ -91,6 +91,9 @@
     <color name="placeholder_image_orange">#e6846e</color>
     <color name="placeholder_image_beige">#8e8485</color>
 
+    <!-- Modules -->
+    <color name="view_all_text_color">#666666</color>
+
     <!-- Misc -->
     <color name="dark_bg">#252525</color>
     <color name="page_background">#f3f3f3</color>
@@ -141,7 +144,6 @@
     <color name="discovery_search_premium_view_all">#666666</color>
     <color name="recommendation_card_track_title">#333333</color>
     <color name="recommendation_card_artist_name">#999999</color>
-    <color name="recommendations_view_all">#999999</color>
 
     <!-- Stations -->
     <color name="stations_home_background">@color/page_background</color>

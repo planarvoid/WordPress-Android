@@ -314,4 +314,23 @@
         <item name="android:paddingRight">6dp</item>
     </style>
 
+    <!-- Modules -->
+    <style name="ViewAllContainer" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:gravity">center</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/view_all_height</item>
+    </style>
+
+    <style name="ViewAllText" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/view_all_text_color</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:drawableRight">@drawable/inset_chevron</item>
+        <item name="android:drawablePadding">@dimen/view_all_chevron_padding</item>
+    </style>
+
 </resources>
