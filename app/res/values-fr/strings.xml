@@ -409,6 +409,8 @@
   <string name="search_for_query">Rechercher \'%s\'</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
   <string name="activity_title_recommendations">Recommandé pour vous</string>
+  <!--@Todo from l10n: what is filled in here?-->
+  <string name="recommendation_view_all">Afficher tout %1$d</string>
   <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
   <string name="recommendation_reason_because_you_reason_tracktitle">Parce que vous %1$s %2$s</string>
   <string name="recommendation_reason_liked">aimé</string>
@@ -424,8 +426,8 @@
   <string name="pref_autoplay_related">Lecture automatique</string>
   <string name="pref_autoplay_related_desc">Lorsqu\'une playlist se termine, écouter des titres similaires</string>
   <string name="pref_revoke_access">Déconnexion</string>
-  <string name="pref_sync_wifi_only">Mise à jour des données par Wi-Fi</string>
-  <string name="pref_sync_wifi_only_description">Mise à jour des nouveaux favoris, etc. par Wi-Fi uniquement</string>
+  <string name="pref_sync_wifi_only">Mise à jour des données par Wifi</string>
+  <string name="pref_sync_wifi_only_description">Mise à jour des nouveaux favoris, etc. par Wifi uniquement</string>
   <string name="pref_analytics">Analytiques</string>
   <string name="pref_analytics_desc">L\'activation des fonctions d\'analytique nous permet de collecter des données concernant votre utilisation de l\'application, nous aidant ainsi à améliorer celle-ci. Consultez notre Politique de confidentialité pour plus d\'informations.</string>
   <string name="pref_crashlogs">Journal des pannes</string>
@@ -627,7 +629,7 @@
   <string name="offline_update_storage_limit_reached_message">Appuyez ici pour voir les paramètres de stockage</string>
   <string name="offline_update_in_progress">Sauvegarde hors connexion</string>
   <string name="offline_likes_dialog_title">Sauvegardez vos favoris hors connexion</string>
-  <string name="offline_likes_dialog_message">Cette option vous permettra de sauvegarder vos favoris actuels et à venir hors connexion pour que vous puissiez les écouter sans connexion Wi-Fi ou connexion de données.</string>
+  <string name="offline_likes_dialog_message">Cette option vous permettra de sauvegarder vos favoris actuels et à venir hors connexion pour que vous puissiez les écouter sans connexion Wifi ou connexion de données.</string>
   <string name="make_offline_available">Sauvegarder hors connexion</string>
   <string name="make_offline_unavailable">Supprimer de la disponibilité hors connexion</string>
   <string name="offline_dialog_go_online_continue">Continuer</string>
@@ -635,9 +637,9 @@
   <string name="offline_dialog_go_online_error_content">Cet appareil ne s\'étant pas connecté depuis plus de 30 jours, nous n\'avons pas pu vérifier votre abonnement. Pour retrouver accès à votre contenu hors connexion, connectez-vous à Internet avec cet appareil.</string>
   <string name="offline_update_paused">Sauvegarde hors connexion interrompu</string>
   <string name="no_network_connection">Aucune connexion réseau</string>
-  <string name="no_wifi_connection">Aucune connexion Wi-Fi</string>
+  <string name="no_wifi_connection">Aucune connexion Wifi</string>
   <string name="offline_not_available_offline">Non disponible hors connexion</string>
-  <string name="offline_no_wifi">Aucun signal Wi-Fi</string>
+  <string name="offline_no_wifi">Aucun signal Wifi</string>
   <string name="offline_no_connection">Aucune connexion</string>
   <!--__GO ONBOARDING-->
   <string name="go_onboarding_header">Bienvenue sur SoundCloud Go</string>
@@ -662,8 +664,8 @@
   <string name="pref_offline_offline_collection">Sauvegarder automatiquement</string>
   <string name="pref_offline_offline_collection_description_off">Activez cette option pour sauvegarder tous vos favoris et playlists actuels hors connexion.</string>
   <string name="pref_offline_offline_collection_description_on">Désactivez cette option pour arrêter la sauvegarde automatique et supprimer le contenu sauvegardé hors connexion.</string>
-  <string name="pref_offline_wifi_only_sync">Sauvegarder via Wi-Fi uniquement</string>
-  <string name="pref_offline_wifi_only_description">Lorsque cette option est activée, nous sauvegardons les titres hors connexion uniquement lorsque vous êtes connecté en Wi-Fi.</string>
+  <string name="pref_offline_wifi_only_sync">Sauvegarder via Wifi uniquement</string>
+  <string name="pref_offline_wifi_only_description">Lorsque cette option est activée, nous sauvegardons les titres hors connexion uniquement lorsque vous êtes connecté en Wifi.</string>
   <string name="pref_offline_storage_limit">Limite de stockage</string>
   <string name="pref_offline_storage_limit_description">Ceci défini l\'espace utilisable pour l\'écoute hors connexion.</string>
   <string name="pref_offline_storage_free_gb">%1$.1f Go libre(s) sur %2$.1f Go</string>
@@ -739,7 +741,7 @@
   <string name="upsell_track_preview">Aperçu</string>
   <string name="upsell_track_geo_blocked">Non disponible dans votre pays</string>
   <!--__STATIONS-->
-  <string name="station_type_track">Station d\'un titre</string>
+  <string name="station_type_track">Station du titre</string>
   <string name="station_type_genre">Station par genre</string>
   <string name="station_type_curator">Station de curateur</string>
   <string name="stations_collection_title_saved_stations">Vos stations</string>
@@ -799,5 +801,5 @@
   <string name="kill_switch_message">Pour continuer à utiliser l\'application SoundCloud, veuillez installer la dernière version.</string>
   <string name="kill_switch_confirm">Mettre à jour maintenant</string>
   <!--__COLLECTIONS-->
-  <string name="collections_options_toggle_offline">Hors ligne</string>
+  <string name="collections_options_toggle_offline">Hors connexion</string>
 </resources>
