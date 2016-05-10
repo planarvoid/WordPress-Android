@@ -339,6 +339,34 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldReturnTrackSourceInfoWithStationsSourceInfoIfSetOnAudioAdWithNoQueryUrn() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Urn queryUrn = new Urn("soundcloud:radio:123-456");
+        final StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, Collections.singletonList(stationTrack));
+        playQueue.insertAudioAd(0, Urn.forTrack(321L), AdFixtures.getAudioAd(Urn.forTrack(123L)), false);
+
+        playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn));
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+
+        assertThat(trackSourceInfo.getStationsSourceInfo()).isEqualTo(StationsSourceInfo.create(Urn.NOT_SET));
+    }
+
+    @Test
+    public void shouldReturnTrackSourceInfoWithStationsSourceInfoIfSetOnVideoAdWithNoQueryUrn() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final Urn queryUrn = new Urn("soundcloud:radio:123-456");
+        final StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, Collections.singletonList(stationTrack));
+        playQueue.insertVideo(0, AdFixtures.getVideoAd(Urn.forTrack(123L)));
+
+        playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn));
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+
+        assertThat(trackSourceInfo.getStationsSourceInfo()).isEqualTo(StationsSourceInfo.create(Urn.NOT_SET));
+    }
+
+    @Test
     public void shouldReturnTrackSourceInfoWithoutQuerySourceInfoIfNotSet() {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L)), playlistSessionSource, 1);
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();

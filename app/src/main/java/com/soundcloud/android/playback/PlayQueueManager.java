@@ -422,10 +422,10 @@ public class PlayQueueManager implements OriginProvider {
         }
 
         if (playSessionSource.isFromStations()) {
-            TrackQueueItem trackQueueItem = (TrackQueueItem) currentPlayQueueItem;
+            Urn queryUrn = currentPlayQueueItem.isTrack() ? ((TrackQueueItem) currentPlayQueueItem).getQueryUrn() : Urn.NOT_SET;
             trackSourceInfo.setStationSourceInfo(
                     playSessionSource.getCollectionUrn(),
-                    StationsSourceInfo.create(trackQueueItem.getQueryUrn())
+                    StationsSourceInfo.create(queryUrn)
             );
         }
 
