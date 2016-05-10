@@ -89,6 +89,7 @@ public class DiscoveryOperations {
     private final RecommendationsStorage recommendationsStorage;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
+    private final RecommendedStationsOperations stationsOperations;
     private final Scheduler scheduler;
 
     @Inject
@@ -96,12 +97,13 @@ public class DiscoveryOperations {
                         RecommendationsStorage recommendationsStorage,
                         StoreRecommendationsCommand storeRecommendationsCommand,
                         PlaylistDiscoveryOperations playlistDiscoveryOperations,
+                        RecommendedStationsOperations recommendedStationsOperations,
                         @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
-
         this.recommendationsSyncInitiator = recommendationsSyncInitiator;
         this.recommendationsStorage = recommendationsStorage;
         this.storeRecommendationsCommand = storeRecommendationsCommand;
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
+        this.stationsOperations = recommendedStationsOperations;
         this.scheduler = scheduler;
     }
 
@@ -111,9 +113,7 @@ public class DiscoveryOperations {
     }
 
     private Observable<List<DiscoveryItem>> searchItem() {
-        List<DiscoveryItem> searchItemList = new ArrayList<>(1);
-        searchItemList.add(new SearchItem());
-        return Observable.just(searchItemList);
+        return Observable.just(Collections.<DiscoveryItem>singletonList(new SearchItem()));
     }
 
     private Observable<List<DiscoveryItem>> playlistDiscovery() {
@@ -126,12 +126,14 @@ public class DiscoveryOperations {
 
     Observable<List<DiscoveryItem>> discoveryItems() {
         return searchItem()
+                .concatWith(stationsOperations.getRecommendations())
                 .concatWith(playlistDiscovery())
                 .subscribeOn(scheduler);
     }
 
     Observable<List<DiscoveryItem>> discoveryItemsAndRecommendations() {
         return searchItem()
+                .concatWith(stationsOperations.getRecommendations())
                 .concatWith(firstRecommendationBucket()
                         .zipWith(playlistDiscovery(), TO_DISCOVERY_ITEMS_LIST))
                 .subscribeOn(scheduler);

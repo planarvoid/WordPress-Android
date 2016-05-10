@@ -51,6 +51,13 @@
             android:data="http://jakewharton.github.io/butterknife" />
     </Preference>
     <Preference
+        android:summary="© Jake Wharton — Apache License 2.0"
+        android:title="ViewPagerIndicator">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://github.com/JakeWharton/ViewPagerIndicator" />
+    </Preference>
+    <Preference
         android:summary="© Xiph Foundation"
         android:title="libvorbis, libogg">
         <intent

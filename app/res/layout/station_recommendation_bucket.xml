@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.soundcloud.android.view.CustomFontTextView
+        style="@style/Recommendation.StationsBucketTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="16dp"
+        android:text="@string/suggested_stations" />
+
+    <com.soundcloud.android.view.SafeViewPager
+        android:id="@+id/stations_pager"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/recommended_stations_pager"
+        android:layout_marginLeft="@dimen/recommended_station_pager_margin"
+        android:layout_marginRight="@dimen/recommended_station_pager_margin" />
+
+    <com.viewpagerindicator.CirclePageIndicator
+        android:id="@+id/page_indicator"
+        style="@style/CustomCirclePageIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="24dp"
+        android:paddingTop="24dp" />
+</LinearLayout>

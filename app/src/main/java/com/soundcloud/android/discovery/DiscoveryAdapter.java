@@ -15,6 +15,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     static final int RECOMMENDATION_SEED_TYPE = ViewTypes.DEFAULT_VIEW_TYPE;
     static final int PLAYLIST_TAGS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 1;
     static final int SEARCH_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 2;
+    static final int STATIONS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 3;
 
     private final RecommendationBucketRenderer recommendationBucketRenderer;
     private final PlaylistTagRenderer playlistTagRenderer;
@@ -29,10 +30,12 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     @Inject
     DiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer,
                      PlaylistTagRenderer playlistTagRenderer,
-                     SearchItemRenderer searchItemRenderer) {
+                     SearchItemRenderer searchItemRenderer,
+                     RecommendedStationsBucketRenderer stationsBucketRenderer) {
         super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, recommendationBucketRenderer),
                 new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer),
-                new CellRendererBinding<>(SEARCH_TYPE, searchItemRenderer));
+                new CellRendererBinding<>(SEARCH_TYPE, searchItemRenderer),
+                new CellRendererBinding<>(STATIONS_TYPE, stationsBucketRenderer));
         this.recommendationBucketRenderer = recommendationBucketRenderer;
         this.playlistTagRenderer = playlistTagRenderer;
         this.searchItemRenderer = searchItemRenderer;
@@ -43,6 +46,9 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
         switch (getItem(position).getKind()) {
             case TrackRecommendationItem:
                 return RECOMMENDATION_SEED_TYPE;
+
+            case StationRecommendationItem:
+                return STATIONS_TYPE;
 
             case PlaylistTagsItem:
                 return PLAYLIST_TAGS_TYPE;

@@ -79,4 +79,22 @@
         <item name="android:layout_marginLeft">8dp</item>
         <item name="android:paddingTop">8dp</item>
     </style>
+
+    <style name="Recommendation.StationsBucketTitle">
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/discovery_tags_title</item>
+    </style>
+
+    <style name="Recommendation.StationsTitle">
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/discovery_tags_title</item>
+    </style>
+
+    <style name="Recommendation.StationsType">
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/recommendation_reason_text</item>
+    </style>
 </resources>

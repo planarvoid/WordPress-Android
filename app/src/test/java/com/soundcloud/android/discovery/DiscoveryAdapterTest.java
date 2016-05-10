@@ -18,12 +18,13 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private PlaylistTagRenderer playlistTagRenderer;
     @Mock private SearchItemRenderer searchItemRenderer;
+    @Mock private RecommendedStationsBucketRenderer recommendedStationsBucketRenderer;
 
     private DiscoveryAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new DiscoveryAdapter(recommendationBucketRenderer, playlistTagRenderer, searchItemRenderer);
+        adapter = new DiscoveryAdapter(recommendationBucketRenderer, playlistTagRenderer, searchItemRenderer, recommendedStationsBucketRenderer);
     }
 
     @Test
