@@ -61,7 +61,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 expandPlayerSubscriberProvider,
                 playbackInitiator,
                 navigator,
-                featureFlags);
+                featureFlags, chartsPresenter);
 
         when(recommendationBucketOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(recommendationBucketOne.getRecommendations()).thenReturn(Collections.singletonList(RECOMMENDED_TRACK));

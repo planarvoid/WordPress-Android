@@ -112,7 +112,7 @@ public class DiscoveryOperations {
                 .flatMap(continueWith(loadFirstRecommendationBucket()));
     }
 
-    private Observable<List<DiscoveryItem>> searchItem() {
+    Observable<List<DiscoveryItem>> searchItem() {
         return Observable.just(Collections.<DiscoveryItem>singletonList(new SearchItem()));
     }
 
@@ -125,15 +125,13 @@ public class DiscoveryOperations {
     }
 
     Observable<List<DiscoveryItem>> discoveryItems() {
-        return searchItem()
-                .concatWith(stationsOperations.getRecommendations())
+        return stationsOperations.getRecommendations()
                 .concatWith(playlistDiscovery())
                 .subscribeOn(scheduler);
     }
 
     Observable<List<DiscoveryItem>> discoveryItemsAndRecommendations() {
-        return searchItem()
-                .concatWith(stationsOperations.getRecommendations())
+        return stationsOperations.getRecommendations()
                 .concatWith(firstRecommendationBucket()
                         .zipWith(playlistDiscovery(), TO_DISCOVERY_ITEMS_LIST))
                 .subscribeOn(scheduler);

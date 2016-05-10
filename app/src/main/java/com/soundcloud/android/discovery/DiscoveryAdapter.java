@@ -16,6 +16,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     static final int PLAYLIST_TAGS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 1;
     static final int SEARCH_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 2;
     static final int STATIONS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 3;
+    static final int CHART_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 4;
 
     private final RecommendationBucketRenderer recommendationBucketRenderer;
     private final PlaylistTagRenderer playlistTagRenderer;
@@ -31,11 +32,13 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     DiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer,
                      PlaylistTagRenderer playlistTagRenderer,
                      SearchItemRenderer searchItemRenderer,
-                     RecommendedStationsBucketRenderer stationsBucketRenderer) {
+                     RecommendedStationsBucketRenderer stationsBucketRenderer,
+                     ChartItemRenderer chartItemRenderer) {
         super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, recommendationBucketRenderer),
                 new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer),
                 new CellRendererBinding<>(SEARCH_TYPE, searchItemRenderer),
-                new CellRendererBinding<>(STATIONS_TYPE, stationsBucketRenderer));
+                new CellRendererBinding<>(STATIONS_TYPE, stationsBucketRenderer),
+                new CellRendererBinding<>(CHART_TYPE, chartItemRenderer));
         this.recommendationBucketRenderer = recommendationBucketRenderer;
         this.playlistTagRenderer = playlistTagRenderer;
         this.searchItemRenderer = searchItemRenderer;
@@ -55,6 +58,9 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
 
             case SearchItem:
                 return SEARCH_TYPE;
+
+            case ChartItem:
+                return CHART_TYPE;
 
             default:
                 throw new IllegalArgumentException("Unhandled discovery item kind " + getItem(position).getKind());
