@@ -39,7 +39,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     private static final Urn VIDEO_URN = Urn.forAd("dfp", "video");
     private static final PropertySet TRACK = TestPropertySets.expectedTrackForPlayer();
     private static final Optional<MediaMetadataCompat> EMPTY_METADATA = Optional.absent();
-    private static final String ADVERTISING_ARTIST = "Advertisement";
+    private static final String ADVERTISING_TITLE = "Advertisement";
     private static final String OLD_TITLE = "old title";
 
     @Mock Resources resources;
@@ -130,7 +130,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     public void metadataEmitsAdMetadataWhenIsAVideoAd() throws Exception {
         operations.metadata(VIDEO_URN, true, EMPTY_METADATA).subscribe(subscriber);
 
-        assertThat(getArtist(0)).isEqualTo(ADVERTISING_ARTIST);
+        assertThat(getTitle(0)).isEqualTo(ADVERTISING_TITLE);
         assertThat(getBitmap(0)).isEqualTo(adBitmap);
     }
 
@@ -145,7 +145,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     public void metadataEmitsAdMetadataWhenIsAnAudioAd() throws Exception {
         operations.metadata(TRACK_URN, true, EMPTY_METADATA).subscribe(subscriber);
 
-        assertThat(getArtist(1)).isEqualTo(ADVERTISING_ARTIST);
+        assertThat(getTitle(1)).isEqualTo(ADVERTISING_TITLE);
         assertThat(getBitmap(1)).isEqualTo(adBitmap);
     }
 
