@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.mediasession;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_HEADSETHOOK;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.external.PlaybackActionController;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
@@ -14,10 +15,12 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,23 +31,28 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
     private final MediaSessionController mediaSessionController;
     private final PlaybackActionController playbackActionController;
     private final Scheduler scheduler;
+    private final Context context;
 
     private int clicks;
     private Subscription subscription = RxUtils.invalidSubscription();
 
     public MediaSessionListener(MediaSessionController mediaSessionController,
-                                PlaybackActionController playbackActionController) {
+                                PlaybackActionController playbackActionController,
+                                Context context) {
         this.mediaSessionController = mediaSessionController;
         this.playbackActionController = playbackActionController;
+        this.context = context;
         this.scheduler = Schedulers.newThread();
     }
 
     @VisibleForTesting
     public MediaSessionListener(MediaSessionController mediaSessionController,
                                 PlaybackActionController playbackActionController,
+                                Context context,
                                 Scheduler scheduler) {
         this.mediaSessionController = mediaSessionController;
         this.playbackActionController = playbackActionController;
+        this.context = context;
         this.scheduler = scheduler;
     }
 
@@ -72,6 +80,8 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
     public void onPlay() {
         if (!mediaSessionController.isPlayingVideoAd()) {
             handleAction(PlaybackAction.PLAY);
+        } else {
+            Toast.makeText(context, R.string.ads_reopen_app_to_continue, Toast.LENGTH_SHORT).show();
         }
     }
 

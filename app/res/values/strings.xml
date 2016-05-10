@@ -51,6 +51,7 @@
     <string name="ads_skip_ad">Skip ad</string>
     <string name="ads_next_up_tracktitle_creatorname">Next up: %1$s (%2$s)</string>
     <string name="ads_ad_in_progress">Advertisement in progress</string>
+    <string name="ads_reopen_app_to_continue">Please reopen your app to keep listening</string>
     <string name="ads_resume_playing_ad_to_continue">Resume playing ad to continue</string>
     <string name="ads_skip_in_time">Skip in: %s</string>
     <string name="ads_now_playing">Now playing</string>

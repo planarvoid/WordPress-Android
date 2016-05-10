@@ -40,7 +40,7 @@ public class MediaSessionListenerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        listener = new MediaSessionListener(controller, actionController, scheduler);
+        listener = new MediaSessionListener(controller, actionController, context(), scheduler);
     }
 
     @Test
