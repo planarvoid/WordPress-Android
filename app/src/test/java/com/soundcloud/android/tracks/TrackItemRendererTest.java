@@ -101,7 +101,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         verify(trackItemView).hideInfoViewsRight();
-        verify(trackItemView).showHighTierLabel(R.string.upsell_track_preview);
+        verify(trackItemView).showPreviewLabel();
     }
 
     @Test
@@ -109,8 +109,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         trackItem = TrackItem.from(TestPropertySets.highTierTrack());
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
-        verify(trackItemView).hideInfoViewsRight();
-        verify(trackItemView).showHighTierLabel(R.string.go);
+        verify(trackItemView).hideInfosViewsBottom();
+        verify(trackItemView).showGoLabel();
     }
 
     @Test
