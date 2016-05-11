@@ -3,7 +3,7 @@
     xmlns:auto="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/discovery_search_cell_margin_top_bottom"
     android:layout_marginBottom="@dimen/discovery_search_cell_margin_top_bottom"
     android:layout_marginLeft="@dimen/discovery_search_cell_margin_left_right"
