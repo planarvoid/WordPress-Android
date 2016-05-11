@@ -9,6 +9,7 @@ import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,7 @@ public class UserSoundsFragment extends ScrollableProfileFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View fragmentView = inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
-        fragmentView.setBackgroundColor(getResources().getColor(R.color.page_background));
+        fragmentView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
         return fragmentView;
     }
 

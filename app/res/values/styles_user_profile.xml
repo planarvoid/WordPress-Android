@@ -168,24 +168,4 @@
         <item name="android:background">@android:color/white</item>
     </style>
 
-    <style name="Profile.Sounds.ViewAll" />
-
-    <style name="Profile.Sounds.ViewAll.Container">
-        <item name="android:background">@color/white</item>
-        <item name="android:padding">14sp</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <style name="Profile.Sounds.ViewAll.Text" parent="TextAppearance.SoundCloudRegularFont">
-        <item name="android:textColor">@color/user_sounds_view_all</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textAllCaps">true</item>
-    </style>
-
-    <style name="Profile.Sounds.ViewAll.Chevron">
-        <item name="android:paddingTop">2dp</item>
-        <item name="android:paddingLeft">7dp</item>
-    </style>
-
 </resources>

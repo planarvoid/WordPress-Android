@@ -69,19 +69,11 @@
     <View style="@style/Divider.Item" />
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="?attr/selectableItemBackground"
-        android:gravity="center"
-        android:paddingBottom="@dimen/discovery_cell_text_view_all_padding">
+        style="@style/ViewAllContainer">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/view_all"
-            style="@style/Recommendation.ViewAllText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableRight="@drawable/inset_chevron_light"
-            android:drawablePadding="@dimen/discovery_cell_image_view_all_padding"
+            style="@style/ViewAllText"
             android:text="@string/recommendation_view_all" />
 
     </RelativeLayout>

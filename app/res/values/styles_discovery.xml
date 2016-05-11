@@ -96,13 +96,6 @@
         <item name="android:textColor">@color/recommended_for_you_text</item>
     </style>
 
-    <style name="Recommendation.ViewAllText" parent="TextAppearance.SoundCloudRegularFont">
-        <item name="android:singleLine">true</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/recommendations_view_all</item>
-        <item name="android:textAllCaps">true</item>
-    </style>
-
     <style name="Recommendation.RecommendationItem">
         <item name="android:layout_marginRight">8dp</item>
     </style>
