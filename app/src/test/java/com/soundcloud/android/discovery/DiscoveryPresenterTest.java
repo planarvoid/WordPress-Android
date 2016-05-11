@@ -47,6 +47,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private RecommendationBucket recommendationBucketOne;
     @Mock private FeatureFlags featureFlags;
+    @Mock private ChartsPresenter chartsPresenter;
 
     private DiscoveryPresenter presenter;
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
@@ -61,7 +62,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 expandPlayerSubscriberProvider,
                 playbackInitiator,
                 navigator,
-                featureFlags);
+                featureFlags, chartsPresenter);
 
         when(recommendationBucketOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(recommendationBucketOne.getRecommendations()).thenReturn(Collections.singletonList(RECOMMENDED_TRACK));

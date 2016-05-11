@@ -34,6 +34,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
 import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListenerBucket {
@@ -45,6 +46,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private final PlaybackInitiator playbackInitiator;
     private final Navigator navigator;
     private final FeatureFlags featureFlags;
+    private final ChartsPresenter chartsPresenter;
 
     @Inject
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -53,7 +55,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
                        Provider<ExpandPlayerSubscriber> subscriberProvider,
                        PlaybackInitiator playbackInitiator,
-                       Navigator navigator, FeatureFlags featureFlags) {
+                       Navigator navigator,
+                       FeatureFlags featureFlags,
+                       ChartsPresenter chartsPresenter) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
@@ -62,6 +66,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         this.playbackInitiator = playbackInitiator;
         this.navigator = navigator;
         this.featureFlags = featureFlags;
+        this.chartsPresenter = chartsPresenter;
     }
 
     @Override
@@ -124,11 +129,21 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     }
 
     private Observable<List<DiscoveryItem>> buildDiscoveryItemsObservable() {
-        if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
-            return discoveryOperations.discoveryItemsAndRecommendations();
-        } else {
-            return discoveryOperations.discoveryItems();
+        List<Observable<List<DiscoveryItem>>> items = new ArrayList<>();
+
+        items.add(discoveryOperations.searchItem());
+
+        if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
+            items.add(chartsPresenter.buildObservable());
         }
+
+        if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
+            items.add(discoveryOperations.discoveryItemsAndRecommendations());
+        } else {
+            items.add(discoveryOperations.discoveryItems());
+        }
+
+        return Observable.concat(Observable.from(items));
     }
 
     private void addScrollListeners() {

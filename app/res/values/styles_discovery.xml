@@ -135,4 +135,23 @@
         <item name="android:background">@drawable/btn_list_overflow</item>
     </style>
 
+    <!-- TODO Replace Recommendations styles with these styles -->
+    <!-- Modules -->
+    <style name="Module" parent="TextAppearance.SoundCloudLightFont" />
+
+    <style name="Module.Background">
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="Module.Header" parent="Recommendation.DiscoverNewTracks">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/recommendations_cell_text_recommended_height</item>
+        <item name="android:layout_marginLeft">@dimen/recommendations_cell_text_recommended_margin</item>
+        <item name="android:layout_marginRight">@dimen/recommendations_cell_text_recommended_margin</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingBottom">@dimen/recommendations_cell_text_recommended_padding_bottom</item>
+        <item name="android:paddingLeft">@dimen/discovery_cell_text_padding</item>
+        <item name="android:paddingRight">@dimen/discovery_cell_text_padding</item>
+        <item name="android:paddingTop">@dimen/recommendations_cell_text_recommended_padding_top</item>
+    </style>
 </resources>

@@ -3,7 +3,7 @@ package com.soundcloud.android.discovery;
 abstract class DiscoveryItem {
 
     enum Kind {
-        StationRecommendationItem, TrackRecommendationItem, PlaylistTagsItem, SearchItem
+        StationRecommendationItem, TrackRecommendationItem, PlaylistTagsItem, SearchItem, ChartItem
     }
 
     private final Kind kind;
