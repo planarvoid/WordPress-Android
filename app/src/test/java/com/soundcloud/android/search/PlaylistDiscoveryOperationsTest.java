@@ -20,7 +20,11 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.PlaylistDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -28,8 +32,6 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
-import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.java.collections.ListMultiMap;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.MultiMap;
@@ -43,14 +45,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
+    private static final List<String> POPULAR_TAGS = Arrays.asList("popTag1", "popTag2");
+    private static final List<String> RECENT_TAGS = Arrays.asList("recentTag1", "recentTag2");
 
     private PlaylistDiscoveryOperations operations;
     private ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
@@ -63,6 +69,8 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     @Mock private LoadPlaylistRepostStatuses loadPlaylistRepostStatuses;
 
     @Mock private Observer observer;
+
+    private final TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
 
     @Before
     public void setup() {
@@ -293,6 +301,54 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         operations.popularPlaylistTags().subscribe(observer);
 
         verifyZeroInteractions(apiClientRx);
+    }
+    @Test
+    public void loadsPlaylistDiscoTagsWhenThereAreNoRecommendations() {
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(POPULAR_TAGS));
+        when(tagStorage.getRecentTagsAsync()).thenReturn(Observable.just(RECENT_TAGS));
+        operations.playlistTags().subscribe(subscriber);
+
+        final List<DiscoveryItem> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(1);
+
+        assertPlaylistDiscoItem(onNextEvents.get(0), POPULAR_TAGS, RECENT_TAGS);
+    }
+
+    @Test
+    public void loadsRecommendationsAndPopularTagsWhenPlaylistRecentTagsIsEmpty() {
+
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(POPULAR_TAGS));
+        when(tagStorage.getRecentTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
+
+        operations.playlistTags().subscribe(subscriber);
+
+        final List<DiscoveryItem> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(1);
+
+        assertPlaylistDiscoItem(onNextEvents.get(0), POPULAR_TAGS, Collections.<String>emptyList());
+    }
+
+    @Test
+    public void loadsRecommendationsAndRecentTagsWhenPlaylistPopularTagsIsEmpty() {
+        when(tagStorage.getRecentTagsAsync()).thenReturn(Observable.just(RECENT_TAGS));
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
+
+        operations.playlistTags().subscribe(subscriber);
+
+        final List<DiscoveryItem> onNextEvents = subscriber.getOnNextEvents();
+        subscriber.assertValueCount(1);
+
+        assertPlaylistDiscoItem(onNextEvents.get(0), Collections.<String>emptyList(), RECENT_TAGS);
+    }
+
+    private void assertPlaylistDiscoItem(DiscoveryItem discoveryItem,
+                                         List<String> popularTags,
+                                         List<String> recentTags) {
+        assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.PlaylistTagsItem);
+
+        final PlaylistDiscoveryItem playlistDiscoItem = (PlaylistDiscoveryItem) discoveryItem;
+        assertThat(playlistDiscoItem.getPopularTags()).isEqualTo(popularTags);
+        assertThat(playlistDiscoItem.getRecentTags()).isEqualTo(recentTags);
     }
 
     private PropertySet captureFirstPlaylist() {

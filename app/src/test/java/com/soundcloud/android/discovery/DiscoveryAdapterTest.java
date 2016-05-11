@@ -1,6 +1,11 @@
 package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.discovery.DiscoveryAdapter.DiscoveryItemListenerBucket;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.StationRecommendationItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.TrackRecommendationItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,23 +36,23 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Test
     public void rendersCorrectViewTypes() {
         SearchItem searchItem = mock(SearchItem.class);
-        when(searchItem.getKind()).thenReturn(SearchItem.Kind.SearchItem);
+        when(searchItem.getKind()).thenReturn(SearchItem);
         DiscoveryItem playlistTagItem = mock(DiscoveryItem.class);
-        when(playlistTagItem.getKind()).thenReturn(DiscoveryItem.Kind.PlaylistTagsItem);
+        when(playlistTagItem.getKind()).thenReturn(PlaylistTagsItem);
         DiscoveryItem trackRecommendationItem = mock(DiscoveryItem.class);
-        when(trackRecommendationItem.getKind()).thenReturn(DiscoveryItem.Kind.TrackRecommendationItem);
+        when(trackRecommendationItem.getKind()).thenReturn(TrackRecommendationItem);
         DiscoveryItem stationRecommendationItem = mock(DiscoveryItem.class);
-        when(stationRecommendationItem.getKind()).thenReturn(DiscoveryItem.Kind.StationRecommendationItem);
+        when(stationRecommendationItem.getKind()).thenReturn(StationRecommendationItem);
         DiscoveryItem chartRecommendationItem = mock(DiscoveryItem.class);
-        when(chartRecommendationItem.getKind()).thenReturn(DiscoveryItem.Kind.ChartItem);
+        when(chartRecommendationItem.getKind()).thenReturn(ChartItem);
 
         adapter.onNext(Arrays.asList(searchItem, playlistTagItem, trackRecommendationItem, stationRecommendationItem, chartRecommendationItem));
 
-        assertThat(adapter.getBasicItemViewType(0)).isEqualTo(DiscoveryAdapter.SEARCH_TYPE);
-        assertThat(adapter.getBasicItemViewType(1)).isEqualTo(DiscoveryAdapter.PLAYLIST_TAGS_TYPE);
-        assertThat(adapter.getBasicItemViewType(2)).isEqualTo(DiscoveryAdapter.RECOMMENDATION_SEED_TYPE);
-        assertThat(adapter.getBasicItemViewType(3)).isEqualTo(DiscoveryAdapter.STATIONS_TYPE);
-        assertThat(adapter.getBasicItemViewType(4)).isEqualTo(DiscoveryAdapter.CHART_TYPE);
+        assertThat(adapter.getBasicItemViewType(0)).isEqualTo(SearchItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(1)).isEqualTo(PlaylistTagsItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(2)).isEqualTo(TrackRecommendationItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(3)).isEqualTo(StationRecommendationItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(4)).isEqualTo(ChartItem.ordinal());
     }
 
     @Test

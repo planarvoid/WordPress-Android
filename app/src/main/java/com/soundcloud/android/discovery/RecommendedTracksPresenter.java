@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -34,7 +34,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<List<TrackItem>, 
 
     static final String EXTRA_LOCAL_SEED_ID = "localSeedId";
 
-    private final DiscoveryOperations discoveryOperations;
+    private final RecommendedTracksOperations recommendedTracksOperations;
     private final TracksRecyclerItemAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlaybackInitiator playbackInitiator;
@@ -46,12 +46,12 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<List<TrackItem>, 
 
     @Inject
     RecommendedTracksPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                               DiscoveryOperations discoveryOperations,
+                               RecommendedTracksOperations recommendedTracksOperations,
                                TracksRecyclerItemAdapter adapter,
                                Provider<ExpandPlayerSubscriber> subscriberProvider,
                                PlaybackInitiator playbackInitiator, EventBus eventBus) {
         super(swipeRefreshAttacher, Options.list().build());
-        this.discoveryOperations = discoveryOperations;
+        this.recommendedTracksOperations = recommendedTracksOperations;
         this.adapter = adapter;
         this.expandPlayerSubscriberProvider = subscriberProvider;
         this.playbackInitiator = playbackInitiator;
@@ -80,7 +80,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<List<TrackItem>, 
 
     @Override
     protected void onItemClicked(View view, int position) {
-        playRecommendedTracks(adapter.getItem(position).getUrn(), discoveryOperations.recommendedTracks());
+        playRecommendedTracks(adapter.getItem(position).getUrn(), recommendedTracksOperations.allTracks());
     }
 
     @Override
@@ -101,7 +101,7 @@ class RecommendedTracksPresenter extends RecyclerViewPresenter<List<TrackItem>, 
 
     private CollectionBinding<List<TrackItem>, TrackItem> createCollectionBinding() {
         return CollectionBinding
-                .from(discoveryOperations.recommendedTracksForSeed(localSeedId))
+                .from(recommendedTracksOperations.tracksForSeed(localSeedId))
                 .withAdapter(adapter)
                 .build();
     }

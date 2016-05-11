@@ -1,5 +1,11 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.StationRecommendationItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.TrackRecommendationItem;
+
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
@@ -10,12 +16,6 @@ import android.view.View;
 import javax.inject.Inject;
 
 class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapter.DiscoveryViewHolder> {
-
-    static final int RECOMMENDATION_SEED_TYPE = 0;
-    static final int PLAYLIST_TAGS_TYPE = 1;
-    static final int SEARCH_TYPE = 2;
-    static final int STATIONS_TYPE = 3;
-    static final int CHART_TYPE = 4;
 
     private final RecommendationBucketRenderer recommendationBucketRenderer;
     private final PlaylistTagRenderer playlistTagRenderer;
@@ -33,11 +33,11 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
                      SearchItemRenderer searchItemRenderer,
                      RecommendedStationsBucketRenderer stationsBucketRenderer,
                      ChartsItemRenderer chartsItemRenderer) {
-        super(new CellRendererBinding<>(RECOMMENDATION_SEED_TYPE, recommendationBucketRenderer),
-                new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer),
-                new CellRendererBinding<>(SEARCH_TYPE, searchItemRenderer),
-                new CellRendererBinding<>(STATIONS_TYPE, stationsBucketRenderer),
-                new CellRendererBinding<>(CHART_TYPE, chartsItemRenderer));
+        super(new CellRendererBinding<>(TrackRecommendationItem.ordinal(), recommendationBucketRenderer),
+                new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
+                new CellRendererBinding<>(SearchItem.ordinal(), searchItemRenderer),
+                new CellRendererBinding<>(StationRecommendationItem.ordinal(), stationsBucketRenderer),
+                new CellRendererBinding<>(ChartItem.ordinal(), chartsItemRenderer));
         this.recommendationBucketRenderer = recommendationBucketRenderer;
         this.playlistTagRenderer = playlistTagRenderer;
         this.searchItemRenderer = searchItemRenderer;
@@ -45,25 +45,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
 
     @Override
     public int getBasicItemViewType(int position) {
-        switch (getItem(position).getKind()) {
-            case TrackRecommendationItem:
-                return RECOMMENDATION_SEED_TYPE;
-
-            case StationRecommendationItem:
-                return STATIONS_TYPE;
-
-            case PlaylistTagsItem:
-                return PLAYLIST_TAGS_TYPE;
-
-            case SearchItem:
-                return SEARCH_TYPE;
-
-            case ChartItem:
-                return CHART_TYPE;
-
-            default:
-                throw new IllegalArgumentException("Unhandled discovery item kind " + getItem(position).getKind());
-        }
+        return getItem(position).getKind().ordinal();
     }
 
     @Override
