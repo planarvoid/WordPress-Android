@@ -24,6 +24,7 @@
         <item name="pageColor">#cccccc</item>
         <item name="strokeWidth">0dp</item>
         <item name="radius">4dp</item>
+        <item name="spacing">10dp</item>
         <item name="centered">true</item>
     </style>
 </resources>
