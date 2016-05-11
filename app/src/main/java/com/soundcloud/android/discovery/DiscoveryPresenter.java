@@ -1,73 +1,76 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.java.collections.Iterables.concat;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.Lists.transform;
-import static java.util.Collections.singleton;
-
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
+import rx.Subscription;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListenerBucket {
 
+    private static final Function<RecommendationViewModel, PlayableItem> TO_TRACK_ITEMS = new Function<RecommendationViewModel, PlayableItem>() {
+        @Override
+        public PlayableItem apply(RecommendationViewModel viewModel) {
+            return viewModel.getTrack();
+        }
+    };
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final PlaybackInitiator playbackInitiator;
     private final Navigator navigator;
     private final FeatureFlags featureFlags;
+    private final EventBus eventBus;
+    private Subscription subscription;
 
     @Inject
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                        DiscoveryOperations discoveryOperations,
                        DiscoveryAdapter adapter,
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
-                       Provider<ExpandPlayerSubscriber> subscriberProvider,
-                       PlaybackInitiator playbackInitiator,
                        Navigator navigator,
-                       FeatureFlags featureFlags) {
+                       FeatureFlags featureFlags,
+                       EventBus eventBus) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapter;
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
-        this.expandPlayerSubscriberProvider = subscriberProvider;
-        this.playbackInitiator = playbackInitiator;
         this.navigator = navigator;
         this.featureFlags = featureFlags;
+        this.eventBus = eventBus;
     }
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
+        subscription = eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter));
+    }
+
+    @Override
+    public void onDestroy(Fragment fragment) {
+        super.onDestroy(fragment);
+        subscription.unsubscribe();
     }
 
     @Override
@@ -84,35 +87,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     public void onTagSelected(Context context, String tag) {
         navigator.openPlaylistDiscoveryTag(context, tag);
-    }
-
-    @Override
-    public void onReasonClicked(RecommendationBucket recommendationBucket) {
-        playTracks(recommendationBucket, recommendationBucket.getSeedTrackUrn());
-    }
-
-    @Override
-    public void onRecommendationClicked(RecommendationBucket recommendationBucket, TrackItem recommendation) {
-        playTracks(recommendationBucket, recommendation.getUrn());
-    }
-
-    private void playTracks(RecommendationBucket recommendationBucket, Urn urnToPlay) {
-        List<Urn> trackUrnsToPlay = buildPlayQueue(recommendationBucket);
-        int startPosition = trackUrnsToPlay.indexOf(urnToPlay);
-        playbackInitiator.playTracks(trackUrnsToPlay, startPosition, new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN)).subscribe(expandPlayerSubscriberProvider.get());
-    }
-
-    @Override
-    public void onViewAllClicked() {
-        // TODO: Implement in a future story where we support the full list of recommendations
-    }
-
-    @NonNull
-    @SuppressWarnings("unchecked")
-    private List<Urn> buildPlayQueue(RecommendationBucket recommendationBucket) {
-        Iterable<Urn> seedUrn = singleton(recommendationBucket.getSeedTrackUrn());
-        Iterable<Urn> recommendationUrns = transform(recommendationBucket.getRecommendations(), PlayableItem.TO_URN);
-        return newArrayList(concat(seedUrn, recommendationUrns));
     }
 
     @Override

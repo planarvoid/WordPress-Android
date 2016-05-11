@@ -97,6 +97,7 @@
     </style>
 
     <style name="Recommendation.RecommendationItem">
+        <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:layout_marginRight">8dp</item>
     </style>
 
@@ -122,6 +123,15 @@
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/recommendation_card_artist_name</item>
+    </style>
+
+    <style name="Recommendation.RecommendationNowPlaying">
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:layout_marginRight">26dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
     </style>
 
     <style name="Recommendation.OverflowButton">
