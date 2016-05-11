@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.presentation.ViewTypes;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 
 import android.support.v7.widget.RecyclerView;
@@ -12,11 +11,11 @@ import javax.inject.Inject;
 
 class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapter.DiscoveryViewHolder> {
 
-    static final int RECOMMENDATION_SEED_TYPE = ViewTypes.DEFAULT_VIEW_TYPE;
-    static final int PLAYLIST_TAGS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 1;
-    static final int SEARCH_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 2;
-    static final int STATIONS_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 3;
-    static final int CHART_TYPE = ViewTypes.DEFAULT_VIEW_TYPE + 4;
+    static final int RECOMMENDATION_SEED_TYPE = 0;
+    static final int PLAYLIST_TAGS_TYPE = 1;
+    static final int SEARCH_TYPE = 2;
+    static final int STATIONS_TYPE = 3;
+    static final int CHART_TYPE = 4;
 
     private final RecommendationBucketRenderer recommendationBucketRenderer;
     private final PlaylistTagRenderer playlistTagRenderer;
@@ -33,12 +32,12 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
                      PlaylistTagRenderer playlistTagRenderer,
                      SearchItemRenderer searchItemRenderer,
                      RecommendedStationsBucketRenderer stationsBucketRenderer,
-                     ChartItemRenderer chartItemRenderer) {
-        super(new CellRendererBinding<>(ViewTypes.DEFAULT_VIEW_TYPE, recommendationBucketRenderer),
+                     ChartsItemRenderer chartsItemRenderer) {
+        super(new CellRendererBinding<>(RECOMMENDATION_SEED_TYPE, recommendationBucketRenderer),
                 new CellRendererBinding<>(PLAYLIST_TAGS_TYPE, playlistTagRenderer),
                 new CellRendererBinding<>(SEARCH_TYPE, searchItemRenderer),
                 new CellRendererBinding<>(STATIONS_TYPE, stationsBucketRenderer),
-                new CellRendererBinding<>(CHART_TYPE, chartItemRenderer));
+                new CellRendererBinding<>(CHART_TYPE, chartsItemRenderer));
         this.recommendationBucketRenderer = recommendationBucketRenderer;
         this.playlistTagRenderer = playlistTagRenderer;
         this.searchItemRenderer = searchItemRenderer;

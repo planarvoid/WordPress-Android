@@ -26,7 +26,9 @@ class ChartsPresenter {
 
     Observable<List<DiscoveryItem>> buildObservable() {
         final ImageResourceStub imageResource = new ImageResourceStub(Urn.forTrack(123));
-        final List<DiscoveryItem> value = Lists.newArrayList((DiscoveryItem) new ChartItem(Lists.newArrayList(imageResource, imageResource, imageResource), Lists.newArrayList(imageResource, imageResource, imageResource)));
+        final ChartsItem chartsItem = new ChartsItem(Lists.newArrayList(imageResource, imageResource, imageResource),
+                Lists.newArrayList(imageResource, imageResource, imageResource));
+        final List<DiscoveryItem> value = Lists.newArrayList((DiscoveryItem) chartsItem);
         return Observable.just(value);
     }
 

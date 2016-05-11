@@ -47,6 +47,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private RecommendationBucket recommendationBucketOne;
     @Mock private FeatureFlags featureFlags;
+    @Mock private ChartsPresenter chartsPresenter;
 
     private DiscoveryPresenter presenter;
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();

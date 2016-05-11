@@ -3,26 +3,16 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:soundcloud="http://schemas.android.com/apk/res-auto"
-    style="@style/Recommendation.RecommendationBucket"
+    style="@style/Module.Background"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-
 
     <View style="@style/Divider.Section" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/charts_header"
-        style="@style/Recommendation.DiscoverNewTracks"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/recommendations_cell_text_recommended_height"
-        android:layout_marginLeft="@dimen/recommendations_cell_text_recommended_margin"
-        android:layout_marginRight="@dimen/recommendations_cell_text_recommended_margin"
-        android:gravity="center_vertical"
-        android:paddingBottom="@dimen/recommendations_cell_text_recommended_padding_bottom"
-        android:paddingLeft="@dimen/discovery_cell_text_padding"
-        android:paddingRight="@dimen/discovery_cell_text_padding"
-        android:paddingTop="@dimen/recommendations_cell_text_recommended_padding_top"
+        style="@style/Module.Header"
         android:text="@string/recommendation_seeds_header" />
 
     <View style="@style/Divider.Section" />
