@@ -18,12 +18,12 @@ import java.util.List;
 
 class StationsBucketRenderer implements CellRenderer<StationBucket> {
 
-    private final StationRenderer stationRenderer;
+    private final StationsAdapter stationsAdapter;
     private final Navigator navigator;
 
     @Inject
-    public StationsBucketRenderer(StationRenderer stationRenderer, Navigator navigator) {
-        this.stationRenderer = stationRenderer;
+    public StationsBucketRenderer(StationsAdapter stationsAdapter, Navigator navigator) {
+        this.stationsAdapter = stationsAdapter;
         this.navigator = navigator;
     }
 
@@ -35,9 +35,12 @@ class StationsBucketRenderer implements CellRenderer<StationBucket> {
     }
 
     private void initRecyclerViewForStationsPreview(RecyclerView recyclerView) {
+        final Context context = recyclerView.getContext();
+        final int spanCount = context.getResources().getInteger(R.integer.stations_grid_span_count);
+
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new WrapContentGridLayoutManager(recyclerView.getContext()));
-        recyclerView.setAdapter(new StationsAdapter(stationRenderer));
+        recyclerView.setLayoutManager(new GridLayoutManager(context, spanCount));
+        recyclerView.setAdapter(stationsAdapter);
     }
 
     @Override
