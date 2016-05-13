@@ -123,7 +123,7 @@ public class PlaylistDiscoveryOperations {
     Observable<SearchResult> playlistsForTag(final String tag) {
         final ApiRequest request =
                 createPlaylistResultsRequest(ApiEndpoints.PLAYLIST_DISCOVERY.path())
-                        .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
+                        .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
                         .addQueryParam("tag", tag)
                         .build();
         return getPlaylistResultsPage(tag, request).finallyDo(new Action0() {

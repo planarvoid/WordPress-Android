@@ -162,8 +162,11 @@ public class ApiRequest {
             return this;
         }
 
-        public Builder addQueryParam(Param param, Object... values) {
-            return addQueryParam(param.parameter, values);
+        public Builder addQueryParamIfAbsent(Param param, Object... values) {
+            if (parameters.get(param.parameter).size() == 0) {
+                return addQueryParam(param.parameter, values);
+            }
+            return this;
         }
 
         public Builder withContent(Object content) {

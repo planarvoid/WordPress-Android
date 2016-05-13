@@ -64,7 +64,7 @@ class ExploreTracksOperations {
 
     private Observable<SuggestedTracksCollection> getSuggestedTracks(String endpoint) {
         ApiRequest request = ApiRequest.get(endpoint)
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
                 .forPrivateApi()
                 .build();
 

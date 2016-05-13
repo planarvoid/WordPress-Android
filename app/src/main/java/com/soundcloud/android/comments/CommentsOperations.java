@@ -66,7 +66,7 @@ class CommentsOperations {
     Observable<CommentsCollection> comments(Urn trackUrn) {
         final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId())).forPublicApi()
                 .addQueryParam("linked_partitioning", "1")
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
                 .build();
         return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
     }

@@ -234,8 +234,8 @@ class SearchOperations {
 
         private Observable<SearchResult> searchResult(String query) {
             return getSearchResultObservable(ApiRequest.get(apiEndpoint)
-                                                       .addQueryParam(ApiRequest.Param.PAGE_SIZE,
-                                                                      String.valueOf(Consts.LIST_PAGE_SIZE))
+                                                       .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE,
+                                                                              String.valueOf(Consts.LIST_PAGE_SIZE))
                                                        .addQueryParam("q", query)
                                                        .forPrivateApi());
         }
