@@ -30,7 +30,6 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle LoggedInController loggedInController;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject @LightCycle ActionBarHelper actionMenuController;
-    @Inject @LightCycle ForegroundController foregroundController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject AccountOperations accountOperations;
 
