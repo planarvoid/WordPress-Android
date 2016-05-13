@@ -8,6 +8,7 @@ enum UrnCollection {
     PLAYLISTS("playlists"),
     STATIONS("stations"),
     TRACK_STATIONS("track-stations"),
+    ARTIST_STATIONS("artist-stations"),
     COMMENTS("comments"),
     ADS("ads"),
     SOUNDS("sounds"),

@@ -75,8 +75,12 @@ public final class Urn extends ContentStringHelper<Urn> {
         return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.COMMENTS, id);
     }
 
-    public static Urn forTrackStation(long trackID) {
-        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.TRACK_STATIONS, trackID);
+    public static Urn forTrackStation(long trackId) {
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.TRACK_STATIONS, trackId);
+    }
+
+    public static Urn forArtistStation(long userId) {
+        return new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.ARTIST_STATIONS, userId);
     }
 
     public static Urn forAd(String namespace, String id) {
