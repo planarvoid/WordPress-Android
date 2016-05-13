@@ -75,9 +75,14 @@ class SearchOperations {
                     if (premiumContent.isPresent()) {
                         final SearchModelCollection<? extends PropertySetSource> premiumItems = premiumContent.get();
                         final SearchResult premiumSearchResult = SearchResult.fromPropertySetSource(premiumItems.getCollection(),
-                                premiumItems.getNextLink(), premiumItems.getQueryUrn(), premiumItems.resultsCount());
-                        return SearchResult.fromPropertySetSource(collection, nextLink, queryUrn,
-                                Optional.of(premiumSearchResult), searchCollection.resultsCount());
+                                                                                                    premiumItems.getNextLink(),
+                                                                                                    premiumItems.getQueryUrn(),
+                                                                                                    premiumItems.resultsCount());
+                        return SearchResult.fromPropertySetSource(collection,
+                                                                  nextLink,
+                                                                  queryUrn,
+                                                                  Optional.of(premiumSearchResult),
+                                                                  searchCollection.resultsCount());
                     }
                     return SearchResult.fromPropertySetSource(collection, nextLink, queryUrn);
                 }
@@ -181,7 +186,9 @@ class SearchOperations {
         return getSearchStrategy(searchType, ContentType.NORMAL).searchResult(query);
     }
 
-    Observable<SearchResult> searchPremiumResultFrom(List<PropertySet> propertySets, Optional<Link> nextHref, Urn queryUrn) {
+    Observable<SearchResult> searchPremiumResultFrom(List<PropertySet> propertySets,
+                                                     Optional<Link> nextHref,
+                                                     Urn queryUrn) {
         final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, nextHref, queryUrn);
         return Observable.just(searchResult);
     }
@@ -227,14 +234,15 @@ class SearchOperations {
 
         private Observable<SearchResult> searchResult(String query) {
             return getSearchResultObservable(ApiRequest.get(apiEndpoint)
-                    .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
-                    .addQueryParam("q", query)
-                    .forPrivateApi());
+                                                       .addQueryParam(ApiRequest.Param.PAGE_SIZE,
+                                                                      String.valueOf(Consts.LIST_PAGE_SIZE))
+                                                       .addQueryParam("q", query)
+                                                       .forPrivateApi());
         }
 
         private Observable<SearchResult> nextResultPage(Link nextPageLink) {
             return getSearchResultObservable(ApiRequest.get(nextPageLink.getHref())
-                    .forPrivateApi());
+                                                       .forPrivateApi());
         }
 
         protected abstract String getEndpoint();
@@ -267,10 +275,10 @@ class SearchOperations {
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
-                    .subscribeOn(scheduler)
-                    .doOnNext(storeTracksCommand.toAction1())
-                    .doOnNext(cachePremiumTracks)
-                    .map(TO_SEARCH_RESULT);
+                              .subscribeOn(scheduler)
+                              .doOnNext(storeTracksCommand.toAction1())
+                              .doOnNext(cachePremiumTracks)
+                              .map(TO_SEARCH_RESULT);
         }
     }
 
@@ -297,11 +305,11 @@ class SearchOperations {
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
-                    .subscribeOn(scheduler)
-                    .doOnNext(storePlaylistsCommand.toAction1())
-                    .doOnNext(cachePremiumPlaylists)
-                    .map(TO_SEARCH_RESULT)
-                    .map(mergePlaylistLikeStatus);
+                              .subscribeOn(scheduler)
+                              .doOnNext(storePlaylistsCommand.toAction1())
+                              .doOnNext(cachePremiumPlaylists)
+                              .map(TO_SEARCH_RESULT)
+                              .map(mergePlaylistLikeStatus);
         }
     }
 
@@ -328,11 +336,11 @@ class SearchOperations {
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
-                    .subscribeOn(scheduler)
-                    .doOnNext(storeUsersCommand.toAction1())
-                    .doOnNext(cachePremiumUsers)
-                    .map(TO_SEARCH_RESULT)
-                    .map(mergeFollowings);
+                              .subscribeOn(scheduler)
+                              .doOnNext(storeUsersCommand.toAction1())
+                              .doOnNext(cachePremiumUsers)
+                              .map(TO_SEARCH_RESULT)
+                              .map(mergeFollowings);
         }
     }
 
@@ -359,12 +367,12 @@ class SearchOperations {
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
-                    .subscribeOn(scheduler)
-                    .doOnNext(cacheUniversalSearchCommand.toAction())
-                    .doOnNext(cachePremiumContent)
-                    .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)
-                    .map(mergePlaylistLikeStatus)
-                    .map(mergeFollowings);
+                              .subscribeOn(scheduler)
+                              .doOnNext(cacheUniversalSearchCommand.toAction())
+                              .doOnNext(cachePremiumContent)
+                              .map(TO_SEARCH_RESULT_WITH_PREMIUM_CONTENT)
+                              .map(mergePlaylistLikeStatus)
+                              .map(mergeFollowings);
         }
     }
 
@@ -376,6 +384,7 @@ class SearchOperations {
         private final List<Urn> allUrns = new ArrayList<>();
 
         private Urn queryUrn = Urn.NOT_SET;
+
         SearchPagingFunction(int searchType, ContentType contentType) {
             this.searchType = searchType;
             this.contentType = contentType;
@@ -419,7 +428,9 @@ class SearchOperations {
         }
 
         private boolean isFirstItemForUpsell(List<PropertySet> propertySets) {
-            return !propertySets.isEmpty() && propertySets.get(0).get(EntityProperty.URN).equals(SearchUpsellItem.UPSELL_URN);
+            return !propertySets.isEmpty() && propertySets.get(0)
+                                                          .get(EntityProperty.URN)
+                                                          .equals(SearchUpsellItem.UPSELL_URN);
         }
 
         @VisibleForTesting

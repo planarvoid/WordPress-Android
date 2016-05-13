@@ -29,6 +29,7 @@ class SearchSuggestionItemRenderer implements CellRenderer<SuggestionItem> {
     @Override
     public void bindItemView(int position, View itemView, List<SuggestionItem> items) {
         ButterKnife.bind(this, itemView);
-        titleText.setText(String.format(itemView.getResources().getString(R.string.search_for_query), items.get(position).getQuery()));
+        titleText.setText(String.format(itemView.getResources().getString(R.string.search_for_query),
+                                        items.get(position).getQuery()));
     }
 }

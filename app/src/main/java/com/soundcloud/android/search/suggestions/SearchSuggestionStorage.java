@@ -42,7 +42,7 @@ class SearchSuggestionStorage {
                         SearchSuggestions.DISPLAY_TEXT,
                         SearchSuggestions.IMAGE_URL)
                 .where(SearchSuggestions.DISPLAY_TEXT + " LIKE '" + searchQuery + "%' or "
-                        + SearchSuggestions.DISPLAY_TEXT + " LIKE '% " + searchQuery + "%'")
+                               + SearchSuggestions.DISPLAY_TEXT + " LIKE '% " + searchQuery + "%'")
                 .limit(limit);
     }
 
@@ -63,9 +63,11 @@ class SearchSuggestionStorage {
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
             propertySet.put(SearchSuggestionProperty.URN, getUrn(cursorReader));
-            propertySet.put(SearchSuggestionProperty.DISPLAY_TEXT, cursorReader.getString(SearchSuggestions.DISPLAY_TEXT));
+            propertySet.put(SearchSuggestionProperty.DISPLAY_TEXT,
+                            cursorReader.getString(SearchSuggestions.DISPLAY_TEXT));
             propertySet.put(SearchSuggestionProperty.HIGHLIGHT, Optional.<SuggestionHighlight>absent());
-            propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(cursorReader.getString(SearchSuggestions.IMAGE_URL)));
+            propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE,
+                            Optional.fromNullable(cursorReader.getString(SearchSuggestions.IMAGE_URL)));
             return propertySet;
         }
     }
