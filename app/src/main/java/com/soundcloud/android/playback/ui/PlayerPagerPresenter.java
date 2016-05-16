@@ -331,7 +331,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         final PlayerPagePresenter presenter = pagePresenter(playQueueItem);
 
         if (isForeground){
-            // this will attach the cast button
+            // this will attach the cast button as well as setup video ad surface view's callback
             presenter.onForeground(view);
         }
 

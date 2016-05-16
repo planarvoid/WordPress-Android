@@ -95,7 +95,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_video_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);
-        setVideoViewHolder(holder);
         holder.videoOverlay.setTag(holder);
         return adView;
     }
