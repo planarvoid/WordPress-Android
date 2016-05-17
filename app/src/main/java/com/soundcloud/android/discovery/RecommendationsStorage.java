@@ -7,11 +7,9 @@ import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.Recommendations;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
@@ -33,9 +31,7 @@ class RecommendationsStorage {
         this.propellerRx = propellerRx;
     }
 
-
-
-    Observable<Optional<PropertySet>> firstSeed() {
+    Observable<PropertySet> firstSeed() {
         final Where soundsViewJoin = filter()
                 .whereEq(RecommendationSeeds.SEED_SOUND_TYPE, SoundView.field(TableColumns.SoundView._TYPE))
                 .whereEq(RecommendationSeeds.SEED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
@@ -51,8 +47,7 @@ class RecommendationsStorage {
 
         return propellerRx.query(query)
                 .map(new RecommendationSeedMapper())
-                .map(RxUtils.<PropertySet>TO_OPTIONAL())
-                .switchIfEmpty(Observable.just(Optional.<PropertySet>absent()));
+                .switchIfEmpty(Observable.<PropertySet>empty());
     }
 
     // TODO in the next PR this needs to return a more constrained list of PropertySet to line up with RecommendationSeedMapper

@@ -23,30 +23,4 @@ class ChartsPresenter {
     void onTopFiftyClicked() {
         Log.d("charts", "top 50");
     }
-
-    Observable<List<DiscoveryItem>> buildObservable() {
-        final ImageResourceStub imageResource = new ImageResourceStub(Urn.forTrack(123));
-        final ChartsItem chartsItem = new ChartsItem(Lists.newArrayList(imageResource, imageResource, imageResource),
-                Lists.newArrayList(imageResource, imageResource, imageResource));
-        final List<DiscoveryItem> value = Lists.newArrayList((DiscoveryItem) chartsItem);
-        return Observable.just(value);
-    }
-
-    private static class ImageResourceStub implements ImageResource {
-        private final Urn urn;
-
-        public ImageResourceStub(Urn urn) {
-            this.urn = urn;
-        }
-
-        @Override
-        public Urn getUrn() {
-            return urn;
-        }
-
-        @Override
-        public Optional<String> getImageUrlTemplate() {
-            return Optional.absent();
-        }
-    }
 }

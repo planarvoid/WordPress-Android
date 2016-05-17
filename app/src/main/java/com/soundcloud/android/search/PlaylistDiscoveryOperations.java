@@ -8,13 +8,15 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.discovery.DiscoveryItem;
+import com.soundcloud.android.discovery.PlaylistDiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
-import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicates;
@@ -26,6 +28,7 @@ import rx.Scheduler;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -43,6 +46,16 @@ public class PlaylistDiscoveryOperations {
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final LoadPlaylistRepostStatuses loadPlaylistRepostStatuses;
     private final Scheduler scheduler;
+
+    private static final Observable<DiscoveryItem> ON_ERROR_EMPTY_ITEM_LIST = Observable.empty();
+
+    private static final Func2<List<String>, List<String>, DiscoveryItem> TAGS_TO_DISCOVERY_ITEM_LIST =
+            new Func2<List<String>, List<String>, DiscoveryItem>() {
+                @Override
+                public DiscoveryItem call(List<String> popular, List<String> recent) {
+                    return new PlaylistDiscoveryItem(popular, recent);
+                }
+            };
 
     private final Func1<ApiPlaylistCollection, SearchResult> toBackFilledSearchResult = new Func1<ApiPlaylistCollection, SearchResult>() {
         @Override
@@ -82,6 +95,12 @@ public class PlaylistDiscoveryOperations {
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.loadPlaylistRepostStatuses = loadPlaylistRepostStatuses;
         this.scheduler = scheduler;
+    }
+
+    public Observable<DiscoveryItem> playlistTags() {
+        return popularPlaylistTags()
+                .zipWith(recentPlaylistTags(), TAGS_TO_DISCOVERY_ITEM_LIST)
+                .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
     }
 
     public Observable<List<String>> recentPlaylistTags() {

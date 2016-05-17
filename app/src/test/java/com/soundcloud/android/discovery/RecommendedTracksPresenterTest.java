@@ -56,7 +56,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
     @Mock private RecyclerView recyclerView;
     @Mock private EmptyView emptyView;
     @Mock private Resources resources;
-    @Mock private DiscoveryOperations discoveryOperations;
+    @Mock private RecommendedTracksOperations recommendedTracksOperations;
     @Mock private TracksRecyclerItemAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Bundle bundle;
@@ -71,8 +71,12 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        this.presenter = new RecommendedTracksPresenter(swipeRefreshAttacher, discoveryOperations,
-                adapter, expandPlayerSubscriberProvider, playbackInitiator, eventBus);
+        this.presenter = new RecommendedTracksPresenter(swipeRefreshAttacher,
+                                                        recommendedTracksOperations,
+                                                        adapter,
+                                                        expandPlayerSubscriberProvider,
+                                                        playbackInitiator,
+                                                        eventBus);
 
         when(fragment.getArguments()).thenReturn(bundle);
         when(bundle.getLong(RecommendedTracksPresenter.EXTRA_LOCAL_SEED_ID)).thenReturn(SEED_ID);
@@ -87,7 +91,7 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         when(recommendedTrackItemTwo.getUrn()).thenReturn(RECOMMENDED_ENTITY_2);
 
         final List<TrackItem> trackItems = Arrays.asList(recommendedTrackItemOne, recommendedTrackItemTwo);
-        when(discoveryOperations.recommendedTracksForSeed(anyLong())).thenReturn(Observable.just(trackItems));
+        when(recommendedTracksOperations.tracksForSeed(anyLong())).thenReturn(Observable.just(trackItems));
         when(adapter.getItems()).thenReturn(trackItems);
     }
 
@@ -95,8 +99,9 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
     public void clickOnTrackPlaysItAndEnqueueRecommendedTracks() {
         when(adapter.getItem(1)).thenReturn(recommendedTrackItemTwo);
 
-        final Observable<List<Urn>> playQueue = Observable.just(Arrays.asList(RECOMMENDED_ENTITY_1, RECOMMENDED_ENTITY_2));
-        when(discoveryOperations.recommendedTracks()).thenReturn(playQueue);
+        final Observable<List<Urn>> playQueue = Observable.just(Arrays.asList(RECOMMENDED_ENTITY_1,
+                                                                              RECOMMENDED_ENTITY_2));
+        when(recommendedTracksOperations.allTracks()).thenReturn(playQueue);
 
         final PlaybackResult successResult = PlaybackResult.success();
         when(playbackInitiator.playTracks(eq(playQueue), eq(RECOMMENDED_ENTITY_2), eq(0), any(PlaySessionSource.class)))
@@ -112,7 +117,9 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 1));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
+                                                                       Urn.NOT_SET,
+                                                                       1));
 
         verify(adapter).updateNowPlaying(Urn.forTrack(123L));
     }
@@ -124,7 +131,9 @@ public class RecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onDestroyView(fragment);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 1));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
+                                                                       Urn.NOT_SET,
+                                                                       1));
 
         verify(adapter, never()).updateNowPlaying(Urn.forTrack(123L));
     }

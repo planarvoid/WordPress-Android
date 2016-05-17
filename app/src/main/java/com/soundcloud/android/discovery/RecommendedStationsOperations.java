@@ -5,8 +5,6 @@ import com.soundcloud.android.properties.Flag;
 import rx.Observable;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
 
 class RecommendedStationsOperations {
 
@@ -17,11 +15,14 @@ class RecommendedStationsOperations {
         this.featureFlags = featureFlags;
     }
 
-    public Observable<List<DiscoveryItem>> getRecommendations() {
+    public Observable<DiscoveryItem> stations() {
         if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
-            return Observable.just(Collections.<DiscoveryItem>singletonList(new RecommendedStationsBucket()));
+            return Observable.<DiscoveryItem>just(new RecommendedStationsBucket());
         } else {
             return Observable.empty();
         }
+    }
+
+    public void clearData() {
     }
 }
