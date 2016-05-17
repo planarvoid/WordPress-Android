@@ -1,10 +1,13 @@
 package com.soundcloud.android.playback.ui;
 
-import android.support.v4.app.FragmentActivity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.TextView;
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static org.assertj.android.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
@@ -12,30 +15,26 @@ import com.soundcloud.android.ads.ApiVideoSource;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.PropertySet;
-
 import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.concurrent.TimeUnit;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.android.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.util.concurrent.TimeUnit;
 
 public class VideoAdPresenterTest extends AndroidUnitTest {
 
@@ -57,7 +56,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
-        when(deviceHelper.getCurrentOrientation()).thenReturn(ORIENTATION_PORTRAIT);
+        when(deviceHelper.isOrientation(ORIENTATION_PORTRAIT)).thenReturn(true);
 
         presenter = new VideoAdPresenter(mediaPlayerAdapter, imageOperations, pageListener, playerOverlayControllerFactory, deviceHelper, resources());
         adView = presenter.createItemView(new FrameLayout(context()), null);
@@ -175,6 +174,16 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         final ViewGroup.LayoutParams layoutParams = adView.findViewById(R.id.video_view).getLayoutParams();
         assertThat(layoutParams.width).isGreaterThanOrEqualTo(resources().getDisplayMetrics().widthPixels);
         assertThat(layoutParams.height).isGreaterThanOrEqualTo(resources().getDisplayMetrics().heightPixels);
+    }
+
+    @Test
+    public void videoOverlayContainerResizedToVideoInPortrait() {
+        bindLetterboxVideo(true);
+        final ViewGroup.LayoutParams videoAdParams = adView.findViewById(R.id.video_view).getLayoutParams();
+        final ViewGroup.LayoutParams videoOverlayLayoutParams = adView.findViewById(R.id.video_overlay_container).getLayoutParams();
+
+        assertThat(videoOverlayLayoutParams.height).isEqualTo(videoAdParams.height);
+        assertThat(videoOverlayLayoutParams.width).isEqualTo(videoAdParams.width);
     }
 
     @Test
