@@ -74,8 +74,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.recommendedTracksAfterSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(
                 recommendedTrackUrnTwo)));
 
-        RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(),
-                                                                             Collections.<TrackItem>emptyList());
+        RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(), Collections.<Recommendation>emptyList());
         operations.tracksWithSeed(recommendationBucket).subscribe(testSubscriber);
 
         List<Urn> recommendedTracksWithSeed = testSubscriber.getOnNextEvents().get(0);
@@ -110,7 +109,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
 
         when(recommendationsStorage.recommendedTracks()).thenReturn(Observable.just(Arrays.asList(recommendedTrackUrnOne,
-                                                                                                  recommendedTrackUrnTwo)));
+                recommendedTrackUrnTwo)));
 
         operations.allTracks().subscribe(testObserver);
 
@@ -169,10 +168,10 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         assertThat(recommendationBucket.getSeedTrackTitle()).isEqualTo(seedTrack.getTitle());
         assertThat(recommendationBucket.getRecommendationReason()).isEqualTo(REASON);
 
-        assertThat(recommendationBucket.getRecommendations().get(0).getTitle()).isEqualTo(recommendedTracks.get(0)
-                                                                                                           .getTitle());
-        assertThat(recommendationBucket.getRecommendations().get(0).getCreatorName()).isEqualTo(recommendedTracks.get(0)
-                                                                                                                 .getUserName());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getTitle()).isEqualTo(recommendedTracks.get(0)
+                .getTitle());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(recommendedTracks.get(0)
+                .getUserName());
     }
 
     private PropertySet createSeed() {

@@ -43,8 +43,8 @@ import java.util.List;
 public class RecommendationRendererTest extends AndroidUnitTest {
     private final static ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private final static TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final static RecommendationViewModel RECOMMENDATION_VIEW_MODEL = new RecommendationViewModel(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false);
-    private final static List<RecommendationViewModel> RECOMMENDATIONS = Collections.singletonList(RECOMMENDATION_VIEW_MODEL);
+    private final static Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false);
+    private final static List<Recommendation> RECOMMENDATIONS = Collections.singletonList(RECOMMENDATION);
     private final static List<Urn> TRACKS_LIST = Arrays.asList(SEED_TRACK.getUrn(), RECOMMENDED_TRACK.getUrn());
 
     private RecommendationRenderer renderer;

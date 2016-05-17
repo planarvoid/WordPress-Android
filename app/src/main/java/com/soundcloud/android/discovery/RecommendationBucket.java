@@ -8,14 +8,12 @@ import java.util.List;
 class RecommendationBucket extends DiscoveryItem {
 
     private final PropertySet source;
-    private final List<RecommendationViewModel> recommendations;
-    private final boolean isViewAllBucket;
+    private final List<Recommendation> recommendations;
 
-    RecommendationBucket(PropertySet source, List<RecommendationViewModel> recommendations, boolean isViewAllBucket) {
+    RecommendationBucket(PropertySet source, List<Recommendation> recommendations) {
         super(Kind.TrackRecommendationItem);
         this.source = source;
         this.recommendations = recommendations;
-        this.isViewAllBucket = isViewAllBucket;
     }
 
     String getSeedTrackTitle() {
@@ -26,7 +24,7 @@ class RecommendationBucket extends DiscoveryItem {
         return source.get(RecommendationProperty.SEED_TRACK_URN);
     }
 
-    List<RecommendationViewModel> getRecommendations() {
+    List<Recommendation> getRecommendations() {
         return recommendations;
     }
 
@@ -36,9 +34,5 @@ class RecommendationBucket extends DiscoveryItem {
 
     long getSeedTrackLocalId() {
         return source.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
-    }
-
-    public boolean isViewAllBucket() {
-        return isViewAllBucket;
     }
 }

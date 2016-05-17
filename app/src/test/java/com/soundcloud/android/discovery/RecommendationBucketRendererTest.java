@@ -43,7 +43,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
     private final static ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private final static TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final static RecommendationViewModel RECOMMENDATION_VIEW_MODEL = new RecommendationViewModel(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false);
+    private final static Recommendation RECOMMENDATION_VIEW_MODEL = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false);
     private final static List<Urn> TRACKS_LIST = Arrays.asList(SEED_TRACK.getUrn(), RECOMMENDED_TRACK.getUrn());
 
     @Mock private ImageOperations imageOperations;
@@ -136,7 +136,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     }
 
     private List<RecommendationBucket> createRecommendationsBucket(boolean isViewAllBucket) {
-        final RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(), Collections.singletonList(RECOMMENDATION_VIEW_MODEL), isViewAllBucket);
+        final RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(), Collections.singletonList(RECOMMENDATION_VIEW_MODEL));
         return Collections.singletonList(recommendationBucket);
     }
 }

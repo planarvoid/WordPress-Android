@@ -29,7 +29,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     private static final Urn SEED_TRACK_URN = Urn.forTrack(123L);
     private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private static final RecommendationViewModel VIEW_MODEL = new RecommendationViewModel(RECOMMENDED_TRACK, SEED_TRACK_URN, false);
+    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK_URN, false);
     private static final List<Urn> TRACKLIST = Arrays.asList(SEED_TRACK_URN, RECOMMENDED_TRACK.getUrn());
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
@@ -56,7 +56,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 eventBus);
 
         when(recommendationBucketOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
-        when(recommendationBucketOne.getRecommendations()).thenReturn(Collections.singletonList(VIEW_MODEL));
+        when(recommendationBucketOne.getRecommendations()).thenReturn(Collections.singletonList(RECOMMENDATION));
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
     }
 

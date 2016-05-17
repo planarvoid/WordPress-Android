@@ -29,12 +29,6 @@ import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListenerBucket {
 
-    private static final Function<RecommendationViewModel, PlayableItem> TO_TRACK_ITEMS = new Function<RecommendationViewModel, PlayableItem>() {
-        @Override
-        public PlayableItem apply(RecommendationViewModel viewModel) {
-            return viewModel.getTrack();
-        }
-    };
     private final DiscoveryOperations discoveryOperations;
     private final DiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
