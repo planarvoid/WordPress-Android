@@ -25,7 +25,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -79,7 +78,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemAdShouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
+    public void isCurrentItemAdShouldReturnTrueIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
@@ -87,7 +86,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemAdShouldReturnTrueIfCurrentItemIsVideoAd() throws CreateModelException {
+    public void isCurrentItemAdShouldReturnTrueIfCurrentItemIsVideoAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
@@ -95,7 +94,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemAdShouldReturnFalseIfCurrentItemIsRegularTrack() throws CreateModelException {
+    public void isCurrentItemAdShouldReturnFalseIfCurrentItemIsRegularTrack() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
 
@@ -103,14 +102,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemAdShouldReturnFalseOnEmptyPlayQueueItem() throws CreateModelException {
+    public void isCurrentItemAdShouldReturnFalseOnEmptyPlayQueueItem() {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
 
         assertThat(adsOperations.isCurrentItemAd()).isFalse();
     }
 
    @Test
-    public void isNextItemAdShouldReturnTrueIfNextItemIsAudioAd() throws CreateModelException {
+    public void isNextItemAdShouldReturnTrueIfNextItemIsAudioAd() {
         when(playQueueManager.getNextPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
@@ -118,7 +117,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isNextItemAdShouldReturnTrueIfNextItemIsVideoAd() throws CreateModelException {
+    public void isNextItemAdShouldReturnTrueIfNextItemIsVideoAd() {
         when(playQueueManager.getNextPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
@@ -126,7 +125,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isNextItemAdShouldReturnFalseIfNextItemIsRegularTrack() throws CreateModelException {
+    public void isNextItemAdShouldReturnFalseIfNextItemIsRegularTrack() {
         when(playQueueManager.getNextPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
 
@@ -134,14 +133,14 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isNextItemAdShouldReturnFalseIfNextItemIsEmptyPlayQueueItem() throws CreateModelException {
+    public void isNextItemAdShouldReturnFalseIfNextItemIsEmptyPlayQueueItem() {
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
 
         assertThat(adsOperations.isNextItemAd()).isFalse();
     }
 
     @Test
-    public void isCurrentItemAudioAdShouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
+    public void isCurrentItemAudioAdShouldReturnTrueIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
@@ -149,7 +148,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemAudioAdShouldReturnFalseIfCurrentItemIsVideoAd() throws CreateModelException {
+    public void isCurrentItemAudioAdShouldReturnFalseIfCurrentItemIsVideoAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
@@ -157,7 +156,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemAudioAdShouldReturnFalseIfCurrentItemIsRegularTrack() throws CreateModelException {
+    public void isCurrentItemAudioAdShouldReturnFalseIfCurrentItemIsRegularTrack() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
 
@@ -165,7 +164,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemVideoAdShouldReturnTrueIfCurrentItemIsVideoAd() throws CreateModelException {
+    public void isCurrentItemVideoAdShouldReturnTrueIfCurrentItemIsVideoAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
@@ -173,7 +172,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemVideoAdShouldReturnTrueIfCurrentItemIsAudioAd() throws CreateModelException {
+    public void isCurrentItemVideoAdShouldReturnFalseIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
@@ -181,12 +180,29 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void isCurrentItemVideoAdShouldReturnTrueIfCurrentItemIsRegularTrack() throws CreateModelException {
+    public void isCurrentItemVideoAdShouldReturnFalseIfCurrentItemIsRegularTrack() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
 
         assertThat(adsOperations.isCurrentItemVideoAd()).isFalse();
     }
+
+    @Test
+    public void isCurrentItemLetterboxVideoAdShouldReturnTrueIfCurrentItemIsLetterbox() {
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L), AdFixtures.getApiVideoSource(600, 300))));
+
+        assertThat(adsOperations.isCurrentItemLetterboxVideoAd()).isTrue();
+    }
+
+    @Test
+    public void isCurrentItemLetterboxVideoAdShouldReturnTrueIfCurrentItemIsVertical() {
+        when(playQueueManager.getCurrentPlayQueueItem())
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L), AdFixtures.getApiVideoSource(300, 600))));
+
+        assertThat(adsOperations.isCurrentItemLetterboxVideoAd()).isFalse();
+    }
+    
     @Test
     public void applyAdMergesInterstitialWhenNoAudioAdIsAvailable() throws Exception {
         final ApiAdsForTrack adsWithOnlyInterstitial = AdFixtures.interstitialAdsForTrack();

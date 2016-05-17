@@ -186,6 +186,10 @@ public class AdsOperations {
         return AdUtils.isVideoAd(playQueueManager.getCurrentPlayQueueItem());
     }
 
+    public boolean isCurrentItemLetterboxVideoAd() {
+        return isCurrentItemVideoAd() && !((VideoQueueItem) playQueueManager.getCurrentPlayQueueItem()).isVerticalVideo();
+    }
+
     public void clearAllAdsFromQueue() {
         playQueueManager.removeAds(PlayQueueEvent.fromAdsRemoved(playQueueManager.getCollectionUrn()));
     }

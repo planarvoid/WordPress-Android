@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import com.soundcloud.android.ads.AdOrientationController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
@@ -17,12 +18,14 @@ import javax.inject.Inject;
 public class PlayerController extends ActivityLightCycleDispatcher<AppCompatActivity> {
     final @LightCycle SlidingPlayerController playerController;
     final @LightCycle AdPlayerController adPlayerController;
+    final @LightCycle AdOrientationController adOrientationController;
 
     @Inject
     public PlayerController(SlidingPlayerController playerController,
-                            AdPlayerController adPlayerController) {
+                            AdPlayerController adPlayerController, AdOrientationController adOrientationController) {
         this.playerController = playerController;
         this.adPlayerController = adPlayerController;
+        this.adOrientationController = adOrientationController;
         LightCycles.bind(this);
     }
 
