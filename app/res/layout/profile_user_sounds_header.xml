@@ -2,12 +2,12 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:id="@+id/user_sounds_list_item">
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/sounds_header_text"
         style="@style/Profile.Sounds.Heading"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content" />
 </FrameLayout>
