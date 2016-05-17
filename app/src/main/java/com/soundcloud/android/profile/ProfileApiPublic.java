@@ -163,7 +163,7 @@ public class ProfileApiPublic implements ProfileApi {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
                 .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, playlistHolderToken)
@@ -175,7 +175,7 @@ public class ProfileApiPublic implements ProfileApi {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
                 .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, userHolderToken)

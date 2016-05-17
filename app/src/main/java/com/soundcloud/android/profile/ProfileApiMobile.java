@@ -70,7 +70,7 @@ public class ProfileApiMobile implements ProfileApi {
     private Observable<ModelCollection<ApiEntityHolder>> getPostsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, postSourceToken).map(SOURCE_TO_HOLDER);
@@ -100,7 +100,7 @@ public class ProfileApiMobile implements ProfileApi {
     private Observable<ModelCollection<ApiPlaylistPost>> getPlaylistsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, playlistPostToken);
@@ -120,7 +120,7 @@ public class ProfileApiMobile implements ProfileApi {
     private Observable<ModelCollection<ApiEntityHolder>> getLegacyLikesCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
@@ -170,7 +170,7 @@ public class ProfileApiMobile implements ProfileApi {
     private Observable<ModelCollection<ApiEntityHolder>> getRepostsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
@@ -190,7 +190,7 @@ public class ProfileApiMobile implements ProfileApi {
     private Observable<ModelCollection<ApiEntityHolder>> getUserTracksCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);
@@ -210,7 +210,7 @@ public class ProfileApiMobile implements ProfileApi {
     private Observable<ModelCollection<ApiPlaylistPost>> getUserAlbumsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, playlistPostToken);
@@ -230,7 +230,7 @@ public class ProfileApiMobile implements ProfileApi {
     private Observable<ModelCollection<ApiEntityHolder>> getLikesCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPrivateApi()
-                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
                 .build();
 
         return apiClientRx.mappedResponse(request, playableSourceToken).map(SOURCE_TO_HOLDER);

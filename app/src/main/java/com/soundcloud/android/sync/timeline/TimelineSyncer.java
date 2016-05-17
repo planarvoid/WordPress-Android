@@ -86,7 +86,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
     private ApiSyncResult refresh() throws Exception {
         final ApiRequest.Builder requestBuilder =
                 ApiRequest.get(endpoint.path())
-                        .addQueryParam(ApiRequest.Param.PAGE_SIZE, LIMIT)
+                        .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, LIMIT)
                         .forPrivateApi();
 
         ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
