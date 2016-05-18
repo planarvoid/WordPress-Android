@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -40,14 +41,14 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Inject
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                        DiscoveryOperations discoveryOperations,
-                       DiscoveryAdapter adapter,
+                       DiscoveryAdapterFactory adapterFactory,
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
                        Navigator navigator,
                        FeatureFlags featureFlags,
                        EventBus eventBus) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
-        this.adapter = adapter;
+        this.adapter = adapterFactory.create(Screen.RECOMMENDATIONS_MAIN);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.navigator = navigator;
         this.featureFlags = featureFlags;

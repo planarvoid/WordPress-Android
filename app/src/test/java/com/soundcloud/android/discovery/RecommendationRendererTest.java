@@ -62,7 +62,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
         final LayoutInflater layoutInflater = LayoutInflater.from(fragmentActivity());
 
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
-        renderer = new RecommendationRenderer(imageOperations, trackItemMenuPresenter, playbackInitiator, expandPlayerSubscriberProvider);
+        renderer = new RecommendationRenderer(Screen.RECOMMENDATIONS_MAIN, imageOperations, trackItemMenuPresenter, playbackInitiator, expandPlayerSubscriberProvider);
         when(playbackInitiator.playTracks(anyListOf(Urn.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
     }
 

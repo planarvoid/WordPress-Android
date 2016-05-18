@@ -1,24 +1,26 @@
 package com.soundcloud.android.discovery;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 
 import android.view.View;
 
-import javax.inject.Inject;
-
-class RecommendationsAdapter extends RecyclerItemAdapter<RecommendationViewModel, RecommendationsViewHolder> implements NowPlayingAdapter {
+@AutoFactory(allowSubclasses = true)
+class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, RecommendationsViewHolder> implements NowPlayingAdapter {
     private static final int RECOMMENDATION_TYPE = 0;
 
-    @Inject
-    public RecommendationsAdapter(RecommendationRenderer renderer) {
-        super(renderer);
+    public RecommendationsAdapter(Screen screen,
+                                  @Provided RecommendationRendererFactory rendererFactory) {
+        super(rendererFactory.create(screen));
     }
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingCollectionUrn) {
-        for (RecommendationViewModel viewModel : getItems()) {
+        for (Recommendation viewModel : getItems()) {
             viewModel.setIsPlaying(viewModel.getTrack().getUrn().equals(currentlyPlayingCollectionUrn));
         }
         notifyDataSetChanged();

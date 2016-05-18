@@ -6,6 +6,9 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.StationRecommendationItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.TrackRecommendationItem;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
@@ -15,11 +18,9 @@ import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import javax.inject.Inject;
-
+@AutoFactory(allowSubclasses = true)
 class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapter.DiscoveryViewHolder> implements NowPlayingAdapter {
 
-    private final RecommendationBucketRenderer recommendationBucketRenderer;
     private final PlaylistTagRenderer playlistTagRenderer;
     private final SearchItemRenderer searchItemRenderer;
 
@@ -28,19 +29,18 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
             SearchItemRenderer.SearchListener {
     }
 
-    @Inject
     @SuppressWarnings("unchecked")
-    DiscoveryAdapter(RecommendationBucketRenderer recommendationBucketRenderer,
-                     PlaylistTagRenderer playlistTagRenderer,
-                     SearchItemRenderer searchItemRenderer,
-                     RecommendedStationsBucketRenderer stationsBucketRenderer,
-                     ChartsItemRenderer chartsItemRenderer) {
-        super(new CellRendererBinding<>(TrackRecommendationItem.ordinal(), recommendationBucketRenderer),
+    DiscoveryAdapter(Screen screen,
+                     @Provided RecommendationBucketRendererFactory recommendationBucketRendererFactory,
+                     @Provided PlaylistTagRenderer playlistTagRenderer,
+                     @Provided SearchItemRenderer searchItemRenderer,
+                     @Provided RecommendedStationsBucketRenderer stationsBucketRenderer,
+                     @Provided ChartsItemRenderer chartsItemRenderer) {
+        super(new CellRendererBinding<>(TrackRecommendationItem.ordinal(), recommendationBucketRendererFactory.create(screen, true)),
                 new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
                 new CellRendererBinding<>(SearchItem.ordinal(), searchItemRenderer),
                 new CellRendererBinding<>(StationRecommendationItem.ordinal(), stationsBucketRenderer),
                 new CellRendererBinding<>(ChartItem.ordinal(), chartsItemRenderer));
-        this.recommendationBucketRenderer = recommendationBucketRenderer;
         this.playlistTagRenderer = playlistTagRenderer;
         this.searchItemRenderer = searchItemRenderer;
     }
@@ -71,7 +71,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
         for (DiscoveryItem discoveryItem : getItems()) {
             if (discoveryItem.getKind().equals(DiscoveryItem.Kind.TrackRecommendationItem)) {
-                for (RecommendationViewModel viewModel : ((RecommendationBucket) discoveryItem).getRecommendations()) {
+                for (Recommendation viewModel : ((RecommendationBucket) discoveryItem).getRecommendations()) {
                     viewModel.setIsPlaying(currentlyPlayingUrn.equals(viewModel.getTrack().getUrn()));
                 }
             }

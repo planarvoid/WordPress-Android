@@ -48,26 +48,29 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
+    @Mock private RecommendationsAdapterFactory adapterFactory;
     @Mock private RecommendationsAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
 
     private View itemView;
-    private RecommendationBucketRenderer renderer;
+    private RecommendationBucketRenderer viewAllRenderer;
+    private RecommendationBucketRenderer defaultRenderer;
 
     @Before
     public void setUp() {
-        final LayoutInflater layoutInflater = LayoutInflater.from(fragmentActivity());
-
-        itemView = layoutInflater.inflate(R.layout.recommendation_bucket, new FrameLayout(context()), false);
-        renderer = new RecommendationBucketRenderer(adapter, playbackInitiator, expandPlayerSubscriberProvider);
         when(playbackInitiator.playTracks(anyListOf(Urn.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
+        when(adapterFactory.create(any(Screen.class))).thenReturn(adapter);
+
+        itemView = LayoutInflater.from(fragmentActivity()).inflate(R.layout.recommendation_bucket, new FrameLayout(context()), false);
+        viewAllRenderer = new RecommendationBucketRenderer(Screen.RECOMMENDATIONS_MAIN, true, adapterFactory, playbackInitiator, expandPlayerSubscriberProvider);
+        defaultRenderer = new RecommendationBucketRenderer(Screen.RECOMMENDATIONS_MAIN, false, adapterFactory, playbackInitiator, expandPlayerSubscriberProvider);
     }
 
     @Test
     public void shouldBindHeadingToViewIfViewAllBucket() {
-        final List<RecommendationBucket> recommendationBuckets = createViewAllRecommendationBucket();
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        viewAllRenderer.bindItemView(0, itemView, recommendationBuckets);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_header))
                 .containsText(itemView.getResources().getString(R.string.recommendation_seeds_header))
@@ -76,16 +79,16 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideHeadingIfNonViewAllBucket() {
-        final List<RecommendationBucket> recommendationBuckets = createNormalRecommendationsBucket();
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        defaultRenderer.bindItemView(0, itemView, recommendationBuckets);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_header)).isGone();
     }
 
     @Test
     public void shouldBindReasonToView() {
-        final List<RecommendationBucket> recommendationBuckets = createViewAllRecommendationBucket();
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        viewAllRenderer.bindItemView(0, itemView, recommendationBuckets);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.reason))
                 .containsText("Because you liked " + SEED_TRACK.getTitle())
@@ -94,8 +97,8 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Test
     public void tappingOnSeedTrackShouldTriggerRecommendationsBucketListenerIfAvailable() {
-        final List<RecommendationBucket> recommendationBuckets = createViewAllRecommendationBucket();
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        viewAllRenderer.bindItemView(0, itemView, recommendationBuckets);
         final TextView reasonView = ButterKnife.findById(itemView, R.id.reason);
 
         reasonView.performClick();
@@ -104,16 +107,16 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindViewAllToViewWhenViewAllBucket() {
-        final List<RecommendationBucket> recommendationBuckets = createViewAllRecommendationBucket();
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        viewAllRenderer.bindItemView(0, itemView, recommendationBuckets);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_view_all_text)).containsText(itemView.getResources().getString(R.string.recommendation_view_all));
     }
 
     @Test
     public void shouldHideViewAllWhenNonViewAllBucket() {
-        final List<RecommendationBucket> recommendationBuckets = createNormalRecommendationsBucket();
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        defaultRenderer.bindItemView(0, itemView, recommendationBuckets);
 
         assertThat(ButterKnife.findById(itemView, R.id.recommendations_view_all)).isGone();
     }
@@ -127,15 +130,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         );
     }
 
-    private List<RecommendationBucket> createViewAllRecommendationBucket() {
-        return createRecommendationsBucket(true);
-    }
-
-    private List<RecommendationBucket> createNormalRecommendationsBucket() {
-        return createRecommendationsBucket(false);
-    }
-
-    private List<RecommendationBucket> createRecommendationsBucket(boolean isViewAllBucket) {
+    private List<RecommendationBucket> createRecommendationsBucket() {
         final RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(), Collections.singletonList(RECOMMENDATION_VIEW_MODEL));
         return Collections.singletonList(recommendationBucket);
     }

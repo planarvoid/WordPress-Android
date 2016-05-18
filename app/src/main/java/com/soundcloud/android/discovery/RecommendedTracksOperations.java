@@ -41,7 +41,7 @@ class RecommendedTracksOperations {
         }
     };
 
-    private static Func1<List<TrackItem>, DiscoveryItem> mergeWith(final PropertySet seed) {
+    private Func1<List<TrackItem>, DiscoveryItem> mergeWith(final PropertySet seed) {
         return new Func1<List<TrackItem>, DiscoveryItem>() {
             @Override
             public DiscoveryItem call(List<TrackItem> trackItems) {

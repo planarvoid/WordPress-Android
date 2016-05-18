@@ -7,11 +7,13 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -41,6 +43,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     @Mock private RecommendationsStorage recommendationsStorage;
     @Mock private StoreRecommendationsCommand storeRecommendationsCommand;
     @Mock private FeatureFlags featureFlags;
+    @Mock private PlayQueueManager playQueueManager;
 
     private RecommendedTracksOperations operations;
     private TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
@@ -50,6 +53,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         operations = new RecommendedTracksOperations(recommendedTracksSyncInitiator,
                                                      recommendationsStorage,
                                                      storeRecommendationsCommand,
+                                                     playQueueManager,
                                                      scheduler,
                                                      featureFlags);
 
@@ -61,6 +65,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                 createRecommendedTrackPropertySet()));
         when(recommendedTracksSyncInitiator.sync()).thenReturn(syncSubject);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
     }
 
     @Test

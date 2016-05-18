@@ -6,6 +6,8 @@ import static com.soundcloud.java.collections.Lists.transform;
 import static java.util.Collections.singleton;
 
 import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -25,23 +27,25 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-class RecommendationRenderer implements CellRenderer<RecommendationViewModel> {
+@AutoFactory(allowSubclasses = true)
+class RecommendationRenderer implements CellRenderer<Recommendation> {
     public static final int NUM_SEED_TRACKS = 1;
 
+    private final Screen screen;
     private final ImageOperations imageOperations;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
-    @Inject
-    public RecommendationRenderer(ImageOperations imageOperations,
-                                  TrackItemMenuPresenter trackItemMenuPresenter,
-                                  PlaybackInitiator playbackInitiator,
-                                  Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+    public RecommendationRenderer(Screen screen,
+                                  @Provided ImageOperations imageOperations,
+                                  @Provided TrackItemMenuPresenter trackItemMenuPresenter,
+                                  @Provided PlaybackInitiator playbackInitiator,
+                                  @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+        this.screen = screen;
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.playbackInitiator = playbackInitiator;
@@ -54,8 +58,8 @@ class RecommendationRenderer implements CellRenderer<RecommendationViewModel> {
     }
 
     @Override
-    public void bindItemView(final int position, View view, final List<RecommendationViewModel> recommendations) {
-        final RecommendationViewModel viewModel = recommendations.get(position);
+    public void bindItemView(final int position, View view, final List<Recommendation> recommendations) {
+        final Recommendation viewModel = recommendations.get(position);
         final TrackItem track = viewModel.getTrack();
 
         loadTrackArtwork(view, track);
@@ -87,16 +91,15 @@ class RecommendationRenderer implements CellRenderer<RecommendationViewModel> {
 
     private void setOnClickListener(final int position,
                                     View view,
-                                    final List<RecommendationViewModel> recommendations,
-                                    final RecommendationViewModel viewModel) {
+                                    final List<Recommendation> recommendations,
+                                    final Recommendation viewModel) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 playbackInitiator.playTracks(
                         toPlayQueue(viewModel.getSeedUrn(), recommendations),
                         position + NUM_SEED_TRACKS,
-                        // Todo: This will need to be part of the ViewModel when we introduce the full list of recos
-                        new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN))
+                        new PlaySessionSource(screen))
                         .subscribe(expandPlayerSubscriberProvider.get());
             }
         });
@@ -120,9 +123,9 @@ class RecommendationRenderer implements CellRenderer<RecommendationViewModel> {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Urn> toPlayQueue(Urn seedUrn, List<RecommendationViewModel> recommendations) {
+    private List<Urn> toPlayQueue(Urn seedUrn, List<Recommendation> recommendations) {
         return newArrayList(concat(
                 singleton(seedUrn),
-                transform(recommendations, RecommendationViewModel.TO_TRACK_URN)));
+                transform(recommendations, Recommendation.TO_TRACK_URN)));
     }
 }

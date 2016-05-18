@@ -6,6 +6,8 @@ import static com.soundcloud.java.collections.Lists.transform;
 import static java.util.Collections.singleton;
 
 import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -32,17 +34,23 @@ import javax.inject.Provider;
 import java.util.List;
 import java.util.Locale;
 
+@AutoFactory(allowSubclasses = true)
 class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket> {
+    private final Screen screen;
+    private final boolean isViewAllBucket;
     private final RecommendationsAdapter adapter;
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
-    @Inject
     RecommendationBucketRenderer(
-            RecommendationsAdapter adapter,
-            PlaybackInitiator playbackInitiator,
-            Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
-        this.adapter = adapter;
+            Screen screen,
+            boolean isViewAllBucket,
+            @Provided RecommendationsAdapterFactory adapterFactory,
+            @Provided PlaybackInitiator playbackInitiator,
+            @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+        this.screen = screen;
+        this.isViewAllBucket = isViewAllBucket;
+        this.adapter = adapterFactory.create(screen);
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
@@ -72,7 +80,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
     }
 
     private void bindViewAllViews(View bucketView, RecommendationBucket recommendationBucket) {
-        final int visbility = recommendationBucket.isViewAllBucket() ? View.VISIBLE : View.GONE;
+        final int visbility = isViewAllBucket ? View.VISIBLE : View.GONE;
 
         ButterKnife.findById(bucketView, R.id.recommendations_header).setVisibility(visbility);
         ButterKnife.findById(bucketView, R.id.recommendations_header_divider).setVisibility(visbility);
@@ -88,7 +96,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
     }
 
     private void bindCarousel(RecommendationBucket recommendationBucket) {
-        final List<RecommendationViewModel> viewModels = recommendationBucket.getRecommendations();
+        final List<Recommendation> viewModels = recommendationBucket.getRecommendations();
 
         adapter.clear();
         for (int i = 0; i < viewModels.size(); i++) {
@@ -133,8 +141,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
                 playbackInitiator.playTracks(
                         playQueue,
                         playQueue.indexOf(bucket.getSeedTrackUrn()),
-                        // TODO: This needs to be passed in as part of the ViewModel
-                        new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN))
+                        new PlaySessionSource(screen))
                         .subscribe(expandPlayerSubscriberProvider.get());
             }
         };
@@ -142,8 +149,8 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
 
     @NonNull
     @SuppressWarnings("unchecked")
-    private List<Urn> toPlayQueue(Urn seedUrn, List<RecommendationViewModel> recommendations) {
-        Iterable<Urn> recommendationUrns = transform(recommendations, RecommendationViewModel.TO_TRACK_URN);
+    private List<Urn> toPlayQueue(Urn seedUrn, List<Recommendation> recommendations) {
+        Iterable<Urn> recommendationUrns = transform(recommendations, Recommendation.TO_TRACK_URN);
         return newArrayList(concat(singleton(seedUrn), recommendationUrns));
     }
 }

@@ -1,11 +1,13 @@
 package com.soundcloud.android.discovery;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -34,6 +36,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DiscoveryOperations discoveryOperations;
+    @Mock private DiscoveryAdapterFactory adapterFactory;
     @Mock private DiscoveryAdapter adapter;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private Navigator navigator;
@@ -49,7 +52,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         this.presenter = new DiscoveryPresenter(
                 swipeRefreshAttacher,
                 discoveryOperations,
-                adapter,
+                adapterFactory,
                 imagePauseOnScrollListener,
                 navigator,
                 featureFlags,
@@ -58,6 +61,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(recommendationBucketOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(recommendationBucketOne.getRecommendations()).thenReturn(Collections.singletonList(RECOMMENDATION));
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+        when(adapterFactory.create(any(Screen.class))).thenReturn(adapter);
     }
 
     @Test
