@@ -115,7 +115,10 @@ public class MediaSessionController {
 
     public void onSkip() {
         final PlayQueueItem queueItem = playQueueManager.getCurrentPlayQueueItem();
-        updateMetadata(queueItem.getUrn(), AdUtils.isAd(queueItem));
+
+        if (!queueItem.isEmpty()) {
+            updateMetadata(queueItem.getUrn(), AdUtils.isAd(queueItem));
+        }
     }
 
     private void updateMetadata(Urn urn, boolean isAd) {
