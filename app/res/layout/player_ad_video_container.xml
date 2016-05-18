@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:showIn="@layout/player_ad_video_page"
     tools:ignore="MergeRootFrame">
 
     <View
@@ -24,32 +25,27 @@
     <FrameLayout
         android:id="@+id/video_overlay_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center">
+        android:layout_height="match_parent">
 
         <com.soundcloud.android.playback.ui.view.ArtworkAdOverlayView
             android:id="@+id/video_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:background="@color/artwork_overlay"/>
 
-        <FrameLayout
-            android:id="@+id/video_layout_control"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="@dimen/player_gradient_height"
+            android:background="@drawable/player_gradient_top" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/player_gradient_height"
-                android:background="@drawable/player_gradient_top"/>
+        <Button
+            android:id="@+id/video_fullscreen_control"
+            style="@style/AdVideoFullscreen" />
 
-            <Button android:id="@+id/video_fullscreen_control"
-                    style="@style/AdVideoFullscreen"/>
-
-            <Button android:id="@+id/video_shrink_control"
-                    style="@style/AdVideoShrink"/>
-
-        </FrameLayout>
+        <Button
+            android:id="@+id/video_shrink_control"
+            style="@style/AdVideoShrink" />
 
     </FrameLayout>
 

@@ -123,8 +123,10 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
         adView.setBackgroundColor(backgroundColor);
         holder.videoSurfaceView.setLayoutParams(layoutParams);
-        holder.videoOverlayContainer.setLayoutParams(layoutParams);
         holder.letterboxBackground.setLayoutParams(layoutParams);
+        if (isOrientationPortrait()) {
+            holder.videoOverlayContainer.setLayoutParams(layoutParams);
+        }
         holder.fullscreenButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationPortrait() ? View.VISIBLE : View.GONE);
         holder.shrinkButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationLandscape() ? View.VISIBLE : View.GONE);
         holder.setupFadingInterface(playerAd.isVerticalVideo() || !isOrientationPortrait());
@@ -227,7 +229,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         holder.videoSurfaceView.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
         if (isLetterboxVideo) {
             holder.letterboxBackground.setVisibility(videoAlreadyStarted ? View.GONE : View.VISIBLE);
-            holder.videoLayoutControls.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
+            holder.videoOverlayContainer.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -275,7 +277,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         private final View videoContainer;
         private final SurfaceView videoSurfaceView;
         private final View videoOverlayContainer;
-        private final View videoLayoutControls;
         private final View videoOverlay;
 
         private final View fullscreenButton;
@@ -296,7 +297,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
             videoContainer = adView.findViewById(R.id.video_container);
             videoSurfaceView = (SurfaceView) adView.findViewById(R.id.video_view);
             videoOverlayContainer = adView.findViewById(R.id.video_overlay_container);
-            videoLayoutControls = adView.findViewById(R.id.video_layout_control);
             videoOverlay = adView.findViewById(R.id.video_overlay);
 
             fullscreenButton = adView.findViewById(R.id.video_fullscreen_control);
@@ -322,12 +322,12 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         }
 
         void setupFadingInterface(boolean enableAllFadeableElements) {
-            final List<View> fadeViews = enableAllFadeableElements ? getAllFadeableElementViews() : Collections.singletonList(videoLayoutControls);
+            final List<View> fadeViews = enableAllFadeableElements ? getAllFadeableElementViews() : Collections.singletonList(videoOverlayContainer);
             fadingViews = Iterables.filter(fadeViews, presentInConfig);
         }
 
         private List<View> getAllFadeableElementViews() {
-            return Arrays.asList(whyAds, ctaButton, previewContainer, videoLayoutControls);
+            return Arrays.asList(whyAds, ctaButton, previewContainer, videoOverlayContainer);
         }
     }
 }
