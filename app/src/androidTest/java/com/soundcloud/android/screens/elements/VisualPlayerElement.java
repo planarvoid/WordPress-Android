@@ -101,7 +101,7 @@ public class VisualPlayerElement extends Element {
     }
 
     private ViewElement video() {
-        return testDriver.findOnScreenElement(With.id(R.id.video_overlay));
+        return testDriver.findOnScreenElement(With.id(R.id.video_view));
     }
 
     private ViewElement artwork() {
