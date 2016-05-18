@@ -116,7 +116,6 @@ public enum Screen {
     NOTIFICATION("notification"),
 
     // Stations
-    STATIONS_HOME("stations:home"),
     STATIONS_SHOW_ALL("stations:show_all"),
     STATIONS_RECENT("stations:recent_stations"),
 

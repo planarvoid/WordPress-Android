@@ -543,7 +543,6 @@
   <string name="collections_loading_error">Un problème est survenu lors du chargement de votre collection.\nRéessayez ultérieurement</string>
   <!--__TABS-->
   <string name="tab_home">Accueil</string>
-  <string name="tab_stations">Stations</string>
   <string name="tab_discovery">Découverte</string>
   <string name="tab_collection">Collection</string>
   <string name="tab_you">Plus</string>

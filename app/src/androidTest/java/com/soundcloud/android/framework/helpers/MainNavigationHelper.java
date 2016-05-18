@@ -7,7 +7,6 @@ import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.StationsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.YouScreen;
@@ -71,7 +70,4 @@ public class MainNavigationHelper {
         return new MainTabs(testDriver);
     }
 
-    public StationsScreen goToStationsHome() {
-        return mainTabs().clickStationsHome();
-    }
 }

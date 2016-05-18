@@ -497,7 +497,6 @@
   <string name="collections_loading_error">Hubo un problema al cargar tu colección.\nInténtalo de nuevo más tarde.</string>
   <!--__TABS-->
   <string name="tab_home">Inicio</string>
-  <string name="tab_stations">Emisoras</string>
   <string name="tab_discovery">Descubrir</string>
   <string name="tab_collection">Colección</string>
   <string name="tab_you">Más</string>
