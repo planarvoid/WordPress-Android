@@ -27,7 +27,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ViewHelper;
-import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
+import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -57,7 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragment> implements CreateWaveDisplay.Listener {
+public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements CreateWaveDisplay.Listener {
 
     public static final String RECORD_STATE_KEY = "createCurrentCreateState";
     private Typeface scNumberFont;
@@ -101,7 +101,6 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle state) {
-        super.onCreate(fragment, state);
         this.recordFragment = (RecordFragment) fragment;
         scFont = getFont(fragment.getContext(), SOUNDCLOUD_INTERSTATE_LIGHT);
         scNumberFont = getFont(fragment.getContext(), SOUNDCLOUD_INTERSTATE_LIGHT_TNUM);
@@ -113,8 +112,6 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     @Override
     public void onResume(Fragment fragment) {
-        super.onResume(fragment);
-
         if (currentState == null) {
             currentState = CreateState.IDLE_RECORD;
         }
@@ -138,8 +135,6 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
         if (recordFragment.getActivity().isFinishing() || !recordFragment.getActivity().isChangingConfigurations()) {
             recorder.shouldUseNotifications(true);
         }
-
-        super.onPause(fragment);
     }
 
     void checkForUnsavedRecordings() {
@@ -171,7 +166,6 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     @Override
     public void onStart(Fragment fragment) {
-        super.onStart(fragment);
         this.recordFragment = (RecordFragment) fragment;
 
         IntentFilter intentFilter = SoundRecorder.getIntentFilter();
@@ -182,15 +176,12 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     @Override
     public void onStop(Fragment fragment) {
-        super.onStop(fragment);
         LocalBroadcastManager.getInstance(recordFragment.getActivity()).unregisterReceiver(statusListener);
         this.recordFragment = null;
     }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(fragment, view, savedInstanceState);
-
         ButterKnife.bind(this, view);
 
         visibilities = new HashMap<>();
@@ -235,13 +226,10 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     @Override
     public void onDestroyView(Fragment fragment) {
         waveDisplay.onDestroy();
-        super.onDestroyView(fragment);
     }
 
     @Override
     public void onRestoreInstanceState(Fragment fragment, Bundle state) {
-        super.onRestoreInstanceState(fragment, state);
-
         if (state != null && !state.containsKey(RECORD_STATE_KEY)) {
             final String string = state.getString(RECORD_STATE_KEY);
             currentState = CreateState.valueOf(string);
@@ -252,8 +240,6 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     @Override
     public void onSaveInstanceState(Fragment fragment, Bundle state) {
-        super.onSaveInstanceState(fragment, state);
-
         state.putString(RECORD_STATE_KEY, currentState.name());
         if (waveDisplay != null) {
             waveDisplay.onSaveInstanceState(state);
