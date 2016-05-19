@@ -100,6 +100,11 @@ public class Navigator {
     }
 
     public void openUpgrade(Context activityContext) {
+        openUpgradeNoTransition(activityContext);
+    }
+
+    // Allow platform versions that would otherwise use SmoothNavigator to launch upgrade without the transition
+    public void openUpgradeNoTransition(Context activityContext) {
         activityContext.startActivity(new Intent(activityContext, WebConversionActivity.class));
     }
 
