@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback.mediasession;
 
+import com.soundcloud.android.BuildConfig;
+
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -17,7 +20,8 @@ class MediaSessionWrapper {
     }
 
     MediaSessionCompat getMediaSession(Context context, String tag) {
-        return new MediaSessionCompat(context, tag);
+        ComponentName receiver = new ComponentName(BuildConfig.APPLICATION_ID, MediaButtonReceiver.class.getName());
+        return new MediaSessionCompat(context, tag, receiver, null);
     }
 
     AudioManager getAudioManager(Context context) {
