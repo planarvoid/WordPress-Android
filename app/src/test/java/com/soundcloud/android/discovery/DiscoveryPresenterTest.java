@@ -12,6 +12,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StationFixtures;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -32,6 +35,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     private static final Urn SEED_TRACK_URN = Urn.forTrack(123L);
     private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
     private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK_URN, false);
+    private static final StationRecord STATION = StationFixtures.getStation(Urn.forTrackStation(123));
     private static final List<Urn> TRACKLIST = Arrays.asList(SEED_TRACK_URN, RECOMMENDED_TRACK.getUrn());
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
@@ -43,6 +47,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private RecommendationBucket recommendationBucketOne;
     @Mock private FeatureFlags featureFlags;
     @Mock private ChartsPresenter chartsPresenter;
+    @Mock private StartStationPresenter startStationPresenter;
     private EventBus eventBus = new TestEventBus();
 
     private DiscoveryPresenter presenter;
@@ -56,12 +61,20 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 imagePauseOnScrollListener,
                 navigator,
                 featureFlags,
-                eventBus);
+                eventBus,
+                startStationPresenter);
 
         when(recommendationBucketOne.getSeedTrackUrn()).thenReturn(SEED_TRACK_URN);
         when(recommendationBucketOne.getRecommendations()).thenReturn(Collections.singletonList(RECOMMENDATION));
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
         when(adapterFactory.create(any(Screen.class))).thenReturn(adapter);
+    }
+
+    @Test
+    public void clickOnRecommendedStationStartsPlayingStation() {
+        presenter.onRecommendedStationClicked(context(), STATION);
+
+        verify(startStationPresenter).startStation(context(), STATION.getUrn());
     }
 
     @Test

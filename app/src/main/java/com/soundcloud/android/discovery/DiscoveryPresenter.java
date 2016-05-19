@@ -11,6 +11,8 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
@@ -36,6 +38,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private final Navigator navigator;
     private final FeatureFlags featureFlags;
     private final EventBus eventBus;
+    private final StartStationPresenter startStationPresenter;
     private Subscription subscription;
 
     @Inject
@@ -45,7 +48,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
                        Navigator navigator,
                        FeatureFlags featureFlags,
-                       EventBus eventBus) {
+                       EventBus eventBus,
+                       StartStationPresenter startStationPresenter) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
         this.adapter = adapterFactory.create(Screen.RECOMMENDATIONS_MAIN);
@@ -53,6 +57,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         this.navigator = navigator;
         this.featureFlags = featureFlags;
         this.eventBus = eventBus;
+        this.startStationPresenter = startStationPresenter;
     }
 
     @Override
@@ -104,4 +109,8 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 
+    @Override
+    public void onRecommendedStationClicked(Context context, StationRecord station) {
+        startStationPresenter.startStation(context, station.getUrn());
+    }
 }

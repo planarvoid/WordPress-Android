@@ -6,13 +6,16 @@
     android:layout_marginLeft="@dimen/recommended_station_card_margin"
     android:layout_marginRight="@dimen/recommended_station_card_margin"
     android:layout_weight="1"
+    android:visibility="invisible"
+    tools:visibility="visible"
     android:background="@color/white"
     android:orientation="vertical">
 
-    <ImageView
+    <com.soundcloud.android.view.SquareImageView
+        android:id="@+id/station_image"
+        style="@style/Stations.ItemArtwork"
         android:layout_width="match_parent"
-        android:layout_height="152dp"
-        android:background="#cccccc" />
+        android:layout_height="wrap_content" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/station_title"

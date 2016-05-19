@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WriteRecentStationsCollectionsCommand
+class WriteRecentStationsCollectionsCommand
         extends WriteStorageCommand<WriteRecentStationsCollectionsCommand.SyncCollectionsMetadata, TxnResult, Boolean> {
 
     private final static Function<ApiStationMetadata, ContentValues> TO_CONTENT_VALUES =
@@ -118,7 +118,7 @@ public class WriteRecentStationsCollectionsCommand
         private final long clearBeforeTime;
         private final ApiStationsCollections stationsCollections;
 
-        public SyncCollectionsMetadata(long clearBeforeTime, ApiStationsCollections stationsCollections) {
+        SyncCollectionsMetadata(long clearBeforeTime, ApiStationsCollections stationsCollections) {
             this.clearBeforeTime = clearBeforeTime;
             this.stationsCollections = stationsCollections;
         }

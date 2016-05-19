@@ -5,9 +5,10 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-class Station implements StationRecord {
+public class Station implements StationRecord {
 
     private final String type;
     private final List<StationTrack> tracks;
@@ -42,6 +43,19 @@ class Station implements StationRecord {
                 station.getPreviousPosition(),
                 station.getImageUrlTemplate());
     }
+
+
+    static Station from(ApiStationMetadata station) {
+        return new Station(
+                station.getUrn(),
+                station.getTitle(),
+                station.getType(),
+                Collections.<StationTrack>emptyList(),
+                station.getPermalink(),
+                0,
+                station.getArtworkUrlTemplate());
+    }
+
 
     @Override
     public List<StationTrack> getTracks() {

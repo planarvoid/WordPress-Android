@@ -7,11 +7,11 @@
     <com.soundcloud.android.view.CustomFontTextView
         style="@style/Recommendation.StationsBucketTitle"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="@string/suggested_stations" />
 
-    <com.soundcloud.android.view.SafeViewPager
+    <com.soundcloud.android.view.DynamicSafeViewPager
         android:id="@+id/stations_pager"
         android:layout_width="match_parent"
         android:layout_height="@dimen/recommended_stations_pager"
@@ -23,6 +23,5 @@
         style="@style/CustomCirclePageIndicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="24dp"
-        android:paddingTop="24dp" />
+        android:layout_margin="24dp" />
 </LinearLayout>

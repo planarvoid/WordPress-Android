@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
-import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,17 +23,17 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Mock private RecommendedTracksOperations recommendedTracksOperations;
     @Mock private PlaylistDiscoveryOperations playlistDiscoveryOperations;
-    @Mock private StationsOperations stationsOperations;
+    @Mock private RecommendedStationsOperations recommendedStationsOperations;
     @Mock private ChartsOperations chartsOperations;
 
     @Before
     public void setUp() throws Exception {
         operations = new DiscoveryOperations(recommendedTracksOperations,
-                                             playlistDiscoveryOperations,
-                                             stationsOperations,
-                                             chartsOperations);
+                playlistDiscoveryOperations,
+                recommendedStationsOperations,
+                chartsOperations);
 
-        when(stationsOperations.recommendations()).thenReturn(Observable.<DiscoveryItem>empty());
+        when(recommendedStationsOperations.stationsBucket()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedTracksOperations.tracksBucket()).thenReturn(Observable.<DiscoveryItem>empty());
         when(chartsOperations.charts()).thenReturn(Observable.<DiscoveryItem>empty());
     }
@@ -42,7 +42,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     public void loadsAllItemsInOrderSearchChartsStationsTracksTags() {
         final DiscoveryItem trackRecommendationItem = initTrackRecommendationItem();
         final DiscoveryItem chartsItem = initChartsItem();
-        final DiscoveryItem stationsRecommendationItem = initStationsRecommendationItem();
+        final DiscoveryItem stationRecommendationItem = initStationsRecommendationItem();
         final DiscoveryItem playlistRecommendationItem = initPlaylistRecommendationItem();
 
         operations.discoveryItems().subscribe(subscriber);
@@ -56,7 +56,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
         assertSearchItem(discoveryItems.get(0));
         assertThat(discoveryItems.get(1)).isEqualTo(chartsItem);
-        assertThat(discoveryItems.get(2)).isEqualTo(stationsRecommendationItem);
+        assertThat(discoveryItems.get(2)).isEqualTo(stationRecommendationItem);
         assertThat(discoveryItems.get(3)).isEqualTo(trackRecommendationItem);
         assertThat(discoveryItems.get(4)).isEqualTo(playlistRecommendationItem);
     }
@@ -87,7 +87,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     private DiscoveryItem initStationsRecommendationItem() {
         final DiscoveryItem stationsRecommendationItem = mock(DiscoveryItem.class);
-        when(stationsOperations.recommendations()).thenReturn(Observable.just(stationsRecommendationItem));
+        when(recommendedStationsOperations.stationsBucket()).thenReturn(Observable.just(stationsRecommendationItem));
         return stationsRecommendationItem;
     }
 
