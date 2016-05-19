@@ -35,6 +35,8 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_SEARCH_SUGGESTIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
     }
 
     beta {
