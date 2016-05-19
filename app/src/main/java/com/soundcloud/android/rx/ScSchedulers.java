@@ -16,7 +16,7 @@ public final class ScSchedulers {
 
     static {
         HIGH_PRIO_SCHEDULER = Schedulers.from(createExecutor("HighPriorityPool", 6));
-        LOW_PRIO_SCHEDULER = Schedulers.from(createExecutor("LowPriorityPool", 2));
+        LOW_PRIO_SCHEDULER = Schedulers.from(createExecutor("LowPriorityPool", 1));
     }
 
     private static Executor createExecutor(final String threadIdentifier, int numThreads) {

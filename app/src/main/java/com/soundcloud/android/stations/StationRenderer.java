@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.support.v7.widget.CardView;
@@ -74,7 +75,7 @@ class StationRenderer implements CellRenderer<StationViewModel> {
             case StationTypes.CURATOR:
                 return resources.getString(R.string.station_type_curator);
             default:
-                throw new IllegalArgumentException("Unknown stationWithSeed type: " + type);
+                return Strings.EMPTY;
         }
     }
 

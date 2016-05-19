@@ -7,6 +7,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -202,6 +203,15 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
         controller.onSkip();
 
         verify(listener).showNotification(any(Notification.class));
+    }
+
+    @Test
+    public void onSkipDoesNotUpdateMetadataWhenEmpty() {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
+
+        controller.onSkip();
+
+        verify(listener, never()).showNotification(any(Notification.class));
     }
 
     @Test

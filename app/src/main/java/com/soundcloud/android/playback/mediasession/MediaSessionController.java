@@ -6,6 +6,8 @@ import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_P
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP;
+import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY;
+import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.STATE_BUFFERING;
 import static android.support.v4.media.session.PlaybackStateCompat.STATE_PLAYING;
 
@@ -40,7 +42,7 @@ public class MediaSessionController {
     private static final String TAG = "MediaSessionCtrl";
     private static final float PLAYBACK_SPEED = 1f;
     private static final long AVAILABLE_ACTIONS =
-            ACTION_PLAY_PAUSE | ACTION_STOP | ACTION_SKIP_TO_NEXT | ACTION_SKIP_TO_PREVIOUS;
+            ACTION_PLAY_PAUSE | ACTION_PAUSE | ACTION_PLAY | ACTION_STOP | ACTION_SKIP_TO_NEXT | ACTION_SKIP_TO_PREVIOUS;
 
     private final AudioFocusListener audioFocusListener;
     private final Context context;
@@ -113,7 +115,10 @@ public class MediaSessionController {
 
     public void onSkip() {
         final PlayQueueItem queueItem = playQueueManager.getCurrentPlayQueueItem();
-        updateMetadata(queueItem.getUrn(), AdUtils.isAd(queueItem));
+
+        if (!queueItem.isEmpty()) {
+            updateMetadata(queueItem.getUrn(), AdUtils.isAd(queueItem));
+        }
     }
 
     private void updateMetadata(Urn urn, boolean isAd) {

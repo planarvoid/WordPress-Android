@@ -10,6 +10,7 @@ import android.app.ActivityOptions;
 import android.app.SharedElementCallback;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Pair;
 import android.view.View;
 
@@ -57,8 +58,14 @@ public class SmoothNavigator extends Navigator {
 
     @Override
     public void openUpgrade(Context activityContext) {
-        Activity activity = (Activity) activityContext;
-        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity);
-        activity.startActivity(new Intent(activity, WebConversionActivity.class), options.toBundle());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // This is a temporary workaround for a crash when deep linking.
+            // https://github.com/soundcloud/SoundCloud-Android/issues/5393
+            super.openUpgrade(activityContext);
+        } else {
+            Activity activity = (Activity) activityContext;
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity);
+            activity.startActivity(new Intent(activity, WebConversionActivity.class), options.toBundle());
+        }
     }
 }

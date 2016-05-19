@@ -1,24 +1,24 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 import static com.soundcloud.android.events.StreamEvent.fromStreamRefresh;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.rx.RxUtils.returning;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.concurrent.TimeUnit;
 
 public class StreamRefreshController extends DefaultActivityLightCycle<AppCompatActivity> {
@@ -42,8 +42,18 @@ public class StreamRefreshController extends DefaultActivityLightCycle<AppCompat
     @Inject
     public StreamRefreshController(EventBus eventBus,
                                    SoundStreamOperations operations,
+                                   CurrentDateProvider dateProvider) {
+        this.eventBus = eventBus;
+        this.operations = operations;
+        this.dateProvider = dateProvider;
+        this.scheduler = Schedulers.newThread();
+    }
+
+    @VisibleForTesting
+    public StreamRefreshController(EventBus eventBus,
+                                   SoundStreamOperations operations,
                                    CurrentDateProvider dateProvider,
-                                   @Named(LOW_PRIORITY) Scheduler scheduler) {
+                                   Scheduler scheduler) {
         this.eventBus = eventBus;
         this.operations = operations;
         this.dateProvider = dateProvider;
