@@ -15,11 +15,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.concurrent.TimeUnit;
 
-class RecommendationsSyncInitiator {
+class RecommendedTracksSyncInitiator {
 
     private static final String KEY_LAST_SYNC_TIME = "last_recommendations_sync_time";
     private static final long CACHE_EXPIRATION_TIME = TimeUnit.DAYS.toMillis(1);
-    private static final String SYNC_RECOMMENDATIONS_ACTION = "syncRecommendations";
+    private static final String SYNC_RECOMMENDATIONS_ACTION = "sync";
     private static final Func1<Throwable, Observable<SyncResult>> RESUME_ON_SYNC_FAILURE = new Func1<Throwable, Observable<SyncResult>>() {
         @Override
         public Observable<SyncResult> call(Throwable throwable) {
@@ -48,16 +48,16 @@ class RecommendationsSyncInitiator {
     };
 
     @Inject
-    RecommendationsSyncInitiator(SyncInitiator syncInitiator,
-                                 @Named(StorageModule.RECOMMENDATIONS_SYNC) SharedPreferences sharedPreferences,
-                                 CurrentDateProvider dateProvider) {
+    RecommendedTracksSyncInitiator(SyncInitiator syncInitiator,
+                                   @Named(StorageModule.RECOMMENDED_TRACKS_SYNC) SharedPreferences sharedPreferences,
+                                   CurrentDateProvider dateProvider) {
         this.syncInitiator = syncInitiator;
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;
     }
 
-    Observable<Boolean> syncRecommendations() {
-        if (isRecommendationsCacheExpired()) {
+    Observable<Boolean> sync() {
+        if (isCacheExpired()) {
             return syncInitiator.syncRecommendations().onErrorResumeNext(RESUME_ON_SYNC_FAILURE).doOnNext(setLastSyncTime).map(FROM_SYNC_RESULT);
         } else {
             return Observable.just(false);
@@ -68,7 +68,7 @@ class RecommendationsSyncInitiator {
         sharedPreferences.edit().clear().apply();
     }
 
-    private boolean isRecommendationsCacheExpired() {
+    private boolean isCacheExpired() {
         return (dateProvider.getCurrentTime() - getLastSyncTime() > CACHE_EXPIRATION_TIME);
     }
 

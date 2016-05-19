@@ -195,7 +195,7 @@ public class TestApplicationModule {
     }
 
     @Provides
-    @Named(StorageModule.RECOMMENDATIONS_SYNC)
+    @Named(StorageModule.RECOMMENDED_TRACKS_SYNC)
     public SharedPreferences provideRecommendationPrefs() {
         return provideSharedPreferences();
     }

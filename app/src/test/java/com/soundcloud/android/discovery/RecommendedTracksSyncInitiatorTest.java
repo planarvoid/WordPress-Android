@@ -22,9 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class RecommendationsSyncInitiatorTest extends AndroidUnitTest {
+public class RecommendedTracksSyncInitiatorTest extends AndroidUnitTest {
 
-    private RecommendationsSyncInitiator recommendationsSyncInitiator;
+    private RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
 
     @Mock private SyncInitiator syncInitiator;
     private TestDateProvider dateProvider;
@@ -34,7 +34,7 @@ public class RecommendationsSyncInitiatorTest extends AndroidUnitTest {
     public void setUp() {
         dateProvider = new TestDateProvider();
         SharedPreferences sharedPreferences = AndroidUnitTest.sharedPreferences("Discovery Shared Prefs", Context.MODE_PRIVATE);
-        recommendationsSyncInitiator = new RecommendationsSyncInitiator(syncInitiator, sharedPreferences, dateProvider);
+        recommendedTracksSyncInitiator = new RecommendedTracksSyncInitiator(syncInitiator, sharedPreferences, dateProvider);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class RecommendationsSyncInitiatorTest extends AndroidUnitTest {
         dateProvider.setTime((long) 3, TimeUnit.DAYS);
         when(syncInitiator.syncRecommendations()).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_RECOMMENDATIONS, true)));
 
-        assertResult(recommendationsSyncInitiator.syncRecommendations(), Collections.singletonList(true));
+        assertResult(recommendedTracksSyncInitiator.sync(), Collections.singletonList(true));
 
         verify(syncInitiator).syncRecommendations();
     }
@@ -51,7 +51,7 @@ public class RecommendationsSyncInitiatorTest extends AndroidUnitTest {
     public void doNotSyncRecommendationsIfCacheIsValid() {
         dateProvider.setTime((long) 1, TimeUnit.DAYS);
 
-        assertResult(recommendationsSyncInitiator.syncRecommendations(), Collections.singletonList(false));
+        assertResult(recommendedTracksSyncInitiator.sync(), Collections.singletonList(false));
 
         verifyZeroInteractions(syncInitiator);
     }
@@ -62,7 +62,7 @@ public class RecommendationsSyncInitiatorTest extends AndroidUnitTest {
 
         when(syncInitiator.syncRecommendations()).thenReturn(Observable.<SyncResult>error(new RuntimeException("expected")));
 
-        assertResult(recommendationsSyncInitiator.syncRecommendations(), Collections.singletonList(false));
+        assertResult(recommendedTracksSyncInitiator.sync(), Collections.singletonList(false));
     }
 
     private <T> void assertResult(Observable<T> observable, List<T> expected) {

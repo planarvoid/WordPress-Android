@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.propeller.TxnResult;
@@ -28,6 +29,7 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class StationsOperationsTest {
 
+    @Mock FeatureFlags featureFlags;
     @Mock SyncStateStorage syncStateStorage;
     @Mock StationsStorage stationsStorage;
     @Mock StationsApi stationsApi;
@@ -43,6 +45,7 @@ public class StationsOperationsTest {
     @Before
     public void setUp() {
         operations = new StationsOperations(
+                featureFlags,
                 syncStateStorage,
                 stationsStorage,
                 stationsApi,

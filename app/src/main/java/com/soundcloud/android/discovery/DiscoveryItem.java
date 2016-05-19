@@ -1,6 +1,6 @@
 package com.soundcloud.android.discovery;
 
-public abstract class DiscoveryItem {
+public class DiscoveryItem {
 
     public enum Kind {
         StationRecommendationItem, TrackRecommendationItem, PlaylistTagsItem, SearchItem, ChartItem
@@ -14,5 +14,9 @@ public abstract class DiscoveryItem {
 
     public Kind getKind() {
         return kind;
+    }
+
+    public static DiscoveryItem forRecommendedStationsBucket() {
+        return new DiscoveryItem(Kind.StationRecommendationItem);
     }
 }

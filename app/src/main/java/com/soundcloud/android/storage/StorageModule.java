@@ -33,7 +33,7 @@ public class StorageModule {
     public static final String POLICY_SETTINGS = "Policies";
     public static final String CONFIGURATION_SETTINGS = "ConfigurationSettings";
     public static final String ANALYTICS_SETTINGS = "Analytics";
-    public static final String RECOMMENDATIONS_SYNC = "RecommendationsSync";
+    public static final String RECOMMENDED_TRACKS_SYNC = "RecommendedTracksSync";
     public static final String GCM = "gcm";
     public static final String FACEBOOK_INVITES = "FacebookInvites";
     public static final String COLLECTIONS = "collections";
@@ -54,7 +54,7 @@ public class StorageModule {
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_STREAM_SYNC = "StreamSync";
     private static final String PREFS_ACTIVITIES_SYNC = "ActivitiesSync";
-    private static final String PREFS_RECOMMENDATIONS_SYNC = "RecommendationsSync";
+    private static final String PREFS_RECOMMENDED_TRACKS_SYNC = "RecommendationsSync";
     private static final String PREFS_GCM = "gcm";
     private static final String PREFS_FACEBOOK_INVITES = "facebook_invites";
     private static final String PREFS_COLLECTIONS = "collections";
@@ -163,9 +163,9 @@ public class StorageModule {
     }
 
     @Provides
-    @Named(RECOMMENDATIONS_SYNC)
-    public SharedPreferences provideRecommendationsSyncPrefs(Context context) {
-        return context.getSharedPreferences(PREFS_RECOMMENDATIONS_SYNC, Context.MODE_PRIVATE);
+    @Named(RECOMMENDED_TRACKS_SYNC)
+    public SharedPreferences provideRecommendedTracksSyncPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_RECOMMENDED_TRACKS_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides

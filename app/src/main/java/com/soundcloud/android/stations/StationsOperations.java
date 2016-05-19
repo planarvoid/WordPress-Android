@@ -4,8 +4,11 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.propeller.ChangeResult;
@@ -22,6 +25,7 @@ import javax.inject.Named;
 import java.util.List;
 
 public class StationsOperations {
+    private final FeatureFlags featureFlags;
     private final SyncStateStorage syncStateStorage;
     private final StationsStorage stationsStorage;
     private final StationsApi stationsApi;
@@ -45,13 +49,15 @@ public class StationsOperations {
     };
 
     @Inject
-    public StationsOperations(SyncStateStorage syncStateStorage,
+    public StationsOperations(FeatureFlags featureFlags,
+                              SyncStateStorage syncStateStorage,
                               StationsStorage stationsStorage,
                               StationsApi stationsApi,
                               StoreTracksCommand storeTracksCommand,
                               StoreStationCommand storeStationCommand,
                               StationsSyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+        this.featureFlags = featureFlags;
         this.syncStateStorage = syncStateStorage;
         this.stationsStorage = stationsStorage;
         this.stationsApi = stationsApi;
@@ -67,6 +73,14 @@ public class StationsOperations {
 
     public Observable<StationRecord> stationWithSeed(Urn station, final Urn seed) {
         return station(station, prependSeed(seed));
+    }
+
+    public Observable<DiscoveryItem> recommendations() {
+        if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
+            return Observable.just(DiscoveryItem.forRecommendedStationsBucket());
+        } else {
+            return Observable.empty();
+        }
     }
 
     private Observable<StationRecord> station(Urn station, Func1<StationRecord, StationRecord> toStation) {

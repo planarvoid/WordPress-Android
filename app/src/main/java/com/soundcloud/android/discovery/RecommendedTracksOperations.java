@@ -52,7 +52,7 @@ class RecommendedTracksOperations {
         };
     }
 
-    private final RecommendationsSyncInitiator recommendationsSyncInitiator;
+    private final RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
     private final RecommendationsStorage recommendationsStorage;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
     private final Scheduler scheduler;
@@ -60,12 +60,12 @@ class RecommendedTracksOperations {
 
 
     @Inject
-    RecommendedTracksOperations(RecommendationsSyncInitiator recommendationsSyncInitiator,
+    RecommendedTracksOperations(RecommendedTracksSyncInitiator recommendedTracksSyncInitiator,
                                 RecommendationsStorage recommendationsStorage,
                                 StoreRecommendationsCommand storeRecommendationsCommand,
                                 @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                 FeatureFlags featureFlags) {
-        this.recommendationsSyncInitiator = recommendationsSyncInitiator;
+        this.recommendedTracksSyncInitiator = recommendedTracksSyncInitiator;
         this.recommendationsStorage = recommendationsStorage;
         this.storeRecommendationsCommand = storeRecommendationsCommand;
         this.scheduler = scheduler;
@@ -96,7 +96,7 @@ class RecommendedTracksOperations {
 
     Observable<DiscoveryItem> tracksBucket() {
         if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
-            return recommendationsSyncInitiator.syncRecommendations()
+            return recommendedTracksSyncInitiator.sync()
                                                .flatMap(continueWith(loadFirstRecommendationBucket()));
         } else {
             return Observable.empty();
@@ -105,7 +105,7 @@ class RecommendedTracksOperations {
 
     void clearData() {
         storeRecommendationsCommand.clearTables();
-        recommendationsSyncInitiator.clearLastSyncTime();
+        recommendedTracksSyncInitiator.clearLastSyncTime();
     }
 
     private Observable<DiscoveryItem> loadFirstRecommendationBucket() {

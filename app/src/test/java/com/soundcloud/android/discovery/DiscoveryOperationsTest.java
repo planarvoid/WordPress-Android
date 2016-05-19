@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
+import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     @Mock private RecommendedTracksOperations recommendedTracksOperations;
     @Mock private PlaylistDiscoveryOperations playlistDiscoveryOperations;
-    @Mock private RecommendedStationsOperations stationsOperations;
+    @Mock private StationsOperations stationsOperations;
     @Mock private ChartsOperations chartsOperations;
 
     @Before
@@ -32,7 +33,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
                                              stationsOperations,
                                              chartsOperations);
 
-        when(stationsOperations.stations()).thenReturn(Observable.<DiscoveryItem>empty());
+        when(stationsOperations.recommendations()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedTracksOperations.tracksBucket()).thenReturn(Observable.<DiscoveryItem>empty());
         when(chartsOperations.charts()).thenReturn(Observable.<DiscoveryItem>empty());
     }
@@ -86,7 +87,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     private DiscoveryItem initStationsRecommendationItem() {
         final DiscoveryItem stationsRecommendationItem = mock(DiscoveryItem.class);
-        when(stationsOperations.stations()).thenReturn(Observable.just(stationsRecommendationItem));
+        when(stationsOperations.recommendations()).thenReturn(Observable.just(stationsRecommendationItem));
         return stationsRecommendationItem;
     }
 

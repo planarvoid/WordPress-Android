@@ -37,7 +37,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     private final ApiTrack recommendedTrack = recommendedTracks.get(0);
     private final PublishSubject<Boolean> syncSubject = PublishSubject.create();
 
-    @Mock private RecommendationsSyncInitiator recommendationsSyncInitiator;
+    @Mock private RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
     @Mock private RecommendationsStorage recommendationsStorage;
     @Mock private StoreRecommendationsCommand storeRecommendationsCommand;
     @Mock private FeatureFlags featureFlags;
@@ -47,7 +47,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new RecommendedTracksOperations(recommendationsSyncInitiator,
+        operations = new RecommendedTracksOperations(recommendedTracksSyncInitiator,
                                                      recommendationsStorage,
                                                      storeRecommendationsCommand,
                                                      scheduler,
@@ -59,7 +59,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.firstSeed()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(
                 createRecommendedTrackPropertySet()));
-        when(recommendationsSyncInitiator.syncRecommendations()).thenReturn(syncSubject);
+        when(recommendedTracksSyncInitiator.sync()).thenReturn(syncSubject);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
     }
 
@@ -157,7 +157,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         operations.clearData();
 
         verify(storeRecommendationsCommand).clearTables();
-        verify(recommendationsSyncInitiator).clearLastSyncTime();
+        verify(recommendedTracksSyncInitiator).clearLastSyncTime();
     }
 
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {

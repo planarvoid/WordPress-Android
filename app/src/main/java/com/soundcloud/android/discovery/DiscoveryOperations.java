@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
+import com.soundcloud.android.stations.StationsOperations;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -10,17 +11,17 @@ import java.util.List;
 public class DiscoveryOperations {
     private final RecommendedTracksOperations recommendedTracksOperations;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
-    private final RecommendedStationsOperations recommendedStationsOperations;
+    private final StationsOperations stationsOperations;
     private final ChartsOperations chartsOperations;
 
     @Inject
     DiscoveryOperations(RecommendedTracksOperations recommendedTracksOperations,
                         PlaylistDiscoveryOperations playlistDiscoveryOperations,
-                        RecommendedStationsOperations recommendedStationsOperations,
+                        StationsOperations stationsOperations,
                         ChartsOperations chartsOperations) {
         this.recommendedTracksOperations = recommendedTracksOperations;
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
-        this.recommendedStationsOperations = recommendedStationsOperations;
+        this.stationsOperations = stationsOperations;
         this.chartsOperations = chartsOperations;
     }
 
@@ -29,7 +30,7 @@ public class DiscoveryOperations {
 
         items.add(searchItem());
         items.add(chartsOperations.charts());
-        items.add(recommendedStationsOperations.stations());
+        items.add(stationsOperations.recommendations());
         items.add(recommendedTracksOperations.tracksBucket());
         items.add(playlistDiscoveryOperations.playlistTags());
 
@@ -38,7 +39,6 @@ public class DiscoveryOperations {
 
     public void clearData() {
         chartsOperations.clearData();
-        recommendedStationsOperations.clearData();
         recommendedTracksOperations.clearData();
         playlistDiscoveryOperations.clearData();
     }
