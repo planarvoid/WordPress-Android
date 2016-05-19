@@ -121,6 +121,11 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
+    public int getGlobalTop()  {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
     public ListElement toListView() {
         throw new ViewNotFoundException(selector);
     }

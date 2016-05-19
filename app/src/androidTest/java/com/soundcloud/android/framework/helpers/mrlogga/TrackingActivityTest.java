@@ -17,6 +17,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
     private MrLoggaVerifier verifier;
     private MrLoggaRecorder recorder;
     private boolean recordMode;
+    private static boolean isRecording = true;
 
     public TrackingActivityTest(Class<T> activityClass) {
         super(activityClass);
@@ -41,6 +42,22 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
         recorder = new MrLoggaRecorder(client);
 
         enableEventLoggerInstantFlush(context);
+    }
+
+    protected void startScenario(final String scenario) {
+        if (isRecording) {
+            startEventRecording(scenario);
+        } else {
+            startEventTracking();
+        }
+    }
+
+    protected void endScenario(final String scenario) {
+        if (isRecording) {
+            // nothing, recorded scenario will automatically be closed
+        } else {
+            finishEventTracking(scenario);
+        }
     }
 
     protected void startEventTracking(){

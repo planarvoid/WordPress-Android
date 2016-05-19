@@ -26,7 +26,7 @@ class UserSoundsTrackItemRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return trackItemViewFactory.createItemView(parent, R.layout.profile_user_sounds_track_list_item);
+        return trackItemViewFactory.createItemView(parent, R.layout.profile_user_sounds_track_row);
     }
 
     @Override

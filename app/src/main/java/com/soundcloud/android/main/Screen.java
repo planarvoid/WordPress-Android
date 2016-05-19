@@ -54,6 +54,7 @@ public enum Screen {
     USER_ALBUMS("users:albums"),
     USER_LIKES("users:likes"),
     USER_PLAYLISTS("users:playlists"),
+    USER_MAIN("users:main"),
 
     // player screens
     PLAYER_MAIN("tracks:main"),
@@ -118,9 +119,6 @@ public enum Screen {
     // Stations
     STATIONS_SHOW_ALL("stations:show_all"),
     STATIONS_RECENT("stations:recent_stations"),
-
-    // Profile V2
-    PROFILE_SOUNDS_PLAYLIST("profile:sounds_playlist"),
 
     // PAYMENT
     CONVERSION("consumer-premium:main"),

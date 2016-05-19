@@ -1,9 +1,13 @@
 package com.soundcloud.android.screens;
 
 import static com.soundcloud.android.framework.with.With.text;
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -14,15 +18,45 @@ import com.soundcloud.android.screens.elements.Tabs;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.java.collections.Lists;
+import com.soundcloud.android.screens.profile.UserAlbumsScreen;
+import com.soundcloud.android.screens.profile.UserLikesScreen;
+import com.soundcloud.android.screens.profile.UserPlaylistsScreen;
+import com.soundcloud.android.screens.profile.UserRepostsScreen;
+import com.soundcloud.android.screens.profile.UserTracksScreen;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
+import org.jetbrains.annotations.Nullable;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 
 import java.util.List;
 
 public class ProfileScreen extends Screen {
+
+    /**
+     * If the titles for the profile buckets ever change in the resource
+     * strings, they will also have to change here. It seems like using
+     * resources in tests is a bit unreliable, or doesn't work at all, which
+     * is why we have this duplication here.
+     */
+    public enum Bucket {
+        SPOTLIGHT("Spotlight"),
+        TRACKS("Tracks"),
+        PLAYLISTS("Playlists"),
+        ALBUMS("Albums"),
+        REPOSTS("Reposts"),
+        LIKES("Likes");
+
+        private final String headerTitle;
+
+        Bucket(String title) {
+            this.headerTitle = title;
+        }
+
+        public String getHeaderTitle() { return this.headerTitle; }
+    }
 
     public ProfileScreen(Han solo) {
         super(solo);
@@ -40,7 +74,6 @@ public class ProfileScreen extends Screen {
     }
 
     public VisualPlayerElement playTrack(int index) {
-
         VisualPlayerElement visualPlayerElement = getTracks().get(index).click();
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
@@ -60,7 +93,6 @@ public class ProfileScreen extends Screen {
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-
         return new TrackItemElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.track_list_item)))
                 .clickOverflowButton();
     }
@@ -126,7 +158,7 @@ public class ProfileScreen extends Screen {
     }
 
     protected List<PlaylistElement> playlists(int withId) {
-        return Lists.transform(
+        return transform(
                 testDriver.findOnScreenElements(With.id(withId)),
                 toPlaylistItemElement
         );
@@ -301,6 +333,108 @@ public class ProfileScreen extends Screen {
         final String captionIfNotFollowing = getActionFollowText();
         final String currentCaption = new TextElement(followButton()).getText();
         return !currentCaption.equals(captionIfNotFollowing);
+    }
+
+    private void scrollToBucketAndClickFirstItem(final Bucket bucket, final int elementsId) {
+        final ViewElement bucketHeader = scrollToBucket(bucket);
+        final List<ViewElement> elements = testDriver.findOnScreenElements(With.id(elementsId));
+
+        getElementsBelow(elements, bucketHeader.getGlobalTop()).get(0).click();
+    }
+
+    public VisualPlayerElement scrollToBucketAndClickFirstTrack(final Bucket bucket) {
+        scrollToBucketAndClickFirstItem(bucket, R.id.profile_user_sounds_track_row);
+
+        final VisualPlayerElement visualPlayer = new VisualPlayerElement(testDriver);
+        visualPlayer.waitForExpandedPlayer();
+
+        return visualPlayer;
+    }
+
+    public PlaylistDetailsScreen scrollToBucketAndClickFirstPlaylist(final Bucket bucket) {
+        scrollToBucketAndClickFirstItem(bucket, R.id.profile_user_sounds_playlist_row);
+
+        return new PlaylistDetailsScreen(testDriver);
+    }
+
+    public UserTracksScreen scrollToAndClickViewAllTracks() {
+        scrollToBucketAndClickFirstItem(Bucket.TRACKS, R.id.profile_user_sounds_view_all);
+
+        return new UserTracksScreen(testDriver);
+    }
+
+    public UserPlaylistsScreen scrollToAndClickViewAllPlaylists() {
+        scrollToBucketAndClickFirstItem(Bucket.PLAYLISTS, R.id.profile_user_sounds_view_all);
+
+        return new UserPlaylistsScreen(testDriver);
+    }
+
+    public UserAlbumsScreen scrollToAndClickViewAllAlbums() {
+        scrollToBucketAndClickFirstItem(Bucket.ALBUMS, R.id.profile_user_sounds_view_all);
+
+        return new UserAlbumsScreen(testDriver);
+    }
+
+    public UserRepostsScreen scrollToAndClickViewAllReposts() {
+        scrollToBucketAndClickFirstItem(Bucket.REPOSTS, R.id.profile_user_sounds_view_all);
+
+        return new UserRepostsScreen(testDriver);
+    }
+
+    public UserLikesScreen scrollToAndClickViewAllLikes() {
+        scrollToBucketAndClickFirstItem(Bucket.LIKES, R.id.profile_user_sounds_view_all);
+
+        return new UserLikesScreen(testDriver);
+    }
+
+
+    private ViewElement scrollToBucket(final Bucket bucket) {
+        final With condition = withHeaderText(bucket.getHeaderTitle());
+
+        final ViewElement element = scrollToItem(condition);
+        final DisplayMetrics metrics = new DisplayMetrics();
+        testDriver.getDisplay().getMetrics(metrics);
+
+        if (element.getGlobalTop() > metrics.heightPixels * 0.675) {
+            // Add one extra scroll to try to get the full bucket in view
+            // TODO: This is the most brittle part of this test. We should really
+            //   instead be scrolling such that both the header element and the 'view all'
+            //   element are visible at the same time, computing what that display rect
+            //   should be somehow...
+            testDriver.scrollDown();
+            return testDriver.findOnScreenElement(condition);
+        }
+
+        return element;
+    }
+
+    private static With withHeaderText(final String string) {
+        return new With() {
+            @Override
+            public String getSelector() {
+                return "sounds_header_text:" + string;
+            }
+
+            @Override
+            public boolean apply(@Nullable ViewElement input) {
+                if (input.getId() != R.id.sounds_header_text) {
+                    return false;
+                }
+
+                final ViewElement thing = input.findOnScreenElement(With.text(string));
+
+                return !(thing instanceof EmptyViewElement);
+            }
+        };
+    }
+
+    private static List<ViewElement> getElementsBelow(final List<ViewElement> elements, final int globalTop) {
+        return newArrayList(filter(elements, new Predicate<ViewElement>() {
+            @Override
+            public boolean apply(@Nullable ViewElement input) {
+                return input.getGlobalTop() > globalTop;
+            }
+        }));
     }
 
 }

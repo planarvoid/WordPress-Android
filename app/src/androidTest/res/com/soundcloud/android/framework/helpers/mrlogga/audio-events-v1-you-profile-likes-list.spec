@@ -1,0 +1,61 @@
+--- !ruby/object:MrLoggerLogger::ResultSpec
+expected_events:
+- !ruby/object:MrLoggerLogger::Event
+  name: pageview
+  params:
+    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    ts: '1462893260659'
+    client_id: '3152'
+    page_name: users:likes
+    user: soundcloud:users:218682740
+  version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    track_owner: soundcloud:users:662337
+    client_id: 3152
+    action: play
+    policy: ALLOW
+    player_type: Skippy
+    consumer_subs_plan: none
+    page_name: users:likes
+    monetization_model: NOT_APPLICABLE
+    user: soundcloud:users:218682740
+    playhead_position: 0
+    track_length: 295505
+    protocol: hls
+    ts: 1462893262832
+    app_version: '410'
+    track: soundcloud:tracks:25276427
+    connection_type: wifi
+    trigger: manual
+    local_storage_playback: false
+    client_event_id: a7798b47-d2a3-4cd4-9316-7878a2322034
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    track_owner: soundcloud:users:662337
+    client_id: 3152
+    action: pause
+    policy: ALLOW
+    player_type: Skippy
+    consumer_subs_plan: none
+    page_name: users:likes
+    monetization_model: NOT_APPLICABLE
+    user: soundcloud:users:218682740
+    playhead_position: 8220
+    track_length: 295505
+    protocol: hls
+    pause_reason: pause
+    ts: 1462893270842
+    app_version: '410'
+    track: soundcloud:tracks:25276427
+    connection_type: wifi
+    trigger: manual
+    local_storage_playback: false
+    client_event_id: 06639e10-bfa0-4a68-8247-9f93b848844a
+  version: '1'
+whitelisted_events: all

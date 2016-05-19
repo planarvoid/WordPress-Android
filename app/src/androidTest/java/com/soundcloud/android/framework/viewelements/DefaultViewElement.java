@@ -331,6 +331,14 @@ public class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public int getGlobalTop() {
+        final Rect rect = new Rect();
+        view.getGlobalVisibleRect(rect);
+
+        return rect.top;
+    }
+
+    @Override
     protected View getView() {
         return view;
     }

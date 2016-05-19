@@ -1,0 +1,75 @@
+--- !ruby/object:MrLoggerLogger::ResultSpec
+expected_events:
+- !ruby/object:MrLoggerLogger::Event
+  name: impression
+  params:
+    impression_name: promoted_playlist
+    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    impression_object: soundcloud:playlists:96874443
+    ts: '1462890650055'
+    client_id: '3152'
+    ad_urn: dfp:ads:110000061-12000000061
+    promoted_by: soundcloud:users:32326572
+    page_name: stream:main
+    user: soundcloud:users:151499536
+    monetization_type: promoted
+  version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: pageview
+  params:
+    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    ts: '1462890695013'
+    client_id: '3152'
+    page_name: users:reposts
+    user: soundcloud:users:151499536
+  version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    track_owner: soundcloud:users:21778
+    client_id: 3152
+    action: play
+    policy: ALLOW
+    player_type: Skippy
+    consumer_subs_plan: none
+    page_name: users:reposts
+    monetization_model: NOT_APPLICABLE
+    user: soundcloud:users:151499536
+    playhead_position: 7681
+    track_length: 382101
+    protocol: hls
+    ts: 1462890697341
+    app_version: '410'
+    track: soundcloud:tracks:249799487
+    connection_type: wifi
+    trigger: manual
+    local_storage_playback: false
+    client_event_id: 40c5762f-a500-4d97-93f5-1ec8d3da81e2
+  version: '1'
+- !ruby/object:MrLoggerLogger::Event
+  name: audio
+  params:
+    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    track_owner: soundcloud:users:21778
+    client_id: 3152
+    action: pause
+    policy: ALLOW
+    player_type: Skippy
+    consumer_subs_plan: none
+    page_name: users:reposts
+    monetization_model: NOT_APPLICABLE
+    user: soundcloud:users:151499536
+    playhead_position: 15961
+    track_length: 382101
+    protocol: hls
+    pause_reason: pause
+    ts: 1462890705285
+    app_version: '410'
+    track: soundcloud:tracks:249799487
+    connection_type: wifi
+    trigger: manual
+    local_storage_playback: false
+    client_event_id: e554884f-b9d0-4caa-ad1d-dffd2ef4bd00
+  version: '1'
+whitelisted_events: all

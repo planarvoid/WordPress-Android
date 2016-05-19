@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:id="@+id/user_sounds_list_item">
+    android:id="@+id/profile_user_sounds_track_row">
 
     <include layout="@layout/track_list_item" />
 

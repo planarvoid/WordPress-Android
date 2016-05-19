@@ -66,6 +66,8 @@ public abstract class ViewElement {
 
     public abstract int getTop();
 
+    public abstract int getGlobalTop();
+
     public abstract ListElement toListView();
 
     public abstract RecyclerViewElement toRecyclerView();
