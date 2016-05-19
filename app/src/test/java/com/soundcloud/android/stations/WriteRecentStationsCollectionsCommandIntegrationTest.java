@@ -1,7 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.WriteStationsCollectionsCommand.SyncCollectionsMetadata;
+import com.soundcloud.android.stations.WriteRecentStationsCollectionsCommand.SyncCollectionsMetadata;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
@@ -11,23 +11,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegrationTest {
+public class WriteRecentStationsCollectionsCommandIntegrationTest extends StorageIntegrationTest {
     private final TestDateProvider dateProvider = new TestDateProvider();
-    private WriteStationsCollectionsCommand command;
+    private WriteRecentStationsCollectionsCommand command;
 
     @Before
     public void setUp() {
-        command = new WriteStationsCollectionsCommand(propeller());
+        command = new WriteRecentStationsCollectionsCommand(propeller());
     }
 
     @Test
     public void shouldUpdateLocalContentWithRemoteContent() throws Exception {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Arrays.asList(Urn.forTrackStation(0L), Urn.forTrackStation(1L), Urn.forTrackStation(2L)),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList()
+                Arrays.asList(Urn.forTrackStation(0L), Urn.forTrackStation(1L), Urn.forTrackStation(2L))
         );
 
         final ApiStationMetadata stationZero = remoteContent.getRecents().get(0);
@@ -52,11 +48,7 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
     @Test
     public void shouldHaveADefaultLastPlayedPositionOfNull() {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Collections.singletonList(Urn.forTrackStation(0L)),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList()
+                Collections.singletonList(Urn.forTrackStation(0L))
         );
         final ApiStationMetadata remoteStation = remoteContent.getRecents().get(0);
 
@@ -72,11 +64,7 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
         databaseAssertions().assertStationMetadataInserted(localStation.getMetadata(), lastPlayedPosition);
 
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Collections.singletonList(localStation.getUrn()),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList()
+                Collections.singletonList(localStation.getUrn())
         );
 
         command.call(buildSyncMetadata(remoteContent));
@@ -103,10 +91,6 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
     @Test
     public void shouldDeleteLocalContentAbsentInRemoteContent() throws Exception {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
@@ -122,10 +106,6 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
     @Test
     public void shouldIgnoreLocalContentCreatedAfterTheSyncingStarted() throws Exception {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
                 Collections.<Urn>emptyList()
         );
 
@@ -143,11 +123,7 @@ public class WriteStationsCollectionCommandIntegrationTest extends StorageIntegr
     @Test
     public void shouldFilterRemoteContentWhenLocalContentWasUpdatedAfterSyncingStarted() throws Exception {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Arrays.asList(Urn.forTrackStation(1L), Urn.forTrackStation(2L)),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList()
+                Arrays.asList(Urn.forTrackStation(1L), Urn.forTrackStation(2L))
         );
 
         final ApiStationMetadata stationZero = remoteContent.getRecents().get(0);

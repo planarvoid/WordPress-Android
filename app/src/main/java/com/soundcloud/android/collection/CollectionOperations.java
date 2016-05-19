@@ -152,11 +152,11 @@ public class CollectionOperations {
                 }
     };
 
-    private static final Func1<SyncResult, Boolean> IS_STATIONS_SYNC_EVENT = new Func1<SyncResult, Boolean>() {
+    private static final Func1<SyncResult, Boolean> IS_RECENT_STATIONS_SYNC_EVENT = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
             switch (syncResult.getAction()) {
-                case StationsSyncRequestFactory.Actions.SYNC_STATIONS:
+                case StationsSyncRequestFactory.Actions.SYNC_RECENT_STATIONS:
                     return syncResult.wasChanged();
                 default:
                     return false;
@@ -208,7 +208,7 @@ public class CollectionOperations {
     public Observable<Object> onCollectionChanged() {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
-                eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_STATIONS_SYNC_EVENT)
+                eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_RECENT_STATIONS_SYNC_EVENT)
         );
     }
 

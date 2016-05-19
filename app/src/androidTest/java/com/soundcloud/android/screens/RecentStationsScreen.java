@@ -4,12 +4,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.StationElement;
-import com.soundcloud.android.stations.ShowAllStationsActivity;
+import com.soundcloud.android.stations.RecentStationsActivity;
 
-public class ViewAllStationsScreen extends Screen {
-    private static final Class ACTIVITY = ShowAllStationsActivity.class;
+public class RecentStationsScreen extends Screen {
+    private static final Class ACTIVITY = RecentStationsActivity.class;
 
-    public ViewAllStationsScreen(Han testDriver) {
+    public RecentStationsScreen(Han testDriver) {
         super(testDriver);
     }
 
@@ -22,7 +22,4 @@ public class ViewAllStationsScreen extends Screen {
         return ACTIVITY;
     }
 
-    public StationElement findStation(With matcher) {
-        return new StationElement(testDriver, testDriver.findOnScreenElement(matcher));
-    }
 }

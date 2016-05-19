@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.WriteStationsCollectionsCommand.SyncCollectionsMetadata;
+import com.soundcloud.android.stations.WriteRecentStationsCollectionsCommand.SyncCollectionsMetadata;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -23,12 +23,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StationsSyncerTest {
+public class RecentStationsSyncerTest {
 
-    private StationsSyncer syncer;
+    private RecentStationsSyncer syncer;
     private CurrentDateProvider dateProvider;
     @Mock SyncStateStorage syncStateStorage;
-    @Mock private WriteStationsCollectionsCommand command;
+    @Mock private WriteRecentStationsCollectionsCommand command;
     @Mock private StationsApi api;
     @Mock private StationsStorage storage;
     @Captor private ArgumentCaptor<SyncCollectionsMetadata> captor;
@@ -36,18 +36,14 @@ public class StationsSyncerTest {
     @Before
     public void setUp() {
         dateProvider = new TestDateProvider(System.currentTimeMillis());
-        syncer = new StationsSyncer(syncStateStorage, api, command, dateProvider, storage);
+        syncer = new RecentStationsSyncer(syncStateStorage, api, command, dateProvider, storage);
     }
 
     @Test
     public void shouldAcceptAllRemoteContentAndKeepLocalContentWhenUpdatedDuringSyncing() throws Exception {
         final Urn station = Urn.forTrackStation(1L);
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Collections.singletonList(station),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList()
+                Collections.singletonList(station)
         );
         final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getCurrentTime(), remoteContent);
         when(api.syncStationsCollections(anyList())).thenReturn(remoteContent);
@@ -63,11 +59,7 @@ public class StationsSyncerTest {
     public void shouldNotSetSyncedStateWhenWriteFailed() throws Exception {
         final Urn station = Urn.forTrackStation(1L);
         final ApiStationsCollections remoteContent = StationFixtures.collections(
-                Collections.singletonList(station),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList(),
-                Collections.<Urn>emptyList()
+                Collections.singletonList(station)
         );
         final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getCurrentTime(), remoteContent);
         when(api.syncStationsCollections(anyList())).thenReturn(remoteContent);

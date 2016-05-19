@@ -14,20 +14,15 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class ShowAllStationsFragment extends LightCycleSupportFragment<ShowAllStationsFragment> implements RefreshableScreen {
+public class RecentStationsFragment extends LightCycleSupportFragment<RecentStationsFragment> implements RefreshableScreen {
 
-    @Inject @LightCycle ShowAllStationsPresenter presenter;
+    @Inject @LightCycle RecentStationsPresenter presenter;
 
-    public static ShowAllStationsFragment create(int collectionType) {
-        final ShowAllStationsFragment fragment = new ShowAllStationsFragment();
-        final Bundle bundle = new Bundle();
-
-        bundle.putAll(ShowAllStationsPresenter.createBundle(collectionType));
-        fragment.setArguments(bundle);
-        return fragment;
+    public static RecentStationsFragment create() {
+        return new RecentStationsFragment();
     }
 
-    public ShowAllStationsFragment() {
+    public RecentStationsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -38,7 +33,7 @@ public class ShowAllStationsFragment extends LightCycleSupportFragment<ShowAllSt
 
     @Override
     public MultiSwipeRefreshLayout getRefreshLayout() {
-        return (MultiSwipeRefreshLayout) getView().findViewById(R.id.stations_layout);
+        return (MultiSwipeRefreshLayout) getView().findViewById(R.id.recent_stations_layout);
     }
 
     @Override

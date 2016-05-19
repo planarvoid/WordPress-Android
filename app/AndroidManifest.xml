@@ -274,7 +274,7 @@
         <activity android:label="@string/discovery_search_title" android:name=".discovery.PlaylistDiscoveryActivity"/>
 
         <!-- stations -->
-        <activity android:name=".stations.ShowAllStationsActivity" />
+        <activity android:name=".stations.RecentStationsActivity" />
 
         <!-- for testing purposes -->
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>

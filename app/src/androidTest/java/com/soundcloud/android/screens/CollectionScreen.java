@@ -26,9 +26,9 @@ public class CollectionScreen extends Screen {
         return new TrackLikesScreen(testDriver);
     }
 
-    public ViewAllStationsScreen clickRecentStations() {
+    public RecentStationsScreen clickRecentStations() {
         recentStationsElement().click();
-        return new ViewAllStationsScreen(testDriver);
+        return new RecentStationsScreen(testDriver);
     }
 
     public PlaylistElement scrollToPlaylistWithTitle(final String title) {

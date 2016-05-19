@@ -31,10 +31,6 @@ public class StationFixtures {
         return new ApiStation(getApiStationMetadata(station), tracks);
     }
 
-    public static List<PropertySet> getRecentStationsToSync() {
-        return getRecentStationsToSync(stationProperties());
-    }
-
     public static List<PropertySet> getRecentStationsToSync(PropertySet... stations) {
         return Arrays.asList(stations);
     }
@@ -78,26 +74,12 @@ public class StationFixtures {
 
     public static ApiStationsCollections collections() {
         return collections(
-                Arrays.asList(Urn.forTrackStation(1L), Urn.forTrackStation(2L)),
-                Arrays.asList(Urn.forTrackStation(3L), Urn.forTrackStation(4L)),
-                Arrays.asList(Urn.forTrackStation(5L), Urn.forTrackStation(6L)),
-                Arrays.asList(Urn.forTrackStation(7L), Urn.forTrackStation(8L)),
-                Arrays.asList(Urn.forTrackStation(9L), Urn.forTrackStation(10L))
+                Arrays.asList(Urn.forTrackStation(1L), Urn.forTrackStation(2L))
         );
     }
 
-    public static ApiStationsCollections collections(List<Urn> recents,
-                                                     List<Urn> saved,
-                                                     List<Urn> trackRecommendations,
-                                                     List<Urn> genreRecommendations,
-                                                     List<Urn> curatorRecommendations) {
-        return ApiStationsCollections.create(
-                createStationsCollection(recents),
-                createStationsCollection(saved),
-                createStationsCollection(trackRecommendations),
-                createStationsCollection(genreRecommendations),
-                createStationsCollection(curatorRecommendations)
-        );
+    public static ApiStationsCollections collections(List<Urn> recents) {
+        return ApiStationsCollections.create(createStationsCollection(recents));
     }
 
     private static ModelCollection<ApiStationMetadata> createStationsCollection(List<Urn> stations) {

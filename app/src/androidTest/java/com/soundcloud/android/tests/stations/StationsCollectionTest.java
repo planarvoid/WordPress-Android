@@ -10,7 +10,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.ViewAllStationsScreen;
+import com.soundcloud.android.screens.RecentStationsScreen;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -41,10 +41,10 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
     public void testStartedStationShouldBeAddedToRecentStations() {
         final String stationTrackTitle = startStationAndReturnTitle();
 
-        final ViewAllStationsScreen viewAllStationsScreen = mainNavHelper.goToCollections().clickRecentStations();
+        final RecentStationsScreen recentStationsScreen = mainNavHelper.goToCollections().clickRecentStations();
 
-        assertThat(viewAllStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTrackTitle)));
-        VisualPlayerElement player = viewAllStationsScreen.getFirstStation().click();
+        assertThat(recentStationsScreen.getFirstStation().getTitle(), is(equalTo(stationTrackTitle)));
+        VisualPlayerElement player = recentStationsScreen.getFirstStation().click();
         assertThat(player, is(visible()));
         assertThat(player.getTrackPageContext(), containsString(stationTrackTitle));
     }

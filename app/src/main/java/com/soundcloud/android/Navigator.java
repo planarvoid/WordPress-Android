@@ -37,7 +37,7 @@ import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
-import com.soundcloud.android.stations.ShowAllStationsActivity;
+import com.soundcloud.android.stations.RecentStationsActivity;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -305,10 +305,8 @@ public class Navigator {
         context.startActivity(createRecommendationIntent(context, localSeedId));
     }
 
-    public void openViewAllStations(Context context, int collectionType) {
-        final Intent intent = new Intent(context, ShowAllStationsActivity.class);
-        intent.putExtra(ShowAllStationsActivity.COLLECTION_TYPE, collectionType);
-        context.startActivity(intent);
+    public void openRecentStations(Context context) {
+        context.startActivity(new Intent(context, RecentStationsActivity.class));
     }
 
     public void openTrackLikes(Context context) {

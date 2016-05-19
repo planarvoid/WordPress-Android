@@ -11,20 +11,9 @@ import java.util.List;
 @AutoValue
 public abstract class ApiStationsCollections {
     @JsonCreator
-    public static ApiStationsCollections create(
-            @JsonProperty("recent") ModelCollection<ApiStationMetadata> recents,
-            @JsonProperty("saved") ModelCollection<ApiStationMetadata> saved,
-            @JsonProperty("track_recommended") ModelCollection<ApiStationMetadata> trackRecommendations,
-            @JsonProperty("genre_recommended") ModelCollection<ApiStationMetadata> genreRecommendations,
-            @JsonProperty("curator_recommended") ModelCollection<ApiStationMetadata> curatorRecommendations) {
+    public static ApiStationsCollections create(@JsonProperty("recent") ModelCollection<ApiStationMetadata> recents) {
 
-        return new AutoValue_ApiStationsCollections(
-                getCollection(recents),
-                getCollection(saved),
-                getCollection(trackRecommendations),
-                getCollection(genreRecommendations),
-                getCollection(curatorRecommendations)
-        );
+        return new AutoValue_ApiStationsCollections(getCollection(recents));
     }
 
     private static List<ApiStationMetadata> getCollection(ModelCollection<ApiStationMetadata> stationsCollection) {
@@ -32,12 +21,4 @@ public abstract class ApiStationsCollections {
     }
 
     public abstract List<ApiStationMetadata> getRecents();
-
-    public abstract List<ApiStationMetadata> getSaved();
-
-    public abstract List<ApiStationMetadata> getTrackRecommendations();
-
-    public abstract List<ApiStationMetadata> getGenreRecommendations();
-
-    public abstract List<ApiStationMetadata> getCuratorRecommendations();
 }

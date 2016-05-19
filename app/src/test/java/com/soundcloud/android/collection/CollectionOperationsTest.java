@@ -364,7 +364,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(StationsSyncRequestFactory.Actions.SYNC_STATIONS, true));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(StationsSyncRequestFactory.Actions.SYNC_RECENT_STATIONS, true));
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }

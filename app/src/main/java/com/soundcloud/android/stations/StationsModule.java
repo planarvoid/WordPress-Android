@@ -6,8 +6,8 @@ import dagger.Module;
 @Module(
         addsTo = ApplicationModule.class,
         injects = {
-                ShowAllStationsActivity.class,
-                ShowAllStationsFragment.class
+                RecentStationsActivity.class,
+                RecentStationsFragment.class
         }
 )
 public class StationsModule {}

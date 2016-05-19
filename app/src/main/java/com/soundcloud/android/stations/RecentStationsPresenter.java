@@ -23,9 +23,7 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class ShowAllStationsPresenter extends RecyclerViewPresenter<List<StationViewModel>, StationViewModel> {
-    private static final String COLLECTION_TYPE_KEY = "type";
-
+class RecentStationsPresenter extends RecyclerViewPresenter<List<StationViewModel>, StationViewModel> {
     private final Func1<SyncResult, Observable<List<StationViewModel>>> toStationViewModels = new Func1<SyncResult, Observable<List<StationViewModel>>>() {
         @Override
         public Observable<List<StationViewModel>> call(SyncResult ignored) {
@@ -42,12 +40,12 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<List<StationViewMod
     private Observable<List<StationViewModel>> source;
 
     @Inject
-    public ShowAllStationsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                                    StationsOperations operations,
-                                    StationsAdapter adapter,
-                                    Resources resources,
-                                    PlayQueueManager playQueueManager,
-                                    StationsNowPlayingController stationsNowPlayingController) {
+    public RecentStationsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                                   StationsOperations operations,
+                                   StationsAdapter adapter,
+                                   Resources resources,
+                                   PlayQueueManager playQueueManager,
+                                   StationsNowPlayingController stationsNowPlayingController) {
         super(swipeRefreshAttacher, Options.defaults());
         this.operations = operations;
         this.adapter = adapter;
@@ -64,24 +62,14 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<List<StationViewMod
         getBinding().connect();
     }
 
-    public static Bundle createBundle(int collectionType) {
-        final Bundle bundle = new Bundle();
-        bundle.putInt(COLLECTION_TYPE_KEY, collectionType);
-        return bundle;
-    }
-
-    private Observable<List<StationViewModel>> stationsSource(Bundle bundle) {
+    private Observable<List<StationViewModel>> stationsSource() {
         final Func1<StationRecord, StationViewModel> toViewModel = buildToViewModel();
 
         return operations
-                .collection(getCollectionType(bundle))
+                .collection(StationsCollectionsTypes.RECENT)
                 .map(toViewModel)
                 .take(resources.getInteger(R.integer.stations_list_max_recent_stations))
                 .toList();
-    }
-
-    private int getCollectionType(Bundle bundle) {
-        return bundle.getInt(COLLECTION_TYPE_KEY);
     }
 
     private Func1<StationRecord, StationViewModel> buildToViewModel() {
@@ -95,7 +83,7 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<List<StationViewMod
 
     @Override
     protected CollectionBinding<List<StationViewModel>, StationViewModel> onBuildBinding(Bundle bundle) {
-        source = stationsSource(bundle);
+        source = stationsSource();
 
         return CollectionBinding
                 .from(source)
@@ -119,12 +107,10 @@ class ShowAllStationsPresenter extends RecyclerViewPresenter<List<StationViewMod
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), resources.getInteger(R.integer.stations_grid_span_count)));
 
-        if (getCollectionType(fragment.getArguments()) == StationsCollectionsTypes.RECENT) {
-            final EmptyView emptyView = getEmptyView();
-            emptyView.setMessageText(R.string.recent_stations_empty_view_heading);
-            emptyView.setSecondaryText(R.string.recent_stations_empty_view_message);
-            emptyView.setImage(R.drawable.empty_stations);
-        }
+        final EmptyView emptyView = getEmptyView();
+        emptyView.setMessageText(R.string.recent_stations_empty_view_heading);
+        emptyView.setSecondaryText(R.string.recent_stations_empty_view_message);
+        emptyView.setImage(R.drawable.empty_stations);
     }
 
     @Override

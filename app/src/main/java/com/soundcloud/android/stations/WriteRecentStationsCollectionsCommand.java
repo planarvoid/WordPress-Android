@@ -1,6 +1,6 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.stations.StationsCollectionsTypes.*;
+import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.WriteStorageCommand;
@@ -8,6 +8,7 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -19,19 +20,19 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WriteStationsCollectionsCommand
-        extends WriteStorageCommand<WriteStationsCollectionsCommand.SyncCollectionsMetadata, TxnResult, Boolean> {
+public class WriteRecentStationsCollectionsCommand
+        extends WriteStorageCommand<WriteRecentStationsCollectionsCommand.SyncCollectionsMetadata, TxnResult, Boolean> {
 
-    private final static Function<ApiStationMetadata, ContentValues> TO_CONTENT_VALUES = 
+    private final static Function<ApiStationMetadata, ContentValues> TO_CONTENT_VALUES =
             new Function<ApiStationMetadata, ContentValues>() {
-        @Override
-        public ContentValues apply(ApiStationMetadata station) {
-            return buildStationContentValues(station);
-        }
-    };
+                @Override
+                public ContentValues apply(ApiStationMetadata station) {
+                    return buildStationContentValues(station);
+                }
+            };
 
     @Inject
-    WriteStationsCollectionsCommand(PropellerDatabase propeller) {
+    WriteRecentStationsCollectionsCommand(PropellerDatabase propeller) {
         super(propeller);
     }
 
@@ -40,24 +41,32 @@ public class WriteStationsCollectionsCommand
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.delete(
-                        Tables.StationsCollections.TABLE,
-                        filter().whereLt(Tables.StationsCollections.UPDATED_LOCALLY_AT, metadata.clearBeforeTime)
-                                .orWhereNull(Tables.StationsCollections.UPDATED_LOCALLY_AT)
-                ));
+                step(deleteLocalContentSynced(propeller));
+                step(deleteStaleContent(propeller));
 
-                final ApiStationsCollections collections = metadata.stationsCollections;
-                storeCollection(propeller, RECENT, collections.getRecents());
-                storeCollection(propeller, SAVED, collections.getSaved());
-                storeCollection(propeller, CURATOR_RECOMMENDATIONS, collections.getCuratorRecommendations());
-                storeCollection(propeller, GENRE_RECOMMENDATIONS, collections.getGenreRecommendations());
-                storeCollection(propeller, TRACK_RECOMMENDATIONS, collections.getTrackRecommendations());
-            }
-
-            private void storeCollection(PropellerDatabase propeller, int type, List<ApiStationMetadata> stations) {
+                List<ApiStationMetadata> stations = metadata.stationsCollections.getRecents();
                 step(saveStations(propeller, stations));
-                step(addStationsToCollection(propeller, type, stations));
+                step(addStationsToCollection(propeller, RECENT, stations));
             }
+
+            private ChangeResult deleteStaleContent(PropellerDatabase propeller) {
+                return propeller.delete(
+                        Tables.StationsCollections.TABLE,
+                        filter()
+                                .whereEq(Tables.StationsCollections.COLLECTION_TYPE, RECENT)
+                                .whereNull(Tables.StationsCollections.UPDATED_LOCALLY_AT)
+                );
+            }
+
+            private ChangeResult deleteLocalContentSynced(PropellerDatabase propeller) {
+                return propeller.delete(
+                        Tables.StationsCollections.TABLE,
+                        filter()
+                                .whereEq(Tables.StationsCollections.COLLECTION_TYPE, RECENT)
+                                .whereLt(Tables.StationsCollections.UPDATED_LOCALLY_AT, metadata.clearBeforeTime)
+                );
+            }
+
         });
     }
 

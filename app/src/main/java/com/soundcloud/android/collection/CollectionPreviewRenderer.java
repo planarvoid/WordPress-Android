@@ -7,7 +7,6 @@ import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.stations.StationsCollectionsTypes;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -33,7 +32,7 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     private final View.OnClickListener goToRecentStationsListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            navigator.openViewAllStations(v.getContext(), StationsCollectionsTypes.RECENT);
+            navigator.openRecentStations(v.getContext());
         }
     };
 

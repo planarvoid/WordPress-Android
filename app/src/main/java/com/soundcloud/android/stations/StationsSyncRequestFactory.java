@@ -10,21 +10,23 @@ import android.os.ResultReceiver;
 import javax.inject.Inject;
 
 public class StationsSyncRequestFactory {
-    private final StationsSyncer syncer;
+    private final RecentStationsSyncer recentStationsSyncer;
+
     private final EventBus eventBus;
 
     @Inject
-    public StationsSyncRequestFactory(StationsSyncer syncer, EventBus eventBus) {
-        this.syncer = syncer;
+    public StationsSyncRequestFactory(RecentStationsSyncer recentStationsSyncer,
+                                      EventBus eventBus) {
+        this.recentStationsSyncer = recentStationsSyncer;
         this.eventBus = eventBus;
     }
 
     public SyncRequest create(String action, ResultReceiver resultReceiver) {
         switch (action) {
-            case Actions.SYNC_STATIONS:
+            case Actions.SYNC_RECENT_STATIONS:
                 return new SingleJobRequest(
-                        new DefaultSyncJob(syncer),
-                        Actions.SYNC_STATIONS,
+                        new DefaultSyncJob(recentStationsSyncer),
+                        Actions.SYNC_RECENT_STATIONS,
                         true,
                         resultReceiver,
                         eventBus
@@ -35,6 +37,6 @@ public class StationsSyncRequestFactory {
     }
 
     public static class Actions {
-        public static final String SYNC_STATIONS = "syncStations";
+        public static final String SYNC_RECENT_STATIONS = "syncRecentStations";
     }
 }

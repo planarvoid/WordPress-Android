@@ -5,7 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.ViewAllStationsScreen;
+import com.soundcloud.android.screens.RecentStationsScreen;
 
 public class StationsBucketElement {
     private final Han testDriver;
@@ -16,9 +16,9 @@ public class StationsBucketElement {
         this.wrapped = wrapped;
     }
 
-    public ViewAllStationsScreen clickViewAll() {
+    public RecentStationsScreen clickViewAll() {
         wrapped.findOnScreenElement(With.text("View all")).click();
-        return new ViewAllStationsScreen(testDriver);
+        return new RecentStationsScreen(testDriver);
     }
 
     public StationElement getFirstStation() {
