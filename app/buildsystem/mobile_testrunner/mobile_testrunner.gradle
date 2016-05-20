@@ -15,7 +15,7 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'com.soundcloud.mobiletestrunner:client:69-9-7d286c3'
+    classpath 'com.soundcloud.mobiletestrunner:client:88-17-ed43c59'
   }
 }
 
@@ -207,7 +207,7 @@ class TestResultListener implements TestStatusNotifier {
 
   @Override
   void runStarted() {
-    println "Run started"
+    println "Run has been initiated"
   }
 
   @Override
