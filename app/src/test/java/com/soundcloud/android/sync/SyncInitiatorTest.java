@@ -181,11 +181,11 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void syncRecommendationsShouldRequestRecommendationsSync() throws Exception {
-        initiator.syncRecommendations().subscribe(syncSubscriber);
+        initiator.syncRecommendedTracks().subscribe(syncSubscriber);
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_RECOMMENDATIONS);
+        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_RECOMMENDED_TRACKS);
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
     }
 

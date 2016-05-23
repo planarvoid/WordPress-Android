@@ -100,7 +100,7 @@ public class StationsOperations {
 
     public Observable<StationRecord> collection(final int type) {
         final Observable<StationRecord> collection;
-        if (syncStateStorage.hasSyncedBefore(StationsSyncInitiator.TYPE)) {
+        if (syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECENT)) {
             collection = loadStationsCollection(type);
         } else {
             collection = syncAndLoadStationsCollection(type);

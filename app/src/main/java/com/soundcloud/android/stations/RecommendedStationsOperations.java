@@ -2,40 +2,29 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
-import static com.soundcloud.java.collections.MoreCollections.transform;
 
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscription;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class RecommendedStationsOperations {
-
-    private static final Func1<ModelCollection<ApiStationMetadata>, List<StationRecord>> TO_STATION_RECORD =
-            new Func1<ModelCollection<ApiStationMetadata>, List<StationRecord>>() {
-                @Override
-                public List<StationRecord> call(ModelCollection<ApiStationMetadata> apiStationMetadatas) {
-                    return new ArrayList<>(transform(apiStationMetadatas.getCollection(), new Function<ApiStationMetadata, StationRecord>() {
-                        @Override
-                        public StationRecord apply(ApiStationMetadata input) {
-                            return Station.from(input);
-                        }
-                    }));
-                }
-            };
 
     private static final Func2<List<StationRecord>, List<StationRecord>, List<StationRecord>> MOVE_RECENT_TO_END =
             new Func2<List<StationRecord>, List<StationRecord>, List<StationRecord>>() {
@@ -55,24 +44,33 @@ public class RecommendedStationsOperations {
                     return new RecommendedStationsBucket(stationRecords);
                 }
             };
+    private static final long SYNC_THRESHOLD = TimeUnit.DAYS.toMillis(1);
 
+    private final Action1<List<StationRecord>> SYNC_IF_NEEDED = new Action1<List<StationRecord>>() {
+        @Override
+        public void call(List<StationRecord> stationRecords) {
+            if (needsRefresh()) {
+                refreshRecommendedStations();
+            }
+        }
+    };
     private final StationsStorage stationsStorage;
-    private final StationsApi stationsApi;
-    private final WriteStationsRecommendationsCommand writeCommand;
     private final FeatureFlags featureFlags;
     private final Scheduler scheduler;
+    private final SyncStateStorage syncStateStorage;
+    private final StationsSyncInitiator syncInitiator;
 
     @Inject
     RecommendedStationsOperations(StationsStorage stationsStorage,
-                                         StationsApi stationsApi,
-                                         WriteStationsRecommendationsCommand writeCommand,
-                                         FeatureFlags featureFlags,
-                                         @Named(HIGH_PRIORITY) Scheduler scheduler) {
+                                  FeatureFlags featureFlags,
+                                  @Named(HIGH_PRIORITY) Scheduler scheduler,
+                                  SyncStateStorage syncStateStorage,
+                                  StationsSyncInitiator syncInitiator) {
         this.stationsStorage = stationsStorage;
-        this.stationsApi = stationsApi;
-        this.writeCommand = writeCommand;
         this.featureFlags = featureFlags;
         this.scheduler = scheduler;
+        this.syncStateStorage = syncStateStorage;
+        this.syncInitiator = syncInitiator;
     }
 
     public Observable<DiscoveryItem> stationsBucket() {
@@ -90,10 +88,30 @@ public class RecommendedStationsOperations {
     }
 
     private Observable<List<StationRecord>> recommendedStations() {
-        return getCollection(RECOMMENDATIONS)
-                .flatMap(loadIfEmpty())
+        final Observable<List<StationRecord>> source;
+
+        if (hasSyncedBefore()) {
+            source = getCollection(RECOMMENDATIONS);
+        } else {
+            source = stationsRefresh();
+        }
+
+        return source
                 .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
+                .doOnNext(SYNC_IF_NEEDED)
                 .subscribeOn(scheduler);
+    }
+
+    private boolean hasSyncedBefore() {
+        return syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECOMMENDATIONS);
+    }
+
+    private boolean needsRefresh() {
+        return !syncStateStorage.hasSyncedWithin(StationsSyncInitiator.RECOMMENDATIONS, SYNC_THRESHOLD);
+    }
+
+    private Subscription refreshRecommendedStations() {
+        return fireAndForget(syncInitiator.syncRecommendedStations());
     }
 
     private Func1<List<StationRecord>, Observable<List<StationRecord>>> loadIfEmpty() {
@@ -108,11 +126,8 @@ public class RecommendedStationsOperations {
     }
 
     private Observable<List<StationRecord>> stationsRefresh() {
-        return stationsApi
-                .fetchStationRecommendations()
-                .doOnNext(writeCommand.toAction1())
-                .map(TO_STATION_RECORD)
-                .subscribeOn(scheduler);
+        return syncInitiator.syncRecommendedStations()
+                .flatMap(continueWith(getCollection(RECOMMENDATIONS)));
     }
 
     private Observable<List<StationRecord>> getCollection(int collectionType) {

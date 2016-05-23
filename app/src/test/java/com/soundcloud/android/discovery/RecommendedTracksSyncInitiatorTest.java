@@ -40,11 +40,11 @@ public class RecommendedTracksSyncInitiatorTest extends AndroidUnitTest {
     @Test
     public void syncRecommendationsOnlyIfCacheIsExpired() {
         dateProvider.setTime((long) 3, TimeUnit.DAYS);
-        when(syncInitiator.syncRecommendations()).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_RECOMMENDATIONS, true)));
+        when(syncInitiator.syncRecommendedTracks()).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_RECOMMENDED_TRACKS, true)));
 
         assertResult(recommendedTracksSyncInitiator.sync(), Collections.singletonList(true));
 
-        verify(syncInitiator).syncRecommendations();
+        verify(syncInitiator).syncRecommendedTracks();
     }
 
     @Test
@@ -60,7 +60,7 @@ public class RecommendedTracksSyncInitiatorTest extends AndroidUnitTest {
     public void gracefullyRecoversIfSyncFails() {
         dateProvider.setTime((long) 1, TimeUnit.DAYS);
 
-        when(syncInitiator.syncRecommendations()).thenReturn(Observable.<SyncResult>error(new RuntimeException("expected")));
+        when(syncInitiator.syncRecommendedTracks()).thenReturn(Observable.<SyncResult>error(new RuntimeException("expected")));
 
         assertResult(recommendedTracksSyncInitiator.sync(), Collections.singletonList(false));
     }

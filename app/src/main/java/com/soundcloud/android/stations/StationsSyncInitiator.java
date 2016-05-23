@@ -11,7 +11,8 @@ import android.content.Context;
 import javax.inject.Inject;
 
 public class StationsSyncInitiator extends SyncInitiator {
-    public static final String TYPE = "STATIONS";
+    public static final String RECENT = "RECENT";
+    public static final String RECOMMENDATIONS = "RECOMMENDATIONS";
 
     @Inject
     StationsSyncInitiator(Context context, AccountOperations accountOperations, SyncStateManager syncStateManager) {
@@ -19,6 +20,10 @@ public class StationsSyncInitiator extends SyncInitiator {
     }
 
     Observable<SyncResult> syncRecentStations() {
-        return requestSyncObservable(TYPE, StationsSyncRequestFactory.Actions.SYNC_RECENT_STATIONS);
+        return requestSyncObservable(RECENT, StationsSyncRequestFactory.Actions.SYNC_RECENT_STATIONS);
+    }
+
+    Observable<SyncResult> syncRecommendedStations() {
+        return requestSyncObservable(RECOMMENDATIONS, StationsSyncRequestFactory.Actions.SYNC_RECOMMENDED_STATIONS);
     }
 }

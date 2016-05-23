@@ -64,7 +64,8 @@ class SyncRequestFactory {
     private SyncRequest createRequest(Intent intent) {
         final String type = intent.getStringExtra(ApiSyncService.EXTRA_TYPE);
         switch (type) {
-            case StationsSyncInitiator.TYPE:
+            case StationsSyncInitiator.RECENT:
+            case StationsSyncInitiator.RECOMMENDATIONS:
                 return stationsSyncRequestFactory.create(intent.getAction(), getReceiverFromIntent(intent));
             case ChartsSyncInitiator.TYPE:
                 return chartsSyncRequestFactory.create(intent.getAction(), getReceiverFromIntent(intent));
@@ -92,10 +93,10 @@ class SyncRequestFactory {
             return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
                     intent.getAction(), true, getReceiverFromIntent(intent), eventBus, playlistUrn);
 
-        } else if (SyncActions.SYNC_RECOMMENDATIONS.equals(intent.getAction())) {
+        } else if (SyncActions.SYNC_RECOMMENDED_TRACKS.equals(intent.getAction())) {
             return new SingleJobRequest(
                     new DefaultSyncJob(lazyRecommendationSyncer.get()),
-                    SyncActions.SYNC_RECOMMENDATIONS,
+                    SyncActions.SYNC_RECOMMENDED_TRACKS,
                     true,
                     getReceiverFromIntent(intent),
                     eventBus
