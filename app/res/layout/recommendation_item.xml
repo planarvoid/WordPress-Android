@@ -33,7 +33,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/recommendation_title"
+            android:visibility="gone"
             tools:text="Track name"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/recommendation_now_playing"
+            style="@style/Recommendation.RecommendationNowPlaying"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/recommendation_title"
+            android:visibility="gone"
+            android:text="@string/title_now_playing" />
     </RelativeLayout>
 
     <ImageView android:id="@+id/overflow_button"

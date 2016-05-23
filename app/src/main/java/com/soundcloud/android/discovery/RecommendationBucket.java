@@ -1,7 +1,6 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 
 import java.util.List;
@@ -9,9 +8,9 @@ import java.util.List;
 class RecommendationBucket extends DiscoveryItem {
 
     private final PropertySet source;
-    private final List<TrackItem> recommendations;
+    private final List<Recommendation> recommendations;
 
-    RecommendationBucket(PropertySet source, List<TrackItem> recommendations) {
+    RecommendationBucket(PropertySet source, List<Recommendation> recommendations) {
         super(Kind.TrackRecommendationItem);
         this.source = source;
         this.recommendations = recommendations;
@@ -25,7 +24,7 @@ class RecommendationBucket extends DiscoveryItem {
         return source.get(RecommendationProperty.SEED_TRACK_URN);
     }
 
-    List<TrackItem> getRecommendations() {
+    List<Recommendation> getRecommendations() {
         return recommendations;
     }
 

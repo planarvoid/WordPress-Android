@@ -1,10 +1,12 @@
 package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.discovery.RecommendationProperty.SEED_TRACK_LOCAL_ID;
+import static com.soundcloud.android.discovery.RecommendationProperty.SEED_TRACK_URN;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
@@ -22,19 +24,28 @@ import java.util.List;
 
 class RecommendedTracksOperations {
 
-    private final Func1<PropertySet, Observable<DiscoveryItem>> toRecommendationBucket = new Func1<PropertySet, Observable<DiscoveryItem>>() {
+    private List<Recommendation> toRecommendations(final Urn seedUrn, List<TrackItem> trackItems) {
+        final List<Recommendation> viewModels = new ArrayList<>(trackItems.size());
+
+        for (TrackItem trackItem : trackItems) {
+            viewModels.add(new Recommendation(trackItem, seedUrn, playQueueManager.getCurrentPlayQueueItem().getUrn().equals(trackItem.getUrn())));
+        }
+
+        return viewModels;
+    }
+
+    Func1<PropertySet, Observable<DiscoveryItem>> toBucket = new Func1<PropertySet, Observable<DiscoveryItem>>() {
         @Override
-        public Observable<DiscoveryItem> call(PropertySet propertySet) {
-            return tracksForSeed(propertySet.get(SEED_TRACK_LOCAL_ID)).map(mergeWith(propertySet));
+        public Observable<DiscoveryItem> call(PropertySet seed) {
+            return tracksForSeed(seed.get(SEED_TRACK_LOCAL_ID)).map(mergeWith(seed));
         }
     };
 
-
-    private static Func1<List<TrackItem>, DiscoveryItem> mergeWith(final PropertySet seed) {
+    private Func1<List<TrackItem>, DiscoveryItem> mergeWith(final PropertySet seed) {
         return new Func1<List<TrackItem>, DiscoveryItem>() {
             @Override
             public DiscoveryItem call(List<TrackItem> trackItems) {
-                return new RecommendationBucket(seed, trackItems);
+                return new RecommendationBucket(seed, toRecommendations(seed.get(SEED_TRACK_URN), trackItems));
             }
         };
     }
@@ -55,6 +66,7 @@ class RecommendedTracksOperations {
     private final RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
     private final RecommendationsStorage recommendationsStorage;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
+    private final PlayQueueManager playQueueManager;
     private final Scheduler scheduler;
     private final FeatureFlags featureFlags;
 
@@ -63,15 +75,18 @@ class RecommendedTracksOperations {
     RecommendedTracksOperations(RecommendedTracksSyncInitiator recommendedTracksSyncInitiator,
                                 RecommendationsStorage recommendationsStorage,
                                 StoreRecommendationsCommand storeRecommendationsCommand,
+                                PlayQueueManager playQueueManager,
                                 @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                 FeatureFlags featureFlags) {
         this.recommendedTracksSyncInitiator = recommendedTracksSyncInitiator;
         this.recommendationsStorage = recommendationsStorage;
         this.storeRecommendationsCommand = storeRecommendationsCommand;
+        this.playQueueManager = playQueueManager;
         this.scheduler = scheduler;
         this.featureFlags = featureFlags;
     }
 
+    // TODO: Remove / Change this up
     Observable<List<Urn>> tracksWithSeed(final RecommendationBucket recommendationBucket) {
         //When a seed track is played, we always enqueue all recommended tracks
         //but we need to keep the seed track position inside the queue, thus,
@@ -110,8 +125,7 @@ class RecommendedTracksOperations {
 
     private Observable<DiscoveryItem> loadFirstRecommendationBucket() {
         return recommendationsStorage.firstSeed()
-                .flatMap(toRecommendationBucket)
+                .flatMap(toBucket)
                 .subscribeOn(scheduler);
     }
-
 }

@@ -1,134 +1,114 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.java.collections.Iterables.concat;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
+import static java.util.Collections.singleton;
+
 import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemMenuPresenter;
-import com.soundcloud.java.checks.Preconditions;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.support.v4.app.FragmentActivity;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.List;
 import java.util.Locale;
 
+@AutoFactory(allowSubclasses = true)
 class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket> {
+    private final Screen screen;
+    private final boolean isViewAllBucket;
+    private final RecommendationsAdapter adapter;
+    private final PlaybackInitiator playbackInitiator;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
-    private View.OnClickListener onRecommendationClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (onRecommendationBucketClickListener != null) {
-                RecommendationBucket recommendationBucket = (RecommendationBucket) view.getTag(R.id.recommendation_bucket_tag);
-                TrackItem trackItem = (TrackItem) view.getTag(R.id.recommendation_track_item_tag);
-
-                onRecommendationBucketClickListener.onRecommendationClicked(recommendationBucket, trackItem);
-            }
-        }
-    };
-    private View.OnClickListener onReasonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (onRecommendationBucketClickListener != null) {
-                RecommendationBucket recommendationBucket = (RecommendationBucket) view.getTag(R.id.recommendation_bucket_tag);
-                onRecommendationBucketClickListener.onReasonClicked(recommendationBucket);
-            }
-        }
-    };
-
-    interface OnRecommendationBucketClickListener {
-        void onReasonClicked(RecommendationBucket recommendationBucket);
-
-        void onRecommendationClicked(RecommendationBucket recommendationBucket, TrackItem trackItem);
-
-        void onViewAllClicked();
-    }
-
-    private final Resources resources;
-    private final ImageOperations imageOperations;
-    private final TrackItemMenuPresenter trackItemMenuPresenter;
-    private OnRecommendationBucketClickListener onRecommendationBucketClickListener;
-    @Inject
     RecommendationBucketRenderer(
-            Resources resources,
-            ImageOperations imageOperations,
-            TrackItemMenuPresenter trackItemMenuPresenter) {
-
-        this.resources = resources;
-        this.imageOperations = imageOperations;
-        this.trackItemMenuPresenter = trackItemMenuPresenter;
+            Screen screen,
+            boolean isViewAllBucket,
+            @Provided RecommendationsAdapterFactory adapterFactory,
+            @Provided PlaybackInitiator playbackInitiator,
+            @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+        this.screen = screen;
+        this.isViewAllBucket = isViewAllBucket;
+        this.adapter = adapterFactory.create(screen);
+        this.playbackInitiator = playbackInitiator;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
     }
 
     @Override
     public View createItemView(ViewGroup viewGroup) {
-        return LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recommendation_bucket, viewGroup, false);
+        final View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recommendation_bucket, viewGroup, false);
+        initCarousel(ButterKnife.<RecyclerView>findById(view, R.id.recommendations_carousel));
+        return view;
+    }
+
+    private void initCarousel(final RecyclerView recyclerView) {
+        final Context context = recyclerView.getContext();
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void bindItemView(int position, View bucketView, List<RecommendationBucket> list) {
-        // TODO : Unbind before binding the listeners
-
         final RecommendationBucket recommendationBucket = list.get(position);
-        final LinearLayout carouselContainer = ButterKnife.findById(bucketView, R.id.recommendations_carousel);
+
+        bindViewAllViews(bucketView, recommendationBucket);
+        bindReasonView(bucketView, recommendationBucket);
+        bindCarousel(recommendationBucket);
+    }
+
+    private void bindViewAllViews(View bucketView, RecommendationBucket recommendationBucket) {
+        final int visbility = isViewAllBucket ? View.VISIBLE : View.GONE;
+
+        ButterKnife.findById(bucketView, R.id.recommendations_header).setVisibility(visbility);
+        ButterKnife.findById(bucketView, R.id.recommendations_header_divider).setVisibility(visbility);
+        ButterKnife.findById(bucketView, R.id.recommendations_view_all).setVisibility(visbility);
+        ButterKnife.findById(bucketView, R.id.recommendations_view_all_divider).setVisibility(visbility);
+    }
+
+    private void bindReasonView(View bucketView, final RecommendationBucket bucket) {
         TextView reasonView = ButterKnife.findById(bucketView, R.id.reason);
-        reasonView.setTag(R.id.recommendation_bucket_tag, recommendationBucket);
+        reasonView.setTag(R.id.recommendation_bucket_tag, bucket);
+        reasonView.setText(getReasonText(bucket, bucketView.getContext()));
+        reasonView.setOnClickListener(buildOnReasonClickListener(bucket));
+    }
 
-        reasonView.setText(getReasonText(recommendationBucket, bucketView.getContext()));
+    private void bindCarousel(RecommendationBucket recommendationBucket) {
+        final List<Recommendation> viewModels = recommendationBucket.getRecommendations();
 
-        for (TrackItem trackItem : recommendationBucket.getRecommendations()) {
-            final View recommendationView = LayoutInflater.from(carouselContainer.getContext()).inflate(R.layout.recommendation_item, carouselContainer, false);
-            ButterKnife.<TextView>findById(recommendationView, R.id.recommendation_title).setText(trackItem.getTitle());
-            ButterKnife.<TextView>findById(recommendationView, R.id.recommendation_artist).setText(trackItem.getCreatorName());
-            setOverflowClickListener(ButterKnife.<ImageView>findById(recommendationView, R.id.overflow_button), trackItem);
-            loadArtwork(recommendationView, trackItem);
-            carouselContainer.addView(recommendationView);
-            recommendationView.setTag(R.id.recommendation_bucket_tag, recommendationBucket);
-            recommendationView.setTag(R.id.recommendation_track_item_tag, trackItem);
-            setOnRecommendationItemListener(recommendationView);
+        adapter.clear();
+        for (int i = 0; i < viewModels.size(); i++) {
+            adapter.addItem(viewModels.get(i));
         }
 
-        setOnReasonClickListener(reasonView);
-    }
-
-    private void setOnRecommendationItemListener(View recommendationView) {
-        recommendationView.setOnClickListener(onRecommendationClickListener);
-    }
-
-    private void setOnReasonClickListener(TextView reasonView) {
-        reasonView.setOnClickListener(onReasonClickListener);
-    }
-
-    void setOnRecommendationBucketClickListener(OnRecommendationBucketClickListener listener) {
-        Preconditions.checkArgument(listener != null, "Click listener must not be null");
-        this.onRecommendationBucketClickListener = listener;
-    }
-
-    private void setOverflowClickListener(final ImageView button, final TrackItem trackItem) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, trackItem, 0);
-            }
-        });
+        adapter.notifyDataSetChanged();
     }
 
     private Spannable getReasonText(RecommendationBucket recommendationBucket, Context context) {
-        String reason = getReason(recommendationBucket.getRecommendationReason());
-        String reasonText = resources.getString(R.string.recommendation_reason_because_you_reason_tracktitle, reason,
+        String reason = getReasonType(recommendationBucket.getRecommendationReason(), context);
+        String reasonText = context.getString(R.string.recommendation_reason_because_you_reason_tracktitle, reason,
                 recommendationBucket.getSeedTrackTitle());
 
         Spannable spannable = new SpannableString(reasonText);
@@ -140,20 +120,37 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
         return spannable;
     }
 
-    private void loadArtwork(View itemView, TrackItem trackItem) {
-        final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
-        imageOperations.displayInAdapterView(trackItem,
-                apiImageSize, ButterKnife.<ImageView>findById(itemView, R.id.recommendation_artwork));
-    }
-
-    private String getReason(RecommendationReason recommendationReason) {
+    private String getReasonType(RecommendationReason recommendationReason, Context context) {
         switch (recommendationReason) {
             case LIKED:
-                return resources.getString(R.string.recommendation_reason_liked).toLowerCase(Locale.getDefault());
+                return context.getString(R.string.recommendation_reason_liked).toLowerCase(Locale.getDefault());
             case LISTENED_TO:
-                return resources.getString(R.string.recommendation_reason_listened_to).toLowerCase(Locale.getDefault());
+                return context.getString(R.string.recommendation_reason_listened_to).toLowerCase(Locale.getDefault());
             default:
                 throw new IllegalArgumentException("Unknown recommendation reason " + recommendationReason);
         }
+    }
+
+    @NonNull
+    private View.OnClickListener buildOnReasonClickListener(final RecommendationBucket bucket) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Urn> playQueue = toPlayQueue(bucket.getSeedTrackUrn(), bucket.getRecommendations());
+
+                playbackInitiator.playTracks(
+                        playQueue,
+                        playQueue.indexOf(bucket.getSeedTrackUrn()),
+                        new PlaySessionSource(screen))
+                        .subscribe(expandPlayerSubscriberProvider.get());
+            }
+        };
+    }
+
+    @NonNull
+    @SuppressWarnings("unchecked")
+    private List<Urn> toPlayQueue(Urn seedUrn, List<Recommendation> recommendations) {
+        Iterable<Urn> recommendationUrns = transform(recommendations, Recommendation.TO_TRACK_URN);
+        return newArrayList(concat(singleton(seedUrn), recommendationUrns));
     }
 }

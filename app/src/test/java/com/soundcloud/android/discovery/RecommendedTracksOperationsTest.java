@@ -7,11 +7,13 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -41,6 +43,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     @Mock private RecommendationsStorage recommendationsStorage;
     @Mock private StoreRecommendationsCommand storeRecommendationsCommand;
     @Mock private FeatureFlags featureFlags;
+    @Mock private PlayQueueManager playQueueManager;
 
     private RecommendedTracksOperations operations;
     private TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
@@ -50,6 +53,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         operations = new RecommendedTracksOperations(recommendedTracksSyncInitiator,
                                                      recommendationsStorage,
                                                      storeRecommendationsCommand,
+                                                     playQueueManager,
                                                      scheduler,
                                                      featureFlags);
 
@@ -61,6 +65,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                 createRecommendedTrackPropertySet()));
         when(recommendedTracksSyncInitiator.sync()).thenReturn(syncSubject);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
     }
 
     @Test
@@ -74,8 +79,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.recommendedTracksAfterSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(
                 recommendedTrackUrnTwo)));
 
-        RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(),
-                                                                             Collections.<TrackItem>emptyList());
+        RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(), Collections.<Recommendation>emptyList());
         operations.tracksWithSeed(recommendationBucket).subscribe(testSubscriber);
 
         List<Urn> recommendedTracksWithSeed = testSubscriber.getOnNextEvents().get(0);
@@ -110,7 +114,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
 
         when(recommendationsStorage.recommendedTracks()).thenReturn(Observable.just(Arrays.asList(recommendedTrackUrnOne,
-                                                                                                  recommendedTrackUrnTwo)));
+                recommendedTrackUrnTwo)));
 
         operations.allTracks().subscribe(testObserver);
 
@@ -169,10 +173,10 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         assertThat(recommendationBucket.getSeedTrackTitle()).isEqualTo(seedTrack.getTitle());
         assertThat(recommendationBucket.getRecommendationReason()).isEqualTo(REASON);
 
-        assertThat(recommendationBucket.getRecommendations().get(0).getTitle()).isEqualTo(recommendedTracks.get(0)
-                                                                                                           .getTitle());
-        assertThat(recommendationBucket.getRecommendations().get(0).getCreatorName()).isEqualTo(recommendedTracks.get(0)
-                                                                                                                 .getUserName());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getTitle()).isEqualTo(recommendedTracks.get(0)
+                .getTitle());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(recommendedTracks.get(0)
+                .getUserName());
     }
 
     private PropertySet createSeed() {

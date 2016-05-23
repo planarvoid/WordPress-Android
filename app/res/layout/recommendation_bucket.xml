@@ -20,9 +20,10 @@
         android:paddingLeft="@dimen/discovery_cell_text_padding"
         android:paddingRight="@dimen/discovery_cell_text_padding"
         android:paddingTop="@dimen/recommendations_cell_text_recommended_padding_top"
-        android:text="@string/recommendation_seeds_header" />
+        android:text="@string/recommendation_seeds_header"
+        android:visibility="gone" />
 
-    <View style="@style/Divider.Item" />
+    <View style="@style/Divider.Item" android:id="@+id/recommendations_header_divider" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/reason"
@@ -35,44 +36,25 @@
         android:paddingRight="@dimen/discovery_cell_text_padding"
         tools:text="Because you liked bla bla bla" />
 
-    <HorizontalScrollView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recommendations_carousel"
+        android:paddingLeft="12dp"
+        android:paddingRight="4dp"
+        android:layout_marginBottom="24dp"
+        android:clipToPadding="false"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:overScrollMode="never" />
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
-
-            <View
-                android:id="@+id/spacer_left"
-                android:layout_width="12dp"
-                android:layout_height="1dp" />
-
-            <LinearLayout
-                android:id="@+id/recommendations_carousel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_toRightOf="@+id/spacer_left">
-            </LinearLayout>
-
-            <View
-                android:layout_toRightOf="@+id/recommendations_carousel"
-                android:layout_width="4dp"
-                android:layout_height="1dp" />
-
-        </RelativeLayout>
-
-    </HorizontalScrollView>
-
-    <View style="@style/Divider.Item" />
+    <View style="@style/Divider.Item" android:id="@+id/recommendations_view_all_divider" />
 
     <RelativeLayout
-        style="@style/ViewAllContainer">
+        android:id="@+id/recommendations_view_all"
+        style="@style/ViewAllContainer"
+        android:visibility="gone">
 
         <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/view_all"
+            android:id="@+id/recommendations_view_all_text"
             style="@style/ViewAllText"
             android:text="@string/recommendation_view_all" />
 
