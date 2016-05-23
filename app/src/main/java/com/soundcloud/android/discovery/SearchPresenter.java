@@ -48,9 +48,7 @@ import android.widget.ViewFlipper;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements
-        SearchIntentResolver.DeepLinkListener,
-        FeaturedSearchPresenter {
+class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements SearchIntentResolver.DeepLinkListener {
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
@@ -125,26 +123,22 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
         displaySearchView(bundle.getInt(CURRENT_DISPLAYING_VIEW_KEY));
     }
 
-    @Override
-    public void onScrollChanged() {
+    void onScrollChanged() {
         hideKeyboard();
     }
 
-    @Override
-    public void performSearch(String searchQuery) {
+    void performSearch(String searchQuery) {
         deactivateSearchView();
         showResultsFor(searchQuery);
     }
 
-    @Override
-    public void playTrack(Urn trackUrn) {
+    void playTrack(Urn trackUrn) {
         deactivateSearchView();
         playbackInitiator.startPlaybackWithRecommendations(trackUrn, Screen.SEARCH_SUGGESTIONS, null)
                 .subscribe(expandPlayerSubscriberProvider.get());
     }
 
-    @Override
-    public void showUserProfile(Urn userUrn) {
+    void showUserProfile(Urn userUrn) {
         deactivateSearchView();
         navigator.openProfile(window.getContext(), userUrn, Screen.SEARCH_SUGGESTIONS, null);
     }

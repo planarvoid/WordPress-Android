@@ -77,18 +77,6 @@ class SearchSuggestionOperations {
         this.suggestionStorage = suggestionStorage;
     }
 
-    Observable<ApiSearchSuggestions> searchSuggestions(String query) {
-        final ApiRequest request =
-                ApiRequest.get(ApiEndpoints.SEARCH_SUGGESTIONS.path())
-                        .addQueryParam("q", query)
-                        .addQueryParam("limit", LegacySuggestionsAdapter.MAX_REMOTE)
-                        .forPrivateApi()
-                        .build();
-        return apiClientRx.mappedResponse(request, ApiSearchSuggestions.class)
-                .doOnNext(writeDependencies)
-                .subscribeOn(scheduler);
-    }
-
     Observable<SuggestionsResult> suggestionsFor(String query) {
         return localSuggestions(query).concatWith(remoteSuggestions(query));
     }
