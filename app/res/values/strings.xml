@@ -745,9 +745,12 @@
     <string name="remove_offline_content_body_sync_collection">You’re about remove everything from offline listening. Additionally, your new likes and playlists won’t save automatically anymore.</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
     <string name="sign_out_title_offline">Signing out removes all offline tracks</string>
-    <string name="sign_out_description_offline">The next time you sign in, you’ll be able to decide which tracks and playlists should be saved again.</string>
+    <string name="sign_out_description_offline">The next time you sign in, you’ll be able to decide which tracks, playlists and albums should be saved again.</string>
     <string name="disable_offline_collection_title">Stop automatically saving playlists &amp; likes?</string>
     <string name="disable_offline_collection_body">Your new likes and playlists won’t save automatically anymore and existing saved sounds will be removed from offline listening.</string>
+    <string name="disable_offline_collection_from_context_title">Remove this from offline listening?</string>
+    <string name="disable_offline_collection_from_context_body">You’re about to remove this from offline. Additionally, your newly created or liked playlists won’t save offline automatically anymore.</string>
+
     <!-- offline playlist creation -->
     <string name="add_playlist_offline">Available offline</string>
     <!-- offline settings -->

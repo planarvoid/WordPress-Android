@@ -56,9 +56,8 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = new CustomFontViewBuilder(getActivity())
-                .setIcon(R.drawable.dialog_download)
-                .setTitle(R.string.disable_offline_collection_title)
-                .setMessage(R.string.disable_offline_collection_body).get();
+                .setTitle(R.string.disable_offline_collection_from_context_title)
+                .setMessage(R.string.disable_offline_collection_from_context_body).get();
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
