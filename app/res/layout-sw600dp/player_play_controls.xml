@@ -10,7 +10,7 @@
 
     <ImageButton
             android:id="@+id/player_previous"
-            style="@style/PlayerPrevious"
+            style="@style/PlayerSkip.Previous"
             android:layout_gravity="right|center"/>
 
     <FrameLayout android:layout_width="0dp"
@@ -25,7 +25,7 @@
 
     <ImageButton
             android:id="@+id/player_next"
-            style="@style/PlayerNext"
+            style="@style/PlayerSkip.Next"
             android:layout_gravity="left|center"/>
 </LinearLayout>
 

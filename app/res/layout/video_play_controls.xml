@@ -8,7 +8,7 @@
 
     <ImageButton
             android:id="@+id/player_previous"
-            style="@style/PlayerPrevious"
+            style="@style/PlayerSkip.Previous"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true" />
 
@@ -19,7 +19,7 @@
 
     <ImageButton
             android:id="@+id/player_next"
-            style="@style/PlayerNext"
+            style="@style/PlayerSkip.Next"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true" />
 </RelativeLayout>
