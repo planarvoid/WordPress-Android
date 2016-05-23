@@ -438,8 +438,9 @@
     <string name="search_for_query">Search for \'%s\'</string>
 
     <!-- __DISCOVERY RECOMMENDATIONS -->
-    <string name="activity_title_recommendations">Recommended for you</string>
+    <string name="activity_title_view_all_recommendations">Discover new tracks</string>
     <string name="recommendation_view_all">See all suggested tracks</string>
+    <string name="recommendations_footer">That\'s all the suggestions we have for now.\n\nPlay and collect more tracks to get more suggestions.</string>
     <!-- @Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s" -->
     <string name="recommendation_reason_because_you_reason_tracktitle">Because you %1$s %2$s</string>
     <string name="recommendation_reason_liked">liked</string>

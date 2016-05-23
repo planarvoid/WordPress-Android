@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -22,17 +21,18 @@ import java.util.Arrays;
 
 public class DiscoveryAdapterTest extends AndroidUnitTest {
 
-    @Mock private RecommendationBucketRendererFactory recommendationBucketRendererFactory;
+    @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private PlaylistTagRenderer playlistTagRenderer;
     @Mock private SearchItemRenderer searchItemRenderer;
     @Mock private RecommendedStationsBucketRenderer recommendedStationsBucketRenderer;
     @Mock private ChartsItemRenderer chartsItemRenderer;
+    @Mock private RecommendationsFooterRenderer recommendationsFooterRenderer;
 
     private DiscoveryAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new DiscoveryAdapter(Screen.RECOMMENDATIONS_MAIN, recommendationBucketRendererFactory, playlistTagRenderer, searchItemRenderer, recommendedStationsBucketRenderer, chartsItemRenderer);
+        adapter = new DiscoveryAdapter(recommendationBucketRenderer, playlistTagRenderer, searchItemRenderer, recommendedStationsBucketRenderer, chartsItemRenderer, recommendationsFooterRenderer);
     }
 
     @Test

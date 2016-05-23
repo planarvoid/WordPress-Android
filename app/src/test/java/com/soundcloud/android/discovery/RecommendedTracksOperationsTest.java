@@ -7,7 +7,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
@@ -26,18 +28,18 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     private static final long SEED_ID = 1;
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
-    private final Scheduler scheduler = Schedulers.immediate();
-    private final ApiTrack seedTrack = ModelFixtures.create(ApiTrack.class);
-    private final List<ApiTrack> recommendedTracks = ModelFixtures.create(ApiTrack.class, 2);
-    private final ApiTrack recommendedTrack = recommendedTracks.get(0);
-    private final PublishSubject<Boolean> syncSubject = PublishSubject.create();
+    private static final Scheduler SCHEDULER = Schedulers.immediate();
+    private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
+    private static final List<ApiTrack> RECOMMENDED_TRACKS = ModelFixtures.create(ApiTrack.class, 2);
+    private static final ApiTrack RECOMMENDED_TRACK = RECOMMENDED_TRACKS.get(0);
+    private static final PublishSubject<Boolean> SYNC_SUBJECT = PublishSubject.create();
+    private static final TrackQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(RECOMMENDED_TRACK.getUrn());
 
     @Mock private RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
     @Mock private RecommendationsStorage recommendationsStorage;
@@ -54,39 +56,18 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                                                      recommendationsStorage,
                                                      storeRecommendationsCommand,
                                                      playQueueManager,
-                                                     scheduler,
+                                                     SCHEDULER,
                                                      featureFlags);
 
         // setup happy path
         final PropertySet seed = createSeed();
-        when(recommendationsStorage.seedTracks()).thenReturn(Observable.just(Collections.singletonList(seed)));
         when(recommendationsStorage.firstSeed()).thenReturn(Observable.just(seed));
+        when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(
                 createRecommendedTrackPropertySet()));
-        when(recommendedTracksSyncInitiator.sync()).thenReturn(syncSubject);
+        when(recommendedTracksSyncInitiator.sync()).thenReturn(SYNC_SUBJECT);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L)));
-    }
-
-    @Test
-    public void loadsAllRecommendedTracksWithSeed() {
-        final TestSubscriber<List<Urn>> testSubscriber = new TestSubscriber<>();
-        final Urn recommendedTrackUrnOne = Urn.forTrack(2L);
-        final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
-
-        when(recommendationsStorage.recommendedTracksBeforeSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(
-                recommendedTrackUrnOne)));
-        when(recommendationsStorage.recommendedTracksAfterSeed(SEED_ID)).thenReturn(Observable.just(Collections.singletonList(
-                recommendedTrackUrnTwo)));
-
-        RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(), Collections.<Recommendation>emptyList());
-        operations.tracksWithSeed(recommendationBucket).subscribe(testSubscriber);
-
-        List<Urn> recommendedTracksWithSeed = testSubscriber.getOnNextEvents().get(0);
-
-        assertThat(recommendedTracksWithSeed.get(0)).isEqualTo(recommendedTrackUrnOne);
-        assertThat(recommendedTracksWithSeed.get(1)).isEqualTo(seedTrack.getUrn());
-        assertThat(recommendedTracksWithSeed.get(2)).isEqualTo(recommendedTrackUrnTwo);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
     }
 
     @Test
@@ -101,45 +82,27 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         List<TrackItem> recommendedTracksForSeed = testSubscriber.getOnNextEvents().get(0);
         TrackItem recommendedTrackItem = recommendedTracksForSeed.get(0);
 
-        assertThat(recommendedTrackItem.getUrn()).isEqualTo(recommendedTrack.getUrn());
-        assertThat(recommendedTrackItem.getTitle()).isEqualTo(recommendedTrack.getTitle());
-        assertThat(recommendedTrackItem.getCreatorName()).isEqualTo(recommendedTrack.getUserName());
-        assertThat(recommendedTrackItem.getDuration()).isEqualTo(recommendedTrack.getFullDuration());
-    }
-
-    @Test
-    public void loadsAllRecommendedTracks() {
-        final TestSubscriber<List<Urn>> testObserver = new TestSubscriber<>();
-        final Urn recommendedTrackUrnOne = Urn.forTrack(2L);
-        final Urn recommendedTrackUrnTwo = Urn.forTrack(3L);
-
-        when(recommendationsStorage.recommendedTracks()).thenReturn(Observable.just(Arrays.asList(recommendedTrackUrnOne,
-                recommendedTrackUrnTwo)));
-
-        operations.allTracks().subscribe(testObserver);
-
-        List<Urn> recommendedTracks = testObserver.getOnNextEvents().get(0);
-
-        assertThat(recommendedTracks.size()).isEqualTo(2);
-        assertThat(recommendedTracks.contains(recommendedTrackUrnOne));
-        assertThat(recommendedTracks.contains(recommendedTrackUrnTwo));
+        assertThat(recommendedTrackItem.getUrn()).isEqualTo(RECOMMENDED_TRACK.getUrn());
+        assertThat(recommendedTrackItem.getTitle()).isEqualTo(RECOMMENDED_TRACK.getTitle());
+        assertThat(recommendedTrackItem.getCreatorName()).isEqualTo(RECOMMENDED_TRACK.getUserName());
+        assertThat(recommendedTrackItem.getDuration()).isEqualTo(RECOMMENDED_TRACK.getFullDuration());
     }
 
     @Test
     public void returnsEmptyObservableWhenFeatureFlagIsDisabled() {
         when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
 
-        operations.tracksBucket().subscribe(subscriber);
+        operations.firstBucket().subscribe(subscriber);
 
         subscriber.assertNoValues();
     }
 
     @Test
     public void waitsForSyncerToReturnData() {
-        operations.tracksBucket().subscribe(subscriber);
+        operations.firstBucket().subscribe(subscriber);
         subscriber.assertNoValues();
 
-        syncSubject.onNext(true);
+        SYNC_SUBJECT.onNext(true);
 
         final List<DiscoveryItem> onNextEvents = subscriber.getOnNextEvents();
         subscriber.assertValueCount(1);
@@ -150,8 +113,8 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     @Test
     public void returnsNoDataWhenSyncerHasFinishedAndResultIsEmpty() {
         when(recommendationsStorage.firstSeed()).thenReturn(Observable.<PropertySet>empty());
-        operations.tracksBucket().subscribe(subscriber);
-        syncSubject.onNext(true);
+        operations.firstBucket().subscribe(subscriber);
+        SYNC_SUBJECT.onNext(true);
 
         subscriber.assertNoValues();
     }
@@ -164,26 +127,66 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         verify(recommendedTracksSyncInitiator).clearLastSyncTime();
     }
 
+    @Test
+    public void recommendationShouldBePlayingIfCurrentPlayQueueItem() throws Exception {
+        operations.firstBucket().subscribe(subscriber);
+        subscriber.assertNoValues();
+
+        SYNC_SUBJECT.onNext(true);
+
+        final RecommendationBucket bucket = (RecommendationBucket) subscriber.getOnNextEvents().get(0);
+
+        assertThat(bucket.getRecommendations().get(0).isPlaying()).isTrue();
+    }
+
+    @Test
+    public void recommendationShouldNotBePlayingIfNotCurrentPlayQueueItem() throws Exception {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(987L)));
+
+        operations.firstBucket().subscribe(subscriber);
+        subscriber.assertNoValues();
+
+        SYNC_SUBJECT.onNext(true);
+
+        final RecommendationBucket bucket = (RecommendationBucket) subscriber.getOnNextEvents().get(0);
+
+        assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
+    }
+
+    @Test
+    public void recommendationShouldNotBePlayingIfPlayQueueIsEmpty() throws Exception {
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
+        operations.firstBucket().subscribe(subscriber);
+        subscriber.assertNoValues();
+
+        SYNC_SUBJECT.onNext(true);
+
+        final RecommendationBucket bucket = (RecommendationBucket) subscriber.getOnNextEvents().get(0);
+
+        assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
+    }
+
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
         assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.TrackRecommendationItem);
 
         final RecommendationBucket recommendationBucket = (RecommendationBucket) discoveryItem;
         assertThat(recommendationBucket.getSeedTrackLocalId()).isEqualTo(SEED_ID);
-        assertThat(recommendationBucket.getSeedTrackUrn()).isEqualTo(seedTrack.getUrn());
-        assertThat(recommendationBucket.getSeedTrackTitle()).isEqualTo(seedTrack.getTitle());
+        assertThat(recommendationBucket.getSeedTrackUrn()).isEqualTo(SEED_TRACK.getUrn());
+        assertThat(recommendationBucket.getSeedTrackTitle()).isEqualTo(SEED_TRACK.getTitle());
         assertThat(recommendationBucket.getRecommendationReason()).isEqualTo(REASON);
 
-        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getTitle()).isEqualTo(recommendedTracks.get(0)
-                .getTitle());
-        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(recommendedTracks.get(0)
-                .getUserName());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getTitle()).isEqualTo(RECOMMENDED_TRACKS.get(0)
+                                                                                                                       .getTitle());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(
+                RECOMMENDED_TRACKS.get(0)
+                                  .getUserName());
     }
 
     private PropertySet createSeed() {
         return PropertySet.from(
                 RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(SEED_ID),
-                RecommendationProperty.SEED_TRACK_URN.bind(seedTrack.getUrn()),
-                RecommendationProperty.SEED_TRACK_TITLE.bind(seedTrack.getTitle()),
+                RecommendationProperty.SEED_TRACK_URN.bind(SEED_TRACK.getUrn()),
+                RecommendationProperty.SEED_TRACK_TITLE.bind(SEED_TRACK.getTitle()),
                 RecommendationProperty.REASON.bind(REASON)
         );
     }
@@ -191,15 +194,15 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     private List<PropertySet> createRecommendedTrackPropertySet() {
         PropertySet trackPropertySet = PropertySet.from(
                 RecommendedTrackProperty.SEED_SOUND_URN.bind(Urn.forTrack(SEED_ID)),
-                PlayableProperty.URN.bind(Urn.forTrack(recommendedTrack.getId())),
-                PlayableProperty.TITLE.bind(recommendedTrack.getTitle()),
-                PlayableProperty.CREATOR_NAME.bind(recommendedTrack.getUserName()),
-                TrackProperty.FULL_DURATION.bind(recommendedTrack.getFullDuration()),
-                TrackProperty.SNIPPET_DURATION.bind(recommendedTrack.getSnippetDuration()),
+                PlayableProperty.URN.bind(Urn.forTrack(RECOMMENDED_TRACK.getId())),
+                PlayableProperty.TITLE.bind(RECOMMENDED_TRACK.getTitle()),
+                PlayableProperty.CREATOR_NAME.bind(RECOMMENDED_TRACK.getUserName()),
+                TrackProperty.FULL_DURATION.bind(RECOMMENDED_TRACK.getFullDuration()),
+                TrackProperty.SNIPPET_DURATION.bind(RECOMMENDED_TRACK.getSnippetDuration()),
                 TrackProperty.SNIPPED.bind(false),
-                TrackProperty.PLAY_COUNT.bind(recommendedTrack.getPlaybackCount()),
-                PlayableProperty.LIKES_COUNT.bind(recommendedTrack.getLikesCount()),
-                PlayableProperty.CREATED_AT.bind(recommendedTrack.getCreatedAt())
+                TrackProperty.PLAY_COUNT.bind(RECOMMENDED_TRACK.getPlaybackCount()),
+                PlayableProperty.LIKES_COUNT.bind(RECOMMENDED_TRACK.getLikesCount()),
+                PlayableProperty.CREATED_AT.bind(RECOMMENDED_TRACK.getCreatedAt())
         );
         return Collections.singletonList(trackPropertySet);
     }

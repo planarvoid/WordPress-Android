@@ -2,8 +2,6 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 
-import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -12,7 +10,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.discovery.RecommendedTracksActivity;
+import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -340,12 +338,10 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensRecommendation() {
-        navigator.openRecommendation(activityContext, 88L);
+    public void opensViewAllRecommendations() {
+        navigator.openViewAllRecommendations(activityContext);
 
-        assertThat(activityContext).nextStartedIntent()
-                .containsExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, 88L)
-                .opensActivity(RecommendedTracksActivity.class);
+        assertThat(activityContext).nextStartedIntent().opensActivity(ViewAllRecommendedTracksActivity.class);
     }
 
     @Test

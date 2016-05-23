@@ -408,7 +408,6 @@
   <string name="search_empty_subtext">Vérifiez l\'orthographe ou effectuez une recherche différente </string>
   <string name="search_for_query">Rechercher \'%s\'</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
-  <string name="activity_title_recommendations">Recommandé pour vous</string>
   <!--@Todo from l10n: what is filled in here?-->
   <string name="recommendation_view_all">Afficher tout</string>
   <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
