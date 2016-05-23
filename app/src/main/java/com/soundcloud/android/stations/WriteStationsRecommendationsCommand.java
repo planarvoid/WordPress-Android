@@ -1,14 +1,12 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.propeller.query.Filter.filter;
 
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.objects.MoreObjects;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
@@ -20,8 +18,10 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class WriteRecentStationsCollectionsCommand
-        extends WriteStorageCommand<WriteRecentStationsCollectionsCommand.SyncCollectionsMetadata, TxnResult, Boolean> {
+class WriteStationsRecommendationsCommand
+        extends WriteStorageCommand<ModelCollection<ApiStationMetadata>, TxnResult, Boolean> {
+
+    private static final int STATIONS_COLLECTIONS_TYPE = StationsCollectionsTypes.RECOMMENDATIONS;
 
     private final static Function<ApiStationMetadata, ContentValues> TO_CONTENT_VALUES =
             new Function<ApiStationMetadata, ContentValues>() {
@@ -32,44 +32,26 @@ class WriteRecentStationsCollectionsCommand
             };
 
     @Inject
-    WriteRecentStationsCollectionsCommand(PropellerDatabase propeller) {
+    WriteStationsRecommendationsCommand(PropellerDatabase propeller) {
         super(propeller);
     }
 
     @Override
-    protected TxnResult write(PropellerDatabase propeller, final SyncCollectionsMetadata metadata) {
+    protected TxnResult write(PropellerDatabase propeller, final ModelCollection<ApiStationMetadata> modelCollection) {
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(deleteLocalContentSynced(propeller));
-                step(deleteStaleContent(propeller));
+                step(propeller.delete(
+                        Tables.StationsCollections.TABLE,
+                        filter().whereEq(Tables.StationsCollections.COLLECTION_TYPE, STATIONS_COLLECTIONS_TYPE)
+                ));
 
-                List<ApiStationMetadata> stations = metadata.stationsCollections.getRecents();
+                List<ApiStationMetadata> stations = modelCollection.getCollection();
                 step(saveStations(propeller, stations));
-                step(addStationsToCollection(propeller, RECENT, stations));
+                step(addStationsToCollection(propeller, STATIONS_COLLECTIONS_TYPE, stations));
             }
-
-            private ChangeResult deleteStaleContent(PropellerDatabase propeller) {
-                return propeller.delete(
-                        Tables.StationsCollections.TABLE,
-                        filter()
-                                .whereEq(Tables.StationsCollections.COLLECTION_TYPE, RECENT)
-                                .whereNull(Tables.StationsCollections.UPDATED_LOCALLY_AT)
-                );
-            }
-
-            private ChangeResult deleteLocalContentSynced(PropellerDatabase propeller) {
-                return propeller.delete(
-                        Tables.StationsCollections.TABLE,
-                        filter()
-                                .whereEq(Tables.StationsCollections.COLLECTION_TYPE, RECENT)
-                                .whereLt(Tables.StationsCollections.UPDATED_LOCALLY_AT, metadata.clearBeforeTime)
-                );
-            }
-
         });
     }
-
 
     private TxnResult saveStations(PropellerDatabase propeller, List<ApiStationMetadata> stations) {
         return propeller.bulkUpsert(Tables.Stations.TABLE, Lists.transform(stations, TO_CONTENT_VALUES));
@@ -99,11 +81,6 @@ class WriteRecentStationsCollectionsCommand
                 .get();
     }
 
-    @Override
-    protected Boolean transform(TxnResult result) {
-        return result.success();
-    }
-
     private static ContentValues buildStationContentValues(ApiStationMetadata station) {
         return ContentValuesBuilder
                 .values()
@@ -111,35 +88,12 @@ class WriteRecentStationsCollectionsCommand
                 .put(Tables.Stations.TYPE, station.getType())
                 .put(Tables.Stations.TITLE, station.getTitle())
                 .put(Tables.Stations.PERMALINK, station.getPermalink())
+                .put(Tables.Stations.ARTWORK_URL_TEMPLATE, station.getArtworkUrlTemplate().orNull())
                 .get();
     }
 
-    static final class SyncCollectionsMetadata {
-        private final long clearBeforeTime;
-        private final ApiStationsCollections stationsCollections;
-
-        SyncCollectionsMetadata(long clearBeforeTime, ApiStationsCollections stationsCollections) {
-            this.clearBeforeTime = clearBeforeTime;
-            this.stationsCollections = stationsCollections;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            SyncCollectionsMetadata that = (SyncCollectionsMetadata) o;
-            return MoreObjects.equal(clearBeforeTime, that.clearBeforeTime) &&
-                    MoreObjects.equal(stationsCollections, that.stationsCollections);
-        }
-
-        @Override
-        public int hashCode() {
-            return MoreObjects.hashCode(clearBeforeTime, stationsCollections);
-        }
+    @Override
+    protected Boolean transform(TxnResult result) {
+        return result.success();
     }
 }

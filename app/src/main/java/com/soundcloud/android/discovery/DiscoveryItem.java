@@ -15,8 +15,4 @@ public class DiscoveryItem {
     public Kind getKind() {
         return kind;
     }
-
-    public static DiscoveryItem forRecommendedStationsBucket() {
-        return new DiscoveryItem(Kind.StationRecommendationItem);
-    }
 }

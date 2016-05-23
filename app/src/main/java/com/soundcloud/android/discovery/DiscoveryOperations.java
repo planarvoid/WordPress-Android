@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
-import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.stations.RecommendedStationsOperations;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -11,17 +11,17 @@ import java.util.List;
 public class DiscoveryOperations {
     private final RecommendedTracksOperations recommendedTracksOperations;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
-    private final StationsOperations stationsOperations;
+    private final RecommendedStationsOperations recommendedStationsOperations;
     private final ChartsOperations chartsOperations;
 
     @Inject
     DiscoveryOperations(RecommendedTracksOperations recommendedTracksOperations,
                         PlaylistDiscoveryOperations playlistDiscoveryOperations,
-                        StationsOperations stationsOperations,
+                        RecommendedStationsOperations recommendedStationsOperations,
                         ChartsOperations chartsOperations) {
         this.recommendedTracksOperations = recommendedTracksOperations;
         this.playlistDiscoveryOperations = playlistDiscoveryOperations;
-        this.stationsOperations = stationsOperations;
+        this.recommendedStationsOperations = recommendedStationsOperations;
         this.chartsOperations = chartsOperations;
     }
 
@@ -30,7 +30,7 @@ public class DiscoveryOperations {
 
         items.add(searchItem());
         items.add(chartsOperations.charts());
-        items.add(stationsOperations.recommendations());
+        items.add(recommendedStationsOperations.stationsBucket());
         items.add(recommendedTracksOperations.tracksBucket());
         items.add(playlistDiscoveryOperations.playlistTags());
 
@@ -39,6 +39,7 @@ public class DiscoveryOperations {
 
     public void clearData() {
         chartsOperations.clearData();
+        recommendedStationsOperations.clearData();
         recommendedTracksOperations.clearData();
         playlistDiscoveryOperations.clearData();
     }

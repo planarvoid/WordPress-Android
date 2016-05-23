@@ -818,6 +818,7 @@
     <string name="station_type_track">Track station</string>
     <string name="station_type_genre">Genre station</string>
     <string name="station_type_curator">Curator station</string>
+    <string name="station_type_artist">Artist station</string>
     <string name="stations_collection_title_saved_stations">Your stations</string>
     <string name="stations_collection_title_track_recommendations">Track recommendations</string>
     <string name="stations_collection_title_curator_recommendations">Curator recommendations</string>

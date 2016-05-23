@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
+import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.android.view.adapters.NowPlayingAdapter;
 
 import android.support.v7.widget.RecyclerView;
@@ -23,10 +24,12 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
 
     private final PlaylistTagRenderer playlistTagRenderer;
     private final SearchItemRenderer searchItemRenderer;
+    private final RecommendedStationsBucketRenderer stationsBucketRenderer;
 
     interface DiscoveryItemListenerBucket extends
             PlaylistTagsPresenter.Listener,
-            SearchItemRenderer.SearchListener {
+            SearchItemRenderer.SearchListener,
+            RecommendedStationsBucketRenderer.Listener {
     }
 
     @SuppressWarnings("unchecked")
@@ -42,6 +45,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
                 new CellRendererBinding<>(StationRecommendationItem.ordinal(), stationsBucketRenderer),
                 new CellRendererBinding<>(ChartItem.ordinal(), chartsItemRenderer));
         this.playlistTagRenderer = playlistTagRenderer;
+        this.stationsBucketRenderer = stationsBucketRenderer;
         this.searchItemRenderer = searchItemRenderer;
     }
 
@@ -57,7 +61,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
 
 
     static class DiscoveryViewHolder extends RecyclerView.ViewHolder {
-        public DiscoveryViewHolder(View itemView) {
+        DiscoveryViewHolder(View itemView) {
             super(itemView);
         }
     }
@@ -65,6 +69,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     void setDiscoveryListener(DiscoveryItemListenerBucket itemListener) {
         this.playlistTagRenderer.setOnTagClickListener(itemListener);
         this.searchItemRenderer.setSearchListener(itemListener);
+        this.stationsBucketRenderer.setListener(itemListener);
     }
 
     @Override

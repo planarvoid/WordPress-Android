@@ -45,7 +45,6 @@ public class StationsOperationsTest {
     @Before
     public void setUp() {
         operations = new StationsOperations(
-                featureFlags,
                 syncStateStorage,
                 stationsStorage,
                 stationsApi,
@@ -112,7 +111,7 @@ public class StationsOperationsTest {
     public void getStationShouldFallbackToNetwork() {
         when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
 
-        final TestSubscriber<StationRecord> subscriber  = new TestSubscriber<>();
+        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).doesNotContain(stationFromDisk);
@@ -124,7 +123,7 @@ public class StationsOperationsTest {
         StationRecord noTracksStation = StationFixtures.getApiStation(Urn.forTrackStation(123), 0);
         when(stationsStorage.station(station)).thenReturn(Observable.just(noTracksStation));
 
-        final TestSubscriber<StationRecord> subscriber  = new TestSubscriber<>();
+        final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).doesNotContain(stationFromDisk);
@@ -184,7 +183,7 @@ public class StationsOperationsTest {
     public void shouldPersistApiStation() {
         when(stationsStorage.station(station)).thenReturn(Observable.<StationRecord>empty());
 
-        final TestSubscriber<Object> subscriber  = new TestSubscriber<>();
+        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.station(station).subscribe(subscriber);
 
         verify(storeTracksCommand).call(apiStation.getTrackRecords());

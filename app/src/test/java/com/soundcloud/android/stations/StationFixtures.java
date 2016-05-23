@@ -82,7 +82,7 @@ public class StationFixtures {
         return ApiStationsCollections.create(createStationsCollection(recents));
     }
 
-    private static ModelCollection<ApiStationMetadata> createStationsCollection(List<Urn> stations) {
+    static ModelCollection<ApiStationMetadata> createStationsCollection(List<Urn> stations) {
         final List<ApiStationMetadata> stationsCollection = new ArrayList<>();
 
         for (Urn station : stations) {

@@ -7,6 +7,8 @@ import rx.Subscription;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
+import java.util.List;
+
 public final class RxUtils {
 
     public static final Func1<Boolean, Boolean> IS_TRUE = new Func1<Boolean, Boolean>() {
@@ -39,6 +41,13 @@ public final class RxUtils {
 
     public static final Object EMPTY_VALUE = new Object();
 
+    public static final Func1<List, Boolean> IS_NOT_EMPTY_LIST = new Func1<List, Boolean>() {
+        @Override
+        public Boolean call(List list) {
+            return !list.isEmpty();
+        }
+    };
+
     public static <T> Func1<T, Optional<T>> TO_OPTIONAL() {
         return new Func1<T, Optional<T>>() {
             @Override
@@ -47,6 +56,7 @@ public final class RxUtils {
             }
         };
     }
+
 
     /**
      * @return A Subscription that is always unsubscribed. Can use as a Null object; reference equality

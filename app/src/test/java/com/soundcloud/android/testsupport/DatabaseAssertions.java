@@ -9,6 +9,7 @@ import static com.soundcloud.android.activities.ActivityKind.TRACK_LIKE;
 import static com.soundcloud.android.activities.ActivityKind.TRACK_REPOST;
 import static com.soundcloud.android.activities.ActivityKind.USER_FOLLOW;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
+import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static com.soundcloud.android.storage.Table.Activities;
 import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
@@ -329,6 +330,12 @@ public class DatabaseAssertions {
         assertThat(select(from(StationsCollections.TABLE)
                 .whereEq(StationsCollections.STATION_URN, urn.toString())
                 .whereNull(UPDATED_LOCALLY_AT))).counts(1);
+    }
+
+    public void assertRecommendedStationsEquals(List<Urn> stations) {
+        assertThat(select(from(StationsCollections.TABLE)
+                .whereIn(StationsCollections.STATION_URN, stations)
+                .whereEq(COLLECTION_TYPE, RECOMMENDATIONS))).counts(stations.size());
     }
 
     private void assertTrackPolicyInserted(TrackRecord track) {

@@ -4,11 +4,8 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.propeller.ChangeResult;
@@ -18,14 +15,11 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
-import android.support.annotation.NonNull;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
 public class StationsOperations {
-    private final FeatureFlags featureFlags;
     private final SyncStateStorage syncStateStorage;
     private final StationsStorage stationsStorage;
     private final StationsApi stationsApi;
@@ -49,15 +43,13 @@ public class StationsOperations {
     };
 
     @Inject
-    public StationsOperations(FeatureFlags featureFlags,
-                              SyncStateStorage syncStateStorage,
+    public StationsOperations(SyncStateStorage syncStateStorage,
                               StationsStorage stationsStorage,
                               StationsApi stationsApi,
                               StoreTracksCommand storeTracksCommand,
                               StoreStationCommand storeStationCommand,
                               StationsSyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
-        this.featureFlags = featureFlags;
         this.syncStateStorage = syncStateStorage;
         this.stationsStorage = stationsStorage;
         this.stationsApi = stationsApi;
@@ -71,16 +63,8 @@ public class StationsOperations {
         return station(station, UtilityFunctions.<StationRecord>identity());
     }
 
-    public Observable<StationRecord> stationWithSeed(Urn station, final Urn seed) {
+    Observable<StationRecord> stationWithSeed(Urn station, final Urn seed) {
         return station(station, prependSeed(seed));
-    }
-
-    public Observable<DiscoveryItem> recommendations() {
-        if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
-            return Observable.just(DiscoveryItem.forRecommendedStationsBucket());
-        } else {
-            return Observable.empty();
-        }
     }
 
     private Observable<StationRecord> station(Urn station, Func1<StationRecord, StationRecord> toStation) {
@@ -140,7 +124,7 @@ public class StationsOperations {
         return syncInitiator.syncRecentStations();
     }
 
-    public ChangeResult saveRecentlyPlayedStation(Urn stationUrn) {
+    ChangeResult saveRecentlyPlayedStation(Urn stationUrn) {
         final ChangeResult result = stationsStorage.saveUnsyncedRecentlyPlayedStation(stationUrn);
         syncInitiator.requestSystemSync();
         return result;
@@ -161,7 +145,6 @@ public class StationsOperations {
         return !stationsStorage.isOnboardingDisabled();
     }
 
-    @NonNull
     private Func1<List<StationTrack>, PlayQueue> toPlayQueue(final Urn station) {
         return new Func1<List<StationTrack>, PlayQueue>() {
             @Override
@@ -171,7 +154,6 @@ public class StationsOperations {
         };
     }
 
-    @NonNull
     private Func1<StationRecord, Observable<StationTrack>> loadPlayQueue(final Urn station, final int startPosition) {
         return new Func1<StationRecord, Observable<StationTrack>>() {
             @Override

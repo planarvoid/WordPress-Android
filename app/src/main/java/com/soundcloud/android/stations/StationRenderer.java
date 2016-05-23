@@ -1,11 +1,12 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.stations.StationTypes.getHumanReadableType;
+
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.support.v7.widget.CardView;
@@ -55,7 +56,7 @@ class StationRenderer implements CellRenderer<StationViewModel> {
             nowPlaying.setVisibility(View.VISIBLE);
         } else {
             nowPlaying.setVisibility(View.GONE);
-            type.setText(getHumanReadableType(station.getType()));
+            type.setText(getHumanReadableType(resources, station.getType()));
             type.setVisibility(View.VISIBLE);
         }
 
@@ -64,19 +65,6 @@ class StationRenderer implements CellRenderer<StationViewModel> {
                 ApiImageSize.getFullImageSize(resources),
                 artwork
         );
-    }
-
-    private String getHumanReadableType(String type) {
-        switch (type) {
-            case StationTypes.TRACK:
-                return resources.getString(R.string.station_type_track);
-            case StationTypes.GENRE:
-                return resources.getString(R.string.station_type_genre);
-            case StationTypes.CURATOR:
-                return resources.getString(R.string.station_type_curator);
-            default:
-                return Strings.EMPTY;
-        }
     }
 
     private View.OnClickListener startStation(final StationRecord station) {
