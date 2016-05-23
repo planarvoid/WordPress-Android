@@ -15,14 +15,17 @@
         <item name="android:background">@drawable/btn_player_play</item>
     </style>
 
-    <style name="PlayerNext">
+    <style name="PlayerSkip">
         <item name="android:layout_width">@dimen/player_skip</item>
         <item name="android:layout_height">@dimen/player_skip</item>
-        <item name="android:background">@drawable/btn_player_next</item>
         <item name="android:layout_margin">@dimen/player_skip_margin</item>
     </style>
 
-    <style name="PlayerPrevious" parent="PlayerNext">
+    <style name="PlayerSkip.Next">
+        <item name="android:background">@drawable/btn_player_next</item>
+    </style>
+
+    <style name="PlayerSkip.Previous">
         <item name="android:background">@drawable/btn_player_previous</item>
     </style>
 
