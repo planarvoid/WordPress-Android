@@ -1,7 +1,7 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
-import static com.soundcloud.android.stations.StationsCollectionsTypes.SUGGESTIONS;
+import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +62,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)).thenReturn(true);
-        when(stationsStorage.getStationsCollection(SUGGESTIONS))
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Observable.<StationRecord>empty());
         when(stationsStorage.getStationsCollection(RECENT))
                 .thenReturn(Observable.just(RECENT_1, RECENT_2));
@@ -80,7 +80,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnStoredRecommendations() throws Exception {
-        when(stationsStorage.getStationsCollection(SUGGESTIONS))
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Observable.just(SUGGESTED_1, SUGGESTED_2));
 
         operations.stationsBucket().subscribe(subscriber);
@@ -104,17 +104,17 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     public void shouldStoreNewRecommendations() throws Exception {
         when(stationsApi.fetchStationRecommendations())
                 .thenReturn(Observable.just(API_STATION_METADATA));
-        when(stationsStorage.getStationsCollection(SUGGESTIONS))
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Observable.<StationRecord>empty());
 
         operations.stationsBucket().subscribe(subscriber);
 
-        verify(writeCommand).call(STATION_RECORDS);
+        verify(writeCommand).call(API_STATION_METADATA);
     }
 
     @Test
     public void shouldReorderRecentStations() throws Exception {
-        when(stationsStorage.getStationsCollection(SUGGESTIONS))
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Observable.just(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2));
 
         operations.stationsBucket().subscribe(subscriber);
@@ -124,7 +124,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotReorderWhenNoRecentStations() throws Exception {
-        when(stationsStorage.getStationsCollection(SUGGESTIONS))
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Observable.just(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2));
         when(stationsStorage.getStationsCollection(RECENT))
                 .thenReturn(Observable.<StationRecord>empty());
@@ -136,7 +136,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotAddRecentWhenNotSuggested() throws Exception {
-        when(stationsStorage.getStationsCollection(SUGGESTIONS))
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(Observable.just(SUGGESTED_1, RECENT_1));
         when(stationsStorage.getStationsCollection(RECENT))
                 .thenReturn(Observable.just(RECENT_2));

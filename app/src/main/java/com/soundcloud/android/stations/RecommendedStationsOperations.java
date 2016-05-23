@@ -2,6 +2,8 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
+import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
+import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.api.model.ModelCollection;
@@ -61,7 +63,7 @@ public class RecommendedStationsOperations {
     private final Scheduler scheduler;
 
     @Inject
-    public RecommendedStationsOperations(StationsStorage stationsStorage,
+    RecommendedStationsOperations(StationsStorage stationsStorage,
                                          StationsApi stationsApi,
                                          WriteStationsRecommendationsCommand writeCommand,
                                          FeatureFlags featureFlags,
@@ -88,9 +90,9 @@ public class RecommendedStationsOperations {
     }
 
     private Observable<List<StationRecord>> recommendedStations() {
-        return storedRecommendedStations()
+        return getCollection(RECOMMENDATIONS)
                 .flatMap(loadIfEmpty())
-                .zipWith(recentStations(), MOVE_RECENT_TO_END)
+                .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
                 .subscribeOn(scheduler);
     }
 
@@ -108,20 +110,14 @@ public class RecommendedStationsOperations {
     private Observable<List<StationRecord>> stationsRefresh() {
         return stationsApi
                 .fetchStationRecommendations()
-                .map(TO_STATION_RECORD)
                 .doOnNext(writeCommand.toAction1())
+                .map(TO_STATION_RECORD)
                 .subscribeOn(scheduler);
     }
 
-    private Observable<List<StationRecord>> storedRecommendedStations() {
+    private Observable<List<StationRecord>> getCollection(int collectionType) {
         return stationsStorage
-                .getStationsCollection(StationsCollectionsTypes.SUGGESTIONS)
-                .toList();
-    }
-
-    private Observable<List<StationRecord>> recentStations() {
-        return stationsStorage
-                .getStationsCollection(StationsCollectionsTypes.RECENT)
+                .getStationsCollection(collectionType)
                 .toList();
     }
 
