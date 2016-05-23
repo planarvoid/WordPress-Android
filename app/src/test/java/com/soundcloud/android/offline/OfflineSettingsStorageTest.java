@@ -59,15 +59,6 @@ public class OfflineSettingsStorageTest extends AndroidUnitTest {
     }
 
     @Test
-    public void savesEncryptionTestRunValue() {
-        assertFalse(storage.hasRunEncryptionTest());
-
-        storage.setEncryptionTestRun();
-
-        assertTrue(storage.hasRunEncryptionTest());
-    }
-
-    @Test
     public void savesHasSeenGoSettingsOnboarding() {
         assertFalse(storage.hasSeenOfflineSettingsOnboarding());
 

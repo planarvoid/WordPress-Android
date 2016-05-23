@@ -17,7 +17,6 @@ import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
-import com.soundcloud.android.crypto.EncryptionTester;
 import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
@@ -25,13 +24,13 @@ import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
+import com.soundcloud.android.playback.PlayQueueAdvancer;
 import com.soundcloud.android.playback.PlayQueueExtender;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackServiceModule;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.playback.StreamPreloader;
-import com.soundcloud.android.playback.PlayQueueAdvancer;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
@@ -109,7 +108,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject CastSessionController castSessionController;
     @Inject StationsController stationsController;
     @Inject DailyUpdateScheduler dailyUpdateScheduler;
-    @Inject EncryptionTester encryptionTester;
     @Inject AppboyPlaySessionState appboyPlaySessionState;
     @Inject StreamPreloader streamPreloader;
     @Inject @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
@@ -176,8 +174,8 @@ public class SoundCloudApplication extends MultiDexApplication {
         imageOperations.initialise(this, applicationProperties);
 
         setupCurrentUserAccount();
-        generateDeviceKey();
 
+        cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
         networkConnectivityListener.startListening();
         widgetController.subscribe();
         peripheralsController.subscribe();
@@ -218,11 +216,6 @@ public class SoundCloudApplication extends MultiDexApplication {
                     .withLogLevel(AgentLog.VERBOSE)
                     .start(this.getApplicationContext());
         }
-    }
-
-    private void generateDeviceKey() {
-        cryptoOperations.generateAndStoreDeviceKeyIfNeeded();
-        encryptionTester.runEncryptionTest();
     }
 
     private void initializePreInjectionObjects() {

@@ -20,8 +20,6 @@ import java.security.SecureRandom;
 
 public class CryptoOperations {
 
-    private static final String TAG = "CryptoOps";
-
     protected static final String DEVICE_KEY = "device_key";
 
     private final KeyStorage storage;
