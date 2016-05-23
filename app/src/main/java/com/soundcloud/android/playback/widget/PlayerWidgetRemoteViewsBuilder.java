@@ -8,19 +8,19 @@ import android.graphics.Bitmap;
 
 public class PlayerWidgetRemoteViewsBuilder {
 
-    private Optional<WidgetTrack> optionalTrack;
+    private Optional<WidgetItem> optionalItem;
     private Optional<Boolean> optionalIsPlaying;
     private Optional<Bitmap> optionalArtwork;
 
     public PlayerWidgetRemoteViewsBuilder() {
-        optionalTrack = Optional.absent();
+        optionalItem = Optional.absent();
         optionalIsPlaying = Optional.absent();
     }
 
     public PlayerWidgetRemoteViews build(Context context) {
         PlayerWidgetRemoteViews widgetRemoteView = new PlayerWidgetRemoteViews(context);
 
-        if (!optionalIsPlaying.isPresent() && !optionalTrack.isPresent()) {
+        if (!optionalIsPlaying.isPresent() && !optionalItem.isPresent()) {
             setEmptyState(context, widgetRemoteView);
         }
 
@@ -28,7 +28,7 @@ public class PlayerWidgetRemoteViewsBuilder {
             setPlaybackStatus(widgetRemoteView);
         }
 
-        if (optionalTrack.isPresent()) {
+        if (optionalItem.isPresent()) {
             setPlayableProperties(context, widgetRemoteView);
         }
 
@@ -44,16 +44,23 @@ public class PlayerWidgetRemoteViewsBuilder {
     }
 
     private void setPlayableProperties(Context context, PlayerWidgetRemoteViews widgetRemoteView) {
-        WidgetTrack track = optionalTrack.get();
+        WidgetItem item = optionalItem.get();
+        widgetRemoteView.setCurrentTrackTitle(item.getTitle());
+        widgetRemoteView.setCurrentCreator(item.getCreatorName());
+        setLikeProperties(widgetRemoteView, item);
+        widgetRemoteView.linkPlayControls(context, item.isPlayableFromWidget());
+        widgetRemoteView.linkTitles(context, item.getUrn(), item.getCreatorUrn());
+        widgetRemoteView.linkLikeToggle(context, item.isUserLike());
+    }
 
-        widgetRemoteView.setImageViewResource(R.id.btn_like, track.isUserLike()
-                ? R.drawable.widget_like_orange : R.drawable.widget_like_grey);
-
-        widgetRemoteView.setCurrentTrackTitle(track.getTitle());
-        widgetRemoteView.linkButtonsWidget(context, track.getUrn(), track.getUserUrn(), !track.isUserLike());
-
-        widgetRemoteView.setCurrentCreator(track.getUserName());
-        widgetRemoteView.setLikeShown(!track.isAudioAd());
+    private void setLikeProperties(PlayerWidgetRemoteViews widgetRemoteView, WidgetItem item) {
+        final boolean isLikeable = item.isUserLike().isPresent();
+        widgetRemoteView.setLikeShown(isLikeable);
+        if (isLikeable) {
+            boolean isUserLike = item.isUserLike().get();
+            widgetRemoteView.setImageViewResource(R.id.btn_like, isUserLike
+                    ? R.drawable.widget_like_orange : R.drawable.widget_like_grey);
+        }
     }
 
     private void setPlaybackStatus(PlayerWidgetRemoteViews widgetRemoteView) {
@@ -64,8 +71,11 @@ public class PlayerWidgetRemoteViewsBuilder {
         widgetRemoteView.setEmptyState(context);
     }
 
-    public PlayerWidgetRemoteViewsBuilder forTrack(WidgetTrack widgetTrack) {
-        this.optionalTrack = Optional.of(widgetTrack);
+    public PlayerWidgetRemoteViewsBuilder forItem(WidgetItem widgetItem) {
+        this.optionalItem = Optional.of(widgetItem);
+        if (optionalItem.isPresent() && !optionalItem.get().hasArtwork()) {
+            optionalArtwork = Optional.absent();
+        }
         return this;
     }
 
@@ -74,9 +84,9 @@ public class PlayerWidgetRemoteViewsBuilder {
         return this;
     }
 
-    public PlayerWidgetRemoteViewsBuilder forIsPlaying(WidgetTrack track, boolean isPlaying) {
+    public PlayerWidgetRemoteViewsBuilder forIsPlaying(WidgetItem item, boolean isPlaying) {
         this.optionalIsPlaying = Optional.of(isPlaying);
-        this.optionalTrack  = Optional.of(track);
+        this.optionalItem = Optional.of(item);
         return this;
     }
 

@@ -81,7 +81,7 @@ public class MediaSessionListener extends MediaSessionCompat.Callback {
         if (!mediaSessionController.isPlayingVideoAd()) {
             handleAction(PlaybackAction.PLAY);
         } else {
-            Toast.makeText(context, R.string.ads_reopen_app_to_continue, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.ads_reopen_to_continue, Toast.LENGTH_SHORT).show();
         }
     }
 

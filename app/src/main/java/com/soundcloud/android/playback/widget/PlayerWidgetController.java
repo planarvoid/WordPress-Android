@@ -4,8 +4,8 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.ads.AdUtils;
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.analytics.EngagementsTracking;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -13,22 +13,16 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueueFunctions;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
-import rx.internal.util.UtilityFunctions;
 
 import android.content.Context;
 
@@ -50,13 +44,6 @@ public class PlayerWidgetController {
     private final LikeOperations likeOperations;
     private final EngagementsTracking engagementsTracking;
 
-    private final Func1<TrackQueueItem, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<TrackQueueItem, Observable<PropertySet>>() {
-        @Override
-        public Observable<PropertySet> call(TrackQueueItem playQueueItem) {
-            return loadTrackWithAdMeta(playQueueItem);
-        }
-    };
-
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlaySessionStateProvider playSessionsStateProvider,
@@ -74,41 +61,34 @@ public class PlayerWidgetController {
     }
 
     public void subscribe() {
-        eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new TrackChangedSubscriber());
+        eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new TrackMetadataChangeSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
-        eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                .filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM)
-                .map(PlayQueueFunctions.TO_TRACK_QUEUE_ITEM)
-                .flatMap(onPlayQueueEventFunc).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CurrentTrackSubscriber());
+        eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new CurrentItemSubscriber());
     }
 
     public void update() {
         updatePlayState();
-        updatePlayableInformation(UtilityFunctions.<PropertySet>identity());
+        updatePlayableInformation(PropertySet.create());
     }
 
     private void updatePlayState() {
         presenter.updatePlayState(context, playSessionsStateProvider.isPlaying());
     }
 
-    private void updatePlayableInformation(Func1<PropertySet, PropertySet> updateFunc) {
-        if (playQueueManager.getCurrentPlayQueueItem().isTrack()) {
-            loadTrackWithAdMeta((TrackQueueItem) playQueueManager.getCurrentPlayQueueItem())
-                    .map(updateFunc)
+    private void updatePlayableInformation(PropertySet extraInfo) {
+        PlayQueueItem item = playQueueManager.getCurrentPlayQueueItem();
+        if (AdUtils.isAudioAd(item)) {
+            presenter.updateForAudioAd(context);
+        } else if (AdUtils.isVideoAd(item)) {
+            presenter.updateForVideoAd(context);
+        } else if (item.isTrack()) {
+            trackRepository.track(item.getUrn())
+                    .map(PropertySetFunctions.mergeWith(extraInfo))
                     .subscribe(new CurrentTrackSubscriber());
         } else {
             presenter.reset(context);
         }
-    }
-
-    private Observable<PropertySet> loadTrackWithAdMeta(TrackQueueItem currentTrackQueueItem) {
-            final PropertySet adProperties = PropertySet.from(
-                    AdProperty.IS_AUDIO_AD.bind(AdUtils.IS_AUDIO_AD_ITEM.apply(currentTrackQueueItem))
-            );
-            return trackRepository.track(currentTrackQueueItem.getUrn())
-                    .map(PropertySetFunctions.mergeWith(adProperties));
     }
 
     public void handleToggleLikeAction(final boolean addLike) {
@@ -136,19 +116,6 @@ public class PlayerWidgetController {
     }
 
     /**
-     * Listens for track changes emitted from our application layer via Rx and updates the widget
-     * accordingly.
-     */
-    private final class TrackChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(final EntityStateChangedEvent event) {
-            if (!playQueueManager.isQueueEmpty() && playQueueManager.isCurrentTrack(event.getFirstUrn())) {
-                updatePlayableInformation(PropertySetFunctions.mergeWith(event.getNextChangeSet()));
-            }
-        }
-    }
-
-    /**
      * When the user logs out, reset all widget instances
      */
     private final class CurrentUserChangedSubscriber extends DefaultSubscriber<CurrentUserChangedEvent> {
@@ -163,11 +130,7 @@ public class PlayerWidgetController {
     private class PlaybackStateSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
         @Override
         public void onNext(PlaybackStateTransition state) {
-            if (!state.getUrn().isAd()){
-                presenter.updatePlayState(context, state.playSessionIsActive());
-            } else {
-                presenter.reset(context);
-            }
+            presenter.updatePlayState(context, state.playSessionIsActive());
         }
     }
 
@@ -175,6 +138,22 @@ public class PlayerWidgetController {
         @Override
         public void onNext(PropertySet track) {
             presenter.updateTrackInformation(context, track);
+        }
+    }
+
+    private class CurrentItemSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+        @Override
+        public void onNext(CurrentPlayQueueItemEvent event) {
+            updatePlayableInformation(PropertySet.create());
+        }
+    }
+
+    private final class TrackMetadataChangeSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+        @Override
+        public void onNext(final EntityStateChangedEvent event) {
+            if (!playQueueManager.isQueueEmpty() && playQueueManager.isCurrentTrack(event.getFirstUrn())) {
+                updatePlayableInformation(event.getNextChangeSet());
+            }
         }
     }
 }

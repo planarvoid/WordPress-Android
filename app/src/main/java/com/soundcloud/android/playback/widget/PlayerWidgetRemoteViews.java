@@ -10,6 +10,7 @@ import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.app.PendingIntent;
@@ -43,29 +44,46 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
                 R.drawable.ic_play_arrow_black_36dp, R.drawable.ic_pause_black_36dp);
     }
 
-    /* package */  void setEmptyState(Context context) {
+    void setEmptyState(Context context) {
         setPlaybackStatus(false);
         setCurrentTrackTitle(context.getString(R.string.widget_touch_to_open));
         setCurrentCreator(Strings.EMPTY);
-        linkButtonsWidget(context, Urn.NOT_SET, Urn.NOT_SET, false);
+        linkPlayControls(context, false);
     }
 
     PlayerWidgetRemoteViews(Parcel parcel) {
         super(parcel);
     }
 
-    /* package */ void linkButtonsWidget(Context context, Urn trackUrn, Urn userUrn, boolean addLike) {
-        linkPlayerControls(context);
+    void linkPlayControls(Context context, boolean isPlayableFromWidget) {
+        setOnClickPendingIntent(R.id.toggle_playback, isPlayableFromWidget
+                ? createPlaybackPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK)
+                : createLaunchPendingIntent(context));
+        setOnClickPendingIntent(R.id.prev, createPlaybackPendingIntent(context, PlaybackAction.PREVIOUS));
+        setOnClickPendingIntent(R.id.next, createPlaybackPendingIntent(context, PlaybackAction.NEXT));
+    }
 
+    private PendingIntent createLaunchPendingIntent(Context context) {
+        return PendingIntent.getActivity(context,
+                R.id.player_widget_request_id,
+                new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    void linkTitles(Context context, Urn trackUrn, Optional<Urn> userUrn) {
         setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context,
                 PENDING_INTENT_REQUEST_CODE, createLaunchIntent(context, trackUrn), PendingIntent.FLAG_CANCEL_CURRENT));
-        if (!trackUrn.equals(Urn.NOT_SET)) {
 
+        if (userUrn.isPresent()) {
             Navigator navigator = new Navigator(); // Can't inject here :(
-            setOnClickPendingIntent(R.id.user_txt, navigator.openProfileFromWidget(context, userUrn, PENDING_INTENT_REQUEST_CODE));
+            setOnClickPendingIntent(R.id.user_txt, navigator.openProfileFromWidget(context, userUrn.get(), PENDING_INTENT_REQUEST_CODE));
+        }
+    }
 
+    void linkLikeToggle(Context context, Optional<Boolean> isLiked) {
+        if (isLiked.isPresent()) {
             final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);
-            toggleLike.putExtra(PlayerWidgetController.EXTRA_ADD_LIKE, addLike);
+            toggleLike.putExtra(PlayerWidgetController.EXTRA_ADD_LIKE, !isLiked.get());
             setOnClickPendingIntent(R.id.btn_like, PendingIntent.getBroadcast(context,
                     PENDING_INTENT_REQUEST_CODE, toggleLike, PendingIntent.FLAG_CANCEL_CURRENT));
         }
@@ -82,13 +100,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         return intent;
     }
 
-    private void linkPlayerControls(Context context) {
-        setOnClickPendingIntent(R.id.toggle_playback, createPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK));
-        setOnClickPendingIntent(R.id.prev, createPendingIntent(context, PlaybackAction.PREVIOUS));
-        setOnClickPendingIntent(R.id.next, createPendingIntent(context, PlaybackAction.NEXT));
-    }
-
-    private PendingIntent createPendingIntent(Context context, String playbackAction) {
+    private PendingIntent createPlaybackPendingIntent(Context context, String playbackAction) {
         return PendingIntent.getBroadcast(context, PENDING_INTENT_REQUEST_CODE, createIntent(playbackAction), 0);
     }
 

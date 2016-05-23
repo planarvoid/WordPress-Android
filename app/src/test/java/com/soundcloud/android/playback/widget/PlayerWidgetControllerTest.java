@@ -101,7 +101,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsNotAudioAd() throws CreateModelException {
+    public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsNotAudioAd() {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
@@ -112,7 +112,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsAudioAd() throws CreateModelException {
+    public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), audioAd);
 
@@ -157,16 +157,12 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN, AdFixtures.getAudioAd(Urn.forTrack(123L))));
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
-        when(trackRepository.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack.put(AdProperty.IS_AUDIO_AD, true)));
         EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
-        ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
-        verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
-        assertThat(captor.getValue().get(PlayableProperty.IS_USER_LIKE)).isTrue();
-        assertThat(captor.getValue().get(AdProperty.IS_AUDIO_AD)).isTrue();
+        verify(playerWidgetPresenter).updateForAudioAd(eq(context));
     }
 
     @Test
@@ -201,7 +197,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdatePresenterTrackInformationWhenCurrentTrackIsNotAudioAd() throws CreateModelException {
+    public void shouldUpdatePresenterTrackInformationWhenCurrentTrackIsNotAudioAd() {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN));
@@ -214,14 +210,14 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldUpdatePresenterTrackWithAdInformationWhenCurrentTrackIsAudioAd() {
+    public void shouldUpdatePresenterWithAdInformationWhenCurrentTrackIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
                 .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN, AdFixtures.getAudioAd(Urn.forTrack(123L))));
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack.put(AdProperty.IS_AUDIO_AD, true)));
 
         controller.update();
 
-        verify(playerWidgetPresenter).updateTrackInformation(eq(context), eq(widgetTrack));
+        verify(playerWidgetPresenter).updateForAudioAd(eq(context));
     }
 
     @Test

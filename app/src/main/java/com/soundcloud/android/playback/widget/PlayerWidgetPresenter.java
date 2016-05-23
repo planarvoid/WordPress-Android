@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.widget.RemoteViews;
 
 import javax.inject.Inject;
@@ -30,11 +31,13 @@ class PlayerWidgetPresenter {
 
     private static final ComponentName PLAYER_WIDGET_PROVIDER = new ComponentName(BuildConfig.APPLICATION_ID,
             PlayerAppWidgetProvider.class.getCanonicalName());
+
     private final AppWidgetManager appWidgetManager;
     private final ImageOperations imageOperations;
+
     private Subscription artworkSubscription = RxUtils.invalidSubscription();
 
-    private WidgetTrack widgetTrack;
+   @Nullable  private WidgetItem widgetItem;
 
     @Inject
     PlayerWidgetPresenter(AppWidgetManager appWidgetManager, ImageOperations imageOperations) {
@@ -42,31 +45,35 @@ class PlayerWidgetPresenter {
         this.imageOperations = imageOperations;
     }
 
-    /* package */ void updatePlayState(Context context, boolean isPlaying) {
-        if (widgetTrack != null) {
+    void updateForVideoAd(final Context context) {
+        artworkSubscription.unsubscribe();
+        widgetItem = WidgetItem.forVideoAd(context.getResources());
+        updateRemoveViews(context);
+    }
+
+    void updateForAudioAd(final Context context) {
+        artworkSubscription.unsubscribe();
+        widgetItem = WidgetItem.forAudioAd(context.getResources());
+        updateRemoveViews(context);
+    }
+
+    void updatePlayState(Context context, boolean isPlaying) {
+        if (widgetItem != null) {
             PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
-                    .forIsPlaying(widgetTrack, isPlaying)
+                    .forIsPlaying(widgetItem, isPlaying)
                     .build(context);
             pushUpdate(remoteViews);
         }
     }
 
-    /* package */ void updateTrackInformation(final Context context, final PropertySet trackProperties) {
+    void updateTrackInformation(final Context context, final PropertySet trackProperties) {
         artworkSubscription.unsubscribe();
-        widgetTrack = new WidgetTrack(context.getResources(), trackProperties);
-        if (widgetTrack.isAudioAd()) {
-            updateWithoutArtwork(context);
-        } else {
-            updateAndLoadArtwork(context);
-        }
-    }
-
-    private void updateWithoutArtwork(Context context) {
-        updateRemoveViews(context, null);
+        widgetItem = WidgetItem.fromPropertySet(trackProperties);
+        updateAndLoadArtwork(context);
     }
 
     private void updateAndLoadArtwork(Context context) {
-        Bitmap cachedArtwork = getCachedBitmap(context, widgetTrack);
+        Bitmap cachedArtwork = getCachedBitmap(context, widgetItem);
         updateRemoveViews(context, cachedArtwork);
         if (cachedArtwork == null) {
             loadArtwork(context);
@@ -74,7 +81,7 @@ class PlayerWidgetPresenter {
     }
 
     private void loadArtwork(Context context) {
-        artworkSubscription = imageOperations.artwork(widgetTrack,
+        artworkSubscription = imageOperations.artwork(widgetItem,
                 getApiImageSize(context.getResources()),
                 context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_width),
                 context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))
@@ -82,9 +89,15 @@ class PlayerWidgetPresenter {
                 .subscribe(getArtworkSubscriber(context));
     }
 
+    private void updateRemoveViews(Context context) {
+        pushUpdate(new PlayerWidgetRemoteViewsBuilder()
+                .forItem(widgetItem)
+                .build(context));
+    }
+
     private void updateRemoveViews(Context context, Bitmap artwork) {
         PlayerWidgetRemoteViews remoteViews = new PlayerWidgetRemoteViewsBuilder()
-                .forTrack(widgetTrack)
+                .forItem(widgetItem)
                 .forArtwork(artwork)
                 .build(context);
         pushUpdate(remoteViews);
@@ -100,10 +113,10 @@ class PlayerWidgetPresenter {
         };
     }
 
-    /* package */ void reset(Context context) {
+    void reset(Context context) {
         Log.d(PlayerWidgetPresenter.this, "resetting widget");
         artworkSubscription.unsubscribe();
-        widgetTrack = null;
+        widgetItem = null;
         
         pushUpdate(buildEmptyRemoteViews(context));
     }

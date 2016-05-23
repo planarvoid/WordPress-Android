@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.views;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 
 import android.os.Parcel;
 import android.text.TextUtils;
@@ -13,7 +12,6 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
     private int playBtnId;
     private int pauseBtnId;
 
-    protected PublicApiTrack track;
     protected boolean isPlaying;
 
     public PlaybackRemoteViews(String packageName, int layoutId, int playBtnId, int pauseBtnId) {
