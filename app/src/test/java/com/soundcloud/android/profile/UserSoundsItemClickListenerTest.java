@@ -42,9 +42,9 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void shouldDelegateTrackClicksToMixedItemClickListener() throws Exception {
         TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-        subject.onItemClick(null, view, 0, fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT), null, null);
+        subject.onItemClick(null, view, 0, fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT), USER_URN, null);
 
-        verify(mixedItemClickListener).onPostClick(null, view, 0, trackItem);
+        verify(mixedItemClickListener).onProfilePostClick(null, view, 0, trackItem, USER_URN);
     }
 
     @Test

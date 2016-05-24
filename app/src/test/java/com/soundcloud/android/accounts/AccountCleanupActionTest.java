@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.collection.CollectionOperations;
+import com.soundcloud.android.collection.PlayHistoryStorage;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
@@ -57,13 +58,15 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private SoundStreamOperations soundStreamOperations;
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private NotificationPreferencesStorage notificationPreferencesStorage;
+    @Mock private PlayHistoryStorage playHistoryStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(userAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, syncCleanupAction, planStorage,
                 removeLocalPlaylistsCommand, discoveryOperations, clearTableCommand, stationsOperations,
-                collectionOperations, soundStreamOperations, configurationOperations, notificationPreferencesStorage);
+                collectionOperations, soundStreamOperations, configurationOperations, notificationPreferencesStorage,
+                playHistoryStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -202,4 +205,11 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
         action.call();
         verify(soundStreamOperations).clearData();
     }
+
+    @Test
+    public void shouldRemovePlayHistory() {
+        action.call();
+        verify(playHistoryStorage).clear();
+    }
+
 }

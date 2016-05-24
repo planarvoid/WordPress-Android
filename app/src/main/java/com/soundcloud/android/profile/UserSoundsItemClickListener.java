@@ -4,12 +4,9 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.MixedItemClickListener;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.functions.Function;
 import rx.Observable;
 
 import android.support.annotation.Nullable;
@@ -41,8 +38,10 @@ class UserSoundsItemClickListener {
                 handleViewAllClickEvent(view, item, userUrn, searchQuerySourceInfo);
                 break;
             case UserSoundsItem.TYPE_PLAYLIST:
-            case UserSoundsItem.TYPE_TRACK:
                 this.mixedItemClickListener.onPostClick(playables, view, position, userSoundsItemToPlayableItem(item));
+                break;
+            case UserSoundsItem.TYPE_TRACK:
+                this.mixedItemClickListener.onProfilePostClick(playables, view, position, userSoundsItemToPlayableItem(item), userUrn);
                 break;
             case UserSoundsItem.TYPE_HEADER:
             case UserSoundsItem.TYPE_DIVIDER:

@@ -6,19 +6,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -39,7 +41,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import java.util.Collections;
 import java.util.List;
 
 public class ProfilePlayablePresenterTest extends AndroidUnitTest {
@@ -88,20 +89,33 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);
         arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         createPresenter();
+        presenter.onCreate(fragment, null);
     }
 
     @Test
-    public void presenterUsesMixedPlayableClickListener() throws Exception {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, fragmentView, null);
+    public void presenterUsesMixedPlayableClickListenerForProfilePost() throws Exception {
+        TrackItem trackItem = TrackItem.from(TestPropertySets.expectedTrackForListItem(Urn.forTrack(123L)));
+        when(adapter.getItem(1)).thenReturn(trackItem);
+
         presenter.onItemClicked(itemView, 1);
 
-        verify(itemClickListener).onPostClick(argumentCaptor.capture(), same(itemView), eq(1), same((ListItem) null));
+        verify(itemClickListener).onProfilePostClick(argumentCaptor.capture(), same(itemView), eq(1),
+                same((ListItem) trackItem), same(trackItem.getCreatorUrn()));
+    }
+
+    @Test
+    public void presenterUsesMixedPlayableClickListenerForPlaylistPost() throws Exception {
+        PlaylistItem playlistItem = PlaylistItem.from(TestPropertySets.expectedPostedPlaylistForPostsScreen());
+        when(adapter.getItem(1)).thenReturn(playlistItem);
+
+        presenter.onItemClicked(itemView, 1);
+
+        verify(itemClickListener).onPostClick(argumentCaptor.capture(), same(itemView), eq(1),
+                same((ListItem) playlistItem));
     }
 
     @Test
     public void configuresEmptyViewInOnViewCreated() throws Exception {
-        presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, fragmentView, null);
 
         verify(emptyViewBuilder).configure(emptyView);

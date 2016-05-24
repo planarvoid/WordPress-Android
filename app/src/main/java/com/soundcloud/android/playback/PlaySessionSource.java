@@ -74,6 +74,16 @@ public class PlaySessionSource implements Parcelable {
         return source;
     }
 
+    public static PlaySessionSource forArtist(Screen screen, Urn artist) {
+        return forArtist(screen.get(), artist);
+    }
+
+    public static PlaySessionSource forArtist(String screen, Urn artist) {
+        final PlaySessionSource source = new PlaySessionSource(screen);
+        source.collectionUrn = artist;
+        return source;
+    }
+
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
         exploreVersion = in.readString();

@@ -12,7 +12,8 @@ enum Feature {
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
   EDIT_PLAYLIST,
   USER_STATIONS,
-  RECOMMENDED_STATIONS;
+  RECOMMENDED_STATIONS,
+  LOCAL_PLAY_HISTORY;
 }
 
 android {
@@ -25,6 +26,7 @@ android {
     buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
     buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), FALSE
   }
 
   buildTypes {
@@ -35,6 +37,7 @@ android {
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
     }
 
     beta {
@@ -47,6 +50,7 @@ android {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
     }
 
     release {

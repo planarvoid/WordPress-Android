@@ -80,24 +80,21 @@ public class UserPostsPresenterTest extends AndroidUnitTest {
         arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         presenter = new UserPostsPresenter(swipeRefreshAttacher, imagePauseOnScrollListener,
                 adapter, mixedClickListenerFactory, playableListUpdaterFactory, profileOperations);
+        presenter.onCreate(fragment, null);
     }
 
     @Test
     public void presenterUsesMixedPlayableClickListenerToPlayPosts() throws Exception {
-        List<PlayableItem> adapterItems = Collections.emptyList();
-        when(adapter.getItems()).thenReturn(adapterItems);
-
-        final TrackItem clickedItem = TrackItem.from(TestPropertySets.fromApiTrack());
-        when(adapter.getItem(1)).thenReturn(clickedItem);
-
+        final TrackItem trackItem = TrackItem.from(TestPropertySets.fromApiTrack());
         final Observable<List<PropertySet>> playbackItems = Observable.just(Collections.<PropertySet>emptyList());
+        final List<PlayableItem> adapterItems = Collections.emptyList();
+        when(adapter.getItems()).thenReturn(adapterItems);
         when(profileOperations.postsForPlayback(adapterItems)).thenReturn(playbackItems);
-
-        presenter.onCreate(fragment, null);
+        when(adapter.getItem(1)).thenReturn(trackItem);
 
         presenter.onItemClicked(itemView, 1);
 
-        verify(itemClickListener).onPostClick(playbackItems, itemView, 1, clickedItem);
+        verify(itemClickListener).onProfilePostClick(playbackItems, itemView, 1, trackItem, user);
     }
 
 }

@@ -19,6 +19,7 @@ import javax.inject.Inject;
 class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
 
     private final UserProfileOperations profileOperations;
+    private Urn userUrn;
 
     @Inject
     UserPostsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -34,10 +35,10 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
 
     @Override
     protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn urn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
-        return CollectionBinding.from(profileOperations.pagedPostItems(urn), pageTransformer)
+        userUrn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
+        return CollectionBinding.from(profileOperations.pagedPostItems(userUrn), pageTransformer)
                 .withAdapter(adapter)
-                .withPager(profileOperations.postsPagingFunction(urn))
+                .withPager(profileOperations.postsPagingFunction(userUrn))
                 .build();
     }
 
@@ -49,7 +50,8 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
 
     @Override
     protected void onItemClicked(View view, int position) {
-        clickListener.onPostClick(profileOperations.postsForPlayback(adapter.getItems()),
-                view, position, adapter.getItem(position));
+        PlayableItem item = adapter.getItem(position);
+        clickListener.onProfilePostClick(profileOperations.postsForPlayback(adapter.getItems()),
+                view, position, item, userUrn);
     }
 }

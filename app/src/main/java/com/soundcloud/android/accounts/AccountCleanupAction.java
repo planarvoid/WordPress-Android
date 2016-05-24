@@ -2,6 +2,7 @@ package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.collection.CollectionOperations;
+import com.soundcloud.android.collection.PlayHistoryStorage;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
@@ -44,6 +45,7 @@ class AccountCleanupAction implements Action0 {
     private final SoundStreamOperations soundStreamOperations;
     private final ConfigurationOperations configurationOperations;
     private final NotificationPreferencesStorage notificationPreferencesStorage;
+    private final PlayHistoryStorage playHistoryStorage;
 
     @Inject
     AccountCleanupAction(UserAssociationStorage userAssociationStorage,
@@ -58,7 +60,8 @@ class AccountCleanupAction implements Action0 {
                          CollectionOperations collectionOperations,
                          SoundStreamOperations soundStreamOperations,
                          ConfigurationOperations configurationOperations,
-                         NotificationPreferencesStorage notificationPreferencesStorage) {
+                         NotificationPreferencesStorage notificationPreferencesStorage,
+                         PlayHistoryStorage playHistoryStorage) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
         this.soundRecorder = soundRecorder;
@@ -75,6 +78,7 @@ class AccountCleanupAction implements Action0 {
         this.soundStreamOperations = soundStreamOperations;
         this.configurationOperations = configurationOperations;
         this.notificationPreferencesStorage = notificationPreferencesStorage;
+        this.playHistoryStorage = playHistoryStorage;
     }
 
     @Override
@@ -96,6 +100,7 @@ class AccountCleanupAction implements Action0 {
         soundStreamOperations.clearData();
         configurationOperations.clearConfigurationSettings();
         notificationPreferencesStorage.clear();
+        playHistoryStorage.clear();
     }
 
     private void clearCollections() {
