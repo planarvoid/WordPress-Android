@@ -1,17 +1,20 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.image.ImageResource;
-
-import java.util.Collections;
-import java.util.List;
-
 class ChartsItem extends DiscoveryItem {
-    public final List<? extends ImageResource> newAndHotTracks;
-    public final List<? extends ImageResource> topFiftyTracks;
+    private final Chart newAndHotChart;
+    private final Chart topFiftyChart;
 
-    ChartsItem(List<? extends ImageResource> newAndHotTracks, List<? extends ImageResource> topFiftyTracks) {
+    ChartsItem(Chart newAndHotChart, Chart topFiftyChart) {
         super(Kind.ChartItem);
-        this.newAndHotTracks = Collections.unmodifiableList(newAndHotTracks);
-        this.topFiftyTracks = Collections.unmodifiableList(topFiftyTracks);
+        this.newAndHotChart = newAndHotChart;
+        this.topFiftyChart = topFiftyChart;
+    }
+
+    Chart getNewAndHotChart() {
+        return newAndHotChart;
+    }
+
+    Chart getTopFiftyChart() {
+        return topFiftyChart;
     }
 }

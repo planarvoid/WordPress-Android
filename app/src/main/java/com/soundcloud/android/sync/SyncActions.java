@@ -12,4 +12,6 @@ public final class SyncActions {
     public static final String SYNC_PLAYLIST        = "syncPlaylist";
 
     public static final String SYNC_RECOMMENDATIONS = "syncRecommendations";
+
+    public static final String SYNC_CHARTS = "syncCharts";
 }

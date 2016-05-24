@@ -22,7 +22,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 75;
+    public static final int DATABASE_VERSION = 76;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -55,6 +55,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.TrackDownloads.SQL);
             db.execSQL(Tables.OfflineContent.SQL);
             db.execSQL(Tables.StationsCollections.SQL);
+            db.execSQL(Tables.Charts.SQL);
+            db.execSQL(Tables.ChartTracks.SQL);
 
             // legacy tables
             for (Table t : Table.values()) {
@@ -84,6 +86,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.OfflineContent.TABLE.name(), db);
         dropTable(LegacyTables.RecentStations.TABLE.name(), db);
         dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
+        dropTable(Tables.Charts.TABLE.name(), db);
+        dropTable(Tables.ChartTracks.TABLE.name(), db);
 
         // legacy tables
         for (Table t : Table.values()) {
@@ -224,6 +228,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 75:
                             success = upgradeTo75(db, oldVersion);
+                            break;
+                        case 76:
+                            success = upgradeTo76(db, oldVersion);
                             break;
                         default:
                             break;
@@ -814,6 +821,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 75);
+        }
+        return false;
+    }
+
+    /**
+     * Created Charts table
+     */
+    private static boolean upgradeTo76(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL(Tables.Charts.SQL);
+            db.execSQL(Tables.ChartTracks.SQL);
+            return true;
+
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 76);
         }
         return false;
     }

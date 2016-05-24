@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.discovery.ChartsSyncInitiator;
+import com.soundcloud.android.discovery.ChartsSyncRequestFactory;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationsSyncInitiator;
 import com.soundcloud.android.stations.StationsSyncRequestFactory;
@@ -27,6 +29,7 @@ class SyncRequestFactory {
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final Lazy<RecommendationsSyncer> lazyRecommendationSyncer;
     private final StationsSyncRequestFactory stationsSyncRequestFactory;
+    private final ChartsSyncRequestFactory chartsSyncRequestFactory;
     private final EventBus eventBus;
 
     @Inject
@@ -37,6 +40,7 @@ class SyncRequestFactory {
                        SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                        Lazy<RecommendationsSyncer> lazyRecommendationSyncer,
                        StationsSyncRequestFactory stationsSyncRequestFactory,
+                       ChartsSyncRequestFactory chartsSyncRequestFactory,
                        EventBus eventBus) {
         this.syncIntentFactory = syncIntentFactory;
         this.lazySyncTrackLikesJob =  lazySyncTrackLikesJob;
@@ -45,6 +49,7 @@ class SyncRequestFactory {
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.lazyRecommendationSyncer = lazyRecommendationSyncer;
         this.stationsSyncRequestFactory = stationsSyncRequestFactory;
+        this.chartsSyncRequestFactory = chartsSyncRequestFactory;
         this.eventBus = eventBus;
     }
 
@@ -61,6 +66,8 @@ class SyncRequestFactory {
         switch (type) {
             case StationsSyncInitiator.TYPE:
                 return stationsSyncRequestFactory.create(intent.getAction(), getReceiverFromIntent(intent));
+            case ChartsSyncInitiator.TYPE:
+                return chartsSyncRequestFactory.create(intent.getAction(), getReceiverFromIntent(intent));
             default:
                 throw new IllegalArgumentException("Unknown type. " + type);
         }

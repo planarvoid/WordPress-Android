@@ -34,6 +34,7 @@ public class StorageModule {
     public static final String CONFIGURATION_SETTINGS = "ConfigurationSettings";
     public static final String ANALYTICS_SETTINGS = "Analytics";
     public static final String RECOMMENDED_TRACKS_SYNC = "RecommendedTracksSync";
+    public static final String CHARTS_SYNC = "ChartsSync";
     public static final String GCM = "gcm";
     public static final String FACEBOOK_INVITES = "FacebookInvites";
     public static final String COLLECTIONS = "collections";
@@ -55,6 +56,7 @@ public class StorageModule {
     private static final String PREFS_STREAM_SYNC = "StreamSync";
     private static final String PREFS_ACTIVITIES_SYNC = "ActivitiesSync";
     private static final String PREFS_RECOMMENDED_TRACKS_SYNC = "RecommendationsSync";
+    private static final String PREFS_CHARTS_SYNC = "ChartsSync";
     private static final String PREFS_GCM = "gcm";
     private static final String PREFS_FACEBOOK_INVITES = "facebook_invites";
     private static final String PREFS_COLLECTIONS = "collections";
@@ -166,6 +168,12 @@ public class StorageModule {
     @Named(RECOMMENDED_TRACKS_SYNC)
     public SharedPreferences provideRecommendedTracksSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_RECOMMENDED_TRACKS_SYNC, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(CHARTS_SYNC)
+    public SharedPreferences provideChartsSyncPrefs(Context context) {
+        return context.getSharedPreferences(PREFS_CHARTS_SYNC, Context.MODE_PRIVATE);
     }
 
     @Provides

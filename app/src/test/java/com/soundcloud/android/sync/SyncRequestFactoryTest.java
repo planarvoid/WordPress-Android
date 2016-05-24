@@ -6,6 +6,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.discovery.ChartsSyncInitiator;
+import com.soundcloud.android.discovery.ChartsSyncRequestFactory;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationsSyncInitiator;
 import com.soundcloud.android.stations.StationsSyncRequestFactory;
@@ -34,19 +36,25 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     @Mock private ResultReceiverAdapter resultReceiverAdapter;
     @Mock private RecommendationsSyncer recommendationsSyncer;
     @Mock private StationsSyncRequestFactory stationsSyncRequestFactory;
+    @Mock private ChartsSyncRequestFactory chartsSyncRequestFactory;
 
     @Before
     public void setUp() throws Exception {
         syncRequestFactory = new SyncRequestFactory(syncIntentFactory,
-                lazyOf(syncTrackLikesJob), lazyOf(syncPlaylistLikesJob),
-                entitySyncRequestFactory, singlePlaylistSyncerFactory,
-                lazyOf(recommendationsSyncer), stationsSyncRequestFactory, new TestEventBus());
+                                                    lazyOf(syncTrackLikesJob),
+                                                    lazyOf(syncPlaylistLikesJob),
+                                                    entitySyncRequestFactory,
+                                                    singlePlaylistSyncerFactory,
+                                                    lazyOf(recommendationsSyncer),
+                                                    stationsSyncRequestFactory,
+                                                    chartsSyncRequestFactory, new TestEventBus());
     }
 
     @Test
     public void returnsSingleRequestJobWithTrackLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter));
+                                                                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                                                                              resultReceiverAdapter));
         assertThat(syncRequest.getPendingJobs()).hasSize(1);
         assertThat(syncRequest.getPendingJobs().contains(syncTrackLikesJob)).isTrue();
     }
@@ -99,4 +107,12 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
         verify(stationsSyncRequestFactory).create(eq(intent.getAction()), any(ResultReceiverAdapter.class));
     }
 
+    @Test
+    public void createSyncChartsRequest() throws Exception {
+        final Intent intent = new Intent("My Action").putExtra(ApiSyncService.EXTRA_TYPE, ChartsSyncInitiator.TYPE);
+
+        syncRequestFactory.create(intent);
+
+        verify(chartsSyncRequestFactory).create(eq(intent.getAction()), any(ResultReceiverAdapter.class));
+    }
 }

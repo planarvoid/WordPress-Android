@@ -37,6 +37,10 @@ public enum ApiEndpoints {
     RECOMMENDATIONS("/you/personalized-tracks"),
     STATION_RECOMMENDATIONS("/you/personalized-stations"),
 
+    // charts
+    CHARTS_FEATURED("/charts/featured"),
+    CHARTS("/charts"),
+
     // ads + monetization
     ADS("/tracks/%s/ads"),
     POLICIES("/policies/tracks"),

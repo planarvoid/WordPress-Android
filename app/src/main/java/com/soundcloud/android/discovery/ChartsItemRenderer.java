@@ -35,9 +35,9 @@ class ChartsItemRenderer implements CellRenderer<ChartsItem> {
     @Override
     public void bindItemView(int position, View itemView, List<ChartsItem> list) {
         final ChartsItem chartsItem = list.get(position);
-        setThumbnails(chartsItem.newAndHotTracks,
+        setThumbnails(chartsItem.getNewAndHotChart().getChartTracks(),
                 ButterKnife.<CollectionPreviewView>findById(itemView, R.id.charts_new_and_hot_preview));
-        setThumbnails(chartsItem.topFiftyTracks,
+        setThumbnails(chartsItem.getTopFiftyChart().getChartTracks(),
                 ButterKnife.<CollectionPreviewView>findById(itemView, R.id.charts_top_fifty_preview));
     }
 

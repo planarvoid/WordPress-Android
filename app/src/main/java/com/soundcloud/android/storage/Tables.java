@@ -344,4 +344,52 @@ public interface Tables {
         }
 
     }
+
+    class Charts extends BaseTable {
+
+        // table instance
+        public static final Charts TABLE = new Charts();
+        // columns
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column PAGE = Column.create(TABLE, "page");
+        public static final Column TITLE = Column.create(TABLE, "title");
+        public static final Column GENRE = Column.create(TABLE, "genre");
+        public static final Column TYPE = Column.create(TABLE, "type");
+        public static final Column CATEGORY = Column.create(TABLE, "category");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS Charts (" +
+                "_id INTEGER PRIMARY KEY," +
+                "page TEXT, " +
+                "title TEXT, " +
+                "genre TEXT, " +
+                "type TEXT, " +
+                "category TEXT" +
+                ");";
+
+        protected Charts() {
+            super("Charts", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
+
+    class ChartTracks extends BaseTable {
+
+        // table instance
+        public static final ChartTracks TABLE = new ChartTracks();
+        // columns
+        public static final Column _ID = Column.create(TABLE, "_id");
+        public static final Column CHART_ID = Column.create(TABLE, "chart_id");
+        public static final Column SOUND_ID = Column.create(TABLE, "sound_id");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS ChartTracks (" +
+                "_id INTEGER PRIMARY KEY," +
+                "chart_id INTEGER, " +
+                "sound_id INTEGER, " +
+                "FOREIGN KEY(chart_id) REFERENCES Charts(_id) " +
+                "FOREIGN KEY(sound_id) REFERENCES Sounds(_id) " +
+                ");";
+
+        protected ChartTracks() {
+            super("ChartTracks", PrimaryKey.of(BaseColumns._ID));
+        }
+    }
 }

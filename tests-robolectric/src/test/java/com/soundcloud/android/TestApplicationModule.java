@@ -201,6 +201,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.CHARTS_SYNC)
+    public SharedPreferences provideChartPrefs() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named(StorageModule.FEATURES)
     public SharedPreferences provideFeatures() {
         return provideSharedPreferences();
