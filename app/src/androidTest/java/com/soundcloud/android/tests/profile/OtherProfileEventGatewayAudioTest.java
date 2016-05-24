@@ -8,6 +8,7 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.annotation.NewProfileTest;
+import com.soundcloud.android.framework.annotation.ProfileAlbumTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -81,6 +82,7 @@ public class OtherProfileEventGatewayAudioTest extends TrackingActivityTest<Main
         endScenario(TEST_SCENARIO_PLAYLISTS_BUCKET);
     }
 
+    @ProfileAlbumTest
     public void testOpenPlaylistFromAlbumsBucket() {
         startScenario(TEST_SCENARIO_ALBUMS_BUCKET);
 
@@ -135,6 +137,7 @@ public class OtherProfileEventGatewayAudioTest extends TrackingActivityTest<Main
         endScenario(TEST_SCENARIO_PLAYLISTS_LIST);
     }
 
+    @ProfileAlbumTest
     public void testOpenPlaylistFromAlbumsList() {
         startScenario(TEST_SCENARIO_ALBUMS_LIST);
 

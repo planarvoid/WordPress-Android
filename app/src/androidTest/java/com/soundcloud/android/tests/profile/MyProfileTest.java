@@ -44,12 +44,12 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
 
         profileScreen.goBack();
 
+        // TODO: Enable once albums switched on
         // ALBUMS
-        assertTrue(profileScreen.albumsHeader().hasVisibility());
-        assertEquals(profileScreen.clickViewAllAlbums().getActionBarTitle(),
-                ressourceString(R.string.user_profile_sounds_header_albums));
-
-        profileScreen.goBack();
+        // assertTrue(profileScreen.albumsHeader().hasVisibility());
+        // assertEquals(profileScreen.clickViewAllAlbums().getActionBarTitle(),
+        //        ressourceString(R.string.user_profile_sounds_header_albums));
+        // profileScreen.goBack();
 
         // REPOSTS
         assertTrue(profileScreen.repostHeader().hasVisibility());
@@ -66,7 +66,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
 
     public void testPlaylistClickOpensPlaylistPage() {
         final PlaylistElement expectedPlaylist = profileScreen
-                .playlists()
+                .scrollToPlaylists()
                 .get(0);
 
         assertEquals(profileScreen.scrollToFirstPlaylist().click().getTitle(), expectedPlaylist.getTitle());

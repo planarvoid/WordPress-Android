@@ -44,10 +44,10 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
 
     public void testPostsPlaylistClickOpensPlaylistPage() {
         final PlaylistElement expectedPlaylist = profileScreen
-                .playlists()
+                .scrollToPlaylists()
                 .get(0);
 
-        assertEquals(profileScreen.scrollToFirstPlaylist().click().getTitle(), expectedPlaylist.getTitle());
+        assertEquals(expectedPlaylist.click().getTitle(), expectedPlaylist.getTitle());
     }
 
     public void testClickFollowingsLoadsProfile() {

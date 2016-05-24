@@ -89,6 +89,7 @@ public class ProfileScreen extends Screen {
     }
 
     public ProfileScreen clickUserAt(int index) {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return getUsers().get(index).click();
     }
 
@@ -98,7 +99,7 @@ public class ProfileScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
-        final List<PlaylistElement> playlists = playlists();
+        final List<PlaylistElement> playlists = scrollToPlaylists();
         for (PlaylistElement playlistElement : playlists) {
             final String trackCount = playlistElement.getTrackCount();
             if (Strings.isNotBlank(trackCount) && !trackCount.equalsIgnoreCase("0 tracks")) {
@@ -153,7 +154,9 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
-    public List<PlaylistElement> playlists() {
+    public List<PlaylistElement> scrollToPlaylists() {
+        // need to scroll to the playlist header first
+        scrollToItem(With.text(R.string.user_profile_sounds_header_playlists));
         return playlists(com.soundcloud.android.R.id.playlist_list_item);
     }
 

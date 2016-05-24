@@ -5,6 +5,7 @@ import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.annotation.NewProfileTest;
+import com.soundcloud.android.framework.annotation.ProfileAlbumTest;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
@@ -12,6 +13,7 @@ import com.soundcloud.android.tests.TestConsts;
 import android.content.Intent;
 
 @NewProfileTest
+@ProfileAlbumTest
 public class OtherProfileAlbumTest extends ActivityTest<ResolveActivity> {
 
     private ProfileScreen profileScreen;

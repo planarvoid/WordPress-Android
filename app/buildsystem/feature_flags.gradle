@@ -39,16 +39,19 @@ android {
     beta {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
     }
 
     debug {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
     }
 
     release {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
     }
 
     releaseNoProguard {
@@ -59,6 +62,7 @@ android {
     releaseNonPlayStore {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
     }
   }
 }
@@ -99,4 +103,3 @@ android.buildTypes.all { buildType ->
 def failBuild(message) {
     throw new GradleException(message)
 }
-
