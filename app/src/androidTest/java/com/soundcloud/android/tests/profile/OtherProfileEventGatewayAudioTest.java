@@ -52,7 +52,6 @@ public class OtherProfileEventGatewayAudioTest extends TrackingActivityTest<Main
         super.setUp();
 
         profileScreen = new ProfileScreen(solo);
-        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     @Override

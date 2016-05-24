@@ -29,7 +29,6 @@ import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 
 import java.util.List;
 
@@ -340,9 +339,8 @@ public class ProfileScreen extends Screen {
 
     private void scrollToBucketAndClickFirstItem(final Bucket bucket, final int elementsId) {
         final ViewElement bucketHeader = scrollToBucket(bucket);
-        final List<ViewElement> elements = testDriver.findOnScreenElements(With.id(elementsId));
 
-        getElementsBelow(elements, bucketHeader.getGlobalTop()).get(0).click();
+        scrollToElementsBelow(elementsId, bucketHeader.getGlobalTop()).get(0).click();
     }
 
     public VisualPlayerElement scrollToBucketAndClickFirstTrack(final Bucket bucket) {
@@ -361,54 +359,38 @@ public class ProfileScreen extends Screen {
     }
 
     public UserTracksScreen scrollToAndClickViewAllTracks() {
-        scrollToBucketAndClickFirstItem(Bucket.TRACKS, R.id.profile_user_sounds_view_all);
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_tracks))).click();
 
         return new UserTracksScreen(testDriver);
     }
 
     public UserPlaylistsScreen scrollToAndClickViewAllPlaylists() {
-        scrollToBucketAndClickFirstItem(Bucket.PLAYLISTS, R.id.profile_user_sounds_view_all);
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_playlists))).click();
 
         return new UserPlaylistsScreen(testDriver);
     }
 
     public UserAlbumsScreen scrollToAndClickViewAllAlbums() {
-        scrollToBucketAndClickFirstItem(Bucket.ALBUMS, R.id.profile_user_sounds_view_all);
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_albums))).click();
 
         return new UserAlbumsScreen(testDriver);
     }
 
     public UserRepostsScreen scrollToAndClickViewAllReposts() {
-        scrollToBucketAndClickFirstItem(Bucket.REPOSTS, R.id.profile_user_sounds_view_all);
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_reposts))).click();
 
         return new UserRepostsScreen(testDriver);
     }
 
     public UserLikesScreen scrollToAndClickViewAllLikes() {
-        scrollToBucketAndClickFirstItem(Bucket.LIKES, R.id.profile_user_sounds_view_all);
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_likes))).click();
 
         return new UserLikesScreen(testDriver);
     }
 
 
     private ViewElement scrollToBucket(final Bucket bucket) {
-        final With condition = withHeaderText(bucket.getHeaderTitle());
-
-        final ViewElement element = scrollToItem(condition);
-        final DisplayMetrics metrics = new DisplayMetrics();
-        testDriver.getDisplay().getMetrics(metrics);
-
-        if (element.getGlobalTop() > metrics.heightPixels * 0.675) {
-            // Add one extra scroll to try to get the full bucket in view
-            // TODO: This is the most brittle part of this test. We should really
-            //   instead be scrolling such that both the header element and the 'view all'
-            //   element are visible at the same time, computing what that display rect
-            //   should be somehow...
-            testDriver.scrollDown();
-            return testDriver.findOnScreenElement(condition);
-        }
-
-        return element;
+        return scrollToItem(withHeaderText(bucket.getHeaderTitle()));
     }
 
     private static With withHeaderText(final String string) {
@@ -431,13 +413,24 @@ public class ProfileScreen extends Screen {
         };
     }
 
-    private static List<ViewElement> getElementsBelow(final List<ViewElement> elements, final int globalTop) {
-        return newArrayList(filter(elements, new Predicate<ViewElement>() {
+    private List<ViewElement> getElementsBelow(int elementsId, final int globalTop) {
+        return newArrayList(filter(testDriver.findOnScreenElements(With.id(elementsId)), new Predicate<ViewElement>() {
             @Override
             public boolean apply(@Nullable ViewElement input) {
-                return input.getGlobalTop() > globalTop;
+                return input != null && input.getGlobalTop() > globalTop;
             }
         }));
+    }
+
+    private List<ViewElement> scrollToElementsBelow(int elementsId, final int globalTop) {
+        List <ViewElement> elementsBelow = getElementsBelow(elementsId, globalTop);
+        // if we did not find matching elements, scroll down a bit and select again
+        if (elementsBelow.size() == 0) {
+            testDriver.scrollDown();
+            return getElementsBelow(elementsId, globalTop);
+        } else {
+            return elementsBelow;
+        }
     }
 
 }
