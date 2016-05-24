@@ -229,7 +229,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     }
 
     @Override
-    public void onRestoreInstanceState(Fragment fragment, Bundle state) {
+    public void onActivityCreated(Fragment fragment, Bundle state) {
         if (state != null && !state.containsKey(RECORD_STATE_KEY)) {
             final String string = state.getString(RECORD_STATE_KEY);
             currentState = CreateState.valueOf(string);
