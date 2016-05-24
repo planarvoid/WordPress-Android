@@ -1,10 +1,8 @@
 package com.soundcloud.android.search.suggestions;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClientRx;
@@ -46,39 +44,15 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
     @Captor private ArgumentCaptor<Iterable<RecordHolder>> recordIterableCaptor;
 
     private SearchSuggestionOperations operations;
-    private TestSubscriber<ApiSearchSuggestions> subscriber;
     private TestSubscriber<SuggestionsResult> suggestionsResultSubscriber;
     private ApiTrack track;
-    private ApiUser user;
 
     @Before
     public void setUp() throws Exception {
         operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
                 Schedulers.immediate(), suggestionStorage);
-        subscriber = new TestSubscriber<>();
         suggestionsResultSubscriber = new TestSubscriber<>();
         track = ModelFixtures.create(ApiTrack.class);
-        user = ModelFixtures.create(ApiUser.class);
-    }
-
-    @Test
-    public void returnsSuggestionsFromApi() {
-        final ApiSearchSuggestions suggestions = setupSuggestionsFetch();
-
-        operations.searchSuggestions(SEARCH_QUERY).subscribe(subscriber);
-
-        subscriber.assertReceivedOnNext(Collections.singletonList(suggestions));
-    }
-
-    @Test
-    public void cachesDependenciesFromApi() {
-        setupSuggestionsFetch();
-
-        operations.searchSuggestions(SEARCH_QUERY).subscribe(subscriber);
-
-        verify(writeMixedRecordsCommand).call(recordIterableCaptor.capture());
-
-        assertThat(recordIterableCaptor.getValue()).containsExactly(track, user);
     }
 
     @Test
@@ -129,28 +103,6 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
         when(apiClientRx.mappedResponse(argThat(requestMatcher), same(ApiSearchSuggestions.class)))
                 .thenReturn(Observable.just(suggestions));
         return suggestions;
-    }
-
-    @NonNull
-    private ApiSearchSuggestions setupSuggestionsFetch() {
-        final ApiSearchSuggestions suggestions = getMixedSuggestions();
-        final ApiRequestTo requestMatcher = isApiRequestTo("GET", ApiEndpoints.SEARCH_SUGGESTIONS.path())
-                .withQueryParam("q", SEARCH_QUERY)
-                .withQueryParam("limit", String.valueOf(LegacySuggestionsAdapter.MAX_REMOTE));
-
-        when(apiClientRx.mappedResponse(argThat(requestMatcher), same(ApiSearchSuggestions.class)))
-                .thenReturn(Observable.just(suggestions));
-        return suggestions;
-    }
-
-    @NonNull
-    private ApiSearchSuggestions getMixedSuggestions() {
-        return new ApiSearchSuggestions(
-                    Arrays.asList(
-                            getSuggestion("a", track, null),
-                            getSuggestion("b", null, user)
-                    ), Urn.forPlaylist(1)
-            );
     }
 
     @NonNull
