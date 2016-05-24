@@ -1,45 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.v7.widget.CardView
-    android:id="@+id/station_item"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     style="@style/Stations.Item"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true"
+    android:layout_weight="1"
     android:foreground="?attr/selectableItemBackground">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/station_item"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:background="@drawable/cards"
+        tools:ignore="UselessParent">
 
-        <com.soundcloud.android.view.SquareImageView
-            android:id="@+id/artwork"
-            style="Stations.ItemArtwork"
+        <FrameLayout
+            android:id="@+id/artwork_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:layout_height="150dp">
+
+            <ImageView
+                android:id="@+id/artwork"
+                style="@style/Stations.ItemArtwork"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                tools:background="@color/ad_default_background" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_station_indicator" />
+        </FrameLayout>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
             style="@style/Stations.ItemTitle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artwork_container"
+            tools:text="Long Station Title" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/type"
             style="@style/Stations.ItemType"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            tools:text="Track Station"/>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/now_playing"
             style="@style/Stations.ItemNowPlaying"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/title"
             android:text="@string/ads_now_playing"
             android:visibility="gone" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
-</android.support.v7.widget.CardView>
+</FrameLayout>
