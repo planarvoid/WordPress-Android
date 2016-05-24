@@ -30,13 +30,14 @@ class StationsApi {
         this.stationsExperiment = stationsExperiment;
     }
 
-    public Observable<ModelCollection<ApiStationMetadata>> fetchStationRecommendations() {
+    ModelCollection<ApiStationMetadata> fetchStationRecommendations() throws ApiRequestException, IOException, ApiMapperException {
         final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION_RECOMMENDATIONS.path());
         final ApiRequest request = builder
                 .forPrivateApi()
                 .build();
 
-        return apiClientRx.mappedResponse(request, new TypeToken<ModelCollection<ApiStationMetadata>>() {});
+        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiStationMetadata>>() {
+        });
     }
 
     Observable<ApiStation> fetchStation(Urn stationUrn) {

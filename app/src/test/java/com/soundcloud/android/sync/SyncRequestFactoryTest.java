@@ -100,7 +100,7 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
 
     @Test
     public void createSyncStationsRequest() throws Exception {
-        final Intent intent = new Intent("My Action").putExtra(ApiSyncService.EXTRA_TYPE, StationsSyncInitiator.TYPE);
+        final Intent intent = new Intent("My Action").putExtra(ApiSyncService.EXTRA_TYPE, StationsSyncInitiator.RECENT);
 
         syncRequestFactory.create(intent);
 

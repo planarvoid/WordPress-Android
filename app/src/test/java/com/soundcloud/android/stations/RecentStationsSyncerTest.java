@@ -52,7 +52,7 @@ public class RecentStationsSyncerTest {
         assertThat(syncer.call()).isTrue();
 
         verify(command).call(eq(metadata));
-        verify(syncStateStorage).synced(StationsSyncInitiator.TYPE);
+        verify(syncStateStorage).synced(StationsSyncInitiator.RECENT);
     }
 
     @Test

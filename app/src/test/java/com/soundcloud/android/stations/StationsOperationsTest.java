@@ -152,7 +152,7 @@ public class StationsOperationsTest {
         final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         final PublishSubject<SyncResult> syncResults = PublishSubject.create();
 
-        when(syncStateStorage.hasSyncedBefore(StationsSyncInitiator.TYPE)).thenReturn(true);
+        when(syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECENT)).thenReturn(true);
         when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
         when(syncInitiator.syncRecentStations()).thenReturn(syncResults);
 

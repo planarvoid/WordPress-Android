@@ -37,7 +37,7 @@ class RecentStationsSyncer implements Callable<Boolean> {
                 api.syncStationsCollections(storage.getRecentStationsToSync()));
 
         if (writeCollectionsCommand.call(collections)) {
-            syncStateStorage.synced(StationsSyncInitiator.TYPE);
+            syncStateStorage.synced(StationsSyncInitiator.RECENT);
             return true;
         } else {
             return false;

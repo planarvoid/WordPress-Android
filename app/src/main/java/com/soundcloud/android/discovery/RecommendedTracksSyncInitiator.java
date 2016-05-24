@@ -58,7 +58,7 @@ class RecommendedTracksSyncInitiator {
 
     Observable<Boolean> sync() {
         if (isCacheExpired()) {
-            return syncInitiator.syncRecommendations().onErrorResumeNext(RESUME_ON_SYNC_FAILURE).doOnNext(setLastSyncTime).map(FROM_SYNC_RESULT);
+            return syncInitiator.syncRecommendedTracks().onErrorResumeNext(RESUME_ON_SYNC_FAILURE).doOnNext(setLastSyncTime).map(FROM_SYNC_RESULT);
         } else {
             return Observable.just(false);
         }

@@ -19,6 +19,7 @@ import android.net.Uri;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class SyncStateStorageTest extends StorageIntegrationTest {
 
@@ -27,11 +28,36 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
     private SyncStateStorage storage;
     private TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
     private TestSubscriber<Long> timeSubscriber = new TestSubscriber<>();
+    private TestDateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
         RoboSharedPreferences preferences = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "TEST", Context.MODE_PRIVATE);
-        storage = new SyncStateStorage(propeller(), preferences, new TestDateProvider());
+        dateProvider = new TestDateProvider();
+        storage = new SyncStateStorage(propeller(), preferences, dateProvider);
+    }
+
+    @Test
+    public void hasSyncedWithinReturnFalseWhenNeverSynced() throws Exception {
+        assertThat(storage.hasSyncedWithin("MY_ENTITY", TimeUnit.HOURS.toMillis(1))).isFalse();
+    }
+
+    @Test
+    public void hasSyncedWithinReturnFalseWhenSyncedBefore() throws Exception {
+        storage.synced("MY_ENTITY");
+
+        dateProvider.advanceBy(1, TimeUnit.DAYS);
+
+        assertThat(storage.hasSyncedWithin("MY_ENTITY", TimeUnit.HOURS.toMillis(1))).isFalse();
+    }
+
+    @Test
+    public void hasSyncedWithinReturnTrueWhenSyncedWithinInterval() throws Exception {
+        storage.synced("MY_ENTITY");
+
+        dateProvider.advanceBy(1, TimeUnit.SECONDS);
+
+        assertThat(storage.hasSyncedWithin("MY_ENTITY", TimeUnit.HOURS.toMillis(1))).isTrue();
     }
 
     @Test

@@ -130,8 +130,8 @@ public class SyncInitiator {
         });
     }
 
-    public Observable<SyncResult> syncRecommendations() {
-        return legacyRequestSyncObservable(SyncActions.SYNC_RECOMMENDATIONS);
+    public Observable<SyncResult> syncRecommendedTracks() {
+        return legacyRequestSyncObservable(SyncActions.SYNC_RECOMMENDED_TRACKS);
     }
 
     public Observable<SyncResult> syncUser(final Urn userUrn) {
