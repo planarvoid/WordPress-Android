@@ -17,7 +17,7 @@ public class LeaveBehindTest extends AdBaseTest {
 
     public void testFinishAdShouldShowLeaveBehind() {
         swipeToAd();
-        playerElement.waitForAdToBeDone();
+        playerElement.waitForAudioAdToBeDone();
         playerElement.waitForLeaveBehindToLoad();
         assertThat("Should display leave behind", playerElement.isLeaveBehindVisible());
     }

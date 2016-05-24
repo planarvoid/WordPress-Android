@@ -19,7 +19,9 @@ import android.view.View;
 import java.util.concurrent.TimeUnit;
 
 public class VisualPlayerElement extends Element {
-    private static final int MILISECONDS_UNTIL_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
+    private static final int MILISECONDS_UNTIL_AUDIO_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
+    private static final int MILISECONDS_UNTIL_VIDEO_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(70L); // 67 secs + 3 buffering
+
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
     private final Condition IS_EXPANDED_CONDITION = new Condition() {
@@ -344,8 +346,12 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
-    public void waitForAdToBeDone() {
-        testDriver.sleep(MILISECONDS_UNTIL_AD_DONE);
+    public void waitForAudioAdToBeDone() {
+        testDriver.sleep(MILISECONDS_UNTIL_AUDIO_AD_DONE);
+    }
+
+    public void waitForVideoAdToBeDone() {
+        testDriver.sleep(MILISECONDS_UNTIL_VIDEO_AD_DONE);
     }
 
     public VisualPlayerElement waitForSkipAdButton() {

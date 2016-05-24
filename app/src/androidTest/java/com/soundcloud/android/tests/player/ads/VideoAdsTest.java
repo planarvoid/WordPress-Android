@@ -1,13 +1,5 @@
 package com.soundcloud.android.tests.player.ads;
 
-import android.net.Uri;
-
-import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.screens.WhyAdsScreen;
-import com.soundcloud.android.tests.TestConsts;
-
-import org.hamcrest.Matchers;
-
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static com.soundcloud.android.framework.matcher.player.IsSkipAllowed.SkipAllowed;
@@ -16,12 +8,32 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.framework.annotation.AdsTest;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.screens.WhyAdsScreen;
+import com.soundcloud.android.tests.TestConsts;
+import org.hamcrest.Matchers;
+
+import android.net.Uri;
+
 @AdsTest
 public class VideoAdsTest extends AdBaseTest {
+
+    public static final String SCENARIO_VIDEO_AD_QUARTILES = "video_ad_quartiles";
 
     @Override
     protected Uri getUri() {
         return TestConsts.LETTERBOX_VIDEO_PLAYLIST_URI;
+    }
+
+    @EventTrackingTest
+    public void testQuartileEvents() {
+        startEventTracking();
+
+        swipeToAd();
+
+        playerElement.waitForVideoAdToBeDone();
+        finishEventTracking(SCENARIO_VIDEO_AD_QUARTILES);
     }
 
     public void testSkipIsNotAllowedOnAd() {
