@@ -75,7 +75,7 @@
         android:visibility="gone" />
 
     <View
-        style="@style/PlaylistDivider"
+        style="@style/Divider.Section"
         android:layout_below="@id/artwork_container" />
 
 </RelativeLayout>
