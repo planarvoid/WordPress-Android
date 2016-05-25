@@ -6,6 +6,7 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -15,7 +16,6 @@ import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,15 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 class RecommendedTracksOperations {
-
     private List<Recommendation> toRecommendations(final Urn seedUrn, List<TrackItem> trackItems) {
-        final List<Recommendation> viewModels = new ArrayList<>(trackItems.size());
+        final List<Recommendation> recommendations = new ArrayList<>(trackItems.size());
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
 
         for (TrackItem trackItem : trackItems) {
-            viewModels.add(new Recommendation(trackItem, seedUrn, playQueueManager.getCurrentPlayQueueItem().getUrn().equals(trackItem.getUrn())));
+            boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn().equals(trackItem.getUrn());
+            recommendations.add(new Recommendation(trackItem, seedUrn, isPlaying));
         }
 
-        return viewModels;
+        return recommendations;
     }
 
     Func1<PropertySet, Observable<DiscoveryItem>> toBucket = new Func1<PropertySet, Observable<DiscoveryItem>>() {
@@ -50,26 +51,12 @@ class RecommendedTracksOperations {
         };
     }
 
-    private static Func2<List<Urn>, List<Urn>, List<Urn>> toPlaylist(final RecommendationBucket recommendationBucket) {
-        return new Func2<List<Urn>, List<Urn>, List<Urn>>() {
-            @Override
-            public List<Urn> call(List<Urn> previousTracks, List<Urn> subsequentTracks) {
-                List<Urn> playList = new ArrayList<>(previousTracks.size() + subsequentTracks.size() + 1);
-                playList.addAll(previousTracks);
-                playList.add(recommendationBucket.getSeedTrackUrn());
-                playList.addAll(subsequentTracks);
-                return playList;
-            }
-        };
-    }
-
     private final RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
     private final RecommendationsStorage recommendationsStorage;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
     private final PlayQueueManager playQueueManager;
     private final Scheduler scheduler;
     private final FeatureFlags featureFlags;
-
 
     @Inject
     RecommendedTracksOperations(RecommendedTracksSyncInitiator recommendedTracksSyncInitiator,
@@ -86,33 +73,23 @@ class RecommendedTracksOperations {
         this.featureFlags = featureFlags;
     }
 
-    // TODO: Remove / Change this up
-    Observable<List<Urn>> tracksWithSeed(final RecommendationBucket recommendationBucket) {
-        //When a seed track is played, we always enqueue all recommended tracks
-        //but we need to keep the seed track position inside the queue, thus,
-        //we query all previous and subsequents tracks, put the seed track in
-        //its position and build the list.
-        //TODO: Issue: https://github.com/soundcloud/SoundCloud-Android/issues/3705
-        return recommendationsStorage.recommendedTracksBeforeSeed(recommendationBucket.getSeedTrackLocalId())
-                .zipWith(
-                        recommendationsStorage.recommendedTracksAfterSeed(recommendationBucket.getSeedTrackLocalId()),
-                        toPlaylist(recommendationBucket))
-                .subscribeOn(scheduler);
-    }
-
-    Observable<List<Urn>> allTracks() {
-        return recommendationsStorage.recommendedTracks();
-    }
-
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
                 .map(TrackItem.fromPropertySets());
     }
 
-    Observable<DiscoveryItem> tracksBucket() {
+    Observable<DiscoveryItem> firstBucket() {
+        return syncAndLoadBuckets(loadFirstBucket());
+    }
+
+    Observable<DiscoveryItem> allBuckets() {
+        return syncAndLoadBuckets(loadAllBuckets());
+    }
+
+    private Observable<DiscoveryItem> syncAndLoadBuckets(Observable<DiscoveryItem> storageObservable) {
         if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
             return recommendedTracksSyncInitiator.sync()
-                                               .flatMap(continueWith(loadFirstRecommendationBucket()));
+                                                 .flatMap(continueWith(storageObservable));
         } else {
             return Observable.empty();
         }
@@ -123,8 +100,14 @@ class RecommendedTracksOperations {
         recommendedTracksSyncInitiator.clearLastSyncTime();
     }
 
-    private Observable<DiscoveryItem> loadFirstRecommendationBucket() {
+    private Observable<DiscoveryItem> loadFirstBucket() {
         return recommendationsStorage.firstSeed()
+                .flatMap(toBucket)
+                .subscribeOn(scheduler);
+    }
+
+    private Observable<DiscoveryItem> loadAllBuckets() {
+        return recommendationsStorage.allSeeds()
                 .flatMap(toBucket)
                 .subscribeOn(scheduler);
     }

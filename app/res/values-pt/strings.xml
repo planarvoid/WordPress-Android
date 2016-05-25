@@ -364,7 +364,6 @@
   <string name="search_empty_subtext">Verifique a ortografia ou tente uma pesquisa diferente</string>
   <string name="search_for_query">Pesquisar \'%s\'</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
-  <string name="activity_title_recommendations">Recomendado para você</string>
   <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
   <string name="recommendation_reason_because_you_reason_tracktitle">Porque você %1$s %2$s</string>
   <string name="recommendation_reason_liked">curtida</string>

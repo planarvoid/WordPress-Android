@@ -33,8 +33,8 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
                 recommendedStationsOperations,
                 chartsOperations);
 
+        when(recommendedTracksOperations.firstBucket()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedStationsOperations.stationsBucket()).thenReturn(Observable.<DiscoveryItem>empty());
-        when(recommendedTracksOperations.tracksBucket()).thenReturn(Observable.<DiscoveryItem>empty());
         when(chartsOperations.charts()).thenReturn(Observable.<DiscoveryItem>empty());
     }
 
@@ -75,7 +75,7 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
 
     private DiscoveryItem initTrackRecommendationItem() {
         final DiscoveryItem trackRecommendationItem = mock(DiscoveryItem.class);
-        when(recommendedTracksOperations.tracksBucket()).thenReturn(Observable.just(trackRecommendationItem));
+        when(recommendedTracksOperations.firstBucket()).thenReturn(Observable.just(trackRecommendationItem));
         return trackRecommendationItem;
     }
 

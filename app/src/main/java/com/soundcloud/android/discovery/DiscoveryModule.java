@@ -17,8 +17,8 @@ import java.util.Random;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 DiscoveryFragment.class,
-                RecommendedTracksActivity.class,
-                RecommendedTracksFragment.class,
+                ViewAllRecommendedTracksActivity.class,
+                ViewAllRecommendedTracksFragment.class,
                 SearchActivity.class,
                 SearchPremiumResultsActivity.class,
                 PlaylistDiscoveryActivity.class,

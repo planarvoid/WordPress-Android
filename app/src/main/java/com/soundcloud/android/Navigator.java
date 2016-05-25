@@ -10,7 +10,7 @@ import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.discovery.RecommendedTracksActivity;
+import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
@@ -306,8 +306,8 @@ public class Navigator {
         context.startActivity(createResolveIntent(context, urn));
     }
 
-    public void openRecommendation(Context context, long localSeedId) {
-        context.startActivity(createRecommendationIntent(context, localSeedId));
+    public void openViewAllRecommendations(Context context) {
+        context.startActivity(new Intent(context, ViewAllRecommendedTracksActivity.class));
     }
 
     public void openRecentStations(Context context) {
@@ -441,11 +441,6 @@ public class Navigator {
                 .setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;
-    }
-
-    private Intent createRecommendationIntent(Context context, long localSeedId) {
-        return new Intent(context, RecommendedTracksActivity.class)
-                .putExtra(RecommendedTracksActivity.EXTRA_LOCAL_SEED_ID, localSeedId);
     }
 
     private Intent createPlaylistDiscoveryIntent(Context context, String playListTag) {

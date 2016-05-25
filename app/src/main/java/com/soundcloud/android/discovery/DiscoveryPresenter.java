@@ -5,18 +5,16 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -45,6 +43,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     DiscoveryPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                        DiscoveryOperations discoveryOperations,
                        DiscoveryAdapterFactory adapterFactory,
+                       RecommendationBucketRendererFactory recommendationBucketRendererFactory,
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
                        Navigator navigator,
                        FeatureFlags featureFlags,
@@ -52,7 +51,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        StartStationPresenter startStationPresenter) {
         super(swipeRefreshAttacher, Options.defaults());
         this.discoveryOperations = discoveryOperations;
-        this.adapter = adapterFactory.create(Screen.RECOMMENDATIONS_MAIN);
+        this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(Screen.RECOMMENDATIONS_MAIN, true));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.navigator = navigator;
         this.featureFlags = featureFlags;

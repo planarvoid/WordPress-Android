@@ -31,7 +31,7 @@ public class DiscoveryOperations {
         items.add(searchItem());
         items.add(chartsOperations.charts());
         items.add(recommendedStationsOperations.stationsBucket());
-        items.add(recommendedTracksOperations.tracksBucket());
+        items.add(recommendedTracksOperations.firstBucket());
         items.add(playlistDiscoveryOperations.playlistTags());
 
         return Observable.concatEager(Observable.from(items)).toList();
