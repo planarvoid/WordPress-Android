@@ -114,17 +114,6 @@ public class RecommendedStationsOperations {
         return fireAndForget(syncInitiator.syncRecommendedStations());
     }
 
-    private Func1<List<StationRecord>, Observable<List<StationRecord>>> loadIfEmpty() {
-        return new Func1<List<StationRecord>, Observable<List<StationRecord>>>() {
-            @Override
-            public Observable<List<StationRecord>> call(List<StationRecord> stations) {
-                return stations.isEmpty()
-                        ? stationsRefresh()
-                        : Observable.just(stations);
-            }
-        };
-    }
-
     private Observable<List<StationRecord>> stationsRefresh() {
         return syncInitiator.syncRecommendedStations()
                 .flatMap(continueWith(getCollection(RECOMMENDATIONS)));
@@ -133,7 +122,8 @@ public class RecommendedStationsOperations {
     private Observable<List<StationRecord>> getCollection(int collectionType) {
         return stationsStorage
                 .getStationsCollection(collectionType)
-                .toList();
+                .toList()
+                .subscribeOn(scheduler);
     }
 
 }
