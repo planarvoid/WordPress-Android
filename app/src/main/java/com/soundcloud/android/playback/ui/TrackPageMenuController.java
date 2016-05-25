@@ -17,7 +17,6 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -27,6 +26,7 @@ import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -131,7 +131,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                 showAddToPlaylistDialog(track);
                 return true;
             case R.id.start_station:
-                if (track.isBlocked()){
+                if (track.isBlocked()) {
                     startStationPresenter.startStation(context, Urn.forTrackStation(track.getUrn().getNumericId()));
                 } else {
                     startStationPresenter.startStationForTrack(context, track.getUrn());
@@ -222,7 +222,6 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     static class Factory {
-        private final FeatureFlags featureFlags;
         private final PlayQueueManager playQueueManager;
         private final RepostOperations repostOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -231,14 +230,12 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         private final ShareOperations shareOperations;
 
         @Inject
-        Factory(FeatureFlags featureFlags,
-                PlayQueueManager playQueueManager,
+        Factory(PlayQueueManager playQueueManager,
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 StartStationPresenter startStationPresenter,
                 EventBus eventBus,
                 ShareOperations shareOperations) {
-            this.featureFlags = featureFlags;
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -248,7 +245,18 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         }
 
         TrackPageMenuController create(View anchorView) {
-            final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
+            final FragmentActivity activityContext;
+            final Context context = anchorView.getContext();
+
+            if (context instanceof FragmentActivity) {
+                activityContext = (FragmentActivity) context;
+            } else if (context instanceof ContextWrapper) {
+                final ContextWrapper contextWrapper = (ContextWrapper) context;
+                activityContext = (FragmentActivity) contextWrapper.getBaseContext();
+            } else {
+                throw new IllegalStateException("Could not get FragmentActivity from view Context");
+            }
+
             return new TrackPageMenuController(playQueueManager, repostOperations,
                     activityContext, popupMenuWrapperFactory.build(activityContext, anchorView),
                     startStationPresenter, eventBus, shareOperations);

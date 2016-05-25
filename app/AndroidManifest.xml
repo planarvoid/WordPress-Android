@@ -427,7 +427,6 @@
         <service android:name="com.google.android.libraries.cast.companionlibrary.cast.reconnection.ReconnectionService"/>
 
         <meta-data android:name="com.crashlytics.ApiKey" android:value="c7a43c282bb70278c5a054f9cbef26c9c353cdf2"/>
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
 
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/production_facebook_app_id"/>
 
