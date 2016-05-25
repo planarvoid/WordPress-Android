@@ -67,6 +67,10 @@ public class PlaybackProgress {
         return dateProvider.getCurrentTime() - createdAt;
     }
 
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

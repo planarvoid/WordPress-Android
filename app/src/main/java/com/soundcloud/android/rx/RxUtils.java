@@ -1,7 +1,6 @@
 package com.soundcloud.android.rx;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -47,16 +46,6 @@ public final class RxUtils {
             return !list.isEmpty();
         }
     };
-
-    public static <T> Func1<T, Optional<T>> TO_OPTIONAL() {
-        return new Func1<T, Optional<T>>() {
-            @Override
-            public Optional<T> call(T value) {
-                return Optional.of(value);
-            }
-        };
-    }
-
 
     /**
      * @return A Subscription that is always unsubscribed. Can use as a Null object; reference equality

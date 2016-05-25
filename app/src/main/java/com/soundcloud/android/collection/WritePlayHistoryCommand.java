@@ -1,8 +1,7 @@
 package com.soundcloud.android.collection;
 
-import com.soundcloud.android.commands.WriteStorageCommand;
+import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.storage.Tables;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 
@@ -10,17 +9,18 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 
-public class WritePlayHistoryCommand
-        extends WriteStorageCommand<PlayHistoryRecord, ChangeResult, Boolean>{
+public class WritePlayHistoryCommand extends Command<PlayHistoryRecord, Boolean> {
+
+    private final PropellerDatabase propeller;
 
     @Inject
     public WritePlayHistoryCommand(PropellerDatabase propeller) {
-        super(propeller);
+        this.propeller = propeller;
     }
 
     @Override
-    protected ChangeResult write(PropellerDatabase propeller, PlayHistoryRecord input) {
-        return propeller.upsert(Tables.PlayHistory.TABLE, buildContentValue(input));
+    public Boolean call(PlayHistoryRecord input) {
+        return propeller.upsert(Tables.PlayHistory.TABLE, buildContentValue(input)).success();
     }
 
     private ContentValues buildContentValue(PlayHistoryRecord record) {
@@ -31,10 +31,4 @@ public class WritePlayHistoryCommand
                 .put(Tables.PlayHistory.CONTEXT_ID, record.contextUrn().getNumericId())
                 .get();
     }
-
-    @Override
-    protected Boolean transform(ChangeResult result) {
-        return result.success();
-    }
-
 }
