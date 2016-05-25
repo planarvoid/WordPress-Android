@@ -2,6 +2,7 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -18,7 +19,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -108,7 +108,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     protected void showTrackItemMenu(View button, TrackItem track, int position) {
-        trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track, position);
+        trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position);
     }
 
     private void loadArtwork(TrackItemView itemView, TrackItem track) {

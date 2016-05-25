@@ -19,7 +19,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -84,10 +83,6 @@ class TrackEditItemRenderer implements CellRenderer<TrackItem> {
         } else {
             itemView.showDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
         }
-    }
-
-    protected void showTrackItemMenu(View button, TrackItem track, int position) {
-        trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track, position);
     }
 
     private void loadArtwork(TrackEditItemView itemView, TrackItem track) {

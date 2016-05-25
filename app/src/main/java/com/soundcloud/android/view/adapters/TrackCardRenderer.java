@@ -1,5 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -13,7 +15,6 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 
 import android.content.res.Resources;
 import android.support.annotation.LayoutRes;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,7 +69,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         viewHolder.overflowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View overflowButton) {
-                menuPresenter.show((FragmentActivity) itemView.getContext(), viewHolder.overflowButton, track, position);
+                menuPresenter.show(getFragmentActivity(itemView), viewHolder.overflowButton, track, position);
             }
         });
     }

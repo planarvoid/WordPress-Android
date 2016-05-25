@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.tracks.TrackItemMenuPresenter.RemoveTrackListener;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -11,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.rx.eventbus.EventBus;
 
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -43,7 +43,7 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
 
     @Override
     protected void showTrackItemMenu(View button, TrackItem track, int position) {
-        trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track, position, pageUrn,
+        trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position, pageUrn,
                 removeTrackListener, promotedSourceInfo);
     }
 

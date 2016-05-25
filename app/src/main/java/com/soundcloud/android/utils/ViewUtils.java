@@ -1,9 +1,11 @@
 package com.soundcloud.android.utils;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.support.v4.app.FragmentActivity;
 import android.util.TypedValue;
 import android.view.TouchDelegate;
 import android.view.View;
@@ -130,6 +132,21 @@ public final class ViewUtils {
                 };
             }
         };
+    }
+
+    public static FragmentActivity getFragmentActivity(View anchorView) {
+        final FragmentActivity activityContext;
+        final Context context = anchorView.getContext();
+
+        if (context instanceof FragmentActivity) {
+            activityContext = (FragmentActivity) context;
+        } else if (context instanceof ContextWrapper) {
+            final ContextWrapper contextWrapper = (ContextWrapper) context;
+            activityContext = (FragmentActivity) contextWrapper.getBaseContext();
+        } else {
+            throw new IllegalStateException("Could not get FragmentActivity from view Context");
+        }
+        return activityContext;
     }
 
     private ViewUtils() {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -26,7 +27,6 @@ import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -245,20 +245,9 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         }
 
         TrackPageMenuController create(View anchorView) {
-            final FragmentActivity activityContext;
-            final Context context = anchorView.getContext();
-
-            if (context instanceof FragmentActivity) {
-                activityContext = (FragmentActivity) context;
-            } else if (context instanceof ContextWrapper) {
-                final ContextWrapper contextWrapper = (ContextWrapper) context;
-                activityContext = (FragmentActivity) contextWrapper.getBaseContext();
-            } else {
-                throw new IllegalStateException("Could not get FragmentActivity from view Context");
-            }
 
             return new TrackPageMenuController(playQueueManager, repostOperations,
-                    activityContext, popupMenuWrapperFactory.build(activityContext, anchorView),
+                    getFragmentActivity(anchorView), popupMenuWrapperFactory.build(getFragmentActivity(anchorView), anchorView),
                     startStationPresenter, eventBus, shareOperations);
         }
     }

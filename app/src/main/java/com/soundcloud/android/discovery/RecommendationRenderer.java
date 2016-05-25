@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
@@ -20,7 +21,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,7 +117,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, trackItem, position);
+                trackItemMenuPresenter.show(getFragmentActivity(button), button, trackItem, position);
             }
         });
     }

@@ -1,5 +1,7 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -10,7 +12,6 @@ import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
 
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         trackView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View view) {
-                menuPresenter.show((FragmentActivity) view.getContext(), view, track, position);
+                menuPresenter.show(getFragmentActivity(view), view, track, position);
             }
         });
     }
