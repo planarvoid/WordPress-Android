@@ -34,6 +34,7 @@ android {
       buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
     }
 
     beta {
