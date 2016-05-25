@@ -92,10 +92,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         trackItemView.hideInfoViewsRight();
         if (isHighTierPreview(track)) {
             trackItemView.showPreviewLabel();
-        } else if (track.isPrivate()) {
-            trackItemView.showPrivateIndicator();
+        } else {
+            if (track.isPrivate()) {
+                trackItemView.showPrivateIndicator();
+            }
+            trackItemView.showDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
         }
-        trackItemView.showDuration(ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS));
     }
 
     protected void setupOverFlow(final TrackItemView itemView, final TrackItem track, final int position) {
