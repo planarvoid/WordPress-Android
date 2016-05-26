@@ -26,7 +26,7 @@ public class ViewAllRecommendedTracksActivity extends PlayerActivity {
     private void createFragmentForRecommendations() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container, new ViewAllRecommendedTracksFragment())
+                .replace(R.id.container, new ViewAllRecommendedTracksFragment(), ViewAllRecommendedTracksFragment.TAG)
                 .commit();
     }
 

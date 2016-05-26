@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class ViewAllRecommendedTracksFragment extends LightCycleSupportFragment<ViewAllRecommendedTracksFragment> {
+    public static final String TAG = "ViewAllRecommendedTracksTag";
+
     @Inject @LightCycle ViewAllRecommendedTracksPresenter presenter;
 
     public ViewAllRecommendedTracksFragment() {
