@@ -37,6 +37,7 @@ public class PlayHistoryController {
                     PlaybackStateTransition stateTransition = pair.second();
 
                     return stateTransition.isPlayerPlaying()
+                            && !PlayQueueItem.EMPTY.equals(currentPlayQueueItem)
                             && currentPlayQueueItem.getUrn().equals(stateTransition.getUrn())
                             && !AdUtils.isAd(currentPlayQueueItem);
                 }

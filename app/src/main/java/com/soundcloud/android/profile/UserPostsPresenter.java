@@ -19,7 +19,7 @@ import javax.inject.Inject;
 class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection> {
 
     private final UserProfileOperations profileOperations;
-    private Urn userUrn;
+    private Urn userUrn = Urn.NOT_SET;
 
     @Inject
     UserPostsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
