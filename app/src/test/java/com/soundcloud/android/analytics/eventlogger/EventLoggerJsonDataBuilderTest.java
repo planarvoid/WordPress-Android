@@ -599,7 +599,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaybackPerformanceJsonForPlayEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, MEDIA_TYPE, BIT_RATE, LOGGED_IN_USER);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, MEDIA_TYPE, BIT_RATE, LOGGED_IN_USER, false);
 
         jsonDataBuilder.build(event);
 

@@ -234,6 +234,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     public boolean isThirdPartyAd() {
-        return AdUtils.isThirdPartyAd(trackUrn);
+        return AdUtils.isThirdPartyAudioAd(trackUrn);
     }
 }

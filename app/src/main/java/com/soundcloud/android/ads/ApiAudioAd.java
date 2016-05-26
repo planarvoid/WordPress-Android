@@ -102,7 +102,7 @@ class ApiAudioAd {
     }
 
     public boolean isThirdParty() {
-        return AdUtils.isThirdPartyAd(apiTrack.getUrn());
+        return AdUtils.isThirdPartyAudioAd(apiTrack.getUrn());
     }
 
     @Override

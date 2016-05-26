@@ -2,7 +2,6 @@ package com.soundcloud.android.ads;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.ApiAudioAd.RelatedResources;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
@@ -16,6 +15,7 @@ public class AdFixtures {
 
     private static final boolean SKIPPABLE = true;
     private static final boolean NOT_SKIPPABLE = false;
+    private static final int VIDEO_BIT_RATE = 1001;
 
     public static InterstitialAd getInterstitialAd(Urn monetizableUrn) {
         final InterstitialAd interstitial = InterstitialAd.create(getApiInterstitial(), monetizableUrn);
@@ -177,12 +177,8 @@ public class AdFixtures {
         );
     }
 
-    public static ApiVideoSource getApiVideoSource() {
-        return getApiVideoSource(608, 1080, "video/mp4", 2884);
-    }
-
     public static ApiVideoSource getApiVideoSource(int width, int height) {
-        return getApiVideoSource(width, height, "video/mp4", Consts.NOT_SET);
+        return getApiVideoSource(width, height, "video/mp4", VIDEO_BIT_RATE);
     }
 
     public static ApiVideoSource getApiVideoSource(int width, int height, String type, int bitRate) {
@@ -234,7 +230,7 @@ public class AdFixtures {
     }
 
     public static ApiVideoAd getApiVideoAd(boolean skippable) {
-        return getApiVideoAd(getApiVideoSource(), skippable);
+        return getApiVideoAd(getApiVideoSource(608, 1080), skippable);
     }
 
     public static ApiVideoAd getApiVideoAd(ApiVideoSource apiVideoSource, boolean skippable) {

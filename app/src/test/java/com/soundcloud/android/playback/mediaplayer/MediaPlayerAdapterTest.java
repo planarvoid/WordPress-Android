@@ -30,6 +30,7 @@ import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackState;
@@ -197,14 +198,24 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void preparedListenerShouldntReportTimeToPlayOnVideoPlayback() {
+    public void preparedListenerShouldReportTimeToPlayOnVideoPlayback() {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
         when(dateProvider.getCurrentDate()).thenReturn(new Date(0), new Date(1000));
 
         mediaPlayerAdapter.play(videoItem);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
 
-        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
+        eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
+        assertThat(event.getMetricValue()).isEqualTo(1000L);
+        assertThat(event.getCdnHost()).isEqualTo("http://videourl.com/video.mp4");
+        assertThat(event.getPlayerType()).isEqualTo(PlayerType.MEDIA_PLAYER);
+        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HTTPS);
+        assertThat(event.getConnectionType()).isEqualTo(ConnectionType.TWO_G);
+        assertThat(event.getUserUrn()).isEqualTo(userUrn);
+        assertThat(event.getFormat()).isEqualTo(PlaybackConstants.MIME_TYPE_MP4);
+        assertThat(event.getBitrate()).isEqualTo(1001000);
     }
 
     @Test

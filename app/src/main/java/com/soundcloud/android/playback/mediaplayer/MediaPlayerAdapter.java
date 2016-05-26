@@ -87,6 +87,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     private long prepareStartTimeMs;
     private String currentStreamUrl = Strings.EMPTY;
+    private Optional<VideoSource> currentVideoSource = Optional.absent();
 
     @Inject
     public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager,
@@ -143,7 +144,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
 
         try {
-            currentStreamUrl = getStreamUrl(playbackItem);
+            setStreamUrl(playbackItem);
             updateVideoView(surfaceHolder.orNull());
             mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
@@ -155,11 +156,18 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
     }
 
-    private String getStreamUrl(PlaybackItem playbackItem) {
+    private void setStreamUrl(PlaybackItem playbackItem) {
+        if (playbackItem.getPlaybackType() == VIDEO_AD) {
+            currentVideoSource = Optional.of(videoSourceProvider.selectOptimalSource((VideoAdPlaybackItem) playbackItem));
+            currentStreamUrl = currentVideoSource.get().getUrl();
+        } else {
+            currentVideoSource = Optional.absent();
+            currentStreamUrl = getAudioStreamUrl(playbackItem);
+        }
+    }
+
+    private String getAudioStreamUrl(PlaybackItem playbackItem) {
         switch (playbackItem.getPlaybackType()) {
-            case VIDEO_AD:
-                final VideoSource source = videoSourceProvider.selectOptimalSource((VideoAdPlaybackItem) playbackItem);
-                return source.getUrl();
             case AUDIO_AD:
                 return getAudioAdStream((AudioAdPlaybackItem) playbackItem);
             default:
@@ -182,7 +190,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
             if (playerListener != null) {
                 play();
-                publishTimeToPlayEventIfAudio(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
+                publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, currentStreamUrl);
 
                 if (resumePos > 0) {
                     seek(resumePos, true);
@@ -203,17 +211,17 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         connectionRetries = 0;
     }
 
-    private void publishTimeToPlayEventIfAudio(long timeToPlay, String streamUrl) {
-        if (isSoundCloudTrack()) {
+    private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
+        if (!isThirdPartyAudio()) {
             final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
                     getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
-                    streamUrl, Skippy.SkippyMediaType.UNKNOWN.name(), 0, accountOperations.getLoggedInUserUrn());
+                    streamUrl, getCurrentFormat(), getCurrentBitrate(), accountOperations.getLoggedInUserUrn(), isPlayingVideo());
             eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
         }
     }
 
-    private boolean isSoundCloudTrack() {
-        return currentItem.getPlaybackType() != VIDEO_AD && !AdUtils.isThirdPartyAd(currentItem.getUrn());
+    private boolean isThirdPartyAudio() {
+        return AdUtils.isThirdPartyAudioAd(currentItem.getUrn());
     }
 
     private boolean isPlayingVideo() {
@@ -409,7 +417,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         }
 
         if (playerListener != null && currentItem != null) {
-            final PlaybackStateTransition stateTransition = new PlaybackStateTransition(getTranslatedState(), getTranslatedReason(), currentItem.getUrn(), progress, duration, dateProvider);
+            final PlaybackStateTransition stateTransition = new PlaybackStateTransition(
+                    getTranslatedState(), getTranslatedReason(),
+                    currentItem.getUrn(), progress, duration,
+                    getCurrentFormat(), getCurrentBitrate(),
+                    dateProvider);
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
@@ -421,6 +433,14 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                     networkConnectionHelper.getCurrentConnectionType()
             );
         }
+    }
+
+    String getCurrentFormat() {
+        return currentVideoSource.isPresent() ? currentVideoSource.get().getType() : Skippy.SkippyMediaType.UNKNOWN.name();
+    }
+
+    int getCurrentBitrate() {
+        return currentVideoSource.isPresent() ? currentVideoSource.get().getBitRateKbps() * 1000 : 0;
     }
 
     boolean isInErrorState() {
@@ -587,12 +607,12 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     @Override
     public void stop() {
-
         final MediaPlayer mediaPlayer = this.mediaPlayer;
         if (mediaPlayer != null) {
             // store times as they will not be accessible after release
             final long progress = getAdjustedProgress();
             final long duration = getDuration();
+            currentVideoSource = Optional.absent();
 
             if (internalState.isStoppable()) {
                 mediaPlayer.stop();

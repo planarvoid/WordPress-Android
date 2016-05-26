@@ -12,7 +12,7 @@ public abstract class VideoSource implements Parcelable {
     public static final Comparator<VideoSource> BITRATE_COMPARATOR = new Comparator<VideoSource>() {
         @Override
         public int compare(VideoSource lhs, VideoSource rhs) {
-            return Integer.valueOf(lhs.getBitRate()).compareTo(rhs.getBitRate());
+            return Integer.valueOf(lhs.getBitRateKbps()).compareTo(rhs.getBitRateKbps());
         }
     };
 
@@ -30,7 +30,7 @@ public abstract class VideoSource implements Parcelable {
 
     public abstract String getUrl();
 
-    public abstract int getBitRate();
+    public abstract int getBitRateKbps();
 
     public abstract int getWidth();
 

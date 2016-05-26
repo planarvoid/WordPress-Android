@@ -14,12 +14,14 @@ import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -38,7 +40,9 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
-    private static final String BOOGALOO_VERSION = "v1.14.0";
+    private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
+
+    private static final String BOOGALOO_VERSION = "v1.18.1";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
@@ -134,6 +138,37 @@ public class EventLoggerV1JsonDataBuilder {
     public EventLoggerEventData buildAdClickThroughEvent(String clickName, UIEvent event) {
         return buildClickEvent(clickName, event)
                 .clickTarget(event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL));
+    }
+
+    public String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
+        return transform(buildBaseEvent(RICH_MEDIA_PERFORMANCE_EVENT, event.getTimestamp())
+                .mediaType("video")
+                .protocol(event.getProtocol().getValue())
+                .playerType(event.getPlayerType().getValue())
+                .format(getRichMediaFormatName(event.getFormat()))
+                .bitrate(event.getBitrate())
+                .metric(getRichMediaPerformanceEventType(event.getMetric()), event.getMetricValue())
+                .host(event.getCdnHost()));
+    }
+
+    private String getRichMediaFormatName(String format) {
+        switch (format) {
+            case PlaybackConstants.MIME_TYPE_MP4:
+                return "mp4";
+            default:
+                return format;
+        }
+    }
+
+    private String getRichMediaPerformanceEventType(int metric) {
+        switch (metric) {
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
+                return "timeToPlayMs";
+            case PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS:
+                return "uninterruptedPlaytimeMs";
+            default:
+                throw new IllegalArgumentException("Unexpected metric type " + metric);
+        }
     }
 
     public String buildForFacebookInvites(FacebookInvitesEvent event) {

@@ -46,7 +46,7 @@ public final class AdUtils {
         return playQueueItem.getAdData().isPresent() && playQueueItem.getAdData().get() instanceof OverlayAdData;
     }
 
-    public static boolean isThirdPartyAd(Urn trackUrn) {
+    public static boolean isThirdPartyAudioAd(Urn trackUrn) {
         return trackUrn.equals(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
     }
 }

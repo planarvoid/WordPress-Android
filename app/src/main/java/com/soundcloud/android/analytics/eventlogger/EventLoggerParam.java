@@ -62,6 +62,11 @@ class EventLoggerParam {
     static final String URL = "url";
     static final String ERROR_CODE = "errorCode";
 
+    // rich media specific performance & error event params
+    static final String METRIC_NAME = "metric";
+    static final String METRIC_VALUE = "value";
+    static final String MEDIA_TYPE = "media_type";
+
     // click specific params
     static final String CLICK_NAME = "click_name";
     static final String CLICK_OBJECT = "click_object";

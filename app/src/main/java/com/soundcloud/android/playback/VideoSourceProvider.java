@@ -131,15 +131,15 @@ public class VideoSourceProvider {
 
     private static class SuitableBitratePredicate implements Predicate<VideoSource> {
 
-        private final int maxBitrate;
+        private final int maxBitrateKbps;
 
-        SuitableBitratePredicate(int maxBitrate) {
-            this.maxBitrate = maxBitrate;
+        SuitableBitratePredicate(int maxBitrateKbps) {
+            this.maxBitrateKbps = maxBitrateKbps;
         }
 
         @Override
         public boolean apply(VideoSource source) {
-            return source.getBitRate() <= maxBitrate;
+            return source.getBitRateKbps() <= maxBitrateKbps;
         }
     }
 }

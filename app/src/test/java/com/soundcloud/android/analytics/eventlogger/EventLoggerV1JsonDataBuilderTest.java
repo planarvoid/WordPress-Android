@@ -22,12 +22,16 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
+import com.soundcloud.android.playback.PlaybackConstants;
+import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -55,7 +59,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String UUID = "uuid";
     private static final int APP_VERSION_CODE = 386;
     private static final int CLIENT_ID = 3152;
-    private static final String BOOGALOO_VERSION = "v1.14.0";
+    private static final String BOOGALOO_VERSION = "v1.18.1";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "3g";
@@ -652,6 +656,23 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                         .inOfflineLikes(true)
                         .eventStage("complete")
         );
+    }
+
+    @Test
+    public void createsJsonFromRichMediaPerformanceEvent() throws ApiMapperException {
+        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(321, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER,
+                ConnectionType.FOUR_G, "host", PlaybackConstants.MIME_TYPE_MP4, 1001, Urn.NOT_SET, true);
+
+        jsonDataBuilder.buildForRichMediaPerformance(event);
+
+        verify(jsonTransformer).toJson(getEventData("rich_media_stream_performance", BOOGALOO_VERSION, event.getTimestamp())
+                .metric("timeToPlayMs", 321)
+                .mediaType("video")
+                .protocol("https")
+                .playerType("MediaPlayer")
+                .host("host")
+                .bitrate(1001)
+                .format("mp4"));
     }
 
     @Test

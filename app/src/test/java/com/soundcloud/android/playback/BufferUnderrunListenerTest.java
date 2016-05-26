@@ -10,6 +10,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -59,6 +60,24 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
         assertThat(event.getMetricValue()).isEqualTo(900L);
+    }
+
+    @Test
+    public void shouldSendUninterruptedPlaytimeEventForVideoWithFormatAndBitrate() {
+        createAndProcessStateTransition(Urn.forAd("dfp", "123"), PlayerType.MEDIA_PLAYER, PlaybackState.PLAYING, "video/mp4", 1001000, new Date(100L), false);
+        List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+        assertThat(playbackPerformanceEvents).isEmpty();
+
+        createAndProcessStateTransition(Urn.forAd("dfp", "123"), PlayerType.MEDIA_PLAYER, PlaybackState.BUFFERING, "video/mp4", 1001000, new Date(1000L), true);
+        playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
+        assertThat(playbackPerformanceEvents).hasSize(1);
+
+        PlaybackPerformanceEvent event = playbackPerformanceEvents.get(0);
+        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
+        assertThat(event.getMetricValue()).isEqualTo(900L);
+        assertThat(event.getBitrate()).isEqualTo(1001000);
+        assertThat(event.getFormat()).isEqualTo(PlaybackConstants.MIME_TYPE_MP4);
+        assertThat(event.isVideo()).isTrue();
     }
 
     @Test
@@ -144,7 +163,12 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
     }
 
     private void createAndProcessStateTransition(PlayerType player, PlaybackState newState, Date transitionTime, boolean isBufferUnderrun) {
-        PlaybackStateTransition stateTransition = new PlaybackStateTransition(newState, PlayStateReason.NONE, track);
+        createAndProcessStateTransition(track, player, newState, Skippy.SkippyMediaType.UNKNOWN.name(), 0, transitionTime, isBufferUnderrun);
+    }
+
+    private void createAndProcessStateTransition(Urn itemUrn, PlayerType player, PlaybackState newState,
+                                                 String format, int bitrate, Date transitionTime, boolean isBufferUnderrun) {
+        PlaybackStateTransition stateTransition = new PlaybackStateTransition(newState, PlayStateReason.NONE, itemUrn, 0, 0, format, bitrate, dateProvider);
         stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, player.getValue());
         when(detector.onStateTransitionEvent(stateTransition)).thenReturn(isBufferUnderrun);
         when(dateProvider.getCurrentDate()).thenReturn(transitionTime);

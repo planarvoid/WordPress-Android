@@ -29,6 +29,9 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_L
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LOCAL_STORAGE_PLAYBACK;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MEDIA_TYPE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.METRIC_NAME;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.METRIC_VALUE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_MODEL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
@@ -284,6 +287,17 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData metric(String name, long value) {
+        addToPayload(METRIC_NAME, name);
+        addToPayload(METRIC_VALUE, value);
+        return this;
+    }
+
+    public EventLoggerEventData mediaType(String type) {
+        addToPayload(MEDIA_TYPE, type);
+        return this;
+    }
+
     public EventLoggerEventData host(String host) {
         addToPayload(HOST, host);
         return this;
@@ -295,6 +309,11 @@ class EventLoggerEventData {
     }
 
     public EventLoggerEventData bitrate(String bitrate) {
+        addToPayload(BITRATE, bitrate);
+        return this;
+    }
+
+    public EventLoggerEventData bitrate(int bitrate) {
         addToPayload(BITRATE, bitrate);
         return this;
     }

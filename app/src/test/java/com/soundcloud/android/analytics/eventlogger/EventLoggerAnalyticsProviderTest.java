@@ -54,6 +54,7 @@ import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.collections.PropertySet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -167,7 +168,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent()  {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
-                ConnectionType.FOUR_G, "uri", Skippy.SkippyMediaType.UNKNOWN.name(), 0, userUrn);
+                ConnectionType.FOUR_G, "uri", Skippy.SkippyMediaType.UNKNOWN.name(), 0, userUrn, false);
         when(dataBuilderv0.build(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -175,6 +176,21 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(eventTracker).trackEvent(captor.capture());
         assertEventTracked(captor.getValue(), "url", event.getTimestamp());
+    }
+
+    public void shouldTrackRichMediaPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
+                ConnectionType.FOUR_G, "uri", "video/mp4", 200, userUrn, true);
+        when(dataBuilderv1.buildForRichMediaPerformance(event)).thenReturn("url");
+
+        eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
+
+        verify(dataBuilderv0, never()).build(event);
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
+        assertThat(captor.getValue().getData()).isEqualTo("url");
     }
 
     @Test

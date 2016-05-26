@@ -13,6 +13,7 @@ public final class PlaybackPerformanceEvent {
     public static final int METRIC_TIME_TO_LOAD = 5;
     public static final int METRIC_CACHE_USAGE_PERCENT = 6;
     public static final int METRIC_UNINTERRUPTED_PLAYTIME_MS = 7;
+
     private final long timestamp;
     private final int metric;
     private final long metricValue;
@@ -23,6 +24,7 @@ public final class PlaybackPerformanceEvent {
     private final String cdnHost;
     private final ConnectionType connectionType;
     private final Urn userUrn;
+    private boolean isVideoAd;
 
     private PlaybackPerformanceEvent(int metric, long value, PlaybackProtocol protocol, PlayerType playerType,
                                      ConnectionType connectionType, String cdnHost, String format, int bitrate, Urn userUrn) {
@@ -37,9 +39,11 @@ public final class PlaybackPerformanceEvent {
         this.connectionType = connectionType;
         this.userUrn = userUrn;
     }
+
     public static PlaybackPerformanceEvent uninterruptedPlaytimeMs(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String cdnHost, String format, int bitRate) {
-        return new PlaybackPerformanceEvent(METRIC_UNINTERRUPTED_PLAYTIME_MS, value, protocol, playerType, connectionType, cdnHost, format, bitRate, Urn.NOT_SET);
+                                                      ConnectionType connectionType, String cdnHost, String format, int bitRate, boolean isVideoAd) {
+        return new PlaybackPerformanceEvent(METRIC_UNINTERRUPTED_PLAYTIME_MS, value, protocol, playerType, connectionType, cdnHost, format, bitRate, Urn.NOT_SET)
+                .setVideoAd(isVideoAd);
     }
 
     public static PlaybackPerformanceEvent cacheUsagePercent(long value, PlaybackProtocol protocol, PlayerType playerType,
@@ -48,8 +52,9 @@ public final class PlaybackPerformanceEvent {
     }
 
     public static PlaybackPerformanceEvent timeToPlay(long value, PlaybackProtocol protocol, PlayerType playerType,
-                                                      ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn) {
-        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAY, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn);
+                                                      ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn, boolean isVideoAd) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAY, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn)
+                .setVideoAd(isVideoAd);
     }
 
     public static PlaybackPerformanceEvent timeToPlaylist(long value, PlaybackProtocol protocol, PlayerType playerType,
@@ -75,6 +80,15 @@ public final class PlaybackPerformanceEvent {
     public static PlaybackPerformanceEvent fragmentDownloadRate(long value, PlaybackProtocol protocol, PlayerType playerType,
                                                                 ConnectionType connectionType, String cdnHost, String format, int bitRate, Urn urn) {
         return new PlaybackPerformanceEvent(METRIC_FRAGMENT_DOWNLOAD_RATE, value, protocol, playerType, connectionType, cdnHost, format, bitRate, urn);
+    }
+
+    public PlaybackPerformanceEvent setVideoAd(boolean isVideoAd) {
+        this.isVideoAd = isVideoAd;
+        return this;
+    }
+
+    public boolean isVideo() {
+        return isVideoAd;
     }
 
     public int getMetric() {

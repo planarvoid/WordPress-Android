@@ -166,7 +166,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                 skippy.playOffline(currentStreamUrl, fromPos, deviceSecret.getKey(), deviceSecret.getInitVector());
                 break;
             case AUDIO_AD:
-                final boolean shouldCache = !AdUtils.isThirdPartyAd(playbackItem.getUrn());
+                final boolean shouldCache = !AdUtils.isThirdPartyAudioAd(playbackItem.getUrn());
                 skippy.play(currentStreamUrl, fromPos, shouldCache);
                 break;
             default:
@@ -357,7 +357,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private boolean allowPerformanceMeasureEvent(PlaybackMetric metric) {
         // Time to load library & cache usage events are not specific to the current playing track
-        return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY || metric == PlaybackMetric.CACHE_USAGE_PERCENT || !AdUtils.isThirdPartyAd(currentTrackUrn);
+        return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY || metric == PlaybackMetric.CACHE_USAGE_PERCENT || !AdUtils.isThirdPartyAudioAd(currentTrackUrn);
     }
 
     @Override
@@ -408,7 +408,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         switch (metric) {
             case TIME_TO_PLAY:
                 return PlaybackPerformanceEvent.timeToPlay(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate, userUrn);
+                        format.name(), bitRate, userUrn, false);
             case TIME_TO_BUFFER:
                 return PlaybackPerformanceEvent.timeToBuffer(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
                         format.name(), bitRate, userUrn);
@@ -429,7 +429,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                         format.name(), bitRate);
             case UNINTERRUPTED_PLAYTIME:
                 return PlaybackPerformanceEvent.uninterruptedPlaytimeMs(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate);
+                        format.name(), bitRate, false);
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }
