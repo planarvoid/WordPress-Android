@@ -97,8 +97,9 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
             container.removeAllViews();
 
             for (int i = 0; i < cardsPerPage; i++) {
-                inflater.inflate(R.layout.station_recommendation_card, container);
+                inflater.inflate(R.layout.station_item, container);
                 View card = container.getChildAt(i);
+
                 int stationPosition = position * cardsPerPage + i;
 
                 if (stationPosition < stations.size()) {
@@ -109,14 +110,12 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
         }
 
         private void bindCard(View view, int position) {
-            StationRecord stationRecord = stations.get(position);
-            ButterKnife.<TextView>findById(view, R.id.station_title)
-                    .setText(stationRecord.getTitle());
-            ButterKnife.<TextView>findById(view, R.id.station_type)
-                    .setText(getHumanReadableType(resources, stationRecord.getType()));
+            final StationRecord stationRecord = stations.get(position);
+            ButterKnife.<TextView>findById(view, R.id.title).setText(stationRecord.getTitle());
+            ButterKnife.<TextView>findById(view, R.id.type).setText(getHumanReadableType(resources, stationRecord.getType()));
             imageOperations.displayInAdapterView(stationRecord,
-                    ApiImageSize.T500,
-                    ButterKnife.<ImageView>findById(view, R.id.station_image));
+                                                 ApiImageSize.T500,
+                                                 ButterKnife.<ImageView>findById(view, R.id.artwork));
             view.setTag(stationRecord);
             view.setOnClickListener(onRecommendedStationClickListener);
         }
