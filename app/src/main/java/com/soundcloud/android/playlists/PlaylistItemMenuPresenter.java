@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -33,7 +34,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.MenuItem;
 import android.view.View;
@@ -130,7 +130,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     }
 
     private static FragmentManager toFragmentManager(Context context) {
-        return ((FragmentActivity) context).getSupportFragmentManager();
+        return getFragmentActivity(context).getSupportFragmentManager();
     }
 
     private void saveOffline() {

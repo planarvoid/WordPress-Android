@@ -135,8 +135,11 @@ public final class ViewUtils {
     }
 
     public static FragmentActivity getFragmentActivity(View anchorView) {
+        return getFragmentActivity(anchorView.getContext());
+    }
+
+    public static FragmentActivity getFragmentActivity(Context context) {
         final FragmentActivity activityContext;
-        final Context context = anchorView.getContext();
 
         if (context instanceof FragmentActivity) {
             activityContext = (FragmentActivity) context;
