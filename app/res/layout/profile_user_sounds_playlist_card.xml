@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:id="@+id/user_sounds_playlist_card">
+    android:foreground="?android:selectableItemBackground">
 
     <LinearLayout
-        style="@style/Profile.Sounds.Card"
+        android:id="@+id/user_sounds_playlist_card"
+        style="@style/Profile.Sounds.Card.Container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
-        <include layout="@layout/playlist_card" />
+        <include
+            style="@style/Profile.Sounds.Card.Item"
+            layout="@layout/playlist_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-        <include layout="@layout/default_card_footer" />
+        <include
+            style="@style/Profile.Sounds.Card.Item"
+            layout="@layout/default_card_footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <View style="@style/Divider.Item" />
 
     </LinearLayout>
-
-    <View style="@style/Divider.Item" />
-
-</LinearLayout>
+</FrameLayout>
