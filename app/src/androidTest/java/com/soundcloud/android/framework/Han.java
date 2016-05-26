@@ -139,6 +139,10 @@ public class Han {
         solo.sendKey(key);
     }
 
+    public void pressSoftKeyboardSearchButton() {
+        solo.pressSoftKeyboardSearchButton();
+    }
+
     public void clickOnActionBarHomeButton() {
         solo.clickOnActionBarHomeButton();
     }

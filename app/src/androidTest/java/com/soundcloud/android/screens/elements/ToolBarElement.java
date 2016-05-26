@@ -11,7 +11,6 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.search.TabbedSearchFragment;
 
-import android.view.KeyEvent;
 import android.widget.TextView;
 
 public class ToolBarElement extends Element {
@@ -34,7 +33,7 @@ public class ToolBarElement extends Element {
 
     public SearchResultsScreen doSearch(String query) {
         setSearchQuery(query);
-        testDriver.sendKey(KeyEvent.KEYCODE_ENTER);
+        testDriver.pressSoftKeyboardSearchButton();
         waiter.waitForActivity(SearchActivity.class);
         waiter.waitForFragmentByTag(TabbedSearchFragment.TAG);
         return new SearchResultsScreen(testDriver);
