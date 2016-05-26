@@ -75,7 +75,6 @@
     <!-- Playlist -->
     <color name="playlist_background">#f2f2f2</color>
     <color name="playlist_background_pressed">#fafafa</color>
-    <color name="playlist_divider">#e5e5e5</color>
     <color name="playlist_edition_background">#e5e5e5</color>
 
     <!-- Image overlays -->

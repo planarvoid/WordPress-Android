@@ -53,7 +53,7 @@
 
     <View
         android:id="@+id/artwork_divider"
-        style="@style/PlaylistDivider"
+        style="@style/Divider.Section"
         android:layout_below="@id/artwork_container" />
 
     <include
@@ -78,7 +78,7 @@
         android:visibility="gone" />
 
     <View
-        style="@style/PlaylistDivider"
-        android:layout_below="@id/artwork_container" />
+        style="@style/Divider.Section"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
