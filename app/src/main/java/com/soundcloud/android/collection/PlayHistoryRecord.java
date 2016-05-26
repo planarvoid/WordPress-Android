@@ -4,7 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 
 @AutoValue
-abstract class PlayHistoryRecord {
+public abstract class PlayHistoryRecord {
 
     private static final int CONTEXT_OTHER = 0;
     private static final int CONTEXT_PLAYLIST = 1;
@@ -29,7 +29,7 @@ abstract class PlayHistoryRecord {
 
     public abstract Urn contextUrn();
 
-    int getContextType() {
+    public int getContextType() {
         if (contextUrn().isPlaylist()) {
             return CONTEXT_PLAYLIST;
         } else if (contextUrn().isStation()) {
