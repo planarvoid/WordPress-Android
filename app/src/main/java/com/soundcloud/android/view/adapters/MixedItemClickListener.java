@@ -56,9 +56,16 @@ public class MixedItemClickListener {
     }
 
     public void onPostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem) {
+        onPostClick(playables, view, position, clickedItem, new PlaySessionSource(screen));
+    }
+
+    public void onProfilePostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem, Urn userUrn) {
+        onPostClick(playables, view, position, clickedItem, PlaySessionSource.forArtist(screen, userUrn));
+    }
+
+    public void onPostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem, PlaySessionSource playSessionSource) {
         if (clickedItem.getUrn().isTrack()) {
             final TrackItem item = (TrackItem) clickedItem;
-            final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
             if (clickedItem instanceof PromotedTrackItem) {
                 playSessionSource.setPromotedSourceInfo(PromotedSourceInfo.fromItem((PromotedTrackItem) clickedItem));

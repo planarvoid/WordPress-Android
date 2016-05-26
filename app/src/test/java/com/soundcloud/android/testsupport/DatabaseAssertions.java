@@ -101,6 +101,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
+import com.soundcloud.android.collection.PlayHistoryRecord;
 import com.soundcloud.android.comments.CommentRecord;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
@@ -113,6 +114,7 @@ import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.Comments;
 import com.soundcloud.android.storage.Tables.OfflineContent;
+import com.soundcloud.android.storage.Tables.PlayHistory;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
@@ -336,6 +338,23 @@ public class DatabaseAssertions {
         assertThat(select(from(StationsCollections.TABLE)
                 .whereIn(StationsCollections.STATION_URN, stations)
                 .whereEq(COLLECTION_TYPE, RECOMMENDATIONS))).counts(stations.size());
+    }
+
+    public void assertPlayHistory(PlayHistoryRecord record, int count) {
+        assertThat(select(from(PlayHistory.TABLE)
+                .whereEq(PlayHistory.TRACK_ID, record.trackUrn().getNumericId())
+                .whereEq(PlayHistory.TIMESTAMP, record.timestamp())
+                .whereEq(PlayHistory.CONTEXT_ID, record.contextUrn().getNumericId())
+                .whereEq(PlayHistory.CONTEXT_TYPE, record.getContextType()))).counts(count);
+    }
+
+
+    public void assertPlayHistory(PlayHistoryRecord record) {
+        assertPlayHistory(record, 1);
+    }
+
+    public void assertNoPlayHistory(PlayHistoryRecord record) {
+        assertPlayHistory(record, 0);
     }
 
     private void assertTrackPolicyInserted(TrackRecord track) {

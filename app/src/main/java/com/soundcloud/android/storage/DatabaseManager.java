@@ -22,7 +22,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 76;
+    public static final int DATABASE_VERSION = 77;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -57,6 +57,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.StationsCollections.SQL);
             db.execSQL(Tables.Charts.SQL);
             db.execSQL(Tables.ChartTracks.SQL);
+            db.execSQL(Tables.PlayHistory.SQL);
+            db.execSQL(Tables.PlayHistory.INDEX);
 
             // legacy tables
             for (Table t : Table.values()) {
@@ -88,6 +90,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
         dropTable(Tables.Charts.TABLE.name(), db);
         dropTable(Tables.ChartTracks.TABLE.name(), db);
+        dropTable(Tables.PlayHistory.TABLE.name(), db);
 
         // legacy tables
         for (Table t : Table.values()) {
@@ -231,6 +234,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 76:
                             success = upgradeTo76(db, oldVersion);
+                            break;
+                        case 77:
+                            success = upgradeTo77(db, oldVersion);
                             break;
                         default:
                             break;
@@ -836,6 +842,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 76);
+        }
+        return false;
+    }
+
+
+    /**
+     * Creates local play history table
+     */
+    private static boolean upgradeTo77(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL(Tables.PlayHistory.SQL);
+            db.execSQL(Tables.PlayHistory.INDEX);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 77);
         }
         return false;
     }

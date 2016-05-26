@@ -14,6 +14,7 @@ import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.cast.CastSessionController;
+import com.soundcloud.android.collection.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
@@ -114,6 +115,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject FabricProvider fabricProvider;
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
     @Inject SyncConfig syncConfig;
+    @Inject PlayHistoryController playHistoryController;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -188,6 +190,10 @@ public class SoundCloudApplication extends MultiDexApplication {
         castSessionController.startListening();
         trackOfflineStateProvider.subscribe();
         playQueueExtender.subscribe();
+
+        if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
+            playHistoryController.subscribe();
+        }
 
         if (featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)){
             playlistExploder.subscribe();

@@ -100,7 +100,12 @@ abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> ext
 
     @Override
     protected void onItemClicked(View view, int position) {
-        clickListener.onPostClick(getPlayables(adapter), view, position, adapter.getItem(position));
+        PlayableItem item = adapter.getItem(position);
+        if (item.getUrn().isTrack()) {
+            clickListener.onProfilePostClick(getPlayables(adapter), view, position, item, item.getUserUrn());
+        } else {
+            clickListener.onPostClick(getPlayables(adapter), view, position, item);
+        }
     }
 
     @Override
