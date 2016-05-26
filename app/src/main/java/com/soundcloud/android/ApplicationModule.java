@@ -4,6 +4,7 @@ import static com.soundcloud.android.waveform.WaveformOperations.DEFAULT_WAVEFOR
 
 import com.appboy.Appboy;
 import com.facebook.FacebookSdk;
+import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.ads.AdsOperations;
@@ -69,6 +70,7 @@ import android.telephony.TelephonyManager;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.lang.reflect.Constructor;
 import java.util.Locale;
 
 @Module(library = true, includes = {ApiModule.class, StorageModule.class, FacebookModule.class})
@@ -207,10 +209,23 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties) {
-        final VideoCastManager manager = VideoCastManager.initialize(context, applicationProperties.getCastReceiverAppId(), MainActivity.class, "urn:x-cast:com.soundcloud.cast.sender");
-        manager.enableFeatures(VideoCastManager.FEATURE_LOCKSCREEN | VideoCastManager.FEATURE_DEBUGGING |
-                VideoCastManager.FEATURE_NOTIFICATION | VideoCastManager.FEATURE_WIFI_RECONNECT);
-        return manager;
+        System.out.println("ApplicationModule.provideVideoCastManager");
+        for (Constructor<?> constructor : VideoCastManager.class.getConstructors()) {
+            System.out.println(constructor);
+        }
+
+        return VideoCastManager
+                .initialize(
+                        context,
+                        new CastConfiguration.Builder(applicationProperties.getCastReceiverAppId())
+                                .setTargetActivity(MainActivity.class)
+                                .addNamespace("urn:x-cast:com.soundcloud.cast.sender")
+                                .enableLockScreen()
+                                .enableDebug()
+                                .enableNotification()
+                                .enableWifiReconnection()
+                                .build()
+                );
     }
 
     @Provides

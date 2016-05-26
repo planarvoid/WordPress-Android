@@ -18,7 +18,6 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -132,7 +131,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
                 showAddToPlaylistDialog(track);
                 return true;
             case R.id.start_station:
-                if (track.isBlocked()){
+                if (track.isBlocked()) {
                     startStationPresenter.startStation(context, Urn.forTrackStation(track.getUrn().getNumericId()));
                 } else {
                     startStationPresenter.startStationForTrack(context, track.getUrn());
@@ -223,7 +222,6 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     static class Factory {
-        private final FeatureFlags featureFlags;
         private final PlayQueueManager playQueueManager;
         private final RepostOperations repostOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -232,14 +230,12 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         private final ShareOperations shareOperations;
 
         @Inject
-        Factory(FeatureFlags featureFlags,
-                PlayQueueManager playQueueManager,
+        Factory(PlayQueueManager playQueueManager,
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 StartStationPresenter startStationPresenter,
                 EventBus eventBus,
                 ShareOperations shareOperations) {
-            this.featureFlags = featureFlags;
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;

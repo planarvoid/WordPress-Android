@@ -10,8 +10,8 @@ ext {
 
   // Dependency versions
   androidMultiDex = "1.0.1"
-  androidSupportVersion = '23.2.1'
-  playServicesVersion = '7.8.0'
+  androidSupportVersion = '23.4.0'
+  playServicesVersion = '9.0.0'
   androidKitVersion = '0.46'
   lightCycleVersion = '1.1.0'
   daggerVersion = '1.2.2'
@@ -65,7 +65,7 @@ ext {
           facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
           facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:4.4.0",
           butterKnife                 : "com.jakewharton:butterknife:7.0.1",
-          castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.3.2-SOUNDCLOUD@aar",
+          castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
 
           // Android libraries
@@ -77,10 +77,11 @@ ext {
           androidRecyclerView             : "com.android.support:recyclerview-v7:$androidSupportVersion",
           androidCardView                 : "com.android.support:cardview-v7:$androidSupportVersion",
           androidDesign                   : "com.android.support:design:$androidSupportVersion",
-          androidPlayServicesBase         : "com.google.android.gms:play-services-base:$playServicesVersion@aar",
-          androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
-          androidPlayServicesAnalytics    : "com.google.android.gms:play-services-analytics:$playServicesVersion@aar",
-          androidPlayServicesGCM          : "com.google.android.gms:play-services-gcm:$playServicesVersion@aar"
+          androidPlayServicesBase         : "com.google.android.gms:play-services-base:$playServicesVersion",
+          androidPlayServicesAuth         : "com.google.android.gms:play-services-auth:$playServicesVersion",
+          androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$playServicesVersion",
+          androidPlayServicesAnalytics    : "com.google.android.gms:play-services-analytics:$playServicesVersion",
+          androidPlayServicesGCM          : "com.google.android.gms:play-services-gcm:$playServicesVersion"
   ]
 
   unitTestLibraries = [
