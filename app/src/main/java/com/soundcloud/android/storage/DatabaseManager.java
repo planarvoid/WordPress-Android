@@ -856,7 +856,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.PlayHistory.INDEX);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 76);
+            handleUpgradeException(exception, oldVersion, 77);
         }
         return false;
     }
