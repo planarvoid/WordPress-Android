@@ -10,10 +10,13 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
+import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.functions.Func2;
 
 import javax.inject.Inject;
@@ -25,6 +28,27 @@ import java.util.concurrent.TimeUnit;
 public class PlayHistoryController {
 
     private static final long LONG_PLAY_MINIMAL_DURATION_SECONDS = 10;
+
+    private static final Func1<Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>, Boolean> IS_ELIGIBLE_FOR_HISTORY =
+            new Func1<Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>, Boolean>() {
+                @Override
+                public Boolean call(Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition> pair) {
+                    PlayQueueItem currentPlayQueueItem = pair.first().getCurrentPlayQueueItem();
+                    PlaybackStateTransition stateTransition = pair.second();
+
+                    return stateTransition.isPlayerPlaying()
+                            && currentPlayQueueItem.getUrn().equals(stateTransition.getUrn())
+                            && !AdUtils.isAd(currentPlayQueueItem);
+                }
+            };
+
+    private static final Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>> COMBINE_EVENTS =
+            new Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>>() {
+                @Override
+                public Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition> call(CurrentPlayQueueItemEvent queueItemEvent, PlaybackStateTransition stateTransition) {
+                    return Pair.of(queueItemEvent, stateTransition);
+                }
+            };
 
     private final EventBus eventBus;
     private final WritePlayHistoryCommand storeCommand;
@@ -46,37 +70,23 @@ public class PlayHistoryController {
                 .combineLatest(
                         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
                         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED),
-                        combineEventsToHolder())
+                        COMBINE_EVENTS)
+                .doOnNext(unsubscribePreviousTimer())
+                .filter(IS_ELIGIBLE_FOR_HISTORY)
                 .subscribeOn(scheduler)
-                .subscribe();
+                .subscribe(new PlayHistorySubscriber());
     }
 
-    private Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, Void> combineEventsToHolder() {
-        return new Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, Void>() {
+    private Action1<Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>> unsubscribePreviousTimer() {
+        return new Action1<Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>>() {
             @Override
-            public Void call(CurrentPlayQueueItemEvent queueItemEvent, PlaybackStateTransition stateTransition) {
+            public void call(Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition> currentPlayQueueItemEventPlaybackStateTransitionPair) {
                 subscription.unsubscribe();
-                addPlayHistory(queueItemEvent, stateTransition);
-                return null;
             }
         };
     }
 
-    private void addPlayHistory(CurrentPlayQueueItemEvent queueItemEvent, PlaybackStateTransition stateTransition) {
-        if (canAddPlayHistory(stateTransition, queueItemEvent)) {
-            PlayHistoryRecord record = buildRecord(stateTransition, queueItemEvent);
-            schedulePlayHistoryStorage(record);
-        }
-    }
-
-    private boolean canAddPlayHistory(PlaybackStateTransition stateTransition, CurrentPlayQueueItemEvent queueItemEvent) {
-        PlayQueueItem currentPlayQueueItem = queueItemEvent.getCurrentPlayQueueItem();
-        return stateTransition.isPlayerPlaying()
-                && currentPlayQueueItem.getUrn().equals(stateTransition.getUrn())
-                && !AdUtils.isAd(currentPlayQueueItem);
-    }
-
-    private PlayHistoryRecord buildRecord(PlaybackStateTransition stateTransition, CurrentPlayQueueItemEvent queueItemEvent) {
+    private PlayHistoryRecord buildRecord(CurrentPlayQueueItemEvent queueItemEvent, PlaybackStateTransition stateTransition) {
         return PlayHistoryRecord.create(
                 stateTransition.getProgress().getCreatedAt(),
                 queueItemEvent.getCurrentPlayQueueItem().getUrn(),
@@ -91,5 +101,11 @@ public class PlayHistoryController {
                 .subscribe(new DefaultSubscriber<PlayHistoryRecord>());
     }
 
-
+    private class PlayHistorySubscriber extends DefaultSubscriber<Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>> {
+        @Override
+        public void onNext(Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition> pair) {
+            PlayHistoryRecord record = buildRecord(pair.first(), pair.second());
+            schedulePlayHistoryStorage(record);
+        }
+    }
 }
