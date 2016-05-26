@@ -320,7 +320,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     public void destroy() {
-        castManager.onDeviceSelected(null, null);
+        castManager.onDeviceSelected(null);
         castManager.removeVideoCastConsumer(this);
     }
 }
