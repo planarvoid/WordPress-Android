@@ -384,7 +384,9 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         }
 
         this.playlistWithTracks = playlistWithTracks;
-        playlistHeaderView.setPlaylist(playlistWithTracks.getPlaylistItem(), !playlistWithTracks.getTracks().isEmpty());
+        PlaylistItem playlistItem = playlistWithTracks.getPlaylistItem();
+        updateTitleForActivity(playlistItem);
+        playlistHeaderView.setPlaylist(playlistItem, !playlistWithTracks.getTracks().isEmpty());
         engagementsPresenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
 
         // don't register clicks before we have a valid playlist
@@ -462,6 +464,14 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
             final PropertySet updatedPlaylist = args.getNextChangeSet();
             playlistWithTracks.update(updatedPlaylist);
             getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
+        }
+    }
+
+    private void updateTitleForActivity(PlaylistItem playlistItem) {
+        if (playlistItem.isAlbum()) {
+            getActivity().setTitle(playlistItem.getAlbumTitle(getContext()));
+        } else {
+            getActivity().setTitle(R.string.activity_title_playlist);
         }
     }
 }
