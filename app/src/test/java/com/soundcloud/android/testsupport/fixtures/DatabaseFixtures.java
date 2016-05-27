@@ -8,6 +8,8 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
+import com.soundcloud.android.discovery.Chart;
+import com.soundcloud.android.discovery.ChartTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
@@ -16,6 +18,7 @@ import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.OfflineContent;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
@@ -26,9 +29,11 @@ import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
+import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
@@ -37,6 +42,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -86,7 +92,7 @@ public class DatabaseFixtures {
         insertPolicy(track);
     }
 
-    public void insertFollowing(Urn followedUrn, int position){
+    public void insertFollowing(Urn followedUrn, int position) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
         cv.put(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER);
@@ -259,16 +265,16 @@ public class DatabaseFixtures {
     public ApiTrack insertPlaylistTrackPendingAddition(ApiPlaylist playlist, int position, Date additionDate) {
         final ApiTrack apiTrack = insertPlaylistTrack(playlist, position);
         database.execSQL("UPDATE PlaylistTracks SET added_at=" + additionDate.getTime()
-                + " WHERE playlist_id=" + playlist.getId()
-                + " AND track_id=" + apiTrack.getId());
+                                 + " WHERE playlist_id=" + playlist.getId()
+                                 + " AND track_id=" + apiTrack.getId());
         return apiTrack;
     }
 
     public ApiTrack insertPlaylistTrackPendingRemoval(ApiPlaylist playlist, int position, Date removalDate) {
         final ApiTrack apiTrack = insertPlaylistTrack(playlist, position);
         database.execSQL("UPDATE PlaylistTracks SET removed_at=" + removalDate.getTime()
-                + " WHERE playlist_id=" + playlist.getId()
-                + " AND track_id=" + apiTrack.getId());
+                                 + " WHERE playlist_id=" + playlist.getId()
+                                 + " AND track_id=" + apiTrack.getId());
         return apiTrack;
     }
 
@@ -373,6 +379,42 @@ public class DatabaseFixtures {
         return station;
     }
 
+    public Chart insertChart(ApiChart apiChart) {
+        final ContentValues cv = new ContentValues();
+        cv.put(Tables.Charts.PAGE.name(), apiChart.getPage());
+        cv.put(Tables.Charts.TITLE.name(), apiChart.getTitle());
+        if (apiChart.getGenre() != null) {
+            cv.put(Tables.Charts.GENRE.name(), apiChart.getGenre().getNumericId());
+        }
+        cv.put(Tables.Charts.TYPE.name(), apiChart.getType().value());
+        cv.put(Tables.Charts.CATEGORY.name(), apiChart.getCategory().value());
+        long chartLocalId = insertInto(Tables.Charts.TABLE, cv);
+
+        final ApiUser user = insertUser();
+        final List<ApiTrack> apiChartTracks = apiChart.getTracks().getCollection();
+        final List<ChartTrack> chartTracks = new ArrayList<>(apiChartTracks.size());
+        for (final ApiTrack track : apiChartTracks) {
+            chartTracks.add(insertChartTrack(track, user, chartLocalId));
+        }
+
+        return Chart.create(chartLocalId,
+                            apiChart.getType(),
+                            apiChart.getCategory(),
+                            apiChart.getTitle(),
+                            apiChart.getPage(),
+                            Optional.fromNullable(apiChart.getGenre()),
+                            chartTracks);
+    }
+
+    private ChartTrack insertChartTrack(ApiTrack seedTrack, ApiUser apiUser, long chartLocalId) {
+        insertTrackWithUser(seedTrack, apiUser);
+        final ContentValues cv = new ContentValues();
+        cv.put(Tables.ChartTracks.CHART_ID.name(), chartLocalId);
+        cv.put(Tables.ChartTracks.SOUND_ID.name(), seedTrack.getUrn().getNumericId());
+        insertInto(Tables.ChartTracks.TABLE, cv);
+        return ChartTrack.create(seedTrack.getUrn(), seedTrack.getImageUrlTemplate());
+    }
+
     private ContentValues getStationContentValues(StationRecord station, long createdAt, int lastPlayedPosition) {
         return getDefaultStationContentValuesBuilder(station, createdAt)
                 .put(Stations.LAST_PLAYED_TRACK_POSITION, lastPlayedPosition)
@@ -390,12 +432,12 @@ public class DatabaseFixtures {
 
     private ContentValuesBuilder getDefaultStationContentValuesBuilder(StationRecord station, long createdAt) {
         return ContentValuesBuilder.values()
-                .put(Stations.STATION_URN, station.getUrn().toString())
-                .put(Stations.TITLE, station.getTitle())
-                .put(Stations.TYPE, station.getType())
-                .put(Stations.PLAY_QUEUE_UPDATED_AT, createdAt)
-                .put(Stations.PERMALINK, station.getPermalink())
-                .put(Stations.ARTWORK_URL_TEMPLATE, station.getImageUrlTemplate().orNull());
+                                   .put(Stations.STATION_URN, station.getUrn().toString())
+                                   .put(Stations.TITLE, station.getTitle())
+                                   .put(Stations.TYPE, station.getType())
+                                   .put(Stations.PLAY_QUEUE_UPDATED_AT, createdAt)
+                                   .put(Stations.PERMALINK, station.getPermalink())
+                                   .put(Stations.ARTWORK_URL_TEMPLATE, station.getImageUrlTemplate().orNull());
     }
 
     private ContentValues getTrackContentValues(int position, StationRecord stationInfo, StationTrack track) {
@@ -440,8 +482,8 @@ public class DatabaseFixtures {
         insertTrack(track);
         insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, likedDate);
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
-                + " WHERE _id=" + track.getUrn().getNumericId()
-                + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
+                                 + " WHERE _id=" + track.getUrn().getNumericId()
+                                 + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
         return track;
     }
 
@@ -451,8 +493,8 @@ public class DatabaseFixtures {
         insertTrack(track);
         insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, likedDate);
         database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
-                + " WHERE _id=" + track.getUrn().getNumericId()
-                + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
+                                 + " WHERE _id=" + track.getUrn().getNumericId()
+                                 + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
         return track;
     }
 
@@ -460,9 +502,9 @@ public class DatabaseFixtures {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
-        database.execSQL("UPDATE Sounds SET "+ TableColumns.Sounds.MODIFIED_AT + " = " + modifiedDate.getTime()
-                + " WHERE _id=" + playlist.getUrn().getNumericId()
-                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+        database.execSQL("UPDATE Sounds SET " + TableColumns.Sounds.MODIFIED_AT + " = " + modifiedDate.getTime()
+                                 + " WHERE _id=" + playlist.getUrn().getNumericId()
+                                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
         return playlist;
     }
 
@@ -520,8 +562,8 @@ public class DatabaseFixtures {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
-                + " WHERE _id=" + playlist.getUrn().getNumericId()
-                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+                                 + " WHERE _id=" + playlist.getUrn().getNumericId()
+                                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
         return playlist;
     }
 
@@ -531,15 +573,15 @@ public class DatabaseFixtures {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
-                + " WHERE _id=" + playlist.getUrn().getNumericId()
-                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+                                 + " WHERE _id=" + playlist.getUrn().getNumericId()
+                                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
         return playlist;
     }
 
     public ApiPost insertTrackPost(ApiPost apiTrackPost) {
         insertTrackPost(apiTrackPost.getTargetUrn().getNumericId(),
-                apiTrackPost.getCreatedAt().getTime(),
-                false);
+                        apiTrackPost.getCreatedAt().getTime(),
+                        false);
         return apiTrackPost;
     }
 

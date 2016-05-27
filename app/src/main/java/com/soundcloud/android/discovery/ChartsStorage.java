@@ -10,10 +10,8 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.ChartTracks;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.query.Query;
@@ -22,14 +20,28 @@ import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.List;
 
 class ChartsStorage {
-
     private final PropellerRx propellerRx;
     private final Scheduler scheduler;
+
+    private final Func1<Chart, Observable<Chart>> addTracksToChart = new Func1<Chart, Observable<Chart>>() {
+        @Override
+        public Observable<Chart> call(final Chart chart) {
+            return chartTracks(chart.localId())
+                    .map(new Func1<List<ChartTrack>, Chart>() {
+                        @Override
+                        public Chart call(List<ChartTrack> chartTracks) {
+                            return chart.copyWithTracks(chartTracks);
+                        }
+                    });
+        }
+    };
 
     @Inject
     ChartsStorage(PropellerRx propellerRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
@@ -37,7 +49,7 @@ class ChartsStorage {
         this.scheduler = scheduler;
     }
 
-    Observable<PropertySet> charts() {
+    Observable<List<Chart>> charts() {
         final Query query = Query.from(Charts.TABLE)
                                  .select(Charts._ID,
                                          Charts.TYPE,
@@ -48,11 +60,13 @@ class ChartsStorage {
 
         return propellerRx.query(query)
                           .map(new ChartMapper())
-                          .switchIfEmpty(Observable.<PropertySet>empty())
+                          .flatMap(addTracksToChart)
+                          .toList()
                           .subscribeOn(scheduler);
     }
 
-    Observable<PropertySet> chartTracks(final Long chartId) {
+
+    private Observable<List<ChartTrack>> chartTracks(final Long chartId) {
 
         final Where soundsViewJoin = filter().whereEq(ChartTracks.SOUND_ID, SoundView.field(_ID));
         final Query query = Query.from(ChartTracks.TABLE)
@@ -60,38 +74,28 @@ class ChartsStorage {
                                  .innerJoin(SoundView.name(), soundsViewJoin)
                                  .whereEq(ChartTracks.CHART_ID, chartId);
 
-        return propellerRx.query(query)
-                          .map(new TrackMapper())
-                          .switchIfEmpty(Observable.<PropertySet>empty())
-                          .subscribeOn(scheduler);
+        return propellerRx.query(query).map(new TrackMapper()).toList();
     }
 
 
-    private static final class TrackMapper extends RxResultMapper<PropertySet> {
+    private static final class TrackMapper extends RxResultMapper<ChartTrack> {
         @Override
-        public PropertySet map(CursorReader cursorReader) {
-            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-            propertySet.put(EntityProperty.URN, Urn.forTrack(cursorReader.getLong(ChartTracks.SOUND_ID)));
-            propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE,
-                            Optional.fromNullable(cursorReader.getString(ARTWORK_URL)));
-            return propertySet;
+        public ChartTrack map(CursorReader cursorReader) {
+            return ChartTrack.create(Urn.forTrack(cursorReader.getLong(ChartTracks.SOUND_ID)),
+                                     Optional.fromNullable(cursorReader.getString(ARTWORK_URL)));
         }
     }
 
-    private static final class ChartMapper extends RxResultMapper<PropertySet> {
+    private static final class ChartMapper extends RxResultMapper<Chart> {
         @Override
-        public PropertySet map(CursorReader cursorReader) {
-            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-            propertySet.put(ChartsProperty.LOCAL_ID, cursorReader.getLong(Charts._ID));
-            propertySet.put(ChartsProperty.CHART_TYPE, ChartType.from(cursorReader.getString(Charts.TYPE)));
-            propertySet.put(ChartsProperty.CHART_CATEGORY,
-                            ChartCategory.from(cursorReader.getString(Charts.CATEGORY)));
+        public Chart map(CursorReader cursorReader) {
             final String genre = cursorReader.getString(Charts.GENRE);
-            propertySet.put(ChartsProperty.GENRE,
-                            genre != null ? Optional.of(new Urn(genre)) : Optional.<Urn>absent());
-            propertySet.put(ChartsProperty.TITLE, cursorReader.getString(Charts.TITLE));
-            propertySet.put(ChartsProperty.PAGE, cursorReader.getString(Charts.PAGE));
-            return propertySet;
+            return Chart.create(cursorReader.getLong(Charts._ID),
+                                ChartType.from(cursorReader.getString(Charts.TYPE)),
+                                ChartCategory.from(cursorReader.getString(Charts.CATEGORY)),
+                                cursorReader.getString(Charts.TITLE),
+                                cursorReader.getString(Charts.PAGE),
+                                genre != null ? Optional.of(new Urn(genre)) : Optional.<Urn>absent());
         }
     }
 }

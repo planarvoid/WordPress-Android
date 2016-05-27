@@ -90,7 +90,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
     @Test
     public void returnsEmptyObservableWhenFeatureFlagIsDisabled() {
-        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
+        when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(false);
 
         operations.firstBucket().subscribe(subscriber);
 

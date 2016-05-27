@@ -2,69 +2,40 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
-import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.charts.StoreChartsCommand;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Predicate;
-import org.jetbrains.annotations.Nullable;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.functions.Func1;
-
-import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.List;
 
 class ChartsOperations {
-    private final Func1<Chart, Observable<Chart>> ADD_TRACKS_TO_CHART = new Func1<Chart, Observable<Chart>>() {
+
+    private final static Func1<List<Chart>, Observable<DiscoveryItem>> CHARTS_TO_DISCOVERY_ITEM = new Func1<List<Chart>, Observable<DiscoveryItem>>() {
         @Override
-        public Observable<Chart> call(final Chart chart) {
-            return chartsStorage.chartTracks(chart.getLocalId())
-                                .map(PROPERTY_SET_TO_CHART_TRACK)
-                                .toList()
-                                .map(new Func1<List<ChartTrack>, Chart>() {
-                                    @Override
-                                    public Chart call(List<ChartTrack> chartTracks) {
-                                        chart.setChartTracks(chartTracks);
-                                        return chart;
-                                    }
-                                });
+        public Observable<DiscoveryItem> call(List<Chart> charts) {
+            final Optional<Chart> newAndHot = Iterables.tryFind(charts, global(ChartType.TRENDING));
+            final Optional<Chart> topFifty = Iterables.tryFind(charts, global(ChartType.TOP));
+
+            if (newAndHot.isPresent() && topFifty.isPresent()) {
+                return Observable.<DiscoveryItem>just(new ChartsItem(newAndHot.get(), topFifty.get()));
+            } else {
+                return Observable.empty();
+            }
         }
     };
 
-    private static final Func1<PropertySet, Chart> PROPERTY_SET_TO_CHART = new Func1<PropertySet, Chart>() {
-        @Override
-        public Chart call(PropertySet propertyBindings) {
-            return Chart.fromPropertySet(propertyBindings);
-        }
-    };
-
-    private final static Func1<PropertySet, ChartTrack> PROPERTY_SET_TO_CHART_TRACK = new Func1<PropertySet, ChartTrack>() {
-        @Override
-        public ChartTrack call(PropertySet propertyBindings) {
-            return ChartTrack.fromPropertySet(propertyBindings);
-        }
-    };
-
-    private final static Func1<List<Chart>, DiscoveryItem> CHART_LIST_TO_DISCOVERY_ITEM = new Func1<List<Chart>, DiscoveryItem>() {
-        @Override
-        public DiscoveryItem call(List<Chart> charts) {
-            final Chart newAndHot = Iterables.find(charts, type(ChartCategory.NONE, ChartType.TRENDING));
-            final Chart topFifty = Iterables.find(charts, type(ChartCategory.NONE, ChartType.TOP));
-            return new ChartsItem(newAndHot, topFifty);
-        }
-    };
-
-    @NonNull
-    private static Predicate<Chart> type(final ChartCategory chartCategory, final ChartType chartType) {
+    private static Predicate<Chart> global(final ChartType chartType) {
         return new Predicate<Chart>() {
             @Override
-            public boolean apply(@Nullable Chart input) {
-                return input != null && input.getCategory() == chartCategory && input.getType() == chartType;
+            public boolean apply(Chart input) {
+                return input != null && !input.genre().isPresent() && input.type() == chartType;
             }
         };
     }
@@ -77,7 +48,8 @@ class ChartsOperations {
     @Inject
     ChartsOperations(ChartsSyncInitiator chartsSyncInitiator,
                      StoreChartsCommand storeChartsCommand,
-                     ChartsStorage chartsStorage, FeatureFlags featureFlags) {
+                     ChartsStorage chartsStorage,
+                     FeatureFlags featureFlags) {
         this.chartsSyncInitiator = chartsSyncInitiator;
         this.storeChartsCommand = storeChartsCommand;
         this.chartsStorage = chartsStorage;
@@ -98,11 +70,7 @@ class ChartsOperations {
     }
 
     private Observable<DiscoveryItem> loadCharts() {
-        return chartsStorage.charts()
-                            .map(PROPERTY_SET_TO_CHART)
-                            .flatMap(ADD_TRACKS_TO_CHART)
-                            .toList()
-                            .map(CHART_LIST_TO_DISCOVERY_ITEM);
+        return chartsStorage.charts().flatMap(CHARTS_TO_DISCOVERY_ITEM);
     }
 }
 
