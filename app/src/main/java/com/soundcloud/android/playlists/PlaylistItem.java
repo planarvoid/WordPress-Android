@@ -1,18 +1,34 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.utils.DateUtils.yearFromDateString;
+
+import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
 
+import android.content.Context;
+
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PlaylistItem extends PlayableItem {
+
+    private static final Map<String, Integer> SET_TYPE_TO_LABEL_MAP = new HashMap<String, Integer>() {{
+        put("album", R.string.set_type_album_label);
+        put("ep", R.string.set_type_ep_label);
+        put("single", R.string.set_type_single_label);
+        put("compilation", R.string.set_type_compilation_label);
+    }};
 
     public static PlaylistItem from(PropertySet propertySet) {
         return new PlaylistItem(propertySet);
@@ -76,6 +92,39 @@ public class PlaylistItem extends PlayableItem {
         return !isPrivate();
     }
 
+    public boolean isAlbum() {
+        return source.getOrElse(PlaylistProperty.IS_ALBUM, false);
+    }
+
+    public int getSetTypeLabel() {
+        String setType = source.getOrElse(PlaylistProperty.SET_TYPE, "album");
+
+        if (SET_TYPE_TO_LABEL_MAP.containsKey(setType)) return SET_TYPE_TO_LABEL_MAP.get(setType);
+
+        return R.string.set_type_album_label;
+    }
+
+    public String getReleaseYear() {
+        String releaseDate = source.getOrElse(PlaylistProperty.RELEASE_DATE, "");
+        if (releaseDate.isEmpty()) return Strings.EMPTY;
+
+        try {
+            return Integer.toString(yearFromDateString(releaseDate, "yyyy-MM-dd"));
+        } catch (ParseException e) {
+            return Strings.EMPTY;
+        }
+    }
+
+    public String getAlbumTitle(Context context) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(context.getString(getSetTypeLabel()));
+        String releaseYear = getReleaseYear();
+        if (!releaseYear.isEmpty()) {
+            builder.append(String.format(" · %s", releaseYear));
+        }
+        return builder.toString();
+    }
+
     @Override
     public boolean equals(Object o) {
         return o instanceof PlaylistItem && ((PlaylistItem) o).source.equals(this.source);
@@ -85,5 +134,4 @@ public class PlaylistItem extends PlayableItem {
     public int hashCode() {
         return source.hashCode();
     }
-
 }
