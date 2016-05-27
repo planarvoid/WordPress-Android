@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-  <string name="url_terms">http://pages.soundcloud.com/legal/plain/terms-of-use-ios.html?format=ios</string>
-  <string name="url_privacy">http://pages.soundcloud.com/legal/plain/privacy-policy.html?format=ios</string>
-</resources>
