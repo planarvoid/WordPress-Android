@@ -47,6 +47,9 @@ public class StorePlaylistsCommand extends DefaultWriteStorageCommand<Iterable<?
                 .put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))
                 .put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl())
                 .put(TableColumns.Sounds.ARTWORK_URL, playlist.getImageUrlTemplate().orNull())
+                .put(TableColumns.Sounds.IS_ALBUM, playlist.isAlbum())
+                .put(TableColumns.Sounds.SET_TYPE, playlist.getSetType())
+                .put(TableColumns.Sounds.RELEASE_DATE, playlist.getReleaseDate())
                 .get();
     }
 }

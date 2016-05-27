@@ -144,7 +144,10 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                         PlayableProperty.IS_USER_REPOST,
                         PlaylistProperty.IS_POSTED,
                         OfflineProperty.IS_MARKED_FOR_OFFLINE,
-                        PlaylistProperty.TRACK_COUNT
+                        PlaylistProperty.TRACK_COUNT,
+                        PlaylistProperty.IS_ALBUM,
+                        PlaylistProperty.SET_TYPE,
+                        PlaylistProperty.RELEASE_DATE
                 )
         ).isEqualTo(
                 TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, true, false)

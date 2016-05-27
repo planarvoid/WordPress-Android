@@ -45,5 +45,8 @@ public class ApiPlaylistTest extends AndroidUnitTest {
         assertThat(propertySet.get(PlaylistProperty.REPOSTS_COUNT)).isEqualTo(playlist.getStats().getRepostsCount());
         assertThat(propertySet.get(PlaylistProperty.CREATOR_NAME)).isEqualTo(playlist.getUsername());
         assertThat(propertySet.get(PlaylistProperty.CREATOR_URN)).isEqualTo(playlist.getUser().getUrn());
+        assertThat(propertySet.get(PlaylistProperty.IS_ALBUM)).isEqualTo(playlist.isAlbum());
+        assertThat(propertySet.get(PlaylistProperty.SET_TYPE)).isEqualTo(playlist.getSetType());
+        assertThat(propertySet.get(PlaylistProperty.RELEASE_DATE)).isEqualTo(playlist.getReleaseDate());
     }
 }

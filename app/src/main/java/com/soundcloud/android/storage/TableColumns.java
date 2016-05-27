@@ -98,6 +98,9 @@ public final class TableColumns {
         public static final String REMOVED_AT = "removed_at";
         public static final String MODIFIED_AT = "modified_at";
         public static final String DESCRIPTION = "description";
+        public static final String IS_ALBUM = "is_album";
+        public static final String SET_TYPE = "set_type";
+        public static final String RELEASE_DATE = "release_date";
 
         public static final int TYPE_TRACK    = 0;
         public static final int TYPE_PLAYLIST = 1;
@@ -110,7 +113,8 @@ public final class TableColumns {
                 COMMENTABLE, SHARING, LICENSE, PURCHASE_URL, PLAYBACK_COUNT, DOWNLOAD_COUNT,
                 COMMENT_COUNT, LIKES_COUNT, REPOSTS_COUNT, SHARED_TO_COUNT,
                 USER_ID, STATE, CREATED_AT, PERMALINK, LAST_UPDATED,
-                TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE, REMOVED_AT, MODIFIED_AT, DESCRIPTION
+                TRACKS_URI, TRACK_COUNT, PLAYLIST_TYPE, REMOVED_AT, MODIFIED_AT, DESCRIPTION,
+                IS_ALBUM, SET_TYPE, RELEASE_DATE
         };
     }
 
@@ -259,6 +263,9 @@ public final class TableColumns {
         public static final String TRACKS_URI = Sounds.TRACKS_URI;
         public static final String TRACK_COUNT = Sounds.TRACK_COUNT;
         public static final String DESCRIPTION = Sounds.DESCRIPTION;
+        public static final String IS_ALBUM = Sounds.IS_ALBUM;
+        public static final String SET_TYPE = Sounds.SET_TYPE;
+        public static final String RELEASE_DATE = Sounds.RELEASE_DATE;
 
         public static final String POLICIES_MONETIZABLE = "sound_policies_monetizable";
         public static final String POLICIES_BLOCKED = "sound_policies_blocked";
