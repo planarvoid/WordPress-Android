@@ -43,7 +43,9 @@ import static com.soundcloud.android.storage.TableColumns.Sounds.GENRE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.LIKES_COUNT;
 import static com.soundcloud.android.storage.TableColumns.Sounds.PERMALINK_URL;
 import static com.soundcloud.android.storage.TableColumns.Sounds.PLAYBACK_COUNT;
+import static com.soundcloud.android.storage.TableColumns.Sounds.RELEASE_DATE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.REPOSTS_COUNT;
+import static com.soundcloud.android.storage.TableColumns.Sounds.SET_TYPE;
 import static com.soundcloud.android.storage.TableColumns.Sounds.SHARING;
 import static com.soundcloud.android.storage.TableColumns.Sounds.SNIPPET_DURATION;
 import static com.soundcloud.android.storage.TableColumns.Sounds.STREAM_URL;
@@ -127,6 +129,7 @@ import com.soundcloud.android.waveform.WaveformSerializer;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.assertions.QueryBinding;
 
@@ -524,7 +527,9 @@ public class DatabaseAssertions {
                 .whereEq(USER_ID, 321L)
                 .whereNotNull(CREATED_AT)
                 .whereEq(SHARING, Sharing.from(!isPrivate).value())
-                .whereEq(TITLE, title))).counts(1);
+                .whereEq(TITLE, title)
+                .whereEq(SET_TYPE, Strings.EMPTY)
+                .whereEq(RELEASE_DATE, Strings.EMPTY))).counts(1);
     }
 
     public void assertModifiedPlaylistInserted(Urn playlistUrn, String title, boolean isPrivate) {

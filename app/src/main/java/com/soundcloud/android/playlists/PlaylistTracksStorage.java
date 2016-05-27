@@ -21,6 +21,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -131,6 +132,8 @@ class PlaylistTracksStorage {
                 .put(Sounds.SHARING, isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
                 .put(Sounds.CREATED_AT, createdAt)
                 .put(Sounds.USER_ID, accountOperations.getLoggedInUserUrn().getNumericId())
+                .put(Sounds.SET_TYPE, Strings.EMPTY)
+                .put(Sounds.RELEASE_DATE, Strings.EMPTY)
                 .get();
     }
 
