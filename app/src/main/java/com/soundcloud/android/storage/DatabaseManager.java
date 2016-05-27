@@ -872,7 +872,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 77);
+            handleUpgradeException(exception, oldVersion, 78);
         }
         return false;
     }
