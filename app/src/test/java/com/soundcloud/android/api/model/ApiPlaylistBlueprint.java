@@ -2,6 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.api.legacy.model.PlayableStats;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.strings.Strings;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
@@ -44,6 +45,12 @@ public class ApiPlaylistBlueprint {
 
     @Default
     String permalinkUrl = "http://permalink";
+
+    @Default
+    String setType = Strings.EMPTY;
+
+    @Default
+    String releaseDate = Strings.EMPTY;
 
     @Default
     PlayableStats stats = new PlayableStats() {

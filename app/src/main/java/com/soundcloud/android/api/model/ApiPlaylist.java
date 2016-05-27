@@ -29,6 +29,9 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
     private long duration;
     private Sharing sharing;
     private String permalinkUrl;
+    private boolean isAlbum;
+    private String setType;
+    private String releaseDate;
 
     /**
      * Required for Jackson
@@ -163,6 +166,33 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
         this.stats = relatedResources.stats;
     }
 
+    @JsonProperty("is_album")
+    public void setIsAlbum(boolean isAlbum) {
+        this.isAlbum = isAlbum;
+    }
+
+    public boolean isAlbum() {
+        return isAlbum;
+    }
+
+    @JsonProperty("set_type")
+    public void setSetType(String setType) {
+        this.setType = setType;
+    }
+
+    public String getSetType() {
+        return setType;
+    }
+
+    @JsonProperty("release_date")
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public String getReleaseDate() {
+        return releaseDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -195,7 +225,10 @@ public class ApiPlaylist implements ImageResource, ApiEntityHolder, PlaylistReco
                 PlaylistProperty.CREATOR_NAME.bind(getUsername()),
                 PlaylistProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
                 PlaylistProperty.TAGS.bind(Optional.fromNullable(tags)),
-                EntityProperty.IMAGE_URL_TEMPLATE.bind(artworkUrlTemplate)
+                EntityProperty.IMAGE_URL_TEMPLATE.bind(artworkUrlTemplate),
+                PlaylistProperty.IS_ALBUM.bind(isAlbum()),
+                PlaylistProperty.SET_TYPE.bind(getSetType()),
+                PlaylistProperty.RELEASE_DATE.bind(getReleaseDate())
         );
     }
 

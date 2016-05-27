@@ -102,6 +102,8 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
             showPromotedLabel(itemView, (PromotedPlaylistItem) playlist);
         } else if (isPrivatePlaylist(playlist)) {
             showPrivateIndicator(itemView);
+        } else if (playlist.isAlbum()) {
+            showAlbumTitle(itemView, playlist);
         } else {
             showLikeCount(itemView, playlist);
         }
@@ -110,6 +112,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private void hideAllAdditionalInformation(View itemView) {
         getTextView(itemView, R.id.list_item_counter).setVisibility(View.GONE);
         getTextView(itemView, R.id.private_indicator).setVisibility(View.GONE);
+        getTextView(itemView, R.id.album_title).setVisibility(View.GONE);
         unsetPromoterClickable(itemView);
     }
 
@@ -151,6 +154,12 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         imageOperations.displayInAdapterView(
                 playlist, ApiImageSize.getListItemImageSize(itemView.getResources()),
                 (ImageView) itemView.findViewById(R.id.image));
+    }
+
+    private void showAlbumTitle(View itemView, PlaylistItem playlist) {
+        final TextView albumTitleText = getTextView(itemView, R.id.album_title);
+        albumTitleText.setVisibility(View.VISIBLE);
+        albumTitleText.setText(playlist.getAlbumTitle(itemView.getContext()));
     }
 
     private void showLikeCount(View itemView, PlaylistItem playlist) {

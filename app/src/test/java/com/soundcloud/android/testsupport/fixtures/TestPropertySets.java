@@ -299,7 +299,10 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_USER_REPOST.bind(isReposted),
                 PlaylistProperty.IS_POSTED.bind(isPosted),
                 OfflineProperty.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
-                PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()));
+                PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()),
+                PlaylistProperty.IS_ALBUM.bind(apiPlaylist.isAlbum()),
+                PlaylistProperty.SET_TYPE.bind(apiPlaylist.getSetType()),
+                PlaylistProperty.RELEASE_DATE.bind(apiPlaylist.getReleaseDate()));
     }
 
     public static PropertySet followingEntityChangeSet(Urn targetUrn, int followersCount, boolean following) {

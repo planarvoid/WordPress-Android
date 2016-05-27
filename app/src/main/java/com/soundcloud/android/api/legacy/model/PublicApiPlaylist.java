@@ -126,6 +126,21 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
         return reposts_count;
     }
 
+    @Override
+    public boolean isAlbum() {
+        throw new UnsupportedOperationException("is_album is not returned by Public API");
+    }
+
+    @Override
+    public String getSetType() {
+        throw new UnsupportedOperationException("set_type is not returned by Public API");
+    }
+
+    @Override
+    public String getReleaseDate() {
+        throw new UnsupportedOperationException("release_date is not returned by Public API");
+    }
+
     @JsonProperty("track_count")
     public void setTrackCount(int count) {
         track_count = count;

@@ -27,6 +27,9 @@ public class PlaylistInfoMapper extends OfflinePlaylistMapper {
         propertySet.put(PlayableProperty.IS_USER_LIKE, cursorReader.getBoolean(TableColumns.SoundView.USER_LIKE));
         propertySet.put(PlayableProperty.IS_USER_REPOST, cursorReader.getBoolean(TableColumns.SoundView.USER_REPOST));
         propertySet.put(PlaylistProperty.IS_POSTED, creatorUrn.equals(loggedInUserUrn));
+        propertySet.put(PlaylistProperty.IS_ALBUM, cursorReader.getBoolean(TableColumns.SoundView.IS_ALBUM));
+        propertySet.put(PlaylistProperty.SET_TYPE, cursorReader.getString(TableColumns.SoundView.SET_TYPE));
+        propertySet.put(PlaylistProperty.RELEASE_DATE, cursorReader.getString(TableColumns.SoundView.RELEASE_DATE));
 
         // we were not inserting this for a while, so we could have some remaining missing values. eventually this should always exist
         final String permalinkUrl = cursorReader.getString(TableColumns.SoundView.PERMALINK_URL);

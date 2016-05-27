@@ -72,6 +72,9 @@ final class DatabaseSchema {
             "removed_at INTEGER DEFAULT NULL," +
             "modified_at INTEGER DEFAULT NULL," +
             "DESCRIPTION TEXT," +
+            "is_album BOOLEAN DEFAULT 0," +
+            "set_type VARCHAR(255)," +
+            "release_date VARCHAR(255)," +
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
             ");";
 
@@ -247,6 +250,9 @@ final class DatabaseSchema {
             ",Sounds." + TableColumns.Sounds.TRACKS_URI + " as " + TableColumns.SoundView.TRACKS_URI +
             ",Sounds." + TableColumns.Sounds.TRACK_COUNT + " as " + TableColumns.SoundView.TRACK_COUNT +
             ",Sounds." + TableColumns.Sounds.DESCRIPTION + " as " + TableColumns.SoundView.DESCRIPTION +
+            ",Sounds." + TableColumns.Sounds.IS_ALBUM + " as " + TableColumns.SoundView.IS_ALBUM +
+            ",Sounds." + TableColumns.Sounds.SET_TYPE + " as " + TableColumns.SoundView.SET_TYPE +
+            ",Sounds." + TableColumns.Sounds.RELEASE_DATE + " as " + TableColumns.SoundView.RELEASE_DATE +
             ",TrackPolicies." + TableColumns.TrackPolicies.MONETIZABLE + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
             ",TrackPolicies." + TableColumns.TrackPolicies.BLOCKED + " as " + TableColumns.SoundView.POLICIES_BLOCKED +
             ",TrackPolicies." + TableColumns.TrackPolicies.SNIPPED + " as " + TableColumns.SoundView.POLICIES_SNIPPED +

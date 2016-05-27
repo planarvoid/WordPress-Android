@@ -549,6 +549,10 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
         cv.put(TableColumns.Sounds.ARTWORK_URL, playlist.getImageUrlTemplate().orNull());
         cv.put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()));
+        cv.put(TableColumns.Sounds.IS_ALBUM, playlist.isAlbum());
+        cv.put(TableColumns.Sounds.SET_TYPE, playlist.getSetType());
+        cv.put(TableColumns.Sounds.RELEASE_DATE, playlist.getReleaseDate());
+        cv.put(TableColumns.Sounds.RELEASE_DATE, playlist.getReleaseDate());
         return cv;
     }
 

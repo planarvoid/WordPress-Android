@@ -27,4 +27,10 @@ public interface PlaylistRecord extends ImageResource {
     int getLikesCount();
 
     int getRepostsCount();
+
+    boolean isAlbum();
+
+    String getSetType();
+
+    String getReleaseDate();
 }

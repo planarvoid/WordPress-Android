@@ -106,6 +106,13 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldHideAlbumLabelAndAlbumYearIfPlaylistHasLikes() {
+        renderer.bindItemView(0, itemView, singletonList(playlistItem));
+
+        assertThat(textView(R.id.album_title).getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
     public void shouldNotBindLikesCountToViewIfLikesCountNotSet() {
         propertySet.put(PlayableProperty.LIKES_COUNT, Consts.NOT_SET);
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
@@ -160,6 +167,15 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldHideAlbumsLabelAndYearIfPlaylistIsPromoted() {
+        PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+
+        renderer.bindItemView(0, itemView, singletonList(item));
+
+        assertThat(textView(R.id.album_title).getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
     public void shouldShowPromotedLabelWithPromoterIfPlaylistIsPromotedByPromoter() {
         PlaylistItem item = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
 
@@ -177,6 +193,31 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
 
         assertThat(textView(R.id.promoted_playlist).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(textView(R.id.promoted_playlist).getText()).isEqualTo("Promoted");
+    }
+
+    @Test
+    public void shouldHideLikesCountPromotedLabelAndPrivateIndicatorForAlbums() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
+        PlaylistItem item = PlaylistItem.from(propertySet);
+
+        renderer.bindItemView(0, itemView, singletonList(item));
+
+        assertThat(textView(R.id.list_item_counter).getVisibility()).isEqualTo(View.GONE);
+        assertThat(textView(R.id.promoted_playlist).getVisibility()).isEqualTo(View.GONE);
+        assertThat(textView(R.id.private_indicator).getVisibility()).isEqualTo(View.GONE);
+    }
+
+    @Test
+    public void shouldDisplayAlbumTitleForAlbums() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
+        propertySet.put(PlaylistProperty.SET_TYPE, "ep");
+        propertySet.put(PlaylistProperty.RELEASE_DATE, "2010-10-10");
+        PlaylistItem item = PlaylistItem.from(propertySet);
+
+        renderer.bindItemView(0, itemView, singletonList(item));
+
+        assertThat(textView(R.id.album_title).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(textView(R.id.album_title).getText()).isEqualTo("EP · 2010");
     }
 
     @Test
