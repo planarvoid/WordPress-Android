@@ -197,8 +197,34 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         assertThat(editPlaylistOperation.hasObservers()).isTrue();
     }
 
+    @Test
+    public void setsTitleForActivityAsPlaylist() {
+        presenter.onCreate(fragmentRule.getFragment(), args);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
+
+        assertThat(fragmentRule.getActivity().getTitle()).isEqualTo("Playlist");
+    }
+
+    @Test
+    public void setsTitleForActivityAsAlbumTypeWithReleaseDateWhenPlaylistIsAnAlbumAndReleaseDateIsAvailable() {
+        when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
+
+        presenter.onCreate(fragmentRule.getFragment(), args);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
+
+        assertThat(fragmentRule.getActivity().getTitle()).isEqualTo("EP · 2010");
+    }
+
     private List<TrackItem> listItems() {
         return Arrays.asList(TrackItem.from(track1), TrackItem.from(track2));
     }
 
+    private PlaylistWithTracks createAlbumPlaylist(String type, String releaseDate) {
+        PropertySet propertySet = playlist.toPropertySet();
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
+        propertySet.put(PlaylistProperty.SET_TYPE, type);
+        propertySet.put(PlaylistProperty.RELEASE_DATE, releaseDate);
+
+        return new PlaylistWithTracks(propertySet, Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
+    }
 }

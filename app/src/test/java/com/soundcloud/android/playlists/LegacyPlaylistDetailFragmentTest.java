@@ -37,6 +37,7 @@ import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -295,6 +296,23 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     }
 
     @Test
+    public void setsTitleForActivityAsPlaylist() {
+        createFragmentView();
+
+        assertThat(fragment.getActivity().getTitle()).isEqualTo("Playlist");
+    }
+
+    @Test
+    public void setsTitleForActivityAsAlbumTypeWithReleaseDateWhenPlaylistIsAnAlbumAndReleaseDateIsAvailable() {
+        when(playlistOperations.playlist(any(Urn.class)))
+                .thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
+
+        createFragmentView();
+
+        assertThat(fragment.getActivity().getTitle()).isEqualTo("EP · 2010");
+    }
+
+    @Test
     public void setsPlayableOnEngagementsControllerTwiceWhenPlaylistEmittedTwice() {
         PlaylistWithTracks updatedPlaylistWithTracks = createPlaylist();
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(
@@ -417,6 +435,17 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     private PlaylistWithTracks createPlaylistWithoutTracks() {
         return new PlaylistWithTracks(
                 ModelFixtures.create(ApiPlaylist.class).toPropertySet(),
+                Collections.<TrackItem>emptyList());
+    }
+
+    private PlaylistWithTracks createAlbumPlaylist(String type, String releaseDate) {
+        PropertySet propertySet = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
+        propertySet.put(PlaylistProperty.SET_TYPE, type);
+        propertySet.put(PlaylistProperty.RELEASE_DATE, releaseDate);
+
+        return new PlaylistWithTracks(
+                propertySet,
                 Collections.<TrackItem>emptyList());
     }
 

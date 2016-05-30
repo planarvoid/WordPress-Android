@@ -17,19 +17,19 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.dragdrop.OnStartDragListener;
-import com.soundcloud.android.view.dragdrop.SimpleItemTouchHelperCallback;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.android.view.dragdrop.OnStartDragListener;
+import com.soundcloud.android.view.dragdrop.SimpleItemTouchHelperCallback;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -298,6 +298,15 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
             playlistWithTracks = Optional.of(playlist);
             playSessionSource = createPlaySessionSource(playlist);
             headerPresenter.setPlaylist(PlaylistHeaderItem.create(playlist, playSessionSource));
+            updateTitleForActivity(playlist.getPlaylistItem());
+        }
+
+        private void updateTitleForActivity(PlaylistItem playlistItem) {
+            if (playlistItem.isAlbum()) {
+                fragment.getActivity().setTitle(playlistItem.getAlbumTitle(fragment.getContext()));
+            } else {
+                fragment.getActivity().setTitle(R.string.activity_title_playlist);
+            }
         }
     }
 

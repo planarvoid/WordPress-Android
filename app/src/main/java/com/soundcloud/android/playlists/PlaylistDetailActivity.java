@@ -74,8 +74,6 @@ public class PlaylistDetailActivity extends PlayerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTitle(R.string.activity_title_playlist);
-
         if (savedInstanceState == null) {
             createFragmentForPlaylist();
         }
