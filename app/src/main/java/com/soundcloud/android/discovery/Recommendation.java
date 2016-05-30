@@ -8,11 +8,19 @@ class Recommendation {
     private final TrackItem track;
     private final Urn seedUrn;
     private boolean isPlaying;
+    private int queryPosition;
+    private Urn queryUrn;
 
-    Recommendation(TrackItem track, Urn seedUrn, boolean isPlaying) {
+    Recommendation(TrackItem track, Urn seedUrn, boolean isPlaying, int queryPosition, Urn queryUrn) {
         this.track = track;
         this.seedUrn = seedUrn;
         this.isPlaying = isPlaying;
+        this.queryPosition = queryPosition;
+        this.queryUrn = queryUrn;
+    }
+
+    Urn getTrackUrn() {
+        return track.getUrn();
     }
 
     TrackItem getTrack() {
@@ -29,6 +37,14 @@ class Recommendation {
 
     void setIsPlaying(boolean isPlaying) {
         this.isPlaying = isPlaying;
+    }
+
+    int getQueryPosition() {
+        return queryPosition;
+    }
+
+    Urn getQueryUrn() {
+    return queryUrn;
     }
 
     public static final Function<Recommendation, Urn> TO_TRACK_URN = new Function<Recommendation, Urn>() {

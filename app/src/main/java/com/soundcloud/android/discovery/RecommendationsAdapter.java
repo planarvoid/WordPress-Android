@@ -11,10 +11,10 @@ import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
 class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, RecommendationsViewHolder> implements NowPlayingAdapter {
+
     private static final int RECOMMENDATION_TYPE = 0;
 
-    public RecommendationsAdapter(Screen screen,
-                                  @Provided RecommendationRendererFactory rendererFactory) {
+    public RecommendationsAdapter(Screen screen, @Provided RecommendationRendererFactory rendererFactory) {
         super(rendererFactory.create(screen));
     }
 

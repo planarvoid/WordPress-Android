@@ -24,6 +24,14 @@ class RecommendationBucket extends DiscoveryItem {
         return source.get(RecommendationProperty.SEED_TRACK_URN);
     }
 
+    int getSeedTrackQueryPosition() {
+        return source.get(RecommendationProperty.QUERY_POSITION);
+    }
+
+    Urn getQueryUrn() {
+        return source.get(RecommendationProperty.QUERY_URN);
+    }
+
     List<Recommendation> getRecommendations() {
         return recommendations;
     }

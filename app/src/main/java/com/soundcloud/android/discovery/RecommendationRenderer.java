@@ -33,27 +33,31 @@ import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
 class RecommendationRenderer implements CellRenderer<Recommendation> {
+
     public static final int NUM_SEED_TRACKS = 1;
 
-    private final Screen screen;
+    private final Screen trackingScreen;
     private final ImageOperations imageOperations;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final Navigator navigator;
+    private final RecommendationsTracker tracker;
 
-    public RecommendationRenderer(Screen screen,
+    public RecommendationRenderer(Screen trackingScreen,
                                   @Provided ImageOperations imageOperations,
                                   @Provided TrackItemMenuPresenter trackItemMenuPresenter,
                                   @Provided PlaybackInitiator playbackInitiator,
                                   @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                                  @Provided Navigator navigator) {
-        this.screen = screen;
+                                  @Provided Navigator navigator,
+                                  @Provided RecommendationsTracker tracker) {
+        this.trackingScreen = trackingScreen;
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.navigator = navigator;
+        this.tracker = tracker;
     }
 
     @Override
@@ -99,26 +103,27 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         ButterKnife.findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);
     }
 
-    private void setOnClickListener(final int position,
-                                    View view,
-                                    final List<Recommendation> recommendations,
+    private void setOnClickListener(final int position, View view, final List<Recommendation> recommendations,
                                     final Recommendation viewModel) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                playbackInitiator.playTracks(
-                        toPlayQueue(viewModel.getSeedUrn(), recommendations),
-                        position + NUM_SEED_TRACKS,
-                        new PlaySessionSource(screen))
+            public void onClick(View view) {
+                tracker.trackRecommendationClick(trackingScreen, viewModel.getTrackUrn(), viewModel.getQueryUrn());
+
+                final PlaySessionSource playSessionSource = PlaySessionSource.forRecommendations(trackingScreen,
+                        viewModel.getQueryPosition(), viewModel.getQueryUrn());
+                final List<Urn> playQueue = buildPlayQueue(viewModel.getSeedUrn(), recommendations);
+                final int playPosition = position + NUM_SEED_TRACKS;
+
+                playbackInitiator
+                        .playTracks(playQueue, playPosition, playSessionSource)
                         .subscribe(expandPlayerSubscriberProvider.get());
             }
         });
     }
 
     private void loadTrackArtwork(View view, TrackItem track) {
-        imageOperations.displayInAdapterView(
-                track,
-                ApiImageSize.getFullImageSize(view.getResources()),
+        imageOperations.displayInAdapterView(track, ApiImageSize.getFullImageSize(view.getResources()),
                 ButterKnife.<ImageView>findById(view, R.id.recommendation_artwork)
         );
     }
@@ -133,9 +138,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Urn> toPlayQueue(Urn seedUrn, List<Recommendation> recommendations) {
-        return newArrayList(concat(
-                singleton(seedUrn),
-                transform(recommendations, Recommendation.TO_TRACK_URN)));
+    private List<Urn> buildPlayQueue(Urn seedUrn, List<Recommendation> recommendations) {
+        return newArrayList(concat(singleton(seedUrn), transform(recommendations, Recommendation.TO_TRACK_URN)));
     }
 }

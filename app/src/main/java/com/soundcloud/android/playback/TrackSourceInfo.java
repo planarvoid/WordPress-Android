@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.java.objects.MoreObjects;
@@ -23,6 +24,7 @@ public class TrackSourceInfo {
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
     private StationsSourceInfo stationsSourceInfo;
+    private RecommendationsSourceInfo recommendationsSourceInfo;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
         this.originScreen = originScreen;
@@ -43,6 +45,10 @@ public class TrackSourceInfo {
     public void setStationSourceInfo(Urn stationUrn, StationsSourceInfo sourceInfo) {
         this.collectionUrn = stationUrn;
         this.stationsSourceInfo = sourceInfo;
+    }
+
+    public void setRecommendationsSourceInfo(RecommendationsSourceInfo sourceInfo) {
+        this.recommendationsSourceInfo = sourceInfo;
     }
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -67,6 +73,10 @@ public class TrackSourceInfo {
 
     public StationsSourceInfo getStationsSourceInfo() {
         return stationsSourceInfo;
+    }
+
+    public RecommendationsSourceInfo getRecommendationsSourceInfo() {
+        return recommendationsSourceInfo;
     }
 
     public boolean hasStationsSourceInfo() {
@@ -115,6 +125,10 @@ public class TrackSourceInfo {
 
     public boolean isFromStation() {
         return collectionUrn != Urn.NOT_SET && collectionUrn.isStation();
+    }
+
+    public boolean isFromRecommendations() {
+        return recommendationsSourceInfo != null;
     }
 
     public boolean isFromSearchQuery() {

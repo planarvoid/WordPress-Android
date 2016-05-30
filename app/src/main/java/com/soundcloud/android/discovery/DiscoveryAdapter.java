@@ -82,7 +82,6 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
                 }
             }
         }
-
         notifyDataSetChanged();
     }
 }

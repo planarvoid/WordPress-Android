@@ -39,12 +39,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class RecommendationBucketRendererTest extends AndroidUnitTest {
+
     private static final long SEED_ID = 1;
+    private static final int QUERY_POSITION = 1;
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
-    private final static ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
-    private final static TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final static Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false);
-    private final static List<Urn> TRACKS_LIST = Arrays.asList(SEED_TRACK.getUrn(), RECOMMENDED_TRACK.getUrn());
+    private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
+    private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false, QUERY_POSITION, Urn.NOT_SET);
+    private static final List<Urn> TRACKS_LIST = Arrays.asList(SEED_TRACK.getUrn(), RECOMMENDED_TRACK.getUrn());
 
     @Mock private ImageOperations imageOperations;
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
@@ -52,6 +54,8 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
     @Mock private RecommendationRendererFactory recommendationRendererFactory;
+    @Mock private RecommendationsTracker tracker;
+
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
 
     @Before
@@ -105,7 +109,7 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
         ButterKnife.<TextView>findById(itemView, R.id.reason).performClick();
 
-        verify(playbackInitiator).playTracks(TRACKS_LIST, 0, new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN));
+        verify(playbackInitiator).playTracks(TRACKS_LIST, 0, new PlaySessionSource(Screen.SEARCH_MAIN));
     }
 
     @Test
@@ -132,21 +136,21 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     }
 
     private RecommendationBucketRenderer createViewAllRenderer() {
-        return new RecommendationBucketRenderer(Screen.RECOMMENDATIONS_MAIN,
-                                                true,
+        return new RecommendationBucketRenderer(true,
                                                 playbackInitiator,
                                                 expandPlayerSubscriberProvider,
                                                 recommendationRendererFactory,
-                                                navigator);
+                                                navigator,
+                                                tracker);
     }
 
     private RecommendationBucketRenderer createDefaultRenderer() {
-        return new RecommendationBucketRenderer(Screen.RECOMMENDATIONS_MAIN,
-                                                false,
+        return new RecommendationBucketRenderer(false,
                                                 playbackInitiator,
                                                 expandPlayerSubscriberProvider,
                                                 recommendationRendererFactory,
-                                                navigator);
+                                                navigator,
+                                                tracker);
     }
 
     private View createItemView(RecommendationBucketRenderer renderer) {
@@ -158,7 +162,9 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
                 RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(SEED_ID),
                 RecommendationProperty.SEED_TRACK_URN.bind(SEED_TRACK.getUrn()),
                 RecommendationProperty.SEED_TRACK_TITLE.bind(SEED_TRACK.getTitle()),
-                RecommendationProperty.REASON.bind(REASON)
+                RecommendationProperty.REASON.bind(REASON),
+                RecommendationProperty.QUERY_POSITION.bind(QUERY_POSITION),
+                RecommendationProperty.QUERY_URN.bind(Urn.NOT_SET)
         );
     }
 

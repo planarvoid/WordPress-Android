@@ -6,11 +6,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -19,9 +17,7 @@ import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.rx.eventbus.EventBus;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.After;
@@ -34,20 +30,15 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class DiscoveryPresenterTest extends AndroidUnitTest {
-    public static final Urn TRACK_URN = Urn.forTrack(123L);
+
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final StationRecord STATION = StationFixtures.getStation(Urn.forTrackStation(123));
+
     @Mock private Fragment fragment;
     @Mock private Bundle bundle;
-
-    private static final Urn SEED_TRACK_URN = Urn.forTrack(123L);
-    private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK_URN, false);
-    private static final StationRecord STATION = StationFixtures.getStation(Urn.forTrackStation(123));
-    private static final List<Urn> TRACKLIST = Arrays.asList(SEED_TRACK_URN, RECOMMENDED_TRACK.getUrn());
-
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private DiscoveryOperations discoveryOperations;
     @Mock private DiscoveryAdapterFactory adapterFactory;
@@ -65,7 +56,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
-        when(recommendationBucketRendererFactory.create(any(Screen.class), any(Boolean.class))).thenReturn(recommendationBucketRenderer);
+        when(recommendationBucketRendererFactory.create(any(Boolean.class))).thenReturn(recommendationBucketRenderer);
         when(adapterFactory.create(any(RecommendationBucketRenderer.class))).thenReturn(adapter);
         when(discoveryOperations.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
 

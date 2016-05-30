@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -427,6 +428,14 @@ public class PlayQueueManager implements OriginProvider {
                     playSessionSource.getCollectionUrn(),
                     StationsSourceInfo.create(queryUrn)
             );
+        }
+
+        if (playSessionSource.isFromRecommendations()) {
+            final RecommendationsSourceInfo sourceInfo = playSessionSource.getRecommendationsSourceInfo();
+            if (sourceInfo != null) {
+                trackSourceInfo.setRecommendationsSourceInfo(sourceInfo);
+                trackSourceInfo.setSource(sourceInfo.getSource(), sourceInfo.getSourceVersion());
+            }
         }
 
         final Urn collectionUrn = playSessionSource.getCollectionUrn();

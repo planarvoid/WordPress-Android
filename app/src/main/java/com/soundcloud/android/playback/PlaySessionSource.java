@@ -4,6 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.collection.PlayHistoryController;
+import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
@@ -42,6 +43,7 @@ public class PlaySessionSource implements Parcelable {
     private String exploreVersion;
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
+    private RecommendationsSourceInfo recommendationsSourceInfo;
 
     public static PlaySessionSource forPlaylist(Screen screen, Urn playlist, Urn playlistOwner, int playlistSize) {
         return forPlaylist(screen.get(), playlist, playlistOwner, playlistSize);
@@ -88,6 +90,12 @@ public class PlaySessionSource implements Parcelable {
     public static PlaySessionSource forPlayHistory(Screen screen) {
         PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.collectionUrn = PlayHistoryController.PLAY_HISTORY_URN;
+        return playSessionSource;
+    }
+
+    public static PlaySessionSource forRecommendations(Screen screen, int queryPosition, Urn queryUrn) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        playSessionSource.recommendationsSourceInfo = RecommendationsSourceInfo.create(queryPosition, queryUrn);
         return playSessionSource;
     }
 
@@ -182,6 +190,10 @@ public class PlaySessionSource implements Parcelable {
         return originScreen.equals(Screen.STREAM.get()) && !isFromPlaylist();
     }
 
+    public boolean isFromRecommendations() {
+        return recommendationsSourceInfo != null;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -243,6 +255,11 @@ public class PlaySessionSource implements Parcelable {
     @Nullable
     public SearchQuerySourceInfo getSearchQuerySourceInfo() {
         return searchQuerySourceInfo;
+    }
+
+    @Nullable
+    public RecommendationsSourceInfo getRecommendationsSourceInfo() {
+        return recommendationsSourceInfo;
     }
 
     public void setPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {

@@ -41,6 +41,8 @@ public interface Tables {
         public static final Column SEED_SOUND_ID = Column.create(TABLE, "seed_sound_id");
         public static final Column SEED_SOUND_TYPE = Column.create(TABLE, "seed_sound_type");
         public static final Column RECOMMENDATION_REASON = Column.create(TABLE, "recommendation_reason");
+        public static final Column QUERY_POSITION = Column.create(TABLE, "query_position");
+        public static final Column QUERY_URN = Column.create(TABLE, "query_urn");
 
         public static final int REASON_LIKED = 0;
         public static final int REASON_LISTENED_TO = 1;
@@ -50,6 +52,8 @@ public interface Tables {
                 "seed_sound_id INTEGER, " +
                 "seed_sound_type INTEGER, " +
                 "recommendation_reason INTEGER, " +
+                "query_position INTEGER, " +
+                "query_urn TEXT, " +
                 "FOREIGN KEY(seed_sound_id, seed_sound_type) REFERENCES Sounds(_id, _type)" +
                 ");";
 

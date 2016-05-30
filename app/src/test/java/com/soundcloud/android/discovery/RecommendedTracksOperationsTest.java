@@ -32,8 +32,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class RecommendedTracksOperationsTest extends AndroidUnitTest {
+
     private static final long SEED_ID = 1;
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
+    private static final int QUERY_POSITION = 1;
+    private static final Urn QUERY_URN = Urn.NOT_SET;
     private static final Scheduler SCHEDULER = Schedulers.immediate();
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private static final List<ApiTrack> RECOMMENDED_TRACKS = ModelFixtures.create(ApiTrack.class, 2);
@@ -174,12 +177,11 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         assertThat(recommendationBucket.getSeedTrackUrn()).isEqualTo(SEED_TRACK.getUrn());
         assertThat(recommendationBucket.getSeedTrackTitle()).isEqualTo(SEED_TRACK.getTitle());
         assertThat(recommendationBucket.getRecommendationReason()).isEqualTo(REASON);
+        assertThat(recommendationBucket.getSeedTrackQueryPosition()).isEqualTo(QUERY_POSITION);
+        assertThat(recommendationBucket.getQueryUrn()).isEqualTo(QUERY_URN);
 
-        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getTitle()).isEqualTo(RECOMMENDED_TRACKS.get(0)
-                                                                                                                       .getTitle());
-        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(
-                RECOMMENDED_TRACKS.get(0)
-                                  .getUserName());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getTitle()).isEqualTo(RECOMMENDED_TRACKS.get(0).getTitle());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(RECOMMENDED_TRACKS.get(0).getUserName());
     }
 
     private PropertySet createSeed() {
@@ -187,7 +189,9 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
                 RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(SEED_ID),
                 RecommendationProperty.SEED_TRACK_URN.bind(SEED_TRACK.getUrn()),
                 RecommendationProperty.SEED_TRACK_TITLE.bind(SEED_TRACK.getTitle()),
-                RecommendationProperty.REASON.bind(REASON)
+                RecommendationProperty.REASON.bind(REASON),
+                RecommendationProperty.QUERY_POSITION.bind(QUERY_POSITION),
+                RecommendationProperty.QUERY_URN.bind(QUERY_URN)
         );
     }
 
