@@ -12,6 +12,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.DelayedLoadingDialogPresenter;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -26,7 +27,7 @@ public class StartStationPresenter {
     private final Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult = new Func1<StationRecord, Observable<PlaybackResult>>() {
         @Override
         public Observable<PlaybackResult> call(StationRecord station) {
-            checkArgument(!station.getTracks().isEmpty(), "The stationWithSeed does not have any tracks.");
+            checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
             final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screenProvider.getLastScreenTag(), station.getUrn());
             return playbackInitiator.playStation(station.getUrn(), station.getTracks(), playSessionSource, station.getPreviousPosition());
         }
@@ -105,8 +106,7 @@ public class StartStationPresenter {
         @Override
         public void onError(Throwable e) {
             delayedLoadingDialogPresenter.onError(context);
-            // Call on error after dismissing the dialog in order to report errors to Fabric.
-            super.onError(e);
+            ErrorUtils.handleSilentException(e);
         }
 
         @Override
