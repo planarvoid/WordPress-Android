@@ -47,7 +47,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
                                                       String quartileType)  {
         return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
                 .setQuartileTrackingUrls(quartileType, adData)
-                .put(AdTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
+                .put(EventLoggerTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
     }
 
     public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
@@ -69,9 +69,9 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
         super(kind, System.currentTimeMillis());
         this.trackSourceInfo = trackSourceInfo;
 
-        put(AdTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
-        put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
-        put(AdTrackingKeys.KEY_MONETIZATION_TYPE, adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO);
+        put(EventLoggerTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
+        put(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
+        put(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE, adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO);
     }
 
     public boolean isFirstPlay() {

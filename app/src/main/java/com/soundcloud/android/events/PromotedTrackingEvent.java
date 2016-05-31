@@ -22,25 +22,25 @@ public final class PromotedTrackingEvent extends TrackingEvent {
         super(kind, timeStamp);
         this.trackingUrls = trackingUrls;
 
-        put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_PROMOTED);
-        put(AdTrackingKeys.KEY_AD_URN, adUrn);
-        put(AdTrackingKeys.KEY_ORIGIN_SCREEN, screen);
-        put(AdTrackingKeys.KEY_AD_TRACK_URN, itemUrn);
+        put(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_PROMOTED);
+        put(EventLoggerTrackingKeys.KEY_AD_URN, adUrn);
+        put(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN, screen);
+        put(EventLoggerTrackingKeys.KEY_AD_TRACK_URN, itemUrn);
         if (promoterUrn.isPresent()) {
-            put(AdTrackingKeys.KEY_PROMOTER_URN, promoterUrn.get().toString());
+            put(EventLoggerTrackingKeys.KEY_PROMOTER_URN, promoterUrn.get().toString());
         }
     }
 
     public static PromotedTrackingEvent forPromoterClick(PromotedListItem promotedItem, String screen) {
         return basePromotedEvent(KIND_CLICK, promotedItem, promotedItem.getPromoterClickUrls(), screen)
-                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, promotedItem.getUrn().toString())
-                .put(AdTrackingKeys.KEY_CLICK_TARGET_URN, promotedItem.getPromoterUrn().get().toString());
+                .put(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN, promotedItem.getUrn().toString())
+                .put(EventLoggerTrackingKeys.KEY_CLICK_TARGET_URN, promotedItem.getPromoterUrn().get().toString());
     }
 
     public static PromotedTrackingEvent forItemClick(PromotedListItem promotedItem, String screen) {
         return basePromotedEvent(KIND_CLICK, promotedItem, promotedItem.getClickUrls(), screen)
-                .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, promotedItem.getUrn().toString())
-                .put(AdTrackingKeys.KEY_CLICK_TARGET_URN, promotedItem.getUrn().toString());
+                .put(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN, promotedItem.getUrn().toString())
+                .put(EventLoggerTrackingKeys.KEY_CLICK_TARGET_URN, promotedItem.getUrn().toString());
     }
 
     public static PromotedTrackingEvent forImpression(PromotedListItem promotedItem, String screen) {

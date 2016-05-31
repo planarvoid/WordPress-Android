@@ -9,7 +9,7 @@ public class AdFailedToBufferEvent extends TrackingEvent {
 
     public AdFailedToBufferEvent(Urn track, PlaybackProgress position, int failedAdWaitSecs) {
         super(KIND_DEFAULT, System.currentTimeMillis());
-        put(AdTrackingKeys.KEY_AD_URN, track.toString());
+        put(EventLoggerTrackingKeys.KEY_AD_URN, track.toString());
         put(PLAYBACK_POSITION, Long.toString(position.getPosition()));
         put(WAIT_PERIOD, Integer.toString(failedAdWaitSecs));
     }

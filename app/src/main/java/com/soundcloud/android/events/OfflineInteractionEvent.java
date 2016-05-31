@@ -105,10 +105,10 @@ public class OfflineInteractionEvent extends TrackingEvent {
 
     private OfflineInteractionEvent putPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
         if (promotedSourceInfo != null) {
-            put(AdTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn());
-            put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
+            put(EventLoggerTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn());
+            put(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
             if (promotedSourceInfo.getPromoterUrn().isPresent()) {
-                put(AdTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
+                put(EventLoggerTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
             }
         }
         return this;

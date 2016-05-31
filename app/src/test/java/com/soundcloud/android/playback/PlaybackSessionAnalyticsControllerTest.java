@@ -11,7 +11,7 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
-import com.soundcloud.android.events.AdTrackingKeys;
+import com.soundcloud.android.events.EventLoggerTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -93,7 +93,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
         AdPlaybackSessionEvent adEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(adEvent.get(AdTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
+        assertThat(adEvent.get(EventLoggerTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
     }
 
     @Test
@@ -186,8 +186,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         assertThat(playbackSessionEvent.isStopEvent()).isFalse();
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
     }
 
     @Test
@@ -209,8 +209,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         assertThat(playbackSessionEvent.hasTrackFinished()).isTrue();
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
     }
 
     @Test
@@ -229,9 +229,9 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         // ad specific properties
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("audio_ad");
     }
 
     @Test
@@ -247,8 +247,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo("ad:urn:123");
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promoter.toString());
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo("ad:urn:123");
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promoter.toString());
     }
 
     @Test
@@ -263,8 +263,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).isNull();
-        assertThat(playbackSessionEvent.get(AdTrackingKeys.KEY_PROMOTER_URN)).isNull();
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isNull();
+        assertThat(playbackSessionEvent.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN)).isNull();
     }
 
     @Test
@@ -324,7 +324,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
         assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).getTrackUrn()).isEqualTo(TRACK_URN);
-        assertThat(events.get(1).get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(events.get(1).get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
     }
 
     protected PlaybackStateTransition publishPlayingEvent() {

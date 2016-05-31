@@ -1029,11 +1029,11 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getVisualAd().getAdUrn().toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getVisualAd().getClickThroughUrl().toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getVisualAd().getAdUrn().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getVisualAd().getClickThroughUrl().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
         assertThat(uiEvent.getAdClickthroughUrls()).contains("comp_click1", "comp_click2");
     }
 
@@ -1043,10 +1043,10 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
         assertThat(uiEvent.getAdSkipUrls()).contains("audio_skip1", "audio_skip2");
     }
 
@@ -1055,11 +1055,11 @@ public class UIEventTest extends AndroidUnitTest {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
         UIEvent uiEvent = UIEvent.fromVideoAdFullscreen(videoAd, trackSourceInfo);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_FULLSCREEN);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
         assertThat(uiEvent.getVideoSizeChangeUrls()).contains("video_fullscreen1", "video_fullscreen2");
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
     }
 
     @Test
@@ -1067,11 +1067,11 @@ public class UIEventTest extends AndroidUnitTest {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
         UIEvent uiEvent = UIEvent.fromVideoAdShrink(videoAd, trackSourceInfo);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_SHRINK);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
         assertThat(uiEvent.getVideoSizeChangeUrls()).contains("video_exit_full1", "video_exit_full2");
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
     }
 
     @Test
@@ -1079,12 +1079,12 @@ public class UIEventTest extends AndroidUnitTest {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
         UIEvent uiEvent = UIEvent.fromVideoAdClickThrough(videoAd, trackSourceInfo);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_CLICKTHROUGH);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo("http://clickthrough.videoad.com");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo("http://clickthrough.videoad.com");
         assertThat(uiEvent.getAdClickthroughUrls()).contains("video_click1", "video_click2");
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
     }
 
     @Test
@@ -1092,11 +1092,11 @@ public class UIEventTest extends AndroidUnitTest {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(321L));
         UIEvent uiEvent = UIEvent.fromSkipVideoAdClick(videoAd, trackSourceInfo);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SKIP_VIDEO_AD_CLICK);
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(videoAd.getAdUrn().toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(321).toString());
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("video_ad");
         assertThat(uiEvent.getAdSkipUrls()).contains("video_skip1", "video_skip2");
-        assertThat(uiEvent.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
+        assertThat(uiEvent.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("origin screen");
     }
 
     @Test
