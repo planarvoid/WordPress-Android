@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.appboy.models.outgoing.AppboyProperties;
+import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -23,6 +24,7 @@ import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +40,13 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     private static final TrackItem TRACK = TrackItem.from(TRACK_PROPERTY_SET);
     private static final TrackSourceInfo TRACK_SOURCE_INFO = new TrackSourceInfo("origin", true);
     private static final String UUID = "uuid";
-    private static final PlaybackSessionEvent MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(TRACK_PROPERTY_SET, Urn.forUser(123L), TRACK_SOURCE_INFO, 0l, 10000l, "https", "player", "wifi", false, true, UUID);
-    private static final PlaybackSessionEvent NON_MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(TRACK_PROPERTY_SET, Urn.forUser(123L), TRACK_SOURCE_INFO, 0l, 10000l, "https", "player", "wifi", false, false, UUID);
+    private static final PlaybackSessionEvent MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
+            PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, Urn.forUser(123L), TRACK_SOURCE_INFO, 0l, "https",
+                    "player", "wifi", false, true, UUID, new TestDateProvider(10000l)));
+
+    private static final PlaybackSessionEvent NON_MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
+            PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, Urn.forUser(123L), TRACK_SOURCE_INFO, 0l, "https",
+                    "player", "wifi", false, false, UUID, new TestDateProvider(10000l)));
 
     private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = new AppboyProperties()
             .addProperty("creator_display_name", TRACK.getCreatorName())
@@ -119,9 +126,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotTrackPauseEvents() {
-        PlaybackSessionEvent event = PlaybackSessionEvent.forStop(TRACK_PROPERTY_SET, Urn.forUser(123L),
-                TRACK_SOURCE_INFO, NON_MARKETABLE_PLAY_EVENT, 0l, 10000l, "https", "player", "wifi",
-                PlaybackSessionEvent.STOP_REASON_PAUSE, false, UUID);
+        final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, Urn.forUser(123L), TRACK_SOURCE_INFO, 0l, "https", "player", "wifi", false, false, UUID, new TestDateProvider(10000l));
+        PlaybackSessionEvent event = PlaybackSessionEvent.forStop(NON_MARKETABLE_PLAY_EVENT, PlaybackSessionEvent.STOP_REASON_PAUSE, args);
 
         eventHandler.handleEvent(event);
 

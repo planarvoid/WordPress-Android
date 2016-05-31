@@ -38,6 +38,8 @@ import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.stream.StreamNavigationTarget;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.you.YouNavigationTarget;
 import com.soundcloud.reporting.FabricReporter;
@@ -79,6 +81,8 @@ public class ApplicationModule {
     public static final String HIGH_PRIORITY = "HighPriority";
     public static final String LOW_PRIORITY = "LowPriority";
     public static final String MAIN_LOOPER = "MainLooper";
+
+    public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
 
     private final SoundCloudApplication application;
 
@@ -301,5 +305,11 @@ public class ApplicationModule {
         } else {
             return new CompatLikeButtonPresenter(numberFormatter);
         }
+    }
+
+    @Provides
+    @Named(CURRENT_DATE_PROVIDER)
+    public DateProvider provideCurrentDateProvider() {
+        return new CurrentDateProvider();
     }
 }
