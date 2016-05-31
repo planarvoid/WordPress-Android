@@ -18,6 +18,8 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -53,6 +55,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
     @Mock private StopReasonProvider stopReasonProvider;
     @Mock private UuidProvider uuidProvider;
+    private DateProvider dateProvider = new TestDateProvider();
 
     @Before
     public void setUp() throws Exception {
@@ -66,7 +69,8 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
         analyticsController = new PlaybackSessionAnalyticsController(
-                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState, stopReasonProvider, uuidProvider);
+                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, appboyPlaySessionState,
+                stopReasonProvider, uuidProvider, dateProvider);
     }
 
     @Test
@@ -135,7 +139,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEventForLocalStoragePlayback() throws Exception {
         final PlaybackStateTransition startEvent = new PlaybackStateTransition(
                 PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, PROGRESS, DURATION);
-        startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        addStateExtras(startEvent);
         startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, "file://some/local/uri");
 
         analyticsController.onStateTransition(startEvent);
@@ -330,8 +334,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     protected PlaybackStateTransition publishPlayingEventForTrack(Urn trackUrn) {
         final PlaybackStateTransition startEvent = new PlaybackStateTransition(
                 PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, PROGRESS, DURATION);
-        startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
-
+        addStateExtras(startEvent);
         analyticsController.onStateTransition(startEvent);
 
         return startEvent;
@@ -340,7 +343,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     protected PlaybackStateTransition publishStopEvent(PlaybackState newState, PlayStateReason reason) {
         final PlaybackStateTransition stopEvent = new PlaybackStateTransition(
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
-        stopEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        addStateExtras(stopEvent);
         analyticsController.onStateTransition(stopEvent);
         return stopEvent;
     }
@@ -348,7 +351,7 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
     private PlaybackStateTransition publishStopEvent(PlaybackState newState, PlayStateReason reason, int stopReason) {
         final PlaybackStateTransition stopEvent = new PlaybackStateTransition(
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
-        stopEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        addStateExtras(stopEvent);
         when(stopReasonProvider.fromTransition(stopEvent)).thenReturn(stopReason);
         analyticsController.onStateTransition(stopEvent);
         return stopEvent;
@@ -364,5 +367,11 @@ public class PlaybackSessionAnalyticsControllerTest extends AndroidUnitTest {
         assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
         assertThat(playbackSessionEvent.getStopReason()).isEqualTo(stopReason);
         assertThat(playbackSessionEvent.getDuration()).isEqualTo(DURATION);
+    }
+
+    private void addStateExtras(PlaybackStateTransition startEvent) {
+        startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
+        startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, "skippy");
+        startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, "3g");
     }
 }
