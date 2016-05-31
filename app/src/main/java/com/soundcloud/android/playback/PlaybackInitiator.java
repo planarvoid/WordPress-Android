@@ -103,10 +103,9 @@ public class PlaybackInitiator {
                                                          boolean offlineTrackPriority) {
         return trackUrnsObservable
                 .flatMap(toShuffledPlayQueue(playSessionSource, offlineTrackPriority))
-                .flatMap(toPlaybackResult(Urn.NOT_SET, 0, playSessionSource))
+                .flatMap(toPlaybackResult(0, playSessionSource))
                 .observeOn(AndroidSchedulers.mainThread());
     }
-
 
     private Func1<List<Urn>, Observable<PlayQueue>> toShuffledPlayQueue(final PlaySessionSource playSessionSource,
                                                                         final boolean offlineTrackPriority) {

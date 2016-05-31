@@ -2,10 +2,11 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayNewQueue;
 import static com.soundcloud.android.testsupport.TestUrns.createTrackUrns;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -60,6 +61,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
 
     @Captor private ArgumentCaptor<PlayQueue> playQueueTracksCaptor;
+    @Captor private ArgumentCaptor<Urn> urnArgumentCaptor;
 
     private TestObserver<PlaybackResult> observer;
     private SearchQuerySourceInfo searchQuerySourceInfo;
@@ -75,7 +77,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1));
         when(playQueueManager.getScreenTag()).thenReturn(ORIGIN_SCREEN.get());
-        when(policyOperations.blockedStatuses(anyList())).thenReturn(Observable.just(Collections.<Urn, Boolean>emptyMap()));
+        when(policyOperations.blockedStatuses(anyListOf(Urn.class))).thenReturn(Observable.just(Collections.<Urn, Boolean>emptyMap()));
 
         observer = new TestObserver<>();
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, new Urn("soundcloud:tracks:1"));
@@ -92,7 +94,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void playTrackPlaysNewQueueFromInitialTrackWithBlockedStatus() {
-        when(policyOperations.blockedStatuses(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
+        when(policyOperations.blockedStatuses(singletonList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
 
         playbackInitiator.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
@@ -127,7 +129,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void playPostsPlaysNewQueueFromInitialTrackWithBlockedStatus() {
-        when(policyOperations.blockedStatuses(Arrays.asList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
+        when(policyOperations.blockedStatuses(singletonList(TRACK1))).thenReturn(Observable.just(Collections.singletonMap(TRACK1, true)));
         final PropertySet track = PropertySet.from(TrackProperty.URN.bind(TRACK1));
         playbackInitiator.playPosts(Observable.just(track).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
@@ -200,7 +202,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void playTrackWithRecommendationsPlaysQueueWithSeedAtSpecifiedPosition() {
-        final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(Arrays.asList(new ApiTrack()), "");
+        final RecommendedTracksCollection relatedTracks = new RecommendedTracksCollection(singletonList(new ApiTrack()), "");
         final PlayQueue relatedUrns = PlayQueue.fromRecommendationsWithPrependedSeed(TRACK1, relatedTracks);
         when(playQueueOperations.relatedTracksPlayQueueWithSeedTrack(TRACK1)).thenReturn(Observable.just(relatedUrns));
 
@@ -294,7 +296,7 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
 
         playbackInitiator.playTracksShuffled(Observable.just(tracksToPlay), playSessionSource, false).subscribe(observer);
 
-        verify(offlinePlaybackOperations, never()).findOfflineAvailableTracks(anyList());
+        verify(offlinePlaybackOperations, never()).findOfflineAvailableTracks(anyListOf(Urn.class));
         verify(playSessionController).playNewQueue(playQueueTracksCaptor.capture(), any(Urn.class), eq(0), eq(playSessionSource));
         final PlayQueue actualQueue = playQueueTracksCaptor.getValue();
         assertThat(actualQueue.getTrackItemUrns()).contains(TRACK1, TRACK2, TRACK3);
@@ -309,8 +311,17 @@ public class PlaybackInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playTracksShuffledReturnPlaybackResultWithValidTrack() {
+        final List<Urn> idsOrig = createTrackUrns(1L, 2L, 3L);
+        playbackInitiator.playTracksShuffled(Observable.just(idsOrig), new PlaySessionSource(Screen.YOUR_LIKES), false).subscribe(observer);
+
+        verify(playSessionController).playNewQueue(any(PlayQueue.class), urnArgumentCaptor.capture(), eq(0), any(PlaySessionSource.class));
+        assertThat(urnArgumentCaptor.getValue()).isNotEqualTo(Urn.NOT_SET);
+    }
+
+    @Test
     public void playTrackShuffledCreatesPlayQueueWithOfflineTrackPriority() {
-        final List<Urn> offlineTracks = Collections.singletonList(TRACK2);
+        final List<Urn> offlineTracks = singletonList(TRACK2);
         final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
         final boolean offlineContentEnabled = true;
