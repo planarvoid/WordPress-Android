@@ -98,9 +98,7 @@ public class PlaylistDiscoveryOperations {
     }
 
     public Observable<DiscoveryItem> playlistTags() {
-        return popularPlaylistTags()
-                .zipWith(recentPlaylistTags(), TAGS_TO_DISCOVERY_ITEM_LIST)
-                .onErrorResumeNext(ON_ERROR_EMPTY_ITEM_LIST);
+        return popularPlaylistTags().zipWith(recentPlaylistTags(), TAGS_TO_DISCOVERY_ITEM_LIST);
     }
 
     public Observable<List<String>> recentPlaylistTags() {
