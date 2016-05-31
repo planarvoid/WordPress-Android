@@ -32,7 +32,7 @@ public class AudioAdTest extends AdBaseTest {
 
         swipeToAd();
 
-        playerElement.waitForAdToBeDone();
+        playerElement.waitForAudioAdToBeDone();
         finishEventTracking(SCENARIO_AUDIO_AD_QUARTILES);
     }
 
