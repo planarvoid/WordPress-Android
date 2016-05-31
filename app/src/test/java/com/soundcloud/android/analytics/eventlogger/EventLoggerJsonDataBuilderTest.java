@@ -33,7 +33,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -42,7 +41,6 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +48,6 @@ import org.mockito.Mock;
 
 import android.support.annotation.NonNull;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -450,157 +447,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createsAudioEventJsonForAudioPlaybackEvent() throws ApiMapperException {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(createEventArgs(track, 0L, new TestDateProvider(321L)));
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
-
-        jsonDataBuilder.buildForAudioEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
-                .trigger("manual")
-                .action("play")
-                .source("source")
-                .sourceVersion("source-version")
-                .playlistId("123")
-                .playlistPositionV0("2")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .connectionType("3g"));
-    }
-
-    @Test
-    public void createsAudioFinishedEventJson() throws ApiMapperException, CreateModelException {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
-
-        final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createEventArgs(track, 0L, new TestDateProvider(321L)));
-        final PlaybackSessionEventArgs args = createEventArgs(track, 123L, new TestDateProvider());
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(playEvent, PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING, args);
-
-        jsonDataBuilder.buildForAudioEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
-                .trigger("manual")
-                .action("stop")
-                .source("source")
-                .sourceVersion("source-version")
-                .playlistId("123")
-                .playlistPositionV0("2")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .reason("concurrent_streaming")
-                .connectionType("3g"));
-    }
-
-    @Test
-    public void createsAudioEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
-        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
-                createEventArgs(audioAdTrack, 0L, new TestDateProvider(321L)));
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
-
-        jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(audioAdTrack.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
-                .trigger("manual")
-                .action("play")
-                .source("source")
-                .sourceVersion("source-version")
-                .playlistId("123")
-                .playlistPositionV0("2")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .connectionType("3g")
-                .adUrn(audioAd.getAdUrn().toString())
-                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
-                .monetizationType("audio_ad"));
-    }
-
-    @Test
-    public void createsStopAudioEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
-        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
-        final PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(
-                createEventArgs(audioAdTrack, 0L, new TestDateProvider(321L)));
-        final PlaybackSessionEventArgs args = createEventArgs(audioAdTrack, 0L, new TestDateProvider(456L));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(playbackSessionEvent, PlaybackSessionEvent.STOP_REASON_BUFFERING, args);
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
-        trackSourceInfo.setSearchQuerySourceInfo(searchQuerySourceInfo);
-
-        jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(audioAdTrack.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
-                .action("stop")
-                .reason("buffer_underrun")
-                .trigger("manual")
-                .source("source")
-                .sourceVersion("source-version")
-                .playlistId("123")
-                .playlistPositionV0("2")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .connectionType("3g")
-                .adUrn(audioAd.getAdUrn().toString())
-                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
-                .monetizationType("audio_ad")
-                .queryUrn("some:search:urn")
-                .queryPosition(5));
-    }
-
-    @Test
-    public void createAudioEventJsonWithAdMetadataForPromotedTrackPlay() throws Exception {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final PromotedSourceInfo promotedSource = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L),
-                Optional.of(Urn.forUser(123L)), Arrays.asList("promoted1", "promoted2"));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
-                createEventArgs(track, 0L, new TestDateProvider(321L)));
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
-
-        jsonDataBuilder.buildForAudioEvent(event.withPromotedTrack(promotedSource));
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
-                .trigger("manual")
-                .action("play")
-                .source("source")
-                .sourceVersion("source-version")
-                .playlistId("123")
-                .playlistPositionV0("2")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .connectionType("3g")
-                .adUrn("ad:urn:123")
-                .monetizationType("promoted")
-                .promotedBy("soundcloud:users:123"));
-    }
-
-    @Test
     public void createsPlaybackPerformanceJsonForPlayEvent() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HTTPS, PlayerType.MEDIA_PLAYER, ConnectionType.FOUR_G, CDN_URL, MEDIA_TYPE, BIT_RATE, LOGGED_IN_USER, false);
 
@@ -723,117 +569,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition(5));
-    }
-
-    @Test
-    public void createsStationsAudioEventJsonForAudioPlaybackEvent() throws ApiMapperException {
-        final Urn stationUrn = Urn.forTrackStation(123L);
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
-                createEventArgs(track, 0L, new TestDateProvider(321L)));
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setStationSourceInfo(stationUrn, StationsSourceInfo.create(new Urn("soundcloud:radio:123-456")));
-
-        jsonDataBuilder.buildForAudioEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
-                .trigger("manual")
-                .action("play")
-                .source("source")
-                .sourceVersion("source-version")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .sourceUrn(stationUrn.toString())
-                .queryUrn("soundcloud:radio:123-456")
-                .connectionType("3g"));
-    }
-
-    @Test
-    public void createsStationsSeedTrackAudioEventJsonForAudioPlaybackEvent() throws ApiMapperException {
-        final Urn stationUrn = Urn.forTrackStation(123L);
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
-                createEventArgs(track, 0L, new TestDateProvider(321L)));
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setStationSourceInfo(stationUrn, StationsSourceInfo.create(Urn.NOT_SET));
-
-        jsonDataBuilder.buildForAudioEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
-                .trigger("manual")
-                .action("play")
-                .source("source")
-                .sourceVersion("source-version")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .sourceUrn(stationUrn.toString())
-                .connectionType("3g"));
-    }
-
-    @Test
-    public void createsStationsAudioEventJsonForAudioPauseEvent() throws ApiMapperException {
-        final Urn stationUrn = Urn.forTrackStation(123L);
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createEventArgs(track, 0L, new TestDateProvider(321L)));
-        final PlaybackSessionEventArgs args = createEventArgs(track, 123L, new TestDateProvider());
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(playEvent, PlaybackSessionEvent.STOP_REASON_ERROR, args);
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setStationSourceInfo(stationUrn, StationsSourceInfo.create(new Urn("soundcloud:radio:123-456")));
-
-        jsonDataBuilder.buildForAudioEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
-                .trigger("manual")
-                .action("stop")
-                .source("source")
-                .sourceVersion("source-version")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .sourceUrn(stationUrn.toString())
-                .queryUrn("soundcloud:radio:123-456")
-                .reason("playback_error")
-                .connectionType("3g"));
-    }
-
-    @Test
-    public void createsStationsSeedTrackAudioEventJsonForAudioPauseEvent() throws ApiMapperException {
-        final Urn stationUrn = Urn.forTrackStation(123L);
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createEventArgs(track, 0L, new TestDateProvider(321L)));
-        final PlaybackSessionEventArgs args = createEventArgs(track, 123L, new TestDateProvider());
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(playEvent, PlaybackSessionEvent.STOP_REASON_ERROR, args);
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setStationSourceInfo(stationUrn, StationsSourceInfo.create(Urn.NOT_SET));
-
-        jsonDataBuilder.buildForAudioEvent(event);
-
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", event.getTimestamp())
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(track.get(TrackProperty.FULL_DURATION))
-                .sound("soundcloud:sounds:" + track.get(TrackProperty.URN).getNumericId())
-                .trigger("manual")
-                .action("stop")
-                .source("source")
-                .sourceVersion("source-version")
-                .protocol("hls")
-                .playerType("PLAYA")
-                .sourceUrn(stationUrn.toString())
-                .reason("playback_error")
-                .connectionType("3g"));
     }
 
     @Test

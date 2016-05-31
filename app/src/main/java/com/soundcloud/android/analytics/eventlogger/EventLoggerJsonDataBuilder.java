@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
@@ -34,7 +33,6 @@ public class EventLoggerJsonDataBuilder {
     private static final String PAGEVIEW_EVENT = "pageview";
     private static final String CLICK_EVENT = "click";
     private static final String IMPRESSION_EVENT = "impression";
-    private static final String AUDIO_EVENT = "audio";
     private static final String FOREGROUND_EVENT = "foreground";
     private static final String AUDIO_PERFORMANCE_EVENT = "audio_performance";
     private static final String AUDIO_ERROR_EVENT = "audio_error";
@@ -232,61 +230,6 @@ public class EventLoggerJsonDataBuilder {
                 .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
                 .impressionName(impressionName)
                 .impressionObject(impressionObject);
-    }
-
-    public String buildForAudioEvent(PlaybackSessionEvent event) {
-        return transform(buildAudioEvent(event));
-    }
-
-    private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {
-        final Urn urn = event.getTrackUrn();
-        EventLoggerEventData data = buildBaseEvent(AUDIO_EVENT, event)
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .duration(event.getDuration())
-                .sound(getLegacyTrackUrn(urn.toString()))
-                .trigger(getTrigger(event.getTrackSourceInfo()))
-                .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
-                .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
-                .connectionType(event.get(PlaybackSessionEvent.CONNECTION_TYPE))
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
-                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN));
-
-        TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
-
-        if (event.isPlayEvent()) {
-            data.action("play");
-        } else {
-            data.action("stop");
-            data.reason(getStopReason(event));
-        }
-
-        if (trackSourceInfo.hasSource()) {
-            data.source(trackSourceInfo.getSource());
-            data.sourceVersion(trackSourceInfo.getSourceVersion());
-        }
-        if (trackSourceInfo.isFromPlaylist()) {
-            data.playlistId(String.valueOf(trackSourceInfo.getCollectionUrn().getNumericId()));
-            data.playlistPositionV0(String.valueOf(trackSourceInfo.getPlaylistPosition()));
-        }
-
-        if (trackSourceInfo.isFromSearchQuery()) {
-            SearchQuerySourceInfo searchQuerySourceInfo = trackSourceInfo.getSearchQuerySourceInfo();
-            data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
-            data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
-        }
-
-        if (trackSourceInfo.isFromStation()) {
-            // When updating it, please update V1 too. Your friend.
-            data.sourceUrn(trackSourceInfo.getCollectionUrn().toString());
-
-            if (!trackSourceInfo.getStationsSourceInfo().getQueryUrn().equals(Urn.NOT_SET)) {
-                data.queryUrn(trackSourceInfo.getStationsSourceInfo().getQueryUrn().toString());
-            }
-        }
-
-        return data;
     }
 
     public String build(PlaybackPerformanceEvent event) {
