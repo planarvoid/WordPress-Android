@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
-import com.soundcloud.android.events.EventLoggerTrackingKeys;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -454,7 +454,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         final AdFailedToBufferEvent event = (AdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
-        assertThat(event.getAttributes().get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(trackUrn.toString());
+        assertThat(event.getAttributes().get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(trackUrn.toString());
         assertThat(event.getAttributes().get(AdFailedToBufferEvent.PLAYBACK_POSITION)).isEqualTo("12");
         assertThat(event.getAttributes().get(AdFailedToBufferEvent.WAIT_PERIOD)).isEqualTo("6");
     }
@@ -472,7 +472,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         final AdFailedToBufferEvent event = (AdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
-        assertThat(event.getAttributes().get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(videoAdUrn.toString());
+        assertThat(event.getAttributes().get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(videoAdUrn.toString());
         assertThat(event.getAttributes().get(AdFailedToBufferEvent.PLAYBACK_POSITION)).isEqualTo("12");
         assertThat(event.getAttributes().get(AdFailedToBufferEvent.WAIT_PERIOD)).isEqualTo("6");
     }

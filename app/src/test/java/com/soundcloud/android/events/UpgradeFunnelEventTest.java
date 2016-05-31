@@ -32,7 +32,7 @@ public class UpgradeFunnelEventTest {
 
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION);
         assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_PLAYER);
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_PAGE_URN)).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_PAGE_URN)).isEqualTo(Urn.forTrack(123).toString());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class UpgradeFunnelEventTest {
 
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
         assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_PLAYER);
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_PAGE_URN)).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_PAGE_URN)).isEqualTo(Urn.forTrack(123).toString());
     }
 
     @Test

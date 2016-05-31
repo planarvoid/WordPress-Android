@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.EngagementsTracking;
-import com.soundcloud.android.events.EventLoggerTrackingKeys;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -158,6 +158,6 @@ public class TrackPageListenerTest extends AndroidUnitTest {
 
         final TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_PAGE_URN)).isEqualTo(track.toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_PAGE_URN)).isEqualTo(track.toString());
     }
 }

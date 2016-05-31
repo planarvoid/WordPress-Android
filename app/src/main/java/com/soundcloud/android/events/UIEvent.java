@@ -88,7 +88,7 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
-                .<UIEvent>put(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
                 .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(playable);
@@ -102,7 +102,7 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(isRepost ? KIND_REPOST : KIND_UNREPOST)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
-                .<UIEvent>put(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
                 .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(entityMetadata);
@@ -129,7 +129,7 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_SHARE)
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
                 .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
-                .<UIEvent>put(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
+                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
                 .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(playable);
@@ -192,15 +192,15 @@ public final class UIEvent extends TrackingEvent {
         final UIEvent event = new UIEvent(KIND_VIDEO_AD_CLICKTHROUGH, System.currentTimeMillis());
         return withBasicVideoAdAttributes(event, videoAd, trackSourceInfo)
                 .addPromotedTrackingUrls(CLICKTHROUGHS, videoAd.getClickUrls())
-                .put(EventLoggerTrackingKeys.KEY_CLICK_THROUGH_URL, videoAd.getClickThroughUrl().toString());
+                .put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, videoAd.getClickThroughUrl().toString());
     }
 
     private static UIEvent withBasicVideoAdAttributes(UIEvent adEvent, VideoAd videoAd, TrackSourceInfo trackSourceInfo) {
         return adEvent
-                .put(EventLoggerTrackingKeys.KEY_AD_URN, videoAd.getAdUrn().toString())
-                .put(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN, videoAd.getMonetizableTrackUrn().toString())
-                .put(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_VIDEO_AD)
-                .put(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
+                .put(PlayableTrackingKeys.KEY_AD_URN, videoAd.getAdUrn().toString())
+                .put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, videoAd.getMonetizableTrackUrn().toString())
+                .put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_VIDEO_AD)
+                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
     }
 
     public static UIEvent fromAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
@@ -214,16 +214,16 @@ public final class UIEvent extends TrackingEvent {
     @VisibleForTesting
     public static UIEvent fromAudioAdCompanionDisplayClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
-                .<UIEvent>put(EventLoggerTrackingKeys.KEY_AD_URN, audioAd.getVisualAd().getAdUrn().toString())
-                .<UIEvent>put(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
-                .<UIEvent>put(EventLoggerTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.getVisualAd().getClickThroughUrl().toString())
+                .<UIEvent>put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getVisualAd().getAdUrn().toString())
+                .<UIEvent>put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
+                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.getVisualAd().getClickThroughUrl().toString())
                 .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.getVisualAd().getClickUrls());
     }
 
     @VisibleForTesting
     public static UIEvent fromSkipAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
         return withBasicAudioAdAttributes(new UIEvent(KIND_SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
-                .<UIEvent>put(EventLoggerTrackingKeys.KEY_AD_URN, audioAd.getAdUrn().toString())
+                .<UIEvent>put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getAdUrn().toString())
                 .addPromotedTrackingUrls(SKIPS, audioAd.getSkipUrls());
     }
 
@@ -234,12 +234,12 @@ public final class UIEvent extends TrackingEvent {
 
     private static UIEvent withBasicAudioAdAttributes(UIEvent event, AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
         return event
-                .put(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN, audioAdTrack.toString())
-                .put(EventLoggerTrackingKeys.KEY_USER_URN, user.toString())
-                .put(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString())
-                .put(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
-                .put(EventLoggerTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString())
-                .put(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
+                .put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, audioAdTrack.toString())
+                .put(PlayableTrackingKeys.KEY_USER_URN, user.toString())
+                .put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString())
+                .put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
+                .put(PlayableTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString())
+                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
     }
 
     private static String getNotNullOriginScreen(@Nullable TrackSourceInfo trackSourceInfo) {
@@ -270,11 +270,11 @@ public final class UIEvent extends TrackingEvent {
 
     public UIEvent putPromotedItemKeys(@Nullable PromotedSourceInfo promotedSourceInfo) {
         if (promotedSourceInfo != null) {
-            this.put(EventLoggerTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn())
-                    .put(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
+            this.put(PlayableTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn())
+                    .put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
 
             if (promotedSourceInfo.getPromoterUrn().isPresent()) {
-                this.put(EventLoggerTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
+                this.put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
             }
         }
         return this;
@@ -283,8 +283,8 @@ public final class UIEvent extends TrackingEvent {
     private UIEvent putEventContextMetadata(@NonNull EventContextMetadata contextMetadata) {
         this.eventContextMetadata = contextMetadata;
 
-        put(EventLoggerTrackingKeys.KEY_PAGE_URN, contextMetadata.pageUrn().toString())
-                .put(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN, contextMetadata.pageName());
+        put(PlayableTrackingKeys.KEY_PAGE_URN, contextMetadata.pageUrn().toString())
+                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, contextMetadata.pageName());
         return this;
     }
 

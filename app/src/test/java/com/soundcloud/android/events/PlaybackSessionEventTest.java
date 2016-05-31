@@ -126,9 +126,9 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                 createArgs(PROGRESS, TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN), new TestDateProvider(1000L))).withAudioAd(audioAd);
 
         assertThat(event.isAd()).isTrue();
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo("dfp:ads:869");
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(TRACK_URN.toString());
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo("dfp:ads:869");
+        assertThat(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(TRACK_URN.toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
         assertThat(event.getAudioAdImpressionUrls()).contains("audio_impression1", "audio_impression2");
         assertThat(event.getAudioAdCompanionImpressionUrls()).contains("comp_impression1", "comp_impression2");
         assertThat(event.getAudioAdFinishUrls()).contains("audio_finish1", "audio_finish2");

@@ -18,9 +18,9 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
         assertCommonProperties(click);
         assertThat(click.getKind()).isEqualTo("click");
-        assertThat(click.get(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getUrn().toString());
-        assertThat(click.get(EventLoggerTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
-        assertThat(click.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getUrn().toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
     }
 
     @Test
@@ -29,9 +29,9 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
         assertCommonProperties(click);
         assertThat(click.getKind()).isEqualTo("click");
-        assertThat(click.get(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getUrn().toString());
-        assertThat(click.get(EventLoggerTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getUrn().toString());
-        assertThat(click.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getUrn().toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getUrn().toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
         assertCommonProperties(impression);
         assertThat(impression.getKind()).isEqualTo("impression");
-        assertThat(impression.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
+        assertThat(impression.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
     }
 
     @Test
@@ -48,14 +48,14 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
         PromotedListItem noPromoter = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
         PromotedTrackingEvent click = PromotedTrackingEvent.forItemClick(noPromoter, "stream");
 
-        assertThat(click.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN)).isNull();
+        assertThat(click.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isNull();
     }
 
     private void assertCommonProperties(PromotedTrackingEvent event) {
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("stream");
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("promoted");
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_AD_URN)).isEqualTo(promotedTrack.getAdUrn());
-        assertThat(event.get(EventLoggerTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(promotedTrack.getUrn().toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN)).isEqualTo("stream");
+        assertThat(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)).isEqualTo("promoted");
+        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(promotedTrack.getAdUrn());
+        assertThat(event.get(PlayableTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(promotedTrack.getUrn().toString());
     }
 
 }

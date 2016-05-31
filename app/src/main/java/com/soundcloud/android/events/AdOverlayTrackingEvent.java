@@ -26,22 +26,22 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
         super(kindImpression, timeStamp);
         this.trackingUrls = trackingUrls;
 
-        put(EventLoggerTrackingKeys.KEY_USER_URN, user.toString());
-        put(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN, monetizableTrack.toString());
-        put(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL, adData.getImageUrl());
-        put(EventLoggerTrackingKeys.KEY_CLICK_THROUGH_URL, adData.getClickthroughUrl().toString());
-        put(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN, getNonNullOriginScreenValue(trackSourceInfo));
-        put(EventLoggerTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
+        put(PlayableTrackingKeys.KEY_USER_URN, user.toString());
+        put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, monetizableTrack.toString());
+        put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, adData.getImageUrl());
+        put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, adData.getClickthroughUrl().toString());
+        put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNonNullOriginScreenValue(trackSourceInfo));
+        put(PlayableTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
 
         if (adData instanceof LeaveBehindAd) {
-            put(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_AUDIO_AD);
-            put(EventLoggerTrackingKeys.KEY_AD_TYPE, TYPE_LEAVE_BEHIND);
-            put(EventLoggerTrackingKeys.KEY_AD_TRACK_URN, ((LeaveBehindAd) adData).getAudioAdUrn().toString());
-            put(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN, ((LeaveBehindAd) adData).getAudioAdUrn().toString());
+            put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_AUDIO_AD);
+            put(PlayableTrackingKeys.KEY_AD_TYPE, TYPE_LEAVE_BEHIND);
+            put(PlayableTrackingKeys.KEY_AD_TRACK_URN, ((LeaveBehindAd) adData).getAudioAdUrn().toString());
+            put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, ((LeaveBehindAd) adData).getAudioAdUrn().toString());
         } else if (adData instanceof InterstitialAd) {
-            put(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_INTERSTITIAL);
-            put(EventLoggerTrackingKeys.KEY_AD_TYPE, TYPE_INTERSTITIAL);
-            put(EventLoggerTrackingKeys.KEY_AD_TRACK_URN, monetizableTrack.toString());
+            put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_INTERSTITIAL);
+            put(PlayableTrackingKeys.KEY_AD_TYPE, TYPE_INTERSTITIAL);
+            put(PlayableTrackingKeys.KEY_AD_TRACK_URN, monetizableTrack.toString());
         }
     }
 

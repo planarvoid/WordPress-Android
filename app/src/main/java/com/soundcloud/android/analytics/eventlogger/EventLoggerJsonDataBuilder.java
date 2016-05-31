@@ -7,7 +7,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
-import com.soundcloud.android.events.EventLoggerTrackingKeys;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -88,15 +88,15 @@ public class EventLoggerJsonDataBuilder {
 
     private EventLoggerEventData getEngagementEvent(String clickName, UIEvent event) {
         final EventLoggerEventData eventData =  buildBaseEvent(CLICK_EVENT, event)
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN))
-                .monetizationType(event.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE))
-                .promotedBy(event.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN))
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
+                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
                 .clickName(clickName)
-                .clickObject(event.get(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN));
+                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN));
 
-        if (!event.get(EventLoggerTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
-            eventData.pageUrn(event.get(EventLoggerTrackingKeys.KEY_PAGE_URN));
+        if (!event.get(PlayableTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
+            eventData.pageUrn(event.get(PlayableTrackingKeys.KEY_PAGE_URN));
         }
 
         return eventData;
@@ -104,25 +104,25 @@ public class EventLoggerJsonDataBuilder {
 
     private EventLoggerEventData getAudioAdSkipClickEvent(UIEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
-                .pageName(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
                 .clickName("ad::skip")
-                .clickObject(event.get(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN))
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .monetizedObject(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
-                .externalMedia(event.get(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL));
+                .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL));
     }
 
     private EventLoggerEventData getAudioAdClickEvent(UIEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
-                .pageName(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
                 .clickName("clickthrough::companion_display")
-                .clickTarget(event.get(EventLoggerTrackingKeys.KEY_CLICK_THROUGH_URL))
-                .clickObject(event.get(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN))
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .monetizedObject(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL))
+                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
-                .externalMedia(event.get(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL));
+                .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL));
     }
 
     public String build(AdOverlayTrackingEvent event) {
@@ -135,25 +135,25 @@ public class EventLoggerJsonDataBuilder {
 
     private EventLoggerEventData getAudioAdImpressionEvent(AdOverlayTrackingEvent event) {
         return buildBaseEvent(IMPRESSION_EVENT, event)
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN))
-                .externalMedia(event.get(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL))
-                .impressionName(event.get(EventLoggerTrackingKeys.KEY_AD_TYPE))
-                .impressionObject(event.get(EventLoggerTrackingKeys.KEY_AD_TRACK_URN))
-                .monetizedObject(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(event.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE));
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
+                .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL))
+                .impressionName(event.get(PlayableTrackingKeys.KEY_AD_TYPE))
+                .impressionObject(event.get(PlayableTrackingKeys.KEY_AD_TRACK_URN))
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE));
     }
 
     private EventLoggerEventData getAudioAdClickThroughEvent(AdOverlayTrackingEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN))
-                .clickTarget(event.get(EventLoggerTrackingKeys.KEY_CLICK_THROUGH_URL))
-                .clickObject(event.get(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN))
-                .clickName("clickthrough::" + event.get(EventLoggerTrackingKeys.KEY_AD_TYPE))
-                .externalMedia(event.get(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL))
-                .monetizedObject(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(event.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE));
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
+                .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL))
+                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .clickName("clickthrough::" + event.get(PlayableTrackingKeys.KEY_AD_TYPE))
+                .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL))
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE));
     }
 
     public String build(VisualAdImpressionEvent event) {
@@ -162,13 +162,13 @@ public class EventLoggerJsonDataBuilder {
 
     private EventLoggerEventData getVisualAdImpressionData(VisualAdImpressionEvent event) {
         return buildBaseEvent(IMPRESSION_EVENT, event)
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN))
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
                 .impressionName("companion_display")
-                .impressionObject(event.get(EventLoggerTrackingKeys.KEY_AD_TRACK_URN))
-                .monetizedObject(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .impressionObject(event.get(PlayableTrackingKeys.KEY_AD_TRACK_URN))
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
-                .externalMedia(event.get(EventLoggerTrackingKeys.KEY_AD_ARTWORK_URL));
+                .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL));
     }
 
     public String buildForAdFinished(PlaybackSessionEvent event) {
@@ -177,11 +177,11 @@ public class EventLoggerJsonDataBuilder {
 
     private EventLoggerEventData buildAudioAdFinishedEvent(PlaybackSessionEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .clickObject(event.getTrackUrn().toString())
                 .clickName("ad::finish")
-                .monetizedObject(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
     }
 
@@ -191,11 +191,11 @@ public class EventLoggerJsonDataBuilder {
 
     private EventLoggerEventData buildAudioAdImpressionEvent(PlaybackSessionEvent event) {
         return buildBaseEvent(IMPRESSION_EVENT, event)
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .impressionName("audio_ad_impression")
-                .impressionObject(event.get(EventLoggerTrackingKeys.KEY_AD_TRACK_URN))
-                .monetizedObject(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .impressionObject(event.get(PlayableTrackingKeys.KEY_AD_TRACK_URN))
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
     }
 
@@ -213,23 +213,23 @@ public class EventLoggerJsonDataBuilder {
 
     private EventLoggerEventData getPromotedClickEvent(PromotedTrackingEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN))
-                .monetizationType(event.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE))
-                .promotedBy(event.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN))
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
+                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
                 .clickName("item_navigation")
-                .clickObject(event.get(EventLoggerTrackingKeys.KEY_CLICK_OBJECT_URN))
-                .clickTarget(event.get(EventLoggerTrackingKeys.KEY_CLICK_TARGET_URN));
+                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_TARGET_URN));
     }
 
     private EventLoggerEventData getPromotedImpressionEvent(PromotedTrackingEvent event) {
-        String impressionObject = event.get(EventLoggerTrackingKeys.KEY_AD_TRACK_URN);
+        String impressionObject = event.get(PlayableTrackingKeys.KEY_AD_TRACK_URN);
         String impressionName = new Urn(impressionObject).isPlaylist() ? "promoted_playlist" : "promoted_track";
         return buildBaseEvent(IMPRESSION_EVENT, event)
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .pageName(event.get(EventLoggerTrackingKeys.KEY_ORIGIN_SCREEN))
-                .monetizationType(event.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE))
-                .promotedBy(event.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN))
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
+                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN))
                 .impressionName(impressionName)
                 .impressionObject(impressionObject);
     }
@@ -248,10 +248,10 @@ public class EventLoggerJsonDataBuilder {
                 .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
                 .connectionType(event.get(PlaybackSessionEvent.CONNECTION_TYPE))
-                .adUrn(event.get(EventLoggerTrackingKeys.KEY_AD_URN))
-                .monetizedObject(event.get(EventLoggerTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(event.get(EventLoggerTrackingKeys.KEY_MONETIZATION_TYPE))
-                .promotedBy(event.get(EventLoggerTrackingKeys.KEY_PROMOTER_URN));
+                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN));
 
         TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
 

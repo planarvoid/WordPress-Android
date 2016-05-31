@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-public class EventLoggerTrackingKeys {
+public class PlayableTrackingKeys {
     public static final String KEY_USER_URN = "user_urn";
     public static final String KEY_MONETIZABLE_TRACK_URN = "monetizable_track_urn";
     public static final String KEY_AD_ARTWORK_URL = "ad_artwork_url";
