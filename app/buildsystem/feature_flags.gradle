@@ -8,7 +8,6 @@ enum Feature {
   PUBLISH_PLAY_EVENTS_TO_TPUB,
   DISCOVERY_CHARTS,
   DISCOVERY_RECOMMENDATIONS,
-  PROFILE_NEW_TABS,
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
   EDIT_PLAYLIST,
   USER_STATIONS,
@@ -21,7 +20,6 @@ android {
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
     buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
     buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), FALSE
@@ -33,7 +31,6 @@ android {
     alpha {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
@@ -43,13 +40,11 @@ android {
     beta {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
     }
 
     debug {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
     }
@@ -57,7 +52,6 @@ android {
     release {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
     }
 
     releaseNoProguard {
@@ -68,7 +62,6 @@ android {
     releaseNonPlayStore {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PROFILE_NEW_TABS.name(), TRUE
     }
   }
 }

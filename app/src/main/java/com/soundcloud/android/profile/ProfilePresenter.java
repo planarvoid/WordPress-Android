@@ -8,8 +8,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.UriUtils;
@@ -36,7 +34,6 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
     private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
-    private final FeatureFlags featureFlags;
 
     private ViewPager pager;
     private Subscription userSubscription = RxUtils.invalidSubscription();
@@ -56,14 +53,12 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
                             ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
                             UserProfileOperations profileOperations,
                             EventBus eventBus,
-                            AccountOperations accountOperations,
-                            FeatureFlags featureFlags) {
+                            AccountOperations accountOperations) {
         this.scrollHelper = scrollHelper;
         this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
-        this.featureFlags = featureFlags;
         LightCycles.bind(this);
     }
 
@@ -79,15 +74,9 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
 
         pager = (ViewPager) activity.findViewById(R.id.pager);
 
-        if (featureFlags.isEnabled(Flag.FEATURE_PROFILE_NEW_TABS)) {
-            pager.setAdapter(new ProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
-                    (SearchQuerySourceInfo) activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
-            pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
-        } else {
-            pager.setAdapter(new LegacyProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
-                    (SearchQuerySourceInfo) activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
-            pager.setCurrentItem(LegacyProfilePagerAdapter.TAB_POSTS);
-        }
+        pager.setAdapter(new ProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
+                (SearchQuerySourceInfo) activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
+        pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
 
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
