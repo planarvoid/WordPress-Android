@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.collection.PlayHistoryController;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
@@ -82,6 +83,12 @@ public class PlaySessionSource implements Parcelable {
         final PlaySessionSource source = new PlaySessionSource(screen);
         source.collectionUrn = artist;
         return source;
+    }
+
+    public static PlaySessionSource forPlayHistory(Screen screen) {
+        PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        playSessionSource.collectionUrn = PlayHistoryController.PLAY_HISTORY_URN;
+        return playSessionSource;
     }
 
     public PlaySessionSource(Parcel in) {

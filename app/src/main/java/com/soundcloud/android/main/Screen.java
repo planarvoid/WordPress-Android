@@ -28,6 +28,7 @@ public enum Screen {
     PLAYLISTS("collection:playlists"),
     OFFLINE_ONBOARDING("collection:offline_onboarding"),
     OFFLINE_OFFBOARDING("collection:offline_offboarding"),
+    PLAY_HISTORY("collection:play_history"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),

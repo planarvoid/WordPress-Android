@@ -14,11 +14,42 @@ import com.soundcloud.java.strings.Strings;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
-final class TrackItemMapper extends RxResultMapper<PropertySet> {
+public final class TrackItemMapper extends RxResultMapper<PropertySet> {
 
     private static final String SHARING_PRIVATE = "private";
+
+    public static final List<String> BASE_TRACK_FIELDS =
+            Collections.unmodifiableList(Arrays.asList(
+                    SoundView._ID,
+                    SoundView.TITLE,
+                    SoundView.USERNAME,
+                    SoundView.USER_ID,
+                    SoundView.SNIPPET_DURATION,
+                    SoundView.FULL_DURATION,
+                    SoundView.PLAYBACK_COUNT,
+                    SoundView.COMMENT_COUNT,
+                    SoundView.COMMENTABLE,
+                    SoundView.LIKES_COUNT,
+                    SoundView.REPOSTS_COUNT,
+                    SoundView.WAVEFORM_URL,
+                    SoundView.STREAM_URL,
+                    SoundView.ARTWORK_URL,
+                    SoundView.POLICIES_MONETIZABLE,
+                    SoundView.POLICIES_BLOCKED,
+                    SoundView.POLICIES_SNIPPED,
+                    SoundView.POLICIES_POLICY,
+                    SoundView.POLICIES_SUB_HIGH_TIER,
+                    SoundView.POLICIES_MONETIZATION_MODEL,
+                    SoundView.PERMALINK_URL,
+                    SoundView.SHARING,
+                    SoundView.CREATED_AT,
+                    SoundView.OFFLINE_DOWNLOADED_AT,
+                    SoundView.OFFLINE_REMOVED_AT));
 
     @Override
     public PropertySet map(CursorReader cursorReader) {

@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.collection.PlayHistoryActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -316,6 +317,10 @@ public class Navigator {
 
     public void openTrackLikes(Context context) {
         context.startActivity(new Intent(context, TrackLikesActivity.class));
+    }
+
+    public void openPlayHistory(Context context) {
+        context.startActivity(new Intent(context, PlayHistoryActivity.class));
     }
 
     public void openPlaylistDiscoveryTag(Context context, String playlistTag) {

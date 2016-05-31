@@ -8,8 +8,9 @@ public abstract class PlayHistoryRecord {
 
     private static final int CONTEXT_OTHER = 0;
     private static final int CONTEXT_PLAYLIST = 1;
-    private static final int CONTEXT_STATION = 2;
-    private static final int CONTEXT_ARTIST = 3;
+    private static final int CONTEXT_TRACK_STATION = 2;
+    private static final int CONTEXT_ARTIST_STATION = 3;
+    private static final int CONTEXT_ARTIST = 4;
 
     public static PlayHistoryRecord create(long timestamp, Urn trackUrn, Urn contextUrn) {
         return builder()
@@ -33,11 +34,29 @@ public abstract class PlayHistoryRecord {
         if (contextUrn().isPlaylist()) {
             return CONTEXT_PLAYLIST;
         } else if (contextUrn().isStation()) {
-            return CONTEXT_STATION;
+            return CONTEXT_TRACK_STATION;
+        } else if (contextUrn().isArtistStation()) {
+            return CONTEXT_ARTIST_STATION;
         } else if (contextUrn().isUser()) {
             return CONTEXT_ARTIST;
         } else {
             return CONTEXT_OTHER;
+        }
+    }
+
+    // todo: this is for next story (collection-324)
+    static Urn contextUrnFor(int contextType, long contextId) {
+        switch (contextType) {
+            case CONTEXT_PLAYLIST:
+                return Urn.forPlaylist(contextId);
+            case CONTEXT_TRACK_STATION:
+                return Urn.forTrackStation(contextId);
+            case CONTEXT_ARTIST_STATION:
+                return Urn.forArtistStation(contextId);
+            case CONTEXT_ARTIST:
+                return Urn.forUser(contextId);
+            default:
+                return Urn.NOT_SET;
         }
     }
 

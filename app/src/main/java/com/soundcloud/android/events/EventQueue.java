@@ -44,6 +44,7 @@ public final class EventQueue {
     public static final Queue<UploadEvent> UPLOAD = Queue.of(UploadEvent.class).onError(ON_ERROR).replay(UploadEvent.idle()).get();
     public static final Queue<PolicyUpdateEvent> POLICY_UPDATES = Queue.of(PolicyUpdateEvent.class).onError(ON_ERROR).get();
     public static final Queue<StreamEvent> STREAM = Queue.of(StreamEvent.class).onError(ON_ERROR).get();
+    public static final Queue<PlayHistoryEvent> PLAY_HISTORY = Queue.of(PlayHistoryEvent.class).onError(ON_ERROR).get();
 
     // tracking event queues
     public static final Queue<TrackingEvent> TRACKING = Queue.of(TrackingEvent.class).onError(ON_ERROR).get();

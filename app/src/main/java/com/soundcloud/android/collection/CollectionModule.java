@@ -9,7 +9,9 @@ import dagger.Module;
                 CollectionFragment.class,
                 CollectionPreviewView.class,
                 GoOnboardingActivity.class,
-                ConfirmRemoveOfflineDialogFragment.class
+                ConfirmRemoveOfflineDialogFragment.class,
+                PlayHistoryActivity.class,
+                PlayHistoryFragment.class
         }
 )
 public class CollectionModule {

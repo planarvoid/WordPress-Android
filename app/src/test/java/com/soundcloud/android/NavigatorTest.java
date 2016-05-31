@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.collection.PlayHistoryActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
@@ -490,5 +491,13 @@ public class NavigatorTest extends AndroidUnitTest {
                 .intentExtraIsNotNull(UserPlaylistsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)
                 .containsScreen(Screen.USER_PLAYLISTS)
                 .opensActivity(UserPlaylistsActivity.class);
+    }
+
+    @Test
+    public void opensPlayHistory() {
+        navigator.openPlayHistory(activityContext);
+
+        assertThat(activityContext).nextStartedIntent()
+                .opensActivity(PlayHistoryActivity.class);
     }
 }

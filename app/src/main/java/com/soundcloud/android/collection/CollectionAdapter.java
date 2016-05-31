@@ -9,7 +9,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem, RecyclerItemAdapter.ViewHolder>
-        implements CollectionPlaylistHeaderRenderer.OnSettingsClickListener, CollectionPlaylistRemoveFilterRenderer.OnRemoveFilterListener {
+        implements CollectionHeaderRenderer.OnSettingsClickListener, CollectionPlaylistRemoveFilterRenderer.OnRemoveFilterListener {
 
     private final OnboardingItemCellRenderer onboardingItemCellRenderer;
     private Listener listener;
@@ -22,17 +22,22 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
     @Inject
     public CollectionAdapter(OnboardingItemCellRenderer onboardingItemCellRenderer,
                              CollectionPreviewRenderer collectionPreviewRenderer,
-                             CollectionPlaylistHeaderRenderer headerRenderer,
+                             CollectionHeaderRenderer headerRenderer,
                              CollectionPlaylistRemoveFilterRenderer removeFilterRenderer,
                              CollectionEmptyPlaylistsRenderer emptyPlaylistsRenderer,
-                             CollectionPlaylistItemRenderer playlistRenderer) {
+                             CollectionPlaylistItemRenderer playlistRenderer,
+                             CollectionsTrackItemRenderer trackItemRenderer,
+                             CollectionsViewAllRenderer viewAllRenderer) {
         super(
                 new CellRendererBinding<>(CollectionItem.TYPE_ONBOARDING, onboardingItemCellRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_COLLECTIONS_PREVIEW, collectionPreviewRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_HEADER, headerRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_REMOVE_FILTER, removeFilterRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_EMPTY_PLAYLISTS, emptyPlaylistsRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_ITEM, playlistRenderer));
+                new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_ITEM, playlistRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_TRACKS_HEADER, headerRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_TRACKS_ITEM, trackItemRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_TRACKS_VIEW_ALL, viewAllRenderer));
         this.onboardingItemCellRenderer = onboardingItemCellRenderer;
 
         headerRenderer.setOnSettingsClickListener(this);

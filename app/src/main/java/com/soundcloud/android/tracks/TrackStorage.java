@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.tracks.TrackItemMapper.BASE_TRACK_FIELDS;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
 import com.soundcloud.android.model.Urn;
@@ -13,6 +14,8 @@ import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 class TrackStorage {
 
@@ -44,36 +47,13 @@ class TrackStorage {
     }
 
     private Query buildTrackQuery(Urn trackUrn) {
+        List<Object> fields = new ArrayList<>(BASE_TRACK_FIELDS.size() + 2);
+        fields.addAll(BASE_TRACK_FIELDS);
+        fields.add(exists(likeQuery(trackUrn)).as(TableColumns.SoundView.USER_LIKE));
+        fields.add(exists(repostQuery(trackUrn)).as(TableColumns.SoundView.USER_REPOST));
+
         return Query.from(Table.SoundView.name())
-                .select(
-                        TableColumns.SoundView._ID,
-                        TableColumns.SoundView.TITLE,
-                        TableColumns.SoundView.USERNAME,
-                        TableColumns.SoundView.USER_ID,
-                        TableColumns.SoundView.SNIPPET_DURATION,
-                        TableColumns.SoundView.FULL_DURATION,
-                        TableColumns.SoundView.PLAYBACK_COUNT,
-                        TableColumns.SoundView.COMMENT_COUNT,
-                        TableColumns.SoundView.COMMENTABLE,
-                        TableColumns.SoundView.LIKES_COUNT,
-                        TableColumns.SoundView.REPOSTS_COUNT,
-                        TableColumns.SoundView.WAVEFORM_URL,
-                        TableColumns.SoundView.STREAM_URL,
-                        TableColumns.SoundView.ARTWORK_URL,
-                        TableColumns.SoundView.POLICIES_MONETIZABLE,
-                        TableColumns.SoundView.POLICIES_BLOCKED,
-                        TableColumns.SoundView.POLICIES_SNIPPED,
-                        TableColumns.SoundView.POLICIES_POLICY,
-                        TableColumns.SoundView.POLICIES_SUB_HIGH_TIER,
-                        TableColumns.SoundView.POLICIES_MONETIZATION_MODEL,
-                        TableColumns.SoundView.PERMALINK_URL,
-                        TableColumns.SoundView.SHARING,
-                        TableColumns.SoundView.CREATED_AT,
-                        TableColumns.SoundView.OFFLINE_DOWNLOADED_AT,
-                        TableColumns.SoundView.OFFLINE_REMOVED_AT,
-                        exists(likeQuery(trackUrn)).as(TableColumns.SoundView.USER_LIKE),
-                        exists(repostQuery(trackUrn)).as(TableColumns.SoundView.USER_REPOST)
-                )
+                .select(fields.toArray())
                 .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
     }

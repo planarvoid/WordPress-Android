@@ -1,12 +1,14 @@
 package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.collection.CollectionOperations.PLAYLIST_LIMIT;
+import static com.soundcloud.android.collection.CollectionOperations.PLAY_HISTORY_LIMIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
 import com.soundcloud.android.model.EntityProperty;
@@ -18,6 +20,8 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
@@ -30,6 +34,7 @@ import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -47,8 +52,11 @@ import java.util.List;
 
 public class CollectionOperationsTest extends AndroidUnitTest {
 
+    private static final List<TrackItem> PLAY_HISTORY = ModelFixtures.trackItems(3);
+
     private CollectionOperations operations;
 
+    @Mock private FeatureFlags featureFlags;
     @Mock private SyncStateStorage syncStateStorage;
     @Mock private SyncInitiator syncInitiator;
     @Mock private PlaylistPostStorage playlistPostStorage;
@@ -57,6 +65,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Mock private StationsOperations stationsOperations;
     @Mock private CollectionOptionsStorage collectionOptionsStorage;
     @Mock private OfflineStateOperations offlineStateOperations;
+    @Mock private PlayHistoryOperations playHistoryOperations;
 
     private TestSubscriber<MyCollection> subscriber = new TestSubscriber<>();
     private List<LikedTrackPreview> trackPreviews = Arrays.asList(
@@ -76,6 +85,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
         operations = new CollectionOperations(
+                featureFlags,
                 eventBus,
                 Schedulers.immediate(),
                 syncStateStorage,
@@ -85,7 +95,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 syncInitiator,
                 stationsOperations,
                 collectionOptionsStorage,
-                offlineStateOperations);
+                offlineStateOperations,
+                playHistoryOperations);
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));
@@ -93,6 +104,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(syncStateStorage.hasSyncedBefore(SyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
         when(stationsOperations.sync()).thenReturn(Observable.just(SyncResult.success("stations sync", true)));
+        when(playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT)).thenReturn(Observable.just(PLAY_HISTORY));
+        when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
         postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
         postedPlaylist2 = getPostedPlaylist(Urn.forPlaylist(2L), new Date(3), "banana");
         likedPlaylist1 = getLikedPlaylist(Urn.forPlaylist(3L), new Date(2), "cherry");
@@ -175,14 +188,17 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.<List<LikedTrackPreview>>error(exception));
         when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
+        when(playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT)).thenReturn(Observable.<List<TrackItem>>error(exception));
 
         operations.collections(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikes().getTrackPreviews()).isEqualTo(Collections.emptyList());
-        assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Collections.emptyList());
-        assertThat(subscriber.getOnNextEvents().get(0).getRecentStations()).isEqualTo(Collections.emptyList());
-        assertThat(subscriber.getOnNextEvents().get(0).hasError()).isTrue();
+        MyCollection collection = subscriber.getOnNextEvents().get(0);
+        assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getRecentStations()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getPlayHistoryTrackItems()).isEqualTo(Collections.emptyList());
+        assertThat(collection.hasError()).isTrue();
     }
 
     @Test
@@ -192,13 +208,16 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final RuntimeException exception = new RuntimeException("Test");
         when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
+        when(playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT)).thenReturn(Observable.<List<TrackItem>>error(exception));
 
         operations.collections(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
-        assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Collections.emptyList());
-        assertThat(subscriber.getOnNextEvents().get(0).getRecentStations()).isEqualTo(Collections.emptyList());
+        MyCollection collection = subscriber.getOnNextEvents().get(0);
+        assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
+        assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getRecentStations()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getPlayHistoryTrackItems()).isEqualTo(Collections.emptyList());
     }
 
     @Test
@@ -349,14 +368,17 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         subject.onNext(true);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-        assertThat(subscriber.getOnNextEvents().get(0).getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
-        assertThat(subscriber.getOnNextEvents().get(0).getPlaylistItems()).isEqualTo(Arrays.asList(
+        MyCollection collection = subscriber.getOnNextEvents().get(0);
+
+        assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
+        assertThat(collection.getPlaylistItems()).isEqualTo(Arrays.asList(
                 PlaylistItem.from(likedPlaylist3Offline),
                 PlaylistItem.from(likedPlaylist2),
                 PlaylistItem.from(postedPlaylist2),
                 PlaylistItem.from(likedPlaylist1),
                 PlaylistItem.from(postedPlaylist1)
         ));
+        assertThat(collection.getPlayHistoryTrackItems()).isEqualTo(PLAY_HISTORY);
     }
 
     @Test
@@ -385,6 +407,16 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         operations.onCollectionChanged().subscribe(subscriber);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistsMarkedForDownload(Collections.singletonList(Urn.forPlaylist(123))));
+
+        assertThat(subscriber.getOnNextEvents()).hasSize(1);
+    }
+
+    @Test
+    public void onCollectionChangedShouldSendAnEventWhenATrackHasBeenAddedToPlayHistory() {
+        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
+        operations.onCollectionChanged().subscribe(subscriber);
+
+        eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(Urn.forTrack(123L)));
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }

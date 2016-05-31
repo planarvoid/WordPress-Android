@@ -1,6 +1,8 @@
 package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.PLAY_HISTORY;
+import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_ADDED;
 import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
@@ -17,6 +19,8 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -25,6 +29,7 @@ import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.collections.Sets;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -33,7 +38,7 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import rx.functions.Func3;
+import rx.functions.Func4;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -50,7 +55,9 @@ import java.util.Set;
 public class CollectionOperations {
 
     @VisibleForTesting static final int PLAYLIST_LIMIT = 1000; // Arbitrarily high, we don't want to worry about paging
+    @VisibleForTesting static final int PLAY_HISTORY_LIMIT = 3;
 
+    private final FeatureFlags featureFlags;
     private final EventBus eventBus;
     private final Scheduler scheduler;
     private final SyncStateStorage syncStateStorage;
@@ -61,6 +68,7 @@ public class CollectionOperations {
     private final StationsOperations stationsOperations;
     private final CollectionOptionsStorage collectionOptionsStorage;
     private final OfflineStateOperations offlineStateOperations;
+    private final PlayHistoryOperations playHistoryOperations;
 
     private static final Func1<List<PropertySet>, List<PropertySet>> REMOVE_DUPLICATE_PLAYLISTS = new Func1<List<PropertySet>, List<PropertySet>>() {
         @Override
@@ -120,10 +128,10 @@ public class CollectionOperations {
         }
     };
 
-    private static final Func3<List<PlaylistItem>, LikesItem, List<StationRecord>, MyCollection> TO_MY_COLLECTIONS = new Func3<List<PlaylistItem>, LikesItem, List<StationRecord>, MyCollection>() {
+    private static final Func4<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, MyCollection> TO_MY_COLLECTIONS = new Func4<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, MyCollection>() {
         @Override
-        public MyCollection call(List<PlaylistItem> playlistItems, LikesItem likes, List<StationRecord> recentStations) {
-            return new MyCollection(likes, playlistItems, recentStations, false);
+        public MyCollection call(List<PlaylistItem> playlistItems, LikesItem likes, List<StationRecord> recentStations, List<TrackItem> playHistoryTrackItems) {
+            return new MyCollection(likes, playlistItems, recentStations, playHistoryTrackItems, false);
         }
     };
 
@@ -134,23 +142,25 @@ public class CollectionOperations {
         }
     };
 
-    private static final Func3<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<MyCollection>> TO_MY_COLLECTIONS_OR_ERROR =
-            new Func3<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<MyCollection>>() {
+    private static final Func4<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<List<TrackItem>>, Notification<MyCollection>> TO_MY_COLLECTIONS_OR_ERROR =
+            new Func4<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<List<TrackItem>>, Notification<MyCollection>>() {
                 @Override
                 public Notification<MyCollection> call(Notification<List<PlaylistItem>> playlists,
-                                                        Notification<LikesItem> likes,
-                                                        Notification<List<StationRecord>> recentStations) {
-                    if (playlists.isOnCompleted() && likes.isOnCompleted() && recentStations.isOnCompleted()) {
+                                                       Notification<LikesItem> likes,
+                                                       Notification<List<StationRecord>> recentStations,
+                                                       Notification<List<TrackItem>> playHistoryTrackItems) {
+                    if (playlists.isOnCompleted() && likes.isOnCompleted() && recentStations.isOnCompleted() && playHistoryTrackItems.isOnCompleted()) {
                         return Notification.createOnCompleted();
                     }
                     return Notification.createOnNext(new MyCollection(
                             likes.isOnError() ? LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()) : likes.getValue(),
                             playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue(),
                             recentStations.isOnError() ? Collections.<StationRecord>emptyList() : recentStations.getValue(),
-                            likes.isOnError() || playlists.isOnError() || recentStations.isOnError()
+                            playHistoryTrackItems.isOnError() ? Collections.<TrackItem>emptyList() : playHistoryTrackItems.getValue(),
+                            likes.isOnError() || playlists.isOnError() || recentStations.isOnError() || playHistoryTrackItems.isOnError()
                     ));
                 }
-    };
+            };
 
     private static final Func1<SyncResult, Boolean> IS_RECENT_STATIONS_SYNC_EVENT = new Func1<SyncResult, Boolean>() {
         @Override
@@ -183,7 +193,8 @@ public class CollectionOperations {
     };
 
     @Inject
-    CollectionOperations(EventBus eventBus,
+    CollectionOperations(FeatureFlags featureFlags,
+                         EventBus eventBus,
                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                          SyncStateStorage syncStateStorage,
                          PlaylistPostStorage playlistPostStorage,
@@ -192,7 +203,9 @@ public class CollectionOperations {
                          SyncInitiator syncInitiator,
                          StationsOperations stationsOperations,
                          CollectionOptionsStorage collectionOptionsStorage,
-                         OfflineStateOperations offlineStateOperations) {
+                         OfflineStateOperations offlineStateOperations,
+                         PlayHistoryOperations playHistoryOperations) {
+        this.featureFlags = featureFlags;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncStateStorage = syncStateStorage;
@@ -203,11 +216,13 @@ public class CollectionOperations {
         this.stationsOperations = stationsOperations;
         this.collectionOptionsStorage = collectionOptionsStorage;
         this.offlineStateOperations = offlineStateOperations;
+        this.playHistoryOperations = playHistoryOperations;
     }
 
     public Observable<Object> onCollectionChanged() {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
+                eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_ADDED),
                 eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_RECENT_STATIONS_SYNC_EVENT)
         );
     }
@@ -217,6 +232,7 @@ public class CollectionOperations {
                 myPlaylists(options).materialize(),
                 likesItem().materialize(),
                 recentStations().materialize(),
+                playHistoryItems().materialize(),
                 TO_MY_COLLECTIONS_OR_ERROR
         ).dematerialize();
     }
@@ -252,6 +268,16 @@ public class CollectionOperations {
                 TO_LIKES_ITEM);
     }
 
+    private Observable<List<TrackItem>> playHistoryItems() {
+        if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
+            return playHistoryOperations
+                    .playHistory(PLAY_HISTORY_LIMIT)
+                    .subscribeOn(scheduler);
+        } else {
+            return Observable.just(Collections.<TrackItem>emptyList());
+        }
+    }
+
     private Observable<OfflineState> likedTracksOfflineState() {
         return offlineStateOperations.loadLikedTracksOfflineState();
     }
@@ -278,6 +304,7 @@ public class CollectionOperations {
                         likedTracksOfflineState(),
                         TO_LIKES_ITEM),
                 refreshRecentStationsAndLoad(),
+                playHistoryItems(),
                 TO_MY_COLLECTIONS
         );
     }

@@ -32,8 +32,5 @@
         soundcloud:collectionIcon="@drawable/ic_collection_stations"
         soundcloud:collectionTitle="@string/stations_collection_title_recent_stations" />
 
-    <View style="@style/Divider.Section" />
-    <View style="@style/Divider.Background" />
-
 </LinearLayout>
 

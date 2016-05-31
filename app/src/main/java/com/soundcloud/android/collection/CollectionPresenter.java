@@ -9,7 +9,10 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
@@ -35,33 +38,29 @@ import java.util.List;
 
 public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem> implements CollectionAdapter.Listener, CollectionPlaylistOptionsPresenter.Listener, OnboardingItemCellRenderer.Listener {
 
-    private static final int NON_PLAYLIST_COLLECTION_ITEMS = 4;
+    private static final int NON_PLAYLIST_OR_TRACK_COLLECTION_ITEMS = 6;
 
     @VisibleForTesting
     final Func1<MyCollection, Iterable<CollectionItem>> toCollectionItems =
             new Func1<MyCollection, Iterable<CollectionItem>>() {
                 @Override
                 public List<CollectionItem> call(MyCollection myCollection) {
+                    List<TrackItem> playHistoryTrackItems = myCollection.getPlayHistoryTrackItems();
                     List<PlaylistItem> playlistItems = myCollection.getPlaylistItems();
-                    List<CollectionItem> collectionItems = new ArrayList<>(playlistItems.size() + NON_PLAYLIST_COLLECTION_ITEMS);
+                    List<CollectionItem> collectionItems = new ArrayList<>(playlistItems.size() +
+                            playHistoryTrackItems.size() + NON_PLAYLIST_OR_TRACK_COLLECTION_ITEMS);
 
                     if (collectionOptionsStorage.isOnboardingEnabled()) {
                         collectionItems.add(CollectionItem.fromOnboarding());
                     }
 
                     collectionItems.add(CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()));
+                    collectionItems.addAll(playlistCollectionItems(playlistItems));
 
-                    collectionItems.add(CollectionItem.fromPlaylistHeader());
-
-                    for (PlaylistItem playlistItem : playlistItems) {
-                        collectionItems.add(CollectionItem.fromPlaylistItem(playlistItem));
-                    }
-
-                    // TODO. We should test this once we know the rules
-                    if (isCurrentlyFiltered()) {
-                        collectionItems.add(CollectionItem.fromKillFilter());
-                    } else if (playlistItems.isEmpty()) {
-                        collectionItems.add(CollectionItem.fromEmptyPlaylists());
+                    if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
+                        if (playHistoryTrackItems.size() > 0) {
+                            collectionItems.addAll(playHistoryCollectionItems(playHistoryTrackItems));
+                        }
                     }
 
                     return collectionItems;
@@ -89,6 +88,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Col
     private final CollectionPlaylistOptionsPresenter optionsPresenter;
     private final Resources resources;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
 
     private CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private PlaylistsOptions currentOptions;
@@ -107,7 +107,8 @@ public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Col
                         CollectionAdapter adapter,
                         CollectionPlaylistOptionsPresenter optionsPresenter,
                         Resources resources,
-                        EventBus eventBus) {
+                        EventBus eventBus,
+                        FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, Options.defaults());
         this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.collectionOperations = collectionOperations;
@@ -116,6 +117,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Col
         this.optionsPresenter = optionsPresenter;
         this.resources = resources;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
         adapter.setListener(this);
         adapter.setOnboardingListener(this);
         currentOptions = collectionOptionsStorage.getLastOrDefault();
@@ -268,6 +270,39 @@ public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Col
         Toast.makeText(getRecyclerView().getContext(),
                 R.string.collections_loading_error,
                 Toast.LENGTH_LONG).show();
+    }
+
+    private List<CollectionItem> playlistCollectionItems(List<PlaylistItem> playlistItems) {
+        List<CollectionItem> items = new ArrayList<>(playlistItems.size() + 2);
+
+        items.add(CollectionItem.fromPlaylistHeader());
+
+        for (PlaylistItem playlistItem : playlistItems) {
+            items.add(CollectionItem.fromPlaylistItem(playlistItem));
+        }
+
+        // TODO. We should test this once we know the rules
+        if (isCurrentlyFiltered()) {
+            items.add(CollectionItem.fromKillFilter());
+        } else if (playlistItems.isEmpty()) {
+            items.add(CollectionItem.fromEmptyPlaylists());
+        }
+
+        return items;
+    }
+
+    private List<CollectionItem> playHistoryCollectionItems(List<TrackItem> playHistoryTrackItems) {
+        List<CollectionItem> items = new ArrayList<>(playHistoryTrackItems.size() + 2);
+
+        items.add(CollectionItem.fromPlayHistoryTracksHeader());
+
+        for (TrackItem trackItem : playHistoryTrackItems) {
+            items.add(CollectionItem.fromPlayHistoryTracksItem(trackItem));
+        }
+
+        items.add(CollectionItem.fromPlayHistoryTracksViewAll());
+
+        return items;
     }
 
 }
