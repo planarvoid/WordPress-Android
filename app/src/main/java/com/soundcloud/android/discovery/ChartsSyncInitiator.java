@@ -63,8 +63,9 @@ public class ChartsSyncInitiator extends SyncInitiator {
 
     Observable<Boolean> syncCharts() {
         if (isChartsCacheExpired()) {
-            return requestSyncObservable(TYPE, ChartsSyncRequestFactory.Actions.SYNC_CHARTS).onErrorResumeNext(
-                    RESUME_ON_SYNC_FAILURE).doOnNext(setLastSyncTime).map(FROM_SYNC_RESULT);
+            return requestSyncObservable(TYPE, ChartsSyncRequestFactory.Actions.SYNC_CHARTS)
+                    .doOnNext(setLastSyncTime)
+                    .map(FROM_SYNC_RESULT);
         } else {
             return Observable.just(false);
         }

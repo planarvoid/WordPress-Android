@@ -1,6 +1,13 @@
 package com.soundcloud.android.rx;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.Consts;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.functions.Predicate;
+import rx.Notification;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Func1;
@@ -83,5 +90,66 @@ public final class RxUtils {
     }
 
     private RxUtils() {
+    }
+
+    public static <ItemT> Observable.Transformer<List<Observable<ItemT>>, ItemT> concatEagerIgnorePartialErrors() {
+        return new ConcatEagerIgnorePartialErrors<>();
+    }
+
+    private static class ConcatEagerIgnorePartialErrors<ItemT> implements Observable.Transformer<List<Observable<ItemT>>, ItemT> {
+
+        private final Function<Observable<ItemT>, Observable<Notification<ItemT>>> toMaterializedObservable = new Function<Observable<ItemT>, Observable<Notification<ItemT>>>() {
+            @Override
+            public Observable<Notification<ItemT>> apply(Observable<ItemT> input) {
+                return input.materialize();
+            }
+        };
+
+        private final Func1<List<Notification<ItemT>>, Observable<Notification<ItemT>>> sanitizeNotifications = new Func1<List<Notification<ItemT>>, Observable<Notification<ItemT>>>() {
+            @Override
+            public Observable<Notification<ItemT>> call(List<Notification<ItemT>> notifications) {
+                if (containsCompleted(notifications)) {
+                    final List<Notification<ItemT>> sanitizedNotifications = removeTerminalNotifications(notifications);
+                    sanitizedNotifications.add(Notification.<ItemT>createOnCompleted());
+                    return Observable.from(sanitizedNotifications);
+                } else {
+                    return Observable.from(notifications);
+                }
+            }
+
+        };
+
+        @Override
+        public Observable<ItemT> call(Observable<List<Observable<ItemT>>> listObservable) {
+            return listObservable.flatMap(new Func1<List<Observable<ItemT>>, Observable<ItemT>>() {
+                @Override
+                public Observable<ItemT> call(List<Observable<ItemT>> observables) {
+                    return Observable
+                            .concatEager(Lists.transform(observables, toMaterializedObservable))
+                            .toList()
+                            .flatMap(sanitizeNotifications)
+                            .dematerialize();
+                }
+            });
+        }
+
+
+        private List<Notification<ItemT>> removeTerminalNotifications(List<Notification<ItemT>> notifications1) {
+            return newArrayList(Iterables.filter(notifications1, new Predicate<Notification<ItemT>>() {
+                @Override
+                public boolean apply(Notification<ItemT> notification) {
+                    return notification.getKind() == Notification.Kind.OnNext;
+                }
+            }));
+        }
+
+        private boolean containsCompleted(List<Notification<ItemT>> notifications1) {
+            for (Notification<ItemT> notification : notifications1) {
+                if (notification.getKind() == Notification.Kind.OnCompleted) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

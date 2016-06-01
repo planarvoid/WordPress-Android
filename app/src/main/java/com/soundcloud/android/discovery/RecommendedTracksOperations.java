@@ -88,8 +88,9 @@ class RecommendedTracksOperations {
 
     private Observable<DiscoveryItem> syncAndLoadBuckets(Observable<DiscoveryItem> storageObservable) {
         if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
-            return recommendedTracksSyncInitiator.sync()
-                                                 .flatMap(continueWith(storageObservable));
+            return recommendedTracksSyncInitiator
+                    .sync()
+                    .flatMap(continueWith(storageObservable));
         } else {
             return Observable.empty();
         }

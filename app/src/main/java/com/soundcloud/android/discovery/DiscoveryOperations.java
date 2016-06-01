@@ -1,11 +1,11 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
 import rx.Observable;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DiscoveryOperations {
@@ -26,15 +26,16 @@ public class DiscoveryOperations {
     }
 
     Observable<List<DiscoveryItem>> discoveryItems() {
-        List<Observable<DiscoveryItem>> items = new ArrayList<>();
-
-        items.add(searchItem());
-        items.add(chartsOperations.charts());
-        items.add(recommendedStationsOperations.stationsBucket());
-        items.add(recommendedTracksOperations.firstBucket());
-        items.add(playlistDiscoveryOperations.playlistTags());
-
-        return Observable.concatEager(Observable.from(items)).toList();
+        return Observable
+                .just(
+                        searchItem(),
+                        chartsOperations.charts(),
+                        recommendedStationsOperations.stationsBucket(),
+                        recommendedTracksOperations.firstBucket(),
+                        playlistDiscoveryOperations.playlistTags()
+                ).toList()
+                .compose(RxUtils.<DiscoveryItem>concatEagerIgnorePartialErrors())
+                .toList();
     }
 
     public void clearData() {
