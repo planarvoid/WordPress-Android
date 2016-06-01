@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
+import org.jetbrains.annotations.NotNull;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,26 +20,11 @@ import java.util.Map;
 
 public final class UIEvent extends TrackingEvent {
 
-    public static final String METHOD_TAP_FOOTER = "tap_footer";
-    public static final String METHOD_HIDE_BUTTON = "hide_button";
-    public static final String METHOD_BACK_BUTTON = "back_button";
-    public static final String METHOD_PROFILE_OPEN = "profile_open";
-    public static final String METHOD_COMMENTS_OPEN = "comments_open";
-    public static final String METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT = "comments_open_from_add_comment";
-    public static final String METHOD_TRACK_PLAY = "track_play";
-    public static final String METHOD_AD_PLAY = "ad_play";
-    public static final String METHOD_SLIDE_FOOTER = "slide_footer";
-    public static final String METHOD_SLIDE = "slide";
-
     public static final String TYPE_MONETIZABLE_PROMOTED = "promoted";
     private static final String CLICKTHROUGHS = "CLICKTHROUGHS";
     private static final String SKIPS = "SKIPS";
     private static final String SIZE_CHANGES = "SIZE_CHANGES";
-
-    private static final String TYPE_TRACK = "track";
-    private static final String TYPE_PLAYLIST = "playlist";
     private static final String TYPE_VIDEO_AD = "video_ad";
-    private static final String TYPE_UNKNOWN = "unknown";
 
     private final Map<String, List<String>> promotedTrackingUrls;
     private EventContextMetadata eventContextMetadata;
@@ -53,8 +39,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_CREATE_PLAYLIST = "create_playlist";
     public static final String KIND_COMMENT = "comment";
     public static final String KIND_SHARE = "share";
-    public static final String KIND_SHUFFLE_LIKES = "shuffle_likes";
-    public static final String KIND_SHUFFLE_PLAYLIST = "shuffle_playlist";
+    public static final String KIND_SHUFFLE = "shuffle";
     public static final String KIND_NAVIGATION = "navigation";
     public static final String KIND_PLAYER_OPEN = "player_open";
     public static final String KIND_PLAYER_CLOSE = "player_close";
@@ -65,19 +50,16 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
     public static final String KIND_SKIP_VIDEO_AD_CLICK = "skip_video_ad_click";
 
-    public static UIEvent fromPlayerOpen(String method) {
-        return new UIEvent(KIND_PLAYER_OPEN)
-                .put(LocalyticTrackingKeys.KEY_METHOD, method);
+    public static UIEvent fromPlayerOpen() {
+        return new UIEvent(KIND_PLAYER_OPEN);
     }
 
-    public static UIEvent fromPlayerClose(String method) {
-        return new UIEvent(KIND_PLAYER_CLOSE)
-                .put(LocalyticTrackingKeys.KEY_METHOD, method);
+    public static UIEvent fromPlayerClose() {
+        return new UIEvent(KIND_PLAYER_CLOSE);
     }
 
     public static UIEvent fromToggleFollow(boolean isFollow, @NonNull EntityMetadata userMetadata) {
-        return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW)
-                .putPlayableMetadata(userMetadata);
+        return new UIEvent(isFollow ? KIND_FOLLOW : KIND_UNFOLLOW).putPlayableMetadata(userMetadata);
     }
 
     public static UIEvent fromToggleLike(boolean isLike,
@@ -86,8 +68,6 @@ public final class UIEvent extends TrackingEvent {
                                          @Nullable PromotedSourceInfo promotedSourceInfo,
                                          @NonNull EntityMetadata playable) {
         return new UIEvent(isLike ? KIND_LIKE : KIND_UNLIKE)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
                 .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
                 .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
@@ -100,24 +80,20 @@ public final class UIEvent extends TrackingEvent {
                                            @Nullable PromotedSourceInfo promotedSourceInfo,
                                            @NonNull EntityMetadata entityMetadata) {
         return new UIEvent(isRepost ? KIND_REPOST : KIND_UNREPOST)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
                 .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
                 .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(entityMetadata);
     }
 
-    public static UIEvent fromAddToPlaylist(EventContextMetadata eventContextMetadata, boolean isNewPlaylist, long trackId) {
+    public static UIEvent fromAddToPlaylist(EventContextMetadata eventContextMetadata) {
         return new UIEvent(KIND_ADD_TO_PLAYLIST)
-                .putEventContextMetadata(eventContextMetadata)
-                .put(LocalyticTrackingKeys.KEY_IS_NEW_PLAYLIST, isNewPlaylist ? "yes" : "no")
-                .put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId));
+                .putEventContextMetadata(eventContextMetadata);
     }
 
-    public static UIEvent fromComment(EventContextMetadata eventContextMetadata, long trackId, @NonNull EntityMetadata playable) {
+    public static UIEvent fromComment(EventContextMetadata eventContextMetadata,
+                                      @NonNull EntityMetadata playable) {
         return new UIEvent(KIND_COMMENT)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_TRACK_ID, String.valueOf(trackId))
                 .putEventContextMetadata(eventContextMetadata)
                 .putPlayableMetadata(playable);
     }
@@ -127,47 +103,38 @@ public final class UIEvent extends TrackingEvent {
                                     @Nullable PromotedSourceInfo promotedSourceInfo,
                                     @NonNull EntityMetadata playable) {
         return new UIEvent(KIND_SHARE)
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, getPlayableType(resourceUrn))
-                .<UIEvent>put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()))
                 .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, resourceUrn.toString())
                 .putEventContextMetadata(contextMetadata)
                 .putPromotedItemKeys(promotedSourceInfo)
                 .putPlayableMetadata(playable);
     }
 
-    public static UIEvent fromShuffleMyLikes() {
-        return new UIEvent(KIND_SHUFFLE_LIKES);
-    }
-
-    public static UIEvent fromShufflePlaylist(String screenTag, @NonNull Urn resourceUrn) {
-        return new UIEvent(KIND_SHUFFLE_PLAYLIST)
-                .put(LocalyticTrackingKeys.KEY_CONTEXT, screenTag)
-                .put(LocalyticTrackingKeys.KEY_RESOURCES_TYPE, TYPE_PLAYLIST)
-                .put(LocalyticTrackingKeys.KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));
+    public static UIEvent fromShuffle(@NotNull EventContextMetadata contextMetadata) {
+        return new UIEvent(KIND_SHUFFLE).putEventContextMetadata(contextMetadata);
     }
 
     public static UIEvent fromProfileNav() {
-        return new UIEvent(KIND_NAVIGATION).put(LocalyticTrackingKeys.KEY_PAGE, "you");
+        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "you");
     }
 
     public static UIEvent fromStreamNav() {
-        return new UIEvent(KIND_NAVIGATION).put(LocalyticTrackingKeys.KEY_PAGE, "stream");
+        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "stream");
     }
 
     public static UIEvent fromExploreNav() {
-        return new UIEvent(KIND_NAVIGATION).put(LocalyticTrackingKeys.KEY_PAGE, "explore");
+        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "explore");
     }
 
     public static UIEvent fromLikesNav() {
-        return new UIEvent(KIND_NAVIGATION).put(LocalyticTrackingKeys.KEY_PAGE, "collection_likes");
+        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "collection_likes");
     }
 
     public static UIEvent fromPlaylistsNav() {
-        return new UIEvent(KIND_NAVIGATION).put(LocalyticTrackingKeys.KEY_PAGE, "collection_playlists");
+        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "collection_playlists");
     }
 
     public static UIEvent fromSearchAction() {
-        return new UIEvent(KIND_NAVIGATION).put(LocalyticTrackingKeys.KEY_PAGE, "search");
+        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "search");
     }
 
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
@@ -192,7 +159,7 @@ public final class UIEvent extends TrackingEvent {
         final UIEvent event = new UIEvent(KIND_VIDEO_AD_CLICKTHROUGH, System.currentTimeMillis());
         return withBasicVideoAdAttributes(event, videoAd, trackSourceInfo)
                 .addPromotedTrackingUrls(CLICKTHROUGHS, videoAd.getClickUrls())
-                .put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, videoAd.getClickThroughUrl().toString());
+                .put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, videoAd.getClickThroughUrl());
     }
 
     private static UIEvent withBasicVideoAdAttributes(UIEvent adEvent, VideoAd videoAd, TrackSourceInfo trackSourceInfo) {
@@ -249,32 +216,23 @@ public final class UIEvent extends TrackingEvent {
         return Strings.EMPTY;
     }
 
-    private static String getPlayableType(Urn resourceUrn) {
-        if (resourceUrn.isTrack()) {
-            return TYPE_TRACK;
-        } else if (resourceUrn.isPlaylist()) {
-            return TYPE_PLAYLIST;
-        } else {
-            return TYPE_UNKNOWN;
-        }
-    }
-
+    @VisibleForTesting
     public UIEvent(String kind) {
         this(kind, System.currentTimeMillis());
     }
 
-    public UIEvent(String kind, long timeStamp) {
+    private UIEvent(String kind, long timeStamp) {
         super(kind, timeStamp);
         promotedTrackingUrls = new HashMap<>();
     }
 
-    public UIEvent putPromotedItemKeys(@Nullable PromotedSourceInfo promotedSourceInfo) {
+    private UIEvent putPromotedItemKeys(@Nullable PromotedSourceInfo promotedSourceInfo) {
         if (promotedSourceInfo != null) {
-            this.put(PlayableTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn())
-                    .put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
+            put(PlayableTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn());
+            put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
 
             if (promotedSourceInfo.getPromoterUrn().isPresent()) {
-                this.put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
+                put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
             }
         }
         return this;
@@ -283,8 +241,8 @@ public final class UIEvent extends TrackingEvent {
     private UIEvent putEventContextMetadata(@NonNull EventContextMetadata contextMetadata) {
         this.eventContextMetadata = contextMetadata;
 
-        put(PlayableTrackingKeys.KEY_PAGE_URN, contextMetadata.pageUrn().toString())
-                .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, contextMetadata.pageName());
+        put(PlayableTrackingKeys.KEY_PAGE_URN, contextMetadata.pageUrn().toString());
+        put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, contextMetadata.pageName());
         return this;
     }
 

@@ -134,8 +134,6 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         UIEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING, UIEvent.class);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.isFromOverflow()).isTrue();
-        assertThat(uiEvent.getAttributes()
-                .containsValue(String.valueOf(playlist.getUrn().getNumericId()))).isTrue();
     }
 
     @Test
@@ -164,8 +162,6 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         UIEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING, UIEvent.class);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.isFromOverflow()).isTrue();
-        assertThat(uiEvent.getAttributes()
-                .containsValue(String.valueOf(playlist.getUrn().getNumericId()))).isTrue();
     }
 
     @Test

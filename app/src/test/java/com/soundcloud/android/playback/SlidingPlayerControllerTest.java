@@ -231,7 +231,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onPanelCollapsed(slidingPanel);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expected = UIEvent.fromPlayerClose(UIEvent.METHOD_SLIDE);
+        UIEvent expected = UIEvent.fromPlayerClose();
         assertThat(event.getKind()).isEqualTo(expected.getKind());
         assertThat(event.getAttributes()).isEqualTo(expected.getAttributes());
     }
@@ -244,7 +244,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onPanelExpanded(slidingPanel);
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expected = UIEvent.fromPlayerOpen(UIEvent.METHOD_SLIDE_FOOTER);
+        UIEvent expected = UIEvent.fromPlayerOpen();
         assertThat(event.getKind()).isEqualTo(expected.getKind());
         assertThat(event.getAttributes()).isEqualTo(expected.getAttributes());
     }
@@ -315,7 +315,7 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.handleBackPressed();
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON);
+        UIEvent expectedEvent = UIEvent.fromPlayerClose();
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }

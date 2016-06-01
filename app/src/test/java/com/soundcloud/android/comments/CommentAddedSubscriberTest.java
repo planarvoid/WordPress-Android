@@ -43,7 +43,6 @@ public class CommentAddedSubscriberTest extends AndroidUnitTest {
         commentAddedSubscriber.onUndo(null);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(UIEvent.KIND_PLAYER_CLOSE);
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getAttributes().get("method")).isEqualTo(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT);
     }
 
     @Test

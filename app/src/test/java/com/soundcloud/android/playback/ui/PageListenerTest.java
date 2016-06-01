@@ -45,7 +45,7 @@ public class PageListenerTest extends AndroidUnitTest {
         listener.onFooterTap();
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TAP_FOOTER);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen();
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
@@ -71,7 +71,7 @@ public class PageListenerTest extends AndroidUnitTest {
         listener.onPlayerClose();
 
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_HIDE_BUTTON);
+        UIEvent expectedEvent = UIEvent.fromPlayerClose();
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }

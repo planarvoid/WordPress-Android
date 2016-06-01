@@ -137,7 +137,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackCommentEvents() {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder().contextScreen("screen").build();
-        UIEvent event = UIEvent.fromComment(eventContextMetadata, 123l, METADATA);
+        UIEvent event = UIEvent.fromComment(eventContextMetadata, METADATA);
 
         eventHandler.handleEvent(event);
 

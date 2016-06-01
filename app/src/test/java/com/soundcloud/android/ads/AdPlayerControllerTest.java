@@ -65,7 +65,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
         resumeFromBackground();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen();
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 

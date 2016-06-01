@@ -23,12 +23,12 @@ public class PageListener {
 
     public void onFooterTap() {
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_TAP_FOOTER));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen());
     }
 
     public void onPlayerClose() {
         requestPlayerCollapse();
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_HIDE_BUTTON));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
     }
 
     public void onFooterTogglePlay() {

@@ -121,7 +121,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
         fireAndForget(isOffline
                 ? newPlaylist.flatMap(makeAvailableOffline)
                 : newPlaylist);
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata(), true, firstTrackId));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata()));
     }
 
     private EventContextMetadata getEventContextMetadata() {

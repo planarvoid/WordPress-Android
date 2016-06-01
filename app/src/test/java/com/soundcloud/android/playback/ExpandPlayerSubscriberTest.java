@@ -39,7 +39,7 @@ public class ExpandPlayerSubscriberTest extends AndroidUnitTest {
 
         Robolectric.flushForegroundThreadScheduler();
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY);
+        UIEvent expectedEvent = UIEvent.fromPlayerOpen();
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }
 

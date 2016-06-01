@@ -114,7 +114,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                 .subscribe(new CommentAddedSubscriber(activity, trackUrn, eventBus));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(getEventContextMetadata(),
-                trackUrn.getNumericId(), EntityMetadata.from(track)));
+                                                                  EntityMetadata.from(track)));
     }
 
     private EventContextMetadata getEventContextMetadata() {
@@ -160,7 +160,7 @@ public class AddCommentDialogFragment extends DialogFragment {
         public void onUndo(Parcelable parcelable) {
             subscribeToCollapsedEvent(activity);
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_COMMENTS_OPEN_FROM_ADD_COMMENT));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
         }
 
         private void subscribeToCollapsedEvent(Context context) {

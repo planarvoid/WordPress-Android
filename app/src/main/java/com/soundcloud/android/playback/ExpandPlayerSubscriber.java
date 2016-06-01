@@ -28,7 +28,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
         @Override
         public void handleMessage(Message msg) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen());
         }
     }
 

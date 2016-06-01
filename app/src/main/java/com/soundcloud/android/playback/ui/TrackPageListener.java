@@ -75,7 +75,7 @@ class TrackPageListener extends PageListener {
                 .subscribe(startProfileActivity(activityContext, userUrn));
 
         requestPlayerCollapse();
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
     }
 
     private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final Urn userUrn) {

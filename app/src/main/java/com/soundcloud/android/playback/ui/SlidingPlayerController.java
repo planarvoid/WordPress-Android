@@ -116,7 +116,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public boolean handleBackPressed() {
         if (!isLocked && isExpanded()) {
             collapse();
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_BACK_BUTTON));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
             return true;
         }
         return false;
@@ -228,14 +228,14 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     public void onPanelCollapsed(View panel) {
         setStatusBarColor(collapsedStatusColor);
         notifyCollapsedState();
-        trackPlayerSlide(UIEvent.fromPlayerClose(UIEvent.METHOD_SLIDE));
+        trackPlayerSlide(UIEvent.fromPlayerClose());
     }
 
     @Override
     public void onPanelExpanded(View panel) {
         setStatusBarColor(expandedStatusColor);
         notifyExpandedState();
-        trackPlayerSlide(UIEvent.fromPlayerOpen(UIEvent.METHOD_SLIDE_FOOTER));
+        trackPlayerSlide(UIEvent.fromPlayerOpen());
     }
 
     private void trackPlayerSlide(UIEvent event) {

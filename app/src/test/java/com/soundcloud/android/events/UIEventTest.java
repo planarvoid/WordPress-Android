@@ -43,18 +43,15 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromPlayerClose() {
-        UIEvent uiEvent = UIEvent.fromPlayerClose("tap_footer");
-
+        UIEvent uiEvent = UIEvent.fromPlayerClose();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAYER_CLOSE);
-        assertThat(uiEvent.get("method")).isEqualTo("tap_footer");
     }
 
     @Test
     public void shouldCreateEventFromPlayerOpen() {
-        UIEvent uiEvent = UIEvent.fromPlayerOpen("tap_footer");
+        UIEvent uiEvent = UIEvent.fromPlayerOpen();
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_PLAYER_OPEN);
-        assertThat(uiEvent.get("method")).isEqualTo("tap_footer");
     }
 
     @Test
@@ -81,8 +78,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -106,8 +101,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -126,8 +119,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:tracks:30");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -146,8 +137,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -166,8 +155,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:tracks:30");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -186,8 +173,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -206,8 +191,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -231,8 +214,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -251,8 +232,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -271,8 +250,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -291,8 +268,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -310,8 +285,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -329,8 +302,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -348,8 +319,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:tracks:30");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -367,8 +336,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -386,8 +353,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -405,8 +370,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -424,8 +387,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -443,8 +404,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -462,8 +421,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -481,8 +438,6 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("unknown");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("2");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:users:2");
@@ -499,8 +454,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -522,8 +475,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -550,8 +501,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -576,8 +525,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:tracks:30");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -594,8 +541,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -612,8 +557,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -630,8 +573,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, promotedSourceInfoWithNoPromoter, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -648,8 +589,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, null, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -671,8 +610,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, null, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -689,8 +626,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -707,8 +642,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -725,8 +658,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, promotedSourceInfoWithNoPromoter, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -743,8 +674,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -761,8 +690,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:tracks:30");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -779,8 +706,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -797,8 +722,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -815,8 +738,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:tracks:30");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -833,8 +754,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, promotedSourceInfoWithNoPromoter, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
@@ -851,8 +770,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, PLAYLIST_URN, eventContext, null, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -869,8 +786,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -887,8 +802,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:playlists:42");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -905,8 +818,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromToggleRepost(false, PLAYLIST_URN, eventContext, promotedSourceInfoWithNoPromoter, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
 
         assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
         assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:playlists:42");
@@ -918,33 +829,19 @@ public class UIEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateEventFromAddToPlaylistWhenPlaylistIsNew() {
-        UIEvent uiEvent = UIEvent.fromAddToPlaylist(eventContextBuilder().build(), true, 30);
+    public void shouldCreateEventFromAddToPlaylist() {
+        UIEvent uiEvent = UIEvent.fromAddToPlaylist(eventContextBuilder().build());
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_ADD_TO_PLAYLIST);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("is_new_playlist")).isEqualTo("yes");
-        assertThat(uiEvent.get("track_id")).isEqualTo("30");
-    }
-
-    @Test
-    public void shouldCreateEventFromAddToPlaylistWhenPlaylistExisted() {
-
-        UIEvent uiEvent = UIEvent.fromAddToPlaylist(eventContextBuilder().build(), false, 30);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_ADD_TO_PLAYLIST);
-        assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
-        assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("is_new_playlist")).isEqualTo("no");
-        assertThat(uiEvent.get("track_id")).isEqualTo("30");
     }
 
     @Test
     public void shouldCreateEventFromComment() {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder().contextScreen("screen").build();
-        UIEvent uiEvent = UIEvent.fromComment(eventContextMetadata, 30, trackMetadata);
+        UIEvent uiEvent = UIEvent.fromComment(eventContextMetadata, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_COMMENT);
         assertThat(uiEvent.getContextScreen()).isEqualTo("screen");
-        assertThat(uiEvent.get("track_id")).isEqualTo("30");
         assertThat(uiEvent.get("playable_title")).isEqualTo("some title");
     }
 
@@ -954,8 +851,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromShare(TRACK_URN, eventContext, promotedSourceInfo, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SHARE);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("track");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("30");
         assertThat(uiEvent.get("creator_display_name")).isEqualTo("some username");
         assertThat(uiEvent.get("creator_urn")).isEqualTo(USER_URN.toString());
         assertThat(uiEvent.get("playable_title")).isEqualTo("some title");
@@ -968,8 +863,6 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent uiEvent = UIEvent.fromShare(PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SHARE);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
-        assertThat(uiEvent.get("resource")).isEqualTo("playlist");
-        assertThat(uiEvent.get("resource_id")).isEqualTo("42");
         assertThat(uiEvent.get("creator_display_name")).isEqualTo("some username");
         assertThat(uiEvent.get("creator_urn")).isEqualTo(USER_URN.toString());
         assertThat(uiEvent.get("playable_title")).isEqualTo("some title");
@@ -977,50 +870,45 @@ public class UIEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateEventFromShuffleMyLikes() {
-        assertThat(UIEvent.fromShuffleMyLikes().getKind()).isEqualTo(UIEvent.KIND_SHUFFLE_LIKES);
+    public void shouldCreateEventFromShuffle() {
+        EventContextMetadata eventContext = eventContextNoInvokerScreen().build();
+        assertThat(UIEvent.fromShuffle(eventContext).getKind()).isEqualTo(UIEvent.KIND_SHUFFLE);
     }
 
     @Test
     public void shouldCreateEventFromProfileNavigation() {
         UIEvent uiEvent = UIEvent.fromProfileNav();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-        assertThat(uiEvent.get("page")).isEqualTo("you");
     }
 
     @Test
     public void shouldCreateEventFromStreamNavigation() {
         UIEvent uiEvent = UIEvent.fromStreamNav();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-        assertThat(uiEvent.get("page")).isEqualTo("stream");
     }
 
     @Test
     public void shouldCreateEventFromExploreNavigation() {
         UIEvent uiEvent = UIEvent.fromExploreNav();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-        assertThat(uiEvent.get("page")).isEqualTo("explore");
     }
 
     @Test
     public void shouldCreateEventFromLikesNavigation() {
         UIEvent uiEvent = UIEvent.fromLikesNav();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-        assertThat(uiEvent.get("page")).isEqualTo("collection_likes");
     }
 
     @Test
     public void shouldCreateEventFromPlaylistsNavigation() {
         UIEvent uiEvent = UIEvent.fromPlaylistsNav();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-        assertThat(uiEvent.get("page")).isEqualTo("collection_playlists");
     }
 
     @Test
     public void shouldCreateEventFromSearchNavigation() {
         UIEvent uiEvent = UIEvent.fromSearchAction();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-        assertThat(uiEvent.get("page")).isEqualTo("search");
     }
 
     @Test

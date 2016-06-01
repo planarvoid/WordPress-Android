@@ -129,7 +129,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onGotoUser(context(), Urn.forUser(42L));
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
-        UIEvent expectedEvent = UIEvent.fromPlayerClose(UIEvent.METHOD_PROFILE_OPEN);
+        UIEvent expectedEvent = UIEvent.fromPlayerClose();
         assertThat(event.getKind()).isEqualTo(expectedEvent.getKind());
         assertThat(event.getAttributes()).isEqualTo(expectedEvent.getAttributes());
     }

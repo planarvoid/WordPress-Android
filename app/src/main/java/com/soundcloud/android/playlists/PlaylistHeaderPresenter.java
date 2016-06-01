@@ -341,7 +341,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         return new Action0() {
             @Override
             public void call() {
-                final UIEvent fromShufflePlaylist = UIEvent.fromShufflePlaylist(screen, headerItem.getUrn());
+                final UIEvent fromShufflePlaylist = UIEvent.fromShuffle(getEventContext());
                 eventBus.publish(EventQueue.TRACKING, fromShufflePlaylist);
             }
         };

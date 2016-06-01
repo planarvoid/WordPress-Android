@@ -145,7 +145,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             @Override
             public void handleMessage(Message msg) {
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
-                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_COMMENTS_OPEN));
+                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
             }
         }
 
@@ -169,7 +169,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         private void collapsePlayerOnDelay(Context context) {
             subscribeToCollapsedEvent(context);
             collapseDelayHandler.sendEmptyMessageDelayed(0, COLLAPSE_DELAY_MILLIS);
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose(UIEvent.METHOD_COMMENTS_OPEN));
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
         }
 
         private void subscribeToCollapsedEvent(Context context) {

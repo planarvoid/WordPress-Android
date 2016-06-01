@@ -299,7 +299,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         return new Action0() {
             @Override
             public void call() {
-                final UIEvent fromShufflePlaylist = UIEvent.fromShufflePlaylist(originProvider.getScreenTag(), playlistHeaderItem.getUrn());
+                final UIEvent fromShufflePlaylist = UIEvent.fromShuffle(getEventContext());
                 eventBus.publish(EventQueue.TRACKING, fromShufflePlaylist);
             }
         };

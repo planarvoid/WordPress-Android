@@ -133,7 +133,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackAddedSubscriber());
 
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata(), false, trackId));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata()));
     }
 
     private EventContextMetadata getEventContextMetadata() {

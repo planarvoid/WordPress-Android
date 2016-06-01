@@ -108,7 +108,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
                 if (adsOperations.isCurrentItemAudioAd() && !lastSeenAdUrn.equals(currentItem.getUrn())) {
                     eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-                    eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen(UIEvent.METHOD_AD_PLAY));
+                    eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen());
                     lastSeenAdUrn = currentItem.getUrn();
                 }
             }
