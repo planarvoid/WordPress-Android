@@ -8,13 +8,14 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ActivityTest;
 
-public class TrackLikesTest extends ActivityTest<MainActivity> {
-
+public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
+    private static final String TEST_LIKES_SHUFFLE = "likes-shuffle-events";
     private TrackLikesScreen likesScreen;
 
     public TrackLikesTest() {
@@ -66,8 +67,13 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount));
     }
 
+    @EventTrackingTest
     public void testSongIsPlayedWhenShuffleEnabled() {
+        startEventTracking();
+
         VisualPlayerElement playerElement = likesScreen.clickShuffleButton();
         assertThat(playerElement, is(playing()));
+
+        finishEventTracking(TEST_LIKES_SHUFFLE);
     }
 }

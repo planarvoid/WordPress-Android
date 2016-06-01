@@ -6,14 +6,17 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ActivityTest;
 
-public class PlaylistDetailsEngagementsTest extends ActivityTest<LauncherActivity> {
+@EventTrackingTest
+public class PlaylistDetailsEngagementsTest extends TrackingActivityTest<LauncherActivity> {
+    private static final String TEST_PLAYLIST_SHUFFLE = "playlist-shuffle-events";
 
     private PlaylistDetailsScreen playlistDetailsScreen;
 
@@ -38,12 +41,16 @@ public class PlaylistDetailsEngagementsTest extends ActivityTest<LauncherActivit
         playlistDetailsScreen = collectionScreen.clickOnFirstPlaylist();
     }
 
-    public void testShufflePlaylistShowsPlayer() throws Exception {
+    public void testShufflePlaylist() {
+        startEventTracking();
+
         VisualPlayerElement player = new VisualPlayerElement(solo);
         PlaylistOverflowMenu overflowMenu = playlistDetailsScreen.clickPlaylistOverflowButton();
 
         assertThat(player, is(not(visible())));
         overflowMenu.shuffle();
         assertThat(player, is(visible()));
+
+        finishEventTracking(TEST_PLAYLIST_SHUFFLE);
     }
 }

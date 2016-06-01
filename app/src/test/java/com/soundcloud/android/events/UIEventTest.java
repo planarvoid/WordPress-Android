@@ -871,8 +871,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromShuffle() {
-        EventContextMetadata eventContext = eventContextNoInvokerScreen().build();
-        assertThat(UIEvent.fromShuffle(eventContext).getKind()).isEqualTo(UIEvent.KIND_SHUFFLE);
+        assertThat(UIEvent.fromShuffle(eventContextBuilder().build()).getKind()).isEqualTo(UIEvent.KIND_SHUFFLE);
     }
 
     @Test

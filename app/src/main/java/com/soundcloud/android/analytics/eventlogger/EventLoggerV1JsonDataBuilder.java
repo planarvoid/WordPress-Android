@@ -237,6 +237,8 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildEngagementEvent("like::add", event));
             case UIEvent.KIND_UNLIKE:
                 return transform(buildEngagementEvent("like::remove", event));
+            case UIEvent.KIND_SHUFFLE:
+                return transform(buildPlaybackClickEvent("shuffle:on", event));
             case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
                 return transform(buildClickEvent("ad::full_screen", event));
             case UIEvent.KIND_VIDEO_AD_SHRINK:
@@ -289,8 +291,17 @@ public class EventLoggerV1JsonDataBuilder {
         }
     }
 
+    private EventLoggerEventData buildPlaybackClickEvent(String clickName, UIEvent event) {
+        EventLoggerEventData eventData =
+                buildClickEvent(clickName, event).clickCategory(EventLoggerClickCategories.PLAYBACK);
+        if (!event.get(PlayableTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
+            eventData.pageUrn(event.get(PlayableTrackingKeys.KEY_PAGE_URN));
+        }
+        return eventData;
+    }
+
     private EventLoggerEventData buildCollectionEvent(String clickName, CollectionEvent event) {
-        return buildBaseEvent("click", event)
+        return buildBaseEvent(CLICK_EVENT, event)
                 .clickName(clickName)
                 .pageName(Screen.COLLECTIONS.get())
                 .clickCategory(EventLoggerClickCategories.COLLECTION)

@@ -1,11 +1,11 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.events.EventContextMetadata.builder;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -61,8 +61,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
         public void call() {
-            EventContextMetadata metadata = EventContextMetadata.builder().pageName(Screen.LIKES.get()).build();
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShuffle(metadata));
+            eventBus.publish(EventQueue.TRACKING, UIEvent
+                    .fromShuffle(builder().pageName(Screen.LIKES.get()).build()));
         }
     };
 
