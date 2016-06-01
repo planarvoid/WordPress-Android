@@ -67,6 +67,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
                 .put(Stations.TITLE, station.getTitle())
                 .put(Stations.PERMALINK, station.getPermalink())
                 .put(Stations.PLAY_QUEUE_UPDATED_AT, dateProvider.getCurrentTime())
+                .put(Stations.ARTWORK_URL_TEMPLATE, station.getImageUrlTemplate().orNull())
                 .get();
     }
 }

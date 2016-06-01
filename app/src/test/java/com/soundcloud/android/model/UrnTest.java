@@ -149,10 +149,12 @@ public class UrnTest extends AndroidUnitTest {
         Urn trackStationUrn = new Urn("soundcloud:track-stations:1");
         Urn curatorStationUrn = new Urn("soundcloud:curator-stations:1");
         Urn moodStationUrn = new Urn("soundcloud:mood-stations:happy");
+        Urn artistStationUrn = new Urn("soundcloud:artist-stations:1");
 
         assertThat(trackStationUrn.isStation()).isTrue();
         assertThat(curatorStationUrn.isStation()).isTrue();
         assertThat(moodStationUrn.isStation()).isTrue();
+        assertThat(artistStationUrn.isStation()).isTrue();
     }
 
     @Test

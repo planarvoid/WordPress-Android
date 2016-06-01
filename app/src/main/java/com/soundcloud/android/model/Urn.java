@@ -116,7 +116,9 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     public boolean isStation() {
         return isSoundCloud()
-                && (collection == UrnCollection.STATIONS || collection == UrnCollection.TRACK_STATIONS);
+                && (collection == UrnCollection.STATIONS
+                || collection == UrnCollection.TRACK_STATIONS
+                || collection == UrnCollection.ARTIST_STATIONS);
     }
 
     public boolean isArtistStation() {
