@@ -67,8 +67,9 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(int position, View view, List<CollectionItem> list) {
-        bindLikesView(list.get(position).getLikes(), view);
-        setThumbnails(list.get(position).getStations(), getRecentStationsPreviewView(view));
+        PreviewCollectionItem item = (PreviewCollectionItem) list.get(position);
+        bindLikesView(item.getLikes(), view);
+        setThumbnails(item.getStations(), getRecentStationsPreviewView(view));
     }
 
     private void bindLikesView(LikesItem likes, View view) {

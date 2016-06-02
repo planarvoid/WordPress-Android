@@ -26,18 +26,17 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
                              CollectionPlaylistRemoveFilterRenderer removeFilterRenderer,
                              CollectionEmptyPlaylistsRenderer emptyPlaylistsRenderer,
                              CollectionPlaylistItemRenderer playlistRenderer,
-                             CollectionsTrackItemRenderer trackItemRenderer,
-                             CollectionsViewAllRenderer viewAllRenderer) {
+                             CollectionTrackItemRenderer trackRenderer,
+                             CollectionViewAllRenderer viewAllRenderer) {
         super(
                 new CellRendererBinding<>(CollectionItem.TYPE_ONBOARDING, onboardingItemCellRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_COLLECTIONS_PREVIEW, collectionPreviewRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_HEADER, headerRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_REMOVE_FILTER, removeFilterRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_EMPTY_PLAYLISTS, emptyPlaylistsRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_PREVIEW, collectionPreviewRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_HEADER, headerRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_REMOVE_FILTER, removeFilterRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_EMPTY, emptyPlaylistsRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_ITEM, playlistRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_TRACKS_HEADER, headerRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_TRACKS_ITEM, trackItemRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_TRACKS_VIEW_ALL, viewAllRenderer));
+                new CellRendererBinding<>(CollectionItem.TYPE_TRACK_ITEM, trackRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_VIEW_ALL, viewAllRenderer));
         this.onboardingItemCellRenderer = onboardingItemCellRenderer;
 
         headerRenderer.setOnSettingsClickListener(this);

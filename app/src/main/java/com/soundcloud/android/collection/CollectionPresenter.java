@@ -51,10 +51,10 @@ public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Col
                             playHistoryTrackItems.size() + NON_PLAYLIST_OR_TRACK_COLLECTION_ITEMS);
 
                     if (collectionOptionsStorage.isOnboardingEnabled()) {
-                        collectionItems.add(CollectionItem.fromOnboarding());
+                        collectionItems.add(OnboardingCollectionItem.create());
                     }
 
-                    collectionItems.add(CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()));
+                    collectionItems.add(PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()));
                     collectionItems.addAll(playlistCollectionItems(playlistItems));
 
                     if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
@@ -185,7 +185,7 @@ public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Col
         return new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                if (position < adapter.getItemCount() && adapter.getItem(position).isPlaylistItem()) {
+                if (position < adapter.getItemCount() && adapter.getItem(position).isSingleSpan()) {
                     return 1;
                 } else {
                     return spanCount;
@@ -275,17 +275,16 @@ public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Col
     private List<CollectionItem> playlistCollectionItems(List<PlaylistItem> playlistItems) {
         List<CollectionItem> items = new ArrayList<>(playlistItems.size() + 2);
 
-        items.add(CollectionItem.fromPlaylistHeader());
+        items.add(HeaderCollectionItem.forPlaylists());
 
         for (PlaylistItem playlistItem : playlistItems) {
-            items.add(CollectionItem.fromPlaylistItem(playlistItem));
+            items.add(PlaylistCollectionItem.create(playlistItem));
         }
 
-        // TODO. We should test this once we know the rules
         if (isCurrentlyFiltered()) {
-            items.add(CollectionItem.fromKillFilter());
+            items.add(PlaylistRemoveFilterCollectionItem.create());
         } else if (playlistItems.isEmpty()) {
-            items.add(CollectionItem.fromEmptyPlaylists());
+            items.add(EmptyPlaylistCollectionItem.create());
         }
 
         return items;
@@ -294,13 +293,13 @@ public class CollectionPresenter extends RecyclerViewPresenter<MyCollection, Col
     private List<CollectionItem> playHistoryCollectionItems(List<TrackItem> playHistoryTrackItems) {
         List<CollectionItem> items = new ArrayList<>(playHistoryTrackItems.size() + 2);
 
-        items.add(CollectionItem.fromPlayHistoryTracksHeader());
+        items.add(HeaderCollectionItem.forPlayHistory());
 
         for (TrackItem trackItem : playHistoryTrackItems) {
-            items.add(CollectionItem.fromPlayHistoryTracksItem(trackItem));
+            items.add(TrackCollectionItem.create(trackItem));
         }
 
-        items.add(CollectionItem.fromPlayHistoryTracksViewAll());
+        items.add(ViewAllCollectionItem.forPlayHistory());
 
         return items;
     }

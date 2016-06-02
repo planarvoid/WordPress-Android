@@ -21,10 +21,11 @@ import java.util.Collections;
 
 public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
 
-    private static final CollectionItem PREVIEW = CollectionItem.fromCollectionsPreview(
-            LikesItem.fromTrackPreviews(singletonList(
-                    LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url"))),
-            Collections.<StationRecord>emptyList());
+    private static final PreviewCollectionItem PREVIEW =
+            PreviewCollectionItem.create(
+                    LikesItem.fromTrackPreviews(singletonList(
+                            LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url"))),
+                    Collections.<StationRecord>emptyList());
 
     private UpdateCollectionDownloadSubscriber subscriber;
 
@@ -32,7 +33,7 @@ public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(adapter.getItems()).thenReturn(singletonList(PREVIEW));
+        when(adapter.getItems()).thenReturn(singletonList((CollectionItem) PREVIEW));
         subscriber = new UpdateCollectionDownloadSubscriber(adapter);
     }
 

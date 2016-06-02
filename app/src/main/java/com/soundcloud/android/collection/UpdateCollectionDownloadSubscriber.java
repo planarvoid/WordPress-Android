@@ -19,7 +19,7 @@ public class UpdateCollectionDownloadSubscriber extends DefaultSubscriber<Offlin
 
         for (CollectionItem item : adapter.getItems()) {
             if (event.entities.contains(item.getUrn())
-                    || (event.isLikedTrackCollection && item.isCollectionPreview())) {
+                    || (event.isLikedTrackCollection && item.getType() == CollectionItem.TYPE_PREVIEW)) {
                 changed = true;
                 item.update(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(event.state)));
             }

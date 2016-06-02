@@ -13,12 +13,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class CollectionsViewAllRenderer implements CellRenderer<CollectionItem> {
+class CollectionViewAllRenderer implements CellRenderer<CollectionItem> {
 
     private final Navigator navigator;
 
     @Inject
-    CollectionsViewAllRenderer(Navigator navigator) {
+    CollectionViewAllRenderer(Navigator navigator) {
         this.navigator = navigator;
     }
 
@@ -30,19 +30,20 @@ class CollectionsViewAllRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<CollectionItem> items) {
+        final ViewAllCollectionItem collectionItem = (ViewAllCollectionItem) items.get(position);
         final TextView viewAllTextView = (TextView) itemView.findViewById(R.id.sounds_view_all_text);
 
         viewAllTextView.setText(R.string.collections_view_all_tracks);
-        itemView.setOnClickListener(viewAll(items.get(position).getType()));
+        itemView.setOnClickListener(viewAll(collectionItem.getTarget()));
     }
 
     @NonNull
-    private View.OnClickListener viewAll(final int collectionItemType) {
+    private View.OnClickListener viewAll(final int target) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch(collectionItemType) {
-                    case CollectionItem.TYPE_PLAY_HISTORY_TRACKS_VIEW_ALL:
+                switch(target) {
+                    case ViewAllCollectionItem.TYPE_PLAY_HISTORY:
                         navigator.openPlayHistory(v.getContext());
                         break;
                     default:

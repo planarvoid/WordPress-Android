@@ -108,14 +108,14 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromPlaylistItem(playlistItems.get(0)),
-                CollectionItem.fromPlaylistItem(playlistItems.get(1)),
-                CollectionItem.fromKillFilter(),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                PlaylistCollectionItem.create(playlistItems.get(0)),
+                PlaylistCollectionItem.create(playlistItems.get(1)),
+                PlaylistRemoveFilterCollectionItem.create(),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -127,14 +127,14 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromPlaylistItem(playlistItems.get(0)),
-                CollectionItem.fromPlaylistItem(playlistItems.get(1)),
-                CollectionItem.fromKillFilter(),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                PlaylistCollectionItem.create(playlistItems.get(0)),
+                PlaylistCollectionItem.create(playlistItems.get(1)),
+                PlaylistRemoveFilterCollectionItem.create(),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -146,14 +146,14 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showOfflineOnly(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromPlaylistItem(playlistItems.get(0)),
-                CollectionItem.fromPlaylistItem(playlistItems.get(1)),
-                CollectionItem.fromKillFilter(),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                PlaylistCollectionItem.create(playlistItems.get(0)),
+                PlaylistCollectionItem.create(playlistItems.get(1)),
+                PlaylistRemoveFilterCollectionItem.create(),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -165,13 +165,13 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).showLikes(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromPlaylistItem(playlistItems.get(0)),
-                CollectionItem.fromPlaylistItem(playlistItems.get(1)),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                PlaylistCollectionItem.create(playlistItems.get(0)),
+                PlaylistCollectionItem.create(playlistItems.get(1)),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -183,13 +183,13 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromPlaylistItem(playlistItems.get(0)),
-                CollectionItem.fromPlaylistItem(playlistItems.get(1)),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                PlaylistCollectionItem.create(playlistItems.get(0)),
+                PlaylistCollectionItem.create(playlistItems.get(1)),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -201,12 +201,12 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromEmptyPlaylists(),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                EmptyPlaylistCollectionItem.create(),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -218,12 +218,12 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromEmptyPlaylists(),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                EmptyPlaylistCollectionItem.create(),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -237,12 +237,12 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromEmptyPlaylists(),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                EmptyPlaylistCollectionItem.create(),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -254,12 +254,12 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromEmptyPlaylists(),
-                CollectionItem.fromPlayHistoryTracksHeader(),
-                CollectionItem.fromPlayHistoryTracksItem(PLAY_HISTORY.get(0)),
-                CollectionItem.fromPlayHistoryTracksViewAll()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                EmptyPlaylistCollectionItem.create(),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
         );
     }
 
@@ -312,9 +312,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromEmptyPlaylists()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                EmptyPlaylistCollectionItem.create()
         );
     }
 
@@ -327,9 +327,9 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                CollectionItem.fromCollectionsPreview(myCollection.getLikes(), myCollection.getRecentStations()),
-                CollectionItem.fromPlaylistHeader(),
-                CollectionItem.fromEmptyPlaylists()
+                PreviewCollectionItem.create(myCollection.getLikes(), myCollection.getRecentStations()),
+                HeaderCollectionItem.forPlaylists(),
+                EmptyPlaylistCollectionItem.create()
         );
     }
 

@@ -27,7 +27,7 @@ import java.util.List;
 class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
 
     public static final int TOUCH_DELEGATE_DP = 8;
-    
+
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
@@ -54,7 +54,8 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(int position, View view, List<CollectionItem> list) {
-        final PlaylistItem playlistItem = list.get(position).getPlaylistItem();
+        final PlaylistCollectionItem item = (PlaylistCollectionItem) list.get(position);
+        final PlaylistItem playlistItem = item.getPlaylistItem();
         final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
         final TextView title = (TextView) view.findViewById(R.id.title);
         final TextView creator = (TextView) view.findViewById(R.id.creator);
