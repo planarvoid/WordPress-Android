@@ -3,7 +3,6 @@ package com.soundcloud.android.creators.record;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.upload.MetadataFragment;
 import com.soundcloud.android.creators.upload.UploadMonitorFragment;
@@ -17,7 +16,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
-import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
@@ -37,8 +35,6 @@ public class RecordActivity extends LoggedInActivity {
     private static final String RECORD_FRAGMENT_TAG = "recording_fragment";
     private static final String METADATA_FRAGMENT_TAG = "metadata_fragment";
     private static final String UPLOAD_PROGRESS_FRAGMENT_TAG = "upload_progress_fragment";
-
-    @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject EventBus eventBus;

@@ -7,13 +7,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelState;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -44,7 +42,6 @@ import android.view.Window;
 public class SlidingPlayerControllerTest extends AndroidUnitTest {
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private ActionBarHelper actionBarHelper;
     @Mock private View layout;
     @Mock private AppCompatActivity activity;
     @Mock private SlidingUpPanelLayout slidingPanel;
@@ -196,13 +193,6 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(slidingPanel, times(0)).setPanelState(PanelState.EXPANDED);
-    }
-
-    @Test
-    public void doesntInteractWithActionBarIfBundleIsNullOnRestoreState() {
-        controller.onCreate(activity, null);
-
-        verifyZeroInteractions(actionBarHelper);
     }
 
     @Test
