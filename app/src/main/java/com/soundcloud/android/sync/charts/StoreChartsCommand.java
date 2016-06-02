@@ -33,15 +33,14 @@ public class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucke
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                storeChartBucket(propeller, input.getGlobal());
-                //TODO store featured genres bucket
-                //storeChartBucket(propeller, input.getFeaturedGenres());
+                storeChartBucket(propeller, input.getGlobal(), Charts.BUCKET_TYPE_GLOBAL);
+                storeChartBucket(propeller, input.getFeaturedGenres(), Charts.BUCKET_TYPE_FEATURED_GENRE);
             }
 
-            private void storeChartBucket(PropellerDatabase propeller, ModelCollection<ApiChart> bucket) {
+            private void storeChartBucket(PropellerDatabase propeller, ModelCollection<ApiChart> bucket, int bucketType) {
                 for (final ApiChart apiChart : bucket) {
                     //Store the chart
-                    final InsertResult chartInsert = propeller.insert(Charts.TABLE, buildChartContentValues(apiChart));
+                    final InsertResult chartInsert = propeller.insert(Charts.TABLE, buildChartContentValues(apiChart, bucketType));
                     step(chartInsert);
 
                     //Store chart tracks
@@ -68,15 +67,15 @@ public class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucke
         return contentValues;
     }
 
-    private ContentValues buildChartContentValues(ApiChart apiChart) {
+    private ContentValues buildChartContentValues(ApiChart apiChart, int bucketType) {
         final ContentValues contentValues = new ContentValues();
-        contentValues.put(Charts.PAGE.name(), apiChart.getPage());
-        contentValues.put(Charts.TITLE.name(), apiChart.getTitle());
+        contentValues.put(Charts.DISPLAY_NAME.name(), apiChart.getDisplayName());
         if (apiChart.getGenre() != null) {
-            contentValues.put(Charts.GENRE.name(), apiChart.getGenre().getNumericId());
+            contentValues.put(Charts.GENRE.name(), apiChart.getGenre().toString());
         }
         contentValues.put(Charts.TYPE.name(), apiChart.getType().value());
         contentValues.put(Charts.CATEGORY.name(), apiChart.getCategory().value());
+        contentValues.put(Charts.BUCKET_TYPE.name(), bucketType);
         return contentValues;
     }
 

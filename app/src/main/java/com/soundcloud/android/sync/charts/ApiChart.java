@@ -8,33 +8,26 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 
 public class ApiChart {
-    private final String page;
-    private final String title;
+    private final String displayName;
     private final Urn genre;
     private final ChartType type;
     private final ChartCategory category;
     private final ModelCollection<ApiTrack> tracks;
 
-    public ApiChart(@JsonProperty("page") String page,
-                    @JsonProperty("title") String title,
+    public ApiChart(@JsonProperty("displayName") String displayName,
                     @JsonProperty("genre") Urn genre,
                     @JsonProperty("type") ChartType type,
                     @JsonProperty("category") ChartCategory category,
                     @JsonProperty("tracks") ModelCollection<ApiTrack> tracks) {
-        this.page = page;
-        this.title = title;
+        this.displayName = displayName;
         this.genre = genre;
         this.type = type;
         this.category = category;
         this.tracks = tracks;
     }
 
-    public String getPage() {
-        return page;
-    }
-
-    public String getTitle() {
-        return title;
+    public String getDisplayName() {
+        return displayName;
     }
 
     public Urn getGenre() {

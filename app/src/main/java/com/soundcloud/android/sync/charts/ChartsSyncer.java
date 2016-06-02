@@ -26,14 +26,7 @@ public class ChartsSyncer implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        //TODO real API endpoint
-        String path = ApiEndpoints.CHARTS_FEATURED.path();
-        path = "http://10.0.3.2:9090/charts/featured";
-        final ApiRequest request =
-                ApiRequest.get(path)
-                          .withHeader("X-FIXME-Locale", "en-US")
-                          .forPrivateApi()
-                          .build();
+        final ApiRequest request = ApiRequest.get(ApiEndpoints.CHARTS_FEATURED.path()).forPrivateApi().build();
         final ApiChartBucket apiCharts = getApiCharts(request);
         final WriteResult writeResult = storeChartsCommand.call(apiCharts);
         return writeResult.success();

@@ -11,6 +11,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.charts.StoreChartsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -18,8 +19,10 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import java.util.Arrays;
+import android.support.annotation.NonNull;
+
 import java.util.Collections;
+import java.util.List;
 
 
 public class ChartsOperationsTest extends AndroidUnitTest {
@@ -51,9 +54,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void waitsForSyncerToReturnData() {
-        final Chart hotAndNewChart = createHotAndNewChart();
-        final Chart topFiftyChart = createTopFiftyChart();
-        initChartsWithTracks(hotAndNewChart, topFiftyChart);
+        initChartsForModule();
 
         operations.charts().subscribe(subscriber);
         subscriber.assertNoValues();
@@ -65,10 +66,8 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsDiscoveryItemWithHotAndNewAndTopFiftyCharts() {
-        final Chart hotAndNewChart = createHotAndNewChart();
-        final Chart topFiftyChart = createTopFiftyChart();
-        initChartsWithTracks(hotAndNewChart, topFiftyChart);
+    public void returnsDiscoveryItemWithHotAndNewAndTopFiftyChartsAndGenres() {
+        final List<Chart> charts = initChartsForModule();
 
         operations.charts().subscribe(subscriber);
         syncSubject.onNext(true);
@@ -77,14 +76,13 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final DiscoveryItem chartsItem = subscriber.getOnNextEvents().get(0);
 
         assertThat(chartsItem).isInstanceOf(ChartsItem.class);
-        assertThat(((ChartsItem) chartsItem).getNewAndHotChart().localId()).isEqualTo(hotAndNewChart.localId());
-        assertThat(((ChartsItem) chartsItem).getTopFiftyChart().localId()).isEqualTo(topFiftyChart.localId());
+        checkChartsModule(charts, (ChartsItem) chartsItem);
     }
 
     @Test
     public void absentDiscoveryItemWithoutNewAndHot() {
         final Chart topFiftyChart = createTopFiftyChart();
-        initChartsWithTracks(topFiftyChart);
+        initChartsWithTracks(Collections.singletonList(topFiftyChart));
 
         operations.charts().subscribe(subscriber);
         syncSubject.onNext(true);
@@ -95,7 +93,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     @Test
     public void absentDiscoveryItemWithoutTopFifty() {
         final Chart hotAndNewChart = createHotAndNewChart();
-        initChartsWithTracks(hotAndNewChart);
+        initChartsWithTracks(Collections.singletonList(hotAndNewChart));
 
         operations.charts().subscribe(subscriber);
         syncSubject.onNext(true);
@@ -103,27 +101,45 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         subscriber.assertNoValues();
     }
 
+    private void checkChartsModule(List<Chart> charts, ChartsItem chartsItem) {
+        assertThat(chartsItem.newAndHotChart().localId()).isEqualTo(charts.get(0).localId());
+        assertThat(chartsItem.topFiftyChart().localId()).isEqualTo(charts.get(1).localId());
+        assertThat(chartsItem.firstGenreChart().localId()).isEqualTo(charts.get(2).localId());
+        assertThat(chartsItem.secondGenreChart().localId()).isEqualTo(charts.get(3).localId());
+        assertThat(chartsItem.thirdGenreChart().localId()).isEqualTo(charts.get(4).localId());
+    }
+
+    @NonNull
+    private List<Chart> initChartsForModule() {
+        final List<Chart> charts = Lists.newArrayList(createHotAndNewChart(), createTopFiftyChart(), createGenreChart(3L), createGenreChart(4L), createGenreChart(5L));
+        initChartsWithTracks(charts);
+        return charts;
+    }
+
     private Chart createHotAndNewChart() {
-        return createChart(1L, ChartType.TRENDING, ChartCategory.NONE);
+        return createChart(1L, ChartType.TRENDING, ChartCategory.NONE, ChartBucketType.GLOBAL);
     }
 
     private Chart createTopFiftyChart() {
-        return createChart(2L, ChartType.TOP, ChartCategory.NONE);
+        return createChart(2L, ChartType.TOP, ChartCategory.NONE, ChartBucketType.GLOBAL);
     }
 
-    private Chart createChart(long localId, ChartType trending, ChartCategory none) {
+    private Chart createGenreChart(long localId) {
+        return createChart(localId, ChartType.TRENDING, ChartCategory.MUSIC, ChartBucketType.FEATURED_GENRES);
+    }
+
+    private Chart createChart(long localId, ChartType trending, ChartCategory none, ChartBucketType chartBucketType) {
         return Chart.create(localId,
                             trending,
                             none,
                             "title",
-                            "page",
-                            Optional.<Urn>absent(),
+                            new Urn("soundcloud:chart"),
+                            chartBucketType,
                             Collections.singletonList(ChartTrack.create(Urn.forTrack(localId),
                                                                         Optional.<String>absent())));
     }
 
-    private void initChartsWithTracks(Chart... charts) {
-        when(chartsStorage.charts()).thenReturn(Observable.just(Arrays.asList(charts)));
+    private void initChartsWithTracks(List<Chart> charts) {
+        when(chartsStorage.charts()).thenReturn(Observable.just(charts));
     }
-
 }

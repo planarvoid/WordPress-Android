@@ -5,6 +5,7 @@ import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.discovery.ChartBucketType;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
@@ -33,7 +34,6 @@ import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.users.UserRecord;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
 import android.content.ContentValues;
@@ -379,15 +379,15 @@ public class DatabaseFixtures {
         return station;
     }
 
-    public Chart insertChart(ApiChart apiChart) {
+    public Chart insertChart(ApiChart apiChart, int bucketType) {
         final ContentValues cv = new ContentValues();
-        cv.put(Tables.Charts.PAGE.name(), apiChart.getPage());
-        cv.put(Tables.Charts.TITLE.name(), apiChart.getTitle());
+        cv.put(Tables.Charts.DISPLAY_NAME.name(), apiChart.getDisplayName());
         if (apiChart.getGenre() != null) {
-            cv.put(Tables.Charts.GENRE.name(), apiChart.getGenre().getNumericId());
+            cv.put(Tables.Charts.GENRE.name(), apiChart.getGenre().toString());
         }
         cv.put(Tables.Charts.TYPE.name(), apiChart.getType().value());
         cv.put(Tables.Charts.CATEGORY.name(), apiChart.getCategory().value());
+        cv.put(Tables.Charts.BUCKET_TYPE.name(), bucketType);
         long chartLocalId = insertInto(Tables.Charts.TABLE, cv);
 
         final ApiUser user = insertUser();
@@ -396,14 +396,22 @@ public class DatabaseFixtures {
         for (final ApiTrack track : apiChartTracks) {
             chartTracks.add(insertChartTrack(track, user, chartLocalId));
         }
-
         return Chart.create(chartLocalId,
                             apiChart.getType(),
                             apiChart.getCategory(),
-                            apiChart.getTitle(),
-                            apiChart.getPage(),
-                            Optional.fromNullable(apiChart.getGenre()),
+                            apiChart.getDisplayName(),
+                            apiChart.getGenre(),
+                            getChartBucketType(bucketType),
                             chartTracks);
+    }
+
+    private ChartBucketType getChartBucketType(int bucketType) {
+        switch(bucketType) {
+            case Tables.Charts.BUCKET_TYPE_FEATURED_GENRE:
+                return ChartBucketType.FEATURED_GENRES;
+            default:
+                return ChartBucketType.GLOBAL;
+        }
     }
 
     private ChartTrack insertChartTrack(ApiTrack seedTrack, ApiUser apiUser, long chartLocalId) {

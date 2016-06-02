@@ -324,6 +324,7 @@
 
     <style name="ViewAllText" parent="TextAppearance.SoundCloudRegularFont">
         <item name="android:singleLine">true</item>
+        <item name="android:layout_gravity">center</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/view_all_text_color</item>
         <item name="android:textAllCaps">true</item>

@@ -351,19 +351,22 @@ public interface Tables {
         public static final Charts TABLE = new Charts();
         // columns
         public static final Column _ID = Column.create(TABLE, "_id");
-        public static final Column PAGE = Column.create(TABLE, "page");
-        public static final Column TITLE = Column.create(TABLE, "title");
+        public static final Column DISPLAY_NAME = Column.create(TABLE, "display_name");
         public static final Column GENRE = Column.create(TABLE, "genre");
         public static final Column TYPE = Column.create(TABLE, "type");
         public static final Column CATEGORY = Column.create(TABLE, "category");
+        public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type");
+
+        public static final int BUCKET_TYPE_GLOBAL = 0;
+        public static final int BUCKET_TYPE_FEATURED_GENRE = 1;
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS Charts (" +
                 "_id INTEGER PRIMARY KEY," +
-                "page TEXT, " +
-                "title TEXT, " +
+                "display_name TEXT, " +
                 "genre TEXT, " +
                 "type TEXT, " +
-                "category TEXT" +
+                "category TEXT," +
+                "bucket_type INTEGER" +
                 ");";
 
         protected Charts() {
@@ -384,7 +387,7 @@ public interface Tables {
                 "_id INTEGER PRIMARY KEY," +
                 "chart_id INTEGER, " +
                 "sound_id INTEGER, " +
-                "FOREIGN KEY(chart_id) REFERENCES Charts(_id) " +
+                "FOREIGN KEY(chart_id) REFERENCES Charts(_id), " +
                 "FOREIGN KEY(sound_id) REFERENCES Sounds(_id) " +
                 ");";
 

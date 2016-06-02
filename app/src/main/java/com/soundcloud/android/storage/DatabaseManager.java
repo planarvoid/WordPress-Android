@@ -22,7 +22,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 78;
+    public static final int DATABASE_VERSION = 79;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -240,6 +240,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 78:
                             success = upgradeTo78(db, oldVersion);
+                            break;
+                        case 79:
+                            success = upgradeTo79(db, oldVersion);
                             break;
                         default:
                             break;
@@ -873,6 +876,22 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 78);
+        }
+        return false;
+    }
+
+    /**
+     * Edit charts table to match API changes
+     */
+    private static boolean upgradeTo79(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable(Tables.Charts.TABLE.name(), db);
+            dropTable(Tables.ChartTracks.TABLE.name(), db);
+            db.execSQL(Tables.Charts.SQL);
+            db.execSQL(Tables.ChartTracks.SQL);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 79);
         }
         return false;
     }

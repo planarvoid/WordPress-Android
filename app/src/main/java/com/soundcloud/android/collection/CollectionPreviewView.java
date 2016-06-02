@@ -75,7 +75,7 @@ public class CollectionPreviewView extends FrameLayout {
 
             ImageView thumbnail = (ImageView) thumbnailContainer.getChildAt(j + numEmptyThumbnails);
             imageOperations.displayWithPlaceholder(imageResources.get(j),
-                    ApiImageSize.getListItemImageSize(thumbnailContainer.getResources()), thumbnail);
+                                                   ApiImageSize.getListItemImageSize(thumbnailContainer.getResources()), thumbnail);
         }
     }
 

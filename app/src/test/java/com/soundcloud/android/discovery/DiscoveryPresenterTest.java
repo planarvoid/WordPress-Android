@@ -57,7 +57,6 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private Navigator navigator;
     @Mock private FeatureFlags featureFlags;
-    @Mock private ChartsPresenter chartsPresenter;
     @Mock private StartStationPresenter startStationPresenter;
 
     private EventBus eventBus = new TestEventBus();

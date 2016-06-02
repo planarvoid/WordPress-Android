@@ -53,10 +53,10 @@ class ChartsStorage {
         final Query query = Query.from(Charts.TABLE)
                                  .select(Charts._ID,
                                          Charts.TYPE,
-                                         Charts.TITLE,
+                                         Charts.DISPLAY_NAME,
                                          Charts.CATEGORY,
                                          Charts.GENRE,
-                                         Charts.PAGE);
+                                         Charts.BUCKET_TYPE);
 
         return propellerRx.query(query)
                           .map(new ChartMapper())
@@ -93,9 +93,20 @@ class ChartsStorage {
             return Chart.create(cursorReader.getLong(Charts._ID),
                                 ChartType.from(cursorReader.getString(Charts.TYPE)),
                                 ChartCategory.from(cursorReader.getString(Charts.CATEGORY)),
-                                cursorReader.getString(Charts.TITLE),
-                                cursorReader.getString(Charts.PAGE),
-                                genre != null ? Optional.of(new Urn(genre)) : Optional.<Urn>absent());
+                                cursorReader.getString(Charts.DISPLAY_NAME),
+                                new Urn(genre),
+                                toChartBucketType(cursorReader.getInt(Charts.BUCKET_TYPE)));
+        }
+
+        private ChartBucketType toChartBucketType(int bucketType) {
+            switch(bucketType) {
+                case Charts.BUCKET_TYPE_GLOBAL:
+                    return ChartBucketType.GLOBAL;
+                case Charts.BUCKET_TYPE_FEATURED_GENRE:
+                    return ChartBucketType.FEATURED_GENRES;
+                default:
+                    throw new IllegalArgumentException("Unknown type:" + bucketType);
+            }
         }
     }
 }

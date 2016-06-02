@@ -1,20 +1,32 @@
 package com.soundcloud.android.discovery;
 
-class ChartsItem extends DiscoveryItem {
-    private final Chart newAndHotChart;
-    private final Chart topFiftyChart;
+import com.google.auto.value.AutoValue;
 
-    ChartsItem(Chart newAndHotChart, Chart topFiftyChart) {
+@AutoValue
+abstract class ChartsItem extends DiscoveryItem {
+    protected ChartsItem() {
         super(Kind.ChartItem);
-        this.newAndHotChart = newAndHotChart;
-        this.topFiftyChart = topFiftyChart;
     }
 
-    Chart getNewAndHotChart() {
-        return newAndHotChart;
+    static ChartsItem create(Chart newAndHotChart,
+                             Chart topFiftyChart,
+                             Chart firstGenreChart,
+                             Chart secondGenreChart,
+                             Chart thirdGenreChart) {
+        return new AutoValue_ChartsItem(newAndHotChart,
+                                        topFiftyChart,
+                                        firstGenreChart,
+                                        secondGenreChart,
+                                        thirdGenreChart);
     }
 
-    Chart getTopFiftyChart() {
-        return topFiftyChart;
-    }
+    abstract Chart newAndHotChart();
+
+    abstract Chart topFiftyChart();
+
+    abstract Chart firstGenreChart();
+
+    abstract Chart secondGenreChart();
+
+    abstract Chart thirdGenreChart();
 }

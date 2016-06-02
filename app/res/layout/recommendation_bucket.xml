@@ -46,7 +46,7 @@
 
     <View style="@style/Divider.Item" android:id="@+id/recommendations_view_all_divider" />
 
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/recommendations_view_all"
         style="@style/ViewAllContainer"
         android:visibility="gone">
@@ -56,7 +56,7 @@
             style="@style/ViewAllText"
             android:text="@string/recommendation_view_all" />
 
-    </RelativeLayout>
+    </FrameLayout>
 
     <View style="@style/Divider.Section" />
 

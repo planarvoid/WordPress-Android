@@ -6,6 +6,8 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.Tables.Charts;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -35,8 +37,10 @@ public class ChartsStorageTest extends StorageIntegrationTest {
 
     @Test
     public void returnsChartsWithTracksFromDb() {
-        final Chart sourceChart1 = testFixtures().insertChart(createChart(3, ChartType.TOP));
-        final Chart sourceChart2 = testFixtures().insertChart(createChart(3, ChartType.TRENDING));
+        final Chart sourceChart1 = testFixtures().insertChart(createChart(3, ChartType.TOP),
+                                                              Charts.BUCKET_TYPE_GLOBAL);
+        final Chart sourceChart2 = testFixtures().insertChart(createChart(3, ChartType.TRENDING),
+                                                              Charts.BUCKET_TYPE_GLOBAL);
 
         storage.charts().subscribe(subscriber);
 
@@ -56,6 +60,6 @@ public class ChartsStorageTest extends StorageIntegrationTest {
     private ApiChart createChart(int countOfTracks, ChartType type) {
         final ModelCollection<ApiTrack> chartTracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class,
                                                                                                  countOfTracks));
-        return new ApiChart("page", "title", null, type, ChartCategory.NONE, chartTracks);
+        return new ApiChart("title", new Urn("soundcloud:genre:all"), type, ChartCategory.NONE, chartTracks);
     }
 }

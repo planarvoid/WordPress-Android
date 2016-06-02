@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO rename styles to Discovery* -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:soundcloud="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Module.Background"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,7 +11,7 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/charts_header"
         style="@style/Module.Header"
-        android:text="@string/recommendation_seeds_header" />
+        android:text="@string/charts_soundcloud" />
 
     <View style="@style/Divider.Section" />
 
@@ -21,7 +19,7 @@
         android:id="@+id/charts_new_and_hot_preview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        soundcloud:collectionTitle="@string/charts_new_and_hot" />
+        app:collectionTitle="@string/charts_new_and_hot" />
 
     <View style="@style/Divider.Section" />
 
@@ -29,7 +27,55 @@
         android:id="@+id/charts_top_fifty_preview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        soundcloud:collectionTitle="@string/charts_top_fifty" />
+        app:collectionTitle="@string/charts_top_fifty"/>
+
+    <View style="@style/Divider.Section" />
+
+    <View style="@style/Divider.Background" />
+
+    <View style="@style/Divider.Section" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/genre_charts_header"
+        style="@style/Module.Header"
+        android:text="@string/recommendation_seeds_header" />
+
+    <View style="@style/Divider.Section" />
+
+    <com.soundcloud.android.collection.CollectionPreviewView
+        android:id="@+id/charts_first_genre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:collectionTitle="1st genre localized title" />
+
+    <View style="@style/Divider.Section" />
+
+    <com.soundcloud.android.collection.CollectionPreviewView
+        android:id="@+id/charts_second_genre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:collectionTitle="2nd genre localized title" />
+
+    <View style="@style/Divider.Section" />
+
+    <com.soundcloud.android.collection.CollectionPreviewView
+        android:id="@+id/charts_third_genre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:collectionTitle="3rd genre localized title" />
+
+    <View style="@style/Divider.Section" />
+
+    <FrameLayout
+        android:id="@+id/charts_genre_view_all"
+        style="@style/ViewAllContainer">
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/charts_genre_view_all_text"
+            style="@style/ViewAllText"
+            android:text="@string/charts_genre_view_all" />
+
+    </FrameLayout>
 
     <View style="@style/Divider.Section" />
 
