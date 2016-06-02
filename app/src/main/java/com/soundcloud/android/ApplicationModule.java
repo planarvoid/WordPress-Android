@@ -213,7 +213,6 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties) {
-        System.out.println("ApplicationModule.provideVideoCastManager");
         for (Constructor<?> constructor : VideoCastManager.class.getConstructors()) {
             System.out.println(constructor);
         }
