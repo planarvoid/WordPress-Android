@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestSubscriber;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -226,6 +227,20 @@ public class TrackDownloadsStorageTest extends StorageIntegrationTest {
 
         List<Urn> offlineTracks = storage.onlyOfflineTracks(tracks);
         assertThat(offlineTracks).isEmpty();
+    }
+
+    @Test
+    public void onlyOfflineTracksHandlesHugePlaylists() {
+        final int bigPlaylist = 1002;
+        final List<Urn> tracks = new ArrayList<>();
+        for (int i = 0; i < bigPlaylist; i++) {
+            final Urn track = Urn.forTrack(i);
+            tracks.add(track);
+            testFixtures().insertCompletedTrackDownload(track, 100, 200);
+        }
+
+        List<Urn> offlineTracks = storage.onlyOfflineTracks(tracks);
+        assertThat(offlineTracks).isEqualTo(tracks);
     }
 
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {

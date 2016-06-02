@@ -15,6 +15,8 @@ import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.EmptyView;
 import org.junit.Test;
+import rx.exceptions.OnErrorFailedException;
+import rx.exceptions.OnErrorThrowable;
 
 import android.content.SyncResult;
 import android.os.Bundle;
@@ -102,7 +104,8 @@ public class ErrorUtilsTest extends AndroidUnitTest {
         Exception rootCause = new Exception();
         assertThat(ErrorUtils.findRootCause(null)).isNull();
         assertThat(ErrorUtils.findRootCause(rootCause)).isSameAs(rootCause);
-        assertThat(ErrorUtils.findRootCause(new Exception(new Exception(rootCause)))).isSameAs(rootCause);
+        assertThat(ErrorUtils.findRootCause(new OnErrorFailedException(rootCause))).isSameAs(rootCause);
+        assertThat(ErrorUtils.findRootCause(OnErrorThrowable.from(rootCause))).isSameAs(rootCause);
     }
 
     @Test

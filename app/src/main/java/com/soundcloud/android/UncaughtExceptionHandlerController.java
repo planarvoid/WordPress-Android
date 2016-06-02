@@ -51,7 +51,7 @@ class UncaughtExceptionHandlerController {
                 } else if (e.getCause() instanceof OnErrorFailedException) {
                     // This is to remove clutter from exceptions that are caught and redirected on RxJava worker threads.
                     // See ScheduledAction.java. It should give us cleaner stack traces containing just the root cause.
-                    crashlyticsHandler.uncaughtException(thread, ErrorUtils.findRootCause(e));
+                    crashlyticsHandler.uncaughtException(thread, ErrorUtils.findRootCause(e.getCause()));
                 } else {
                     crashlyticsHandler.uncaughtException(thread, e);
                 }

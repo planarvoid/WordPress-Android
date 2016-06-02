@@ -187,11 +187,16 @@ public final class ErrorUtils {
             return null;
         } else {
             Throwable rootCause = throwable;
-            while (rootCause.getCause() != null) {
+            while (isRxException(rootCause) && rootCause.getCause() != null) {
                 rootCause = rootCause.getCause();
             }
             return rootCause;
         }
+    }
+
+    private static boolean isRxException(Throwable rootCause) {
+        // Not sure if there is a better way if doing it.
+        return rootCause.toString().startsWith("rx.");
     }
 
     public static EmptyView.Status emptyViewStatusFromError(Throwable error) {

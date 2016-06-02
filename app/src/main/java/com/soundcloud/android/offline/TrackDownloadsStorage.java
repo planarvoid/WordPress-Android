@@ -18,6 +18,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.Urns;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -31,12 +32,14 @@ import rx.functions.Func1;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 class TrackDownloadsStorage {
     private static final long DELAY_BEFORE_REMOVAL = TimeUnit.MINUTES.toMillis(3);
+    private static final int DEFAULT_BATCH_SIZE = 500; // default SQL var limit is 999. Being safe
 
     private static final Func1<CursorReader, Urn> CURSOR_TO_URN = new Func1<CursorReader, Urn>() {
         @Override
@@ -105,12 +108,15 @@ class TrackDownloadsStorage {
     }
 
     public List<Urn> onlyOfflineTracks(List<Urn> tracks) {
-        final Query query = Query.from(TrackDownloads.TABLE)
-                .select(TrackDownloads._ID.as(_ID))
-                .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
-                .whereIn(TrackDownloads._ID, Urns.toIds(tracks));
-
-        return propeller.query(query).toList(new TrackUrnMapper());
+        List<Urn> result = new ArrayList<>((tracks.size() / DEFAULT_BATCH_SIZE) + 1);
+        for (List<Urn> batch : Lists.partition(tracks, DEFAULT_BATCH_SIZE)) {
+            result.addAll(propeller.query(Query.from(TrackDownloads.TABLE)
+                    .select(TrackDownloads._ID.as(_ID))
+                    .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
+                    .whereIn(TrackDownloads._ID, Urns.toIds(batch)))
+                    .toList(new TrackUrnMapper()));
+        }
+        return result;
     }
 
     public Observable<OfflineState> getLikesOfflineState() {
