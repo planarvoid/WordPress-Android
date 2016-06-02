@@ -40,8 +40,4 @@
     <dimen name="go_onboarding_settings_tooltip_margin_top">240dp</dimen>
     <dimen name="go_onboarding_settings_tooltip_margin_bottom">60dp</dimen>
 
-    <!-- Discovery -->
-    <dimen name="recommended_station_card_margin">12dp</dimen>
-    <dimen name="recommended_station_pager_margin">4dp</dimen>
-
 </resources>
