@@ -8,7 +8,7 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
-import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -111,7 +111,8 @@ public class MyProfileOperations {
     Observable<List<PropertySet>> pagedFollowings() {
         return pagedFollowingsFromPosition(Consts.NOT_SET)
                 .subscribeOn(scheduler)
-                .lift(new OperatorSwitchOnEmptyList<>(updatedFollowings()));
+                .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                .switchIfEmpty(updatedFollowings());
     }
 
     Pager.PagingFunction<List<PropertySet>> followingsPagingFunction() {
@@ -184,7 +185,8 @@ public class MyProfileOperations {
     private Observable<List<PropertySet>> likedItems(long beforeTime) {
         return likesStorage.loadLikes(PAGE_SIZE, beforeTime)
                 .subscribeOn(scheduler)
-                .lift(new OperatorSwitchOnEmptyList<>(updatedLikes()));
+                .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                .switchIfEmpty(updatedLikes());
     }
 
     Observable<List<PropertySet>> updatedLikes() {
@@ -239,7 +241,8 @@ public class MyProfileOperations {
 
     Observable<List<PropertySet>> pagedPlaylistItems() {
         return initialPlaylistPage()
-                .lift(new OperatorSwitchOnEmptyList<>(updatedPlaylists()));
+                .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                .switchIfEmpty(updatedPlaylists());
     }
 
     Pager.PagingFunction<List<PropertySet>> playlistPagingFunction() {

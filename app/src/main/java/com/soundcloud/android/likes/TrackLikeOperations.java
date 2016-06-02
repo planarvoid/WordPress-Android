@@ -7,7 +7,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -95,7 +95,8 @@ public class TrackLikeOperations {
 
     private Observable<List<PropertySet>> likedTracks(long beforeTime) {
         return loadLikedTracksInternal(beforeTime)
-                .lift(new OperatorSwitchOnEmptyList<>(updatedLikedTracks()));
+                .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                .switchIfEmpty(updatedLikedTracks());
     }
 
     private Observable<List<PropertySet>> loadLikedTracksInternal(long beforeTime) {

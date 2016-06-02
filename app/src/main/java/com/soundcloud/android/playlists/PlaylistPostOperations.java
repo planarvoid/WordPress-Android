@@ -8,7 +8,6 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -123,6 +122,7 @@ class PlaylistPostOperations {
         return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, beforeTime)
                 .doOnNext(requestPlaylistsSyncAction)
                 .subscribeOn(scheduler)
-                .lift(new OperatorSwitchOnEmptyList<>(updatedPostedPlaylists()));
+                .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                .switchIfEmpty(updatedPostedPlaylists());
     }
 }
