@@ -14,8 +14,8 @@ public final class Actions {
     public static final String USER_BROWSER = BuildConfig.APPLICATION_ID + ".action.USER_BROWSER";
     public static final String PLAYLIST     = BuildConfig.APPLICATION_ID + ".action.PLAYLIST";
     public static final String TRACK        = BuildConfig.APPLICATION_ID + ".action.TRACK";
-    public static final String EXPLORE      = BuildConfig.APPLICATION_ID + ".action.EXPLORE";
     public static final String COLLECTION   = BuildConfig.APPLICATION_ID + ".action.COLLECTION";
+    public static final String MORE         = BuildConfig.APPLICATION_ID + ".action.MORE";
 
     // recording share from third-party apps
     public static final String EXTRA_TITLE       = BuildConfig.APPLICATION_ID + ".extra.title";
