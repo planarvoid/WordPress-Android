@@ -22,7 +22,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -65,18 +64,6 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         options = PlaylistsOptions.builder().build();
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
         presenter = new CollectionPresenter(swipeRefreshAttacher, collectionOperations, collectionOptionsStorage, adapter, optionsPresenter, resources(), eventBus, featureFlags);
-    }
-
-    @Test
-    @Ignore // I cannot get this presenter to work with fragmentRule. Need to look at it again, but need to release now
-    public void unsubscribesFromEventBusInOnDestroyView() {
-        setupDefaultCollection();
-
-        presenter.onCreate(fragmentRule.getFragment(), null);
-        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
-
-        presenter.onDestroyView(fragment);
-        eventBus.verifyUnsubscribed();
     }
 
     @Test
