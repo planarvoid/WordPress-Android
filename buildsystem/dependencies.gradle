@@ -80,7 +80,6 @@ ext {
           androidPlayServicesBase         : "com.google.android.gms:play-services-base:$playServicesVersion",
           androidPlayServicesAuth         : "com.google.android.gms:play-services-auth:$playServicesVersion",
           androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$playServicesVersion",
-          androidPlayServicesAnalytics    : "com.google.android.gms:play-services-analytics:$playServicesVersion",
           androidPlayServicesGCM          : "com.google.android.gms:play-services-gcm:$playServicesVersion"
   ]
 
