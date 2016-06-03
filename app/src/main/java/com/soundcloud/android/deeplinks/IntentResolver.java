@@ -105,6 +105,9 @@ public class IntentResolver {
             case SOUNDCLOUD_GO_BUY:
                 showDirectCheckoutScreen(context, referrer);
                 break;
+            case OFFLINE_SETTINGS:
+                showOfflineSettingsScreen(context, referrer);
+                break;
             case NOTIFICATION_PREFERENCES:
                 showNotificationPreferencesScreen(context, referrer);
                 break;
@@ -196,6 +199,15 @@ public class IntentResolver {
         if (featureOperations.upsellHighTier()) {
             trackForegroundEvent(referrer, Screen.CHECKOUT);
             navigator.openDirectCheckout(context);
+        } else {
+            openFallback(context, referrer);
+        }
+    }
+
+    private void showOfflineSettingsScreen(Context context, String referrer) {
+        if (featureOperations.isOfflineContentOrUpsellEnabled()) {
+            trackForegroundEvent(referrer, Screen.SETTINGS_OFFLINE);
+            navigator.openOfflineSettings(context);
         } else {
             openFallback(context, referrer);
         }

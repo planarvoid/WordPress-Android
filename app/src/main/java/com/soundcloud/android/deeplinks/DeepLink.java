@@ -9,13 +9,14 @@ import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 public enum DeepLink {
-    HOME, STREAM, EXPLORE, SEARCH, RECORD, WEB_VIEW, ENTITY,
-    SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY, NOTIFICATION_PREFERENCES, COLLECTION;
+    HOME, STREAM, EXPLORE, SEARCH, RECORD, WEB_VIEW, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
+    NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
     private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
-            EnumSet.of(EXPLORE, SEARCH, RECORD, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY, NOTIFICATION_PREFERENCES, COLLECTION);
+            EnumSet.of(EXPLORE, SEARCH, RECORD, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
+                    NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),
@@ -99,6 +100,8 @@ public enum DeepLink {
                 return SOUNDCLOUD_GO_UPSELL;
             case "buysoundcloudgo":
                 return SOUNDCLOUD_GO_BUY;
+            case "settings_offlinelistening":
+                return OFFLINE_SETTINGS;
             case "notification_preferences":
                 return NOTIFICATION_PREFERENCES;
             default:

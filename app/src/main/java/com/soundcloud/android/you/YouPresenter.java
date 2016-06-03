@@ -201,7 +201,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
 
     @Override
     public void onBasicSettingsClicked(View view) {
-        navigator.openSettings(view.getContext());
+        navigator.openBasicSettings(view.getContext());
     }
 
     @Override

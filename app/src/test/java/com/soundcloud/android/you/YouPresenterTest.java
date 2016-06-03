@@ -258,7 +258,7 @@ public class YouPresenterTest extends AndroidUnitTest {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onBasicSettingsClicked(new View(context()));
 
-        verify(navigator).openSettings(context());
+        verify(navigator).openBasicSettings(context());
     }
 
     @Test

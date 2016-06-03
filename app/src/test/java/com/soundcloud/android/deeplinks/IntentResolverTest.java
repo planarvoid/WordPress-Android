@@ -404,6 +404,28 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldLaunchOfflineSettingsForSoundCloudScheme() {
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(true);
+        setupIntentForUrl("soundcloud://settings_offlinelistening");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER, Screen.SETTINGS_OFFLINE);
+        verify(navigator).openOfflineSettings(context);
+    }
+
+    @Test
+    public void shouldNotLaunchOfflineSettingsWhenPlanAndUpsellAreDisabled() {
+        when(featureOperations.isOfflineContentOrUpsellEnabled()).thenReturn(false);
+        setupIntentForUrl("soundcloud://settings_offlinelistening");
+
+        resolver.handleIntent(intent, context);
+
+        verifyTrackingEvent(Referrer.OTHER);
+        verify(navigator).openStream(context, Screen.DEEPLINK);
+    }
+
+    @Test
     public void shouldNotLaunchCheckoutWhenUpsellFeatureIsDisabled() {
         when(featureOperations.upsellHighTier()).thenReturn(false);
         setupIntentForUrl("soundcloud://buysoundcloudgo");

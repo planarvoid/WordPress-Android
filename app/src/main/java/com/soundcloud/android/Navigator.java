@@ -232,7 +232,7 @@ public class Navigator {
         context.startActivity(new Intent(context, ActivitiesActivity.class));
     }
 
-    public void openSettings(Context context) {
+    public void openBasicSettings(Context context) {
         context.startActivity(new Intent(context, SettingsActivity.class));
     }
 
@@ -286,6 +286,10 @@ public class Navigator {
 
     public void openCollection(Context context) {
         context.startActivity(new Intent(Actions.COLLECTION));
+    }
+
+    public void openMore(Context context) {
+        context.startActivity(new Intent(Actions.MORE).setFlags(FLAGS_TOP));
     }
 
     public void openLauncher(Context context) {
