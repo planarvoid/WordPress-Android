@@ -37,6 +37,7 @@ public final class TestConsts {
 
     public static final Uri HOME_URI = Uri.parse("soundcloud://home");
     public static final Uri UPGRADE_URI = Uri.parse("soundcloud://soundcloudgo");
+    public static final Uri OFFLINE_SETTINGS_URI = Uri.parse("soundcloud://settings_offlinelistening");
 
     public static final Uri OTHER_PROFILE_USER_URI = Uri.parse("https://soundcloud.com/"+ TestUser.otherProfileUser.getPermalink());
     public static final Uri OTHER_PROFILE_ALBUM_USER_URI = Uri.parse("https://soundcloud.com/"+ TestUser.profileTestUser.getPermalink());

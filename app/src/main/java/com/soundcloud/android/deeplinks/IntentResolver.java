@@ -205,8 +205,12 @@ public class IntentResolver {
     }
 
     private void showOfflineSettingsScreen(Context context, String referrer) {
-        trackForegroundEvent(referrer, Screen.SETTINGS_OFFLINE);
-        navigator.openOfflineSettings(context);
+        if (featureOperations.isOfflineContentOrUpsellEnabled()) {
+            trackForegroundEvent(referrer, Screen.SETTINGS_OFFLINE);
+            navigator.openOfflineSettings(context);
+        } else {
+            openFallback(context, referrer);
+        }
     }
 
     private void openFallback(Context context, String referrer) {
