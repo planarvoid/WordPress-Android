@@ -109,7 +109,7 @@
     <dimen name="recommendations_cell_text_recommended_padding_top">8dp</dimen>
     <dimen name="recommendations_cell_text_recommended_padding_bottom">8dp</dimen>
     <dimen name="recommendations_cell_text_recommended_margin">4dp</dimen>
-    <dimen name="recommendation_item_size">140dp</dimen>
+    <dimen name="recommendation_item_size">128dp</dimen>
     <dimen name="recommended_stations_pager">216dp</dimen>
     <dimen name="recommended_station_pager_margin">8dp</dimen>
     <dimen name="recommended_station_card_margin">8dp</dimen>

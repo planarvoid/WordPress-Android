@@ -98,7 +98,7 @@
 
     <style name="Recommendation.RecommendationItem">
         <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginRight">16dp</item>
     </style>
 
     <style name="Recommendation.RecommendationArtwork">
