@@ -3,7 +3,7 @@ package com.soundcloud.android.commands;
 import static com.soundcloud.android.storage.Table.Users;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -37,7 +37,7 @@ public class StoreUsersCommandTest extends StorageIntegrationTest {
         final ApiUser user = testFixtures().insertUser();
         user.setUsername("new username");
 
-        command.call(asList(user));
+        command.call(singletonList(user));
 
         assertThat(select(from(Users.name()))).counts(1);
         databaseAssertions().assertUserInserted(user);

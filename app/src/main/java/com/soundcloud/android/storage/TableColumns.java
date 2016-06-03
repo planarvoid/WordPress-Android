@@ -174,6 +174,7 @@ public final class TableColumns {
         public static final String USER_FOLLOWING = "user_following";
         public static final String USER_FOLLOWER = "user_follower";
         public static final String PERMALINK_URL = "permalink_url";
+        public static final String ARTIST_STATION = "artist_station";
 
         public static final String PRIMARY_EMAIL_CONFIRMED = "primary_email_confirmed";
         public static final String PUBLIC_LIKES_COUNT = "public_favorites_count";

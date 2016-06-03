@@ -3,13 +3,15 @@ package com.soundcloud.android.users;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UserStorageTest  extends StorageIntegrationTest {
+public class UserStorageTest extends StorageIntegrationTest {
 
     private static final String DESCRIPTION = "description";
     private static final String WEBSITE_URL = "websiteUrl";
@@ -29,8 +31,7 @@ public class UserStorageTest  extends StorageIntegrationTest {
 
         PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getApiUserProperties(apiUser)
-                .put(UserProperty.IS_FOLLOWED_BY_ME, false));
+        assertThat(user).isEqualTo(getApiUserProperties(apiUser));
     }
 
     @Test
@@ -41,8 +42,7 @@ public class UserStorageTest  extends StorageIntegrationTest {
 
         PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getBaseApiUserProperties(apiUser)
-                .put(UserProperty.IS_FOLLOWED_BY_ME, false));
+        assertThat(user).isEqualTo(getBaseApiUserProperties(apiUser));
     }
 
     @Test
@@ -52,8 +52,7 @@ public class UserStorageTest  extends StorageIntegrationTest {
 
         PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getExtendedUserProperties(apiUser)
-                .put(UserProperty.IS_FOLLOWED_BY_ME, false));
+        assertThat(user).isEqualTo(getExtendedUserProperties(apiUser));
     }
 
     @Test
@@ -63,8 +62,8 @@ public class UserStorageTest  extends StorageIntegrationTest {
 
         PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getApiUserProperties(apiUser)
-                .put(UserProperty.IS_FOLLOWED_BY_ME, true));
+        assertThat(user).isEqualTo(
+                getApiUserProperties(apiUser).put(UserProperty.IS_FOLLOWED_BY_ME, true));
     }
 
     @Test
@@ -74,8 +73,19 @@ public class UserStorageTest  extends StorageIntegrationTest {
 
         PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
 
-        assertThat(user).isEqualTo(getApiUserProperties(apiUser)
-                .put(UserProperty.IS_FOLLOWED_BY_ME, false));
+        assertThat(user).isEqualTo(getApiUserProperties(apiUser));
+    }
+
+    @Test
+    public void loadUserWithArtistStation() {
+        final Urn artistStation = Urn.forArtistStation(123);
+        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        testFixtures().insertUser(apiUser, artistStation);
+
+        PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+
+        assertThat(user).isEqualTo(
+                getApiUserProperties(apiUser).put(UserProperty.ARTIST_STATION, Optional.of(artistStation)));
     }
 
     private PropertySet getExtendedUserProperties(ApiUser apiUser) {
@@ -98,7 +108,9 @@ public class UserStorageTest  extends StorageIntegrationTest {
                 UserProperty.URN.bind(apiUser.getUrn()),
                 UserProperty.USERNAME.bind(apiUser.getUsername()),
                 UserProperty.FOLLOWERS_COUNT.bind(apiUser.getFollowersCount()),
-                UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getImageUrlTemplate())
+                UserProperty.IMAGE_URL_TEMPLATE.bind(apiUser.getImageUrlTemplate()),
+                UserProperty.IS_FOLLOWED_BY_ME.bind(false),
+                UserProperty.ARTIST_STATION.bind(Optional.<Urn>absent())
         );
     }
 }

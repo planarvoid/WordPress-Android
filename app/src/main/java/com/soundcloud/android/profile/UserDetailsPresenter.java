@@ -41,7 +41,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
     private Observable<ProfileUser> userDetailsObservable;
     private ProfileUser profileUser;
 
-    public UserDetailsPresenter(UserProfileOperations profileOperations, UserDetailsView userDetailsView) {
+    UserDetailsPresenter(UserProfileOperations profileOperations, UserDetailsView userDetailsView) {
         this.profileOperations = profileOperations;
         this.userDetailsView = userDetailsView;
     }

@@ -9,8 +9,9 @@ import com.soundcloud.android.users.UserRecordHolder;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
-
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
 
@@ -25,6 +26,7 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     private String website;
     private String websiteTitle;
     private String discogsName;
+    private Urn artistStation;
 
     public ApiUser() { /* for Deserialization */ }
 
@@ -71,6 +73,15 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
         this.avatarUrlTemplate = Optional.fromNullable(avatarUrlTemplate);
     }
 
+    @JsonProperty("station_urns")
+    public void setStationUrns(List<Urn> stations){
+        for(Urn stationUrn : stations){
+            if (stationUrn.isArtistStation()){
+                this.artistStation = stationUrn;
+            }
+        }
+    }
+
     @Nullable
     public String getCountry() {
         return country;
@@ -107,6 +118,11 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     @Override
     public Optional<String> getMyspaceName() {
         return Optional.fromNullable(myspaceName);
+    }
+
+    @Override
+    public Optional<Urn> getArtistStationUrn() {
+        return Optional.fromNullable(artistStation);
     }
 
     @JsonProperty("followers_count")

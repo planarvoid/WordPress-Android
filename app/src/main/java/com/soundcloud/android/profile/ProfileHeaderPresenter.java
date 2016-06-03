@@ -32,6 +32,7 @@ class ProfileHeaderPresenter {
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
     private final FeatureFlags featureFlags;
+    private final StartStationPresenter startStationPresenter;
 
     @Bind(R.id.header_info_layout) View headerInfoLayout;
     @Bind(R.id.tab_indicator) View tabs;
@@ -54,6 +55,7 @@ class ProfileHeaderPresenter {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
         this.featureFlags = featureFlags;
+        this.startStationPresenter = startStationPresenter;
 
         ButterKnife.bind(this, profileActivity);
 
@@ -71,14 +73,6 @@ class ProfileHeaderPresenter {
                 }
             });
         }
-
-        stationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateStationButton();
-                startStationPresenter.startStationForUser(v.getContext(), user);
-            }
-        });
 
         image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,7 +98,7 @@ class ProfileHeaderPresenter {
         }
     }
 
-    private void setProfileButtons(ProfileUser user) {
+    private void setProfileButtons(final ProfileUser user) {
         if (user.getFollowerCount() != Consts.NOT_SET) {
             followerCount.setText(numberFormatter.format(user.getFollowerCount()));
             followerCount.setVisibility(View.VISIBLE);
@@ -113,7 +107,7 @@ class ProfileHeaderPresenter {
         }
 
         if (featureFlags.isEnabled(Flag.USER_STATIONS)) {
-            stationButton.setVisibility(View.VISIBLE);
+            showArtistStationButton(user);
         } else {
             // keep unchanged functionality unchanged until we ship user stations
             if (followButton instanceof ProfileToggleButton) {
@@ -123,6 +117,19 @@ class ProfileHeaderPresenter {
 
         followButton.setChecked(user.isFollowed());
         updateStationButton();
+    }
+
+    private void showArtistStationButton(final ProfileUser user) {
+        if (user.getArtistStationUrn().isPresent()) {
+            stationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    updateStationButton();
+                    startStationPresenter.startStationForUser(v.getContext(), user.getArtistStationUrn().get());
+                }
+            });
+            stationButton.setVisibility(View.VISIBLE);
+        }
     }
 
     public static class ProfileHeaderPresenterFactory {

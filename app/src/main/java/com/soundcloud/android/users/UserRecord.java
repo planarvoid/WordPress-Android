@@ -1,6 +1,7 @@
 package com.soundcloud.android.users;
 
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
 public interface UserRecord extends ImageResource {
@@ -22,4 +23,6 @@ public interface UserRecord extends ImageResource {
     Optional<String> getDiscogsName();
 
     Optional<String> getMyspaceName();
+
+    Optional<Urn> getArtistStationUrn();
 }

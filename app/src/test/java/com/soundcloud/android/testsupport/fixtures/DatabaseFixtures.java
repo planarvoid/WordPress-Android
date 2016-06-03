@@ -347,6 +347,14 @@ public class DatabaseFixtures {
         insertInto(Table.Users, cv);
     }
 
+    public void insertUser(ApiUser user,
+                           Urn artistStation) {
+        ContentValues cv = basicUserContentValues(user);
+        cv.put(TableColumns.Users.ARTIST_STATION, artistStation.toString());
+
+        insertInto(Table.Users, cv);
+    }
+
     public void insertLike(long id, int type, Date createdAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Likes._ID, id);

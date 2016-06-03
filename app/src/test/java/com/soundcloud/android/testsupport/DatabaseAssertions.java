@@ -70,6 +70,7 @@ import static com.soundcloud.android.storage.TableColumns.UserAssociations.RESOU
 import static com.soundcloud.android.storage.TableColumns.UserAssociations.TARGET_ID;
 import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_FOLLOWING;
 import static com.soundcloud.android.storage.TableColumns.UserAssociations.TYPE_RESOURCE_USER;
+import static com.soundcloud.android.storage.TableColumns.Users.ARTIST_STATION;
 import static com.soundcloud.android.storage.TableColumns.Users.AVATAR_URL;
 import static com.soundcloud.android.storage.TableColumns.Users.COUNTRY;
 import static com.soundcloud.android.storage.TableColumns.Users.DESCRIPTION;
@@ -705,12 +706,13 @@ public class DatabaseAssertions {
         assertOptionalColumn(query, WEBSITE_NAME, user.getWebsiteName());
         assertOptionalColumn(query, DISCOGS_NAME, user.getDiscogsName());
         assertOptionalColumn(query, MYSPACE_NAME, user.getMyspaceName());
+        assertOptionalColumn(query, ARTIST_STATION, user.getArtistStationUrn());
         assertThat(select(query)).counts(1);
     }
 
-    private void assertOptionalColumn(Query query, String column, Optional<String> optional) {
+    private <T> void assertOptionalColumn(Query query, String column, Optional<T> optional) {
         if (optional.isPresent()) {
-            query.whereEq(column, optional.get());
+            query.whereEq(column, String.valueOf(optional.get()));
         } else {
             query.whereNull(column);
         }

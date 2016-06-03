@@ -219,6 +219,11 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         return Optional.fromNullable(myspace_name);
     }
 
+    @Override
+    public Optional<Urn> getArtistStationUrn() {
+        return Optional.absent();
+    }
+
     public final void setCountry(@Nullable String country) {
         this.country = country;
     }

@@ -78,4 +78,9 @@ public class TestUserRecord implements UserRecord {
     public Optional<String> getMyspaceName() {
         return Optional.of("myspace-name");
     }
+
+    @Override
+    public Optional<Urn> getArtistStationUrn() {
+        return Optional.of(Urn.forArtistStation(123));
+    }
 }

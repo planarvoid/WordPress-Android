@@ -112,6 +112,7 @@ final class DatabaseSchema {
     static final String DATABASE_CREATE_USERS = "(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "_type INTEGER DEFAULT 0," +
+
             // mini representation
             "username VARCHAR(255)," +
             "avatar_url VARCHAR(255)," +
@@ -123,6 +124,7 @@ final class DatabaseSchema {
             "city VARCHAR(255)," +
             "country VARCHAR(255)," +
 
+            "artist_station TEXT," +
             "plan VARCHAR(16)," +
             "primary_email_confirmed INTEGER," +
 

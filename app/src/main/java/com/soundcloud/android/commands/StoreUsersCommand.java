@@ -1,7 +1,8 @@
 package com.soundcloud.android.commands;
 
+import static com.soundcloud.android.storage.TableColumns.Users;
+
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
@@ -34,28 +35,27 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
     public static ContentValues buildUserContentValues(UserRecord user) {
         final ContentValuesBuilder baseBuilder = getBaseBuilder(user);
 
-        putOptionalString(baseBuilder, user.getDescription(), TableColumns.Users.DESCRIPTION);
-        putOptionalString(baseBuilder, user.getImageUrlTemplate(), TableColumns.Users.AVATAR_URL);
-        putOptionalString(baseBuilder, user.getWebsiteUrl(), TableColumns.Users.WEBSITE_URL);
-        putOptionalString(baseBuilder, user.getWebsiteName(), TableColumns.Users.WEBSITE_NAME);
-        putOptionalString(baseBuilder, user.getDiscogsName(), TableColumns.Users.DISCOGS_NAME);
-        putOptionalString(baseBuilder, user.getMyspaceName(), TableColumns.Users.MYSPACE_NAME);
+        putOptionalValue(baseBuilder, user.getDescription(), Users.DESCRIPTION);
+        putOptionalValue(baseBuilder, user.getImageUrlTemplate(), Users.AVATAR_URL);
+        putOptionalValue(baseBuilder, user.getWebsiteUrl(), Users.WEBSITE_URL);
+        putOptionalValue(baseBuilder, user.getWebsiteName(), Users.WEBSITE_NAME);
+        putOptionalValue(baseBuilder, user.getDiscogsName(), Users.DISCOGS_NAME);
+        putOptionalValue(baseBuilder, user.getMyspaceName(), Users.MYSPACE_NAME);
+        putOptionalValue(baseBuilder, user.getArtistStationUrn(), Users.ARTIST_STATION);
 
         return baseBuilder.get();
     }
 
     private static ContentValuesBuilder getBaseBuilder(UserRecord user) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.Users._ID, user.getUrn().getNumericId())
-                .put(TableColumns.Users.PERMALINK, user.getPermalink())
-                .put(TableColumns.Users.USERNAME, user.getUsername())
-                .put(TableColumns.Users.COUNTRY, user.getCountry())
-                .put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
+                                   .put(Users._ID, user.getUrn().getNumericId())
+                                   .put(Users.PERMALINK, user.getPermalink())
+                                   .put(Users.USERNAME, user.getUsername())
+                                   .put(Users.COUNTRY, user.getCountry())
+                                   .put(Users.FOLLOWERS_COUNT, user.getFollowersCount());
     }
 
-    private static void putOptionalString(ContentValuesBuilder baseBuilder, Optional<String> value, String column) {
-        if (value.isPresent()) {
-            baseBuilder.put(column, value.get());
-        }
+    private static <T> void putOptionalValue(ContentValuesBuilder baseBuilder, Optional<T> value, String column) {
+        baseBuilder.put(column, value.isPresent() ? value.get().toString() : null);
     }
 }
