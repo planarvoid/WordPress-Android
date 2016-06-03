@@ -3,7 +3,6 @@ package com.soundcloud.android.comments;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.PlayerActivity;
@@ -16,7 +15,6 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.lightcycle.LightCycle;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -31,8 +29,6 @@ import javax.inject.Inject;
 public class TrackCommentsActivity extends PlayerActivity {
 
     public static final String EXTRA_COMMENTED_TRACK_URN = "extra";
-
-    @Inject @LightCycle ActionBarHelper actionBarHelper;
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject ImageOperations imageOperations;

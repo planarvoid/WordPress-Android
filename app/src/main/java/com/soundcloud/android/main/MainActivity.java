@@ -1,7 +1,6 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
@@ -12,7 +11,6 @@ import com.soundcloud.lightcycle.LightCycle;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
 
 import javax.inject.Inject;
 
@@ -23,7 +21,6 @@ public class MainActivity extends PlayerActivity {
     @Inject Navigator navigator;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
-    @Inject @LightCycle ActionBarHelper actionBarHelper;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
 
@@ -81,9 +78,4 @@ public class MainActivity extends PlayerActivity {
         return mainPresenter.getScreen();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        configureMainOptionMenuItems(menu);
-        return true;
-    }
 }

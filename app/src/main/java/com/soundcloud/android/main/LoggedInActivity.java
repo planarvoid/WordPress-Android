@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.LoggedInController;
 import com.soundcloud.android.accounts.UserRemovedController;
-import com.soundcloud.android.actionbar.ActionBarHelper;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.policies.PolicyUpdateController;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
@@ -29,7 +28,6 @@ public abstract class LoggedInActivity extends RootActivity {
     @Inject @LightCycle UserRemovedController userRemovedController;
     @Inject @LightCycle LoggedInController loggedInController;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
-    @Inject @LightCycle ActionBarHelper actionMenuController;
     @Inject @LightCycle StreamRefreshController streamRefreshController;
     @Inject AccountOperations accountOperations;
 
@@ -45,10 +43,6 @@ public abstract class LoggedInActivity extends RootActivity {
         // This is a workaround. For some devices the back/up button does not work if we don't inflate "some" menu
         getMenuInflater().inflate(R.menu.empty, menu);
         return true;
-    }
-
-    protected void configureMainOptionMenuItems(Menu menu) {
-        actionMenuController.onCreateOptionsMenu(menu, getMenuInflater());
     }
 
     /**
