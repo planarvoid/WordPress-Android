@@ -6,6 +6,6 @@ import com.google.auto.value.AutoValue;
 abstract class OnboardingCollectionItem extends CollectionItem {
 
     static OnboardingCollectionItem create() {
-        return new AutoValue_OnboardingCollectionItem(CollectionItem.TYPE_PLAYLIST_EMPTY);
+        return new AutoValue_OnboardingCollectionItem(CollectionItem.TYPE_ONBOARDING);
     }
 }
