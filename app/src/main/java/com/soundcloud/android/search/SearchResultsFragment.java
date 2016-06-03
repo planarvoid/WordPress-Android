@@ -22,9 +22,9 @@ public class SearchResultsFragment extends LightCycleSupportFragment<SearchResul
 
     @Inject @LightCycle SearchResultsPresenter presenter;
 
-    public static SearchResultsFragment create(int type, String query, boolean publishSearchSubmissionEvent) {
+    public static SearchResultsFragment create(SearchType type, String query, boolean publishSearchSubmissionEvent) {
         final Bundle bundle = new Bundle();
-        bundle.putInt(EXTRA_TYPE, type);
+        bundle.putSerializable(EXTRA_TYPE, type);
         bundle.putString(EXTRA_QUERY, query);
         bundle.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, publishSearchSubmissionEvent);
 

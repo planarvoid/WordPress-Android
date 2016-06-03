@@ -28,12 +28,13 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
-import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
+import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -368,7 +369,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensSearchPremiumContentResults() {
         final List<PropertySet> propertySets = Collections.emptyList();
         final String searchQuery = "query";
-        final int searchType = 1;
+        final SearchType searchType = SearchType.ALL;
         final Optional<Link> nextHref = Optional.absent();
         final Urn queryUrn = Urn.forTrack(1);
 

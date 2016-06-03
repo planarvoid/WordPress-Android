@@ -1,12 +1,8 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchPagerAdapter.TAB_ALL;
-import static com.soundcloud.android.search.SearchPagerAdapter.TAB_TRACKS;
-import static com.soundcloud.android.search.SearchPagerAdapter.TAB_PLAYLISTS;
-import static com.soundcloud.android.search.SearchPagerAdapter.TAB_PEOPLE;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.main.Screen;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -30,6 +26,7 @@ public class TabbedSearchFragment extends Fragment {
 
     @Inject Resources resources;
     @Inject SearchTracker searchTracker;
+    @Inject SearchTypes searchTypes;
 
     private ViewPager pager;
 
@@ -48,15 +45,16 @@ public class TabbedSearchFragment extends Fragment {
     }
 
     @VisibleForTesting
-    TabbedSearchFragment(Resources resources, SearchTracker searchTracker) {
+    TabbedSearchFragment(Resources resources, SearchTracker searchTracker, SearchTypes searchTypes) {
         this.resources = resources;
         this.searchTracker = searchTracker;
+        this.searchTypes = searchTypes;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        searchTracker.trackResultsScreenEvent(TAB_ALL);
+        searchTracker.trackResultsScreenEvent(Screen.SEARCH_EVERYTHING);
     }
 
     @Override
@@ -74,7 +72,7 @@ public class TabbedSearchFragment extends Fragment {
         boolean firstTime = savedInstanceState == null;
 
         SearchPagerAdapter searchPagerAdapter =
-                new SearchPagerAdapter(resources, this.getChildFragmentManager(), query, firstTime);
+                new SearchPagerAdapter(resources, this.getChildFragmentManager(), query, firstTime, searchTypes.available());
 
         pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setAdapter(searchPagerAdapter);
@@ -83,7 +81,7 @@ public class TabbedSearchFragment extends Fragment {
 
         TabLayout tabIndicator = (TabLayout) view.findViewById(R.id.tab_indicator);
         tabIndicator.setupWithViewPager(pager);
-        pager.addOnPageChangeListener(new SearchPagerScreenListener(searchTracker));
+        pager.addOnPageChangeListener(new SearchPagerScreenListener(searchTracker, searchTypes));
     }
 
     @Override
@@ -95,9 +93,11 @@ public class TabbedSearchFragment extends Fragment {
 
     protected static class SearchPagerScreenListener implements ViewPager.OnPageChangeListener {
         private final SearchTracker searchTracker;
+        private final SearchTypes searchTypes;
 
-        public SearchPagerScreenListener(SearchTracker searchTracker) {
+        public SearchPagerScreenListener(SearchTracker searchTracker, SearchTypes searchTypes) {
             this.searchTracker = searchTracker;
+            this.searchTypes = searchTypes;
         }
 
         @Override
@@ -106,22 +106,7 @@ public class TabbedSearchFragment extends Fragment {
 
         @Override
         public void onPageSelected(int pageSelected) {
-            switch (pageSelected) {
-                case TAB_ALL:
-                    searchTracker.trackResultsScreenEvent(TAB_ALL);
-                    break;
-                case TAB_TRACKS:
-                    searchTracker.trackResultsScreenEvent(TAB_TRACKS);
-                    break;
-                case TAB_PLAYLISTS:
-                    searchTracker.trackResultsScreenEvent(TAB_PLAYLISTS);
-                    break;
-                case TAB_PEOPLE:
-                    searchTracker.trackResultsScreenEvent(TAB_PEOPLE);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Did not recognise page in pager to publish screen event");
-            }
+            searchTracker.trackResultsScreenEvent(searchTypes.get(pageSelected));
         }
 
         @Override

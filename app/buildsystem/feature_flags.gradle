@@ -12,7 +12,8 @@ enum Feature {
   EDIT_PLAYLIST,
   USER_STATIONS,
   RECOMMENDED_STATIONS,
-  LOCAL_PLAY_HISTORY;
+  LOCAL_PLAY_HISTORY,
+  ALBUMS;
 }
 
 android {
@@ -25,6 +26,7 @@ android {
     buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), FALSE
+    buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
   }
 
   buildTypes {

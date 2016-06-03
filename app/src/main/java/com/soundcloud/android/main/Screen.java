@@ -68,6 +68,7 @@ public enum Screen {
     SEARCH_MAIN("search:main"),
     SEARCH_EVERYTHING("search:everything"),
     SEARCH_TRACKS("search:tracks"),
+    SEARCH_ALBUMS("search:albums"),
     SEARCH_PLAYLISTS("search:playlists"),
     SEARCH_USERS("search:people"),
     SEARCH_PREMIUM_CONTENT("search:high_tier"),

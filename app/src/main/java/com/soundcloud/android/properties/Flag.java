@@ -15,7 +15,8 @@ public enum Flag {
     EDIT_PLAYLIST(BuildConfig.EDIT_PLAYLIST),
     USER_STATIONS(BuildConfig.USER_STATIONS),
     RECOMMENDED_STATIONS(BuildConfig.RECOMMENDED_STATIONS),
-    LOCAL_PLAY_HISTORY(BuildConfig.LOCAL_PLAY_HISTORY);
+    LOCAL_PLAY_HISTORY(BuildConfig.LOCAL_PLAY_HISTORY),
+    ALBUMS(BuildConfig.ALBUMS);
 
     private final boolean value;
 

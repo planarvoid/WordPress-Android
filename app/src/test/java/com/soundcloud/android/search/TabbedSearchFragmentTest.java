@@ -1,14 +1,13 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchPagerAdapter.TAB_ALL;
-import static com.soundcloud.android.search.SearchPagerAdapter.TAB_PEOPLE;
-import static com.soundcloud.android.search.SearchPagerAdapter.TAB_PLAYLISTS;
-import static com.soundcloud.android.search.SearchPagerAdapter.TAB_TRACKS;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.search.TabbedSearchFragment.SearchPagerScreenListener;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,13 +26,17 @@ public class TabbedSearchFragmentTest extends AndroidUnitTest {
     @Mock private TabLayout mockTabLayout;
     @Mock private ViewPager mockViewPager;
     @Mock private SearchTracker searchTracker;
+    @Mock private FeatureFlags featureFlags;
+    private SearchTypes searchTypes;
 
     @Before
     public void setUp() throws Exception {
+        when(featureFlags.isEnabled(Flag.ALBUMS)).thenReturn(true);
+        searchTypes = new SearchTypes(featureFlags);
         when(mockLayout.findViewById(R.id.pager)).thenReturn(mockViewPager);
         when(mockLayout.findViewById(R.id.tab_indicator)).thenReturn(mockTabLayout);
 
-        fragment = new TabbedSearchFragment(resources(), searchTracker);
+        fragment = new TabbedSearchFragment(resources(), searchTracker, searchTypes);
     }
 
     @Test
@@ -41,34 +44,41 @@ public class TabbedSearchFragmentTest extends AndroidUnitTest {
         fragment.setArguments(new Bundle());
 
         fragment.onViewCreated(mockLayout, null);
-        verify(mockViewPager).addOnPageChangeListener(isA(TabbedSearchFragment.SearchPagerScreenListener.class));
+        verify(mockViewPager).addOnPageChangeListener(isA(SearchPagerScreenListener.class));
     }
 
     @Test
     public void shouldTrackSearchAllScreenOnPageSelected() throws Exception {
-        TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(searchTracker);
+        SearchPagerScreenListener listener = new SearchPagerScreenListener(searchTracker, searchTypes);
         listener.onPageSelected(0);
-        verify(searchTracker).trackResultsScreenEvent(TAB_ALL);
+        verify(searchTracker).trackResultsScreenEvent(SearchType.ALL);
     }
 
     @Test
     public void shouldTrackSearchTracksScreenOnPageSelected() throws Exception {
-        TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(searchTracker);
+        SearchPagerScreenListener listener = new SearchPagerScreenListener(searchTracker, searchTypes);
         listener.onPageSelected(1);
-        verify(searchTracker).trackResultsScreenEvent(TAB_TRACKS);
-    }
-
-    @Test
-    public void shouldTrackSearchPlaylistsScreenOnPageSelected() throws Exception {
-        TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(searchTracker);
-        listener.onPageSelected(2);
-        verify(searchTracker).trackResultsScreenEvent(TAB_PLAYLISTS);
+        verify(searchTracker).trackResultsScreenEvent(SearchType.TRACKS);
     }
 
     @Test
     public void shouldTrackSearchPeopleScreenOnPageSelected() throws Exception {
-        TabbedSearchFragment.SearchPagerScreenListener listener = new TabbedSearchFragment.SearchPagerScreenListener(searchTracker);
+        SearchPagerScreenListener listener = new SearchPagerScreenListener(searchTracker, searchTypes);
+        listener.onPageSelected(2);
+        verify(searchTracker).trackResultsScreenEvent(SearchType.USERS);
+    }
+
+    @Test
+    public void shouldTrackSearchAlbumsScreenOnPageSelected() throws Exception {
+        SearchPagerScreenListener listener = new SearchPagerScreenListener(searchTracker, searchTypes);
         listener.onPageSelected(3);
-        verify(searchTracker).trackResultsScreenEvent(TAB_PEOPLE);
+        verify(searchTracker).trackResultsScreenEvent(SearchType.ALBUMS);
+    }
+
+    @Test
+    public void shouldTrackSearchPlaylistsScreenOnPageSelected() throws Exception {
+        SearchPagerScreenListener listener = new SearchPagerScreenListener(searchTracker, searchTypes);
+        listener.onPageSelected(4);
+        verify(searchTracker).trackResultsScreenEvent(SearchType.PLAYLISTS);
     }
 }

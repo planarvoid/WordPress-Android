@@ -19,6 +19,7 @@ public enum ApiEndpoints {
     // search
     SEARCH_TRACKS("/search/tracks"),
     SEARCH_USERS("/search/users"),
+    SEARCH_ALBUMS("/search/albums"),
     SEARCH_PLAYLISTS("/search/playlists"),
     SEARCH_ALL("/search/universal"),
     SEARCH_SUGGESTIONS("/search/suggest"),
@@ -26,6 +27,7 @@ public enum ApiEndpoints {
     // search premium content
     SEARCH_PREMIUM_TRACKS("/search/tracks/premium_content"),
     SEARCH_PREMIUM_USERS("/search/users/premium_content"),
+    SEARCH_PREMIUM_ALBUMS("/search/albums/premium_content"),
     SEARCH_PREMIUM_PLAYLISTS("/search/playlists/premium_content"),
     SEARCH_PREMIUM_ALL("/search/universal/premium_content"),
 

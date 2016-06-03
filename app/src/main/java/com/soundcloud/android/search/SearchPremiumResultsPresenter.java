@@ -78,7 +78,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     private SearchOperations.SearchPagingFunction pagingFunction;
     private CompositeSubscription viewLifeCycle;
 
-    private int searchType;
+    private SearchType searchType;
     private String searchQuery;
 
     @Inject
@@ -138,7 +138,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
     @Override
     protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
         searchQuery = bundle.getString(EXTRA_SEARCH_QUERY);
-        searchType = bundle.getInt(EXTRA_SEARCH_TYPE);
+        searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_SEARCH_TYPE)).or(SearchType.ALL);
         final List<PropertySet> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
         final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(EXTRA_PREMIUM_CONTENT_NEXT_HREF));
         final Urn queryUrn = bundle.getParcelable(EXTRA_SEARCH_QUERY_URN);

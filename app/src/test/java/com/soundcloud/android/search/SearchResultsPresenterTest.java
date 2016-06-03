@@ -1,6 +1,5 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchOperations.TYPE_ALL;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_QUERY;
 import static com.soundcloud.android.search.SearchResultsFragment.EXTRA_TYPE;
@@ -54,7 +53,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     private static final Urn QUERY_URN = new Urn("soundcloud:search:123");
 
     private static final String SEARCH_QUERY = "query";
-    private static final int SEARCH_TYPE = TYPE_ALL;
+    private static final SearchType SEARCH_TAB = SearchType.ALL;
 
     private SearchResultsPresenter presenter;
 
@@ -84,15 +83,15 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
-                clickListenerFactory, eventBus, navigator, searchTracker);
+                                               clickListenerFactory, eventBus, navigator, searchTracker);
 
         searchQuerySourceInfo = new SearchQuerySourceInfo(QUERY_URN, 0, Urn.forTrack(1));
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
 
 
         when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
-        when(searchOperations.searchResult(anyString(), anyInt())).thenReturn(searchResultObservable);
-        when(searchOperations.pagingFunction(anyInt())).thenReturn(searchPagingFunction);
+        when(searchOperations.searchResult(anyString(), any(SearchType.class))).thenReturn(searchResultObservable);
+        when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class))).thenReturn(searchQuerySourceInfo);
     }
 
@@ -114,7 +113,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onBuildBinding(new Bundle());
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
-        verify(searchTracker).trackSearchItemClick(anyInt(), any(Urn.class), any(SearchQuerySourceInfo.class));
+        verify(searchTracker).trackSearchItemClick(any(SearchType.class), any(Urn.class), any(SearchQuerySourceInfo.class));
     }
 
     @Test
@@ -122,17 +121,17 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupFragmentArguments(false);
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
-        verify(searchTracker, times(0)).trackSearchSubmission(anyInt(), any(Urn.class));
-        verify(searchTracker, times(0)).trackResultsScreenEvent(anyInt());
+        verify(searchTracker, times(0)).trackSearchSubmission(any(SearchType.class), any(Urn.class));
+        verify(searchTracker, times(0)).trackResultsScreenEvent(any(SearchType.class));
     }
 
     @Test
     public void mustTrackSearchResults() {
         presenter.onCreate(fragmentRule.getFragment(), new Bundle());
 
-        verify(searchTracker).setTrackingData(SEARCH_TYPE, QUERY_URN, false);
-        verify(searchTracker).trackSearchSubmission(SEARCH_TYPE, QUERY_URN);
-        verify(searchTracker).trackResultsScreenEvent(SEARCH_TYPE);
+        verify(searchTracker).setTrackingData(SEARCH_TAB, QUERY_URN, false);
+        verify(searchTracker).trackSearchSubmission(SEARCH_TAB, QUERY_URN);
+        verify(searchTracker).trackResultsScreenEvent(SEARCH_TAB);
     }
 
     @Test
@@ -162,7 +161,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         final Optional<Link> nextHref = Optional.absent();
         presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource, nextHref);
 
-        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), anyInt(), eq(premiumItemsSource), eq(nextHref), eq(QUERY_URN));
+        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), any(SearchType.class), eq(premiumItemsSource), eq(nextHref), eq(QUERY_URN));
     }
 
     @Test
@@ -234,7 +233,7 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     private void setupFragmentArguments(boolean publishSearchSubmissionEvent) {
         final Bundle arguments = new Bundle();
         arguments.putString(EXTRA_QUERY, SEARCH_QUERY);
-        arguments.putInt(EXTRA_TYPE, SEARCH_TYPE);
+        arguments.putSerializable(EXTRA_TYPE, SEARCH_TAB);
         arguments.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, publishSearchSubmissionEvent);
         fragmentRule.setFragmentArguments(arguments);
     }

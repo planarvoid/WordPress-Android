@@ -29,6 +29,7 @@ public final class SearchEvent extends TrackingEvent {
     private static final String CONTEXT_GLOBAL = "global";
     private static final String CONTEXT_EVERYTHING = "everything";
     private static final String CONTEXT_TRACKS = "tracks";
+    private static final String CONTEXT_ALBUMS = "albums";
     private static final String CONTEXT_PLAYLISTS = "playlists";
     private static final String CONTEXT_PEOPLE = "people";
     private static final String CONTEXT_TAGS = "tags";
@@ -150,6 +151,8 @@ public final class SearchEvent extends TrackingEvent {
                 return CONTEXT_EVERYTHING;
             case SEARCH_TRACKS:
                 return CONTEXT_TRACKS;
+            case SEARCH_ALBUMS:
+                return CONTEXT_ALBUMS;
             case SEARCH_PLAYLISTS:
                 return CONTEXT_PLAYLISTS;
             case SEARCH_USERS:

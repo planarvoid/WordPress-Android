@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -76,8 +75,8 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
 
         when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         when(searchOperations.searchPremiumResultFrom(any(List.class), any(Optional.class), any(Urn.class))).thenReturn(searchResultObservable);
-        when(searchOperations.searchPremiumResult(anyString(), anyInt())).thenReturn(searchResultObservable);
-        when(searchOperations.pagingPremiumFunction(anyInt())).thenReturn(searchPagingFunction);
+        when(searchOperations.searchPremiumResult(anyString(), any(SearchType.class))).thenReturn(searchResultObservable);
+        when(searchOperations.pagingPremiumFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
     }
 
     @Test

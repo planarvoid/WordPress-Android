@@ -83,7 +83,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                 }
             };
 
-    private int searchType;
+    private SearchType searchType;
     private String searchQuery;
     private Urn queryUrn = Urn.NOT_SET;
     private Boolean publishSearchSubmissionEvent;
@@ -129,7 +129,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
 
     @Override
     protected CollectionBinding<SearchResult, ListItem> onBuildBinding(Bundle bundle) {
-        searchType = bundle.getInt(EXTRA_TYPE);
+        searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_TYPE)).or(SearchType.ALL);
         searchQuery = bundle.getString(EXTRA_QUERY);
         publishSearchSubmissionEvent = bundle.getBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT);
         return createCollectionBinding();
@@ -185,7 +185,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         final Urn urn = adapter.getItem(position).getUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
-        clickListenerFactory.create(searchTracker.getTrackingScreen(searchType),
+        clickListenerFactory.create(searchType.getScreen(),
                 searchQuerySourceInfo).onItemClick(playQueue, view, position);
     }
 
@@ -195,7 +195,7 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         final SearchQuerySourceInfo searchQuerySourceInfo =
                 pagingFunction.getSearchQuerySourceInfo(PREMIUM_ITEMS_POSITION, firstPremiumItemUrn);
         searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
-        clickListenerFactory.create(searchTracker.getTrackingScreen(searchType), searchQuerySourceInfo)
+        clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo)
                 .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList), view, PREMIUM_ITEMS_POSITION);
     }
 

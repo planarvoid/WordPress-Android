@@ -93,13 +93,13 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
         assertThat("Current tab should be ALL", resultsScreen.currentTabTitle(), is("ALL"));
 
         resultsScreen.swipeLeft();
+        assertThat("Current tab should be PEOPLE", resultsScreen.currentTabTitle(), is("PEOPLE"));
+
+        resultsScreen.swipeLeft();
         assertThat("Current tab should be TRACKS", resultsScreen.currentTabTitle(), is("TRACKS"));
 
         resultsScreen.swipeLeft();
         assertThat("Current tab should be PLAYLISTS", resultsScreen.currentTabTitle(), is("PLAYLISTS"));
-
-        resultsScreen.swipeLeft();
-        assertThat("Current tab should be PEOPLE", resultsScreen.currentTabTitle(), is("PEOPLE"));
     }
 
     public void testAllResultsLoadsNextPage() {

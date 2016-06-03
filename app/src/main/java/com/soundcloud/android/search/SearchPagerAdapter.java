@@ -1,65 +1,46 @@
 package com.soundcloud.android.search;
 
-import com.soundcloud.android.R;
-
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-public class SearchPagerAdapter extends FragmentPagerAdapter {
+import java.util.List;
 
-    protected static final int TAB_ALL = SearchOperations.TYPE_ALL;
-    protected static final int TAB_TRACKS = SearchOperations.TYPE_TRACKS;
-    protected static final int TAB_PLAYLISTS = SearchOperations.TYPE_PLAYLISTS;
-    protected static final int TAB_PEOPLE = SearchOperations.TYPE_USERS;
+public class SearchPagerAdapter extends FragmentPagerAdapter {
 
     private final Resources resources;
     private final String query;
     private final boolean firstTime;
+    private final List<SearchType> tabs;
 
-    public SearchPagerAdapter(Resources resources, FragmentManager fm, String query, boolean firstTime) {
+    public SearchPagerAdapter(Resources resources,
+                              FragmentManager fm,
+                              String query,
+                              boolean firstTime,
+                              List<SearchType> tabs) {
         super(fm);
         this.resources = resources;
         this.query = query;
         this.firstTime = firstTime;
+        this.tabs = tabs;
     }
 
     @Override
     public Fragment getItem(int position) {
-        switch(position) {
-            case TAB_ALL:
-                return SearchResultsFragment.create(TAB_ALL, query, firstTime);
-            case TAB_TRACKS:
-                return SearchResultsFragment.create(TAB_TRACKS, query, false);
-            case TAB_PLAYLISTS:
-                return SearchResultsFragment.create(TAB_PLAYLISTS, query, false);
-            case TAB_PEOPLE:
-                return SearchResultsFragment.create(TAB_PEOPLE, query, false);
-            default:
-                throw new IllegalArgumentException("Unexpected position for getEntityHolder " + position);
-        }
+        final SearchType itemType = tabs.get(position);
+        final boolean publishSearchSubmissionEvent = itemType.shouldPublishSearchSubmissionEvent();
+        return SearchResultsFragment.create(itemType, query, firstTime && publishSearchSubmissionEvent);
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        switch (position) {
-            case TAB_ALL:
-                return resources.getString(R.string.search_type_all);
-            case TAB_TRACKS:
-                return resources.getString(R.string.search_type_tracks);
-            case TAB_PLAYLISTS:
-                return resources.getString(R.string.search_type_playlists);
-            case TAB_PEOPLE:
-                return resources.getString(R.string.search_type_people);
-            default:
-                throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
-        }
+        return tabs.get(position).getPageTitle(resources);
     }
 
     @Override
     public int getCount() {
-        return 4;
+        return tabs.size();
     }
 
 }

@@ -114,7 +114,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
     private void playTrackFromQuery(final String query) {
         searchOperations
-                .searchResult(query, SearchOperations.TYPE_TRACKS)
+                .searchResult(query, SearchType.TRACKS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(toPlayWithRecommendations)
                 .subscribe(new PlayFromQuerySubscriber(eventBus, playbackToastHelper, query));
@@ -122,7 +122,7 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
     private void playPlaylist(final String query) {
         searchOperations
-                .searchResult(query, SearchOperations.TYPE_PLAYLISTS)
+                .searchResult(query, SearchType.PLAYLISTS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(toRandomSearchResultItem)
                 .subscribe(new PlayFromPlaylistSubscriber(query));

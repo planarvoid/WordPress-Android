@@ -1,10 +1,5 @@
 package com.soundcloud.android.search;
 
-import static com.soundcloud.android.search.SearchOperations.TYPE_ALL;
-import static com.soundcloud.android.search.SearchOperations.TYPE_PLAYLISTS;
-import static com.soundcloud.android.search.SearchOperations.TYPE_TRACKS;
-import static com.soundcloud.android.search.SearchOperations.TYPE_USERS;
-
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -32,45 +27,49 @@ import java.util.Map;
 public class SearchTracker {
 
     private final EventBus eventBus;
+    private final SearchTypes searchTypes;
     private final Map<Screen, ScreenData> screenDataMap;
     private final FeatureOperations featureOperations;
 
     @Inject
-    public SearchTracker(EventBus eventBus, FeatureOperations featureOperations) {
+    public SearchTracker(EventBus eventBus, FeatureOperations featureOperations, SearchTypes searchTypes) {
         this.eventBus = eventBus;
+        this.searchTypes = searchTypes;
         this.screenDataMap = new EnumMap<>(Screen.class);
         this.featureOperations = featureOperations;
         initializeScreenQueryUrnMap();
     }
 
     private void initializeScreenQueryUrnMap() {
-        this.screenDataMap.put(Screen.SEARCH_EVERYTHING, ScreenData.EMPTY);
-        this.screenDataMap.put(Screen.SEARCH_TRACKS, ScreenData.EMPTY);
-        this.screenDataMap.put(Screen.SEARCH_PLAYLISTS, ScreenData.EMPTY);
-        this.screenDataMap.put(Screen.SEARCH_USERS, ScreenData.EMPTY);
+        for (SearchType searchType : searchTypes.available()) {
+            this.screenDataMap.put(searchType.getScreen(), ScreenData.EMPTY);
+        }
     }
 
     public void trackMainScreenEvent() {
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_MAIN));
     }
 
-    void trackSearchSubmission(int searchType, Urn queryUrn) {
+    void trackSearchSubmission(SearchType searchType, Urn queryUrn) {
         if (queryUrn != Urn.NOT_SET) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.searchStart(getTrackingScreen(searchType),
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.searchStart(searchType.getScreen(),
                     new SearchQuerySourceInfo(queryUrn)));
         }
     }
 
-    void trackSearchItemClick(int searchType, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        publishItemClickEvent(getTrackingScreen(searchType), urn, searchQuerySourceInfo);
+    void trackSearchItemClick(SearchType searchType, Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
+        publishItemClickEvent(searchType.getScreen(), urn, searchQuerySourceInfo);
     }
 
     void trackSearchPremiumItemClick(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
         publishItemClickEvent(getPremiumTrackingScreen(), urn, searchQuerySourceInfo);
     }
 
-    void trackResultsScreenEvent(int searchType) {
-        final Screen trackingScreen = getTrackingScreen(searchType);
+    void trackResultsScreenEvent(SearchType searchType) {
+        trackResultsScreenEvent(searchType.getScreen());
+    }
+
+    void trackResultsScreenEvent(Screen trackingScreen) {
         if (screenDataMap.containsKey(trackingScreen)) {
             final ScreenData screenData = screenDataMap.get(trackingScreen);
             final Urn queryUrn = screenData.queryUrn;
@@ -92,9 +91,9 @@ public class SearchTracker {
         }
     }
 
-    void trackResultsUpsellClick(int searchType) {
+    void trackResultsUpsellClick(SearchType searchType) {
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeFunnelEvent.forSearchResultsClick(getTrackingScreen(searchType)));
+                UpgradeFunnelEvent.forSearchResultsClick(searchType.getScreen()));
     }
 
     void trackPremiumResultsUpsellImpression() {
@@ -107,30 +106,14 @@ public class SearchTracker {
                 UpgradeFunnelEvent.forSearchPremiumResultsClick(getPremiumTrackingScreen()));
     }
 
-    void setTrackingData(int searchType, Urn queryUrn, boolean hasPremiumContent) {
-        final Screen trackingScreen = getTrackingScreen(searchType);
-        if (screenDataMap.containsKey(trackingScreen)) {
-            screenDataMap.put(trackingScreen, new ScreenData(queryUrn, hasPremiumContent));
+    void setTrackingData(SearchType searchType, Urn queryUrn, boolean hasPremiumContent) {
+        if (screenDataMap.containsKey(searchType.getScreen())) {
+            screenDataMap.put(searchType.getScreen(), new ScreenData(queryUrn, hasPremiumContent));
         }
     }
 
     void reset() {
         this.initializeScreenQueryUrnMap();
-    }
-
-    Screen getTrackingScreen(int searchType) {
-        switch (searchType) {
-            case TYPE_ALL:
-                return Screen.SEARCH_EVERYTHING;
-            case TYPE_TRACKS:
-                return Screen.SEARCH_TRACKS;
-            case TYPE_PLAYLISTS:
-                return Screen.SEARCH_PLAYLISTS;
-            case TYPE_USERS:
-                return Screen.SEARCH_USERS;
-            default:
-                throw new IllegalArgumentException("Search query type not valid.");
-        }
     }
 
     Screen getPremiumTrackingScreen() {

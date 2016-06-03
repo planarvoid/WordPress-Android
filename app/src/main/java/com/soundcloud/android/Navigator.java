@@ -11,8 +11,8 @@ import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
@@ -28,12 +28,13 @@ import com.soundcloud.android.payments.WebConversionActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserLikesActivity;
 import com.soundcloud.android.profile.UserPlaylistsActivity;
-import com.soundcloud.android.profile.UserAlbumsActivity;
 import com.soundcloud.android.profile.UserRepostsActivity;
 import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
+import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
@@ -152,7 +153,7 @@ public class Navigator {
 
     public void openSearchPremiumContentResults(Context context,
                                                 String searchQuery,
-                                                int searchType,
+                                                SearchType searchType,
                                                 List<PropertySet> premiumContentList,
                                                 Optional<Link> nextHref,
                                                 Urn queryUrn) {
