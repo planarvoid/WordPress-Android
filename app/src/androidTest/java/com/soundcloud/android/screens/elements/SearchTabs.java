@@ -8,7 +8,7 @@ import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 public class SearchTabs extends Tabs {
 
     private enum Tab {
-        ALL, TRACKS, PLAYLISTS, PEOPLE
+        ALL, TRACKS, PEOPLE, PLAYLISTS
     }
 
     public SearchTabs(Han testDriver) {
