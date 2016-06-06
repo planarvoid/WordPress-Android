@@ -245,7 +245,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             success = upgradeTo79(db, oldVersion);
                             break;
                         case 80:
-                            success = upgradeTo79(db, oldVersion);
+                            success = upgradeTo80(db, oldVersion);
                             break;
                         default:
                             break;
@@ -907,7 +907,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             SchemaMigrationHelper.alterColumns(Table.Users, db);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 79);
+            handleUpgradeException(exception, oldVersion, 80);
         }
         return false;
     }
