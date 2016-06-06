@@ -63,6 +63,7 @@ class RecommendationsStorage {
                 .select(Recommendations.SEED_ID,
                         Recommendations.RECOMMENDED_SOUND_ID,
                         TableColumns.SoundView.TITLE,
+                        TableColumns.SoundView.USER_ID,
                         TableColumns.SoundView.USERNAME,
                         TableColumns.SoundView.SNIPPET_DURATION,
                         TableColumns.SoundView.FULL_DURATION,

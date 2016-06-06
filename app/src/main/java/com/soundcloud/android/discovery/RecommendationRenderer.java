@@ -9,6 +9,7 @@ import static java.util.Collections.singleton;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -39,17 +40,20 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     private final TrackItemMenuPresenter trackItemMenuPresenter;
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final Navigator navigator;
 
     public RecommendationRenderer(Screen screen,
                                   @Provided ImageOperations imageOperations,
                                   @Provided TrackItemMenuPresenter trackItemMenuPresenter,
                                   @Provided PlaybackInitiator playbackInitiator,
-                                  @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+                                  @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                                  @Provided Navigator navigator) {
         this.screen = screen;
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.navigator = navigator;
     }
 
     @Override
@@ -64,7 +68,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
 
         loadTrackArtwork(view, track);
         bindTrackTitle(view, track.getTitle());
-        bindTrackArtist(view, track.getCreatorName(), viewModel.isPlaying());
+        bindTrackArtist(view, track.getCreatorName(), track.getCreatorUrn(), viewModel.isPlaying());
         bindNowPlaying(view, viewModel.isPlaying());
         setOnClickListener(position, view, recommendations, viewModel);
         setOverflowMenuClickListener(ButterKnife.<ImageView>findById(view, R.id.overflow_button), track, position);
@@ -74,7 +78,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         ButterKnife.<TextView>findById(view, R.id.recommendation_title).setText(title);
     }
 
-    private void bindTrackArtist(View view, String creatorName, boolean isPlaying) {
+    private void bindTrackArtist(View view, String creatorName, final Urn creatorUrn, boolean isPlaying) {
         final TextView artist = ButterKnife.findById(view, R.id.recommendation_artist);
 
         if (isPlaying) {
@@ -82,6 +86,12 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         } else {
             artist.setText(creatorName);
             artist.setVisibility(View.VISIBLE);
+            artist.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    navigator.openProfile(artist.getContext(), creatorUrn);
+                }
+            });
         }
     }
 

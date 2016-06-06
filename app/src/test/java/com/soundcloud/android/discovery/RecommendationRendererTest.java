@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import butterknife.ButterKnife;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
@@ -53,6 +54,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
     @Mock private RecommendationsAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
+    @Mock private Navigator navigator;
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
 
     private View itemView;
@@ -62,7 +64,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
         final LayoutInflater layoutInflater = LayoutInflater.from(fragmentActivity());
 
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
-        renderer = new RecommendationRenderer(Screen.RECOMMENDATIONS_MAIN, imageOperations, trackItemMenuPresenter, playbackInitiator, expandPlayerSubscriberProvider);
+        renderer = new RecommendationRenderer(Screen.RECOMMENDATIONS_MAIN, imageOperations, trackItemMenuPresenter, playbackInitiator, expandPlayerSubscriberProvider, navigator);
         when(playbackInitiator.playTracks(anyListOf(Urn.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
     }
 
@@ -106,5 +108,15 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
         itemView.performClick();
         verify(playbackInitiator).playTracks(TRACKS_LIST, 1, new PlaySessionSource(Screen.RECOMMENDATIONS_MAIN));
+    }
+
+
+    @Test
+    public void tappingOnTrackArtistShouldNavigateToUserProfile() {
+        renderer.bindItemView(0, itemView, RECOMMENDATIONS);
+
+        View artistName = itemView.findViewById(R.id.recommendation_artist);
+        artistName.performClick();
+        verify(navigator).openProfile(artistName.getContext(), RECOMMENDED_TRACK.getCreatorUrn());
     }
 }
