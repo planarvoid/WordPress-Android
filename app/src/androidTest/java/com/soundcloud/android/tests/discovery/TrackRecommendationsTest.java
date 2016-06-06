@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.TrackRecommendationsReasonTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.discovery.ViewAllTrackRecommendationsScreen;
@@ -24,7 +23,7 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override
@@ -40,7 +39,6 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         assertThat(viewAllScreen, is(visible()));
     }
 
-    @TrackRecommendationsReasonTest
     public void testStartPlaybackFromReasonOnDiscoveryScreen() {
         final TrackRecommendationsBucketElement bucket = discoveryScreen.trackRecommendationsBucket();
         final String reason = bucket.getReason();
@@ -69,7 +67,6 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
         assertThat(reason, containsString(player.getTrackTitle()));
     }
 
-    @TrackRecommendationsReasonTest
     public void testStartPlaybackFromReasonOnViewAllScreen() {
         final ViewAllTrackRecommendationsScreen viewAllScreen = discoveryScreen.trackRecommendationsBucket()
                                                                                .clickViewAll();
