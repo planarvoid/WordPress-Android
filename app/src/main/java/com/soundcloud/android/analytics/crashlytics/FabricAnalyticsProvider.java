@@ -1,17 +1,20 @@
 package com.soundcloud.android.analytics.crashlytics;
 
+import static com.soundcloud.reporting.Metric.create;
+
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
 import com.soundcloud.android.configuration.ForceUpdateEvent;
+import com.soundcloud.android.events.DatabaseMigrationEvent;
 import com.soundcloud.android.events.MetricEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.reporting.DatabaseReporting;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.FabricReporter;
-import com.soundcloud.reporting.Metric;
 
 import android.content.Context;
 import android.util.Log;
@@ -49,13 +52,17 @@ public class FabricAnalyticsProvider extends DefaultAnalyticsProvider {
         }
     }
 
-    protected void reportDatabaseMetrics() {
+    private void reportDatabaseMetrics() {
         fabricProvider.getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 final int tracksCount = databaseReporting.countTracks();
-                fabricReporter.post(
-                        Metric.create(RECORD_COUNT_METRIC, DataPoint.numeric("tracks", tracksCount)));
+                fabricReporter.post(create(RECORD_COUNT_METRIC, DataPoint.numeric("tracks", tracksCount)));
+
+                final Optional<DatabaseMigrationEvent> report = databaseReporting.pullDatabaseMigrationEvent();
+                if (report.isPresent()) {
+                    fabricReporter.post(report.get().toMetric());
+                }
             }
         });
     }

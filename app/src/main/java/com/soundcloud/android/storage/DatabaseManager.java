@@ -1,10 +1,13 @@
 package com.soundcloud.android.storage;
 
+import static com.soundcloud.android.events.DatabaseMigrationEvent.forSuccessfulMigration;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.alterColumns;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropTable;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.dropView;
 import static com.soundcloud.android.storage.SchemaMigrationHelper.recreate;
+import static java.lang.String.format;
 
+import com.soundcloud.android.events.DatabaseMigrationEvent;
 import com.soundcloud.android.utils.ErrorUtils;
 
 import android.content.Context;
@@ -16,6 +19,7 @@ import android.util.Log;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"}) // We know
 public class DatabaseManager extends SQLiteOpenHelper {
@@ -24,6 +28,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* increment when schema changes */
     private static final int DATABASE_VERSION = 80;
     private static final String DATABASE_NAME = "SoundCloud";
+
+    private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
+    private static long migrationStart = 0L;
 
     private static DatabaseManager instance;
 
@@ -104,7 +111,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        migrationStart = System.currentTimeMillis();
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
+
         if (newVersion > oldVersion) {
             db.beginTransaction();
             boolean success = false;
@@ -258,6 +267,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
             if (success) {
                 Log.i(TAG, "successful db upgrade");
+                migrationEvent.set(forSuccessfulMigration(getMigrationDuration()));
             } else {
                 Log.w(TAG, "upgrade not successful, recreating db");
                 onRecreateDb(db);
@@ -267,6 +277,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             onRecreateDb(db);
         }
+    }
+
+    public DatabaseMigrationEvent pullMigrationReport() {
+        return migrationEvent.getAndSet(null);
     }
 
     /**
@@ -921,13 +935,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 TableColumns.TrackPolicies.POLICY
         );
 
-        SchemaMigrationHelper.migrate(db, Table.TrackPolicies.name(), newPoliciesColumns, Table.Sounds.name(), oldSoundColumns);
+        SchemaMigrationHelper.migrate(db, Table.TrackPolicies.name(),
+                                      newPoliciesColumns, Table.Sounds.name(), oldSoundColumns);
     }
 
     private static void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {
-        final String message =
-                String.format(Locale.US, "error during upgrade%d (from %d)", newVersion, oldVersion);
+        final String message = format(Locale.US, "error during upgrade%d (from %d)", newVersion, oldVersion);
+        migrationEvent.set(DatabaseMigrationEvent.forFailedMigration(oldVersion,
+                                                                     newVersion,
+                                                                     getMigrationDuration(),
+                                                                     exception.getMessage()));
         ErrorUtils.handleSilentException(message, exception);
+    }
+
+    private static long getMigrationDuration() {
+        return System.currentTimeMillis() - migrationStart;
     }
 
     private static void recreateSoundDependentViews(SQLiteDatabase db) {

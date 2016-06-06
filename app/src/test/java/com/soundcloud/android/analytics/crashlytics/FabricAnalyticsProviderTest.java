@@ -6,8 +6,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.ForceUpdateEvent;
+import com.soundcloud.android.events.DatabaseMigrationEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.reporting.DatabaseReporting;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.reporting.DataPoint;
 import com.soundcloud.reporting.FabricReporter;
 import com.soundcloud.reporting.Metric;
@@ -42,6 +44,7 @@ public class FabricAnalyticsProviderTest {
                 command.run();
             }
         });
+        when(databaseReporting.pullDatabaseMigrationEvent()).thenReturn(Optional.<DatabaseMigrationEvent>absent());
     }
 
     @Test
@@ -77,5 +80,38 @@ public class FabricAnalyticsProviderTest {
         provider.handleForceUpdateEvent(event);
 
         verify(fabricReporter).post(event.toMetric());
+    }
+
+    @Test
+    public void shouldPostDBMigrationReportWithSuccessfulMigrationEvent() {
+        final DatabaseMigrationEvent event = DatabaseMigrationEvent.forSuccessfulMigration(3L);
+
+        when(fabricProvider.isInitialized()).thenReturn(true); // unlock reports
+        when(databaseReporting.pullDatabaseMigrationEvent()).thenReturn(Optional.of(event));
+        provider.onAppCreated(context);
+
+        provider.flush();
+
+        verify(fabricReporter).post(Metric.create("DBMigrationsReport",
+                                                  DataPoint.string("MigrationStatus", "Success"),
+                                                  DataPoint.numeric("SuccessDuration", 3L)));
+
+    }
+
+    @Test
+    public void shouldPostDBMigrationReportWithFailedMigrationEvent() {
+        final DatabaseMigrationEvent event = DatabaseMigrationEvent.forFailedMigration(1, 2, 3L, "Some SQL Exception");
+
+        when(fabricProvider.isInitialized()).thenReturn(true); // unlock reports
+        when(databaseReporting.pullDatabaseMigrationEvent()).thenReturn(Optional.of(event));
+        provider.onAppCreated(context);
+
+        provider.flush();
+
+        verify(fabricReporter).post(Metric.create("DBMigrationsReport",
+                                                  DataPoint.string("FailReason", "Some SQL Exception"),
+                                                  DataPoint.string("FailVersions", "1 to 2"),
+                                                  DataPoint.string("MigrationStatus", "Failed"),
+                                                  DataPoint.numeric("FailDuration", 3L)));
     }
 }

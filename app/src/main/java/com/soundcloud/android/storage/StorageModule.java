@@ -208,7 +208,12 @@ public class StorageModule {
 
     @Provides
     public SQLiteDatabase provideDatabase(Context context) {
-        return DatabaseManager.getInstance(context).getWritableDatabase();
+        return provideDatabaseManager(context).getWritableDatabase();
+    }
+
+    @Provides
+    public DatabaseManager provideDatabaseManager(Context context) {
+        return DatabaseManager.getInstance(context);
     }
 
     @Provides
