@@ -35,6 +35,12 @@
     </style>
 
     <style name="Stations.Item">
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="cardCornerRadius">3dp</item>
+    </style>
+
+    <style name="Stations.ItemRedesigned">
         <item name="android:layout_margin">@dimen/recommended_station_card_margin</item>
     </style>
 
@@ -44,6 +50,16 @@
     </style>
 
     <style name="Stations.ItemTitle" parent="ListItemText.PrimaryText">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">22dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingMultiplier">1</item>
+    </style>
+
+    <style name="Stations.ItemTitleRedesigned" parent="ListItemText.PrimaryText">
         <item name="android:layout_marginTop">8dp</item>
         <item name="android:layout_marginRight">12dp</item>
         <item name="android:layout_marginLeft">12dp</item>
@@ -53,6 +69,15 @@
     </style>
 
     <style name="Stations.ItemType" parent="ListItemText.SecondaryText">
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginRight">22dp</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+
+    <style name="Stations.ItemTypeRedesigned" parent="ListItemText.SecondaryText">
         <item name="android:layout_marginRight">12dp</item>
         <item name="android:minHeight">24dp</item>
         <item name="android:textSize">12sp</item>
