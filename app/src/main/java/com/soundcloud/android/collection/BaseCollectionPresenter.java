@@ -32,6 +32,7 @@ import java.util.List;
 abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem>
         implements OnboardingItemCellRenderer.Listener {
 
+    public static final String TAG = "CollectionPresenter";
     private final Func1<Object, Boolean> isNotRefreshing = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
@@ -42,7 +43,7 @@ abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollectio
     private final Action1<Object> logCollectionChanged = new Action1<Object>() {
         @Override
         public void call(Object o) {
-            Log.d(this, "OnCollectionChanged [event=" + o + ", isNotRefreshing=" + isNotRefreshing + "]");
+            Log.d(TAG, "OnCollectionChanged [event=" + o + ", isNotRefreshing=" + isNotRefreshing + "]");
         }
     };
 
