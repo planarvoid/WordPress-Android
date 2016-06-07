@@ -7,6 +7,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -67,10 +68,10 @@ public class PlaylistItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotProvideReleaseYearWhenReleaseDateIsNotAvailable() {
-        propertySet.put(PlaylistProperty.RELEASE_DATE, "");
+        propertySet.put(PlaylistProperty.RELEASE_DATE, Strings.EMPTY);
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getReleaseYear()).isEqualTo("");
+        assertThat(playlistItem.getReleaseYear()).isEqualTo(Strings.EMPTY);
     }
 
     @Test
@@ -78,7 +79,7 @@ public class PlaylistItemTest extends AndroidUnitTest {
         propertySet.put(PlaylistProperty.RELEASE_DATE, "invalid");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getReleaseYear()).isEqualTo("");
+        assertThat(playlistItem.getReleaseYear()).isEqualTo(Strings.EMPTY);
     }
 
     @Test
