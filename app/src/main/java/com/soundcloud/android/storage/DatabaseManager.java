@@ -26,7 +26,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    private static final int DATABASE_VERSION = 80;
+    private static final int DATABASE_VERSION = 81;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -254,7 +254,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             success = upgradeTo79(db, oldVersion);
                             break;
                         case 80:
-                            success = upgradeTo80(db, oldVersion);
+                            // We missed migration 80. Create an artificial migration 81
+                            // to unlock people stuck on faulty 80
+                            success = true;
+                            break;
+                        case 81:
+                            success = upgradeTo81(db, oldVersion);
                             break;
                         default:
                             break;
@@ -918,14 +923,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Change Recommendations table structure for tracking.
      * Need query_urn and query_position for each recommended bucket.
      */
-    private static boolean upgradeTo80(SQLiteDatabase db, int oldVersion) {
+    private static boolean upgradeTo81(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.alterColumns(Table.Users, db);
             dropTable(Tables.RecommendationSeeds.TABLE.name(), db);
             db.execSQL(Tables.RecommendationSeeds.SQL);
             return true;
         } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 80);
+            handleUpgradeException(exception, oldVersion, 81);
         }
         return false;
     }
