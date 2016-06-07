@@ -11,6 +11,8 @@ import com.soundcloud.java.strings.Strings;
 @AutoValue
 public abstract class RecommendationsSourceInfo {
 
+    private static final String RECOMMENDATIONS_SOURCE = "personal-recommended";
+
     public abstract int getQueryPosition();
     public abstract Urn getQueryUrn();
 
@@ -19,7 +21,7 @@ public abstract class RecommendationsSourceInfo {
     }
 
     public String getSource() {
-        return "personal-recommended";
+        return RECOMMENDATIONS_SOURCE;
     }
 
     public String getSourceVersion() {

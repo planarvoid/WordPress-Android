@@ -49,7 +49,9 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Inject
     MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper,
-                      MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus, Navigator navigator, FeatureFlags featureFlags, RecommendationsTracker recommendationsTracker) {
+                      MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus,
+                      Navigator navigator, FeatureFlags featureFlags,
+                      RecommendationsTracker recommendationsTracker) {
         this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;

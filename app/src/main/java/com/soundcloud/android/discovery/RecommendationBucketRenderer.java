@@ -54,7 +54,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
             @Provided Navigator navigator,
             @Provided RecommendationsTracker tracker) {
         this.isViewAllBucket = isViewAllBucket;
-        this.trackingScreen = isViewAllBucket ? discoveryScreen() : recommendationsScreen();;
+        this.trackingScreen = isViewAllBucket ? discoveryScreen() : recommendationsScreen();
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.navigator = navigator;

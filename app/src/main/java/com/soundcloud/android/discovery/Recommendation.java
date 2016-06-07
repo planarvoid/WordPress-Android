@@ -44,7 +44,7 @@ class Recommendation {
     }
 
     Urn getQueryUrn() {
-    return queryUrn;
+        return queryUrn;
     }
 
     public static final Function<Recommendation, Urn> TO_TRACK_URN = new Function<Recommendation, Urn>() {
