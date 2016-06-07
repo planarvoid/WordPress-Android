@@ -432,7 +432,7 @@
     <string name="search_type_albums">ALBUMS</string>
     <string name="search_type_playlists">PLAYLISTS</string>
     <string name="search_type_people">PEOPLE</string>
-    <string name="search_tags_title">DISCOVER POPULAR PLAYLISTS</string>
+    <string name="search_tags_title">Discover popular playlists</string>
     <string name="search_tags_popular_subtitle">Choose your favorite tag</string>
     <string name="search_tags_recent_subtitle">Recent tags</string>
     <string name="search_empty">No results found</string>

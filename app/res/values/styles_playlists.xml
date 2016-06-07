@@ -30,21 +30,11 @@
         <item name="android:layout_marginBottom">5dp</item>
     </style>
 
-    <style name="PlaylistDiscovery.TagTitleText">
+    <style name="PlaylistDiscovery.TagSubtitleText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">56dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/discovery_tags_title</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-    </style>
-
-    <style name="PlaylistDiscovery.TagSubtitleText">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/tag_section_text</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>

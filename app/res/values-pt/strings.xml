@@ -357,7 +357,6 @@
   <string name="search_type_tracks">FAIXAS</string>
   <string name="search_type_playlists">PLAYLISTS</string>
   <string name="search_type_people">PESSOAS</string>
-  <string name="search_tags_title">DESCOBRIR PLAYLISTS POPULARES</string>
   <string name="search_tags_popular_subtitle">Escolha a sua tag favorita</string>
   <string name="search_tags_recent_subtitle">Tags recentes</string>
   <string name="search_empty">Nenhum resultado encontrado</string>

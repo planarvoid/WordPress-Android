@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Module.Background"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     tools:showIn="@layout/playlist_tags_fragment">
 
     <com.soundcloud.android.view.CustomFontTextView
-        style="@style/PlaylistDiscovery.TagTitleText"
+        style="@style/Module.Header"
         android:text="@string/search_tags_title" />
 
     <LinearLayout
@@ -19,7 +20,7 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <View style="@style/Divider.Section" />
+        <View style="@style/Divider.Item" />
 
         <com.soundcloud.android.view.CustomFontTextView
             style="@style/PlaylistDiscovery.TagSubtitleText"
@@ -29,11 +30,7 @@
             android:id="@+id/recent_tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/discovery_tags_margin_top_bottom"
-            android:paddingBottom="@dimen/discovery_tags_padding_top_bottom"
             android:paddingLeft="@dimen/discovery_tags_padding_left_right" />
-
-        <View style="@style/Divider.Section" />
 
     </LinearLayout>
 
@@ -44,14 +41,10 @@
         android:background="@color/white"
         android:visibility="gone">
 
-        <View
-            android:id="@+id/tagsDivider"
-            style="@style/Divider.Section" />
-
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/tags_subtitle"
             style="@style/PlaylistDiscovery.TagSubtitleText"
-            android:layout_below="@id/tagsDivider"
+            android:layout_alignParentTop="true"
             android:text="@string/search_tags_popular_subtitle" />
 
         <com.soundcloud.android.view.EmptyView
