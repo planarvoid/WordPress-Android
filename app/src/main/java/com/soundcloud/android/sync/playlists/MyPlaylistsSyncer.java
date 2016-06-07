@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.posts;
+package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromPlaylistPushedToServer;
 
@@ -21,7 +21,8 @@ import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStrategy;
-import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
+import com.soundcloud.android.sync.posts.PostsSyncModule;
+import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.Urns;
 import com.soundcloud.http.HttpStatus;

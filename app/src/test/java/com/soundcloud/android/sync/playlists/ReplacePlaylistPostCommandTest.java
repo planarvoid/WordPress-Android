@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.posts;
+package com.soundcloud.android.sync.playlists;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

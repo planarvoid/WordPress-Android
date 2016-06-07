@@ -6,6 +6,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-public class SinglePlaylistSyncer implements Callable<Boolean> {
+class SinglePlaylistSyncer implements Callable<Boolean> {
 
     private final LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     private final ApiClient apiClient;
@@ -132,13 +133,13 @@ public class SinglePlaylistSyncer implements Callable<Boolean> {
         return !localPlaylist.isEmpty() || !localRemovals.isEmpty() || !localAdditions.isEmpty();
     }
 
-    private PublicApiPlaylist pushPlaylistChangesToApi(List<Urn> finalTrackList, Urn playlistUrn, PropertySet localPlaylist) throws ApiRequestException, IOException, ApiMapperException {
+    private ApiPlaylist pushPlaylistChangesToApi(List<Urn> finalTrackList, Urn playlistUrn, PropertySet localPlaylist) throws ApiRequestException, IOException, ApiMapperException {
         final ApiRequest request =
-                ApiRequest.put(ApiEndpoints.LEGACY_PLAYLIST_DETAILS.path(playlistUrn.getNumericId()))
-                        .forPublicApi()
-                        .withContent(Collections.singletonMap("playlist", PlaylistApiUpdateObject.create(localPlaylist, finalTrackList)))
+                ApiRequest.put(ApiEndpoints.PLAYLISTS_UPDATE.path(playlistUrn))
+                        .forPrivateApi()
+                        .withContent(PlaylistApiUpdateObject.create(localPlaylist, finalTrackList))
                         .build();
-        return apiClient.fetchMappedResponse(request, PublicApiPlaylist.class);
+        return apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class).getApiPlaylist();
     }
 
     private void resolveLocalState(PlaylistRecord playlistRecord, ApiPlaylistWithTracks apiPlaylistWithTracks, List<Urn> finalTrackList) throws Exception {

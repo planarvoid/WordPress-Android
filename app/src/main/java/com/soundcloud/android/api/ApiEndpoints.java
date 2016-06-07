@@ -76,6 +76,7 @@ public enum ApiEndpoints {
 
     // playlist
     PLAYLISTS_CREATE("/playlists"),
+    PLAYLISTS_UPDATE("/playlists/%s"),
     PLAYLISTS_DELETE("/playlists/%s"),
     PLAYLISTS_FETCH("/playlists/fetch"),
     PLAYLIST_WITH_TRACKS("/playlists/%s/info"),
@@ -131,8 +132,6 @@ public enum ApiEndpoints {
     LEGACY_USER_FOLLOWINGS("/users/%s/followings"),
     LEGACY_USER_FOLLOWERS("/users/%s/followers"),
     LEGACY_USER_LIKES("/users/%s/liked_tracks_and_playlists"),
-
-    LEGACY_PLAYLIST_DETAILS("/playlists/%s"),
 
     OAUTH2_TOKEN("/oauth2/token");
 

@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.playlists;
 
-import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isPublicApiRequestTo;
+import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -14,7 +14,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
@@ -54,11 +54,11 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     @Mock private PlaylistStorage playlistStorage;
 
     private SinglePlaylistSyncer singlePlaylistSyncer;
-    private PublicApiPlaylist updatedPlaylist;
+    private ApiPlaylist updatedPlaylist;
 
     @Before
     public void setUp() throws Exception {
-        updatedPlaylist = ModelFixtures.create(PublicApiPlaylist.class);
+        updatedPlaylist = ModelFixtures.create(ApiPlaylist.class);
         singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks,
                 apiClient, storeTracksCommand,
                 storePlaylistCommand, replacePlaylistTracks, playlistStorage);
@@ -297,9 +297,9 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     private void withPushes(Urn playlistUrn, PropertySet playlistMetadata, Urn... trackList) throws Exception {
         final PlaylistApiUpdateObject expectedUpdateObject = PlaylistApiUpdateObject.create(playlistMetadata, Arrays.asList(trackList));
         when(apiClient.fetchMappedResponse(argThat(
-                isPublicApiRequestTo("put", ApiEndpoints.LEGACY_PLAYLIST_DETAILS.path(playlistUrn.getNumericId()))
-                        .withContent(Collections.singletonMap("playlist", expectedUpdateObject))), any(Class.class)))
-                .thenReturn(updatedPlaylist);
+                isApiRequestTo("put", ApiEndpoints.PLAYLISTS_UPDATE.path(playlistUrn))
+                        .withContent(expectedUpdateObject)), any(Class.class)))
+                .thenReturn(new ApiPlaylistWrapper(updatedPlaylist));
     }
 
     private PropertySet cleanTrack(ApiTrack apiTrack) {
