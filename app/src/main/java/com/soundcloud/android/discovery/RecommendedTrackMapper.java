@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.TableColumns.SoundView;
 import com.soundcloud.android.storage.Tables.Recommendations;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -18,6 +19,7 @@ class RecommendedTrackMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlayableProperty.URN, Urn.forTrack(cursorReader.getLong(Recommendations.RECOMMENDED_SOUND_ID)));
         propertySet.put(PlayableProperty.TITLE, cursorReader.getString(SoundView.TITLE));
         propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
+        propertySet.put(PlayableProperty.CREATOR_URN, Urn.forUser(cursorReader.getLong(TableColumns.SoundView.USER_ID)));
         propertySet.put(TrackProperty.SNIPPET_DURATION, cursorReader.getLong(SoundView.SNIPPET_DURATION));
         propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(SoundView.FULL_DURATION));
         propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));

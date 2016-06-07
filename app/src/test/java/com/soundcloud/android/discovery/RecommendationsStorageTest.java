@@ -143,6 +143,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
                 RecommendedTrackProperty.SEED_SOUND_URN.bind(seedTrackUrn),
                 PlayableProperty.URN.bind(recommendedTrack.getUrn()),
                 PlayableProperty.TITLE.bind(recommendedTrack.getTitle()),
+                PlayableProperty.CREATOR_URN.bind(recommendedTrack.getUser().getUrn()),
                 PlayableProperty.CREATOR_NAME.bind(recommendedTrack.getUserName()),
                 TrackProperty.FULL_DURATION.bind(recommendedTrack.getFullDuration()),
                 TrackProperty.SNIPPET_DURATION.bind(recommendedTrack.getSnippetDuration()),

@@ -10,7 +10,8 @@
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingBottom="4dp">
 
         <com.soundcloud.android.view.SquareImageView
             android:id="@+id/recommendation_artwork"
@@ -25,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/recommendation_artwork"
-            tools:text="Artist name"/>
+            tools:text="Track name"/>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/recommendation_artist"
@@ -34,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/recommendation_title"
             android:visibility="gone"
-            tools:text="Track name"/>
+            tools:text="Artist name"/>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/recommendation_now_playing"
@@ -51,8 +52,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
-        android:layout_marginBottom="-11dp"
-        android:layout_marginRight="-12dp" />
+        android:layout_marginBottom="-7dp"
+        android:layout_marginRight="-8dp" />
 
 </FrameLayout>
 
