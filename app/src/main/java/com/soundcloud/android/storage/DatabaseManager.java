@@ -915,10 +915,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     /**
      * Artist stations in profiles, add artist_station to Users
+     * Change Recommendations table structure for tracking.
+     * Need query_urn and query_position for each recommended bucket.
      */
     private static boolean upgradeTo80(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.alterColumns(Table.Users, db);
+            dropTable(Tables.RecommendationSeeds.TABLE.name(), db);
+            db.execSQL(Tables.RecommendationSeeds.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 80);

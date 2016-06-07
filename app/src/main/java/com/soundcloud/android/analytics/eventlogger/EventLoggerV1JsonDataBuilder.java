@@ -7,15 +7,17 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.RecommendationsEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -30,7 +32,6 @@ import com.soundcloud.java.optional.Optional;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,6 +80,14 @@ public class EventLoggerV1JsonDataBuilder {
             default:
                 throw new IllegalStateException("Unexpected ad delivery type: " + event);
         }
+    }
+
+    public String buildForRecommendations(RecommendationsEvent eventData) {
+        return transform(buildBaseEvent(CLICK_EVENT, eventData)
+                .pageName(eventData.get(RecommendationsEvent.KEY_PAGE_NAME))
+                .clickName(eventData.get(RecommendationsEvent.KEY_CLICK_NAME))
+                .clickObject(eventData.get(RecommendationsEvent.KEY_CLICK_OBJECT))
+                .queryUrn(eventData.get(RecommendationsEvent.KEY_QUERY_URN)));
     }
 
     private EventLoggerEventData buildBaseAdDeliveryEvent(AdDeliveryEvent eventData) {
@@ -403,6 +412,12 @@ public class EventLoggerV1JsonDataBuilder {
             if (!trackSourceInfo.getStationsSourceInfo().getQueryUrn().equals(Urn.NOT_SET)) {
                 data.queryUrn(trackSourceInfo.getStationsSourceInfo().getQueryUrn().toString());
             }
+        }
+
+        if (trackSourceInfo.isFromRecommendations()) {
+            RecommendationsSourceInfo sourceInfo = trackSourceInfo.getRecommendationsSourceInfo();
+            data.queryUrn(sourceInfo.getQueryUrn().toString());
+            data.queryPosition(sourceInfo.getQueryPosition());
         }
 
         return data;

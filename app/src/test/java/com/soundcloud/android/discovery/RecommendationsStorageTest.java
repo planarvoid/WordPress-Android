@@ -24,6 +24,9 @@ import java.util.List;
 
 public class RecommendationsStorageTest extends StorageIntegrationTest {
 
+    private static final int QUERY_POSITION = 1;
+    private static final Urn QUERY_URN = Urn.NOT_SET;
+
     private final TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
     private RecommendationsStorage storage;
 
@@ -107,13 +110,17 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         cv.put(RecommendationSeeds.SEED_SOUND_ID.name(), seedTrack.getUrn().getNumericId());
         cv.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
         cv.put(RecommendationSeeds.RECOMMENDATION_REASON.name(), getDbReason(reason));
+        cv.put(RecommendationSeeds.QUERY_POSITION.name(), QUERY_POSITION);
+        cv.put(RecommendationSeeds.QUERY_URN.name(), QUERY_URN.toString());
         long seedId = testFixtures().insertInto(RecommendationSeeds.TABLE, cv);
 
         return PropertySet.from(
                 RecommendationProperty.SEED_TRACK_LOCAL_ID.bind(seedId),
                 RecommendationProperty.SEED_TRACK_URN.bind(seedTrack.getUrn()),
                 RecommendationProperty.SEED_TRACK_TITLE.bind(seedTrack.getTitle()),
-                RecommendationProperty.REASON.bind(reason)
+                RecommendationProperty.REASON.bind(reason),
+                RecommendationProperty.QUERY_POSITION.bind(QUERY_POSITION),
+                RecommendationProperty.QUERY_URN.bind(QUERY_URN)
         );
     }
 

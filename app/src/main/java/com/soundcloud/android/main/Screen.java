@@ -74,11 +74,9 @@ public enum Screen {
     SEARCH_PREMIUM_CONTENT("search:high_tier"),
     SEARCH_SUGGESTIONS("search:suggestions"),
     SEARCH_PLAYLIST_DISCO("search:tags"),
-    SEARCH_RECOMMENDED_TRACKS("search:recommended_tracks"),
 
     // recommendations
     RECOMMENDATIONS_MAIN("personal-recommended:main"),
-    RECOMMENDATIONS_MORE("personal-recommended:more"),
 
     // creators
     RECORD_MAIN("record:main"),

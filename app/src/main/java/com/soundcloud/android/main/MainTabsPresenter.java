@@ -3,8 +3,11 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.discovery.RecommendationsTracker;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.CustomFontTabLayout;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -34,6 +37,8 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private final MainPagerAdapter.Factory pagerAdapterFactory;
     private final EventBus eventBus;
     private final Navigator navigator;
+    private final FeatureFlags featureFlags;
+    private final RecommendationsTracker recommendationsTracker;
 
     private NavigationModel navigationModel;
 
@@ -44,12 +49,16 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     @Inject
     MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper,
-                      MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus, Navigator navigator) {
+                      MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus,
+                      Navigator navigator, FeatureFlags featureFlags,
+                      RecommendationsTracker recommendationsTracker) {
         this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.eventBus = eventBus;
         this.navigator = navigator;
+        this.featureFlags = featureFlags;
+        this.recommendationsTracker = recommendationsTracker;
     }
 
     public void setBaseLayout(AppCompatActivity activity) {
@@ -184,6 +193,10 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         }
     }
 
+    private NavigationModel.Target currentTargetItem() {
+        return navigationModel.getItem(pager.getCurrentItem());
+    }
+
     private static TabLayout.ViewPagerOnTabSelectedListener tabSelectedListener(final ViewPager pager,
                                                                                 final MainPagerAdapter pagerAdapter) {
         return new TabLayout.ViewPagerOnTabSelectedListener(pager) {
@@ -212,6 +225,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     @Override
     public void onPageSelected(int position) {
         trackScreen();
+        trackDiscoveryItems();
     }
 
     @Override
@@ -222,12 +236,19 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     public void onPageScrollStateChanged(int state) {
     }
 
-    public void trackScreen() {
-        final Screen currentScreen = getScreen();
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(currentScreen));
+    private void trackScreen() {
+        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(getScreen()));
+    }
+
+    private void trackDiscoveryItems() {
+        if (currentTargetItem().getScreen() == Screen.SEARCH_MAIN) {
+            if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
+                recommendationsTracker.trackPageViewEvent();
+            }
+        }
     }
 
     Screen getScreen() {
-        return navigationModel.getItem(pager.getCurrentItem()).getScreen();
+        return currentTargetItem().getScreen();
     }
 }

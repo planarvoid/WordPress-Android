@@ -9,4 +9,6 @@ class RecommendationProperty {
     static final Property<String> SEED_TRACK_TITLE = Property.of(RecommendationProperty.class, String.class);
     static final Property<RecommendationReason> REASON = Property.of(RecommendationProperty.class, RecommendationReason.class);
     static final Property<Integer> RECOMMENDED_TRACKS_COUNT = Property.of(RecommendationProperty.class, Integer.class);
+    static final Property<Integer> QUERY_POSITION = Property.of(RecommendationProperty.class, Integer.class);
+    static final Property<Urn> QUERY_URN = Property.of(RecommendationProperty.class, Urn.class);
 }

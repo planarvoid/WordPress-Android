@@ -32,7 +32,7 @@ public class ViewAllRecommendedTracksActivity extends PlayerActivity {
 
     @Override
     public Screen getScreen() {
-        return Screen.SEARCH_RECOMMENDED_TRACKS;
+        return RecommendationsTracker.recommendationsScreen();
     }
 
     @Override

@@ -35,8 +35,7 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
                                       EventBus eventBus) {
         super(swipeRefreshAttacher, Options.custom().build());
         this.operations = operations;
-        this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(Screen.RECOMMENDATIONS_MORE,
-                                                                                        false));
+        this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(false));
         this.eventBus = eventBus;
     }
 
@@ -49,14 +48,12 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-
         subscription = eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter));
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
         super.onDestroyView(fragment);
-
         subscription.unsubscribe();
     }
 
@@ -84,7 +81,7 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
 
     private Observable<List<DiscoveryItem>> getSource() {
         return operations.allBuckets()
-                         .concatWith(Observable.just(new RecommendationsFooterItem()))
-                         .toList();
+                .concatWith(Observable.just(new RecommendationsFooterItem()))
+                .toList();
     }
 }

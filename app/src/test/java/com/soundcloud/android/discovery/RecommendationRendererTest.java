@@ -42,11 +42,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class RecommendationRendererTest extends AndroidUnitTest {
-    private final static ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
-    private final static TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private final static Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false);
-    private final static List<Recommendation> RECOMMENDATIONS = Collections.singletonList(RECOMMENDATION);
-    private final static List<Urn> TRACKS_LIST = Arrays.asList(SEED_TRACK.getUrn(), RECOMMENDED_TRACK.getUrn());
+
+    private static final int QUERY_POSITION = 1;
+    private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
+    private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false, QUERY_POSITION, Urn.NOT_SET);
+    private static final List<Recommendation> RECOMMENDATIONS = Collections.singletonList(RECOMMENDATION);
+    private static final List<Urn> TRACKS_LIST = Arrays.asList(SEED_TRACK.getUrn(), RECOMMENDED_TRACK.getUrn());
 
     private RecommendationRenderer renderer;
 
@@ -55,16 +57,16 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     @Mock private RecommendationsAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
-    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
+    @Mock private RecommendationsTracker tracker;
 
+    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
     private View itemView;
 
     @Before
     public void setUp() {
         final LayoutInflater layoutInflater = LayoutInflater.from(fragmentActivity());
-
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
-        renderer = new RecommendationRenderer(Screen.RECOMMENDATIONS_MAIN, imageOperations, trackItemMenuPresenter, playbackInitiator, expandPlayerSubscriberProvider, navigator);
+        renderer = new RecommendationRenderer(Screen.RECOMMENDATIONS_MAIN, imageOperations, trackItemMenuPresenter, playbackInitiator, expandPlayerSubscriberProvider, navigator, tracker);
         when(playbackInitiator.playTracks(anyListOf(Urn.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
     }
 

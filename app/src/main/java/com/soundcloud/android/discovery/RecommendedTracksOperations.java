@@ -1,5 +1,7 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.discovery.RecommendationProperty.QUERY_POSITION;
+import static com.soundcloud.android.discovery.RecommendationProperty.QUERY_URN;
 import static com.soundcloud.android.discovery.RecommendationProperty.SEED_TRACK_LOCAL_ID;
 import static com.soundcloud.android.discovery.RecommendationProperty.SEED_TRACK_URN;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
@@ -23,13 +25,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 class RecommendedTracksOperations {
-    private List<Recommendation> toRecommendations(final Urn seedUrn, List<TrackItem> trackItems) {
+
+    private List<Recommendation> toRecommendations(PropertySet seed, List<TrackItem> trackItems) {
+        final Urn seedUrn = seed.get(SEED_TRACK_URN);
+        final int queryPosition = seed.get(QUERY_POSITION);
+        final Urn queryUrn = seed.get(QUERY_URN);
         final List<Recommendation> recommendations = new ArrayList<>(trackItems.size());
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
 
         for (TrackItem trackItem : trackItems) {
             boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn().equals(trackItem.getUrn());
-            recommendations.add(new Recommendation(trackItem, seedUrn, isPlaying));
+            recommendations.add(new Recommendation(trackItem, seedUrn, isPlaying, queryPosition, queryUrn));
         }
 
         return recommendations;
@@ -46,7 +52,7 @@ class RecommendedTracksOperations {
         return new Func1<List<TrackItem>, DiscoveryItem>() {
             @Override
             public DiscoveryItem call(List<TrackItem> trackItems) {
-                return new RecommendationBucket(seed, toRecommendations(seed.get(SEED_TRACK_URN), trackItems));
+                return new RecommendationBucket(seed, toRecommendations(seed, trackItems));
             }
         };
     }

@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -54,8 +53,7 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
         when(recyclerView.getAdapter()).thenReturn(adapter);
         when(recommendedTracksOperations.allBuckets()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedTracksOperations.tracksForSeed(anyLong())).thenReturn(Observable.<List<TrackItem>>empty());
-        when(recommendationBucketRendererFactory.create(any(Screen.class), any(Boolean.class))).thenReturn(
-                recommendationBucketRenderer);
+        when(recommendationBucketRendererFactory.create(any(Boolean.class))).thenReturn(recommendationBucketRenderer);
         when(adapterFactory.create(any(RecommendationBucketRenderer.class))).thenReturn(adapter);
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);

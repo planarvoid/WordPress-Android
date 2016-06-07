@@ -2,6 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -15,6 +16,9 @@ import java.util.Map;
 
 public class ModelCollection<T> implements Iterable<T> {
 
+    public static final ModelCollection EMPTY = new ModelCollection<>(Collections.emptyList());
+
+    @VisibleForTesting
     public static final String NEXT_LINK_REL = "next";
 
     private final List<T> collection;

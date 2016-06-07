@@ -46,7 +46,9 @@ class RecommendationsStorage {
                            .select(RecommendationSeeds._ID,
                                    RecommendationSeeds.SEED_SOUND_ID,
                                    RecommendationSeeds.RECOMMENDATION_REASON,
-                                   field(SoundView.field(TableColumns.SoundView.TITLE)).as(RecommendationSeedMapper.SEED_TITLE))
+                                   field(SoundView.field(TableColumns.SoundView.TITLE)).as(RecommendationSeedMapper.SEED_TITLE),
+                                   RecommendationSeeds.QUERY_POSITION,
+                                   RecommendationSeeds.QUERY_URN)
                            .order(RecommendationSeeds._ID, Query.Order.ASC)
                            .innerJoin(SoundView.name(), soundsViewJoin);
     }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.discovery.RecommendationsTracker.*;
 import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
@@ -36,26 +37,29 @@ import java.util.Locale;
 
 @AutoFactory(allowSubclasses = true)
 class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket> {
-    private final Screen screen;
+
     private final boolean isViewAllBucket;
+    private final Screen trackingScreen;
     private final RecommendationRendererFactory rendererFactory;
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final Navigator navigator;
+    private final RecommendationsTracker tracker;
 
     RecommendationBucketRenderer(
-            Screen screen,
             boolean isViewAllBucket,
             @Provided PlaybackInitiator playbackInitiator,
             @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
             @Provided RecommendationRendererFactory rendererFactory,
-            @Provided Navigator navigator) {
-        this.screen = screen;
+            @Provided Navigator navigator,
+            @Provided RecommendationsTracker tracker) {
         this.isViewAllBucket = isViewAllBucket;
+        this.trackingScreen = isViewAllBucket ? discoveryScreen() : recommendationsScreen();
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.navigator = navigator;
         this.rendererFactory = rendererFactory;
+        this.tracker = tracker;
     }
 
     @Override
@@ -67,7 +71,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
 
     private void initCarousel(View bucketView, final RecyclerView recyclerView) {
         final Context context = recyclerView.getContext();
-        final RecommendationsAdapter adapter = new RecommendationsAdapter(screen, rendererFactory);
+        final RecommendationsAdapter adapter = new RecommendationsAdapter(trackingScreen, rendererFactory);
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
@@ -86,13 +90,13 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
     }
 
     private void bindViewAllViews(View bucketView) {
-        final int visbility = isViewAllBucket ? View.VISIBLE : View.GONE;
+        final int visibility = isViewAllBucket ? View.VISIBLE : View.GONE;
         final View viewAllButton = ButterKnife.findById(bucketView, R.id.recommendations_view_all);
 
-        ButterKnife.findById(bucketView, R.id.recommendations_header).setVisibility(visbility);
-        ButterKnife.findById(bucketView, R.id.recommendations_header_divider).setVisibility(visbility);
-        ButterKnife.findById(bucketView, R.id.recommendations_view_all_divider).setVisibility(visbility);
-        viewAllButton.setVisibility(visbility);
+        ButterKnife.findById(bucketView, R.id.recommendations_header).setVisibility(visibility);
+        ButterKnife.findById(bucketView, R.id.recommendations_header_divider).setVisibility(visibility);
+        ButterKnife.findById(bucketView, R.id.recommendations_view_all_divider).setVisibility(visibility);
+        viewAllButton.setVisibility(visibility);
 
         if (isViewAllBucket) {
             viewAllButton.setOnClickListener(new View.OnClickListener() {
@@ -105,30 +109,27 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
     }
 
     private void bindReasonView(View bucketView, final RecommendationBucket bucket) {
-        TextView reasonView = ButterKnife.findById(bucketView, R.id.reason);
+        final TextView reasonView = ButterKnife.findById(bucketView, R.id.reason);
         reasonView.setText(getReasonText(bucket, bucketView.getContext()));
         reasonView.setOnClickListener(buildOnReasonClickListener(bucket));
     }
 
     private void bindCarousel(RecommendationsAdapter adapter, RecommendationBucket recommendationBucket) {
         final List<Recommendation> viewModels = recommendationBucket.getRecommendations();
-
         adapter.clear();
         for (int i = 0; i < viewModels.size(); i++) {
             adapter.addItem(viewModels.get(i));
         }
-
         adapter.notifyDataSetChanged();
     }
 
     private Spannable getReasonText(RecommendationBucket recommendationBucket, Context context) {
-        String reason = getReasonType(recommendationBucket.getRecommendationReason(), context);
-        String reasonText = context.getString(R.string.recommendation_reason_because_you_reason_tracktitle, reason,
+        final String reason = getReasonType(recommendationBucket.getRecommendationReason(), context);
+        final String reasonText = context.getString(R.string.recommendation_reason_because_you_reason_tracktitle, reason,
                 recommendationBucket.getSeedTrackTitle());
+        final int endOfReasonIndex = reasonText.indexOf(reason) + reason.length();
 
-        Spannable spannable = new SpannableString(reasonText);
-        int endOfReasonIndex = reasonText.indexOf(reason) + reason.length();
-
+        final Spannable spannable = new SpannableString(reasonText);
         spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.recommendation_reason_text)), 0, endOfReasonIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.seed_track_text)), endOfReasonIndex, reasonText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
@@ -151,12 +152,13 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendationBucket>
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Urn> playQueue = toPlayQueue(bucket.getSeedTrackUrn(), bucket.getRecommendations());
+                tracker.trackSeedTrackClick(trackingScreen,  bucket.getSeedTrackUrn(), bucket.getQueryUrn());
 
-                playbackInitiator.playTracks(
-                        playQueue,
-                        playQueue.indexOf(bucket.getSeedTrackUrn()),
-                        new PlaySessionSource(screen))
+                final PlaySessionSource playSessionSource = PlaySessionSource.forRecommendations(trackingScreen,
+                        bucket.getSeedTrackQueryPosition(), bucket.getQueryUrn());
+                final List<Urn> playQueue = toPlayQueue(bucket.getSeedTrackUrn(), bucket.getRecommendations());
+
+                playbackInitiator.playTracks(playQueue, playQueue.indexOf(bucket.getSeedTrackUrn()), playSessionSource)
                         .subscribe(expandPlayerSubscriberProvider.get());
             }
         };
