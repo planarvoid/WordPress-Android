@@ -105,7 +105,7 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public String getReleaseYear() {
-        String releaseDate = source.getOrElse(PlaylistProperty.RELEASE_DATE, "");
+        String releaseDate = source.getOrElse(PlaylistProperty.RELEASE_DATE, Strings.EMPTY);
         if (releaseDate.isEmpty()) return Strings.EMPTY;
 
         try {

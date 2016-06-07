@@ -265,4 +265,26 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                 PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
                 PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing()))));
     }
+
+    @Test
+    public void loadsPostedPlaylistWithSetTypeAndReleaseDate() {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistAlbum("ep", "2010-10-10");
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(apiPlaylist.getUser().getUrn());
+
+        PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
+
+        assertThat(playlist.get(PlaylistProperty.SET_TYPE)).isEqualTo("ep");
+        assertThat(playlist.get(PlaylistProperty.RELEASE_DATE)).isEqualTo("2010-10-10");
+    }
+
+    @Test
+    public void loadsPostedPlaylistWithoutSetTypeAndReleaseDateWhenNull() {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistAlbum(null, null);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(apiPlaylist.getUser().getUrn());
+
+        PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
+
+        assertThat(playlist.contains(PlaylistProperty.SET_TYPE)).isEqualTo(false);
+        assertThat(playlist.contains(PlaylistProperty.RELEASE_DATE)).isEqualTo(false);
+    }
 }

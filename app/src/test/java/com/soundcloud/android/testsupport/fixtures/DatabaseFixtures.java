@@ -229,6 +229,16 @@ public class DatabaseFixtures {
         return playlist;
     }
 
+    public ApiPlaylist insertPlaylistAlbum(String setType, String releaseDate) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setIsAlbum(true);
+        playlist.setSetType(setType);
+        playlist.setReleaseDate(releaseDate);
+        insertUser(playlist.getUser());
+        insertPlaylist(playlist);
+        return playlist;
+    }
+
     public ApiPlaylist insertLocalPlaylist() {
         return insertLocalPlaylist(ModelFixtures.create(ApiPlaylist.class));
     }
