@@ -7,6 +7,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.PlayHistoryActivity;
+import com.soundcloud.android.collection.playlists.PlaylistsCollectionActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -339,6 +340,10 @@ public class Navigator {
 
     public void openOfflineSettingsOnboarding(Context context) {
         context.startActivity(new Intent(context, OfflineSettingsOnboardingActivity.class));
+    }
+
+    public void openPlaylistsCollection(Context context) {
+        context.startActivity(new Intent(context, PlaylistsCollectionActivity.class));
     }
 
     private Intent createHomeIntent(Context context) {

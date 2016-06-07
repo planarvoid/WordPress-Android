@@ -5,7 +5,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
-abstract class CollectionItem implements ListItem {
+public abstract class CollectionItem implements ListItem {
 
     static final int TYPE_PREVIEW = 0;
     static final int TYPE_HEADER = 1;

@@ -8,7 +8,7 @@ import android.support.annotation.VisibleForTesting;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-class CollectionOptionsStorage {
+public class CollectionOptionsStorage {
     private static final String ONBOARDING_DISABLED = "ONBOARDING_DISABLED";
 
     @VisibleForTesting

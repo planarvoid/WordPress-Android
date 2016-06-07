@@ -36,6 +36,14 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         }
     };
 
+    private final View.OnClickListener goToPlaylistsListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            navigator.openPlaylistsCollection(v.getContext());
+        }
+    };
+
+
     @Inject
     public CollectionPreviewRenderer(Navigator navigator, Resources resources, FeatureOperations featureOperations) {
         this.navigator = navigator;
@@ -48,13 +56,21 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         final View view = inflater.inflate(R.layout.collections_preview_item, parent, false);
         getLikesPreviewView(view).setOnClickListener(goToTrackLikesListener);
-        setupRecentStationsView(getRecentStationsPreviewView(view));
         return view;
+    }
+
+    private CollectionPreviewView getPlaylistsPreviewView(View view) {
+        return (CollectionPreviewView) view.findViewById(R.id.collection_playlists_preview);
     }
 
     private void setupRecentStationsView(CollectionPreviewView recentStationsView) {
         recentStationsView.setVisibility(View.VISIBLE);
         recentStationsView.setOnClickListener(goToRecentStationsListener);
+    }
+
+    private void setupPlaylistsView(CollectionPreviewView playlistsView) {
+        playlistsView.setVisibility(View.VISIBLE);
+        playlistsView.setOnClickListener(goToPlaylistsListener);
     }
 
     private CollectionPreviewView getRecentStationsPreviewView(View view) {
@@ -69,7 +85,16 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     public void bindItemView(int position, View view, List<CollectionItem> list) {
         PreviewCollectionItem item = (PreviewCollectionItem) list.get(position);
         bindLikesView(item.getLikes(), view);
-        setThumbnails(item.getStations(), getRecentStationsPreviewView(view));
+
+        if (item.getStations().isPresent()) {
+            setThumbnails(item.getStations().get(), getRecentStationsPreviewView(view));
+            setupRecentStationsView(getRecentStationsPreviewView(view));
+        }
+
+        if (item.getPlaylists().isPresent()) {
+            setupPlaylistsView(getPlaylistsPreviewView(view));
+            setThumbnails(item.getPlaylists().get(), getPlaylistsPreviewView(view));
+        }
     }
 
     private void bindLikesView(LikesItem likes, View view) {

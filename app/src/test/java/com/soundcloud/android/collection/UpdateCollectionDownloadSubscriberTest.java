@@ -22,7 +22,7 @@ import java.util.Collections;
 public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
 
     private static final PreviewCollectionItem PREVIEW =
-            PreviewCollectionItem.create(
+            PreviewCollectionItem.forLikesAndStations(
                     LikesItem.fromTrackPreviews(singletonList(
                             LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url"))),
                     Collections.<StationRecord>emptyList());

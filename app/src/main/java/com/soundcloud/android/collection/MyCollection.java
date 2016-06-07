@@ -6,7 +6,7 @@ import com.soundcloud.android.tracks.TrackItem;
 
 import java.util.List;
 
-class MyCollection {
+public class MyCollection {
 
     private final LikesItem likes;
     private final List<PlaylistItem> likedAndPostedPlaylists;
@@ -14,7 +14,7 @@ class MyCollection {
     private final List<TrackItem> playHistoryTrackItems;
     private final boolean atLeastOneError;
 
-    public MyCollection(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
+    MyCollection(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
                         List<StationRecord> recentStations,
                         List<TrackItem> playHistoryTrackItems,
                         boolean atLeastOneError) {
@@ -33,15 +33,15 @@ class MyCollection {
         return likes;
     }
 
-    public List<StationRecord> getRecentStations() {
+    List<StationRecord> getRecentStations() {
         return recentStations;
     }
 
-    public List<TrackItem> getPlayHistoryTrackItems() {
+    List<TrackItem> getPlayHistoryTrackItems() {
         return playHistoryTrackItems;
     }
 
-    public boolean hasError() {
+    boolean hasError() {
         return atLeastOneError;
     }
 

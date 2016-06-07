@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.likes.PlaylistLikesStorage;
 import com.soundcloud.android.model.EntityProperty;
@@ -85,7 +84,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
         operations = new CollectionOperations(
-                featureFlags,
                 eventBus,
                 Schedulers.immediate(),
                 syncStateStorage,
@@ -378,7 +376,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 PlaylistItem.from(likedPlaylist1),
                 PlaylistItem.from(postedPlaylist1)
         ));
-        assertThat(collection.getPlayHistoryTrackItems()).isEqualTo(PLAY_HISTORY);
     }
 
     @Test
@@ -407,16 +404,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         operations.onCollectionChanged().subscribe(subscriber);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistsMarkedForDownload(Collections.singletonList(Urn.forPlaylist(123))));
-
-        assertThat(subscriber.getOnNextEvents()).hasSize(1);
-    }
-
-    @Test
-    public void onCollectionChangedShouldSendAnEventWhenATrackHasBeenAddedToPlayHistory() {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
-        operations.onCollectionChanged().subscribe(subscriber);
-
-        eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(Urn.forTrack(123L)));
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }

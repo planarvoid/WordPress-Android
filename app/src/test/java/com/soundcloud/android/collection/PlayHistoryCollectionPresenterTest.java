@@ -1,0 +1,139 @@
+package com.soundcloud.android.collection;
+
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.rx.eventbus.TestEventBus;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import rx.Observable;
+import rx.subjects.PublishSubject;
+
+import android.support.v4.app.Fragment;
+
+import java.util.Collections;
+import java.util.List;
+
+public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
+
+    private static final List<StationRecord> RECENT_STATIONS = singletonList(mock(StationRecord.class));
+    private static final LikesItem LIKES = LikesItem.fromTrackPreviews(singletonList(
+            LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url")));
+    private static final LikesItem NO_LIKES = LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList());
+
+    private static final List<PlaylistItem> PLAYLISTS = ModelFixtures.create(PlaylistItem.class, 2);
+    private static final List<TrackItem> PLAY_HISTORY = singletonList(mock(TrackItem.class));
+
+    private static final MyCollection MY_COLLECTION = new MyCollection(LIKES, PLAYLISTS, RECENT_STATIONS, PLAY_HISTORY, false);
+    private static final MyCollection MY_COLLECTION_WITHOUT_PLAY_HISTORY = new MyCollection(LIKES, PLAYLISTS, RECENT_STATIONS, Collections.<TrackItem>emptyList(), false);
+    private static final MyCollection MY_COLLECTION_EMPTY = new MyCollection(NO_LIKES, Collections.<PlaylistItem>emptyList(), Collections.<StationRecord>emptyList(), Collections.<TrackItem>emptyList(), false);
+
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
+
+    private PlayHistoryCollectionPresenter presenter;
+
+    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
+    @Mock private CollectionOperations collectionOperations;
+    @Mock private CollectionOptionsStorage collectionOptionsStorage;
+    @Mock private CollectionPlaylistOptionsPresenter optionsPresenter;
+    @Mock private CollectionAdapter adapter;
+    @Mock private Fragment fragment;
+
+    private TestEventBus eventBus = new TestEventBus();
+
+    @Before
+    public void setUp() throws Exception {
+        when(collectionOperations.collectionsForPlayHistory()).thenReturn(Observable.just(MY_COLLECTION));
+        when(collectionOperations.onCollectionChangedWithPlayHistory()).thenReturn(Observable.empty());
+        presenter = new PlayHistoryCollectionPresenter(swipeRefreshAttacher, collectionOperations, collectionOptionsStorage, adapter, resources(), eventBus);
+    }
+
+    @Test
+    public void shouldPresentPreviewOfLikesAndPlaylistsWithPlayHistory() {
+        MyCollection myCollection = MY_COLLECTION;
+        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
+
+        assertThat(collectionItems).containsExactly(
+                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems()),
+                HeaderCollectionItem.forPlayHistory(),
+                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
+                ViewAllCollectionItem.forPlayHistory()
+        );
+    }
+
+    @Test
+    public void shouldPresentPreviewWhenNoPlayHistory() {
+        MyCollection myCollection = MY_COLLECTION_WITHOUT_PLAY_HISTORY;
+        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
+
+        assertThat(collectionItems).containsExactly(
+                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems())
+        );
+    }
+
+    @Test
+    public void shouldPresentPreviewWhenNoLikesOrPlaylists() {
+        MyCollection myCollection = MY_COLLECTION_EMPTY;
+        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
+
+        assertThat(collectionItems).containsExactly(
+                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems())
+        );
+    }
+
+    @Test
+    public void onCollectionChangedShouldNotRefreshUntilAfterFirstLoad() {
+        final PublishSubject<Object> collectionSyncedBus = PublishSubject.create();
+        when(collectionOperations.onCollectionChangedWithPlayHistory()).thenReturn(collectionSyncedBus);
+        when(collectionOperations.collectionsForPlayHistory()).thenReturn(PublishSubject.<MyCollection>create());
+        presenter.onCreate(fragment, null);
+        reset(collectionOperations);
+
+        collectionSyncedBus.onNext(null);
+
+        verify(collectionOperations, never()).collectionsForPlayHistory();
+    }
+
+    @Test
+    public void onCollectionChangedShouldRefresh() {
+        final PublishSubject<Object> collectionSyncedBus = PublishSubject.create();
+        when(collectionOperations.onCollectionChangedWithPlayHistory()).thenReturn(collectionSyncedBus);
+
+        presenter.onCreate(fragment, null);
+        reset(collectionOperations);
+
+        collectionSyncedBus.onNext(null);
+
+        verify(collectionOperations).collectionsForPlayHistory();
+    }
+
+    @Test
+    public void onCollectionChangedShouldNotRefreshWhenAlreadyRefreshing() {
+        final PublishSubject<Object> collectionSyncedBus = PublishSubject.create();
+        when(collectionOperations.onCollectionChangedWithPlayHistory()).thenReturn(collectionSyncedBus);
+        when(collectionOperations.collectionsForPlayHistory()).thenReturn(PublishSubject.<MyCollection>create());
+        when(swipeRefreshAttacher.isRefreshing()).thenReturn(true);
+        presenter.onCreate(fragment, null);
+        reset(collectionOperations);
+
+        collectionSyncedBus.onNext(null);
+        verify(collectionOperations, never()).collectionsForPlayHistory();
+    }
+
+}
