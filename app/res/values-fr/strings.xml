@@ -401,7 +401,6 @@
   <string name="search_type_tracks">TITRES</string>
   <string name="search_type_playlists">PLAYLISTS</string>
   <string name="search_type_people">PERSONNES</string>
-  <string name="search_tags_title">DÉCOUVREZ DES PLAYLISTS POPULAIRES</string>
   <string name="search_tags_popular_subtitle">Choisissez votre tag préféré</string>
   <string name="search_tags_recent_subtitle">Tags récents</string>
   <string name="search_empty">Aucun résultat trouvé</string>

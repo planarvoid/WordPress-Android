@@ -91,7 +91,7 @@
     <dimen name="discovery_tags_padding_left_right">12dp</dimen>
     <dimen name="discovery_tags_padding_top_bottom">4dp</dimen>
     <dimen name="discovery_tags_margin_top_bottom">8dp</dimen>
-    <dimen name="discovery_tags_separation">16dp</dimen>
+    <dimen name="discovery_tags_separation">11dp</dimen>
     <dimen name="discovery_cell_elevation">3dp</dimen>
     <dimen name="discovery_cell_text_height">48dp</dimen>
     <dimen name="discovery_cell_text_padding">16dp</dimen>

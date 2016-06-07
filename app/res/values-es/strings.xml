@@ -357,7 +357,6 @@
   <string name="search_type_tracks">PISTAS</string>
   <string name="search_type_playlists">LISTAS</string>
   <string name="search_type_people">GENTE</string>
-  <string name="search_tags_title">DESCUBRE LISTAS POPULARES</string>
   <string name="search_tags_popular_subtitle">Elije tu etiqueta favorita</string>
   <string name="search_tags_recent_subtitle">Etiquetas recientes</string>
   <string name="search_empty">No se encontraron resultados.</string>
