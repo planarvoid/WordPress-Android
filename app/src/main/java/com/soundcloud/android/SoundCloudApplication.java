@@ -1,8 +1,6 @@
 package com.soundcloud.android;
 
 import com.facebook.FacebookSdk;
-import com.newrelic.agent.android.NewRelic;
-import com.newrelic.agent.android.logging.AgentLog;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.ads.AdsController;
@@ -150,7 +148,6 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     protected void bootApplication() {
         setUpCrashReportingIfNeeded();
-        initializeNewRelic();
 
         migrationEngine.migrate();
 
@@ -212,16 +209,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         uncaughtExceptionHandlerController.assertHandlerIsSet();
 
         configurationManager.checkForForcedApplicationUpdate();
-    }
-
-    private void initializeNewRelic() {
-        if (getResources().getBoolean(R.bool.new_relic_enabled)) {
-            String appToken = getResources().getString(R.string.new_relic_app_token);
-            NewRelic
-                    .withApplicationToken(appToken)
-                    .withLogLevel(AgentLog.VERBOSE)
-                    .start(this.getApplicationContext());
-        }
     }
 
     private void initializePreInjectionObjects() {

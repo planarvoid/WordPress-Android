@@ -26,8 +26,6 @@ android {
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
       resValue "string", "gcm_gateway_id", ""
-      resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
-      resValue "bool", "new_relic_enabled", "false"
       resValue "string", "web_payment_form_environment", "sandbox"
 
       resValue "bool", "google_plus_enabled", "true"
@@ -42,8 +40,6 @@ android {
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "sandbox"
       resValue "string", "gcm_gateway_id", ""
-      resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
-      resValue "bool", "new_relic_enabled", "true"
       resValue "string", "web_payment_form_environment", "sandbox"
 
       resValue "bool", "google_plus_enabled", "true"
@@ -58,8 +54,6 @@ android {
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
       resValue "string", "gcm_gateway_id", "android/beta"
-      resValue "string", "new_relic_app_token", "AA6cf074186892fc0ca95fdfd742fdf987222b6331"
-      resValue "bool", "new_relic_enabled", "true"
       resValue "string", "web_payment_form_environment", "production"
 
       resValue "bool", "google_plus_enabled", "true"
@@ -74,8 +68,6 @@ android {
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
       resValue "string", "gcm_gateway_id", "android/prod"
-      resValue "string", "new_relic_app_token", "AA0be6a0d3e7c33f70cd33ae9d4d7f1133a6fad7d0"
-      resValue "bool", "new_relic_enabled", "false"
       resValue "string", "web_payment_form_environment", "production"
 
       resValue "bool", "google_plus_enabled", "true"
@@ -90,8 +82,6 @@ android {
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
       resValue "string", "gcm_gateway_id", "android/prod"
-      resValue "string", "new_relic_app_token", "AA0be6a0d3e7c33f70cd33ae9d4d7f1133a6fad7d0"
-      resValue "bool", "new_relic_enabled", "false"
       resValue "string", "web_payment_form_environment", "production"
 
       resValue "bool", "google_plus_enabled", "true"
@@ -106,8 +96,6 @@ android {
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
       resValue "string", "adjust_environment", "production"
       resValue "string", "gcm_gateway_id", "android/prod"
-      resValue "string", "new_relic_app_token", "AA0be6a0d3e7c33f70cd33ae9d4d7f1133a6fad7d0"
-      resValue "bool", "new_relic_enabled", "false"
       resValue "string", "web_payment_form_environment", "production"
 
       resValue "bool", "google_plus_enabled", "false"
