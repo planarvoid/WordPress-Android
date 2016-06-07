@@ -8,7 +8,7 @@ import com.soundcloud.android.sync.entities.MeSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
 import com.soundcloud.android.sync.playlists.LegacySinglePlaylistSyncer;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
-import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
+import com.soundcloud.android.sync.playlists.MyPlaylistsSyncer;
 import com.soundcloud.android.sync.posts.MyPostsSyncer;
 import com.soundcloud.android.sync.stream.SoundStreamSyncer;
 import dagger.Lazy;

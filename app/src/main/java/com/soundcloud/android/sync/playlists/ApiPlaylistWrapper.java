@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.posts;
+package com.soundcloud.android.sync.playlists;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

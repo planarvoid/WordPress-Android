@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-public class SinglePlaylistSyncer implements Callable<Boolean> {
+class SinglePlaylistSyncer implements Callable<Boolean> {
 
     private final LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     private final ApiClient apiClient;

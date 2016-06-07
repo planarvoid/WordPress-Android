@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.posts;
+package com.soundcloud.android.sync.playlists;
 
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.commands.LegacyCommand;

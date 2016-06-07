@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.posts;
+package com.soundcloud.android.sync.playlists;
 
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.Posts;

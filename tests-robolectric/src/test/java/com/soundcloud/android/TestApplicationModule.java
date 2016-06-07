@@ -35,7 +35,7 @@ import com.soundcloud.android.sync.entities.EntitySyncJob;
 import com.soundcloud.android.sync.entities.EntitySyncModule;
 import com.soundcloud.android.sync.likes.LikesSyncModule;
 import com.soundcloud.android.sync.likes.LikesSyncer;
-import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
+import com.soundcloud.android.sync.playlists.MyPlaylistsSyncer;
 import com.soundcloud.android.sync.posts.PostsSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.sync.stream.SoundStreamSyncer;
