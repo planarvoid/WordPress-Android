@@ -114,6 +114,16 @@ public class Han {
         return viewElement;
     }
 
+    public ViewElement swipeToItem(int direction, With... with) {
+        ViewElement viewElement = findOnScreenElement(with);
+        for (int attempts = 0; attempts < MAX_SCROLL_ATTEMPTS && viewElement instanceof EmptyViewElement; attempts++) {
+            swipeHorizontal(direction);
+            viewElement = findOnScreenElement(with);
+        }
+
+        return viewElement;
+    }
+
     public void typeText(String text) {
         instrumentation.sendStringSync(text);
     }

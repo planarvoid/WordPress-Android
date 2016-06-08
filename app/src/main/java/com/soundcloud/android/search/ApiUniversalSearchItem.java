@@ -30,18 +30,6 @@ class ApiUniversalSearchItem implements PropertySetSource {
         this.track = fromNullable(track);
     }
 
-    static ApiUniversalSearchItem forTrack(ApiTrack track) {
-        return new ApiUniversalSearchItem(null, null, track);
-    }
-
-    static ApiUniversalSearchItem forPlaylist(ApiPlaylist playlist) {
-        return new ApiUniversalSearchItem(null, playlist, null);
-    }
-
-    static ApiUniversalSearchItem forUser(ApiUser user) {
-        return new ApiUniversalSearchItem(user, null, null);
-    }
-
     @Override
     public PropertySet toPropertySet() {
         if (user.isPresent()) {

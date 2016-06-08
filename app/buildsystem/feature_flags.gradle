@@ -51,6 +51,7 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
     }
 
     release {
