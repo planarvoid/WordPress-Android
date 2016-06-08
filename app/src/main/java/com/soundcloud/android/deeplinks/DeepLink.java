@@ -9,13 +9,13 @@ import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 public enum DeepLink {
-    HOME, STREAM, EXPLORE, SEARCH, RECORD, WEB_VIEW, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
+    HOME, STREAM, EXPLORE, DISCOVERY, SEARCH, RECORD, WEB_VIEW, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
     NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS;
 
     public static final String SOUNDCLOUD_SCHEME = "soundcloud";
 
     private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
-            EnumSet.of(EXPLORE, SEARCH, RECORD, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
+            EnumSet.of(EXPLORE, DISCOVERY, SEARCH, RECORD, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
                     NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
@@ -82,6 +82,8 @@ public enum DeepLink {
                 return STREAM;
             case "explore":
                 return EXPLORE;
+            case "discovery":
+                return DISCOVERY;
             case "search":
             case "search:people":
             case "search:sounds":
@@ -126,6 +128,8 @@ public enum DeepLink {
                 return EXPLORE;
             case "/upload":
                 return RECORD;
+            case "/discovery":
+                return DISCOVERY;
             case "/search":
             case "/search/sounds":
             case "/search/people":

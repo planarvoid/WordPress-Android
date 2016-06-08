@@ -74,6 +74,11 @@
             </intent-filter>
 
             <intent-filter>
+                <action android:name="${applicationId}.action.DISCOVERY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+            <intent-filter>
                 <action android:name="${applicationId}.action.COLLECTION"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>

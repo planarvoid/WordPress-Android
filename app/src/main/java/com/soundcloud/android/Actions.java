@@ -7,6 +7,7 @@ public final class Actions {
     public static final String RECORD_STOP  = BuildConfig.APPLICATION_ID + ".action.RECORD_STOP";
     public static final String STREAM       = BuildConfig.APPLICATION_ID + ".action.STREAM";
     public static final String ACTIVITY     = BuildConfig.APPLICATION_ID + ".action.ACTIVITY";
+    public static final String DISCOVERY    = BuildConfig.APPLICATION_ID + ".action.DISCOVERY";
     public static final String SEARCH       = BuildConfig.APPLICATION_ID + ".action.SEARCH";
     public static final String PERFORM_SEARCH   = BuildConfig.APPLICATION_ID + ".action.PERFORM_SEARCH";
     public static final String SHARE        = BuildConfig.APPLICATION_ID + ".SHARE";

@@ -93,6 +93,9 @@ public class IntentResolver {
             case RECORD:
                 showRecordScreen(context, referrer);
                 break;
+            case DISCOVERY:
+                showDiscoveryScreen(context, referrer);
+                break;
             case SEARCH:
                 showSearchScreen(context, uri, referrer);
                 break;
@@ -174,6 +177,11 @@ public class IntentResolver {
     private void showExploreScreen(Context context, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openExplore(context, Screen.DEEPLINK);
+    }
+
+    private void showDiscoveryScreen(Context context, String referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openDiscovery(context, Screen.DEEPLINK);
     }
 
     private void showSearchScreen(Context context, Uri uri, String referrer) {
