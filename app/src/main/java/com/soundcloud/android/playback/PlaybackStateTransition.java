@@ -130,9 +130,8 @@ public class PlaybackStateTransition {
         return extraAttributes.get(key);
     }
 
-    public PlaybackStateTransition addExtraAttribute(int key, String value) {
+    public void addExtraAttribute(int key, String value) {
         this.extraAttributes.put(key, value);
-        return this;
     }
 
     @Override
