@@ -37,6 +37,7 @@ android {
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
     }
 
     beta {
