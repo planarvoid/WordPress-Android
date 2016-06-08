@@ -346,6 +346,10 @@ public class Navigator {
         context.startActivity(new Intent(context, PlaylistsCollectionActivity.class));
     }
 
+    public void openDiscovery(Context context, Screen screen) {
+        context.startActivity(createDiscoveryIntent(screen));
+    }
+
     private Intent createHomeIntent(Context context) {
         return new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
@@ -374,6 +378,12 @@ public class Navigator {
 
     private Intent createStreamIntent(Screen screen) {
         Intent intent = new Intent(Actions.STREAM).setFlags(FLAGS_TOP);
+        screen.addToIntent(intent);
+        return intent;
+    }
+
+    private Intent createDiscoveryIntent(Screen screen) {
+        Intent intent = new Intent(Actions.DISCOVERY).setFlags(FLAGS_TOP);
         screen.addToIntent(intent);
         return intent;
     }

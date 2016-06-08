@@ -304,6 +304,15 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void opensDiscovery() {
+        navigator.openDiscovery(activityContext, Screen.DEEPLINK);
+
+        assertThat(activityContext).nextStartedIntent()
+                .containsAction(Actions.DISCOVERY)
+                .containsScreen(Screen.DEEPLINK);
+    }
+
+    @Test
     public void opensExplore() {
         navigator.openExplore(activityContext, Screen.YOU);
 
