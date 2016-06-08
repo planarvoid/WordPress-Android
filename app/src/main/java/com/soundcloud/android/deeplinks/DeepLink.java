@@ -128,7 +128,7 @@ public enum DeepLink {
                 return EXPLORE;
             case "/upload":
                 return RECORD;
-            case "/discovery":
+            case "/discover":
                 return DISCOVERY;
             case "/search":
             case "/search/sounds":

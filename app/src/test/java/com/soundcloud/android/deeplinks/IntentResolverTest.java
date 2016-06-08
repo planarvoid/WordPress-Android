@@ -458,7 +458,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
     @Test
     public void shouldOpenDiscoveryFromWebLink() {
-        setupIntentForUrl("https://soundcloud.com/discovery");
+        setupIntentForUrl("https://soundcloud.com/discover");
 
         resolver.handleIntent(intent, context);
 
