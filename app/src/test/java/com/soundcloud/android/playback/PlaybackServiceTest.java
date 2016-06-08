@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -61,7 +62,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Mock private PlaybackReceiver playbackReceiver;
     @Mock private PlayQueue playQueue;
     @Mock private PlaybackStateTransition stateTransition;
-    @Mock private PlaybackSessionAnalyticsController analyticsController;
+    @Mock private PlaybackAnalyticsController analyticsDispatcher;
     @Mock private AdsController adsController;
     @Mock private AdsOperations adsOperations;
     @Mock private VolumeControllerFactory volumeControllerFactory;
@@ -73,10 +74,8 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         playbackService = new PlaybackService(eventBus,
-                accountOperations, streamPlayer,playbackReceiverFactory,
-                analyticsController,
-                adsOperations, adsController, volumeControllerFactory,
-                mediaSessionControllerFactory);
+                accountOperations, streamPlayer,playbackReceiverFactory, analyticsDispatcher, adsOperations,
+                adsController, volumeControllerFactory, mediaSessionControllerFactory);
 
         when(playbackReceiverFactory.create(playbackService, accountOperations)).thenReturn(playbackReceiver);
         when(volumeControllerFactory.create(streamPlayer, playbackService)).thenReturn(volumeController);
@@ -268,7 +267,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldForwardVideoAdPlayerStateTransitionToAnalyticsController() {
+    public void shouldSendVideoAdPlayerStateTransitionToAnalyticsDispatcher() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123));
         playbackItem = VideoAdPlaybackItem.create(videoAd, 0L);
         playbackService.onCreate();
@@ -277,37 +276,38 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, videoAd.getAdUrn(), 0, 123, dateProvider);
         playbackService.onPlaystateChanged(stateTransition);
 
-        verify(analyticsController).onStateTransition(stateTransition);
+        verify(analyticsDispatcher).onStateTransition(playbackItem, stateTransition);
     }
 
     @Test
-    public void shouldForwardPlayerStateTransitionToAnalyticsController() {
+    public void shouldSendPlayerStateTransitionToAnalyticsDispatcher() {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
         final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 123);
         playbackService.onPlaystateChanged(stateTransition);
 
-        verify(analyticsController).onStateTransition(stateTransition);
+        verify(analyticsDispatcher).onStateTransition(playbackItem, stateTransition);
     }
 
     @Test
-    public void doesNotForwardPlayerStateTransitionToAnalyticsControllerWithDifferentUrnThenCurrent() {
+    public void doesNotForwardPlayerStateTransitionToAnalyticsDispatcherWithDifferentUrnThenCurrent() {
         when(stateTransition.getUrn()).thenReturn(track);
 
         playbackService.onPlaystateChanged(stateTransition);
 
-        verify(analyticsController, never()).onStateTransition(any(PlaybackStateTransition.class));
+        verify(analyticsDispatcher, never()).onStateTransition(any(PlaybackItem.class), any(PlaybackStateTransition.class));
     }
 
     @Test
-    public void onProgressForwardsProgressEventToAnalyticsController() {
+    public void onProgressForwardsAudioAdProgressEventToAnalyticsDispatcher() {
+        playbackItem = AudioAdPlaybackItem.create(TestPropertySets.fromApiTrack(), AdFixtures.getAudioAd(Urn.forTrack(123L)));
         playbackService.onCreate();
         playbackService.play(playbackItem);
         playbackService.onProgressEvent(25, 50);
 
         ArgumentCaptor<PlaybackProgressEvent> captor = ArgumentCaptor.forClass(PlaybackProgressEvent.class);
-        verify(analyticsController).onProgressEvent(captor.capture());
+        verify(analyticsDispatcher).onProgressEvent(eq(playbackItem), captor.capture());
 
         final PlaybackProgressEvent event = captor.getValue();
         assertThat(event.getPlaybackProgress().getPosition()).isEqualTo(25);

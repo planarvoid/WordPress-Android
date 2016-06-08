@@ -43,7 +43,7 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
     @Inject AccountOperations accountOperations;
     @Inject StreamPlayer streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
-    @Inject PlaybackSessionAnalyticsController analyticsController;
+    @Inject PlaybackAnalyticsController analyticsDispatcher;
     @Inject AdsController adsController;
     @Inject AdsOperations adsOperations;
     @Inject VolumeControllerFactory volumeControllerFactory;
@@ -66,7 +66,7 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
                     AccountOperations accountOperations,
                     StreamPlayer streamPlayer,
                     PlaybackReceiver.Factory playbackReceiverFactory,
-                    PlaybackSessionAnalyticsController analyticsController,
+                    PlaybackAnalyticsController analyticsDispatcher,
                     AdsOperations adsOperations,
                     AdsController adsController,
                     VolumeControllerFactory volumeControllerFactory,
@@ -75,7 +75,7 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
         this.accountOperations = accountOperations;
         this.streamPlayer = streamPlayer;
         this.playbackReceiverFactory = playbackReceiverFactory;
-        this.analyticsController = analyticsController;
+        this.analyticsDispatcher = analyticsDispatcher;
         this.adsOperations = adsOperations;
         this.adsController = adsController;
         this.volumeControllerFactory = volumeControllerFactory;
@@ -195,7 +195,7 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
                     onIdleState();
                 }
 
-                analyticsController.onStateTransition(stateTransition);
+                analyticsDispatcher.onStateTransition(currentPlaybackItem.get(), stateTransition);
                 adsController.onPlayStateTransition(stateTransition);
                 eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
 
@@ -219,7 +219,11 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
         if (currentPlaybackItem.isPresent()) {
             final PlaybackItem playbackItem = currentPlaybackItem.get();
             final PlaybackProgressEvent playbackProgress = PlaybackProgressEvent.create(new PlaybackProgress(position, duration), playbackItem.getUrn());
-            analyticsController.onProgressEvent(playbackProgress);
+
+            if (currentPlaybackItem.isPresent()) {
+                analyticsDispatcher.onProgressEvent(currentPlaybackItem.get(), playbackProgress);
+            }
+
             eventBus.publish(EventQueue.PLAYBACK_PROGRESS, playbackProgress);
             mediaSessionController.onProgress(position);
             fadeOutIfNecessary(position);
