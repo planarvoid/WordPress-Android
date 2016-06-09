@@ -4,11 +4,11 @@ import com.soundcloud.android.discovery.DiscoveryItem;
 
 import java.util.List;
 
-class RecommendedStationsBucket extends DiscoveryItem {
+public class RecommendedStationsItem extends DiscoveryItem {
     final List<StationRecord> stationRecords;
 
-    RecommendedStationsBucket(List<StationRecord> stationRecords) {
-        super(Kind.StationRecommendationItem);
+    public RecommendedStationsItem(List<StationRecord> stationRecords) {
+        super(Kind.RecommendedStationsItem);
         this.stationRecords = stationRecords;
     }
 

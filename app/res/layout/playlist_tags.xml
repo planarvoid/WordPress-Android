@@ -47,13 +47,6 @@
             android:layout_alignParentTop="true"
             android:text="@string/search_tags_popular_subtitle" />
 
-        <com.soundcloud.android.view.EmptyView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="50dp"
-            android:paddingTop="50dp" />
-
         <com.soundcloud.android.view.FlowLayout
             android:id="@+id/all_tags"
             android:layout_width="match_parent"

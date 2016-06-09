@@ -38,8 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class RecommendationBucketRendererTest extends AndroidUnitTest {
-
+public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
     private static final long SEED_ID = 1;
     private static final int QUERY_POSITION = 1;
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
@@ -65,10 +64,10 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindHeadingToViewIfViewAllBucket() {
-        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        renderer.bindItemView(0, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_header))
                 .containsText(itemView.getResources().getString(R.string.recommendation_seeds_header))
@@ -77,22 +76,22 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideHeadingIfNonViewAllBucket() {
-        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createDefaultRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        renderer.bindItemView(0, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_header)).isGone();
     }
 
     @Test
     public void shouldBindReasonToView() {
-        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        renderer.bindItemView(0, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.reason))
                 .containsText("Because you liked " + SEED_TRACK.getTitle())
@@ -101,11 +100,11 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Test
     public void tappingOnSeedTrackShouldTriggerRecommendationsBucketListenerIfAvailable() {
-        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        renderer.bindItemView(0, itemView, recommendedTracksItems);
 
         ButterKnife.<TextView>findById(itemView, R.id.reason).performClick();
 
@@ -114,11 +113,11 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindViewAllToViewWhenViewAllBucket() {
-        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        renderer.bindItemView(0, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_view_all_text)).containsText(
                 itemView.getResources().getString(R.string.recommendation_view_all));
@@ -126,11 +125,11 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideViewAllWhenNonViewAllBucket() {
-        final List<RecommendationBucket> recommendationBuckets = createRecommendationsBucket();
+        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createDefaultRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendationBuckets);
+        renderer.bindItemView(0, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.findById(itemView, R.id.recommendations_view_all)).isGone();
     }
@@ -168,9 +167,9 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
         );
     }
 
-    private List<RecommendationBucket> createRecommendationsBucket() {
-        final RecommendationBucket recommendationBucket = new RecommendationBucket(createSeed(), Collections.singletonList(
+    private List<RecommendedTracksItem> createRecommendationsBucket() {
+        final RecommendedTracksItem recommendedTracksItem = new RecommendedTracksItem(createSeed(), Collections.singletonList(
                 RECOMMENDATION));
-        return Collections.singletonList(recommendationBucket);
+        return Collections.singletonList(recommendedTracksItem);
     }
 }

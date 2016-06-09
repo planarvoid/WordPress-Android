@@ -4,8 +4,8 @@ import static com.soundcloud.android.discovery.DiscoveryAdapter.DiscoveryItemLis
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.StationRecommendationItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.TrackRecommendationItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -27,12 +27,13 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private RecommendedStationsBucketRenderer recommendedStationsBucketRenderer;
     @Mock private ChartsItemRenderer chartsItemRenderer;
     @Mock private RecommendationsFooterRenderer recommendationsFooterRenderer;
+    @Mock private EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer;
 
     private DiscoveryAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new DiscoveryAdapter(recommendationBucketRenderer, playlistTagRenderer, searchItemRenderer, recommendedStationsBucketRenderer, chartsItemRenderer, recommendationsFooterRenderer);
+        adapter = new DiscoveryAdapter(recommendationBucketRenderer, playlistTagRenderer, searchItemRenderer, recommendedStationsBucketRenderer, chartsItemRenderer, recommendationsFooterRenderer, emptyDiscoveryItemRenderer);
     }
 
     @Test
@@ -42,9 +43,9 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         DiscoveryItem playlistTagItem = mock(DiscoveryItem.class);
         when(playlistTagItem.getKind()).thenReturn(PlaylistTagsItem);
         DiscoveryItem trackRecommendationItem = mock(DiscoveryItem.class);
-        when(trackRecommendationItem.getKind()).thenReturn(TrackRecommendationItem);
+        when(trackRecommendationItem.getKind()).thenReturn(RecommendedTracksItem);
         DiscoveryItem stationRecommendationItem = mock(DiscoveryItem.class);
-        when(stationRecommendationItem.getKind()).thenReturn(StationRecommendationItem);
+        when(stationRecommendationItem.getKind()).thenReturn(RecommendedStationsItem);
         DiscoveryItem chartRecommendationItem = mock(DiscoveryItem.class);
         when(chartRecommendationItem.getKind()).thenReturn(ChartItem);
 
@@ -52,8 +53,8 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
         assertThat(adapter.getBasicItemViewType(0)).isEqualTo(SearchItem.ordinal());
         assertThat(adapter.getBasicItemViewType(1)).isEqualTo(PlaylistTagsItem.ordinal());
-        assertThat(adapter.getBasicItemViewType(2)).isEqualTo(TrackRecommendationItem.ordinal());
-        assertThat(adapter.getBasicItemViewType(3)).isEqualTo(StationRecommendationItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(2)).isEqualTo(RecommendedTracksItem.ordinal());
+        assertThat(adapter.getBasicItemViewType(3)).isEqualTo(RecommendedStationsItem.ordinal());
         assertThat(adapter.getBasicItemViewType(4)).isEqualTo(ChartItem.ordinal());
     }
 

@@ -2,8 +2,18 @@ package com.soundcloud.android.discovery;
 
 public class DiscoveryItem {
 
+    public static DiscoveryItem forRecommendedTracksFooter() {
+        return new DiscoveryItem(Kind.RecommendedTracksFooterItem);
+    }
+
     public enum Kind {
-        StationRecommendationItem, TrackRecommendationItem, TrackRecommendationsFooterItem, PlaylistTagsItem, SearchItem, ChartItem
+        RecommendedStationsItem,
+        RecommendedTracksItem,
+        RecommendedTracksFooterItem,
+        PlaylistTagsItem,
+        SearchItem,
+        ChartItem,
+        Empty
     }
 
     private final Kind kind;
@@ -15,4 +25,5 @@ public class DiscoveryItem {
     public Kind getKind() {
         return kind;
     }
+
 }

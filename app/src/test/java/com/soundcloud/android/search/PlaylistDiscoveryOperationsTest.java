@@ -24,7 +24,7 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.discovery.DiscoveryItem;
-import com.soundcloud.android.discovery.PlaylistDiscoveryItem;
+import com.soundcloud.android.discovery.PlaylistTagsItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -341,12 +341,23 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         assertPlaylistDiscoItem(onNextEvents.get(0), Collections.<String>emptyList(), RECENT_TAGS);
     }
 
+    @Test
+    public void loadsRecommendationsAndRecentTagsReturnsEmptyWhenBothAreEmpty() {
+        when(tagStorage.getRecentTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
+        when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
+
+        operations.playlistTags().subscribe(subscriber);
+
+        subscriber.assertNoValues();
+        subscriber.assertCompleted();
+    }
+
     private void assertPlaylistDiscoItem(DiscoveryItem discoveryItem,
                                          List<String> popularTags,
                                          List<String> recentTags) {
         assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.PlaylistTagsItem);
 
-        final PlaylistDiscoveryItem playlistDiscoItem = (PlaylistDiscoveryItem) discoveryItem;
+        final PlaylistTagsItem playlistDiscoItem = (PlaylistTagsItem) discoveryItem;
         assertThat(playlistDiscoItem.getPopularTags()).isEqualTo(popularTags);
         assertThat(playlistDiscoItem.getRecentTags()).isEqualTo(recentTags);
     }

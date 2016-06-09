@@ -2,7 +2,6 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -81,7 +80,7 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
 
     private Observable<List<DiscoveryItem>> getSource() {
         return operations.allBuckets()
-                .concatWith(Observable.just(new RecommendationsFooterItem()))
-                .toList();
+                         .concatWith(Observable.just(DiscoveryItem.forRecommendedTracksFooter()))
+                         .toList();
     }
 }

@@ -12,7 +12,7 @@ import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.collection.LoadPlaylistRepostStatuses;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.discovery.DiscoveryItem;
-import com.soundcloud.android.discovery.PlaylistDiscoveryItem;
+import com.soundcloud.android.discovery.PlaylistTagsItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.users.UserProperty;
@@ -47,15 +47,20 @@ public class PlaylistDiscoveryOperations {
     private final LoadPlaylistRepostStatuses loadPlaylistRepostStatuses;
     private final Scheduler scheduler;
 
-    private static final Observable<DiscoveryItem> ON_ERROR_EMPTY_ITEM_LIST = Observable.empty();
-
     private static final Func2<List<String>, List<String>, DiscoveryItem> TAGS_TO_DISCOVERY_ITEM_LIST =
             new Func2<List<String>, List<String>, DiscoveryItem>() {
                 @Override
                 public DiscoveryItem call(List<String> popular, List<String> recent) {
-                    return new PlaylistDiscoveryItem(popular, recent);
+                    return new PlaylistTagsItem(popular, recent);
                 }
             };
+
+    private static final Func1<DiscoveryItem, Boolean> IS_NOT_EMPTY = new Func1<DiscoveryItem, Boolean>() {
+        @Override
+        public Boolean call(DiscoveryItem playlistDiscoveryItem) {
+            return !((PlaylistTagsItem) playlistDiscoveryItem).isEmpty();
+        }
+    };
 
     private final Func1<ApiPlaylistCollection, SearchResult> toBackFilledSearchResult = new Func1<ApiPlaylistCollection, SearchResult>() {
         @Override
@@ -98,7 +103,9 @@ public class PlaylistDiscoveryOperations {
     }
 
     public Observable<DiscoveryItem> playlistTags() {
-        return popularPlaylistTags().zipWith(recentPlaylistTags(), TAGS_TO_DISCOVERY_ITEM_LIST);
+        return popularPlaylistTags()
+                .zipWith(recentPlaylistTags(), TAGS_TO_DISCOVERY_ITEM_LIST)
+                .filter(IS_NOT_EMPTY);
     }
 
     public Observable<List<String>> recentPlaylistTags() {

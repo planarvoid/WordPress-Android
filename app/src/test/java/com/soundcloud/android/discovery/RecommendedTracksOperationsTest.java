@@ -92,6 +92,18 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void returnsEmptyWhenNoRecommendationdsFromTrackSeed() {
+        final TestSubscriber<List<TrackItem>> testSubscriber = new TestSubscriber<>();
+
+        when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+
+        operations.tracksForSeed(SEED_ID).subscribe(testSubscriber);
+
+        testSubscriber.assertNoValues();
+        testSubscriber.assertCompleted();
+    }
+
+    @Test
     public void returnsEmptyObservableWhenFeatureFlagIsDisabled() {
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(false);
 
@@ -137,7 +149,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
         SYNC_SUBJECT.onNext(true);
 
-        final RecommendationBucket bucket = (RecommendationBucket) subscriber.getOnNextEvents().get(0);
+        final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
 
         assertThat(bucket.getRecommendations().get(0).isPlaying()).isTrue();
     }
@@ -151,7 +163,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
         SYNC_SUBJECT.onNext(true);
 
-        final RecommendationBucket bucket = (RecommendationBucket) subscriber.getOnNextEvents().get(0);
+        final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
 
         assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
     }
@@ -164,15 +176,15 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
         SYNC_SUBJECT.onNext(true);
 
-        final RecommendationBucket bucket = (RecommendationBucket) subscriber.getOnNextEvents().get(0);
+        final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
 
         assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
     }
 
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
-        assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.TrackRecommendationItem);
+        assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.RecommendedTracksItem);
 
-        final RecommendationBucket recommendationBucket = (RecommendationBucket) discoveryItem;
+        final RecommendedTracksItem recommendationBucket = (RecommendedTracksItem) discoveryItem;
         assertThat(recommendationBucket.getSeedTrackLocalId()).isEqualTo(SEED_ID);
         assertThat(recommendationBucket.getSeedTrackUrn()).isEqualTo(SEED_TRACK.getUrn());
         assertThat(recommendationBucket.getSeedTrackTitle()).isEqualTo(SEED_TRACK.getTitle());

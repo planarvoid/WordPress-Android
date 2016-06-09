@@ -22,7 +22,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class RecommendedStationsBucketRenderer implements CellRenderer<RecommendedStationsBucket> {
+public class RecommendedStationsBucketRenderer implements CellRenderer<RecommendedStationsItem> {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -56,13 +56,13 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<RecommendedStationsBucket> items) {
+    public void bindItemView(int position, View itemView, List<RecommendedStationsItem> items) {
         final ViewPager viewPager = ButterKnife.findById(itemView, R.id.stations_pager);
         final CirclePageIndicator indicator = ButterKnife.findById(itemView, R.id.page_indicator);
         int cardsPerPage = itemView.getResources().getInteger(R.integer.stations_recommendation_card_count);
-        RecommendedStationsBucket recommendedStationsBucket = items.get(position);
+        RecommendedStationsItem recommendedStationsItem = items.get(position);
 
-        viewPager.setAdapter(new StationsAdapter(cardsPerPage, recommendedStationsBucket.stationRecords));
+        viewPager.setAdapter(new StationsAdapter(cardsPerPage, recommendedStationsItem.stationRecords));
         indicator.setViewPager(viewPager);
     }
 

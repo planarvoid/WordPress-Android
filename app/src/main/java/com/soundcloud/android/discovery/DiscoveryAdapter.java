@@ -1,11 +1,12 @@
 package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.Empty;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.StationRecommendationItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.TrackRecommendationItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.TrackRecommendationsFooterItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksFooterItem;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -38,13 +39,16 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
                      @Provided SearchItemRenderer searchItemRenderer,
                      @Provided RecommendedStationsBucketRenderer stationsBucketRenderer,
                      @Provided ChartsItemRenderer chartsItemRenderer,
-                     @Provided RecommendationsFooterRenderer recommendationsFooterRenderer) {
-        super(new CellRendererBinding<>(TrackRecommendationItem.ordinal(), recommendationBucketRenderer),
+                     @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
+                     @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer) {
+        super(new CellRendererBinding<>(RecommendedTracksItem.ordinal(), recommendationBucketRenderer),
                 new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
                 new CellRendererBinding<>(SearchItem.ordinal(), searchItemRenderer),
-                new CellRendererBinding<>(StationRecommendationItem.ordinal(), stationsBucketRenderer),
+                new CellRendererBinding<>(RecommendedStationsItem.ordinal(), stationsBucketRenderer),
                 new CellRendererBinding<>(ChartItem.ordinal(), chartsItemRenderer),
-                new CellRendererBinding<>(TrackRecommendationsFooterItem.ordinal(), recommendationsFooterRenderer));
+                new CellRendererBinding<>(RecommendedTracksFooterItem.ordinal(), recommendationsFooterRenderer),
+                new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer)
+        );
         this.playlistTagRenderer = playlistTagRenderer;
         this.stationsBucketRenderer = stationsBucketRenderer;
         this.searchItemRenderer = searchItemRenderer;
@@ -76,12 +80,13 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
         for (DiscoveryItem discoveryItem : getItems()) {
-            if (discoveryItem.getKind().equals(DiscoveryItem.Kind.TrackRecommendationItem)) {
-                for (Recommendation viewModel : ((RecommendationBucket) discoveryItem).getRecommendations()) {
+            if (discoveryItem.getKind().equals(DiscoveryItem.Kind.RecommendedTracksItem)) {
+                for (Recommendation viewModel : ((RecommendedTracksItem) discoveryItem).getRecommendations()) {
                     viewModel.setIsPlaying(currentlyPlayingUrn.equals(viewModel.getTrack().getUrn()));
                 }
             }
         }
         notifyDataSetChanged();
     }
+
 }

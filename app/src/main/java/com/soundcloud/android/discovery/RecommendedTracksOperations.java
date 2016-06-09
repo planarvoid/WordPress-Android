@@ -12,8 +12,10 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -52,7 +54,7 @@ class RecommendedTracksOperations {
         return new Func1<List<TrackItem>, DiscoveryItem>() {
             @Override
             public DiscoveryItem call(List<TrackItem> trackItems) {
-                return new RecommendationBucket(seed, toRecommendations(seed, trackItems));
+                return new RecommendedTracksItem(seed, toRecommendations(seed, trackItems));
             }
         };
     }
@@ -79,8 +81,10 @@ class RecommendedTracksOperations {
         this.featureFlags = featureFlags;
     }
 
+    @VisibleForTesting
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
+                .filter(RxUtils.IS_NOT_EMPTY_LIST)
                 .map(TrackItem.fromPropertySets());
     }
 

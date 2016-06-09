@@ -5,9 +5,7 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +36,7 @@ public class PlaylistTagRendererTest {
     public void rendererDisplayTagsWhenBindingItemView() {
         List<String> recentTags = Arrays.asList("#dub", "#hardcore");
         List<String> playListTags = Arrays.asList("#rock", "#metal");
-        PlaylistDiscoveryItem discoveryItem = new PlaylistDiscoveryItem(playListTags, recentTags);
+        PlaylistTagsItem discoveryItem = new PlaylistTagsItem(playListTags, recentTags);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(discoveryItem));
 
@@ -50,7 +48,7 @@ public class PlaylistTagRendererTest {
     public void doesNotRenderRecentTagsIfEmpty() {
         List<String> recentTags = Collections.emptyList();
         List<String> playListTags = Arrays.asList("#rock", "#metal");
-        PlaylistDiscoveryItem discoveryItem = new PlaylistDiscoveryItem(playListTags, recentTags);
+        PlaylistTagsItem discoveryItem = new PlaylistTagsItem(playListTags, recentTags);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(discoveryItem));
 
@@ -62,7 +60,7 @@ public class PlaylistTagRendererTest {
     public void doesNotRenderPopularTagsIfEmpty() {
         List<String> recentTags = Collections.emptyList();
         List<String> playListTags = Collections.emptyList();
-        PlaylistDiscoveryItem discoveryItem = new PlaylistDiscoveryItem(playListTags, recentTags);
+        PlaylistTagsItem discoveryItem = new PlaylistTagsItem(playListTags, recentTags);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(discoveryItem));
 

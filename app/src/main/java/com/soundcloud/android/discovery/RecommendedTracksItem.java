@@ -5,13 +5,13 @@ import com.soundcloud.java.collections.PropertySet;
 
 import java.util.List;
 
-class RecommendationBucket extends DiscoveryItem {
+class RecommendedTracksItem extends DiscoveryItem {
 
     private final PropertySet source;
     private final List<Recommendation> recommendations;
 
-    RecommendationBucket(PropertySet source, List<Recommendation> recommendations) {
-        super(Kind.TrackRecommendationItem);
+    RecommendedTracksItem(PropertySet source, List<Recommendation> recommendations) {
+        super(Kind.RecommendedTracksItem);
         this.source = source;
         this.recommendations = recommendations;
     }
