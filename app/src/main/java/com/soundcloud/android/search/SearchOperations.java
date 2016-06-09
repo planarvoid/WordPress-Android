@@ -18,6 +18,8 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -91,6 +93,7 @@ class SearchOperations {
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final LoadFollowingCommand loadFollowingCommand;
     private final Scheduler scheduler;
+    private final FeatureFlags featureFlags;
 
     private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
@@ -166,7 +169,8 @@ class SearchOperations {
                      CacheUniversalSearchCommand cacheUniversalSearchCommand,
                      LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
                      LoadFollowingCommand loadFollowingCommand,
-                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                     FeatureFlags featureFlags) {
         this.apiClientRx = apiClientRx;
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;
@@ -175,6 +179,7 @@ class SearchOperations {
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
         this.loadFollowingCommand = loadFollowingCommand;
         this.scheduler = scheduler;
+        this.featureFlags = featureFlags;
     }
 
     Observable<SearchResult> searchResult(String query, SearchType searchType) {
@@ -211,7 +216,10 @@ class SearchOperations {
             case TRACKS:
                 return new TrackSearchStrategy(contentType);
             case PLAYLISTS:
-                return new PlaylistSearchStrategy(contentType, ApiEndpoints.SEARCH_PLAYLISTS, ApiEndpoints.SEARCH_PREMIUM_PLAYLISTS);
+                final ApiEndpoints searchPlaylistsEndpoint = featureFlags.isEnabled(Flag.ALBUMS) ?
+                                                             ApiEndpoints.SEARCH_PLAYLISTS_WITHOUT_ALBUMS :
+                                                             ApiEndpoints.SEARCH_PLAYLISTS;
+                return new PlaylistSearchStrategy(contentType, searchPlaylistsEndpoint, ApiEndpoints.SEARCH_PREMIUM_PLAYLISTS);
             case ALBUMS:
                 return new PlaylistSearchStrategy(contentType, ApiEndpoints.SEARCH_ALBUMS, ApiEndpoints.SEARCH_PREMIUM_ALBUMS);
             case USERS:

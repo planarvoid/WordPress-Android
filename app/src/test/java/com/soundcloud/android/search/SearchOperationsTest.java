@@ -24,6 +24,8 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
@@ -66,6 +68,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private LoadFollowingCommand loadFollowingCommand;
+    @Mock private FeatureFlags featureFlags;
 
     private ApiTrack track;
     private ApiPlaylist playlist;
@@ -82,7 +85,8 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.empty());
 
         operations = new SearchOperations(apiClientRx, storeTracksCommand, storePlaylistsCommand, storeUsersCommand,
-                cacheUniversalSearchCommand, loadPlaylistLikedStatuses, loadFollowingCommand, Schedulers.immediate());
+                                          cacheUniversalSearchCommand, loadPlaylistLikedStatuses, loadFollowingCommand, Schedulers.immediate(),
+                                          featureFlags);
     }
 
     @Test
@@ -104,12 +108,23 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldMakeGETRequestToSearchPlaylistsEndpoint() {
+    public void shouldMakeGETRequestToSearchPlaylistsEndpointWhenAlbumsFeatureFlagDisabled() {
+        when(featureFlags.isEnabled(Flag.ALBUMS)).thenReturn(false);
         operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())
-                .withQueryParam("limit", "30")
-                .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+    }
+
+    @Test
+    public void shouldMakeGETRequestToSearchPlaylistsWithoutAlbumsEndpointWhenAlbumsFeatureFlagEnabled() {
+        when(featureFlags.isEnabled(Flag.ALBUMS)).thenReturn(true);
+        operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
+
+        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS_WITHOUT_ALBUMS.path())
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
