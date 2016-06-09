@@ -65,6 +65,7 @@ ext {
           facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:4.4.0",
           butterKnife                 : "com.jakewharton:butterknife:7.0.1",
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
+          tSnackBar                   : "com.androidadvance:topsnackbar:0.0.9",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
 
           // Android libraries

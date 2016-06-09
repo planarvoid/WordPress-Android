@@ -197,6 +197,7 @@ dependencies {
   compile (libraries.slidingUpPanel) {
     transitive = true;
   }
+  compile libraries.tSnackBar
   compile libraries.androidCrop
   compile libraries.rxAndroid
   compile libraries.rxJava
