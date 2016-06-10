@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @VisibleForTesting
-    static final long FLUSH_DELAY_SECONDS = 120L;
+    static final long FLUSH_DELAY_SECONDS = 60L;
 
     private final EventBus eventBus;
     private final AnalyticsProviderFactory analyticsProviderFactory;
