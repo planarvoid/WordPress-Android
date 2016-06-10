@@ -8,9 +8,11 @@ import com.soundcloud.android.main.MainActivity;
 
 public class TrackInfoScreen extends Screen {
 
+    public static final String FRAGMENT_TAG = "info_dialog";
+
     public TrackInfoScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag("info_dialog");
+        waiter.assertForFragmentByTag(FRAGMENT_TAG);
     }
 
     @Override

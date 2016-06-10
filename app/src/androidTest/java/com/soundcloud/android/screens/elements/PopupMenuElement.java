@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens.elements;
 
+import com.soundcloud.android.framework.DebugHelper;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -30,4 +31,18 @@ public class PopupMenuElement extends Element {
         return new TextElement(viewElement.findOnScreenElement(With.id(android.R.id.title))).getText();
     }
 
+    protected boolean clickMenuElementForFragment(ViewElement viewElement, String fragmentTAg) {
+        final int MAX_ATTEMPTS = 5;
+
+        for (int i = 0; i < MAX_ATTEMPTS; i++) {
+            // Clicking on the menu would sometimes fail silently.
+            // We enforce a retry here.
+            DebugHelper.log("clickMenuElementForFragment -> Try #" + i);
+            viewElement.click();
+            if (waiter.waitForFragmentByTag(fragmentTAg)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

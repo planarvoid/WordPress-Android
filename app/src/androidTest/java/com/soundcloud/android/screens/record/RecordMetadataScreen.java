@@ -13,7 +13,7 @@ public class RecordMetadataScreen extends Screen {
 
     public RecordMetadataScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag("metadata_fragment");
+        waiter.assertForFragmentByTag("metadata_fragment");
     }
 
     public String getTitle() {

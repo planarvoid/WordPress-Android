@@ -28,6 +28,7 @@ def systemProperties = [
         "log.tag.PublicApi": "DEBUG",
         "log.tag.ApiSyncer": "DEBUG",
         "log.tag.Timeline": "DEBUG",
+        "log.tag.SC_ANDROID_TEST": "DEBUG",
         "log.tag.BUG_4503": "DEBUG",
         "log.tag.EventTracker": "DEBUG",
         "log.tag.MrLoggaVerifier": "DEBUG",

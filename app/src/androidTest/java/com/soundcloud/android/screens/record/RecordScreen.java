@@ -16,7 +16,7 @@ public class RecordScreen extends Screen {
 
     public RecordScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag("recording_fragment");
+        waiter.assertForFragmentByTag("recording_fragment");
     }
 
     public String getTitle() {

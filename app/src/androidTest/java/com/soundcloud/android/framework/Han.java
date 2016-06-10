@@ -424,123 +424,123 @@ public class Han {
 
         @Override
         public boolean scrollDown() {
-            System.out.println("Chewbacca.scrollDown");
+            DebugHelper.log("Chewbacca.scrollDown");
             return super.scrollDown();
         }
 
         @Override
         public void scrollToBottom() {
-            System.out.println("Chewbacca.scrollToBottom");
+            DebugHelper.log("Chewbacca.scrollToBottom");
             super.scrollToBottom();
         }
 
         @Override
         public boolean scrollUp() {
-            System.out.println("Chewbacca.scrollUp");
+            DebugHelper.log("Chewbacca.scrollUp");
             return super.scrollUp();
         }
 
         @Override
         public void scrollToTop() {
-            System.out.println("Chewbacca.scrollToTop");
+            DebugHelper.log("Chewbacca.scrollToTop");
             super.scrollToTop();
         }
 
         @Override
         public boolean scrollDownList(AbsListView list) {
-            System.out.println("Chewbacca.scrollDownList");
+            DebugHelper.log("Chewbacca.scrollDownList");
             return super.scrollDownList(list);
         }
 
         @Override
         public boolean scrollListToBottom(AbsListView list) {
-            System.out.println("Chewbacca.scrollListToBottom");
+            DebugHelper.log("Chewbacca.scrollListToBottom");
             return super.scrollListToBottom(list);
         }
 
         @Override
         public boolean scrollUpList(AbsListView list) {
-            System.out.println("Chewbacca.scrollUpList");
+            DebugHelper.log("Chewbacca.scrollUpList");
             return super.scrollUpList(list);
         }
 
         @Override
         public boolean scrollListToTop(AbsListView list) {
-            System.out.println("Chewbacca.scrollListToTop");
+            DebugHelper.log("Chewbacca.scrollListToTop");
             return super.scrollListToTop(list);
         }
 
         @Override
         public boolean scrollDownList(int index) {
-            System.out.println("Chewbacca.scrollDownList");
+            DebugHelper.log("Chewbacca.scrollDownList");
             return super.scrollDownList(index);
         }
 
         @Override
         public boolean scrollListToBottom(int index) {
-            System.out.println("Chewbacca.scrollListToBottom");
+            DebugHelper.log("Chewbacca.scrollListToBottom");
             return super.scrollListToBottom(index);
         }
 
         @Override
         public boolean scrollUpList(int index) {
-            System.out.println("Chewbacca.scrollUpList");
+            DebugHelper.log("Chewbacca.scrollUpList");
             return super.scrollUpList(index);
         }
 
         @Override
         public boolean scrollListToTop(int index) {
-            System.out.println("Chewbacca.scrollListToTop");
+            DebugHelper.log("Chewbacca.scrollListToTop");
             return super.scrollListToTop(index);
         }
 
         @Override
         public boolean scrollDownRecyclerView(int index) {
-            System.out.println("Chewbacca.scrollDownRecyclerView");
+            DebugHelper.log("Chewbacca.scrollDownRecyclerView");
             return super.scrollDownRecyclerView(index);
         }
 
         @Override
         public boolean scrollRecyclerViewToBottom(int index) {
-            System.out.println("Chewbacca.scrollRecyclerViewToBottom");
+            DebugHelper.log("Chewbacca.scrollRecyclerViewToBottom");
             return super.scrollRecyclerViewToBottom(index);
         }
 
         @Override
         public boolean scrollUpRecyclerView(int index) {
-            System.out.println("Chewbacca.scrollUpRecyclerView");
+            DebugHelper.log("Chewbacca.scrollUpRecyclerView");
             return super.scrollUpRecyclerView(index);
         }
 
         @Override
         public boolean scrollRecyclerViewToTop(int index) {
-            System.out.println("Chewbacca.scrollRecyclerViewToTop");
+            DebugHelper.log("Chewbacca.scrollRecyclerViewToTop");
             return super.scrollRecyclerViewToTop(index);
         }
 
         @Override
         public void scrollListToLine(AbsListView absListView, int line) {
-            System.out.println("Chewbacca.scrollListToLine");
+            DebugHelper.log("Chewbacca.scrollListToLine");
             super.scrollListToLine(absListView, line);
         }
 
         @Override
         public void scrollListToLine(int index, int line) {
-            System.out.println("Chewbacca.scrollListToLine");
+            DebugHelper.log("Chewbacca.scrollListToLine");
             super.scrollListToLine(index, line);
         }
 
         @Override
         public void swipe(PointF startPoint1, PointF startPoint2, PointF endPoint1, PointF endPoint2) {
-            System.out.println("Chewbacca.swipe");
-            System.out.println("startPoint1 = [" + startPoint1 + "], startPoint2 = [" + startPoint2 + "], endPoint1 = [" + endPoint1 + "], endPoint2 = [" + endPoint2 + "]");
+            DebugHelper.log("Chewbacca.swipe");
+            DebugHelper.log("startPoint1 = [" + startPoint1 + "], startPoint2 = [" + startPoint2 + "], endPoint1 = [" + endPoint1 + "], endPoint2 = [" + endPoint2 + "]");
             super.swipe(startPoint1, startPoint2, endPoint1, endPoint2);
         }
 
         @Override
         public void drag(float fromX, float toX, float fromY, float toY, int stepCount) {
-            System.out.println("Chewbacca.drag");
-            System.out.println("fromX = [" + fromX + "], toX = [" + toX + "], fromY = [" + fromY + "], toY = [" + toY + "], stepCount = [" + stepCount + "]");
+            DebugHelper.log("Chewbacca.drag");
+            DebugHelper.log("fromX = [" + fromX + "], toX = [" + toX + "], fromY = [" + fromY + "], toY = [" + toY + "], stepCount = [" + stepCount + "]");
             super.drag(fromX, toX, fromY, toY, stepCount);
         }
     }

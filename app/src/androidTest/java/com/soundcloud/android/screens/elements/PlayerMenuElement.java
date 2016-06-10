@@ -15,17 +15,17 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     public TrackInfoScreen clickInfo() {
-        info().click();
+        clickMenuElementForFragment(info(), TrackInfoScreen.FRAGMENT_TAG);
         return new TrackInfoScreen(testDriver);
     }
 
     public AddToPlaylistScreen clickAddToPlaylist() {
-        addToPlaylistItem().click();
+        clickMenuElementForFragment(addToPlaylistItem(), AddToPlaylistScreen.FRAGMENT_TAG);
         return new AddToPlaylistScreen(testDriver);
     }
 
     public AddCommentScreen clickComment() {
-        commentItem().click();
+        clickMenuElementForFragment(commentItem(), AddCommentScreen.FRAGMENT_TAG);
         return new AddCommentScreen(testDriver);
     }
 

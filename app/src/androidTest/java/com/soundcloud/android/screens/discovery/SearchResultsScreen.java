@@ -32,7 +32,7 @@ public class SearchResultsScreen extends Screen {
     public SearchResultsScreen(Han solo) {
         super(solo);
         this.searchTabs = new SearchTabs(solo);
-        waiter.waitForFragmentByTag(FRAGMENT);
+        waiter.assertForFragmentByTag(FRAGMENT);
     }
 
     public VisualPlayerElement findAndClickFirstTrackItem() {
