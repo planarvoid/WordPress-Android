@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
+import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.search.TabbedSearchFragment;
 
 import android.widget.TextView;
@@ -62,8 +63,8 @@ public class ToolBarElement extends Element {
         return new EditTextElement(testDriver.findOnScreenElement(With.id(SEARCH_EDIT_TEXT)));
     }
 
-    public SearchResultsScreen dismissSearch() {
+    public SearchScreen dismissSearch() {
         testDriver.findOnScreenElement(With.id(SEARCH_DISMISS_VIEW)).click();
-        return new SearchResultsScreen(testDriver);
+        return new SearchScreen(testDriver);
     }
 }
