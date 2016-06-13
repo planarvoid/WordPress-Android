@@ -1,10 +1,17 @@
 package com.soundcloud.android.gcm;
 
 import com.google.android.gms.iid.InstanceIDListenerService;
+import com.soundcloud.android.SoundCloudApplication;
 
-import android.content.Intent;
+import javax.inject.Inject;
 
 public class GcmInstanceIDListenerService extends InstanceIDListenerService {
+
+    @Inject GcmStorage gcmStorage;
+
+    public GcmInstanceIDListenerService() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     /**
      * Called if InstanceID token is updated. This may occur if the security of
@@ -13,8 +20,7 @@ public class GcmInstanceIDListenerService extends InstanceIDListenerService {
      */
     @Override
     public void onTokenRefresh() {
-        // Fetch updated Instance ID token and notify our app's server of any changes (if applicable).
-        Intent intent = new Intent(this, GcmRegistrationService.class);
-        startService(intent);
+        gcmStorage.clearHasRegistered();
+        GcmRegistrationService.startGcmService(this);
     }
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.gcm;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
@@ -19,17 +18,15 @@ public class GcmManager extends DefaultActivityLightCycle<AppCompatActivity> {
     private final ApplicationProperties appProperties;
     private final GcmStorage gcmStorage;
     private final GooglePlayServicesWrapper googlePlayServices;
-    private final PlaybackServiceInitiator serviceInitiator;
 
     @Inject
     public GcmManager(ApplicationProperties appProperties,
                       GcmStorage gcmStorage,
-                      GooglePlayServicesWrapper googlePlayServices,
-                      PlaybackServiceInitiator serviceInitiator) {
+                      GooglePlayServicesWrapper googlePlayServices) {
+
         this.appProperties = appProperties;
         this.gcmStorage = gcmStorage;
         this.googlePlayServices = googlePlayServices;
-        this.serviceInitiator = serviceInitiator;
     }
 
     @Override
@@ -38,18 +35,16 @@ public class GcmManager extends DefaultActivityLightCycle<AppCompatActivity> {
         if (bundle == null) {
             int resultCode = googlePlayServices.isPlayServicesAvailable(activity);
             if (resultCode == ConnectionResult.SUCCESS) {
-                ensureRegistrationTokenStored(activity);
+                ensureRegistration(activity);
             } else {
                 handlePlayServicesUnavailable(activity, resultCode);
             }
         }
     }
 
-    private void ensureRegistrationTokenStored(AppCompatActivity activity) {
-        if (!gcmStorage.hasToken()) {
-            serviceInitiator.startGcmService(activity);
-        } else {
-            Log.d(TAG, "GcmToken found " + gcmStorage.getToken());
+    private void ensureRegistration(AppCompatActivity activity) {
+        if (gcmStorage.shouldRegister()){
+            GcmRegistrationService.startGcmService(activity);
         }
     }
 

@@ -1,38 +1,40 @@
 package com.soundcloud.android.gcm;
 
+import static com.soundcloud.android.testsupport.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.GooglePlayServicesWrapper;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
-@RunWith(MockitoJUnitRunner.class)
-public class GcmManagerTest {
+public class GcmManagerTest extends AndroidUnitTest {
 
     private GcmManager gcmManager;
 
     @Mock private GcmStorage gcmStorage;
     @Mock private GooglePlayServicesWrapper googlePlayServices;
-    @Mock private PlaybackServiceInitiator serviceInitiator;
     @Mock private AppCompatActivity activity;
     @Mock private ApplicationProperties applicationProperties;
+    @Mock private FeatureFlags featureFlags;
+
+    @Captor ArgumentCaptor<Intent> intentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        gcmManager = new GcmManager(applicationProperties, gcmStorage, googlePlayServices, serviceInitiator);
-        activity = new AppCompatActivity();
+        gcmManager = new GcmManager(applicationProperties, gcmStorage, googlePlayServices);
     }
 
     @Test
@@ -67,23 +69,23 @@ public class GcmManagerTest {
     }
 
     @Test
-    public void startsRegistrationServiceWithNoToken() {
+    public void startsRegistrationServiceWhenShouldRegister() {
+        when(gcmStorage.shouldRegister()).thenReturn(true);
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
 
         gcmManager.onCreate(activity, null);
 
-        verify(serviceInitiator).startGcmService(activity);
-
+        verify(activity).startService(intentCaptor.capture());
+        assertThat(intentCaptor.getValue()).startsService(GcmRegistrationService.class);
     }
 
     @Test
-    public void doesNotStartRegistrationServiceWithToken() {
+    public void doesNotStartRegistrationIfShouldNotRegister() {
         when(googlePlayServices.isPlayServicesAvailable(activity)).thenReturn(ConnectionResult.SUCCESS);
-        when(gcmStorage.hasToken()).thenReturn(true);
 
         gcmManager.onCreate(activity, null);
 
-        verify(serviceInitiator, never()).startGcmService(any(Context.class));
+        verify(activity,never()).startService(any(Intent.class));
 
     }
 }
