@@ -122,7 +122,7 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
             case LIKED:
                 return RecommendationSeeds.REASON_LIKED;
             case LISTENED_TO:
-                return RecommendationSeeds.REASON_LISTENED_TO;
+                return RecommendationSeeds.REASON_PLAYED;
             default:
                 throw new IllegalArgumentException("Unknown recommendation reason " + apiRecommendation.getRecommendationReason());
         }

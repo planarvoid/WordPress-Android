@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.discovery.RecommendationsTracker.*;
+import static com.soundcloud.android.discovery.RecommendationsTracker.discoveryScreen;
+import static com.soundcloud.android.discovery.RecommendationsTracker.recommendationsScreen;
 import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
@@ -140,8 +141,8 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksItem
         switch (recommendationReason) {
             case LIKED:
                 return context.getString(R.string.recommendation_reason_liked).toLowerCase(Locale.getDefault());
-            case LISTENED_TO:
-                return context.getString(R.string.recommendation_reason_listened_to).toLowerCase(Locale.getDefault());
+            case PLAYED:
+                return context.getString(R.string.recommendation_reason_played).toLowerCase(Locale.getDefault());
             default:
                 throw new IllegalArgumentException("Unknown recommendation reason " + recommendationReason);
         }
