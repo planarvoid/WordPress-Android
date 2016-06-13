@@ -35,7 +35,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(1L);
     private static final Urn LOGGED_IN_USER_URN = Urn.forUser(2L);
     private static final Urn CREATOR_URN = Urn.forUser(3L);
-    private static final long PROGRESS = PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1;
+    private static final long PROGRESS = 1001L;
     private static final long DURATION = 2001L;
     private static final String UUID = "blah-123";
 
@@ -168,7 +168,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         playTransition();
 
         assertThat(source.isFromPromotedItem()).isTrue();
-        assertThat(source.getPromotedSourceInfo().isFirstPlay()).isFalse();
+        assertThat(source.getPromotedSourceInfo().isPlaybackStarted()).isTrue();
     }
 
     @Test

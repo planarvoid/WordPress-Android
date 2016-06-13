@@ -134,7 +134,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {
         if (event.isAd()) {
-            if (event.isFirstPlay()) {
+            if (event.shouldReportAdStart()) {
                 trackAudioAdImpression(event);
             } else if (event.hasTrackFinished()) {
                 trackAudioAdFinished(event);
@@ -193,7 +193,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
                 trackAdProgressQuartile(eventData);
                 break;
             case AdPlaybackSessionEvent.EVENT_KIND_PLAY:
-                if (eventData.isFirstPlay()) {
+                if (eventData.shouldReportStart()) {
                     trackVideoAdImpression(eventData);
                 }
                 break;

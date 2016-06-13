@@ -3,9 +3,15 @@ package com.soundcloud.android.ads;
 import java.util.List;
 
 public abstract class PlayerAdData extends AdData {
+
+    private boolean startEventsReported;
     private boolean firstQuartileReported;
     private boolean secondQuartileReported;
     private boolean thirdQuartileReported;
+
+    public boolean hasReportedStart() {
+        return startEventsReported;
+    }
 
     public boolean hasReportedFirstQuartile() {
         return firstQuartileReported;
@@ -17,6 +23,10 @@ public abstract class PlayerAdData extends AdData {
 
     public boolean hasReportedThirdQuartile() {
         return thirdQuartileReported;
+    }
+
+    public void setStartReported() {
+        startEventsReported = true;
     }
 
     public void setFirstQuartileReported() {

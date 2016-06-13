@@ -1,19 +1,15 @@
 package com.soundcloud.android.events;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdPlaybackSessionEventTest extends AndroidUnitTest {
 
@@ -105,8 +101,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromPlayEventWithImpressionAndStartUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, videoAd.getAdUrn(), 0L, 2000L);
-        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, sourceInfo, stateTransition);
+        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, sourceInfo);
 
         assertThat(playEvent.getKind()).isEqualTo("play");
         assertThat(playEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
@@ -118,8 +113,8 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromPlayEventWithResumeUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, videoAd.getAdUrn(), 1001L, 2000L);
-        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, sourceInfo, stateTransition);
+        videoAd.setStartReported();
+        final AdPlaybackSessionEvent playEvent = AdPlaybackSessionEvent.forPlay(videoAd, sourceInfo);
 
         assertThat(playEvent.getKind()).isEqualTo("play");
         assertThat(playEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
@@ -132,8 +127,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromStopEventWithFinishUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final PlaybackStateTransition stateTransition = PlaybackStateTransition.DEFAULT;
-        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd, sourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd, sourceInfo, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         assertThat(stopEvent.getKind()).isEqualTo("stop");
         assertThat(stopEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());
@@ -145,8 +139,7 @@ public class AdPlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateFromStopEventWithPauseUrlsForVideoAd() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final PlaybackStateTransition stateTransition = PlaybackStateTransition.DEFAULT;
-        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd, sourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        final AdPlaybackSessionEvent stopEvent = AdPlaybackSessionEvent.forStop(videoAd, sourceInfo, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         assertThat(stopEvent.getKind()).isEqualTo("stop");
         assertThat(stopEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123L).toString());

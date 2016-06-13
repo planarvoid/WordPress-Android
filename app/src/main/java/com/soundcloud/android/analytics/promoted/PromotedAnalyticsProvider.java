@@ -66,12 +66,12 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
         if (event.isAd()) {
-            if (event.isFirstPlay()) {
+            if (event.shouldReportAdStart()) {
                 trackAllUrls(event.getTimestamp(), event.getAudioAdImpressionUrls());
             } else if (event.hasTrackFinished()) {
                 trackAllUrls(event.getTimestamp(), event.getAudioAdFinishUrls());
             }
-        } else if (event.isPromotedTrack() && event.isFirstPlay()) {
+        } else if (event.isPromotedTrack() && event.shouldReportAdStart()) {
             trackAllUrls(event.getTimestamp(), event.getPromotedPlayUrls());
         }
     }

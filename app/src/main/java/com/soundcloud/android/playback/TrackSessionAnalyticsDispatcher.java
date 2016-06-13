@@ -107,16 +107,10 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
                 if (currentPlayQueueItem.isTrack()
                         && playQueueManager.isTrackFromCurrentPromotedItem(currentPlayQueueItem.getUrn())
-                        && playSource.getPromotedSourceInfo().isFirstPlay()) {
+                        && !playSource.getPromotedSourceInfo().isPlaybackStarted()) {
                     PromotedSourceInfo promotedSourceInfo = playSource.getPromotedSourceInfo();
                     playSessionEvent = playSessionEvent.withPromotedTrack(promotedSourceInfo);
-
-                    if (!playSource.getCollectionUrn().isPlaylist()) {
-                        // promoted tracks & ads are a one-time deal but we need to preserve promoted playlists
-                        // since they may contain more than one track and we need to report plays as promoted
-                        // for all tracks in these playlists
-                        promotedSourceInfo.setAsPlayed();
-                    }
+                    promotedSourceInfo.setPlaybackStarted();
                 }
 
                 lastPlaySessionEvent = Optional.of(playSessionEvent);

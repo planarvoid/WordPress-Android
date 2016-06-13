@@ -113,14 +113,20 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         currentTrackSourceInfo = Optional.fromNullable(playQueueManager.getCurrentTrackSourceInfo());
         if (currentTrackSourceInfo.isPresent() && lastEventWasNotPlayEvent()) {
             if (adsOperations.isCurrentItemVideoAd()) {
-                lastPlayedAd = adsOperations.getCurrentTrackAdData();
-                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay((PlayerAdData) lastPlayedAd.get(), currentTrackSourceInfo.get(), stateTransition));
+                publishVideoAdPlay();
             } else {
                 trackObservable
                         .map(toAudioAdSessionPlayEvent(stateTransition))
                         .subscribe(eventBus.queue(EventQueue.TRACKING));
             }
         }
+    }
+
+    private void publishVideoAdPlay() {
+        lastPlayedAd = adsOperations.getCurrentTrackAdData();
+        final PlayerAdData videoAd = (PlayerAdData) lastPlayedAd.get();
+        eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(videoAd, currentTrackSourceInfo.get()));
+        videoAd.setStartReported();
     }
 
     private boolean lastEventWasNotPlayEvent() {
@@ -135,8 +141,10 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                         buildEventArgs(track, stateTransition));
 
                 lastPlayedAd = playQueueManager.getCurrentPlayQueueItem().getAdData();
-                playSessionEventData = playSessionEventData.withAudioAd((AudioAd) lastPlayedAd.get());
+                final AudioAd audioAd = (AudioAd) lastPlayedAd.get();
+                playSessionEventData = playSessionEventData.withAudioAd(audioAd);
                 lastAudioAdPlaySessionEvent = Optional.of(playSessionEventData);
+                audioAd.setStartReported();
                 return playSessionEventData;
             }
         };
@@ -148,7 +156,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         // creates a new value for lastSessionEventData
         if ((lastAudioAdPlaySessionEvent.isPresent() || lastPlayedAd.isPresent()) && currentTrackSourceInfo.isPresent()) {
             if (lastPlayedAd.isPresent() && lastPlayedAd.get() instanceof VideoAd) {
-                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop((VideoAd) lastPlayedAd.get(), currentTrackSourceInfo.get(), stateTransition, stopReason));
+                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop((VideoAd) lastPlayedAd.get(), currentTrackSourceInfo.get(), stopReason));
             } else {
                 trackObservable
                         .map(toAudioAdSessionStopEvent(stopReason, stateTransition, lastAudioAdPlaySessionEvent.get()))

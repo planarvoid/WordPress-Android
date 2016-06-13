@@ -38,7 +38,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(1L);
     private static final Urn LOGGED_IN_USER_URN = Urn.forUser(2L);
     private static final Urn CREATOR_URN = Urn.forUser(3L);
-    private static final long PROGRESS = PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1;
+    private static final long PROGRESS = 1001L;
     private static final long DURATION = 2001L;
     private static final String UUID = "blah-123";
 
@@ -102,7 +102,41 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stateChangeEventForPlayingAudioAdPublishesAdSpecificPlayEvent() throws Exception {
+    public void videoAdStartPublishesEvent() {
+        Urn adTrackUrn = Urn.forTrack(123L);
+        when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(adTrackUrn)));
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, adTrackUrn);
+
+        dispatcher.onPlayTransition(transition, true);
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+        AdPlaybackSessionEvent adEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertThat(adEvent.getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
+    }
+
+    @Test
+    public void duplicateAdStartEventsReportFirstPlayStatus() {
+        when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));
+        PlaybackStateTransition start = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.forTrack(123L));
+        PlaybackStateTransition stop = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.forTrack(123L));
+
+        dispatcher.onPlayTransition(start, true);
+        dispatcher.onStopTransition(stop, false);
+        dispatcher.onPlayTransition(start, false);
+
+        final List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
+        final AdPlaybackSessionEvent first = (AdPlaybackSessionEvent) events.get(0);
+        assertThat(first.getKind()).isEqualToIgnoringCase(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
+        assertThat(first.shouldReportStart()).isTrue();
+        final AdPlaybackSessionEvent second = (AdPlaybackSessionEvent) events.get(2);
+        assertThat(second.getKind()).isEqualToIgnoringCase(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
+        assertThat(second.shouldReportStart()).isFalse();
+    }
+
+    @Test
+    public void stateChangeEventForPlayingAudioAdPublishesAdSpecificPlayEvent() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
@@ -118,7 +152,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stateChangeEventForFinishPlayingAudioAdPublishesAdSpecificStopEvent() throws Exception {
+    public void stateChangeEventForFinishPlayingAudioAdPublishesAdSpecificStopEvent() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
         when(playQueueManager.hasNextItem()).thenReturn(true);

@@ -41,10 +41,7 @@ import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
-import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProtocol;
-import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.skippy.Skippy;
@@ -54,7 +51,6 @@ import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.collections.PropertySet;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -91,7 +87,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpression()  {
         PlaybackSessionEvent event = mock(PlaybackSessionEvent.class);
         when(event.isAd()).thenReturn(true);
-        when(event.isFirstPlay()).thenReturn(true);
+        when(event.shouldReportAdStart()).thenReturn(true);
         when(event.getTimestamp()).thenReturn(12345L);
         when(dataBuilderv0.buildForAudioAdImpression(event)).thenReturn("impressionUrl");
         when(dataBuilderv1.buildForAudioEvent(event)).thenReturn("audioEventUrl");
@@ -397,8 +393,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdPlayImpressionEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, videoAd.getAdUrn(), 0L, 1000L);
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo, stateTransition);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo);
         when(dataBuilderv1.buildForAdImpression(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -411,8 +406,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldNotTrackAdResumeEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, videoAd.getAdUrn(), 2500L, 5000L);
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo, stateTransition);
+        videoAd.setStartReported();
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
@@ -422,8 +417,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldNotTrackAdPauseEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, videoAd.getAdUrn(), 1000L, 2000L);
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
@@ -433,8 +427,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdFinishEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, videoAd.getAdUrn(), 2000L, 2000L);
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         when(dataBuilderv1.buildForAdFinished(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 

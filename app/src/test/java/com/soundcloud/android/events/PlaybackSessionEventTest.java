@@ -12,6 +12,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -29,18 +30,23 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     private static final String PROTOCOL = "hls";
     private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
 
-    private static final AudioAd AUDIO_AD_DATA = AdFixtures.getAudioAd(Urn.forTrack(123L));
     private static final PropertySet AUDIO_AD_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "CONNECTION";
     private static final String UUID = "uuid";
     private static final TestDateProvider DATE_PROVIDER = new TestDateProvider();
 
+    private AudioAd audioAdData;
+
     @Mock TrackSourceInfo trackSourceInfo;
 
+    @Before
+    public void setUp() {
+        audioAdData = AdFixtures.getAudioAd(Urn.forTrack(123L));
+    }
 
     @Test
-    public void stopEventSetsTimeElapsedSinceLastPlayEvent() throws Exception {
+    public void stopEventSetsTimeElapsedSinceLastPlayEvent() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs());
 
         final PlaybackSessionEventArgs args = createArgs();
@@ -49,7 +55,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stopEventSetsStopReason() throws Exception {
+    public void stopEventSetsStopReason() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs());
         final PlaybackSessionEventArgs args = createArgs();
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(playEvent, PlaybackSessionEvent.STOP_REASON_BUFFERING, args);
@@ -57,40 +63,25 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playEventWithNegativeProgressIsNotAFirstPlay() throws Exception {
-        long progress = -1L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(progress, TRACK_DATA, DATE_PROVIDER));
-        assertThat(playEvent.isFirstPlay()).isFalse();
+    public void playEventWithStartNotMarkedAsReportedInAdDataIsFirstAdPlay() {
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA, DATE_PROVIDER)).withAudioAd(audioAdData);
+        assertThat(playEvent.shouldReportAdStart()).isTrue();
     }
 
     @Test
-    public void playEventWithProgressZeroIsAFirstPlay() throws Exception {
-        long progress = 0L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(progress, TRACK_DATA, DATE_PROVIDER));
-        assertThat(playEvent.isFirstPlay()).isTrue();
+    public void playEventWithStartMarkedSentAdDataIsNotAFirstPlay() {
+        audioAdData.setStartReported();
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA, DATE_PROVIDER))
+                .withAudioAd(audioAdData);
+        assertThat(playEvent.shouldReportAdStart()).isFalse();
     }
 
     @Test
-    public void playEventWithProgress500msIsAFirstPlay() {
-        long progress = 500L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(progress, TRACK_DATA, DATE_PROVIDER));
-        assertThat(playEvent.isFirstPlay()).isTrue();
-    }
-
-    @Test
-    public void playEventWithProgressGreaterThan500msIsNotAFirstPlay() {
-        long progress = PlaybackSessionEvent.FIRST_PLAY_MAX_PROGRESS + 1;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(progress, TRACK_DATA, DATE_PROVIDER));
-        assertThat(playEvent.isFirstPlay()).isFalse();
-    }
-
-    @Test
-    public void stopEventWithProgressZeroIsNotAFirstPlay() {
-        long progress = 0L;
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(progress, TRACK_DATA, DATE_PROVIDER));
-        final PlaybackSessionEventArgs args = createArgs(progress, TRACK_DATA, DATE_PROVIDER);
+    public void stopEventIsNotAFirstPlay() {
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(0L, TRACK_DATA, DATE_PROVIDER)).withAudioAd(audioAdData);
+        final PlaybackSessionEventArgs args = createArgs(0L, TRACK_DATA, DATE_PROVIDER);
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(playEvent, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, args);
-        assertThat(stopEvent.isFirstPlay()).isFalse();
+        assertThat(stopEvent.shouldReportAdStart()).isFalse();
     }
 
     @Test
@@ -103,7 +94,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void eventWithAudioAdMonetizationTypeIndicatesAnAudioAd() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withAudioAd(AUDIO_AD_DATA);
+                createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withAudioAd(audioAdData);
 
         assertThat(playEvent.isAd()).isTrue();
     }
@@ -116,6 +107,27 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                 createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withPromotedTrack(promotedInfo);
 
         assertThat(playEvent.isPromotedTrack()).isTrue();
+    }
+
+    @Test
+    public void eventForPromotedTrackReportsAdStartBasedOnSource() {
+        PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
+
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
+                createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withPromotedTrack(promotedInfo);
+
+        assertThat(playEvent.shouldReportAdStart()).isTrue();
+    }
+
+    @Test
+    public void eventForPromotedTrackDoesNotReportAdStartOnMultiplePlayEventsInSameSession() {
+        PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
+        promotedInfo.setPlaybackStarted();
+
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
+                createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withPromotedTrack(promotedInfo);
+
+        assertThat(playEvent.shouldReportAdStart()).isFalse();
     }
 
     @Test

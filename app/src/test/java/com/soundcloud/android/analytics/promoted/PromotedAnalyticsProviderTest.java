@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -25,8 +24,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -61,7 +60,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksAdPlayUrls() throws Exception {
         PlaybackSessionEvent playbackEvent = mock(PlaybackSessionEvent.class);
         when(playbackEvent.isAd()).thenReturn(true);
-        when(playbackEvent.isFirstPlay()).thenReturn(true);
+        when(playbackEvent.shouldReportAdStart()).thenReturn(true);
         when(playbackEvent.getTimestamp()).thenReturn(12345L);
         when(playbackEvent.getAudioAdImpressionUrls()).thenReturn(asList("url1", "url2"));
 
@@ -228,7 +227,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksPromotedTrackPlayUrls() {
         PlaybackSessionEvent playbackEvent = mock(PlaybackSessionEvent.class);
         when(playbackEvent.isPromotedTrack()).thenReturn(true);
-        when(playbackEvent.isFirstPlay()).thenReturn(true);
+        when(playbackEvent.shouldReportAdStart()).thenReturn(true);
         when(playbackEvent.getTimestamp()).thenReturn(12345L);
         when(playbackEvent.getPromotedPlayUrls()).thenReturn(asList("promoPlay1", "promoPlay2"));
 
@@ -382,8 +381,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksImpressionAndStartAdEventsTogetherForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final PlaybackStateTransition stateTransition = createTransition(PlaybackState.PLAYING, videoAd.getAdUrn(), 0L);
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo, stateTransition);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -403,8 +401,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksResumeAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final PlaybackStateTransition stateTransition = createTransition(PlaybackState.PLAYING, videoAd.getAdUrn(), 2000L);
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo, stateTransition);
+        videoAd.setStartReported();
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -420,8 +418,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksPauseAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final PlaybackStateTransition stateTransition = createTransition(PlaybackState.IDLE, videoAd.getAdUrn(), 2000L);
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -437,8 +434,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksStopAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final PlaybackStateTransition stateTransition = createTransition(PlaybackState.IDLE, videoAd.getAdUrn(), 2000L);
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, stateTransition, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 

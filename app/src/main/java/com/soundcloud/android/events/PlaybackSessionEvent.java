@@ -37,8 +37,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private static final String MONETIZATION_AUDIO_AD = "audio_ad";
     private static final String MONETIZATION_PROMOTED = "promoted";
 
-    public static final long FIRST_PLAY_MAX_PROGRESS = 1000L;
-
     private final Urn trackUrn;
     private final Urn creatorUrn;
     private final long duration;
@@ -49,6 +47,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private final String monetizationModel;
 
     private int stopReason;
+    private boolean shouldReportAdStart;
     private long listenTime;
     private final TrackSourceInfo trackSourceInfo;
 
@@ -103,6 +102,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.adImpressionUrls = audioAd.getImpressionUrls();
         this.adCompanionImpressionUrls = audioAd.getVisualAd().getImpressionUrls();
         this.adFinishedUrls = audioAd.getFinishUrls();
+        this.shouldReportAdStart = !audioAd.hasReportedStart();
         return this;
     }
 
@@ -113,6 +113,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         if (promotedSource.getPromoterUrn().isPresent()) {
             put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSource.getPromoterUrn().get().toString());
         }
+        this.shouldReportAdStart = !promotedSource.isPlaybackStarted();
         this.promotedPlayUrls = promotedSource.getTrackingUrls();
         return this;
     }
@@ -202,8 +203,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
                 && attributes.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE).equals(type);
     }
 
-    public boolean isFirstPlay() {
-        return isPlayEvent() && 0L <= progress && progress <= FIRST_PLAY_MAX_PROGRESS;
+    public boolean shouldReportAdStart() {
+        return kind.equals(EVENT_KIND_PLAY) && shouldReportAdStart;
     }
 
     public boolean hasTrackFinished() {
