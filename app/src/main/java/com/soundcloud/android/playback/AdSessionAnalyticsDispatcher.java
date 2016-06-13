@@ -60,19 +60,21 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     @Override
     public void onProgressEvent(PlaybackProgressEvent progressEvent) {
-        final PlayerAdData adData = (PlayerAdData) adsOperations.getCurrentTrackAdData().get();
-        final PlaybackProgress progress = progressEvent.getPlaybackProgress();
-        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
-        if (!adData.hasReportedFirstQuartile() && progress.isPastFirstQuartile()) {
-            adData.setFirstQuartileReported();
-            publishAdQuartileEvent(AdPlaybackSessionEvent.forFirstQuartile(adData, trackSourceInfo));
-        } else if (!adData.hasReportedSecondQuartile() && progress.isPastSecondQuartile()) {
-            adData.setSecondQuartileReported();
-            publishAdQuartileEvent(AdPlaybackSessionEvent.forSecondQuartile(adData, trackSourceInfo));
-        } else if (!adData.hasReportedThirdQuartile() && progress.isPastThirdQuartile()) {
-            adData.setThirdQuartileReported();
-            publishAdQuartileEvent(AdPlaybackSessionEvent.forThirdQuartile(adData, trackSourceInfo));
+        if (lastPlayedAd.isPresent() && currentTrackSourceInfo.isPresent()) {
+            final PlayerAdData adData = (PlayerAdData) lastPlayedAd.get();
+            final PlaybackProgress progress = progressEvent.getPlaybackProgress();
+            if (!adData.hasReportedFirstQuartile() && progress.isPastFirstQuartile()) {
+                adData.setFirstQuartileReported();
+                publishAdQuartileEvent(AdPlaybackSessionEvent.forFirstQuartile(adData, currentTrackSourceInfo.get()));
+            } else if (!adData.hasReportedSecondQuartile() && progress.isPastSecondQuartile()) {
+                adData.setSecondQuartileReported();
+                publishAdQuartileEvent(AdPlaybackSessionEvent.forSecondQuartile(adData, currentTrackSourceInfo.get()));
+            } else if (!adData.hasReportedThirdQuartile() && progress.isPastThirdQuartile()) {
+                adData.setThirdQuartileReported();
+                publishAdQuartileEvent(AdPlaybackSessionEvent.forThirdQuartile(adData, currentTrackSourceInfo.get()));
+            }
         }
+
     }
 
     @Override

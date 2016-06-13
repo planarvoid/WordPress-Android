@@ -73,25 +73,32 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     @Test
     public void quartileProgressEventsForPlayerAdsPublishesQuartileEvent() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
+        playTransition();
         dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100), Urn.forAd("dfp", "809")));
 
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
+        assertThat(eventBus.firstEventOn(EventQueue.TRACKING)).isNotInstanceOf(AdPlaybackSessionEvent.class);
         AdPlaybackSessionEvent adEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(adEvent.get(PlayableTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
     }
 
     @Test
     public void duplicateQuartileProgressEventsAreNotPublished() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
+        playTransition();
         dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100), Urn.forAd("dfp", "809")));
         dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100), Urn.forAd("dfp", "809")));
 
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
+        assertThat(eventBus.firstEventOn(EventQueue.TRACKING)).isNotInstanceOf(AdPlaybackSessionEvent.class);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdPlaybackSessionEvent.class);
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
     }
 
     @Test
