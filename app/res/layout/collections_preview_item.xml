@@ -32,7 +32,10 @@
         soundcloud:collectionIcon="@drawable/ic_collection_playlists"
         soundcloud:collectionTitle="@string/collections_playlists_header" />
 
-    <View style="@style/Divider.Section" />
+    <View
+        android:id="@+id/collection_playlists_preview_divider"
+        style="@style/Divider.Section"
+        android:visibility="gone"/>
 
     <com.soundcloud.android.collection.CollectionPreviewView
         android:id="@+id/collection_recent_stations_preview"
