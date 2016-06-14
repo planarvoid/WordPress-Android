@@ -26,9 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.schedulers.TestScheduler;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
@@ -52,6 +54,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private DateProvider dateProvider = new TestDateProvider();
+    private TestScheduler scheduler;
 
     @Before
     public void setUp()  {
@@ -64,11 +67,12 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
         when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
+        scheduler = new TestScheduler();
         dispatcher = new TrackSessionAnalyticsDispatcher(
                 eventBus, trackRepository, accountOperations, playQueueManager, appboyPlaySessionState,
-                stopReasonProvider, uuidProvider, dateProvider);
+                stopReasonProvider, uuidProvider, dateProvider, scheduler);
     }
-    
+
     @Test
     public void stateChangeEventWithValidTrackUrnInPlayingStatePublishesPlayEvent() {
         PlaybackStateTransition playEvent = playTransition();
@@ -190,6 +194,18 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
         assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).getTrackUrn()).isEqualTo(TRACK_URN);
+    }
+
+    @Test
+    public void shouldPublishCheckpointEvent() {
+        playTransition();
+
+        List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events).hasSize(1);
+        scheduler.advanceTimeBy(31l, TimeUnit.SECONDS);
+        events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events).hasSize(2);
+        assertThat(((PlaybackSessionEvent) events.get(1)).isCheckpointEvent()).isTrue();
     }
 
     protected PlaybackStateTransition playTransition() {

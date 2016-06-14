@@ -1,5 +1,9 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_CHECKPOINT;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PAUSE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -380,10 +384,14 @@ public class EventLoggerV1JsonDataBuilder {
         TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
 
         if (event.isPlayEvent()) {
-            data.action("play");
-        } else {
-            data.action("pause");
+            data.action(AUDIO_ACTION_PLAY);
+        } else if(event.isStopEvent()) {
+            data.action(AUDIO_ACTION_PAUSE);
             data.reason(getStopReason(event));
+        } else if(event.isCheckpointEvent()) {
+            data.action(AUDIO_ACTION_CHECKPOINT);
+        } else {
+            throw new IllegalArgumentException("Unexpected audio event:" + event.getKind());
         }
 
         if (trackSourceInfo.hasSource()) {

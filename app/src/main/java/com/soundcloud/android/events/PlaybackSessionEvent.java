@@ -33,6 +33,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
+    private static final String EVENT_KIND_CHECKPOINT = "checkpoint";
 
     private static final String MONETIZATION_AUDIO_AD = "audio_ad";
     private static final String MONETIZATION_PROMOTED = "promoted";
@@ -67,6 +68,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
         playbackSessionEvent.setListenTime(playbackSessionEvent.timestamp - lastPlayEvent.getTimestamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
+    }
+
+    public static PlaybackSessionEvent forCheckpoint(PlaybackSessionEventArgs args) {
+        return new PlaybackSessionEvent(EVENT_KIND_CHECKPOINT, args);
     }
 
     // Regular track
@@ -122,8 +127,12 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return EVENT_KIND_PLAY.equals(kind);
     }
 
+    public boolean isCheckpointEvent() {
+        return EVENT_KIND_CHECKPOINT.equals(kind);
+    }
+
     public boolean isStopEvent() {
-        return !isPlayEvent();
+        return EVENT_KIND_STOP.equals(kind);
     }
 
     public TrackSourceInfo getTrackSourceInfo() {

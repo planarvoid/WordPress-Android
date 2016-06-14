@@ -30,8 +30,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.schedulers.TestScheduler;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
@@ -55,6 +57,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private DateProvider dateProvider = new TestDateProvider();
+    private TestScheduler scheduler;
 
     @Before
     public void setUp() throws Exception {
@@ -67,8 +70,10 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
         when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
+        scheduler = new TestScheduler();
         dispatcher = new AdSessionAnalyticsDispatcher(
-                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, stopReasonProvider, uuidProvider, dateProvider);
+                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, stopReasonProvider,
+                uuidProvider, dateProvider, scheduler);
     }
 
     @Test
@@ -188,6 +193,21 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         assertThat(events.get(1).get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
     }
 
+    @Test
+    public void shouldPublishCheckpointEvent() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
+
+        playTransition();
+
+        List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events).hasSize(1);
+        scheduler.advanceTimeBy(4l, TimeUnit.SECONDS);
+        events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events).hasSize(2);
+        assertThat(((PlaybackSessionEvent) events.get(1)).isCheckpointEvent()).isTrue();
+    }
+
     private void expectCommonAudioEventData(PlaybackStateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
         assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
         assertThat(playbackSessionEvent.getCreatorUrn()).isEqualTo(CREATOR_URN);
@@ -260,4 +280,5 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         assertThat(playbackSessionEvent.getStopReason()).isEqualTo(stopReason);
         assertThat(playbackSessionEvent.getDuration()).isEqualTo(DURATION);
     }
+
 }

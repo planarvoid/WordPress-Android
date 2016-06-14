@@ -236,6 +236,41 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsAudioCheckpointEventJson() throws Exception {
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forCheckpoint(
+                createArgs(track, trackSourceInfo, 12L, true, new TestDateProvider(321L)));
+
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
+        trackSourceInfo.setReposter(Urn.forUser(456L));
+
+        jsonDataBuilder.buildForAudioEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
+                .pageName(event.getTrackSourceInfo().getOriginScreen())
+                .trackLength(track.get(TrackProperty.FULL_DURATION))
+                .track(track.get(TrackProperty.URN))
+                .trackOwner(track.get(TrackProperty.CREATOR_URN))
+                .reposter(Urn.forUser(456L))
+                .localStoragePlayback(true)
+                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
+                .trigger("manual")
+                .action("checkpoint")
+                .playheadPosition(12L)
+                .source("source")
+                .sourceVersion("source-version")
+                .inOfflinePlaylist(PLAYLIST_URN)
+                .playlistPosition(2)
+                .protocol("hls")
+                .playerType("PLAYA")
+                .uuid(UUID)
+                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
+    }
+
+
+
+    @Test
     public void createsAudioPauseEventJsonForStationsForSeedTrack() throws ApiMapperException, CreateModelException {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         trackSourceInfo.setSource("source", "source-version");

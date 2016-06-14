@@ -69,6 +69,18 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     }
 
     @Test
+    public void checkpointEventIsCreated() {
+        PlaybackSessionEvent checkpointEvent = PlaybackSessionEvent.forCheckpoint(createArgs());
+        assertThat(checkpointEvent.isCheckpointEvent()).isTrue();
+    }
+
+    @Test
+    public void checkpointEventHasTrackProperties() {
+        PlaybackSessionEvent checkpointEvent = PlaybackSessionEvent.forCheckpoint(createArgs());
+        assertThat(checkpointEvent.getTrackUrn()).isEqualTo(TRACK_URN);
+    }
+
+    @Test
     public void playEventWithStartMarkedSentAdDataIsNotAFirstPlay() {
         audioAdData.setStartReported();
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA, DATE_PROVIDER))
