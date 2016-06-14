@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,8 +10,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -31,7 +32,9 @@ import android.view.View;
 import java.util.List;
 
 public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
-    public static final TrackQueueItem TRACK_URN = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
+    private static final Urn SEED_URN = new Urn("soundcloud:tracks:seed");
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final TrackQueueItem TRACK_QUEUE_ITEM = TestPlayQueueItem.createTrack(TRACK_URN);
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private View view;
     @Mock private Fragment fragment;
@@ -42,18 +45,19 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
     @Mock private DiscoveryAdapterFactory adapterFactory;
     @Mock private DiscoveryAdapter adapter;
-    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Bundle bundle;
-
+    @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
+    @Mock private List<DiscoveryItem> discoveryItems;
     private ViewAllRecommendedTracksPresenter presenter;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
         when(recyclerView.getAdapter()).thenReturn(adapter);
+        when(adapter.getItems()).thenReturn(discoveryItems);
         when(recommendedTracksOperations.allBuckets()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedTracksOperations.tracksForSeed(anyLong())).thenReturn(Observable.<List<TrackItem>>empty());
-        when(recommendationBucketRendererFactory.create(any(Boolean.class))).thenReturn(recommendationBucketRenderer);
+        when(recommendationBucketRendererFactory.create(eq(false), any(ViewAllRecommendedTracksPresenter.class))).thenReturn(recommendationBucketRenderer);
         when(adapterFactory.create(any(RecommendationBucketRenderer.class))).thenReturn(adapter);
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -62,7 +66,8 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
                                                                recommendedTracksOperations,
                                                                recommendationBucketRendererFactory,
                                                                adapterFactory,
-                                                               eventBus);
+                                                               eventBus,
+                                                               trackRecommendationPlaybackInitiator);
     }
 
     @Test
@@ -71,7 +76,7 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragment, view, null);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(TRACK_URN,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TRACK_QUEUE_ITEM,
                                                                        Urn.NOT_SET,
                                                                        1));
 
@@ -91,5 +96,17 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
                                                                        1));
 
         verify(adapter, never()).updateNowPlaying(Urn.forTrack(123L));
+    }
+
+    @Test
+    public void propagatesOnReasonClickedToRecommendationPlaybackInitiator() {
+        presenter.onReasonClicked(SEED_URN);
+        verify(trackRecommendationPlaybackInitiator).playFromReason(SEED_URN, Screen.RECOMMENDATIONS_MAIN, discoveryItems);
+    }
+
+    @Test
+    public void propagatesOnTrackClickedToRecommendationPlaybackInitiator() {
+        presenter.onTrackClicked(SEED_URN, TRACK_URN);
+        verify(trackRecommendationPlaybackInitiator).playFromRecommendation(SEED_URN, TRACK_URN, Screen.RECOMMENDATIONS_MAIN, discoveryItems);
     }
 }

@@ -2,6 +2,8 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -20,22 +22,26 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> {
+class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements TrackRecommendationListener {
     private final RecommendedTracksOperations operations;
     private final DiscoveryAdapter adapter;
     private final EventBus eventBus;
+    private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private Subscription subscription;
+
 
     @Inject
     ViewAllRecommendedTracksPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                       RecommendedTracksOperations operations,
                                       RecommendationBucketRendererFactory recommendationBucketRendererFactory,
                                       DiscoveryAdapterFactory adapterFactory,
-                                      EventBus eventBus) {
+                                      EventBus eventBus,
+                                      TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator) {
         super(swipeRefreshAttacher, Options.custom().build());
         this.operations = operations;
-        this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(false));
+        this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(false, this));
         this.eventBus = eventBus;
+        this.trackRecommendationPlaybackInitiator = trackRecommendationPlaybackInitiator;
     }
 
     @Override
@@ -54,6 +60,16 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
     public void onDestroyView(Fragment fragment) {
         super.onDestroyView(fragment);
         subscription.unsubscribe();
+    }
+
+    @Override
+    public void onReasonClicked(Urn seedUrn) {
+        trackRecommendationPlaybackInitiator.playFromReason(seedUrn, Screen.RECOMMENDATIONS_MAIN, adapter.getItems());
+    }
+
+    @Override
+    public void onTrackClicked(Urn seedUrn, Urn trackUrn) {
+        trackRecommendationPlaybackInitiator.playFromRecommendation(seedUrn, trackUrn, Screen.RECOMMENDATIONS_MAIN, adapter.getItems());
     }
 
     @Override
