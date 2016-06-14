@@ -47,6 +47,8 @@
   <string name="ads_skip_ad">Saltar anuncio</string>
   <string name="ads_next_up_tracktitle_creatorname">A continuación: %1$s (%2$s)</string>
   <string name="ads_ad_in_progress">Publicidad en curso</string>
+  <string name="ads_reopen_to_continue">Vuelve a abrir la aplicación para seguir escuchando</string>
+  <string name="ads_reopen_to_continue_short">Vuelve a abrir la aplicación para seguir escuchando</string>
   <string name="ads_resume_playing_ad_to_continue">Reanudar la reproducción del anuncio para continuar</string>
   <string name="ads_skip_in_time">Saltar en: %s</string>
   <string name="ads_now_playing">Reproducción en curso</string>
@@ -114,8 +116,6 @@
   <string name="list_empty_you_following_message">Sigue a tus artistas, bandas y curadores favoritos para escuchar sus últimas pistas</string>
   <string name="list_empty_you_followers_message">Aún no tienes seguidores.</string>
   <string name="list_empty_you_followers_secondary">Comparte tus canciones y listas favoritas para crear tu comunidad</string>
-  <string name="empty_you_sounds_message">Aún no has subido ninguna pista.</string>
-  <string name="empty_user_sounds_message">Este usuario aún no ha subido pistas públicas.</string>
   <!--new profile-->
   <string name="new_empty_user_posts_message">Este usuario aún no ha subido\npistas públicas.</string>
   <string name="new_empty_user_playlists_message">Este usuario no tiene ninguna lista.</string>
@@ -148,6 +148,47 @@
   <string name="explore_genre_header_audio">Audio</string>
   <string name="explore_category_trending_music">MÚSICA</string>
   <string name="explore_category_trending_audio">AUDIO</string>
+  <string tools:ignore="UnusedResources" name="explore_alternative_rock">Rock alternativo</string>
+  <string tools:ignore="UnusedResources" name="explore_ambient">Ambient</string>
+  <string tools:ignore="UnusedResources" name="explore_classical">Clásica</string>
+  <string tools:ignore="UnusedResources" name="explore_country">Country</string>
+  <string tools:ignore="UnusedResources" name="explore_dance_and_edm">Dance y EDM</string>
+  <string tools:ignore="UnusedResources" name="explore_dancehall">Dancehall</string>
+  <string tools:ignore="UnusedResources" name="explore_deep_house">Deep House</string>
+  <string tools:ignore="UnusedResources" name="explore_disco">Disco</string>
+  <string tools:ignore="UnusedResources" name="explore_drum_and_bass">Drum &amp; Bass</string>
+  <string tools:ignore="UnusedResources" name="explore_dubstep">Dubstep</string>
+  <string tools:ignore="UnusedResources" name="explore_electronic">Electrónica</string>
+  <string tools:ignore="UnusedResources" name="explore_folk_and_singer_songwriter">Folk y Cantautor</string>
+  <string tools:ignore="UnusedResources" name="explore_hip_hop_and_rap">Hip hop y Rap</string>
+  <string tools:ignore="UnusedResources" name="explore_house">House</string>
+  <string tools:ignore="UnusedResources" name="explore_indie">Indie</string>
+  <string tools:ignore="UnusedResources" name="explore_jazz_and_blues">Jazz y Blues</string>
+  <string tools:ignore="UnusedResources" name="explore_latin">Latina</string>
+  <string tools:ignore="UnusedResources" name="explore_metal">Metal</string>
+  <string tools:ignore="UnusedResources" name="explore_piano">Piano</string>
+  <string tools:ignore="UnusedResources" name="explore_pop">Pop</string>
+  <string tools:ignore="UnusedResources" name="explore_randb_and_soul">R&amp;B y Soul</string>
+  <string tools:ignore="UnusedResources" name="explore_reggae">Reggae</string>
+  <string tools:ignore="UnusedResources" name="explore_reggaeton">Reguetón</string>
+  <string tools:ignore="UnusedResources" name="explore_rock">Rock</string>
+  <string tools:ignore="UnusedResources" name="explore_soundtrack">Banda sonora</string>
+  <string tools:ignore="UnusedResources" name="explore_techno">Techno</string>
+  <string tools:ignore="UnusedResources" name="explore_trance">Trance</string>
+  <string tools:ignore="UnusedResources" name="explore_trap">Trap</string>
+  <string tools:ignore="UnusedResources" name="explore_trip_hop">Trip hop</string>
+  <string tools:ignore="UnusedResources" name="explore_world">Música del mundo</string>
+  <string tools:ignore="UnusedResources" name="explore_audiobooks">Audiolibros</string>
+  <string tools:ignore="UnusedResources" name="explore_business">Negocios</string>
+  <string tools:ignore="UnusedResources" name="explore_comedy">Comedia</string>
+  <string tools:ignore="UnusedResources" name="explore_learning">Aprendizaje</string>
+  <string tools:ignore="UnusedResources" name="explore_news_and_politics">Noticias y política</string>
+  <string tools:ignore="UnusedResources" name="explore_religion_and_spirituality">Religión y espiritualidad</string>
+  <string tools:ignore="UnusedResources" name="explore_science">Ciencia</string>
+  <string tools:ignore="UnusedResources" name="explore_sports">Deportes</string>
+  <string tools:ignore="UnusedResources" name="explore_storytelling">Narración</string>
+  <string tools:ignore="UnusedResources" name="explore_technology">Tecnología</string>
+  <string tools:ignore="UnusedResources" name="explore_entertainment">Entretenimiento</string>
   <!--__IMAGES-->
   <string name="add_image">Añadir\nimagen</string>
   <string name="image_load_error">Hubo un problema al cargar la imagen</string>
@@ -355,22 +396,36 @@
   <!--__DISCOVERY SEARCH-->
   <string name="search_type_all">TODO</string>
   <string name="search_type_tracks">PISTAS</string>
+  <string name="search_type_albums">ÁLBUMES</string>
   <string name="search_type_playlists">LISTAS</string>
   <string name="search_type_people">GENTE</string>
+  <string name="search_tags_title">Descubre listas populares</string>
   <string name="search_tags_popular_subtitle">Elije tu etiqueta favorita</string>
   <string name="search_tags_recent_subtitle">Etiquetas recientes</string>
   <string name="search_empty">No se encontraron resultados.</string>
   <string name="search_empty_subtext">Revisa la ortografía o intenta una búsqueda diferente</string>
   <string name="search_for_query">Buscar \'%s\'</string>
   <!--__DISCOVERY RECOMMENDATIONS-->
+  <string name="activity_title_view_all_recommendations">Descubre más pistas</string>
+  <string name="recommendation_view_all">Ver todas las pistas sugeridas</string>
+  <string name="recommendations_footer">Estas son todas las sugerencias que tenemos por ahora.\n\nEscucha y colecciona más pistas para obtener más sugerencias.</string>
   <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
   <string name="recommendation_reason_because_you_reason_tracktitle">Motivo: %1$s %2$s</string>
   <string name="recommendation_reason_liked">ha hecho me gusta en</string>
-  <string name="recommendation_reason_listened_to">reproducido</string>
+  <string name="recommendation_reason_listened_to">ha escuchado</string>
   <!--https://github.com/soundcloud/personalized-tracks/-->
-  <string name="recommendation_seeds_header">Recomendado para ti</string>
+  <string name="recommendation_seeds_header">Descubre más pistas</string>
   <string name="discovery_search_hint">Buscar en SoundCloud</string>
   <string name="discovery_search_title">Buscar</string>
+  <!--__DISCOVERY STATIONS-->
+  <string name="suggested_stations">Emisoras sugeridas</string>
+  <!--__DISCOVERY CHARTS-->
+  <string name="charts_header">Listas de SoundCloud</string>
+  <string name="charts_new_and_hot">Nuevas pistas destacadas</string>
+  <string name="charts_top_fifty">Top 50 - pistas</string>
+  <string name="charts_genre_view_all">Explorar todos los géneros</string>
+  <string name="charts_soundcloud">Listas de SoundCloud</string>
+  <string name="charts_by_genre">Listas por género</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Borrar el caché de la aplicación</string>
   <string name="pref_clear_cache_desc">Borra el caché de aplicaciones para liberar memoria de tu dispositivo</string>
@@ -396,6 +451,7 @@
   <string name="title_notification_settings">Configuración de notificaciones</string>
   <!--__STATIONS-->
   <string name="stations_start_track_station">Iniciar emisora de pista</string>
+  <string name="stations_start_user_station">Iniciar emisora</string>
   <string name="stations_unable_to_start_station">No podemos iniciar esta emisora. inténtalo de nuevo dentro de unos minutos.</string>
   <string name="stations_loading_station">Cargando emisora. Permanece atento.</string>
   <string name="stations_collection_title_recent_stations">Emisoras recientes</string>
@@ -403,12 +459,6 @@
   <string name="stations_onboarding_stream_description">Toca los puntos suspensivos que hay al lado de cualquier pista para empezar.</string>
   <string name="recent_stations_empty_view_heading">Inicia una emisora para escuchar una serie de pistas similares. Como en la radio.</string>
   <string name="recent_stations_empty_view_message">Toca los puntos suspensivos que hay al lado de cualquier pista para empezar.</string>
-  <!--__COLLECTION-->
-  <string name="collections_with_stations_onboarding_title">Tus me gusta. Tus listas. Tus emisoras.\nTodo en el mismo lugar.</string>
-  <string name="collections_without_stations_onboarding_title">Tus me gusta. Tus listas.\nTodo en el mismo lugar.</string>
-  <string name="collections_onboarding_description">Bienvenido a tu nueva colección, un solo destino para tus pistas.</string>
-  <string name="dialog_playlist_delete_title">¿Eliminar lista?</string>
-  <string name="dialog_playlist_delete_message">Esto borrará la lista permanentemente. ¿Seguro que deseas continuar?</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d segundos</string>
   <string name="format_abbreviated_minutes">%d minutos</string>
@@ -493,6 +543,14 @@
   <string name="collections_filters_active_message">No se muestran todas tus listas. Para verlas, debes quitar los filtros.</string>
   <string name="collections_remove_filters">Quitar filtros</string>
   <string name="collections_loading_error">Hubo un problema al cargar tu colección.\nInténtalo de nuevo más tarde.</string>
+  <string name="collections_options_toggle_offline">Sin conexión</string>
+  <string name="collections_with_stations_onboarding_title">Tus Me gusta, tus listas, tus álbumes y tus emisoras.\nTodo en el mismo lugar.</string>
+  <string name="collections_without_stations_onboarding_title">Tus me gusta. Tus listas.\nTodo en el mismo lugar.</string>
+  <string name="collections_onboarding_description">Bienvenido a tu nueva colección, un solo destino para tus pistas.</string>
+  <string name="collections_play_history_header">Historial de reproducciones</string>
+  <string name="collections_view_all_tracks">Ver más</string>
+  <string name="dialog_playlist_delete_title">¿Eliminar lista?</string>
+  <string name="dialog_playlist_delete_message">Esto borrará la lista permanentemente. ¿Seguro que deseas continuar?</string>
   <!--__TABS-->
   <string name="tab_home">Inicio</string>
   <string name="tab_discovery">Descubrir</string>
@@ -542,7 +600,7 @@
   <string name="conversion_feature_3">Consigue aún más canciones</string>
   <string name="conversion_feature_4">Sin anuncios</string>
   <string name="conversion_buy_loading">Cargando…</string>
-  <string name="conversion_buy_trial">Pruébalo gratis durante %d días</string>
+  <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Pruébalo gratis durante %d días</string>
   <string name="conversion_buy_no_trial">Mejorar la cuenta</string>
   <string name="conversion_retry_heading">Vaya... Inténtalo de nuevo</string>
   <string name="conversion_retry_message">Parece que algo ha ido mal. Inténtalo de nuevo.</string>
@@ -631,9 +689,11 @@
   <string name="remove_offline_content_body_sync_collection">Estás a punto de eliminar todo el contenido sin conexión. Además, tus  listas y tus Me gusta nuevos ya no se guardarán automáticamente.</string>
   <string name="offline_cannot_set_limit_below_usage">No se puede fijar un límite inferior al almacenamiento actual.</string>
   <string name="sign_out_title_offline">Si cierras sesión se eliminarán todas las pistas sin conexión.</string>
-  <string name="sign_out_description_offline">La próxima vez que inicies sesión podrás decidir qué pistas y listas se guardarán.</string>
-  <string name="disable_offline_collection_title">¿Dejar de guardar automáticamente llstas y Me gusta?</string>
+  <string name="sign_out_description_offline">La próxima vez que inicies sesión podrás decidir qué pistas, listas y álbumes se guardarán.</string>
+  <string name="disable_offline_collection_title">¿Dejar de guardar automáticamente listas y Me gusta?</string>
   <string name="disable_offline_collection_body">Tus listas y tus Me gusta nuevos dejarán de guardarse automáticamente y las pistas guardadas ya no se podrán escuchar sin conexión.</string>
+  <string name="disable_offline_collection_from_context_title">¿Eliminar y no poder escuchar sin conexión?</string>
+  <string name="disable_offline_collection_from_context_body">Estás a punto de eliminar este contenido sin conexión. Además, las listas que crees o que te gusten ya no se guardarán sin conexión automáticamente.</string>
   <!--offline playlist creation-->
   <string name="add_playlist_offline">Disponible sin conexión</string>
   <!--offline settings-->
@@ -659,21 +719,35 @@
   <string name="device_management_conflict_message">Has alcanzado el límite de dispositivos con SoundCloud Go, por lo que hemos cerrado tu sesión en este dispositivo y lo hemos deshabilitado. Todo lo que guardaste sin conexión se ha eliminado. Debes iniciar sesión para poder volver a registrar el dispositivo.</string>
   <string name="device_management_register">Registrar</string>
   <!--__PROFILE-->
+  <string name="empty_user_sounds_message">Aquí no hay nada que oír</string>
+  <string name="empty_user_sounds_message_secondary">Sigue a %1$s para recibir actualizaciones de las pistas que comparta en el futuro.</string>
+  <string name="empty_you_sounds_message">No hay mucha actividad por aquí</string>
+  <string name="empty_you_sounds_message_secondary">Aquí apareceran las pistas que te gusten, que repostees o que subas.</string>
   <string name="user_profile_sounds_header_spotlight">Spotlight</string>
   <string name="user_profile_sounds_header_tracks">Pistas</string>
-  <string name="user_profile_sounds_header_albums">Lanzamientos</string>
+  <string name="user_profile_sounds_header_albums">Álbumes</string>
   <string name="user_profile_sounds_header_playlists">Listas</string>
   <string name="user_profile_sounds_header_reposts">Reposts</string>
   <string name="user_profile_sounds_header_likes">Me gusta</string>
   <string name="user_profile_sounds_view_all">Ver todo</string>
   <string name="user_profile_sounds_view_all_tracks">Ver todas las pistas</string>
-  <string name="user_profile_sounds_view_all_albums">Ver todos los lanzamientos</string>
+  <string name="user_profile_sounds_view_all_albums">Ver todos los álbumes</string>
   <string name="user_profile_sounds_view_all_playlists">Ver todas las listas</string>
   <string name="user_profile_sounds_view_all_reposts">Ver todos los reposts</string>
   <string name="user_profile_sounds_view_all_likes">Ver todos los Me gusta</string>
   <string name="user_profile_sounds_tracks_empty">Este usuario aún no tiene ninguna pista.</string>
   <string name="user_reposts_empty">Este usuario aún no ha reposteado nada.</string>
+  <string name="user_profile_sounds_albums_empty">Este usuario aún no tiene ningún álbum.</string>
+  <string name="user_profile_sounds_likes_empty">Este usuario aún no ha indicado que le gusta ninguna pista.</string>
+  <string name="user_profile_sounds_playlists_empty">Este usuario aún no tiene ninguna lista.</string>
   <string name="user_reposts_label">Reposts</string>
+  <string name="user_albums_label">Álbumes</string>
+  <string name="user_likes_label">Me gusta</string>
+  <!--Album Types-->
+  <string name="set_type_album_label">Álbum</string>
+  <string name="set_type_ep_label">EP</string>
+  <string name="set_type_single_label">Single</string>
+  <string name="set_type_compilation_label">Recopilación</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Sin anuncios</string>
   <string name="upsell_stream_upgrade_button">Hazte con SoundCloud Go</string>
@@ -685,6 +759,7 @@
   <string name="station_type_track">Emisora de pistas</string>
   <string name="station_type_genre">Emisora de géneros</string>
   <string name="station_type_curator">Emisora de curadores</string>
+  <string name="station_type_artist">Emisora del artista</string>
   <string name="stations_collection_title_saved_stations">Tus emisoras</string>
   <string name="stations_collection_title_track_recommendations">Pistas recomendadas</string>
   <string name="stations_collection_title_curator_recommendations">Recomendaciones del curador</string>
@@ -741,6 +816,4 @@
   <!--__KILL SWITCH-->
   <string name="kill_switch_message">Para seguir usando la aplicación de SoundCloud, actualiza a la versión más reciente.</string>
   <string name="kill_switch_confirm">Actualizar ahora</string>
-  <!--__COLLECTIONS-->
-  <string name="collections_options_toggle_offline">Sin conexión</string>
 </resources>
