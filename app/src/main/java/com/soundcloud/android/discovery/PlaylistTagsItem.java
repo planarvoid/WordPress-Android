@@ -1,27 +1,28 @@
 package com.soundcloud.android.discovery;
 
+import com.google.auto.value.AutoValue;
+
 import java.util.List;
 
-public class PlaylistTagsItem extends DiscoveryItem {
+@AutoValue
+public abstract class PlaylistTagsItem extends DiscoveryItem {
 
-    private final List<String> popularTags;
-    private final List<String> recentTags;
-
-    public PlaylistTagsItem(List<String> popularTags, List<String> recentTags) {
+    protected PlaylistTagsItem() {
         super(Kind.PlaylistTagsItem);
-        this.popularTags = popularTags;
-        this.recentTags = recentTags;
     }
 
-    public List<String> getPopularTags() {
-        return popularTags;
+    public static PlaylistTagsItem create(List<String> popularTags,
+                                   List<String> recentTags) {
+        return new AutoValue_PlaylistTagsItem(popularTags,
+                                              recentTags);
     }
 
-    public List<String> getRecentTags() {
-        return recentTags;
-    }
+    public abstract List<String> getPopularTags();
+
+    public abstract List<String> getRecentTags();
 
     public Boolean isEmpty() {
-        return popularTags.isEmpty() && recentTags.isEmpty();
+        return getPopularTags().isEmpty() && getRecentTags().isEmpty();
     }
+
 }

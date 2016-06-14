@@ -62,7 +62,7 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
         int cardsPerPage = itemView.getResources().getInteger(R.integer.stations_recommendation_card_count);
         RecommendedStationsItem recommendedStationsItem = items.get(position);
 
-        viewPager.setAdapter(new StationsAdapter(cardsPerPage, recommendedStationsItem.stationRecords));
+        viewPager.setAdapter(new StationsAdapter(cardsPerPage, recommendedStationsItem.getStationRecords()));
         indicator.setViewPager(viewPager);
     }
 
@@ -112,7 +112,8 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
         private void bindCard(View view, int position) {
             final StationRecord stationRecord = stations.get(position);
             ButterKnife.<TextView>findById(view, R.id.title).setText(stationRecord.getTitle());
-            ButterKnife.<TextView>findById(view, R.id.type).setText(getHumanReadableType(resources, stationRecord.getType()));
+            ButterKnife.<TextView>findById(view, R.id.type).setText(getHumanReadableType(resources,
+                                                                                         stationRecord.getType()));
             imageOperations.displayInAdapterView(stationRecord,
                                                  ApiImageSize.T500,
                                                  ButterKnife.<ImageView>findById(view, R.id.artwork));

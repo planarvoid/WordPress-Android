@@ -1,15 +1,21 @@
 package com.soundcloud.android.stations;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.discovery.DiscoveryItem;
 
 import java.util.List;
 
-public class RecommendedStationsItem extends DiscoveryItem {
-    final List<StationRecord> stationRecords;
+@AutoValue
+public abstract class RecommendedStationsItem extends DiscoveryItem {
 
-    public RecommendedStationsItem(List<StationRecord> stationRecords) {
+    protected RecommendedStationsItem() {
         super(Kind.RecommendedStationsItem);
-        this.stationRecords = stationRecords;
     }
+
+    public static RecommendedStationsItem create(List<StationRecord> stationRecords) {
+        return new AutoValue_RecommendedStationsItem(stationRecords);
+    }
+
+    public abstract List<StationRecord> getStationRecords();
 
 }

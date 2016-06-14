@@ -41,7 +41,7 @@ public class RecommendedStationsOperations {
             new Func1<List<StationRecord>, DiscoveryItem>() {
                 @Override
                 public DiscoveryItem call(List<StationRecord> stationRecords) {
-                    return new RecommendedStationsItem(stationRecords);
+                    return RecommendedStationsItem.create(stationRecords);
                 }
             };
     private static final long SYNC_THRESHOLD = TimeUnit.DAYS.toMillis(1);

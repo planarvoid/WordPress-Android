@@ -1,46 +1,48 @@
 package com.soundcloud.android.discovery;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.PropertySet;
 
 import java.util.List;
 
-class RecommendedTracksItem extends DiscoveryItem {
+@AutoValue
+abstract class RecommendedTracksItem extends DiscoveryItem {
 
-    private final PropertySet source;
-    private final List<Recommendation> recommendations;
-
-    RecommendedTracksItem(PropertySet source, List<Recommendation> recommendations) {
+    public RecommendedTracksItem() {
         super(Kind.RecommendedTracksItem);
-        this.source = source;
-        this.recommendations = recommendations;
     }
 
+    static RecommendedTracksItem create(PropertySet source, List<Recommendation> recommendations) {
+        return new AutoValue_RecommendedTracksItem(source, recommendations);
+    }
+
+
     String getSeedTrackTitle() {
-        return source.get(RecommendationProperty.SEED_TRACK_TITLE);
+        return getSource().get(RecommendationProperty.SEED_TRACK_TITLE);
     }
 
     Urn getSeedTrackUrn() {
-        return source.get(RecommendationProperty.SEED_TRACK_URN);
+        return getSource().get(RecommendationProperty.SEED_TRACK_URN);
     }
 
     int getSeedTrackQueryPosition() {
-        return source.get(RecommendationProperty.QUERY_POSITION);
+        return getSource().get(RecommendationProperty.QUERY_POSITION);
     }
 
     Urn getQueryUrn() {
-        return source.get(RecommendationProperty.QUERY_URN);
+        return getSource().get(RecommendationProperty.QUERY_URN);
     }
 
-    List<Recommendation> getRecommendations() {
-        return recommendations;
-    }
+    abstract PropertySet getSource();
+
+    abstract List<Recommendation> getRecommendations();
 
     RecommendationReason getRecommendationReason() {
-        return source.get(RecommendationProperty.REASON);
+        return getSource().get(RecommendationProperty.REASON);
     }
 
     long getSeedTrackLocalId() {
-        return source.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
+        return getSource().get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
     }
 }

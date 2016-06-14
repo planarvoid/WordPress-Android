@@ -36,7 +36,7 @@ public class PlaylistTagRendererTest {
     public void rendererDisplayTagsWhenBindingItemView() {
         List<String> recentTags = Arrays.asList("#dub", "#hardcore");
         List<String> playListTags = Arrays.asList("#rock", "#metal");
-        PlaylistTagsItem discoveryItem = new PlaylistTagsItem(playListTags, recentTags);
+        PlaylistTagsItem discoveryItem = PlaylistTagsItem.create(playListTags, recentTags);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(discoveryItem));
 
@@ -48,7 +48,7 @@ public class PlaylistTagRendererTest {
     public void doesNotRenderRecentTagsIfEmpty() {
         List<String> recentTags = Collections.emptyList();
         List<String> playListTags = Arrays.asList("#rock", "#metal");
-        PlaylistTagsItem discoveryItem = new PlaylistTagsItem(playListTags, recentTags);
+        PlaylistTagsItem discoveryItem = PlaylistTagsItem.create(playListTags, recentTags);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(discoveryItem));
 
@@ -60,7 +60,7 @@ public class PlaylistTagRendererTest {
     public void doesNotRenderPopularTagsIfEmpty() {
         List<String> recentTags = Collections.emptyList();
         List<String> playListTags = Collections.emptyList();
-        PlaylistTagsItem discoveryItem = new PlaylistTagsItem(playListTags, recentTags);
+        PlaylistTagsItem discoveryItem = PlaylistTagsItem.create(playListTags, recentTags);
 
         renderer.bindItemView(0, itemView, Collections.singletonList(discoveryItem));
 

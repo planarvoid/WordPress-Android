@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
+import com.soundcloud.android.utils.EmptyThrowable;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -13,12 +14,12 @@ public class DiscoveryOperations {
     private static final Func1<Throwable, DiscoveryItem> ERROR_ITEM = new Func1<Throwable, DiscoveryItem>() {
         @Override
         public DiscoveryItem call(Throwable throwable) {
-            return new EmptyViewItem(throwable);
+            return EmptyViewItem.fromThrowable(throwable);
         }
     };
 
-    private static final DiscoveryItem EMPTY_ITEM = new EmptyViewItem();
-    private static final SearchItem SEARCH_ITEM = new SearchItem();
+    private static final DiscoveryItem EMPTY_ITEM = EmptyViewItem.fromThrowable(new EmptyThrowable());
+    private static final DiscoveryItem SEARCH_ITEM = DiscoveryItem.forSearchItem();
 
     private final RecommendedTracksOperations recommendedTracksOperations;
     private final PlaylistDiscoveryOperations playlistDiscoveryOperations;

@@ -36,7 +36,8 @@ class RecommendedTracksOperations {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
 
         for (TrackItem trackItem : trackItems) {
-            boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn().equals(trackItem.getUrn());
+            boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn()
+                                                                                       .equals(trackItem.getUrn());
             recommendations.add(new Recommendation(trackItem, seedUrn, isPlaying, queryPosition, queryUrn));
         }
 
@@ -54,7 +55,7 @@ class RecommendedTracksOperations {
         return new Func1<List<TrackItem>, DiscoveryItem>() {
             @Override
             public DiscoveryItem call(List<TrackItem> trackItems) {
-                return new RecommendedTracksItem(seed, toRecommendations(seed, trackItems));
+                return RecommendedTracksItem.create(seed, toRecommendations(seed, trackItems));
             }
         };
     }
@@ -84,8 +85,8 @@ class RecommendedTracksOperations {
     @VisibleForTesting
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
-                .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                .map(TrackItem.fromPropertySets());
+                                     .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                                     .map(TrackItem.fromPropertySets());
     }
 
     Observable<DiscoveryItem> firstBucket() {
@@ -113,13 +114,13 @@ class RecommendedTracksOperations {
 
     private Observable<DiscoveryItem> loadFirstBucket() {
         return recommendationsStorage.firstSeed()
-                .flatMap(toBucket)
-                .subscribeOn(scheduler);
+                                     .flatMap(toBucket)
+                                     .subscribeOn(scheduler);
     }
 
     private Observable<DiscoveryItem> loadAllBuckets() {
         return recommendationsStorage.allSeeds()
-                .flatMap(toBucket)
-                .subscribeOn(scheduler);
+                                     .flatMap(toBucket)
+                                     .subscribeOn(scheduler);
     }
 }

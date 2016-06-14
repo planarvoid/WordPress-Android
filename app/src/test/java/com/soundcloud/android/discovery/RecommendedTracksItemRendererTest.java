@@ -168,7 +168,7 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
     }
 
     private List<RecommendedTracksItem> createRecommendationsBucket() {
-        final RecommendedTracksItem recommendedTracksItem = new RecommendedTracksItem(createSeed(), Collections.singletonList(
+        final RecommendedTracksItem recommendedTracksItem = RecommendedTracksItem.create(createSeed(), Collections.singletonList(
                 RECOMMENDATION));
         return Collections.singletonList(recommendedTracksItem);
     }

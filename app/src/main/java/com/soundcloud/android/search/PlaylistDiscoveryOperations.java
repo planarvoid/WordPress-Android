@@ -51,7 +51,7 @@ public class PlaylistDiscoveryOperations {
             new Func2<List<String>, List<String>, DiscoveryItem>() {
                 @Override
                 public DiscoveryItem call(List<String> popular, List<String> recent) {
-                    return new PlaylistTagsItem(popular, recent);
+                    return PlaylistTagsItem.create(popular, recent);
                 }
             };
 
@@ -66,7 +66,8 @@ public class PlaylistDiscoveryOperations {
         @Override
         public SearchResult call(ApiPlaylistCollection collection) {
             final SearchResult result = SearchResult.fromPropertySetSource(collection.getCollection(),
-                    collection.getNextLink(), collection.getQueryUrn());
+                                                                           collection.getNextLink(),
+                                                                           collection.getQueryUrn());
             return backfillSearchResult(result);
         }
     };
@@ -134,14 +135,14 @@ public class PlaylistDiscoveryOperations {
 
     private Observable<List<String>> fetchAndCachePopularTags() {
         ApiRequest request = ApiRequest.get(ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
-                .forPrivateApi()
-                .build();
+                                       .forPrivateApi()
+                                       .build();
         final TypeToken<ModelCollection<String>> resourceType = new TypeToken<ModelCollection<String>>() {
         };
         return apiClientRx.mappedResponse(request, resourceType)
-                .subscribeOn(scheduler)
-                .doOnNext(cachePopularTags)
-                .map(collectionToList);
+                          .subscribeOn(scheduler)
+                          .doOnNext(cachePopularTags)
+                          .map(collectionToList);
     }
 
     Observable<SearchResult> playlistsForTag(final String tag) {
@@ -183,10 +184,10 @@ public class PlaylistDiscoveryOperations {
 
     private Observable<SearchResult> getPlaylistResultsPage(String query, ApiRequest request) {
         return apiClientRx.mappedResponse(request, ApiPlaylistCollection.class)
-                .subscribeOn(scheduler)
-                .doOnNext(storePlaylistsCommand.toAction1())
-                .map(withSearchTag(query))
-                .map(toBackFilledSearchResult);
+                          .subscribeOn(scheduler)
+                          .doOnNext(storePlaylistsCommand.toAction1())
+                          .map(withSearchTag(query))
+                          .map(toBackFilledSearchResult);
     }
 
     private Func1<ApiPlaylistCollection, ApiPlaylistCollection> withSearchTag(final String searchTag) {

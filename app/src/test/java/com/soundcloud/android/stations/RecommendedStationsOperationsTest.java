@@ -158,7 +158,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
     private List<StationRecord> getStations() {
         DiscoveryItem discoveryItem = subscriber.getOnNextEvents().get(0);
-        return ((RecommendedStationsItem) discoveryItem).stationRecords;
+        return ((RecommendedStationsItem) discoveryItem).getStationRecords();
     }
 
 }

@@ -33,13 +33,18 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new DiscoveryAdapter(recommendationBucketRenderer, playlistTagRenderer, searchItemRenderer, recommendedStationsBucketRenderer, chartsItemRenderer, recommendationsFooterRenderer, emptyDiscoveryItemRenderer);
+        adapter = new DiscoveryAdapter(recommendationBucketRenderer,
+                                       playlistTagRenderer,
+                                       searchItemRenderer,
+                                       recommendedStationsBucketRenderer,
+                                       chartsItemRenderer,
+                                       recommendationsFooterRenderer,
+                                       emptyDiscoveryItemRenderer);
     }
 
     @Test
     public void rendersCorrectViewTypes() {
-        SearchItem searchItem = mock(SearchItem.class);
-        when(searchItem.getKind()).thenReturn(SearchItem);
+        DiscoveryItem searchItem = DiscoveryItem.forSearchItem();
         DiscoveryItem playlistTagItem = mock(DiscoveryItem.class);
         when(playlistTagItem.getKind()).thenReturn(PlaylistTagsItem);
         DiscoveryItem trackRecommendationItem = mock(DiscoveryItem.class);
@@ -49,7 +54,11 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         DiscoveryItem chartRecommendationItem = mock(DiscoveryItem.class);
         when(chartRecommendationItem.getKind()).thenReturn(ChartItem);
 
-        adapter.onNext(Arrays.asList(searchItem, playlistTagItem, trackRecommendationItem, stationRecommendationItem, chartRecommendationItem));
+        adapter.onNext(Arrays.asList(searchItem,
+                                     playlistTagItem,
+                                     trackRecommendationItem,
+                                     stationRecommendationItem,
+                                     chartRecommendationItem));
 
         assertThat(adapter.getBasicItemViewType(0)).isEqualTo(SearchItem.ordinal());
         assertThat(adapter.getBasicItemViewType(1)).isEqualTo(PlaylistTagsItem.ordinal());

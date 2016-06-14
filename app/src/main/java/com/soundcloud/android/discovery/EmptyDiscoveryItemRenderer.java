@@ -35,12 +35,7 @@ class EmptyDiscoveryItemRenderer implements CellRenderer<DiscoveryItem> {
     public void bindItemView(int position, View itemView, List<DiscoveryItem> items) {
         final EmptyViewItem emptyViewItem = (EmptyViewItem) items.get(position);
 
-        final EmptyView.Status status;
-        if (emptyViewItem.throwable.isPresent()){
-            status = emptyViewStatusFromError(emptyViewItem.throwable.get());
-        } else {
-            status = EmptyView.Status.OK;
-        }
+        final EmptyView.Status status = emptyViewStatusFromError(emptyViewItem.getThrowable());
         ((EmptyView) itemView).setStatus(status);
     }
 }

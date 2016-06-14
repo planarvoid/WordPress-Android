@@ -42,17 +42,18 @@ public class DiscoveryOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new DiscoveryOperations(recommendedTracksOperations,
-                playlistDiscoveryOperations,
-                recommendedStationsOperations,
-                chartsOperations);
+                                             playlistDiscoveryOperations,
+                                             recommendedStationsOperations,
+                                             chartsOperations);
 
         when(recommendedTracksOperations.firstBucket()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedStationsOperations.stationsBucket()).thenReturn(Observable.<DiscoveryItem>empty());
 
         final DiscoveryItem chartsItem = new DiscoveryItem(DiscoveryItem.Kind.ChartItem);
-        final RecommendedStationsItem stationsItem = new RecommendedStationsItem(Collections.<StationRecord>emptyList());
-        final DiscoveryItem tracksItem =  new DiscoveryItem(DiscoveryItem.Kind.RecommendedTracksItem);
-        final PlaylistTagsItem playlistTagsItem = new PlaylistTagsItem(Arrays.asList("Test tag"), Collections.<String>emptyList());
+        final RecommendedStationsItem stationsItem = RecommendedStationsItem.create(Collections.<StationRecord>emptyList());
+        final DiscoveryItem tracksItem = new DiscoveryItem(DiscoveryItem.Kind.RecommendedTracksItem);
+        final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Arrays.asList("Test tag"),
+                                                                          Collections.<String>emptyList());
 
         when(chartsOperations.charts()).thenReturn(Observable.just(chartsItem));
         when(recommendedStationsOperations.stationsBucket()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));

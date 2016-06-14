@@ -6,6 +6,10 @@ public class DiscoveryItem {
         return new DiscoveryItem(Kind.RecommendedTracksFooterItem);
     }
 
+    public static DiscoveryItem forSearchItem() {
+        return new DiscoveryItem(Kind.SearchItem);
+    }
+
     public enum Kind {
         RecommendedStationsItem,
         RecommendedTracksItem,

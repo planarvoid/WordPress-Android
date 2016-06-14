@@ -1,21 +1,18 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.java.optional.Optional;
+import com.google.auto.value.AutoValue;
 
-class EmptyViewItem extends DiscoveryItem {
-    public final Optional<Throwable> throwable;
+@AutoValue
+abstract class EmptyViewItem extends DiscoveryItem {
 
-    EmptyViewItem(Throwable throwable) {
+    public static DiscoveryItem fromThrowable(Throwable throwable) {
+        return new AutoValue_EmptyViewItem(throwable);
+    }
+
+    EmptyViewItem() {
         super(Kind.Empty);
-        this.throwable = Optional.of(throwable);
     }
 
-    public EmptyViewItem() {
-        super(Kind.Empty);
-        this.throwable = Optional.absent();
-    }
+    public abstract Throwable getThrowable();
 
-    public static DiscoveryItem from(Throwable throwable) {
-        return new EmptyViewItem(throwable);
-    }
 }
