@@ -2,11 +2,11 @@ package com.soundcloud.android.discovery;
 
 public class DiscoveryItem {
 
-    public static DiscoveryItem forRecommendedTracksFooter() {
+    static DiscoveryItem forRecommendedTracksFooter() {
         return new DiscoveryItem(Kind.RecommendedTracksFooterItem);
     }
 
-    public static DiscoveryItem forSearchItem() {
+    static DiscoveryItem forSearchItem() {
         return new DiscoveryItem(Kind.SearchItem);
     }
 

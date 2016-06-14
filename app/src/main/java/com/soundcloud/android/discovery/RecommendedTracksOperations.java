@@ -44,7 +44,7 @@ class RecommendedTracksOperations {
         return recommendations;
     }
 
-    Func1<PropertySet, Observable<DiscoveryItem>> toBucket = new Func1<PropertySet, Observable<DiscoveryItem>>() {
+    private Func1<PropertySet, Observable<DiscoveryItem>> toBucket = new Func1<PropertySet, Observable<DiscoveryItem>>() {
         @Override
         public Observable<DiscoveryItem> call(PropertySet seed) {
             return tracksForSeed(seed.get(SEED_TRACK_LOCAL_ID)).map(mergeWith(seed));
