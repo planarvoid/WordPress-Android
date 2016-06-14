@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -46,7 +46,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private LikedTrackStorage likedTrackStorage;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
-    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
 

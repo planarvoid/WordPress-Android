@@ -23,8 +23,8 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stations.StationsSyncRequestFactory;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.tracks.TrackItem;
@@ -61,7 +61,7 @@ public class CollectionOperations {
     private final PlaylistPostStorage playlistPostStorage;
     private final PlaylistLikesStorage playlistLikesStorage;
     private final LoadLikedTrackPreviewsCommand loadLikedTrackPreviews;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final StationsOperations stationsOperations;
     private final CollectionOptionsStorage collectionOptionsStorage;
     private final OfflineStateOperations offlineStateOperations;
@@ -222,7 +222,7 @@ public class CollectionOperations {
                          PlaylistPostStorage playlistPostStorage,
                          PlaylistLikesStorage playlistLikesStorage,
                          LoadLikedTrackPreviewsCommand loadLikedTrackPreviews,
-                         SyncInitiator syncInitiator,
+                         LegacySyncInitiator syncInitiator,
                          StationsOperations stationsOperations,
                          CollectionOptionsStorage collectionOptionsStorage,
                          OfflineStateOperations offlineStateOperations,

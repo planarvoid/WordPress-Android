@@ -8,7 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
@@ -34,7 +34,7 @@ public class TrackLikeOperations {
     private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     private final LikedTrackStorage likedTrackStorage;
     private final Scheduler scheduler;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
 
@@ -64,7 +64,7 @@ public class TrackLikeOperations {
     @Inject
     public TrackLikeOperations(LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
                                LikedTrackStorage likedTrackStorage,
-                               SyncInitiator syncInitiator,
+                               LegacySyncInitiator syncInitiator,
                                EventBus eventBus,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                NetworkConnectionHelper networkConnectionHelper) {

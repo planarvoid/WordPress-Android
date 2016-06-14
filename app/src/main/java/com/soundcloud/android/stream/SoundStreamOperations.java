@@ -22,7 +22,7 @@ import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.tracks.TieredTrack;
@@ -138,7 +138,7 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     };
 
     @Inject
-    SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
+    SoundStreamOperations(SoundStreamStorage soundStreamStorage, LegacySyncInitiator syncInitiator,
                           ContentStats contentStats, RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand,
                           MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,

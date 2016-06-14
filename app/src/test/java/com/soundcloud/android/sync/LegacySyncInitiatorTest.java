@@ -34,9 +34,9 @@ import android.os.ResultReceiver;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class SyncInitiatorTest extends AndroidUnitTest {
+public class LegacySyncInitiatorTest extends AndroidUnitTest {
 
-    private SyncInitiator initiator;
+    private LegacySyncInitiator initiator;
     private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<>();
     private TestObserver<SyncResult> syncSubscriber = new TestObserver<>();
 
@@ -46,7 +46,7 @@ public class SyncInitiatorTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        initiator = new SyncInitiator(context(), accountOperations, syncStateManager);
+        initiator = new LegacySyncInitiator(context(), accountOperations, syncStateManager);
     }
 
     @Test

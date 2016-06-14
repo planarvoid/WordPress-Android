@@ -26,9 +26,9 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stations.StationsSyncRequestFactory;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -57,7 +57,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     @Mock private FeatureFlags featureFlags;
     @Mock private SyncStateStorage syncStateStorage;
-    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator syncInitiator;
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private PlaylistLikesStorage playlistLikeStorage;
     @Mock private LoadLikedTrackPreviewsCommand loadLikedTrackPreviewsCommand;

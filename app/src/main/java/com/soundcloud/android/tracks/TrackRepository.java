@@ -5,7 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.PropertySetFunctions;
 import rx.Observable;
@@ -18,12 +18,12 @@ import javax.inject.Named;
 public class TrackRepository {
 
     private final TrackStorage trackStorage;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
     @Inject
     public TrackRepository(TrackStorage trackStorage,
-                           SyncInitiator syncInitiator,
+                           LegacySyncInitiator syncInitiator,
                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.trackStorage = trackStorage;
         this.syncInitiator = syncInitiator;

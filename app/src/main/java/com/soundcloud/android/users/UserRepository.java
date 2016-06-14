@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -16,7 +16,7 @@ import javax.inject.Named;
 public class UserRepository {
 
     private final UserStorage userStorage;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
     private static final Func1<PropertySet, Boolean> IS_NOT_EMPTY = new Func1<PropertySet, Boolean>() {
@@ -27,7 +27,7 @@ public class UserRepository {
     };
 
     @Inject
-    public UserRepository(UserStorage userStorage, SyncInitiator syncInitiator, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    public UserRepository(UserStorage userStorage, LegacySyncInitiator syncInitiator, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.userStorage = userStorage;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;

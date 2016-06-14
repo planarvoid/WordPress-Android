@@ -6,7 +6,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
@@ -25,7 +25,7 @@ import javax.inject.Named;
  */
 public class FollowingOperations {
     private final Scheduler scheduler;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final EventBus eventBus;
     private final UpdateFollowingCommand storeFollowingCommand;
     private final UserAssociationStorage userAssociationStorage;
@@ -70,7 +70,7 @@ public class FollowingOperations {
     };
 
     @Inject
-    public FollowingOperations(SyncInitiator syncInitiator,
+    public FollowingOperations(LegacySyncInitiator syncInitiator,
                                EventBus eventBus,
                                UpdateFollowingCommand storeFollowingCommand,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,

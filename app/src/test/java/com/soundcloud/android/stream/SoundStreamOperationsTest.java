@@ -23,8 +23,8 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
@@ -79,7 +79,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     }
 
     @Override
-    protected TimelineOperations<StreamItem> buildOperations(SoundStreamStorage storage, SyncInitiator syncInitiator,
+    protected TimelineOperations<StreamItem> buildOperations(SoundStreamStorage storage, LegacySyncInitiator syncInitiator,
                                                              ContentStats contentStats, Scheduler scheduler,
                                                              SyncStateStorage syncStateStorage) {
         return new SoundStreamOperations(storage, syncInitiator, contentStats, removeStalePromotedItemsCommand,

@@ -19,7 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -59,7 +59,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Mock private TxnResult txnResult;
     @Mock private ChangeResult changeResult;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
-    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator syncInitiator;
     @Mock private Action1<Object> startServiceAction;
     @Mock private Action1<Object> scheduleCleanupAction;
     @Mock private LoadOfflinePlaylistsCommand loadOfflinePlaylistsCommand;

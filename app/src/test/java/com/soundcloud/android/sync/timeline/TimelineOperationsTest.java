@@ -10,8 +10,8 @@ import static rx.Observable.from;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.Timestamped;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -37,7 +37,7 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
     protected SyncContent syncContent;
     protected TimelineOperations<ItemT> operations;
 
-    @Mock protected SyncInitiator syncInitiator;
+    @Mock protected LegacySyncInitiator syncInitiator;
     @Mock protected ContentStats contentStats;
     @Mock protected SyncStateStorage syncStateStorage;
     protected StorageT storage;
@@ -51,7 +51,7 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
     }
 
     protected abstract TimelineOperations<ItemT> buildOperations(StorageT storage,
-                                                                 SyncInitiator syncInitiator,
+                                                                 LegacySyncInitiator syncInitiator,
                                                                  ContentStats contentStats,
                                                                  Scheduler scheduler,
                                                                  SyncStateStorage syncStateStorage);
