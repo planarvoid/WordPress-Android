@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.sync.SyncActions;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -26,7 +26,7 @@ public class RecommendedTracksSyncInitiatorTest extends AndroidUnitTest {
 
     private RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
 
-    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator syncInitiator;
     private TestDateProvider dateProvider;
 
 

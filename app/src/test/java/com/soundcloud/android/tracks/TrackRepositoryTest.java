@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
@@ -35,7 +35,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Mock private TrackStorage trackStorage;
     @Mock private AccountOperations accountOperations;
-    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator syncInitiator;
 
     private TestObserver<PropertySet> observer = new TestObserver<>();
 

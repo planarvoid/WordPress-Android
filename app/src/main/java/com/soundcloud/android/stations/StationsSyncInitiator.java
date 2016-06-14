@@ -1,7 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateManager;
 import rx.Observable;
@@ -10,7 +10,7 @@ import android.content.Context;
 
 import javax.inject.Inject;
 
-public class StationsSyncInitiator extends SyncInitiator {
+public class StationsSyncInitiator extends LegacySyncInitiator {
     public static final String RECENT = "RECENT";
     public static final String RECOMMENDATIONS = "RECOMMENDATIONS";
 

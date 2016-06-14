@@ -9,7 +9,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.users.UserAssociationProperty;
@@ -39,7 +39,7 @@ public class MyProfileOperations {
 
     private final NetworkConnectionHelper networkConnectionHelper;
     private final SyncStateStorage syncStateStorage;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
 
     private final PlaylistPostStorage playlistPostStorage;
     private final UserAssociationStorage userAssociationStorage;
@@ -93,7 +93,7 @@ public class MyProfileOperations {
             PostsStorage postsStorage,
             PlaylistPostStorage playlistPostStorage,
             SyncStateStorage syncStateStorage,
-            SyncInitiator syncInitiator,
+            LegacySyncInitiator syncInitiator,
             NetworkConnectionHelper networkConnectionHelper,
             UserAssociationStorage userAssociationStorage,
             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {

@@ -1,7 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
@@ -27,7 +27,7 @@ class RecommendedTracksSyncInitiator {
         }
     };
 
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final SharedPreferences sharedPreferences;
     private final DateProvider dateProvider;
 
@@ -48,7 +48,7 @@ class RecommendedTracksSyncInitiator {
     };
 
     @Inject
-    RecommendedTracksSyncInitiator(SyncInitiator syncInitiator,
+    RecommendedTracksSyncInitiator(LegacySyncInitiator syncInitiator,
                                    @Named(StorageModule.RECOMMENDED_TRACKS_SYNC) SharedPreferences sharedPreferences,
                                    CurrentDateProvider dateProvider) {
         this.syncInitiator = syncInitiator;

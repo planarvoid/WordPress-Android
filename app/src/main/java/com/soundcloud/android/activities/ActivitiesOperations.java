@@ -3,7 +3,7 @@ package com.soundcloud.android.activities;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.java.collections.PropertySet;
@@ -34,7 +34,7 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
 
     @Inject
     ActivitiesOperations(ActivitiesStorage activitiesStorage,
-                         SyncInitiator syncInitiator,
+                         LegacySyncInitiator syncInitiator,
                          ContentStats contentStats,
                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                          SyncStateStorage syncStateStorage) {

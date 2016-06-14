@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class SyncInitiator {
+public class LegacySyncInitiator {
     private final Action0 requestSystemSyncAction = new Action0() {
         @Override
         public void call() {
@@ -49,7 +49,7 @@ public class SyncInitiator {
     };
 
     @Inject
-    public SyncInitiator(Context context, AccountOperations accountOperations, SyncStateManager syncStateManager) {
+    public LegacySyncInitiator(Context context, AccountOperations accountOperations, SyncStateManager syncStateManager) {
         this.syncStateManager = syncStateManager;
         this.context = context.getApplicationContext();
         this.accountOperations = accountOperations;

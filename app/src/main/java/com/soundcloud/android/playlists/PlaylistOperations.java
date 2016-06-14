@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -61,7 +61,7 @@ public class PlaylistOperations {
     private final AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     private final EditPlaylistCommand editPlaylistCommand;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final EventBus eventBus;
 
     private final Func2<PropertySet, List<TrackItem>, PlaylistWithTracks> mergePlaylistWithTracks =
@@ -83,7 +83,7 @@ public class PlaylistOperations {
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                       SyncInitiator syncInitiator,
+                       LegacySyncInitiator syncInitiator,
                        PlaylistTracksStorage playlistTracksStorage,
                        PlaylistStorage playlistStorage,
                        Provider<LoadPlaylistTrackUrnsCommand> loadPlaylistTrackUrnsProvider,

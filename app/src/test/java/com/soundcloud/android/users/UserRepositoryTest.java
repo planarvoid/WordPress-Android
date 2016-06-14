@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncActions;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -34,7 +34,7 @@ public class UserRepositoryTest extends AndroidUnitTest {
 
     @Mock private ApiClientRx apiClientRx;
     @Mock private UserStorage userStorage;
-    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator syncInitiator;
 
     @Before
     public void setup() {

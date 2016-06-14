@@ -2,7 +2,7 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.concurrent.TimeUnit;
 
-public class ChartsSyncInitiator extends SyncInitiator {
+public class ChartsSyncInitiator extends LegacySyncInitiator {
     public static final String TYPE = "CHARTS";
 
     private static final String KEY_LAST_SYNC_TIME = "last_charts_sync_time";

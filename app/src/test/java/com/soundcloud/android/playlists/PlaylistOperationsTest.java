@@ -18,7 +18,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.sync.SyncActions;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -49,7 +49,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     private PlaylistOperations operations;
 
     @Mock private Observer<PlaylistWithTracks> playlistInfoObserver;
-    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator syncInitiator;
     @Mock private PlaylistTracksStorage tracksStorage;
     @Mock private PlaylistStorage playlistStorage;
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;

@@ -9,7 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.WriteResult;
@@ -34,7 +34,7 @@ class PlaylistPostOperations {
 
     private final PlaylistPostStorage playlistPostStorage;
     private final Scheduler scheduler;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final EventBus eventBus;
 
@@ -76,7 +76,7 @@ class PlaylistPostOperations {
 
     @Inject
     PlaylistPostOperations(PlaylistPostStorage playlistPostStorage,
-                           SyncInitiator syncInitiator,
+                           LegacySyncInitiator syncInitiator,
                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                            NetworkConnectionHelper networkConnectionHelper,
                            EventBus eventBus) {
