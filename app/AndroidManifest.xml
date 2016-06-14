@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="428"
-    android:versionName="2016.05.30"
+    android:versionCode="431"
+    android:versionName="2016.06.10"
     package="com.soundcloud.android">
 
     <!-- required for Robolectric to use the correct values -->
@@ -70,6 +70,11 @@
         <activity android:launchMode="singleTop" android:name=".main.MainActivity">
             <intent-filter>
                 <action android:name="${applicationId}.action.STREAM"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="${applicationId}.action.DISCOVERY"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 

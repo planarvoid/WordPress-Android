@@ -456,6 +456,24 @@ public class IntentResolverTest extends AndroidUnitTest {
         verify(navigator).openCollection(context);
     }
 
+    @Test
+    public void shouldOpenDiscoveryFromWebLink() {
+        setupIntentForUrl("https://soundcloud.com/discover");
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openDiscovery(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldOpenDiscoveryFromUri() {
+        setupIntentForUrl("soundcloud://discovery");
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openDiscovery(context, Screen.DEEPLINK);
+    }
+
     public void setupIntentForUrl(String url) {
         if (url != null) {
             uri = Uri.parse(url);
