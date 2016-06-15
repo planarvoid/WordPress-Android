@@ -22,7 +22,7 @@
         android:id="@+id/toggle_download"
         style="@style/EngagementAction.ToggleButton.Download" />
 
-    <ImageView
+    <com.soundcloud.android.view.OverflowAnchorImageButton
         android:id="@+id/playlist_details_overflow_button"
         style="@style/EngagementAction.Overflow"
         android:layout_width="wrap_content"

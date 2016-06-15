@@ -1,9 +1,9 @@
 package com.soundcloud.android.view.menu;
 
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.PopupMenu;
 
 import javax.inject.Inject;
 
