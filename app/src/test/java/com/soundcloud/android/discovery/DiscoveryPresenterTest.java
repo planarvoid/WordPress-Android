@@ -40,7 +40,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private Bundle bundle;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private DiscoveryOperations discoveryOperations;
+    @Mock private DiscoveryPresenter.DataSource dataSource;
     @Mock private DiscoveryAdapterFactory adapterFactory;
     @Mock private DiscoveryAdapter adapter;
     @Mock private RecommendationBucketRendererFactory recommendationBucketRendererFactory;
@@ -58,11 +58,11 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
         when(recommendationBucketRendererFactory.create(any(Boolean.class))).thenReturn(recommendationBucketRenderer);
         when(adapterFactory.create(any(RecommendationBucketRenderer.class))).thenReturn(adapter);
-        when(discoveryOperations.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
+        when(dataSource.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
 
         this.presenter = new DiscoveryPresenter(
+                dataSource,
                 swipeRefreshAttacher,
-                discoveryOperations,
                 adapterFactory,
                 recommendationBucketRendererFactory,
                 imagePauseOnScrollListener,

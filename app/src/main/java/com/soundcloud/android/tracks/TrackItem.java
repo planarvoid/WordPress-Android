@@ -82,7 +82,7 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     }
 
     String getGenre() {
-        return source.get(TrackProperty.GENRE).or(Strings.EMPTY);
+        return source.getOrElse(TrackProperty.GENRE, Strings.EMPTY);
     }
 
     public void setIsPlaying(boolean isPlaying) {

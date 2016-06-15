@@ -27,7 +27,7 @@ public abstract class Chart {
                                Urn genre,
                                ChartBucketType bucketType,
                                List<ChartTrack> chartTracks) {
-        return new AutoValue_Chart(localId, type, category, displayName, genre, bucketType, chartTracks);
+        return new AutoValue_Chart(localId, type, category, displayName, genre, chartTracks, bucketType);
     }
 
     Chart copyWithTracks(List<ChartTrack> tracks) {
@@ -44,8 +44,8 @@ public abstract class Chart {
 
     public abstract Urn genre();
 
-    public abstract ChartBucketType bucketType();
+    public abstract List<ChartTrack> tracks();
 
-    public abstract List<ChartTrack> chartTracks();
+    public abstract ChartBucketType bucketType();
 
 }

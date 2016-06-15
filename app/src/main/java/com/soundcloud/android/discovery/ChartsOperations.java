@@ -7,49 +7,30 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.charts.StoreChartsCommand;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
-import java.util.List;
 
 class ChartsOperations {
 
-    private final static Func1<List<Chart>, Observable<DiscoveryItem>> CHARTS_TO_DISCOVERY_ITEM = new Func1<List<Chart>, Observable<DiscoveryItem>>() {
+    private final Func1<ChartBucket, Boolean> HAS_EXPECTED_CONTENT = new Func1<ChartBucket, Boolean>() {
         @Override
-        public Observable<DiscoveryItem> call(List<Chart> charts) {
-            final Optional<Chart> newAndHot = Iterables.tryFind(charts, global(ChartType.TRENDING));
-            final Optional<Chart> topFifty = Iterables.tryFind(charts, global(ChartType.TOP));
-            final List<Chart> genres = Lists.newArrayList(Iterables.filter(charts, genre()));
-            if (newAndHot.isPresent() && topFifty.isPresent() && genres.size() >= 3) {
-                return Observable.<DiscoveryItem>just(ChartsItem.create(newAndHot.get(),
-                                                                        topFifty.get(),
-                                                                        genres.get(0),
-                                                                        genres.get(1),
-                                                                        genres.get(2)));
-            } else {
-                return Observable.empty();
-            }
+        public Boolean call(ChartBucket chartBucket) {
+            final Optional<Chart> trending = Iterables.tryFind(chartBucket.getGlobal(), filterType(ChartType.TRENDING));
+            final Optional<Chart> top = Iterables.tryFind(chartBucket.getGlobal(), filterType(ChartType.TOP));
+
+            return trending.isPresent() && top.isPresent() && chartBucket.getFeaturedGenres().size() >= 3;
         }
     };
 
-    private static Predicate<Chart> global(final ChartType chartType) {
+    private Predicate<Chart> filterType(final ChartType type) {
         return new Predicate<Chart>() {
             @Override
-            public boolean apply(Chart input) {
-                return input.bucketType() == ChartBucketType.GLOBAL && input.type() == chartType;
-            }
-        };
-    }
-
-    private static Predicate<Chart> genre() {
-        return new Predicate<Chart>() {
-            @Override
-            public boolean apply(Chart input) {
-                return input.bucketType() == ChartBucketType.FEATURED_GENRES;
+            public boolean apply(Chart chart) {
+                return chart.type() == type;
             }
         };
     }
@@ -70,9 +51,12 @@ class ChartsOperations {
         this.featureFlags = featureFlags;
     }
 
-    Observable<DiscoveryItem> charts() {
+    Observable<ChartBucket> charts() {
         if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
-            return chartsSyncInitiator.syncCharts().flatMap(continueWith(loadCharts()));
+            return chartsSyncInitiator
+                    .syncCharts()
+                    .flatMap(continueWith(chartsStorage.charts()))
+                    .filter(HAS_EXPECTED_CONTENT);
         } else {
             return Observable.empty();
         }
@@ -83,8 +67,5 @@ class ChartsOperations {
         chartsSyncInitiator.clearLastSyncTime();
     }
 
-    private Observable<DiscoveryItem> loadCharts() {
-        return chartsStorage.charts().flatMap(CHARTS_TO_DISCOVERY_ITEM);
-    }
 }
 
