@@ -1,10 +1,9 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.discovery.ChartsSyncInitiator;
-import com.soundcloud.android.discovery.ChartsSyncRequestFactory;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.StationsSyncInitiator;
-import com.soundcloud.android.stations.StationsSyncRequestFactory;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
@@ -22,39 +21,40 @@ import javax.inject.Inject;
 
 class SyncRequestFactory {
 
+    private final SyncerRegistry syncerRegistry;
+    private final SingleJobRequestFactory singleJobRequestFactory;
     private final LegacySyncRequest.Factory syncIntentFactory;
     private final Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob;
     private final Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob;
     private final EntitySyncRequestFactory entitySyncRequestFactory;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final Lazy<RecommendationsSyncer> lazyRecommendationSyncer;
-    private final StationsSyncRequestFactory stationsSyncRequestFactory;
-    private final ChartsSyncRequestFactory chartsSyncRequestFactory;
     private final EventBus eventBus;
 
     @Inject
-    SyncRequestFactory(LegacySyncRequest.Factory syncIntentFactory,
-                       Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob,
-                       Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob,
-                       EntitySyncRequestFactory entitySyncRequestFactory,
-                       SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
-                       Lazy<RecommendationsSyncer> lazyRecommendationSyncer,
-                       StationsSyncRequestFactory stationsSyncRequestFactory,
-                       ChartsSyncRequestFactory chartsSyncRequestFactory,
-                       EventBus eventBus) {
+    SyncRequestFactory(
+            SyncerRegistry syncerRegistry,
+            SingleJobRequestFactory singleJobRequestFactory,
+            LegacySyncRequest.Factory syncIntentFactory,
+            Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob,
+            Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob,
+            EntitySyncRequestFactory entitySyncRequestFactory,
+            SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
+            Lazy<RecommendationsSyncer> lazyRecommendationSyncer,
+            EventBus eventBus) {
+        this.syncerRegistry = syncerRegistry;
+        this.singleJobRequestFactory = singleJobRequestFactory;
         this.syncIntentFactory = syncIntentFactory;
-        this.lazySyncTrackLikesJob =  lazySyncTrackLikesJob;
+        this.lazySyncTrackLikesJob = lazySyncTrackLikesJob;
         this.lazySyncPlaylistLikesJob = lazySyncPlaylistLikesJob;
         this.entitySyncRequestFactory = entitySyncRequestFactory;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.lazyRecommendationSyncer = lazyRecommendationSyncer;
-        this.stationsSyncRequestFactory = stationsSyncRequestFactory;
-        this.chartsSyncRequestFactory = chartsSyncRequestFactory;
         this.eventBus = eventBus;
     }
 
     SyncRequest create(Intent intent) {
-        if (intent.hasExtra(ApiSyncService.EXTRA_TYPE)) {
+        if (intent.hasExtra(ApiSyncService.EXTRA_SYNCABLE)) {
             return createRequest(intent);
         } else {
             return createLegacyRequest(intent);
@@ -62,16 +62,16 @@ class SyncRequestFactory {
     }
 
     private SyncRequest createRequest(Intent intent) {
-        final String type = intent.getStringExtra(ApiSyncService.EXTRA_TYPE);
-        switch (type) {
-            case StationsSyncInitiator.RECENT:
-            case StationsSyncInitiator.RECOMMENDATIONS:
-                return stationsSyncRequestFactory.create(intent.getAction(), getReceiverFromIntent(intent));
-            case ChartsSyncInitiator.TYPE:
-                return chartsSyncRequestFactory.create(intent.getAction(), getReceiverFromIntent(intent));
-            default:
-                throw new IllegalArgumentException("Unknown type. " + type);
-        }
+        final Syncable syncable = getSyncable(intent);
+        final SyncerRegistry.SyncData syncData = syncerRegistry.get(syncable);
+        return singleJobRequestFactory.create(syncData, getReceiverFromIntent(intent), getIsHighPriorityFromIntent(intent));
+    }
+
+    private Syncable getSyncable(Intent intent) {
+        checkArgument(intent.hasExtra(ApiSyncService.EXTRA_SYNCABLE), "Syncer must be present");
+        final Syncable syncable = (Syncable) intent.getSerializableExtra(ApiSyncService.EXTRA_SYNCABLE);
+
+        return checkNotNull(syncable, "Failed to deserialize syncable");
     }
 
     private SyncRequest createLegacyRequest(Intent intent) {
@@ -107,5 +107,10 @@ class SyncRequestFactory {
 
     private ResultReceiver getReceiverFromIntent(Intent intent) {
         return (ResultReceiver) intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
+    }
+
+    private boolean getIsHighPriorityFromIntent(Intent intent) {
+        // TODO, we should probably default to false when we get rid of LegacySyncInitiator, as it should always be set
+        return intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
     }
 }

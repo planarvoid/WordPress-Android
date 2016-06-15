@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +44,7 @@ public class RecommendedStationsSyncerTest {
         assertThat(syncer.call()).isTrue();
 
         verify(command).call(eq(metadata));
-        verify(syncStateStorage).synced(StationsSyncInitiator.RECOMMENDATIONS);
+        verify(syncStateStorage).synced(Syncable.RECOMMENDED_STATIONS);
     }
 
     @Test(expected = Exception.class)

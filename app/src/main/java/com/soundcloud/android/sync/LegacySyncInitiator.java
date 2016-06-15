@@ -280,10 +280,6 @@ public class LegacySyncInitiator {
                 .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrns)));
     }
 
-    protected Observable<SyncResult> requestSyncObservable(final String type, final String action) {
-        return requestSyncResultObservable(createIntent(action).putExtra(ApiSyncService.EXTRA_TYPE, type));
-    }
-
     private Observable<SyncResult> requestSyncResultObservable(final Intent intent) {
         return Observable
                 .create(new Observable.OnSubscribe<SyncResult>() {

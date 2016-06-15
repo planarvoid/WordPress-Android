@@ -10,7 +10,10 @@ import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMEND
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.Scheduler;
@@ -58,14 +61,14 @@ public class RecommendedStationsOperations {
     private final FeatureFlags featureFlags;
     private final Scheduler scheduler;
     private final SyncStateStorage syncStateStorage;
-    private final StationsSyncInitiator syncInitiator;
+    private final SyncInitiator syncInitiator;
 
     @Inject
     RecommendedStationsOperations(StationsStorage stationsStorage,
                                   FeatureFlags featureFlags,
                                   @Named(HIGH_PRIORITY) Scheduler scheduler,
                                   SyncStateStorage syncStateStorage,
-                                  StationsSyncInitiator syncInitiator) {
+                                  SyncInitiator syncInitiator) {
         this.stationsStorage = stationsStorage;
         this.featureFlags = featureFlags;
         this.scheduler = scheduler;
@@ -103,20 +106,24 @@ public class RecommendedStationsOperations {
     }
 
     private boolean hasSyncedBefore() {
-        return syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECOMMENDATIONS);
+        return syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS);
     }
 
     private boolean needsRefresh() {
-        return !syncStateStorage.hasSyncedWithin(StationsSyncInitiator.RECOMMENDATIONS, SYNC_THRESHOLD);
+        return !syncStateStorage.hasSyncedWithin(Syncable.RECOMMENDED_STATIONS, SYNC_THRESHOLD);
     }
 
     private Subscription refreshRecommendedStations() {
-        return fireAndForget(syncInitiator.syncRecommendedStations());
+        return fireAndForget(syncRecommendedStations());
     }
 
     private Observable<List<StationRecord>> stationsRefresh() {
-        return syncInitiator.syncRecommendedStations()
+        return syncRecommendedStations()
                 .flatMap(continueWith(getCollection(RECOMMENDATIONS)));
+    }
+
+    private Observable<SyncResult> syncRecommendedStations() {
+        return syncInitiator.sync(Syncable.RECOMMENDED_STATIONS);
     }
 
     private Observable<List<StationRecord>> getCollection(int collectionType) {

@@ -22,11 +22,11 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.stations.StationsSyncRequestFactory;
 import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.collections.Sets;
@@ -188,11 +188,10 @@ public class CollectionOperations {
     private static final Func1<SyncResult, Boolean> IS_RECENT_STATIONS_SYNC_EVENT = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
-            switch (syncResult.getAction()) {
-                case StationsSyncRequestFactory.Actions.SYNC_RECENT_STATIONS:
-                    return syncResult.wasChanged();
-                default:
-                    return false;
+            if (syncResult.getAction().equals(Syncable.RECENT_STATIONS.name())) {
+                return syncResult.wasChanged();
+            } else {
+                return false;
             }
         }
     };

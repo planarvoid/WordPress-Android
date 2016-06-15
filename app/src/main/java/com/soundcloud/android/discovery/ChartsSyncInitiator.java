@@ -3,8 +3,10 @@ package com.soundcloud.android.discovery;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import rx.Observable;
@@ -31,6 +33,7 @@ public class ChartsSyncInitiator extends LegacySyncInitiator {
         }
     };
 
+    private final SyncInitiator syncInitiator;
     private final SharedPreferences sharedPreferences;
     private final DateProvider dateProvider;
 
@@ -52,18 +55,20 @@ public class ChartsSyncInitiator extends LegacySyncInitiator {
 
     @Inject
     ChartsSyncInitiator(Context context,
+                        SyncInitiator syncInitiator,
                         AccountOperations accountOperations,
                         SyncStateManager syncStateManager,
                         @Named(StorageModule.CHARTS_SYNC) SharedPreferences sharedPreferences,
                         CurrentDateProvider dateProvider) {
         super(context, accountOperations, syncStateManager);
+        this.syncInitiator = syncInitiator;
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;
     }
 
     Observable<Boolean> syncCharts() {
         if (isChartsCacheExpired()) {
-            return requestSyncObservable(TYPE, ChartsSyncRequestFactory.Actions.SYNC_CHARTS)
+            return syncInitiator.sync(Syncable.CHARTS)
                     .doOnNext(setLastSyncTime)
                     .map(FROM_SYNC_RESULT);
         } else {

@@ -2,11 +2,12 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 
 import javax.inject.Inject;
 import java.util.concurrent.Callable;
 
-class RecommendedStationsSyncer implements Callable<Boolean> {
+public class RecommendedStationsSyncer implements Callable<Boolean> {
 
     private final SyncStateStorage syncStateStorage;
     private final StationsApi api;
@@ -26,7 +27,7 @@ class RecommendedStationsSyncer implements Callable<Boolean> {
         ModelCollection<ApiStationMetadata> collection = api.fetchStationRecommendations();
 
         if (writeCollectionsCommand.call(collection)) {
-            syncStateStorage.synced(StationsSyncInitiator.RECOMMENDATIONS);
+            syncStateStorage.synced(Syncable.RECOMMENDED_STATIONS);
             return true;
         } else {
             return false;

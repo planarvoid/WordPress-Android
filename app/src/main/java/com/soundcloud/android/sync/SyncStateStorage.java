@@ -43,6 +43,10 @@ public class SyncStateStorage {
         this.dateProvider = dateProvider;
     }
 
+    public boolean hasSyncedBefore(Syncable recentStations) {
+        return hasSyncedBefore(recentStations.name());
+    }
+
     void clear() {
         preferences.edit().clear().apply();
         propeller.delete(Collections);
@@ -66,8 +70,16 @@ public class SyncStateStorage {
         return propellerRx.query(query).map(scalar(Long.class)).defaultIfEmpty((long) Consts.NOT_SET);
     }
 
+    public void synced(Syncable syncable) {
+        preferences.edit().putLong(syncable.name(), dateProvider.getCurrentTime()).apply();
+    }
+
     public void synced(String entity) {
         preferences.edit().putLong(entity, dateProvider.getCurrentTime()).apply();
+    }
+
+    public boolean hasSyncedWithin(Syncable syncable, long timeInMs) {
+        return hasSyncedWithin(syncable.name(), timeInMs);
     }
 
     public boolean hasSyncedWithin(String entity, long timeInMs) {

@@ -11,8 +11,10 @@ import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +40,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     @Mock StationsStorage stationsStorage;
     @Mock FeatureFlags featureFlags;
     @Mock SyncStateStorage syncStateStorage;
-    @Mock StationsSyncInitiator syncInitiator;
+    @Mock SyncInitiator syncInitiator;
 
     private RecommendedStationsOperations operations;
     private Scheduler scheduler = Schedulers.immediate();
@@ -51,8 +53,8 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Observable.<StationRecord>empty());
         when(stationsStorage.getStationsCollection(RECENT)).thenReturn(just(RECENT_1, RECENT_2));
         syncer = PublishSubject.create();
-        when(syncInitiator.syncRecommendedStations()).thenReturn(syncer);
-        when(syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECOMMENDATIONS)).thenReturn(true);
+        when(syncInitiator.sync(Syncable.RECOMMENDED_STATIONS)).thenReturn(syncer);
+        when(syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS)).thenReturn(true);
 
         operations = new RecommendedStationsOperations(stationsStorage,
                 featureFlags, scheduler, syncStateStorage, syncInitiator);
@@ -62,7 +64,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     public void stationsBucketShouldSyncWhenContentOlderThan24Hours() throws Exception {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
-        when(syncStateStorage.hasSyncedWithin(StationsSyncInitiator.RECOMMENDATIONS, TimeUnit.DAYS.toMillis(1)))
+        when(syncStateStorage.hasSyncedWithin(Syncable.RECOMMENDED_STATIONS, TimeUnit.DAYS.toMillis(1)))
                 .thenReturn(false);
 
         operations.stationsBucket().subscribe();
@@ -74,7 +76,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     public void stationsBucketShouldNotSyncWhenContentNewerThan24Hours() throws Exception {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
-        when(syncStateStorage.hasSyncedWithin(StationsSyncInitiator.RECOMMENDATIONS, TimeUnit.DAYS.toMillis(1)))
+        when(syncStateStorage.hasSyncedWithin(Syncable.RECOMMENDED_STATIONS, TimeUnit.DAYS.toMillis(1)))
                 .thenReturn(true);
 
         operations.stationsBucket().subscribe();
@@ -102,7 +104,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadNewRecommendationsWhenNoStoredRecommendations() throws Exception {
-        when(syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECOMMENDATIONS)).thenReturn(false);
+        when(syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS)).thenReturn(false);
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
 

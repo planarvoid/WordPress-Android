@@ -9,8 +9,10 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.propeller.TxnResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +37,7 @@ public class StationsOperationsTest {
     @Mock StationsApi stationsApi;
     @Mock StoreTracksCommand storeTracksCommand;
     @Mock StoreStationCommand storeStationCommand;
-    @Mock StationsSyncInitiator syncInitiator;
+    @Mock SyncInitiator syncInitiator;
 
     private final Urn station = Urn.forTrackStation(123L);
     private StationsOperations operations;
@@ -152,9 +154,9 @@ public class StationsOperationsTest {
         final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         final PublishSubject<SyncResult> syncResults = PublishSubject.create();
 
-        when(syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECENT)).thenReturn(true);
+        when(syncStateStorage.hasSyncedBefore(Syncable.RECENT_STATIONS)).thenReturn(true);
         when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
-        when(syncInitiator.syncRecentStations()).thenReturn(syncResults);
+        when(syncInitiator.sync(Syncable.RECENT_STATIONS)).thenReturn(syncResults);
 
         operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
 
@@ -168,7 +170,7 @@ public class StationsOperationsTest {
         final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
         final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
-        when(syncInitiator.syncRecentStations()).thenReturn(syncResults);
+        when(syncInitiator.sync(Syncable.RECENT_STATIONS)).thenReturn(syncResults);
 
         operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
 

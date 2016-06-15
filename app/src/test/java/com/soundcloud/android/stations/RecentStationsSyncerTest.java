@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.WriteRecentStationsCollectionsCommand.SyncCollectionsMetadata;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class RecentStationsSyncerTest {
         assertThat(syncer.call()).isTrue();
 
         verify(command).call(eq(metadata));
-        verify(syncStateStorage).synced(StationsSyncInitiator.RECENT);
+        verify(syncStateStorage).synced(Syncable.RECENT_STATIONS);
     }
 
     @Test

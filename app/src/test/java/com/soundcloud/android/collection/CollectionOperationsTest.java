@@ -25,12 +25,12 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.stations.StationsSyncRequestFactory;
 import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncContent;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -383,7 +383,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(StationsSyncRequestFactory.Actions.SYNC_RECENT_STATIONS, true));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(Syncable.RECENT_STATIONS.name(), true));
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }
