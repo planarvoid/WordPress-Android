@@ -57,7 +57,6 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     @Mock private RecommendationsAdapter adapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
-    @Mock private RecommendationsTracker tracker;
 
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
     private View itemView;
@@ -66,7 +65,7 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     public void setUp() {
         final LayoutInflater layoutInflater = LayoutInflater.from(fragmentActivity());
         itemView = layoutInflater.inflate(R.layout.recommendation_item, new FrameLayout(context()), false);
-        renderer = new RecommendationRenderer(Screen.RECOMMENDATIONS_MAIN, imageOperations, trackItemMenuPresenter, playbackInitiator, expandPlayerSubscriberProvider, navigator, tracker);
+        renderer = new RecommendationRenderer(Screen.RECOMMENDATIONS_MAIN, imageOperations, trackItemMenuPresenter, playbackInitiator, expandPlayerSubscriberProvider, navigator);
         when(playbackInitiator.playTracks(anyListOf(Urn.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
     }
 

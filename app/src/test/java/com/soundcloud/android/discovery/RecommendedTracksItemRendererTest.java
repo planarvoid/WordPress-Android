@@ -53,7 +53,6 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
     @Mock private RecommendationRendererFactory recommendationRendererFactory;
-    @Mock private RecommendationsTracker tracker;
 
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
 
@@ -139,8 +138,7 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
                                                 playbackInitiator,
                                                 expandPlayerSubscriberProvider,
                                                 recommendationRendererFactory,
-                                                navigator,
-                                                tracker);
+                                                navigator);
     }
 
     private RecommendationBucketRenderer createDefaultRenderer() {
@@ -148,8 +146,7 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
                                                 playbackInitiator,
                                                 expandPlayerSubscriberProvider,
                                                 recommendationRendererFactory,
-                                                navigator,
-                                                tracker);
+                                                navigator);
     }
 
     private View createItemView(RecommendationBucketRenderer renderer) {

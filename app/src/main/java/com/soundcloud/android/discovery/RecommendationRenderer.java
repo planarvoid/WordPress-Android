@@ -42,22 +42,19 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final Navigator navigator;
-    private final RecommendationsTracker tracker;
 
     public RecommendationRenderer(Screen trackingScreen,
                                   @Provided ImageOperations imageOperations,
                                   @Provided TrackItemMenuPresenter trackItemMenuPresenter,
                                   @Provided PlaybackInitiator playbackInitiator,
                                   @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                                  @Provided Navigator navigator,
-                                  @Provided RecommendationsTracker tracker) {
+                                  @Provided Navigator navigator) {
         this.trackingScreen = trackingScreen;
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.navigator = navigator;
-        this.tracker = tracker;
     }
 
     @Override
@@ -104,15 +101,13 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     }
 
     private void setOnClickListener(final int position, View view, final List<Recommendation> recommendations,
-                                    final Recommendation viewModel) {
+                                    final Recommendation recommendation) {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tracker.trackRecommendationClick(trackingScreen, viewModel.getTrackUrn(), viewModel.getQueryUrn());
-
                 final PlaySessionSource playSessionSource = PlaySessionSource.forRecommendations(trackingScreen,
-                        viewModel.getQueryPosition(), viewModel.getQueryUrn());
-                final List<Urn> playQueue = buildPlayQueue(viewModel.getSeedUrn(), recommendations);
+                        recommendation.getQueryPosition(), recommendation.getQueryUrn());
+                final List<Urn> playQueue = buildPlayQueue(recommendation.getSeedUrn(), recommendations);
                 final int playPosition = position + NUM_SEED_TRACKS;
 
                 playbackInitiator

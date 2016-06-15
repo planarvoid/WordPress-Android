@@ -36,7 +36,7 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Mode
             public void steps(PropellerDatabase propeller) {
                 //For tracking we need to keep both query_urn and query_position.
                 //https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/personalized-recommender-tracking.md
-                long queryPosition = 1;
+                long queryPosition = 0;
                 final Urn queryUrn = recommendations.getQueryUrn().or(Urn.NOT_SET);
 
                 for (ApiRecommendation apiRecommendation : recommendations) {

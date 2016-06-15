@@ -1,7 +1,5 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.discovery.RecommendationsTracker.discoveryScreen;
-import static com.soundcloud.android.discovery.RecommendationsTracker.recommendationsScreen;
 import static com.soundcloud.java.collections.Iterables.concat;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
@@ -45,22 +43,19 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksItem
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final Navigator navigator;
-    private final RecommendationsTracker tracker;
 
     RecommendationBucketRenderer(
             boolean isViewAllBucket,
             @Provided PlaybackInitiator playbackInitiator,
             @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
             @Provided RecommendationRendererFactory rendererFactory,
-            @Provided Navigator navigator,
-            @Provided RecommendationsTracker tracker) {
+            @Provided Navigator navigator) {
         this.isViewAllBucket = isViewAllBucket;
-        this.trackingScreen = isViewAllBucket ? discoveryScreen() : recommendationsScreen();
+        this.trackingScreen = isViewAllBucket ? Screen.SEARCH_MAIN : Screen.RECOMMENDATIONS_MAIN;
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.navigator = navigator;
         this.rendererFactory = rendererFactory;
-        this.tracker = tracker;
     }
 
     @Override
@@ -153,8 +148,6 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksItem
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tracker.trackSeedTrackClick(trackingScreen,  bucket.getSeedTrackUrn(), bucket.getQueryUrn());
-
                 final PlaySessionSource playSessionSource = PlaySessionSource.forRecommendations(trackingScreen,
                         bucket.getSeedTrackQueryPosition(), bucket.getQueryUrn());
                 final List<Urn> playQueue = toPlayQueue(bucket.getSeedTrackUrn(), bucket.getRecommendations());

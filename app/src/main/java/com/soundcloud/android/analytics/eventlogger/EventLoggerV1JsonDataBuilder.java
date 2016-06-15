@@ -21,7 +21,6 @@ import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.RecommendationsEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -84,14 +83,6 @@ public class EventLoggerV1JsonDataBuilder {
             default:
                 throw new IllegalStateException("Unexpected ad delivery type: " + event);
         }
-    }
-
-    public String buildForRecommendations(RecommendationsEvent eventData) {
-        return transform(buildBaseEvent(CLICK_EVENT, eventData)
-                .pageName(eventData.get(RecommendationsEvent.KEY_PAGE_NAME))
-                .clickName(eventData.get(RecommendationsEvent.KEY_CLICK_NAME))
-                .clickObject(eventData.get(RecommendationsEvent.KEY_CLICK_OBJECT))
-                .queryUrn(eventData.get(RecommendationsEvent.KEY_QUERY_URN)));
     }
 
     private EventLoggerEventData buildBaseAdDeliveryEvent(AdDeliveryEvent eventData) {
