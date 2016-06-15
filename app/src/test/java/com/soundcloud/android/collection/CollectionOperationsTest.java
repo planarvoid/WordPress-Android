@@ -27,8 +27,8 @@ import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncActions;
-import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.LegacySyncContent;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -98,10 +98,10 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MyLikes.content.uri)).thenReturn(Observable.just(true));
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(true));
+        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)).thenReturn(Observable.just(true));
+        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
-        when(stationsOperations.sync()).thenReturn(Observable.just(SyncResult.success("stations sync", true)));
+        when(stationsOperations.sync()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
         when(playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT)).thenReturn(Observable.just(PLAY_HISTORY));
         when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
         postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
@@ -331,8 +331,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(syncInitiator.refreshLikes()).thenReturn(subject);
         when(syncInitiator.refreshMyPlaylists()).thenReturn(subject);
 
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MyLikes.content.uri)).thenReturn(Observable.just(false));
-        when(syncStateStorage.hasSyncedBefore(SyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(false));
+        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)).thenReturn(Observable.just(false));
+        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(false));
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
         operations.collections(options).subscribe(subscriber);
@@ -383,7 +383,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(Syncable.RECENT_STATIONS.name(), true));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.RECENT_STATIONS.name(), true));
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }
@@ -393,7 +393,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLISTS, false));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_PLAYLISTS, false));
 
         subscriber.assertNoValues();
     }

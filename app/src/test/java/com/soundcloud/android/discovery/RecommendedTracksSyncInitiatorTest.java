@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.TestDateProvider;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class RecommendedTracksSyncInitiatorTest extends AndroidUnitTest {
     @Test
     public void syncRecommendationsOnlyIfCacheIsExpired() {
         dateProvider.setTime((long) 3, TimeUnit.DAYS);
-        when(syncInitiator.syncRecommendedTracks()).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_RECOMMENDED_TRACKS, true)));
+        when(syncInitiator.syncRecommendedTracks()).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_RECOMMENDED_TRACKS, true)));
 
         assertResult(recommendedTracksSyncInitiator.sync(), Collections.singletonList(true));
 
@@ -60,7 +60,7 @@ public class RecommendedTracksSyncInitiatorTest extends AndroidUnitTest {
     public void gracefullyRecoversIfSyncFails() {
         dateProvider.setTime((long) 1, TimeUnit.DAYS);
 
-        when(syncInitiator.syncRecommendedTracks()).thenReturn(Observable.<SyncResult>error(new RuntimeException("expected")));
+        when(syncInitiator.syncRecommendedTracks()).thenReturn(Observable.<SyncJobResult>error(new RuntimeException("expected")));
 
         assertResult(recommendedTracksSyncInitiator.sync(), Collections.singletonList(false));
     }

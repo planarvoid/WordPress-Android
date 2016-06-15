@@ -53,7 +53,7 @@ public class SyncStateStorage {
     }
 
     public Observable<Boolean> hasSyncedMyPostsBefore() {
-        return hasSyncedBefore(SyncContent.MySounds.contentUri());
+        return hasSyncedBefore(LegacySyncContent.MySounds.contentUri());
     }
 
     public Observable<Boolean> hasSyncedBefore(Uri uri) {

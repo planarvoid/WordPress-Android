@@ -38,7 +38,7 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
 
     private LegacySyncInitiator initiator;
     private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<>();
-    private TestObserver<SyncResult> syncSubscriber = new TestObserver<>();
+    private TestObserver<SyncJobResult> syncSubscriber = new TestObserver<>();
 
     @Mock private AccountOperations accountOperations;
     @Mock private ResultReceiver resultReceiver;
@@ -68,22 +68,22 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateIntentForSyncingNewTimelineContent() {
-        initiator.syncNewTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
+        initiator.syncNewTimelineItems(LegacySyncContent.MySoundStream).subscribe(legacySyncSubscriber);
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isSameAs(SyncContent.MySoundStream.contentUri());
+        assertThat(intent.getData()).isSameAs(LegacySyncContent.MySoundStream.contentUri());
         assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
     }
 
     @Test
     public void shouldCreateIntentForRefreshingTimelineContent() {
-        initiator.refreshTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
+        initiator.refreshTimelineItems(LegacySyncContent.MySoundStream).subscribe(legacySyncSubscriber);
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isEqualTo(SyncContent.MySoundStream.contentUri());
+        assertThat(intent.getData()).isEqualTo(LegacySyncContent.MySoundStream.contentUri());
         assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_HARD_REFRESH);
         assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
@@ -91,19 +91,19 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
 
     @Test
     public void shouldResetTimelineSyncMissesOnChangedSync() {
-        initiator.refreshTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
-        final Uri uri = SyncContent.MySoundStream.contentUri();
+        initiator.refreshTimelineItems(LegacySyncContent.MySoundStream).subscribe(legacySyncSubscriber);
+        final Uri uri = LegacySyncContent.MySoundStream.contentUri();
         sendSyncChangedLegacyToUri(uri);
         verify(syncStateManager).resetSyncMissesAsync(uri);
     }
 
     @Test
     public void shouldCreateIntentForSyncingOlderActivityItems() {
-        initiator.backfillTimelineItems(SyncContent.MySoundStream).subscribe(legacySyncSubscriber);
+        initiator.backfillTimelineItems(LegacySyncContent.MySoundStream).subscribe(legacySyncSubscriber);
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isSameAs(SyncContent.MySoundStream.contentUri());
+        assertThat(intent.getData()).isSameAs(LegacySyncContent.MySoundStream.contentUri());
         assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_APPEND);
         assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
@@ -155,7 +155,7 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
         resultData.putBoolean(Content.ME_PLAYLISTS.uri.toString(), true);
         resultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
 
-        assertThat(syncSubscriber.getOnNextEvents()).containsExactly(SyncResult.success(SyncActions.SYNC_PLAYLIST, true));
+        assertThat(syncSubscriber.getOnNextEvents()).containsExactly(SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true));
     }
 
     @Test
@@ -245,8 +245,8 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_HARD_REFRESH);
-        assertThat(intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS)).isEqualTo(Arrays.asList(SyncContent.MyLikes.content.uri,
-                SyncContent.MyPlaylists.content.uri));
+        assertThat(intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS)).isEqualTo(Arrays.asList(LegacySyncContent.MyLikes.content.uri,
+                LegacySyncContent.MyPlaylists.content.uri));
     }
 
     @Test
@@ -277,7 +277,7 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         final ResultReceiver resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
         final Bundle resultData = new Bundle();
-        resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, SyncResult.success("action", true));
+        resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, SyncJobResult.success("action", true));
         resultReceiver.send(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
     }
 }

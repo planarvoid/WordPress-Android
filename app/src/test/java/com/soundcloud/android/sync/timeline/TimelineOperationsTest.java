@@ -11,7 +11,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.Timestamped;
 import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.SyncContent;
+import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -34,7 +34,7 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
 
     protected static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
     protected static final long FIRST_ITEM_TIMESTAMP = 1000L;
-    protected SyncContent syncContent;
+    protected LegacySyncContent syncContent;
     protected TimelineOperations<ItemT> operations;
 
     @Mock protected LegacySyncInitiator syncInitiator;
@@ -58,7 +58,7 @@ public abstract class TimelineOperationsTest<ItemT extends Timestamped, StorageT
 
     protected abstract StorageT provideStorageMock();
 
-    protected abstract SyncContent provideSyncContent();
+    protected abstract LegacySyncContent provideSyncContent();
 
     @Test
     public void shouldLoadFirstPageOfItemsFromLocalStorage() {

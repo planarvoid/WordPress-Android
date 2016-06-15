@@ -15,7 +15,7 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -207,10 +207,10 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
-    private Func1<TxnResult, Observable<SyncResult>> syncPlaylists(final List<Urn> playlistUrns) {
-        return new Func1<TxnResult, Observable<SyncResult>>() {
+    private Func1<TxnResult, Observable<SyncJobResult>> syncPlaylists(final List<Urn> playlistUrns) {
+        return new Func1<TxnResult, Observable<SyncJobResult>>() {
             @Override
-            public Observable<SyncResult> call(TxnResult changeResult) {
+            public Observable<SyncJobResult> call(TxnResult changeResult) {
                 return syncInitiator.syncPlaylists(playlistUrns);
             }
         };

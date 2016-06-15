@@ -23,8 +23,8 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.LegacySyncContent;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
@@ -185,11 +185,11 @@ public class CollectionOperations {
             };
 
 
-    private static final Func1<SyncResult, Boolean> IS_RECENT_STATIONS_SYNC_EVENT = new Func1<SyncResult, Boolean>() {
+    private static final Func1<SyncJobResult, Boolean> IS_RECENT_STATIONS_SYNC_EVENT = new Func1<SyncJobResult, Boolean>() {
         @Override
-        public Boolean call(SyncResult syncResult) {
-            if (syncResult.getAction().equals(Syncable.RECENT_STATIONS.name())) {
-                return syncResult.wasChanged();
+        public Boolean call(SyncJobResult syncJobResult) {
+            if (syncJobResult.getAction().equals(Syncable.RECENT_STATIONS.name())) {
+                return syncJobResult.wasChanged();
             } else {
                 return false;
             }
@@ -278,7 +278,7 @@ public class CollectionOperations {
 
     private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
         return syncStateStorage
-                .hasSyncedBefore(SyncContent.MyPlaylists.content.uri)
+                .hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)
                 .flatMap(new Func1<Boolean, Observable<List<PlaylistItem>>>() {
                     @Override
                     public Observable<List<PlaylistItem>> call(Boolean hasSynced) {
@@ -315,7 +315,7 @@ public class CollectionOperations {
 
     private Observable<List<LikedTrackPreview>> tracksLiked() {
         return syncStateStorage
-                .hasSyncedBefore(SyncContent.MyLikes.content.uri)
+                .hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)
                 .flatMap(new Func1<Boolean, Observable<List<LikedTrackPreview>>>() {
                     @Override
                     public Observable<List<LikedTrackPreview>> call(Boolean hasSynced) {

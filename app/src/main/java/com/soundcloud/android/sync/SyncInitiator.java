@@ -24,13 +24,13 @@ public class SyncInitiator {
         this.accountOperations = accountOperations;
     }
 
-    public Observable<SyncResult> sync(Syncable syncId) {
+    public Observable<SyncJobResult> sync(Syncable syncId) {
         final Intent intent = createIntent(syncId);
 
         return Observable
-                .create(new Observable.OnSubscribe<SyncResult>() {
+                .create(new Observable.OnSubscribe<SyncJobResult>() {
                     @Override
-                    public void call(Subscriber<? super SyncResult> subscriber) {
+                    public void call(Subscriber<? super SyncJobResult> subscriber) {
                         final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
                         context.startService(intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiverAdapter));
                     }

@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.propeller.TxnResult;
@@ -152,7 +152,7 @@ public class StationsOperationsTest {
     public void collectionShouldReturnFromStorageWhenSyncedBefore() {
         final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
         final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
-        final PublishSubject<SyncResult> syncResults = PublishSubject.create();
+        final PublishSubject<SyncJobResult> syncResults = PublishSubject.create();
 
         when(syncStateStorage.hasSyncedBefore(Syncable.RECENT_STATIONS)).thenReturn(true);
         when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
@@ -166,7 +166,7 @@ public class StationsOperationsTest {
 
     @Test
     public void collectionShouldTriggerSyncerWhenNotSyncedBefore() {
-        final PublishSubject<SyncResult> syncResults = PublishSubject.create();
+        final PublishSubject<SyncJobResult> syncResults = PublishSubject.create();
         final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
         final TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
         when(stationsStorage.getStationsCollection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(station));
@@ -175,7 +175,7 @@ public class StationsOperationsTest {
         operations.collection(StationsCollectionsTypes.RECENT).subscribe(subscriber);
 
         subscriber.assertNoValues();
-        syncResults.onNext(SyncResult.success("action", true));
+        syncResults.onNext(SyncJobResult.success("action", true));
         syncResults.onCompleted();
         subscriber.assertValue(station);
         subscriber.assertCompleted();

@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -44,9 +44,9 @@ public class StationsController {
         }
     };
 
-    private final Func1<CurrentUserChangedEvent, Observable<SyncResult>> syncStations = new Func1<CurrentUserChangedEvent, Observable<SyncResult>>() {
+    private final Func1<CurrentUserChangedEvent, Observable<SyncJobResult>> syncStations = new Func1<CurrentUserChangedEvent, Observable<SyncJobResult>>() {
         @Override
-        public Observable<SyncResult> call(CurrentUserChangedEvent currentUserChangedEvent) {
+        public Observable<SyncJobResult> call(CurrentUserChangedEvent currentUserChangedEvent) {
             return operations.sync();
         }
     };
@@ -85,7 +85,7 @@ public class StationsController {
         eventBus.queue(EventQueue.CURRENT_USER_CHANGED)
                 .filter(IS_LOGGED_IN)
                 .flatMap(syncStations)
-                .subscribe(new DefaultSubscriber<SyncResult>());
+                .subscribe(new DefaultSubscriber<SyncJobResult>());
     }
 
     private void saveRecentStation() {

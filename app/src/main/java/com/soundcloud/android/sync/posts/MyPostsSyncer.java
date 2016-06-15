@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.posts;
 
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.SyncStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,8 +24,8 @@ public class MyPostsSyncer implements SyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         return trackPostsSyncer.call() || playlistPostsSyncer.call() ?
-                ApiSyncResult.fromSuccessfulChange(uri) : ApiSyncResult.fromSuccessWithoutChange(uri);
+                LegacySyncResult.fromSuccessfulChange(uri) : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 }

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,8 +37,8 @@ public class MyLikesSyncerTest {
     public void returnsChangeResultIfTrackSyncChangedButPlaylistSyncDidNot() throws Exception {
         when(trackLikesSyncer.call()).thenReturn(true);
 
-        ApiSyncResult result = myLikesSyncer.syncContent(URI, null);
-        assertThat(result.change).isEqualTo(ApiSyncResult.CHANGED);
+        LegacySyncResult result = myLikesSyncer.syncContent(URI, null);
+        assertThat(result.change).isEqualTo(LegacySyncResult.CHANGED);
         assertThat(result.uri).isEqualTo(URI);
     }
 
@@ -46,15 +46,15 @@ public class MyLikesSyncerTest {
     public void returnsChangeResultIfPlaylistSyncChangedButTrackSyncDidNot() throws Exception {
         when(playlistLikesSyncer.call()).thenReturn(true);
 
-        ApiSyncResult result = myLikesSyncer.syncContent(URI, null);
-        assertThat(result.change).isEqualTo(ApiSyncResult.CHANGED);
+        LegacySyncResult result = myLikesSyncer.syncContent(URI, null);
+        assertThat(result.change).isEqualTo(LegacySyncResult.CHANGED);
         assertThat(result.uri).isEqualTo(URI);
     }
 
     @Test
     public void returnsUnchangedResultIfPlaylistsAndTracksDidNotChange() throws Exception {
-        ApiSyncResult result = myLikesSyncer.syncContent(URI, null);
-        assertThat(result.change).isEqualTo(ApiSyncResult.UNCHANGED);
+        LegacySyncResult result = myLikesSyncer.syncContent(URI, null);
+        assertThat(result.change).isEqualTo(LegacySyncResult.UNCHANGED);
         assertThat(result.uri).isEqualTo(URI);
     }
 

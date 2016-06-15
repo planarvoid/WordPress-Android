@@ -7,7 +7,8 @@ import android.os.Bundle;
 
 import java.util.EnumSet;
 
-public enum SyncContent {
+@Deprecated
+public enum LegacySyncContent {
 
     MySoundStream (Content.ME_SOUND_STREAM, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
     MyActivities  (Content.ME_ACTIVITIES, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
@@ -16,13 +17,13 @@ public enum SyncContent {
     MyLikes     (Content.ME_LIKES,      SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
     MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS);
 
-    SyncContent(Content content, long syncDelay, int[] backoffMultipliers) {
+    LegacySyncContent(Content content, long syncDelay, int[] backoffMultipliers) {
         this.content = content;
         this.syncDelay = syncDelay;
         this.backoffMultipliers = backoffMultipliers;
     }
 
-    public static EnumSet<SyncContent> NON_ACTIVITIES = EnumSet.complementOf(EnumSet.of(MySoundStream, MyActivities));
+    public static EnumSet<LegacySyncContent> NON_ACTIVITIES = EnumSet.complementOf(EnumSet.of(MySoundStream, MyActivities));
 
     public final Content content;
     public final long syncDelay;
@@ -38,7 +39,7 @@ public enum SyncContent {
     }
 
     public static void updateCollections(SyncStateManager stateManager, Bundle resultData) {
-        for (SyncContent sc : SyncContent.values()) {
+        for (LegacySyncContent sc : LegacySyncContent.values()) {
             final String contentUri = sc.content.uri.toString();
             if (resultData.containsKey(contentUri)) {
                 if (resultData.getBoolean(contentUri)) {

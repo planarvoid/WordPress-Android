@@ -4,7 +4,7 @@ import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.activ
 import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.sync.SyncContent;
+import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
@@ -33,8 +33,8 @@ public class ActivitiesOperationsTest extends TimelineOperationsTest<ActivityIte
     }
 
     @Override
-    protected SyncContent provideSyncContent() {
-        return SyncContent.MyActivities;
+    protected LegacySyncContent provideSyncContent() {
+        return LegacySyncContent.MyActivities;
     }
 
     @Override

@@ -20,7 +20,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
@@ -175,7 +175,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         List<Urn> playlists = singletonList(playlistUrn);
         when(offlineContentStorage.storeAsOfflinePlaylists(playlists)).thenReturn(Observable.just(txnResult));
-        when(syncInitiator.syncPlaylists(playlists)).thenReturn(Observable.just(SyncResult.success("blah", true)));
+        when(syncInitiator.syncPlaylists(playlists)).thenReturn(Observable.just(SyncJobResult.success("blah", true)));
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe(subscriber);
 

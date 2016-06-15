@@ -21,7 +21,7 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
-import com.soundcloud.android.sync.SyncContent;
+import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
@@ -145,7 +145,7 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
                           FacebookInvitesOperations facebookInvites,
                           StationsOperations stationsOperations, UpsellOperations upsellOperations,
                           SyncStateStorage syncStateStorage) {
-        super(SyncContent.MySoundStream, soundStreamStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
+        super(LegacySyncContent.MySoundStream, soundStreamStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
         this.soundStreamStorage = soundStreamStorage;
         this.removeStalePromotedItemsCommand = removeStalePromotedItemsCommand;
         this.markPromotedItemAsStaleCommand = markPromotedItemAsStaleCommand;

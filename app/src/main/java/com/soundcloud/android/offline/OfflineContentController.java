@@ -10,7 +10,7 @@ import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.events.UrnEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -132,8 +132,8 @@ public class OfflineContentController {
 
     private Observable<Object> playlistSynced() {
         return eventBus.queue(EventQueue.SYNC_RESULT)
-                .filter(SyncResult.IS_SINGLE_PLAYLIST_SYNCED_FILTER)
-                .map(SyncResult.TO_URN)
+                .filter(SyncJobResult.IS_SINGLE_PLAYLIST_SYNCED_FILTER)
+                .map(SyncJobResult.TO_URN)
                 .flatMap(isOfflinePlaylist)
                 .filter(RxUtils.IS_TRUE)
                 .cast(Object.class);

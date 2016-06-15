@@ -41,10 +41,10 @@ public class LegacySyncInitiator {
     private final AccountOperations accountOperations;
     private final SyncStateManager syncStateManager;
 
-    private static final Func1<Boolean, SyncResult> LEGACY_RESULT_TO_SYNC_RESULT = new Func1<Boolean, SyncResult>() {
+    private static final Func1<Boolean, SyncJobResult> LEGACY_RESULT_TO_SYNC_RESULT = new Func1<Boolean, SyncJobResult>() {
         @Override
-        public SyncResult call(Boolean resultedInChange) {
-            return SyncResult.success(SyncActions.SYNC_PLAYLIST, resultedInChange);
+        public SyncJobResult call(Boolean resultedInChange) {
+            return SyncJobResult.success(SyncActions.SYNC_PLAYLIST, resultedInChange);
         }
     };
 
@@ -82,19 +82,19 @@ public class LegacySyncInitiator {
         }
     }
 
-    public Observable<Boolean> syncNewTimelineItems(SyncContent syncContent) {
+    public Observable<Boolean> syncNewTimelineItems(LegacySyncContent syncContent) {
         return explicitSync(syncContent, null);
     }
 
-    public Observable<Boolean> refreshTimelineItems(SyncContent syncContent) {
+    public Observable<Boolean> refreshTimelineItems(LegacySyncContent syncContent) {
         return explicitSync(syncContent, ApiSyncService.ACTION_HARD_REFRESH);
     }
 
-    public Observable<Boolean> backfillTimelineItems(SyncContent syncContent) {
+    public Observable<Boolean> backfillTimelineItems(LegacySyncContent syncContent) {
         return backfillSync(syncContent);
     }
 
-    private Observable<Boolean> explicitSync(SyncContent syncContent, @Nullable final String syncAction) {
+    private Observable<Boolean> explicitSync(LegacySyncContent syncContent, @Nullable final String syncAction) {
         final Uri contentUri = syncContent.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
@@ -115,7 +115,7 @@ public class LegacySyncInitiator {
      * This is a sync that will retrieve N more sound stream items /older/ than the oldest locally
      * available item. Used to lazily pull in more items when paging in the stream reverse chronologically.
      */
-    private Observable<Boolean> backfillSync(final SyncContent syncContent) {
+    private Observable<Boolean> backfillSync(final LegacySyncContent syncContent) {
         final Uri contentUri = syncContent.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
@@ -130,14 +130,14 @@ public class LegacySyncInitiator {
         });
     }
 
-    public Observable<SyncResult> syncRecommendedTracks() {
+    public Observable<SyncJobResult> syncRecommendedTracks() {
         return legacyRequestSyncObservable(SyncActions.SYNC_RECOMMENDED_TRACKS);
     }
 
-    public Observable<SyncResult> syncUser(final Urn userUrn) {
-        return Observable.create(new Observable.OnSubscribe<SyncResult>() {
+    public Observable<SyncJobResult> syncUser(final Urn userUrn) {
+        return Observable.create(new Observable.OnSubscribe<SyncJobResult>() {
             @Override
-            public void call(Subscriber<? super SyncResult> subscriber) {
+            public void call(Subscriber<? super SyncJobResult> subscriber) {
                 ResultReceiverAdapter resultReceiver = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
                 context.startService(new Intent(context, ApiSyncService.class)
                         .setAction(SyncActions.SYNC_USERS)
@@ -149,7 +149,7 @@ public class LegacySyncInitiator {
     }
 
     public Observable<Boolean> refreshFollowings() {
-        final Uri uri = SyncContent.MyFollowings.content.uri;
+        final Uri uri = LegacySyncContent.MyFollowings.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
@@ -161,7 +161,7 @@ public class LegacySyncInitiator {
     }
 
     public Observable<Boolean> refreshPosts() {
-        final Uri uri = SyncContent.MySounds.content.uri;
+        final Uri uri = LegacySyncContent.MySounds.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
@@ -173,7 +173,7 @@ public class LegacySyncInitiator {
     }
 
     public Observable<Boolean> refreshLikes() {
-        final Uri uri = SyncContent.MyLikes.content.uri;
+        final Uri uri = LegacySyncContent.MyLikes.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
@@ -185,8 +185,8 @@ public class LegacySyncInitiator {
     }
 
     public Observable<Boolean> refreshCollections() {
-        final Uri[] collectionUris = {SyncContent.MyLikes.content.uri,
-                SyncContent.MyPlaylists.content.uri};
+        final Uri[] collectionUris = {LegacySyncContent.MyLikes.content.uri,
+                LegacySyncContent.MyPlaylists.content.uri};
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
@@ -198,7 +198,7 @@ public class LegacySyncInitiator {
     }
 
     public Observable<Boolean> refreshMyPlaylists() {
-        final Uri uri = SyncContent.MyPlaylists.content.uri;
+        final Uri uri = LegacySyncContent.MyPlaylists.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
@@ -234,8 +234,8 @@ public class LegacySyncInitiator {
     }
 
     private void requestCollectionsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
-        ArrayList<Uri> urisToSync = new ArrayList<>(Arrays.asList(SyncContent.MyLikes.content.uri,
-                SyncContent.MyPlaylists.content.uri));
+        ArrayList<Uri> urisToSync = new ArrayList<>(Arrays.asList(LegacySyncContent.MyLikes.content.uri,
+                LegacySyncContent.MyPlaylists.content.uri));
 
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(action)
@@ -252,14 +252,14 @@ public class LegacySyncInitiator {
                 .setData(Content.ME_PLAYLISTS.uri));
     }
 
-    public Observable<SyncResult> syncTrackLikes() {
+    public Observable<SyncJobResult> syncTrackLikes() {
         return legacyRequestSyncObservable(SyncActions.SYNC_TRACK_LIKES)
-                .doOnNext(resetSyncMisses(SyncContent.MyLikes.content.uri));
+                .doOnNext(resetSyncMisses(LegacySyncContent.MyLikes.content.uri));
     }
 
-    public Observable<SyncResult> syncPlaylistLikes() {
+    public Observable<SyncJobResult> syncPlaylistLikes() {
         return legacyRequestSyncObservable(SyncActions.SYNC_PLAYLIST_LIKES)
-                .doOnNext(resetSyncMisses(SyncContent.MyLikes.content.uri));
+                .doOnNext(resetSyncMisses(LegacySyncContent.MyLikes.content.uri));
     }
 
     public void requestTracksSync(List<PropertySet> tracks) {
@@ -274,17 +274,17 @@ public class LegacySyncInitiator {
                 .putParcelableArrayListExtra(SyncExtras.URNS, PropertySets.extractUrns(playlists)));
     }
 
-    public Observable<SyncResult> syncUsers(final List<Urn> userUrns) {
+    public Observable<SyncJobResult> syncUsers(final List<Urn> userUrns) {
         return requestSyncResultObservable(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_USERS)
                 .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrns)));
     }
 
-    private Observable<SyncResult> requestSyncResultObservable(final Intent intent) {
+    private Observable<SyncJobResult> requestSyncResultObservable(final Intent intent) {
         return Observable
-                .create(new Observable.OnSubscribe<SyncResult>() {
+                .create(new Observable.OnSubscribe<SyncJobResult>() {
                     @Override
-                    public void call(Subscriber<? super SyncResult> subscriber) {
+                    public void call(Subscriber<? super SyncJobResult> subscriber) {
                         final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
                         context.startService(intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiverAdapter));
                     }
@@ -300,12 +300,12 @@ public class LegacySyncInitiator {
     }
 
     @Deprecated
-    private Observable<SyncResult> legacyRequestSyncObservable(final String action) {
+    private Observable<SyncJobResult> legacyRequestSyncObservable(final String action) {
         return requestSyncResultObservable(createIntent(action));
     }
 
     @Deprecated
-    private Observable<SyncResult> legacyRequestSyncObservable(final String action, final Urn urn) {
+    private Observable<SyncJobResult> legacyRequestSyncObservable(final String action, final Urn urn) {
         return requestSyncResultObservable(createIntent(action, urn));
     }
 
@@ -319,18 +319,18 @@ public class LegacySyncInitiator {
                 .setData(Content.ME_PLAYLISTS.uri);
     }
 
-    public Observable<SyncResult> syncPlaylists(final Collection<Urn> playlists) {
+    public Observable<SyncJobResult> syncPlaylists(final Collection<Urn> playlists) {
         return Observable
                 .from(playlists)
-                .flatMap(new Func1<Urn, Observable<SyncResult>>() {
+                .flatMap(new Func1<Urn, Observable<SyncJobResult>>() {
                     @Override
-                    public Observable<SyncResult> call(Urn playlistUrn) {
+                    public Observable<SyncJobResult> call(Urn playlistUrn) {
                         return syncPlaylist(playlistUrn);
                     }
                 });
     }
 
-    public Observable<SyncResult> syncPlaylist(final Urn playlistUrn) {
+    public Observable<SyncJobResult> syncPlaylist(final Urn playlistUrn) {
         if (playlistUrn.getNumericId() < 0) {
             return Observable.create(new Observable.OnSubscribe<Boolean>() {
                 @Override
@@ -373,10 +373,10 @@ public class LegacySyncInitiator {
         };
     }
 
-    private Action1<SyncResult> resetSyncMisses(final Uri uri) {
-        return new Action1<SyncResult>() {
+    private Action1<SyncJobResult> resetSyncMisses(final Uri uri) {
+        return new Action1<SyncJobResult>() {
             @Override
-            public void call(SyncResult result) {
+            public void call(SyncJobResult result) {
                 if (result.wasChanged()) {
                     fireAndForget(syncStateManager.resetSyncMissesAsync(uri));
                 }

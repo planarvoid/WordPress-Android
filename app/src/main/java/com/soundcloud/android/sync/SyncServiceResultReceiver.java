@@ -51,7 +51,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
             }
 
             case ApiSyncService.STATUS_SYNC_FINISHED: {
-                SyncContent.updateCollections(syncStateManager, resultData);
+                LegacySyncContent.updateCollections(syncStateManager, resultData);
                 break;
             }
         }

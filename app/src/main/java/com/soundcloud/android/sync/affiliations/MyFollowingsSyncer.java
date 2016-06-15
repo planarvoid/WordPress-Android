@@ -17,7 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.LegacySyncStrategy;
 import com.soundcloud.android.users.UserAssociationProperty;
@@ -76,10 +76,10 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws IOException {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws IOException {
         if (!isLoggedIn()) {
             Log.w(TAG, "Invalid user id, skipping sync ");
-            return new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
+            return new LegacySyncResult(Content.ME_FOLLOWINGS.uri);
 
         } else if (action != null && action.equals(ApiSyncService.ACTION_PUSH)) {
             return pushUserAssociations();
@@ -88,8 +88,8 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         }
     }
 
-    private ApiSyncResult syncLocalToRemote() throws IOException {
-        ApiSyncResult result = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
+    private LegacySyncResult syncLocalToRemote() throws IOException {
+        LegacySyncResult result = new LegacySyncResult(Content.ME_FOLLOWINGS.uri);
 
         Set<Long> local = userAssociationStorage.loadFollowedUserIds();
         List<Long> followedUserIds = api.readFullCollection(Request.to(Endpoints.MY_FOLLOWINGS + "/ids"), IdHolder.class);
@@ -250,19 +250,19 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         }
     }
 
-    private boolean checkUnchanged(ApiSyncResult result, Set<Long> localSet, List<Long> remote) {
+    private boolean checkUnchanged(LegacySyncResult result, Set<Long> localSet, List<Long> remote) {
         Set<Long> remoteSet = new HashSet<>(remote);
         if (!localSet.equals(remoteSet)) {
-            result.change = ApiSyncResult.CHANGED;
+            result.change = LegacySyncResult.CHANGED;
             result.extra = REQUEST_NO_BACKOFF; // reset sync misses
         } else {
-            result.change = remoteSet.isEmpty() ? ApiSyncResult.UNCHANGED : ApiSyncResult.REORDERED; // always mark users as reordered so we get the first page
+            result.change = remoteSet.isEmpty() ? LegacySyncResult.UNCHANGED : LegacySyncResult.REORDERED; // always mark users as reordered so we get the first page
         }
-        return result.change == ApiSyncResult.UNCHANGED;
+        return result.change == LegacySyncResult.UNCHANGED;
     }
 
-    private ApiSyncResult pushUserAssociations() {
-        final ApiSyncResult result = new ApiSyncResult(Content.ME_FOLLOWINGS.uri);
+    private LegacySyncResult pushUserAssociations() {
+        final LegacySyncResult result = new LegacySyncResult(Content.ME_FOLLOWINGS.uri);
         result.success = true;
         if (userAssociationStorage.hasStaleFollowings()) {
             List<PropertySet> associationsNeedingSync = userAssociationStorage.loadStaleFollowings();

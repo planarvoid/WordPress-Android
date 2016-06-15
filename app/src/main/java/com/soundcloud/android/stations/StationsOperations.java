@@ -7,7 +7,7 @@ import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.propeller.ChangeResult;
@@ -122,7 +122,7 @@ public class StationsOperations {
         return stationsStorage.saveLastPlayedTrackPosition(collectionUrn, position);
     }
 
-    public Observable<SyncResult> sync() {
+    public Observable<SyncJobResult> sync() {
         return syncInitiator.sync(Syncable.RECENT_STATIONS);
     }
 

@@ -125,7 +125,7 @@ import java.util.Set;
         requestsRemaining.remove(legacySyncJob);
 
         resultData.putBoolean(legacySyncJob.getContentUri().toString(), isUIRequest ?
-                legacySyncJob.getResult().change != ApiSyncResult.UNCHANGED : legacySyncJob.getResult().change == ApiSyncResult.CHANGED);
+                legacySyncJob.getResult().change != LegacySyncResult.UNCHANGED : legacySyncJob.getResult().change == LegacySyncResult.CHANGED);
 
         if (!legacySyncJob.getResult().success) {
             syncAdapterResult.stats.numAuthExceptions += legacySyncJob.getResult().syncResult.stats.numAuthExceptions;

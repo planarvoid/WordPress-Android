@@ -11,9 +11,9 @@ import org.mockito.Mock;
 import android.net.Uri;
 import android.os.Bundle;
 
-public class SyncContentTest extends AndroidUnitTest {
+public class LegacySyncContentTest extends AndroidUnitTest {
 
-    private static final SyncContent MY_SOUNDS = SyncContent.MySounds;
+    private static final LegacySyncContent MY_SOUNDS = LegacySyncContent.MySounds;
     private static final Uri URI = MY_SOUNDS.content.uri;
     private static final long DELAY = MY_SOUNDS.syncDelay;
 
@@ -30,7 +30,7 @@ public class SyncContentTest extends AndroidUnitTest {
     public void shouldResetSyncMisses() {
         syncResult.putBoolean(URI.toString(), true);
 
-        SyncContent.updateCollections(syncStateManager, syncResult);
+        LegacySyncContent.updateCollections(syncStateManager, syncResult);
 
         verify(syncStateManager).resetSyncMisses(URI);
     }
@@ -39,7 +39,7 @@ public class SyncContentTest extends AndroidUnitTest {
     public void shouldIncrementSyncMisses() {
         syncResult.putBoolean(URI.toString(), false);
 
-        SyncContent.updateCollections(syncStateManager, syncResult);
+        LegacySyncContent.updateCollections(syncStateManager, syncResult);
 
         verify(syncStateManager).incrementSyncMiss(URI);
     }

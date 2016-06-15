@@ -17,9 +17,9 @@ import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.SyncActions;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.android.sync.posts.PostsSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncer;
@@ -81,7 +81,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         syncPendingRemovals();
         final List<Urn> pushedPlaylists = pushLocalPlaylists();
         final boolean postedPlaylistsChanged = postsSyncer.call(pushedPlaylists);
@@ -89,8 +89,8 @@ public class MyPlaylistsSyncer implements SyncStrategy {
         final boolean changed = postedPlaylistsChanged || offlinePlaylistsChanged;
 
         return changed
-                ? ApiSyncResult.fromSuccessfulChange(uri)
-                : ApiSyncResult.fromSuccessWithoutChange(uri);
+                ? LegacySyncResult.fromSuccessfulChange(uri)
+                : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 
     private boolean syncOfflinePlaylists() {
@@ -108,7 +108,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
 
         final boolean hasUpdatedPlaylists = !updatedOfflinePlaylists.isEmpty();
         if (hasUpdatedPlaylists) {
-            eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_PLAYLIST, true, updatedOfflinePlaylists));
+            eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true, updatedOfflinePlaylists));
         }
         return hasUpdatedPlaylists;
     }

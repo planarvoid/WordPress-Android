@@ -182,7 +182,7 @@ public class ApiSyncServiceTest {
                 apiSyncerFactory,
                 syncStateManager));
 
-        ApiSyncResult result = new ApiSyncResult(Content.ME_LIKES.uri);
+        LegacySyncResult result = new LegacySyncResult(Content.ME_LIKES.uri);
         result.success = true;
 
         svc.onSyncJobCompleted(new LegacySyncJob(Content.ME_LIKES.uri,

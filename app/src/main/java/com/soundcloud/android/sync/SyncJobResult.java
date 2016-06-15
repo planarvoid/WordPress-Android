@@ -14,30 +14,30 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class SyncResult implements Parcelable, UrnEvent {
+public final class SyncJobResult implements Parcelable, UrnEvent {
 
-    public static final Func1<SyncResult, Urn> TO_URN = new Func1<SyncResult, Urn>() {
+    public static final Func1<SyncJobResult, Urn> TO_URN = new Func1<SyncJobResult, Urn>() {
         @Override
-        public Urn call(SyncResult syncResult) {
-            return syncResult.getFirstUrn();
+        public Urn call(SyncJobResult syncJobResult) {
+            return syncJobResult.getFirstUrn();
         }
     };
 
-    public static final Func1<SyncResult, Boolean> IS_SINGLE_PLAYLIST_SYNCED_FILTER = new Func1<SyncResult, Boolean>() {
+    public static final Func1<SyncJobResult, Boolean> IS_SINGLE_PLAYLIST_SYNCED_FILTER = new Func1<SyncJobResult, Boolean>() {
         @Override
-        public Boolean call(SyncResult syncResult) {
-            return SyncActions.SYNC_PLAYLIST.equals(syncResult.getAction())
-                    && syncResult.wasChanged()
-                    && syncResult.hasChangedEntities();
+        public Boolean call(SyncJobResult syncJobResult) {
+            return SyncActions.SYNC_PLAYLIST.equals(syncJobResult.getAction())
+                    && syncJobResult.wasChanged()
+                    && syncJobResult.hasChangedEntities();
         }
     };
 
-    public static final Func1<SyncResult, Boolean> ARE_PLAYLISTS_SYNCED_FILTER = new Func1<SyncResult, Boolean>() {
+    public static final Func1<SyncJobResult, Boolean> ARE_PLAYLISTS_SYNCED_FILTER = new Func1<SyncJobResult, Boolean>() {
         @Override
-        public Boolean call(SyncResult syncResult) {
-            return SyncActions.SYNC_PLAYLISTS.equals(syncResult.getAction())
-                    && syncResult.wasChanged()
-                    && syncResult.hasChangedEntities();
+        public Boolean call(SyncJobResult syncJobResult) {
+            return SyncActions.SYNC_PLAYLISTS.equals(syncJobResult.getAction())
+                    && syncJobResult.wasChanged()
+                    && syncJobResult.hasChangedEntities();
         }
     };
 
@@ -46,17 +46,17 @@ public final class SyncResult implements Parcelable, UrnEvent {
     private final Exception exception;
     private final List<Urn> entitiesSynced;
 
-    public static final Creator<SyncResult> CREATOR = new Creator<SyncResult>() {
-        public SyncResult createFromParcel(Parcel source) {
-            return new SyncResult(source);
+    public static final Creator<SyncJobResult> CREATOR = new Creator<SyncJobResult>() {
+        public SyncJobResult createFromParcel(Parcel source) {
+            return new SyncJobResult(source);
         }
 
-        public SyncResult[] newArray(int size) {
-            return new SyncResult[size];
+        public SyncJobResult[] newArray(int size) {
+            return new SyncJobResult[size];
         }
     };
 
-    private SyncResult(Parcel in) {
+    private SyncJobResult(Parcel in) {
         this.action = in.readString();
         this.wasChanged = in.readByte() != 0;
         this.exception = (Exception) in.readSerializable();
@@ -65,27 +65,27 @@ public final class SyncResult implements Parcelable, UrnEvent {
         in.readTypedList(this.entitiesSynced, Urn.CREATOR);
     }
 
-    private SyncResult(String action, boolean wasChanged, Exception exception, List<Urn> entities) {
+    private SyncJobResult(String action, boolean wasChanged, Exception exception, List<Urn> entities) {
         this.action = action;
         this.wasChanged = wasChanged;
         this.exception = exception;
         this.entitiesSynced = entities;
     }
 
-    public static SyncResult success(String action, boolean wasChanged) {
-        return new SyncResult(action, wasChanged, null, Collections.<Urn>emptyList());
+    public static SyncJobResult success(String action, boolean wasChanged) {
+        return new SyncJobResult(action, wasChanged, null, Collections.<Urn>emptyList());
     }
 
-    public static SyncResult success(String action, boolean wasChanged, Urn entity) {
+    public static SyncJobResult success(String action, boolean wasChanged, Urn entity) {
         return success(action, wasChanged, singletonList(entity));
     }
 
-    public static SyncResult success(String action, boolean wasChanged, List<Urn> entities) {
-        return new SyncResult(action, wasChanged, null, entities);
+    public static SyncJobResult success(String action, boolean wasChanged, List<Urn> entities) {
+        return new SyncJobResult(action, wasChanged, null, entities);
     }
 
-    public static SyncResult failure(String action, Exception exception) {
-        return new SyncResult(action, false, exception, Collections.<Urn>emptyList());
+    public static SyncJobResult failure(String action, Exception exception) {
+        return new SyncJobResult(action, false, exception, Collections.<Urn>emptyList());
     }
 
     public String getAction() {
@@ -135,10 +135,10 @@ public final class SyncResult implements Parcelable, UrnEvent {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SyncResult)) {
+        if (!(o instanceof SyncJobResult)) {
             return false;
         }
-        SyncResult that = (SyncResult) o;
+        SyncJobResult that = (SyncJobResult) o;
         return MoreObjects.equal(wasChanged, that.wasChanged)
                 && MoreObjects.equal(action, that.action)
                 && MoreObjects.equal(exception, that.exception)

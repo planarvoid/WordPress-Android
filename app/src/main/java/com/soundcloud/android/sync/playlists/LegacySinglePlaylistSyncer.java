@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync.playlists;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.SyncStrategy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,9 +20,9 @@ public class LegacySinglePlaylistSyncer implements SyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         return singlePlaylistSyncerFactory.create(playlistUrn).call()
-                ? ApiSyncResult.fromSuccessfulChange(uri)
-                : ApiSyncResult.fromSuccessWithoutChange(uri);
+                ? LegacySyncResult.fromSuccessfulChange(uri)
+                : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 }

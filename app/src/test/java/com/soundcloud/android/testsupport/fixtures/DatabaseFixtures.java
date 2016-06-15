@@ -25,7 +25,7 @@ import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
-import com.soundcloud.android.sync.SyncContent;
+import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
@@ -827,14 +827,14 @@ public class DatabaseFixtures {
         insertInto(OfflineContent.TABLE, cv.get());
     }
 
-    public void insertSyncAttempt(SyncContent syncContent, long when) {
+    public void insertSyncAttempt(LegacySyncContent syncContent, long when) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, when);
         cv.put(TableColumns.Collections.URI, syncContent.content.uri.toString());
         insertInto(Table.Collections, cv);
     }
 
-    public void insertSyncAttemptAndLast(SyncContent syncContent, long attempt, long last) {
+    public void insertSyncAttemptAndLast(LegacySyncContent syncContent, long attempt, long last) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, attempt);
         cv.put(TableColumns.Collections.LAST_SYNC, last);
@@ -843,7 +843,7 @@ public class DatabaseFixtures {
     }
 
 
-    public void insertSuccessfulSync(SyncContent syncContent, long when) {
+    public void insertSuccessfulSync(LegacySyncContent syncContent, long when) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, when);
         cv.put(TableColumns.Collections.LAST_SYNC, when);

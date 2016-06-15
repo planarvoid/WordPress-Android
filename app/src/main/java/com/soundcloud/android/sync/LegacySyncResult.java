@@ -7,7 +7,8 @@ import android.support.annotation.VisibleForTesting;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class ApiSyncResult {
+@Deprecated
+public class LegacySyncResult {
 
     public static final int UNCHANGED = 0;
     public static final int REORDERED = 1;
@@ -28,7 +29,7 @@ public class ApiSyncResult {
     public int new_size;
     public String extra;
 
-    public ApiSyncResult(Uri uri) {
+    public LegacySyncResult(Uri uri) {
         this.uri = uri;
     }
 
@@ -45,68 +46,68 @@ public class ApiSyncResult {
         this.new_size = new_size;
     }
 
-    public static ApiSyncResult fromSuccessfulChange(Uri uri) {
-        ApiSyncResult result = new ApiSyncResult(uri);
+    public static LegacySyncResult fromSuccessfulChange(Uri uri) {
+        LegacySyncResult result = new LegacySyncResult(uri);
         result.success = true;
         result.synced_at = System.currentTimeMillis();
         result.change = CHANGED;
         return result;
     }
 
-    public static ApiSyncResult fromSuccessWithoutChange(Uri uri) {
-        ApiSyncResult result = new ApiSyncResult(uri);
+    public static LegacySyncResult fromSuccessWithoutChange(Uri uri) {
+        LegacySyncResult result = new LegacySyncResult(uri);
         result.success = true;
         result.synced_at = System.currentTimeMillis();
         result.change = UNCHANGED;
         return result;
     }
 
-    public static ApiSyncResult fromAuthException(Uri uri) {
-        ApiSyncResult r = new ApiSyncResult(uri);
+    public static LegacySyncResult fromAuthException(Uri uri) {
+        LegacySyncResult r = new LegacySyncResult(uri);
         r.syncResult.stats.numAuthExceptions++;
         return r;
     }
 
-    public static ApiSyncResult fromIOException(Uri uri) {
-        ApiSyncResult r = new ApiSyncResult(uri);
+    public static LegacySyncResult fromIOException(Uri uri) {
+        LegacySyncResult r = new LegacySyncResult(uri);
         r.syncResult.stats.numIoExceptions++;
         return r;
     }
 
-    public static ApiSyncResult fromUnexpectedResponse(Uri uri, int statusCode) {
-        final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
+    public static LegacySyncResult fromUnexpectedResponse(Uri uri, int statusCode) {
+        final LegacySyncResult legacySyncResult = new LegacySyncResult(uri);
 
         if (statusCode >= 500){
-            setDelayUntilToOneSyncInterval(apiSyncResult);
+            setDelayUntilToOneSyncInterval(legacySyncResult);
         }
 
-        return apiSyncResult;
+        return legacySyncResult;
     }
 
-    public static ApiSyncResult fromServerError(Uri uri) {
-        final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
-        setDelayUntilToOneSyncInterval(apiSyncResult);
-        return apiSyncResult;
+    public static LegacySyncResult fromServerError(Uri uri) {
+        final LegacySyncResult legacySyncResult = new LegacySyncResult(uri);
+        setDelayUntilToOneSyncInterval(legacySyncResult);
+        return legacySyncResult;
     }
 
-    public static ApiSyncResult fromClientError(Uri uri) {
-        return new ApiSyncResult(uri);
+    public static LegacySyncResult fromClientError(Uri uri) {
+        return new LegacySyncResult(uri);
     }
 
-    private static void setDelayUntilToOneSyncInterval(ApiSyncResult apiSyncResult) {
+    private static void setDelayUntilToOneSyncInterval(LegacySyncResult legacySyncResult) {
         // http://developer.android.com/reference/android/content/SyncResult.html#delayUntil
-        apiSyncResult.syncResult.delayUntil = SyncConfig.DEFAULT_SYNC_DELAY;
+        legacySyncResult.syncResult.delayUntil = SyncConfig.DEFAULT_SYNC_DELAY;
     }
 
-    public static ApiSyncResult fromGeneralFailure(Uri uri) {
+    public static LegacySyncResult fromGeneralFailure(Uri uri) {
         return fromGeneralFailure(uri, new Random());
     }
 
     @VisibleForTesting
-    static ApiSyncResult fromGeneralFailure(Uri uri, Random random) {
-        final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
-        apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(random, GENERAL_ERROR_MINIMUM_DELAY, GENERAL_ERROR_DELAY_RANGE);
-        return apiSyncResult;
+    static LegacySyncResult fromGeneralFailure(Uri uri, Random random) {
+        final LegacySyncResult legacySyncResult = new LegacySyncResult(uri);
+        legacySyncResult.syncResult.delayUntil = getRandomizedDelayTime(random, GENERAL_ERROR_MINIMUM_DELAY, GENERAL_ERROR_DELAY_RANGE);
+        return legacySyncResult;
     }
 
     private static long getRandomizedDelayTime(Random random, int minimumDelay, int range) {

@@ -5,7 +5,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
@@ -24,9 +24,9 @@ import javax.inject.Inject;
 import java.util.List;
 
 class RecentStationsPresenter extends RecyclerViewPresenter<List<StationViewModel>, StationViewModel> {
-    private final Func1<SyncResult, Observable<List<StationViewModel>>> toStationViewModels = new Func1<SyncResult, Observable<List<StationViewModel>>>() {
+    private final Func1<SyncJobResult, Observable<List<StationViewModel>>> toStationViewModels = new Func1<SyncJobResult, Observable<List<StationViewModel>>>() {
         @Override
-        public Observable<List<StationViewModel>> call(SyncResult ignored) {
+        public Observable<List<StationViewModel>> call(SyncJobResult ignored) {
             return source;
         }
     };

@@ -21,11 +21,11 @@ public class ResultReceiverAdapter extends ResultReceiver {
     public static final String SYNC_RESULT = "syncResult";
     private static final String TAG = "RxResultReceiver";
 
-    private final AtomicReference<Subscriber<? super SyncResult>> subscriberRef;
+    private final AtomicReference<Subscriber<? super SyncJobResult>> subscriberRef;
 
-    public ResultReceiverAdapter(final Subscriber<? super SyncResult> subscriber, Looper looper) {
+    public ResultReceiverAdapter(final Subscriber<? super SyncJobResult> subscriber, Looper looper) {
         super(new Handler(looper));
-        this.subscriberRef = new AtomicReference<Subscriber<? super SyncResult>>(subscriber);
+        this.subscriberRef = new AtomicReference<Subscriber<? super SyncJobResult>>(subscriber);
         // make sure we release the observer reference as soon as we're unsubscribing, or
         // we might create a memory leak
         subscriber.add(Subscriptions.create(new Action0() {
@@ -39,15 +39,15 @@ public class ResultReceiverAdapter extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
-        final Subscriber<? super SyncResult> subscriber = subscriberRef.get();
+        final Subscriber<? super SyncJobResult> subscriber = subscriberRef.get();
         if (subscriber != null && !subscriber.isUnsubscribed()) {
             Log.d(TAG, "delivering result: " + resultData);
-            SyncResult syncResult = resultData.getParcelable(SYNC_RESULT);
-            if (syncResult.wasSuccess()) {
-                subscriber.onNext(syncResult);
+            SyncJobResult syncJobResult = resultData.getParcelable(SYNC_RESULT);
+            if (syncJobResult.wasSuccess()) {
+                subscriber.onNext(syncJobResult);
                 subscriber.onCompleted();
             } else {
-                subscriber.onError(syncResult.getException());
+                subscriber.onError(syncJobResult.getException());
             }
         } else {
             Log.d(TAG, "observer is gone, dropping result: " + resultData);

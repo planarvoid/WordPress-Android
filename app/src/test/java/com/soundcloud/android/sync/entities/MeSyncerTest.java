@@ -16,7 +16,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
@@ -50,9 +50,9 @@ public class MeSyncerTest extends AndroidUnitTest {
     public void returnsSuccessfulResult() throws Exception {
         setupSuccessfulFetch();
 
-        final ApiSyncResult actual = meSyncer.syncContent(null, null);
+        final LegacySyncResult actual = meSyncer.syncContent(null, null);
         assertThat(actual.success).isEqualTo(true);
-        assertThat(actual.change).isEqualTo(ApiSyncResult.CHANGED);
+        assertThat(actual.change).isEqualTo(LegacySyncResult.CHANGED);
     }
 
     @Test

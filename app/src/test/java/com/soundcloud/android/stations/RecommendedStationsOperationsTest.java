@@ -12,7 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -45,7 +45,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     private RecommendedStationsOperations operations;
     private Scheduler scheduler = Schedulers.immediate();
     private TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
-    private PublishSubject<SyncResult> syncer;
+    private PublishSubject<SyncJobResult> syncer;
 
     @Before
     public void setUp() throws Exception {
@@ -111,7 +111,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         operations.stationsBucket().subscribe(subscriber);
 
         subscriber.assertNoValues();
-        syncer.onNext(SyncResult.success("action", true));
+        syncer.onNext(SyncJobResult.success("action", true));
         assertThat(getStations()).containsExactly(SUGGESTED_1, SUGGESTED_2);
 
         subscriber.assertCompleted();

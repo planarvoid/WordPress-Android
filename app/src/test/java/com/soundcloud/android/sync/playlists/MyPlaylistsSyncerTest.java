@@ -27,9 +27,9 @@ import com.soundcloud.android.offline.LoadOfflinePlaylistsCommand;
 import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.SyncActions;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -96,16 +96,16 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
     @Test
     public void shouldReturnChangedResultIfPostsSyncerReturnsTrue() throws Exception {
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
-        final ApiSyncResult syncResult = syncer.syncContent(URI, null);
-        assertThat(syncResult.change).isEqualTo(ApiSyncResult.CHANGED);
+        final LegacySyncResult syncResult = syncer.syncContent(URI, null);
+        assertThat(syncResult.change).isEqualTo(LegacySyncResult.CHANGED);
         assertThat(syncResult.uri).isEqualTo(URI);
     }
 
     @Test
     public void shouldReturnUnchangedResultIfPostsSyncerReturnsTrue() throws Exception {
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(false);
-        final ApiSyncResult syncResult = syncer.syncContent(URI, null);
-        assertThat(syncResult.change).isEqualTo(ApiSyncResult.UNCHANGED);
+        final LegacySyncResult syncResult = syncer.syncContent(URI, null);
+        assertThat(syncResult.change).isEqualTo(LegacySyncResult.UNCHANGED);
         assertThat(syncResult.uri).isEqualTo(URI);
     }
 
@@ -206,10 +206,10 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(singlePlaylistSyncerFactory.create(offlinePlaylist)).thenReturn(singlePlaylistSyncer);
         when(singlePlaylistSyncer.call()).thenReturn(true);
 
-        final ApiSyncResult apiSyncResult = syncer.syncContent(URI, null);
+        final LegacySyncResult legacySyncResult = syncer.syncContent(URI, null);
 
         verify(singlePlaylistSyncer).call();
-        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
+        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.CHANGED);
     }
 
     @Test
@@ -227,10 +227,10 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
 
         syncer.syncContent(URI, null);
 
-        ArgumentCaptor<SyncResult> captor = ArgumentCaptor.forClass(SyncResult.class);
+        ArgumentCaptor<SyncJobResult> captor = ArgumentCaptor.forClass(SyncJobResult.class);
 
         verify(eventBus).publish(eq(EventQueue.SYNC_RESULT), captor.capture());
-        SyncResult event = captor.getValue();
+        SyncJobResult event = captor.getValue();
         assertThat(event.getAction()).isEqualTo(SyncActions.SYNC_PLAYLIST);
         assertThat(event.getUrns()).containsExactly(offlinePlaylist);
     }
@@ -248,11 +248,11 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(singlePlaylistSyncerFactory.create(offlinePlaylistToSync)).thenReturn(singlePlaylistSyncer);
         when(singlePlaylistSyncer.call()).thenReturn(true);
 
-        final ApiSyncResult apiSyncResult = syncer.syncContent(URI, null);
+        final LegacySyncResult legacySyncResult = syncer.syncContent(URI, null);
 
         verify(syncWithException).call();
         verify(singlePlaylistSyncer).call();
-        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
+        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.CHANGED);
     }
 
 

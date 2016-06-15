@@ -11,7 +11,7 @@ import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.java.collections.Lists;
@@ -122,7 +122,7 @@ public class RecommendedStationsOperations {
                 .flatMap(continueWith(getCollection(RECOMMENDATIONS)));
     }
 
-    private Observable<SyncResult> syncRecommendedStations() {
+    private Observable<SyncJobResult> syncRecommendedStations() {
         return syncInitiator.sync(Syncable.RECOMMENDED_STATIONS);
     }
 

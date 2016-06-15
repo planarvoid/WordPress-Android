@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -156,10 +156,10 @@ public class MyProfileOperations {
     }
 
     @NonNull
-    private Func1<SyncResult, Observable<List<PropertySet>>> loadFollowings(final int pageSize, final long fromPosition) {
-        return new Func1<SyncResult, Observable<List<PropertySet>>>() {
+    private Func1<SyncJobResult, Observable<List<PropertySet>>> loadFollowings(final int pageSize, final long fromPosition) {
+        return new Func1<SyncJobResult, Observable<List<PropertySet>>>() {
             @Override
-            public Observable<List<PropertySet>> call(SyncResult syncResult) {
+            public Observable<List<PropertySet>> call(SyncJobResult syncJobResult) {
                 return userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler);
             }
         };

@@ -9,7 +9,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
@@ -47,9 +47,9 @@ public class TrackLikeOperations {
         }
     };
 
-    private final Func1<SyncResult, Observable<List<PropertySet>>> loadInitialLikedTracks = new Func1<SyncResult, Observable<List<PropertySet>>>() {
+    private final Func1<SyncJobResult, Observable<List<PropertySet>>> loadInitialLikedTracks = new Func1<SyncJobResult, Observable<List<PropertySet>>>() {
         @Override
-        public Observable<List<PropertySet>> call(SyncResult syncResult) {
+        public Observable<List<PropertySet>> call(SyncJobResult syncJobResult) {
             return likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP);
         }
     };

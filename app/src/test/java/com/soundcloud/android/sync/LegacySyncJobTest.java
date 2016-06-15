@@ -43,7 +43,7 @@ public class LegacySyncJobTest extends AndroidUnitTest {
     @Mock private SyncStrategy syncStrategy;
     @Mock private SharedPreferences sharedPreferences;
 
-    private ApiSyncResult apiSyncResult;
+    private LegacySyncResult legacySyncResult;
 
     @Before
     public void setup() {
@@ -254,17 +254,17 @@ public class LegacySyncJobTest extends AndroidUnitTest {
     @Test
     public void shouldCallOnSyncComplete() throws Exception {
         setupSuccessfulSync();
-        when(syncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenReturn(apiSyncResult);
+        when(syncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenReturn(legacySyncResult);
         legacySyncItem.onQueued();
         legacySyncItem.run();
-        verify(syncStateManager).onSyncComplete(apiSyncResult, CONTENT_URI);
+        verify(syncStateManager).onSyncComplete(legacySyncResult, CONTENT_URI);
     }
 
     private void setupSuccessfulSync() throws Exception {
         setupSync();
-        apiSyncResult = new ApiSyncResult(CONTENT_URI);
-        apiSyncResult.success = true;
-        when(syncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenReturn(apiSyncResult);
+        legacySyncResult = new LegacySyncResult(CONTENT_URI);
+        legacySyncResult.success = true;
+        when(syncStrategy.syncContent(CONTENT_URI, SOME_ACTION)).thenReturn(legacySyncResult);
     }
 
     private void setupExceptionThrowingSync(Exception e) throws Exception {

@@ -22,7 +22,7 @@ public class SingleJobRequest implements SyncRequest {
     private final EventBus eventBus;
 
     protected final String action;
-    protected SyncResult resultEvent;
+    protected SyncJobResult resultEvent;
 
     public SingleJobRequest(SyncerRegistry.SyncData syncData,
                             ResultReceiver resultReceiver,
@@ -67,8 +67,8 @@ public class SingleJobRequest implements SyncRequest {
     public void processJobResult(SyncJob syncJob) {
         Exception exception = syncJob.getException();
         resultEvent = exception == null ?
-                SyncResult.success(action, syncJob.resultedInAChange())
-                : SyncResult.failure(action, syncJob.getException());
+                SyncJobResult.success(action, syncJob.resultedInAChange())
+                : SyncJobResult.failure(action, syncJob.getException());
     }
 
     @Override
