@@ -4,6 +4,8 @@ import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
+import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
 
     public static final String EVENT_KIND_PLAY = "play";
     public static final String EVENT_KIND_STOP = "stop";
+    public static final String EVENT_KIND_CHECKPOINT = "checkpoint";
     public static final String EVENT_KIND_QUARTILE = "quartile_event";
 
     private static final String FIRST_QUARTILE_TYPE = "ad::first_quartile";
@@ -25,6 +28,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
 
     private int stopReason;
     private boolean shouldReportStartWithPlay;
+    private AdPlaybackSessionEventArgs eventArgs;
     private List<String> trackingUrls = Collections.emptyList();
 
     public static AdPlaybackSessionEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
@@ -46,15 +50,21 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
                 .put(PlayableTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
     }
 
-    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_PLAY, adData, trackSourceInfo)
+    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, AdPlaybackSessionEventArgs eventArgs) {
+        return new AdPlaybackSessionEvent(EVENT_KIND_PLAY, adData, eventArgs.getTrackSourceInfo())
+                .setPlaybackTrackingUrls(adData)
+                .setEventArgs(eventArgs);
+    }
+
+    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, AdPlaybackSessionEventArgs eventArgs, int stopReason) {
+        return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, eventArgs.getTrackSourceInfo())
+                .setStopReason(stopReason)
+                .setEventArgs(eventArgs)
                 .setPlaybackTrackingUrls(adData);
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo, int stopReason) {
-        return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, trackSourceInfo)
-                .setStopReason(stopReason)
-                .setPlaybackTrackingUrls(adData);
+    public static AdPlaybackSessionEvent forCheckpoint(PlayerAdData adData, AdPlaybackSessionEventArgs eventArgs) {
+        return new AdPlaybackSessionEvent(EVENT_KIND_CHECKPOINT, adData, eventArgs.getTrackSourceInfo()).setEventArgs(eventArgs);
     }
 
     private AdPlaybackSessionEvent(String kind, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
@@ -83,7 +93,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
         return this.kind.equals(kind);
     }
 
-    public AdPlaybackSessionEvent setStopReason(int stopReason) {
+    private AdPlaybackSessionEvent setStopReason(int stopReason) {
         this.stopReason = stopReason;
         return this;
     }
@@ -135,4 +145,17 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
         }
     }
 
+    private AdPlaybackSessionEvent setEventArgs(AdPlaybackSessionEventArgs eventArgs) {
+        this.eventArgs = eventArgs;
+        return this;
+    }
+
+    @Nullable
+    public AdPlaybackSessionEventArgs getEventArgs() {
+        return eventArgs;
+    }
+
+    public int getStopReason() {
+        return stopReason;
+    }
 }

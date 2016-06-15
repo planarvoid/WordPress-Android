@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_CHECKPOINT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PAUSE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.*;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -44,6 +45,7 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
+    private static final String RICH_MEDIA_STREAM_EVENT = "rich_media_stream";
     private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
 
     private static final String BOOGALOO_VERSION = "v1.21.1";
@@ -137,6 +139,39 @@ public class EventLoggerV1JsonDataBuilder {
                                  .impressionName("video_ad_impression")
                                  .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                                  .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
+    }
+
+    public String buildForAdSessionEvent(AdPlaybackSessionEvent eventData) {
+        EventLoggerEventData data = buildBaseEvent(RICH_MEDIA_STREAM_EVENT, eventData)
+                .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
+                .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
+                .pageName(eventData.trackSourceInfo.getOriginScreen())
+                .playheadPosition(eventData.getEventArgs().getProgress())
+                .uuid(eventData.getEventArgs().getUuid())
+                .trigger(getTrigger(eventData.trackSourceInfo))
+                .protocol(eventData.getEventArgs().getProtocol())
+                .playerType(eventData.getEventArgs().getPlayerType())
+                .trackLength(eventData.getEventArgs().getDuration());
+
+        switch (eventData.getKind()) {
+            case EVENT_KIND_PLAY:
+                data.action(AUDIO_ACTION_PLAY);
+                break;
+            case EVENT_KIND_STOP:
+                data.action(AUDIO_ACTION_PAUSE);
+                data.reason(getStopReason(eventData.getStopReason()));
+                break;
+            case EVENT_KIND_CHECKPOINT:
+                data.action(AUDIO_ACTION_CHECKPOINT);
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected audio event:" + eventData.getKind());
+        }
+
+        addTrackSourceInfoToSessionEvent(data, eventData.trackSourceInfo, Urn.NOT_SET);
+
+        return transform(data);
     }
 
     public EventLoggerEventData buildAdClickThroughEvent(String clickName, UIEvent event) {
@@ -280,7 +315,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .track(event.getTrackUrn())
                 .trackOwner(event.getTrackOwner())
                 .inOfflineLikes(event.isFromLikes())
-                .inOfflinePlaylist(event.partOfPlaylist());
+                .inPlaylist(event.partOfPlaylist());
         return transform(eventLoggerEventData);
     }
 
@@ -372,52 +407,18 @@ public class EventLoggerV1JsonDataBuilder {
                 .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
                 .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN));
 
-        TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
-
         if (event.isPlayEvent()) {
             data.action(AUDIO_ACTION_PLAY);
         } else if (event.isStopEvent()) {
             data.action(AUDIO_ACTION_PAUSE);
-            data.reason(getStopReason(event));
-        } else if (event.isCheckpointEvent()) {
+            data.reason(getStopReason(event.getStopReason()));
+        } else if(event.isCheckpointEvent()) {
             data.action(AUDIO_ACTION_CHECKPOINT);
         } else {
             throw new IllegalArgumentException("Unexpected audio event:" + event.getKind());
         }
 
-        if (trackSourceInfo.hasSource()) {
-            data.source(trackSourceInfo.getSource());
-            data.sourceVersion(trackSourceInfo.getSourceVersion());
-        }
-        if (trackSourceInfo.isFromPlaylist()) {
-            data.inOfflinePlaylist(trackSourceInfo.getCollectionUrn());
-            data.playlistPosition(trackSourceInfo.getPlaylistPosition());
-        }
-
-        if (trackSourceInfo.hasReposter()) {
-            data.reposter(trackSourceInfo.getReposter());
-        }
-
-        if (trackSourceInfo.isFromSearchQuery()) {
-            SearchQuerySourceInfo searchQuerySourceInfo = trackSourceInfo.getSearchQuerySourceInfo();
-            data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
-            data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
-        }
-
-        if (trackSourceInfo.isFromStation()) {
-            // When updating it, please update V0 too. Your friend.
-            data.sourceUrn(trackSourceInfo.getCollectionUrn().toString());
-
-            if (!trackSourceInfo.getStationsSourceInfo().getQueryUrn().equals(Urn.NOT_SET)) {
-                data.queryUrn(trackSourceInfo.getStationsSourceInfo().getQueryUrn().toString());
-            }
-        }
-
-        if (trackSourceInfo.isFromRecommendations()) {
-            RecommendationsSourceInfo sourceInfo = trackSourceInfo.getRecommendationsSourceInfo();
-            data.queryUrn(sourceInfo.getQueryUrn().toString());
-            data.queryPosition(sourceInfo.getQueryPosition());
-        }
+        addTrackSourceInfoToSessionEvent(data, event.getTrackSourceInfo(), urn);
 
         return data;
     }
@@ -488,8 +489,46 @@ public class EventLoggerV1JsonDataBuilder {
         return trackSourceInfo.getIsUserTriggered() ? "manual" : "auto";
     }
 
-    private String getStopReason(PlaybackSessionEvent eventData) {
-        switch (eventData.getStopReason()) {
+    public EventLoggerEventData addTrackSourceInfoToSessionEvent(EventLoggerEventData data, TrackSourceInfo sourceInfo, Urn urn) {
+        if (sourceInfo.hasSource()) {
+            data.source(sourceInfo.getSource());
+            data.sourceVersion(sourceInfo.getSourceVersion());
+        }
+        if (sourceInfo.isFromPlaylist()) {
+            data.inPlaylist(sourceInfo.getCollectionUrn());
+            data.playlistPosition(sourceInfo.getPlaylistPosition());
+        }
+
+        if (sourceInfo.hasReposter()) {
+            data.reposter(sourceInfo.getReposter());
+        }
+
+        if (sourceInfo.isFromSearchQuery()) {
+            SearchQuerySourceInfo searchQuerySourceInfo = sourceInfo.getSearchQuerySourceInfo();
+            data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
+            data.queryPosition(searchQuerySourceInfo.getUpdatedResultPosition(urn));
+        }
+
+        if (sourceInfo.isFromStation()) {
+            // When updating it, please update V0 too. Your friend.
+            data.sourceUrn(sourceInfo.getCollectionUrn().toString());
+
+            if (!sourceInfo.getStationsSourceInfo().getQueryUrn().equals(Urn.NOT_SET)) {
+                data.queryUrn(sourceInfo.getStationsSourceInfo().getQueryUrn().toString());
+            }
+        }
+
+        if (sourceInfo.isFromRecommendations()) {
+            RecommendationsSourceInfo recommendationsSourceInfo = sourceInfo.getRecommendationsSourceInfo();
+            data.queryUrn(recommendationsSourceInfo.getQueryUrn().toString());
+            data.queryPosition(recommendationsSourceInfo.getQueryPosition());
+        }
+
+        return data;
+    }
+
+    private String getStopReason(int stopReason) {
+        switch (stopReason) {
             case PlaybackSessionEvent.STOP_REASON_PAUSE:
                 return "pause";
             case PlaybackSessionEvent.STOP_REASON_BUFFERING:
@@ -507,7 +546,7 @@ public class EventLoggerV1JsonDataBuilder {
             case PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING:
                 return "concurrent_streaming";
             default:
-                throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
+                throw new IllegalArgumentException("Unexpected stop reason : " + stopReason);
         }
     }
 }

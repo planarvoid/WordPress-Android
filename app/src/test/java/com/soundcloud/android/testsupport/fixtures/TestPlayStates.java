@@ -56,7 +56,7 @@ public class TestPlayStates {
     }
 
     public static PlayStateEvent complete(Urn urn) {
-        return wrap(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, urn));
+        return wrap(TestPlayerTransitions.complete(urn));
     }
 
     public static PlayStateEvent playQueueComplete() {
@@ -67,16 +67,8 @@ public class TestPlayStates {
         return wrap(TestPlayerTransitions.buffering());
     }
 
-    public static PlayStateEvent buffering(TestDateProvider dateProvider) {
-        return wrap(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, 0, 0, dateProvider));
-    }
-
-    public static PlayStateEvent buffering(long position, long duration) {
-        return wrap(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, position, duration));
-    }
-
     public static PlayStateEvent error(PlayStateReason reason) {
-        return wrap(new PlaybackStateTransition(PlaybackState.IDLE, reason, URN));
+        return wrap(TestPlayerTransitions.idle(0, API_DURATION, reason));
     }
 
     @NonNull

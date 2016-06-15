@@ -67,8 +67,11 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.URL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
@@ -247,7 +250,7 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData inOfflinePlaylist(Urn playlistUrn) {
+    public EventLoggerEventData inPlaylist(Urn playlistUrn) {
         addToPayload(IN_PLAYLIST, String.valueOf(playlistUrn));
         return this;
     }
@@ -373,7 +376,7 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData inOfflinePlaylist(boolean isPartOfPlaylist) {
+    public EventLoggerEventData inPlaylist(boolean isPartOfPlaylist) {
         addToPayload(IN_PLAYLIST, isPartOfPlaylist);
         return this;
     }

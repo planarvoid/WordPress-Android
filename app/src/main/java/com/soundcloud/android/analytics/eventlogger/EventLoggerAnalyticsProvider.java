@@ -130,17 +130,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {
-        if (event.isAd()) {
-            if (event.shouldReportAdStart()) {
-                trackAudioAdImpression(event);
-            } else if (event.hasTrackFinished()) {
-                trackAudioAdFinished(event);
-            }
-        }
-
-        if (!event.isThirdPartyAd()) {
-            trackAudioSessionEvent(event);
-        }
+        trackAudioSessionEvent(event);
     }
 
     private void handleUIEvent(UIEvent event) {
@@ -190,14 +180,14 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
                 trackAdProgressQuartile(eventData);
                 break;
             case AdPlaybackSessionEvent.EVENT_KIND_PLAY:
-                if (eventData.shouldReportStart()) {
-                    trackVideoAdImpression(eventData);
-                }
-                break;
             case AdPlaybackSessionEvent.EVENT_KIND_STOP:
-                if (eventData.hasAdFinished()) {
-                    trackVideoAdFinished(eventData);
+            case AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT:
+                if (eventData.shouldReportStart()) {
+                    trackAdImpression(eventData);
+                } else if (eventData.hasAdFinished()) {
+                    trackAdFinished(eventData);
                 }
+                trackAdSessionEvent(eventData);
                 break;
             default:
                 break;
@@ -217,20 +207,16 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
         trackEvent(eventData.getTimestamp(), dataBuilderV0.get().build(eventData));
     }
 
-    private void trackAudioAdImpression(PlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAudioAdImpression(eventData));
-    }
-
-    private void trackAudioAdFinished(PlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV0.get().buildForAdFinished(eventData));
-    }
-
-    private void trackVideoAdImpression(AdPlaybackSessionEvent eventData) {
+    private void trackAdImpression(AdPlaybackSessionEvent eventData) {
         trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdImpression(eventData));
     }
 
-    private void trackVideoAdFinished(AdPlaybackSessionEvent eventData) {
+    private void trackAdFinished(AdPlaybackSessionEvent eventData) {
         trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdFinished(eventData));
+    }
+
+    private void trackAdSessionEvent(AdPlaybackSessionEvent eventData) {
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdSessionEvent(eventData));
     }
 
     private void trackAdProgressQuartile(AdPlaybackSessionEvent eventData) {

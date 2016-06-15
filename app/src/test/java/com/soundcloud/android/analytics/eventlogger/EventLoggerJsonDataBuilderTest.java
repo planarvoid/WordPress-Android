@@ -20,8 +20,6 @@ import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
@@ -34,18 +32,13 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.PropertySet;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import android.support.annotation.NonNull;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -55,13 +48,10 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
     private static final String UDID = "udid";
     private static final long TIMESTAMP = new Date().getTime();
-    private static final String PROTOCOL = "hls";
-    private static final String PLAYER_TYPE = "PLAYA";
     private static final String CDN_URL = "host.com";
     private static final String SCREEN_TAG = "screen_tag";
     private static final String CONTEXT_TAG = "context_tag";
     private static final String PAGE_NAME = "page_name";
-    private static final String UUID = "uuid";
     private static final String MEDIA_TYPE = "mp3";
     private static final int BIT_RATE = 128000;
 
@@ -271,41 +261,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                .monetizationType("audio_ad")
                                                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                                                .externalMedia(audioAd.getCompanionImageUrl().get().toString()));
-    }
-
-    @Test
-    public void createsAudioAdFinishedEventJson() throws ApiMapperException, CreateModelException {
-        final Urn monetizedTrackUrn = Urn.forTrack(123L);
-        final AudioAd audioAd = AdFixtures.getAudioAd(monetizedTrackUrn);
-        final PlaybackSessionEvent stopEvent = TestEvents.playbackSessionStopEvent();
-
-        jsonDataBuilder.buildForAdFinished(stopEvent.withAudioAd(audioAd));
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", stopEvent.getTimestamp())
-                                               .pageName(stopEvent.getTrackSourceInfo().getOriginScreen())
-                                               .adUrn(audioAd.getAdUrn().toString())
-                                               .clickName("ad::finish")
-                                               .clickObject(stopEvent.getTrackUrn().toString())
-                                               .monetizedObject(monetizedTrackUrn.toString())
-                                               .monetizationType("audio_ad"));
-    }
-
-    @Test
-    public void createsImpressionJsonForAudioAdPlaybackEvent() throws ApiMapperException {
-        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L),
-                                                                                    Urn.forUser(789L));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(createEventArgs(audioAdTrack, 0L));
-
-        jsonDataBuilder.buildForAudioAdImpression(event.withAudioAd(audioAd));
-
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
-                                               .adUrn(audioAd.getAdUrn().toString())
-                                               .impressionName("audio_ad_impression")
-                                               .impressionObject(audioAdTrack.get(TrackProperty.URN).toString())
-                                               .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
-                                               .monetizationType("audio_ad"));
     }
 
     @Test
@@ -793,18 +748,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         activeExperiments.put("exp_android_listening", 2345);
         activeExperiments.put("exp_android_ui", 3456);
         when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
-    }
-
-    @NonNull
-    private PlaybackSessionEventArgs createEventArgs(PropertySet track, long progress) {
-        return PlaybackSessionEventArgs.create(track,
-                                               trackSourceInfo,
-                                               progress,
-                                               PROTOCOL,
-                                               PLAYER_TYPE,
-                                               false,
-                                               false,
-                                               UUID);
     }
 
 }

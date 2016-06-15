@@ -1,18 +1,8 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import android.content.SharedPreferences;
 
-import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -22,6 +12,7 @@ import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
@@ -48,17 +39,26 @@ import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.collections.PropertySet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import android.content.SharedPreferences;
-
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
@@ -83,75 +83,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                         sharedPreferences);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"));
-    }
-
-    @Test
-    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpression() {
-        PlaybackSessionEvent event = mock(PlaybackSessionEvent.class);
-        when(event.isAd()).thenReturn(true);
-        when(event.shouldReportAdStart()).thenReturn(true);
-        when(event.getTimestamp()).thenReturn(12345L);
-        when(dataBuilderv0.buildForAudioAdImpression(event)).thenReturn("impressionUrl");
-        when(dataBuilderv1.buildForAudioEvent(event)).thenReturn("audioEventUrl");
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
-
-        verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
-        List<TrackingRecord> allValues = captor.getAllValues();
-        assertThat(allValues).hasSize(2);
-        assertEventTracked(allValues.get(0), "impressionUrl", event.getTimestamp());
-        assertEventTracked(allValues.get(1), "audioEventUrl", event.getTimestamp());
-    }
-
-    @Test
-    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick() {
-        AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
-        when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
-        when(dataBuilderv1.buildForAudioEvent(event)).thenReturn("audioEventUrl");
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
-
-        verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
-        List<TrackingRecord> allValues = captor.getAllValues();
-        assertThat(allValues.size()).isEqualTo(2);
-        assertEventTracked(captor.getAllValues().get(0), "clickUrl", event.getTimestamp());
-        assertEventTracked(captor.getAllValues().get(1), "audioEventUrl", event.getTimestamp());
-    }
-
-    @Test
-    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpressionForThirdPartyAd() {
-        AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(Urn.forTrack(123L));
-        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0,
-                                                                                     AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN)
-                                               .withAudioAd(audioAd);
-        when(dataBuilderv0.buildForAudioAdImpression(event)).thenReturn("impressionUrl");
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
-
-        verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
-        assertThat(captor.getAllValues().size()).isEqualTo(1);
-        assertEventTracked(captor.getValue(), "impressionUrl", event.getTimestamp());
-        verify(dataBuilderv1, never()).buildForAudioEvent(event);
-    }
-
-    @Test
-    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClickForThirdPartyAd() {
-        AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(Urn.forTrack(123L));
-        PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN)
-                                               .withAudioAd(audioAd);
-        when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
-
-        verify(eventTracker, atLeastOnce()).trackEvent(captor.capture());
-        assertThat(captor.getAllValues().size()).isEqualTo(1);
-        assertEventTracked(captor.getValue(), "clickUrl", event.getTimestamp());
-        verify(dataBuilderv1, never()).buildForAudioEvent(event);
     }
 
     @Test
@@ -444,10 +375,31 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackAdPlayImpressionEvents() {
+    public void shouldTrackAdPlaybackImpressionEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo);
-        when(dataBuilderv1.buildForAdImpression(adEvent)).thenReturn("AdPlaybackSessionEvent");
+        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, adArgs);
+        when(dataBuilderv1.buildForAdImpression(adEvent)).thenReturn("AdImpressionEvent");
+        when(dataBuilderv1.buildForAdSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
+
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        List<TrackingRecord> allValues = captor.getAllValues();
+        assertThat(allValues.size()).isEqualTo(2);
+        assertEventTracked(captor.getAllValues().get(0), "AdImpressionEvent", adEvent.getTimestamp());
+        assertEventTracked(captor.getAllValues().get(1), "AdPlaybackSessionEvent", adEvent.getTimestamp());
+    }
+
+    @Test
+    public void shouldTrackAdResumeEvents() {
+        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        videoAd.setStartReported();
+        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayStates.playing(), "123");
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, adArgs);
+
+        when(dataBuilderv1.buildForAdSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
@@ -457,41 +409,39 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotTrackAdResumeEvents() {
+    public void shouldTrackAdPauseEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        videoAd.setStartReported();
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, trackSourceInfo);
+        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                              TestPlayerTransitions.idle(),
+                                                                              "123");
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, adArgs, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        when(dataBuilderv1.buildForAdSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker, never()).trackEvent(any(TrackingRecord.class));
-    }
-
-    @Test
-    public void shouldNotTrackAdPauseEvents() {
-        VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,
-                                                                        trackSourceInfo,
-                                                                        PlaybackSessionEvent.STOP_REASON_PAUSE);
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
-
-        verify(eventTracker, never()).trackEvent(any(TrackingRecord.class));
+        verify(eventTracker).trackEvent(captor.capture());
+        assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
     }
 
     @Test
     public void shouldTrackAdFinishEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,
-                                                                        trackSourceInfo,
-                                                                        PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
-        when(dataBuilderv1.buildForAdFinished(adEvent)).thenReturn("AdPlaybackSessionEvent");
+        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                              TestPlayerTransitions.idle(),
+                                                                              "123");
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, adArgs, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        when(dataBuilderv1.buildForAdFinished(adEvent)).thenReturn("AdFinishedEvent");
+        when(dataBuilderv1.buildForAdSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker).trackEvent(captor.capture());
-        assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        List<TrackingRecord> allValues = captor.getAllValues();
+        assertThat(allValues.size()).isEqualTo(2);
+        assertEventTracked(captor.getAllValues().get(0), "AdFinishedEvent", adEvent.getTimestamp());
+        assertEventTracked(captor.getAllValues().get(1), "AdPlaybackSessionEvent", adEvent.getTimestamp());
     }
 
     @Test
