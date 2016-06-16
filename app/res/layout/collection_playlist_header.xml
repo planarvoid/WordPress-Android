@@ -4,9 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="64dp">
 
-    <View style="@style/Divider.Section" />
-    <View style="@style/Divider.Background" />
-    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Section"
+        android:id="@+id/divider_section_top"/>
+    <View style="@style/Divider.Background"
+        android:id="@+id/divider_background"
+        android:layout_below="@+id/divider_section_top"/>
+    <View style="@style/Divider.Section"
+        android:layout_below="@+id/divider_background"/>
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/header_text"
