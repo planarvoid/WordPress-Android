@@ -45,7 +45,7 @@ public interface Tables {
         public static final Column QUERY_URN = Column.create(TABLE, "query_urn");
 
         public static final int REASON_LIKED = 0;
-        public static final int REASON_LISTENED_TO = 1;
+        public static final int REASON_PLAYED = 1;
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS RecommendationSeeds (" +
                 "_id INTEGER PRIMARY KEY," +
