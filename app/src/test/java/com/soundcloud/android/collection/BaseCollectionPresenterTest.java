@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -27,7 +28,7 @@ import java.util.List;
 
 public class BaseCollectionPresenterTest extends AndroidUnitTest {
 
-    private static final MyCollection MY_COLLECTION = new MyCollection(null, null, null, null, false);
+    private static final MyCollection MY_COLLECTION = mock(MyCollection.class);
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 

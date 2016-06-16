@@ -1,8 +1,12 @@
 package com.soundcloud.android.collection;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
+import com.soundcloud.android.collection.playhistory.PlayHistoryFragment;
 import com.soundcloud.android.collection.playlists.PlaylistsCollectionActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsCollectionFragment;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedFragment;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -22,7 +26,9 @@ import android.content.res.Resources;
                 PlayHistoryActivity.class,
                 PlayHistoryFragment.class,
                 PlaylistsCollectionActivity.class,
-                PlaylistsCollectionFragment.class
+                PlaylistsCollectionFragment.class,
+                RecentlyPlayedActivity.class,
+                RecentlyPlayedFragment.class
         }
 )
 public class CollectionModule {

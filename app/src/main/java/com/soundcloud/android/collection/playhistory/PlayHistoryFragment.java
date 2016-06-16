@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.recentlyplayed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.PlayerActivity;
@@ -9,7 +9,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class PlayHistoryActivity extends PlayerActivity {
+public class RecentlyPlayedActivity extends PlayerActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
@@ -29,11 +29,11 @@ public class PlayHistoryActivity extends PlayerActivity {
 
     @Override
     public Screen getScreen() {
-        return Screen.PLAY_HISTORY;
+        return Screen.RECENTLY_PLAYED;
     }
 
     private void attachFragment() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new PlayHistoryFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new RecentlyPlayedFragment()).commit();
     }
 
 }

@@ -6,8 +6,9 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.collection.PlayHistoryActivity;
+import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsCollectionActivity;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
@@ -348,6 +349,10 @@ public class Navigator {
 
     public void openDiscovery(Context context, Screen screen) {
         context.startActivity(createDiscoveryIntent(screen));
+    }
+
+    public void openRecentlyPlayed(Context context) {
+        context.startActivity(new Intent(context, RecentlyPlayedActivity.class));
     }
 
     private Intent createHomeIntent(Context context) {

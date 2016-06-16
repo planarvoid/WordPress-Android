@@ -180,7 +180,7 @@ public class PlaylistOperations {
                 });
     }
 
-    Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
+    public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
         return playlistWithTracks(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
     }
 

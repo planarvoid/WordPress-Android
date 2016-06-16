@@ -1,7 +1,6 @@
 package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.collection.CollectionOperations.PLAYLIST_LIMIT;
-import static com.soundcloud.android.collection.CollectionOperations.PLAY_HISTORY_LIMIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +32,6 @@ import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -50,8 +48,6 @@ import java.util.Date;
 import java.util.List;
 
 public class CollectionOperationsTest extends AndroidUnitTest {
-
-    private static final List<TrackItem> PLAY_HISTORY = ModelFixtures.trackItems(3);
 
     private CollectionOperations operations;
 
@@ -102,7 +98,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
         when(stationsOperations.sync()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
-        when(playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT)).thenReturn(Observable.just(PLAY_HISTORY));
         when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
         postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
         postedPlaylist2 = getPostedPlaylist(Urn.forPlaylist(2L), new Date(3), "banana");
@@ -186,7 +181,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.<List<LikedTrackPreview>>error(exception));
         when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
-        when(playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT)).thenReturn(Observable.<List<TrackItem>>error(exception));
 
         operations.collections(options).subscribe(subscriber);
 
@@ -195,7 +189,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(Collections.emptyList());
         assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
         assertThat(collection.getRecentStations()).isEqualTo(Collections.emptyList());
-        assertThat(collection.getPlayHistoryTrackItems()).isEqualTo(Collections.emptyList());
         assertThat(collection.hasError()).isTrue();
     }
 
@@ -206,7 +199,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final RuntimeException exception = new RuntimeException("Test");
         when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
-        when(playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT)).thenReturn(Observable.<List<TrackItem>>error(exception));
 
         operations.collections(options).subscribe(subscriber);
 
@@ -215,7 +207,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
         assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
         assertThat(collection.getRecentStations()).isEqualTo(Collections.emptyList());
-        assertThat(collection.getPlayHistoryTrackItems()).isEqualTo(Collections.emptyList());
     }
 
     @Test

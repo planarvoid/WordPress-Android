@@ -595,9 +595,16 @@
     <string name="collections_without_stations_onboarding_title">Your likes. Your playlists.\nAll in one place.</string>
     <string name="collections_onboarding_description">Welcome to your new collection, a single destination for your sounds.</string>
     <string name="collections_play_history_header">Listening history</string>
+    <string name="collections_recently_played_header">Recently played</string>
     <string name="collections_view_all_tracks">View more</string>
     <string name="dialog_playlist_delete_title">Delete playlist?</string>
     <string name="dialog_playlist_delete_message">This will permanently delete this playlist. Are you sure you want to continue?</string>
+    <string name="collections_recently_played_track_station">track station</string>
+    <string name="collections_recently_played_artist_station">artist station</string>
+    <string name="collections_recently_played_other_station">station</string>
+    <string name="collections_recently_played_playlist">playlist</string>
+    <string name="collections_recently_played_album">album</string>
+    <string name="collections_recently_played_profile">profile</string>
 
     <!-- __TABS -->
     <string name="tab_home">Home</string>

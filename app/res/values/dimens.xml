@@ -53,6 +53,8 @@
     <dimen name="playlist_action_bar_padding">8dp</dimen>
     <dimen name="playlist_edit_info_left_margin">16dp</dimen>
 
+    <dimen name="collections_playlist_track_size">44dp</dimen>
+
     <dimen name="explore_suggested_track_category_text_size">16sp</dimen>
     <dimen name="grid_item_bottom_text_size">14sp</dimen>
 

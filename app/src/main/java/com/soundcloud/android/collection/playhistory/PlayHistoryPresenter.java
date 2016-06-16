@@ -1,9 +1,10 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.events.EventQueue.CURRENT_PLAY_QUEUE_ITEM;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 
+import com.soundcloud.android.collection.PlayHistoryOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;

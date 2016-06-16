@@ -1,48 +1,40 @@
 package com.soundcloud.android.collection;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TrackItem;
 
+import java.util.Collections;
 import java.util.List;
 
-public class MyCollection {
+@AutoValue
+public abstract class MyCollection {
 
-    private final LikesItem likes;
-    private final List<PlaylistItem> likedAndPostedPlaylists;
-    private final List<StationRecord> recentStations;
-    private final List<TrackItem> playHistoryTrackItems;
-    private final boolean atLeastOneError;
-
-    MyCollection(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
-                        List<StationRecord> recentStations,
-                        List<TrackItem> playHistoryTrackItems,
-                        boolean atLeastOneError) {
-        this.likes = likes;
-        this.likedAndPostedPlaylists = likedAndPostedPlaylists;
-        this.recentStations = recentStations;
-        this.playHistoryTrackItems = playHistoryTrackItems;
-        this.atLeastOneError = atLeastOneError;
+    static MyCollection forCollectionWithPlaylists(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
+                                                   List<StationRecord> recentStations, boolean atLeastOneError) {
+        return new AutoValue_MyCollection(likes, likedAndPostedPlaylists, recentStations,
+                Collections.<TrackItem>emptyList(), Collections.<RecentlyPlayedItem>emptyList(), atLeastOneError);
     }
 
-    public List<PlaylistItem> getPlaylistItems() {
-        return likedAndPostedPlaylists;
+    static MyCollection forCollectionWithPlayHistory(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
+                                                     List<TrackItem> playHistoryTrackItems,
+                                                     List<RecentlyPlayedItem> recentlyPlayedItems,
+                                                     boolean atLeastOneError) {
+        return new AutoValue_MyCollection(likes, likedAndPostedPlaylists, Collections.<StationRecord>emptyList(),
+                playHistoryTrackItems, recentlyPlayedItems, atLeastOneError);
     }
 
-    public LikesItem getLikes() {
-        return likes;
-    }
+    public abstract LikesItem getLikes();
 
-    List<StationRecord> getRecentStations() {
-        return recentStations;
-    }
+    public abstract List<PlaylistItem> getPlaylistItems();
 
-    List<TrackItem> getPlayHistoryTrackItems() {
-        return playHistoryTrackItems;
-    }
+    abstract List<StationRecord> getRecentStations();
 
-    boolean hasError() {
-        return atLeastOneError;
-    }
+    abstract List<TrackItem> getPlayHistoryTrackItems();
+
+    abstract List<RecentlyPlayedItem> getRecentlyPlayedItems();
+
+    abstract boolean hasError();
 
 }

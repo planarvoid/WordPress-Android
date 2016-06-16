@@ -46,6 +46,9 @@ class CollectionViewAllRenderer implements CellRenderer<CollectionItem> {
                     case ViewAllCollectionItem.TYPE_PLAY_HISTORY:
                         navigator.openPlayHistory(v.getContext());
                         break;
+                    case ViewAllCollectionItem.TYPE_RECENTLY_PLAYED:
+                        navigator.openRecentlyPlayed(v.getContext());
+                        break;
                     default:
                         break;
                 }
