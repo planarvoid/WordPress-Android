@@ -15,7 +15,6 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.events.RecommendationsEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -86,8 +85,6 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             handleAdDeliveryEvent((AdDeliveryEvent) event);
         } else if (event instanceof AdPlaybackSessionEvent) {
             handleAdPlaybackSessionEvent((AdPlaybackSessionEvent) event);
-        } else if (event instanceof RecommendationsEvent) {
-            handleRecommendationsEvent((RecommendationsEvent)event);
         }
     }
 
@@ -205,10 +202,6 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             default:
                 break;
         }
-    }
-
-    private void handleRecommendationsEvent(RecommendationsEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForRecommendations(eventData));
     }
 
     @Override
