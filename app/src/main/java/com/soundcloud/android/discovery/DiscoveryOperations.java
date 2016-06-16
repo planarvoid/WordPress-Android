@@ -24,8 +24,6 @@ public class DiscoveryOperations {
         this.chartsOperations = chartsOperations;
     }
 
-
-
     public void clearData() {
         chartsOperations.clearData();
         stationsOperations.clearData();

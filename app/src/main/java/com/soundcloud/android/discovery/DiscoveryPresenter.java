@@ -31,6 +31,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListenerBucket {
@@ -140,27 +141,35 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         private final PlaylistDiscoveryOperations playlistDiscoveryOperations;
         private final RecommendedStationsOperations recommendedStationsOperations;
         private final ChartsOperations chartsOperations;
+        private final FeatureFlags featureFlags;
 
         @Inject
         public DataSource(RecommendedTracksOperations recommendedTracksOperations,
                           PlaylistDiscoveryOperations playlistDiscoveryOperations,
                           RecommendedStationsOperations recommendedStationsOperations,
-                          ChartsOperations chartsOperations ) {
+                          ChartsOperations chartsOperations, FeatureFlags featureFlags) {
             this.recommendedTracksOperations = recommendedTracksOperations;
             this.playlistDiscoveryOperations = playlistDiscoveryOperations;
             this.recommendedStationsOperations = recommendedStationsOperations;
             this.chartsOperations = chartsOperations;
+            this.featureFlags = featureFlags;
         }
 
         Observable<List<DiscoveryItem>> discoveryItems() {
+            List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(4);
+            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
+                discoveryItems.add(chartsOperations.charts().map(TO_DISCOVERY_ITEM));
+            }
+            if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
+                discoveryItems.add(recommendedStationsOperations.stationsBucket());
+            }
+            if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
+                discoveryItems.add(recommendedTracksOperations.firstBucket());
+            }
+            discoveryItems.add(playlistDiscoveryOperations.playlistTags());
+
             return Observable
-                    .just(
-                            chartsOperations.charts().map(TO_DISCOVERY_ITEM),
-                            recommendedStationsOperations.stationsBucket(),
-                            recommendedTracksOperations.firstBucket(),
-                            playlistDiscoveryOperations.playlistTags()
-                    )
-                    .toList()
+                    .just(discoveryItems)
                     .compose(RxUtils.<DiscoveryItem>concatEagerIgnorePartialErrors())
                     .defaultIfEmpty(EMPTY_ITEM)
                     .onErrorReturn(ERROR_ITEM)

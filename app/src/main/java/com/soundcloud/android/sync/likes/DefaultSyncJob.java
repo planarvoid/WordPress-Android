@@ -1,17 +1,26 @@
 package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.sync.SyncJob;
+import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.concurrent.Callable;
 
 public class DefaultSyncJob implements SyncJob {
 
     private final Callable<Boolean> syncer;
+    private final Optional<Syncable> syncableOptional;
     private boolean syncResultChanged;
     private Exception syncException;
 
     public DefaultSyncJob(Callable<Boolean> syncer) {
         this.syncer = syncer;
+        this.syncableOptional = Optional.absent();
+    }
+
+    public DefaultSyncJob(Callable<Boolean> syncer, Syncable syncable) {
+        this.syncer = syncer;
+        this.syncableOptional = Optional.of(syncable);
     }
 
     @Override
@@ -38,6 +47,11 @@ public class DefaultSyncJob implements SyncJob {
     }
 
     @Override
+    public Optional<Syncable> getSyncable() {
+        return syncableOptional;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -55,6 +69,7 @@ public class DefaultSyncJob implements SyncJob {
         return syncer.hashCode();
     }
 
+    @Override
     public boolean wasSuccess() {
         return syncException == null;
     }

@@ -64,7 +64,7 @@ class SyncRequestFactory {
     private SyncRequest createRequest(Intent intent) {
         final Syncable syncable = getSyncable(intent);
         final SyncerRegistry.SyncData syncData = syncerRegistry.get(syncable);
-        return singleJobRequestFactory.create(syncData, getReceiverFromIntent(intent), getIsHighPriorityFromIntent(intent));
+        return singleJobRequestFactory.create(syncable, syncData, getReceiverFromIntent(intent), getIsHighPriorityFromIntent(intent));
     }
 
     private Syncable getSyncable(Intent intent) {
@@ -92,15 +92,6 @@ class SyncRequestFactory {
             final Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);
             return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
                     intent.getAction(), true, getReceiverFromIntent(intent), eventBus, playlistUrn);
-
-        } else if (SyncActions.SYNC_RECOMMENDED_TRACKS.equals(intent.getAction())) {
-            return new SingleJobRequest(
-                    new DefaultSyncJob(lazyRecommendationSyncer.get()),
-                    SyncActions.SYNC_RECOMMENDED_TRACKS,
-                    true,
-                    getReceiverFromIntent(intent),
-                    eventBus
-            );
         }
         return syncIntentFactory.create(intent);
     }

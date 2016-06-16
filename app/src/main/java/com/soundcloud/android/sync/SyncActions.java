@@ -10,8 +10,4 @@ public final class SyncActions {
     public static final String SYNC_PLAYLIST_LIKES  = "syncPlaylistLikes";
 
     public static final String SYNC_PLAYLIST        = "syncPlaylist";
-
-    public static final String SYNC_RECOMMENDED_TRACKS = "syncRecommendedTracks";
-
-    public static final String SYNC_CHARTS = "syncCharts";
 }

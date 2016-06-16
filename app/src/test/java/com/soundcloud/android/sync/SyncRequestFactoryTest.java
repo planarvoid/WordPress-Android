@@ -14,6 +14,7 @@ import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.sync.recommendations.RecommendationsSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TestSyncer;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,11 +109,10 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
 
         final SingleJobRequest request = mock(SingleJobRequest.class);
-        final Callable<Boolean> syncer = mock(Callable.class);
-        final Provider<Callable<Boolean>> syncerProvider = providerOf(syncer);
-        final SyncerRegistry.SyncData syncData = new SyncerRegistry.SyncData("id", syncerProvider);
+        final Provider<? extends Callable<Boolean>> syncerProvider = providerOf(new TestSyncer());
+        final SyncerRegistry.SyncData syncData = new SyncerRegistry.SyncData("id", syncerProvider, 0);
         when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(syncData);
-        when(singleJobRequestFactory.create(syncData, resultReceiverAdapter, true)).thenReturn(request);
+        when(singleJobRequestFactory.create(Syncable.CHARTS, syncData, resultReceiverAdapter, true)).thenReturn(request);
 
         assertThat(syncRequestFactory.create(intent)).isSameAs(request);
     }

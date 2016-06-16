@@ -6,8 +6,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.SyncOperations.Result;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.charts.StoreChartsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
@@ -23,40 +24,29 @@ import java.util.Collections;
 
 
 public class ChartsOperationsTest extends AndroidUnitTest {
-    private final PublishSubject<Boolean> syncSubject = PublishSubject.create();
+    private final PublishSubject<Result> syncSubject = PublishSubject.create();
     private final TestSubscriber<ChartBucket> subscriber = new TestSubscriber<>();
 
     private ChartsOperations operations;
 
-    @Mock private ChartsSyncInitiator chartsSyncInitiator;
+    @Mock private SyncOperations syncOperations;
     @Mock private StoreChartsCommand storeChartsCommand;
     @Mock private ChartsStorage chartsStorage;
-    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() {
-        this.operations = new ChartsOperations(chartsSyncInitiator, storeChartsCommand, chartsStorage, featureFlags);
-        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
-        when(chartsSyncInitiator.syncCharts()).thenReturn(syncSubject);
+        this.operations = new ChartsOperations(syncOperations, storeChartsCommand, chartsStorage);
+        when(syncOperations.lazySyncIfStale(Syncable.CHARTS)).thenReturn(syncSubject);
     }
 
     @Test
-    public void returnsEmptyObservableWhenFeatureFlagIsDisabled() {
-        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(false);
-
-        operations.charts().subscribe(subscriber);
-
-        subscriber.assertNoValues();
-    }
-
-    @Test
-    public void waitsForSyncerToReturnData() {
+    public void lazySyncAndLoadFromStorage() {
         initChartsForModule();
 
         operations.charts().subscribe(subscriber);
         subscriber.assertNoValues();
 
-        syncSubject.onNext(true);
+        syncSubject.onNext(Result.SYNCING);
 
         subscriber.getOnNextEvents();
         subscriber.assertValueCount(1);
@@ -67,7 +57,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final ChartBucket charts = initChartsForModule();
 
         operations.charts().subscribe(subscriber);
-        syncSubject.onNext(true);
+        syncSubject.onNext(Result.SYNCING);
 
         subscriber.assertValueCount(1);
         final ChartBucket chartsItem = subscriber.getOnNextEvents().get(0);
@@ -82,7 +72,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         initChartsWithTracks(topFiftyChart);
 
         operations.charts().subscribe(subscriber);
-        syncSubject.onNext(true);
+        syncSubject.onNext(Result.SYNCING);
 
         subscriber.assertNoValues();
     }
@@ -93,7 +83,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         initChartsWithTracks(hotAndNewChart);
 
         operations.charts().subscribe(subscriber);
-        syncSubject.onNext(true);
+        syncSubject.onNext(Result.SYNCING);
 
         subscriber.assertNoValues();
     }

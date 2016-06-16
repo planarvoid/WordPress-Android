@@ -3,6 +3,8 @@ package com.soundcloud.android.discovery;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsItem;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
@@ -39,16 +41,21 @@ public class DiscoveryPresenterDataSourceTest {
     @Mock private PlaylistDiscoveryOperations playlistDiscoveryOperations;
     @Mock private RecommendedStationsOperations recommendedStationsOperations;
     @Mock private ChartsOperations chartsOperations;
+    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() throws Exception {
         dataSource = new DiscoveryPresenter.DataSource(recommendedTracksOperations,
                 playlistDiscoveryOperations,
                 recommendedStationsOperations,
-                chartsOperations);
+                chartsOperations,
+                featureFlags);
 
         when(recommendedTracksOperations.firstBucket()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedStationsOperations.stationsBucket()).thenReturn(Observable.<DiscoveryItem>empty());
+        when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)).thenReturn(true);
 
         final ChartBucket chartsItem = ChartBucket.create(Collections.<Chart>emptyList(), Collections.<Chart>emptyList());
         final RecommendedStationsItem stationsItem = RecommendedStationsItem.create(Collections.<StationRecord>emptyList());

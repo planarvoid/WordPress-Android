@@ -180,16 +180,6 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void syncRecommendationsShouldRequestRecommendationsSync() throws Exception {
-        initiator.syncRecommendedTracks().subscribe(syncSubscriber);
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_RECOMMENDED_TRACKS);
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
-    }
-
-    @Test
     public void shouldResetMyLikesSyncMissesOnChangedTrackLikesSync() {
         initiator.syncTrackLikes().subscribe(syncSubscriber);
         final Uri uri = Content.ME_LIKES.uri;

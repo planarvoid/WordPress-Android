@@ -34,10 +34,6 @@ public class SyncStateManager {
         this.scheduler = scheduler;
     }
 
-    public void clear() {
-        syncStateStorage.clear();
-    }
-
     public boolean forceToStale(final Content content) {
         return updateLastSyncAttempt(content.uri, 0)
                 && updateLastSyncSuccess(content.uri, 0);

@@ -3,29 +3,22 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class RecommendedStationsOperations {
 
@@ -47,43 +40,24 @@ public class RecommendedStationsOperations {
                     return RecommendedStationsItem.create(stationRecords);
                 }
             };
-    private static final long SYNC_THRESHOLD = TimeUnit.DAYS.toMillis(1);
 
-    private final Action1<List<StationRecord>> SYNC_IF_NEEDED = new Action1<List<StationRecord>>() {
-        @Override
-        public void call(List<StationRecord> stationRecords) {
-            if (needsRefresh()) {
-                refreshRecommendedStations();
-            }
-        }
-    };
     private final StationsStorage stationsStorage;
-    private final FeatureFlags featureFlags;
     private final Scheduler scheduler;
-    private final SyncStateStorage syncStateStorage;
-    private final SyncInitiator syncInitiator;
+    private final SyncOperations syncOperations;
 
     @Inject
     RecommendedStationsOperations(StationsStorage stationsStorage,
-                                  FeatureFlags featureFlags,
                                   @Named(HIGH_PRIORITY) Scheduler scheduler,
-                                  SyncStateStorage syncStateStorage,
-                                  SyncInitiator syncInitiator) {
+                                  SyncOperations syncOperations) {
         this.stationsStorage = stationsStorage;
-        this.featureFlags = featureFlags;
         this.scheduler = scheduler;
-        this.syncStateStorage = syncStateStorage;
-        this.syncInitiator = syncInitiator;
+        this.syncOperations = syncOperations;
     }
 
     public Observable<DiscoveryItem> stationsBucket() {
-        if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
-            return recommendedStations()
-                    .filter(IS_NOT_EMPTY_LIST)
-                    .map(TO_RECOMMENDED_STATIONS_BUCKET);
-        } else {
-            return Observable.empty();
-        }
+        return recommendedStations()
+                .filter(IS_NOT_EMPTY_LIST)
+                .map(TO_RECOMMENDED_STATIONS_BUCKET);
     }
 
     public void clearData() {
@@ -91,39 +65,11 @@ public class RecommendedStationsOperations {
     }
 
     private Observable<List<StationRecord>> recommendedStations() {
-        final Observable<List<StationRecord>> source;
-
-        if (hasSyncedBefore()) {
-            source = getCollection(RECOMMENDATIONS);
-        } else {
-            source = stationsRefresh();
-        }
-
-        return source
+        return syncOperations
+                .lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)
+                .flatMap(continueWith(getCollection(RECOMMENDATIONS)))
                 .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
-                .doOnNext(SYNC_IF_NEEDED)
                 .subscribeOn(scheduler);
-    }
-
-    private boolean hasSyncedBefore() {
-        return syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS);
-    }
-
-    private boolean needsRefresh() {
-        return !syncStateStorage.hasSyncedWithin(Syncable.RECOMMENDED_STATIONS, SYNC_THRESHOLD);
-    }
-
-    private Subscription refreshRecommendedStations() {
-        return fireAndForget(syncRecommendedStations());
-    }
-
-    private Observable<List<StationRecord>> stationsRefresh() {
-        return syncRecommendedStations()
-                .flatMap(continueWith(getCollection(RECOMMENDATIONS)));
-    }
-
-    private Observable<SyncJobResult> syncRecommendedStations() {
-        return syncInitiator.sync(Syncable.RECOMMENDED_STATIONS);
     }
 
     private Observable<List<StationRecord>> getCollection(int collectionType) {

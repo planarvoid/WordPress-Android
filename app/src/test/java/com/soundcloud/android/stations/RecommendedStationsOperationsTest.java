@@ -9,10 +9,8 @@ import static rx.Observable.just;
 
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.SyncOperations.Result;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -26,7 +24,6 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     private static final Urn URN_1 = Urn.forArtistStation(1);
@@ -37,58 +34,24 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
     private static final StationRecord RECENT_1 = StationFixtures.getStation(Urn.forTrackStation(1001));
     private static final StationRecord RECENT_2 = StationFixtures.getStation(Urn.forTrackStation(1002));
 
+    private final PublishSubject<Result> syncSubject = PublishSubject.create();
+
     @Mock StationsStorage stationsStorage;
-    @Mock FeatureFlags featureFlags;
     @Mock SyncStateStorage syncStateStorage;
-    @Mock SyncInitiator syncInitiator;
+    @Mock SyncOperations syncOperations;
 
     private RecommendedStationsOperations operations;
     private Scheduler scheduler = Schedulers.immediate();
     private TestSubscriber<DiscoveryItem> subscriber = new TestSubscriber<>();
-    private PublishSubject<SyncJobResult> syncer;
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)).thenReturn(true);
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Observable.<StationRecord>empty());
         when(stationsStorage.getStationsCollection(RECENT)).thenReturn(just(RECENT_1, RECENT_2));
-        syncer = PublishSubject.create();
-        when(syncInitiator.sync(Syncable.RECOMMENDED_STATIONS)).thenReturn(syncer);
+        when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)).thenReturn(syncSubject);
         when(syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS)).thenReturn(true);
 
-        operations = new RecommendedStationsOperations(stationsStorage,
-                featureFlags, scheduler, syncStateStorage, syncInitiator);
-    }
-
-    @Test
-    public void stationsBucketShouldSyncWhenContentOlderThan24Hours() throws Exception {
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
-                .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
-        when(syncStateStorage.hasSyncedWithin(Syncable.RECOMMENDED_STATIONS, TimeUnit.DAYS.toMillis(1)))
-                .thenReturn(false);
-
-        operations.stationsBucket().subscribe();
-
-        assertThat(syncer.hasObservers()).isTrue();
-    }
-
-    @Test
-    public void stationsBucketShouldNotSyncWhenContentNewerThan24Hours() throws Exception {
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
-                .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
-        when(syncStateStorage.hasSyncedWithin(Syncable.RECOMMENDED_STATIONS, TimeUnit.DAYS.toMillis(1)))
-                .thenReturn(true);
-
-        operations.stationsBucket().subscribe();
-
-        assertThat(syncer.hasObservers()).isFalse();
-    }
-
-    @Test
-    public void shouldReturnEmptyWhenFeatureIsDisabled() throws Exception {
-        when(featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)).thenReturn(false);
-
-        assertThat(operations.stationsBucket()).isEqualTo(Observable.empty());
+        operations = new RecommendedStationsOperations(stationsStorage, scheduler, syncOperations);
     }
 
     @Test
@@ -97,23 +60,11 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
                 .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
 
         operations.stationsBucket().subscribe(subscriber);
-
-        assertThat(getStations()).containsExactly(SUGGESTED_1, SUGGESTED_2);
-        subscriber.assertCompleted();
-    }
-
-    @Test
-    public void shouldLoadNewRecommendationsWhenNoStoredRecommendations() throws Exception {
-        when(syncStateStorage.hasSyncedBefore(Syncable.RECOMMENDED_STATIONS)).thenReturn(false);
-        when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
-                .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
-
-        operations.stationsBucket().subscribe(subscriber);
-
         subscriber.assertNoValues();
-        syncer.onNext(SyncJobResult.success("action", true));
-        assertThat(getStations()).containsExactly(SUGGESTED_1, SUGGESTED_2);
 
+        syncSubject.onNext(Result.SYNCING);
+
+        assertThat(getStations()).containsExactly(SUGGESTED_1, SUGGESTED_2);
         subscriber.assertCompleted();
     }
 
@@ -123,6 +74,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
                 .thenReturn(just(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2));
 
         operations.stationsBucket().subscribe(subscriber);
+        syncSubject.onNext(Result.SYNCING);
 
         assertThat(getStations()).containsExactly(SUGGESTED_1, SUGGESTED_2, RECENT_2, RECENT_1);
     }
@@ -135,6 +87,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.<StationRecord>empty());
 
         operations.stationsBucket().subscribe(subscriber);
+        syncSubject.onNext(Result.SYNCING);
 
         assertThat(getStations()).containsExactly(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2);
     }
@@ -147,6 +100,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
                 .thenReturn(just(RECENT_2));
 
         operations.stationsBucket().subscribe(subscriber);
+        syncSubject.onNext(Result.SYNCING);
 
         assertThat(getStations()).containsExactly(SUGGESTED_1, RECENT_1);
     }

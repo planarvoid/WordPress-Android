@@ -3,6 +3,8 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.optional.Optional;
 
 import android.app.Service;
 import android.content.Intent;
@@ -36,6 +38,7 @@ public class ApiSyncService extends Service {
     public static final int MAX_TASK_LIMIT = 3;
 
     @Inject SyncRequestFactory syncIntentSyncRequestFactory;
+    @Inject SyncStateStorage syncStateStorage;
 
     private int activeTaskCount;
 
@@ -46,6 +49,12 @@ public class ApiSyncService extends Service {
 
     public ApiSyncService() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    ApiSyncService(SyncRequestFactory syncRequestFactory, SyncStateStorage syncStateStorage) {
+        this.syncIntentSyncRequestFactory = syncRequestFactory;
+        this.syncStateStorage = syncStateStorage;
     }
 
     public void onStart(Intent intent, int startId) {
@@ -103,6 +112,11 @@ public class ApiSyncService extends Service {
     }
 
     /* package */ void onSyncJobCompleted(SyncJob syncJob){
+
+        final Optional<Syncable> syncable = syncJob.getSyncable();
+        if (syncable.isPresent() && syncJob.wasSuccess()) {
+            syncStateStorage.synced(syncable.get());
+        }
 
         for (SyncRequest syncRequest : new ArrayList<>(syncRequests)) {
 

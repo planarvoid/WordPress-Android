@@ -130,10 +130,6 @@ public class LegacySyncInitiator {
         });
     }
 
-    public Observable<SyncJobResult> syncRecommendedTracks() {
-        return legacyRequestSyncObservable(SyncActions.SYNC_RECOMMENDED_TRACKS);
-    }
-
     public Observable<SyncJobResult> syncUser(final Urn userUrn) {
         return Observable.create(new Observable.OnSubscribe<SyncJobResult>() {
             @Override

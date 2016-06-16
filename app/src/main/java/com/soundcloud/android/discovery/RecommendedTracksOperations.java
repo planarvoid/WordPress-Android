@@ -10,9 +10,9 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.annotations.VisibleForTesting;
@@ -37,7 +37,7 @@ class RecommendedTracksOperations {
 
         for (TrackItem trackItem : trackItems) {
             boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn()
-                                                                                       .equals(trackItem.getUrn());
+                    .equals(trackItem.getUrn());
             recommendations.add(new Recommendation(trackItem, seedUrn, isPlaying, queryPosition, queryUrn));
         }
 
@@ -60,67 +60,57 @@ class RecommendedTracksOperations {
         };
     }
 
-    private final RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
+    private final SyncOperations syncOperations;
     private final RecommendationsStorage recommendationsStorage;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
     private final PlayQueueManager playQueueManager;
     private final Scheduler scheduler;
-    private final FeatureFlags featureFlags;
 
     @Inject
-    RecommendedTracksOperations(RecommendedTracksSyncInitiator recommendedTracksSyncInitiator,
+    RecommendedTracksOperations(SyncOperations syncOperations,
                                 RecommendationsStorage recommendationsStorage,
                                 StoreRecommendationsCommand storeRecommendationsCommand,
                                 PlayQueueManager playQueueManager,
-                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                                FeatureFlags featureFlags) {
-        this.recommendedTracksSyncInitiator = recommendedTracksSyncInitiator;
+                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+        this.syncOperations = syncOperations;
         this.recommendationsStorage = recommendationsStorage;
         this.storeRecommendationsCommand = storeRecommendationsCommand;
         this.playQueueManager = playQueueManager;
         this.scheduler = scheduler;
-        this.featureFlags = featureFlags;
     }
 
     @VisibleForTesting
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
-                                     .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                                     .map(TrackItem.fromPropertySets());
+                .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                .map(TrackItem.fromPropertySets());
     }
 
     Observable<DiscoveryItem> firstBucket() {
-        return syncAndLoadBuckets(loadFirstBucket());
+        return syncOperations
+                .lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)
+                .flatMap(continueWith(loadFirstBucket()));
     }
 
     Observable<DiscoveryItem> allBuckets() {
-        return syncAndLoadBuckets(loadAllBuckets());
-    }
-
-    private Observable<DiscoveryItem> syncAndLoadBuckets(Observable<DiscoveryItem> storageObservable) {
-        if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
-            return recommendedTracksSyncInitiator
-                    .sync()
-                    .flatMap(continueWith(storageObservable));
-        } else {
-            return Observable.empty();
-        }
+        return syncOperations
+                .lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)
+                .flatMap(continueWith(loadAllBuckets()));
     }
 
     void clearData() {
         storeRecommendationsCommand.clearTables();
-        recommendedTracksSyncInitiator.clearLastSyncTime();
     }
 
     private Observable<DiscoveryItem> loadFirstBucket() {
         return recommendationsStorage.firstSeed()
-                                     .flatMap(toBucket)
-                                     .subscribeOn(scheduler);
+                .flatMap(toBucket)
+                .subscribeOn(scheduler);
     }
 
     private Observable<DiscoveryItem> loadAllBuckets() {
         return recommendationsStorage.allSeeds()
-                                     .flatMap(toBucket)
-                                     .subscribeOn(scheduler);
+                .flatMap(toBucket)
+                .subscribeOn(scheduler);
     }
 }

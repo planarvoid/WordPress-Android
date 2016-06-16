@@ -10,8 +10,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.SyncOperations.Result;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -41,13 +42,12 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private static final List<ApiTrack> RECOMMENDED_TRACKS = ModelFixtures.create(ApiTrack.class, 2);
     private static final ApiTrack RECOMMENDED_TRACK = RECOMMENDED_TRACKS.get(0);
-    private static final PublishSubject<Boolean> SYNC_SUBJECT = PublishSubject.create();
+    private static final PublishSubject<Result> SYNC_SUBJECT = PublishSubject.create();
     private static final TrackQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(RECOMMENDED_TRACK.getUrn());
 
-    @Mock private RecommendedTracksSyncInitiator recommendedTracksSyncInitiator;
+    @Mock private SyncOperations syncOperations;
     @Mock private RecommendationsStorage recommendationsStorage;
     @Mock private StoreRecommendationsCommand storeRecommendationsCommand;
-    @Mock private FeatureFlags featureFlags;
     @Mock private PlayQueueManager playQueueManager;
 
     private RecommendedTracksOperations operations;
@@ -55,12 +55,12 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new RecommendedTracksOperations(recommendedTracksSyncInitiator,
+        operations = new RecommendedTracksOperations(syncOperations,
                                                      recommendationsStorage,
                                                      storeRecommendationsCommand,
                                                      playQueueManager,
-                                                     SCHEDULER,
-                                                     featureFlags);
+                                                     SCHEDULER
+        );
 
         // setup happy path
         final PropertySet seed = createSeed();
@@ -68,8 +68,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(recommendationsStorage.allSeeds()).thenReturn(Observable.just(seed));
         when(recommendationsStorage.recommendedTracksForSeed(SEED_ID)).thenReturn(Observable.just(
                 createRecommendedTrackPropertySet()));
-        when(recommendedTracksSyncInitiator.sync()).thenReturn(SYNC_SUBJECT);
-        when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
+        when(syncOperations.lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)).thenReturn(SYNC_SUBJECT);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
     }
 
@@ -104,20 +103,11 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsEmptyObservableWhenFeatureFlagIsDisabled() {
-        when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(false);
-
-        operations.firstBucket().subscribe(subscriber);
-
-        subscriber.assertNoValues();
-    }
-
-    @Test
     public void waitsForSyncerToReturnData() {
         operations.firstBucket().subscribe(subscriber);
         subscriber.assertNoValues();
 
-        SYNC_SUBJECT.onNext(true);
+        SYNC_SUBJECT.onNext(Result.SYNCING);
 
         final List<DiscoveryItem> onNextEvents = subscriber.getOnNextEvents();
         subscriber.assertValueCount(1);
@@ -129,7 +119,8 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     public void returnsNoDataWhenSyncerHasFinishedAndResultIsEmpty() {
         when(recommendationsStorage.firstSeed()).thenReturn(Observable.<PropertySet>empty());
         operations.firstBucket().subscribe(subscriber);
-        SYNC_SUBJECT.onNext(true);
+
+        SYNC_SUBJECT.onNext(Result.SYNCING);
 
         subscriber.assertNoValues();
     }
@@ -139,15 +130,12 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         operations.clearData();
 
         verify(storeRecommendationsCommand).clearTables();
-        verify(recommendedTracksSyncInitiator).clearLastSyncTime();
     }
 
     @Test
     public void recommendationShouldBePlayingIfCurrentPlayQueueItem() throws Exception {
         operations.firstBucket().subscribe(subscriber);
-        subscriber.assertNoValues();
-
-        SYNC_SUBJECT.onNext(true);
+        SYNC_SUBJECT.onNext(Result.SYNCING);
 
         final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
 
@@ -159,9 +147,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(987L)));
 
         operations.firstBucket().subscribe(subscriber);
-        subscriber.assertNoValues();
-
-        SYNC_SUBJECT.onNext(true);
+        SYNC_SUBJECT.onNext(Result.SYNCING);
 
         final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
 
@@ -171,10 +157,9 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     @Test
     public void recommendationShouldNotBePlayingIfPlayQueueIsEmpty() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
-        operations.firstBucket().subscribe(subscriber);
-        subscriber.assertNoValues();
 
-        SYNC_SUBJECT.onNext(true);
+        operations.firstBucket().subscribe(subscriber);
+        SYNC_SUBJECT.onNext(Result.SYNCING);
 
         final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
 

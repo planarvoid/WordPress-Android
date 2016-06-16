@@ -43,8 +43,8 @@ public class SyncStateStorage {
         this.dateProvider = dateProvider;
     }
 
-    public boolean hasSyncedBefore(Syncable recentStations) {
-        return hasSyncedBefore(recentStations.name());
+    public boolean hasSyncedBefore(Syncable syncable) {
+        return hasSyncedBefore(syncable.name());
     }
 
     void clear() {

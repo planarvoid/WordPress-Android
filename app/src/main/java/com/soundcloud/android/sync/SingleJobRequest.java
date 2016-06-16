@@ -24,11 +24,12 @@ public class SingleJobRequest implements SyncRequest {
     protected final String action;
     protected SyncJobResult resultEvent;
 
-    public SingleJobRequest(SyncerRegistry.SyncData syncData,
+    public SingleJobRequest(Syncable syncable,
+                            SyncerRegistry.SyncData syncData,
                             ResultReceiver resultReceiver,
                             boolean isHighPriority,
                             @Provided EventBus eventBus) {
-        this(new DefaultSyncJob(syncData.syncer.get()),
+        this(new DefaultSyncJob(syncData.syncer.get(), syncable),
                 syncData.id,
                 isHighPriority,
                 resultReceiver,

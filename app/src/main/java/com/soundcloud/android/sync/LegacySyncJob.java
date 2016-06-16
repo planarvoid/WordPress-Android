@@ -8,6 +8,7 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.optional.Optional;
 
 import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
@@ -67,6 +68,16 @@ public class LegacySyncJob implements SyncJob {
     @Override
     public Exception getException() {
         return exception;
+    }
+
+    @Override
+    public Optional<Syncable> getSyncable() {
+        return Optional.absent();
+    }
+
+    @Override
+    public boolean wasSuccess() {
+        return result.success;
     }
 
     /**
