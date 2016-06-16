@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.entities.EntitySyncModule;
 import com.soundcloud.android.sync.likes.LikesSyncModule;
@@ -13,7 +12,7 @@ import android.content.SharedPreferences;
 
 import javax.inject.Named;
 
-@Module(addsTo = ApplicationModule.class,
+@Module(complete = false,
         injects = {ApiSyncService.class, SyncAdapterService.class},
         includes = {
                 LikesSyncModule.class,

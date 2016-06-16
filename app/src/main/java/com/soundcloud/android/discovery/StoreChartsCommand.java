@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.charts;
+package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.storage.Tables.ChartTracks;
 import static com.soundcloud.android.storage.Tables.Charts;
@@ -8,6 +8,8 @@ import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.sync.charts.ApiChart;
+import com.soundcloud.android.sync.charts.ApiChartBucket;
 import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -18,7 +20,7 @@ import android.content.ContentValues;
 import javax.inject.Inject;
 import java.util.List;
 
-public class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucket, WriteResult> {
+class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucket, WriteResult> {
 
     private final PropellerDatabase propeller;
 

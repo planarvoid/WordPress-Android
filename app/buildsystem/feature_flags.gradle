@@ -13,12 +13,14 @@ enum Feature {
   USER_STATIONS,
   RECOMMENDED_STATIONS,
   LOCAL_PLAY_HISTORY,
+  NEW_SYNC_ADAPTER,
   ALBUMS;
 }
 
 android {
   defaultConfig {
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
+    buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE

@@ -2,6 +2,7 @@ package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.concurrent.Callable;
@@ -34,6 +35,13 @@ public class DefaultSyncJob implements SyncJob {
             syncResultChanged = syncer.call();
         } catch (Exception e) {
             syncException = e;
+            reportNonNetworkError(e);
+        }
+    }
+
+    public void reportNonNetworkError(Exception e) {
+        if (!ErrorUtils.isNetworkError(e)) {
+            ErrorUtils.handleSilentException(e);
         }
     }
 

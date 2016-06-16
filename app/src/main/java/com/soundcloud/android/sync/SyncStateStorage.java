@@ -134,4 +134,20 @@ public class SyncStateStorage {
         }
         return Integer.parseInt(extra);
     }
+
+    void incrementSyncMisses(Syncable syncable) {
+        preferences.edit().putInt(getMissesKey(syncable), getSyncMisses(syncable) + 1).apply();
+    }
+
+    void resetSyncMisses(Syncable syncable) {
+        preferences.edit().putInt(getMissesKey(syncable), 0).apply();
+    }
+
+    int getSyncMisses(Syncable syncable) {
+        return preferences.getInt(getMissesKey(syncable), 0);
+    }
+
+    private String getMissesKey(Syncable syncable) {
+        return String.format("%s_misses", syncable.name());
+    }
 }

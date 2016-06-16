@@ -8,6 +8,8 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -28,6 +30,7 @@ import android.os.IBinder;
 import android.os.Looper;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +57,8 @@ public class SyncAdapterService extends Service {
     @Inject SyncConfig syncConfig;
     @Inject UserAssociationStorage userAssociationStorage;
     @Inject SyncStateManager syncStateManager;
+    @Inject FeatureFlags featureFlags;
+    @Inject Provider<NewSyncAdapter> newSyncAdapterProvider;
 
     public SyncAdapterService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -62,7 +67,16 @@ public class SyncAdapterService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        syncAdapter = new AbstractThreadedSyncAdapter(this, false) {
+
+        if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
+            syncAdapter = newSyncAdapterProvider.get();
+        } else {
+            syncAdapter= createLegacySyncAdapter();
+        }
+    }
+
+    public AbstractThreadedSyncAdapter createLegacySyncAdapter() {
+        return new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
 
             /**
@@ -75,6 +89,7 @@ public class SyncAdapterService extends Service {
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
                 Looper.prepare();
                 looper = Looper.myLooper();
+
                 if (performSync((SoundCloudApplication) getApplication(),
                         extras, syncResult, accountOperations.getSoundCloudToken(),
                         userAssociationStorage,
@@ -83,7 +98,6 @@ public class SyncAdapterService extends Service {
                     public void run() {
                         Log.d(TAG, "sync finished");
                         sendBroadcast(new Intent(SYNC_FINISHED));
-
                         looper.quit();
                     }
                 }, syncStateManager, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig)) {

@@ -37,7 +37,7 @@ public enum ApiEndpoints {
     PLAYLIST_DISCOVERY_TAGS("/suggestions/playlists/tags"),
 
     // personalized recommendations
-    RECOMMENDATIONS("/you/personalized-tracks"),
+    TRACK_RECOMMENDATIONS("/you/personalized-tracks"),
     STATION_RECOMMENDATIONS("/you/personalized-stations"),
 
     // charts

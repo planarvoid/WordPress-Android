@@ -1,13 +1,13 @@
-package com.soundcloud.android.sync.recommendations;
+package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.discovery.RecommendationsFixtures.createApiRecommendationsWithLikedReason;
+import static com.soundcloud.android.discovery.RecommendationsFixtures.createApiRecommendationsWithListenedToReason;
+import static com.soundcloud.android.discovery.RecommendationsFixtures.createApiRecommendationsWithUnknownReason;
 import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds.RECOMMENDATION_REASON;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds.SEED_SOUND_ID;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds.SEED_SOUND_TYPE;
 import static com.soundcloud.android.storage.Tables.RecommendationSeeds.TABLE;
-import static com.soundcloud.android.sync.recommendations.RecommendationsFixtures.createApiRecommendationsWithLikedReason;
-import static com.soundcloud.android.sync.recommendations.RecommendationsFixtures.createApiRecommendationsWithListenedToReason;
-import static com.soundcloud.android.sync.recommendations.RecommendationsFixtures.createApiRecommendationsWithUnknownReason;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.assertions.QueryAssertions.assertThat;
 

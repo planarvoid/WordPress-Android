@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.recommendations;
+package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;

@@ -45,7 +45,6 @@ import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
-import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
@@ -130,7 +129,6 @@ public class SoundCloudApplication extends MultiDexApplication {
                 new WidgetModule(),
                 new LegacyModule(),
                 new FeaturesModule(),
-                new SyncModule(),
                 new PlaybackServiceModule(),
                 new GcmModule());
     }

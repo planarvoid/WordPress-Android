@@ -49,7 +49,7 @@ public class SyncOperations {
     }
 
     private boolean isContentStale(Syncable syncable) {
-        return syncStateStorage.hasSyncedWithin(syncable, syncerRegistry.get(syncable).staleTime);
+        return syncStateStorage.hasSyncedWithin(syncable, syncerRegistry.get(syncable).staleTime());
     }
 
     public enum Result {

@@ -5,7 +5,6 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.sync.charts.StoreChartsCommand;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;

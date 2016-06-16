@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.recommendations;
+package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.mockito.Matchers.argThat;
@@ -20,16 +20,16 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 
-public class RecommendationsSyncerTest extends AndroidUnitTest { // because of Uri class
+public class RecommendedTracksSyncerTest extends AndroidUnitTest { // because of Uri class
 
-    private RecommendationsSyncer recommendationsSyncer;
+    private RecommendedTracksSyncer recommendationsSyncer;
 
     @Mock private ApiClient apiClient;
     @Mock private StoreRecommendationsCommand storeRecommendationsCommand;
 
     @Before
     public void setUp() throws Exception {
-        recommendationsSyncer = new RecommendationsSyncer(apiClient, storeRecommendationsCommand);
+        recommendationsSyncer = new RecommendedTracksSyncer(apiClient, storeRecommendationsCommand);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class RecommendationsSyncerTest extends AndroidUnitTest { // because of U
         final WriteResult writeResult = mock(WriteResult.class);
 
         when(apiClient.fetchMappedResponse(
-                argThat(isApiRequestTo("GET", ApiEndpoints.RECOMMENDATIONS.path())), isA(TypeToken.class))).thenReturn(recommendations);
+                argThat(isApiRequestTo("GET", ApiEndpoints.TRACK_RECOMMENDATIONS.path())), isA(TypeToken.class))).thenReturn(recommendations);
         when(storeRecommendationsCommand.call(recommendations)).thenReturn(writeResult);
 
         recommendationsSyncer.call();
