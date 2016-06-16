@@ -6,6 +6,8 @@ import android.view.View;
 
 public class DynamicSafeViewPager extends SafeViewPager {
 
+    private int lastHeight = 0;
+
     public DynamicSafeViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -16,18 +18,19 @@ public class DynamicSafeViewPager extends SafeViewPager {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = 0;
+        if (lastHeight == 0) {
+            measureHeight(widthMeasureSpec);
+        }
+        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(lastHeight, MeasureSpec.EXACTLY));
+    }
 
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
+    // Note: This only works when the height of all items in the adapter are always the same.
+    private void measureHeight(int widthMeasureSpec) {
+        if (getAdapter().getCount() > 0) {
+            View child = (View) getAdapter().instantiateItem(this, 0);
             child.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            height = Math.max(height, child.getMeasuredHeight());
+            lastHeight = child.getMeasuredHeight();
         }
-
-        if (height > 0) {
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-        }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
 }

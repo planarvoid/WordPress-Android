@@ -105,6 +105,8 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
                 if (stationPosition < stations.size()) {
                     card.setVisibility(View.VISIBLE);
                     bindCard(card, stationPosition);
+                } else {
+                    card.setVisibility(View.INVISIBLE);
                 }
             }
         }
