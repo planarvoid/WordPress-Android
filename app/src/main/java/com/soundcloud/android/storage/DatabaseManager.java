@@ -26,7 +26,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    private static final int DATABASE_VERSION = 81;
+    public static final int DATABASE_VERSION = 82;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -58,7 +58,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.PlayQueue.SQL);
             db.execSQL(Tables.Stations.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
-            db.execSQL(LegacyTables.RecentStations.SQL);
             db.execSQL(Tables.TrackDownloads.SQL);
             db.execSQL(Tables.OfflineContent.SQL);
             db.execSQL(Tables.StationsCollections.SQL);
@@ -93,7 +92,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.StationsCollections.TABLE.name(), db);
         dropTable(Tables.TrackDownloads.TABLE.name(), db);
         dropTable(Tables.OfflineContent.TABLE.name(), db);
-        dropTable(LegacyTables.RecentStations.TABLE.name(), db);
+        dropTable("RecentStations", db);
         dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
         dropTable(Tables.Charts.TABLE.name(), db);
         dropTable(Tables.ChartTracks.TABLE.name(), db);
@@ -260,6 +259,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 81:
                             success = upgradeTo81(db, oldVersion);
+                            break;
+                        case 82:
+                            success = upgradeTo82(db, oldVersion);
                             break;
                         default:
                             break;
@@ -494,7 +496,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
             db.execSQL(Tables.Stations.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
-            db.execSQL(LegacyTables.RecentStations.SQL);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 50);
@@ -548,13 +549,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Rename STARTED_AT Column to UPDATED_LOCALLY_AT and add the POSITION column
-     * to the Recent Stations Table
+     * Drop RecentStations
      */
     private static boolean upgradeTo54(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable(LegacyTables.RecentStations.TABLE.name(), db);
-            db.execSQL(LegacyTables.RecentStations.SQL);
+            dropTable("RecentStations", db);
             return true;
 
         } catch (SQLException exception) {
@@ -564,11 +563,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Rename RecentStations to StationsCollections and add the COLLECTION_TYPE column
+     * Drop RecentStations
      */
     private static boolean upgradeTo55(SQLiteDatabase db, int oldVersion) {
         try {
-            SchemaMigrationHelper.dropTable(LegacyTables.RecentStations.TABLE.name(), db);
+            dropTable("RecentStations", db);
             db.execSQL(Tables.StationsCollections.SQL);
             return true;
         } catch (SQLException exception) {
@@ -736,7 +735,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static boolean upgradeTo67(SQLiteDatabase db, int oldVersion) {
         try {
             // this view isn't used anymore
-            SchemaMigrationHelper.dropTable("SoundAssociationView", db);
+            SchemaMigrationHelper.dropView("SoundAssociationView", db);
 
             SchemaMigrationHelper.recreate(Table.SoundView, db);
             return true;
@@ -808,7 +807,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo72(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL("ALTER TABLE Sounds ADD COLUMN modified_at INTEGER DEFAULT NULL");
+            SchemaMigrationHelper.alterColumns(Table.Sounds, db);
             recreateSoundDependentViews(db);
             return true;
         } catch (SQLException exception) {
@@ -822,7 +821,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo73(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL("ALTER TABLE Stations ADD COLUMN artwork_url_template TEXT");
+            SchemaMigrationHelper.alterColumns(Tables.Stations.TABLE.name(), Tables.Stations.SQL, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 73);
@@ -835,7 +834,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private static boolean upgradeTo74(SQLiteDatabase db, int oldVersion) {
         try {
-            db.execSQL("ALTER TABLE Stations ADD COLUMN play_queue_updated_at INTEGER DEFAULT 0");
+            SchemaMigrationHelper.alterColumns(Tables.Stations.TABLE.name(), Tables.Stations.SQL, db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 74);
@@ -931,6 +930,29 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 81);
+        }
+        return false;
+    }
+
+    /**
+     * Converge changes reflected in final schema but not through migrations
+     * from database version 36 onwards
+     */
+    private static boolean upgradeTo82(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable("CollectionItems", db);
+            dropTable("CollectionPages", db);
+            dropTable("Connections", db);
+            dropTable("RecentStations", db);
+            dropTable("Recordings", db);
+            dropTable("Searches", db);
+            dropTable("Suggestions", db);
+            dropTable("TrackMetadata", db);
+            SchemaMigrationHelper.alterColumns(Table.Comments, db);
+            SchemaMigrationHelper.recreate(Table.ActivityView, db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 82);
         }
         return false;
     }
