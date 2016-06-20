@@ -83,10 +83,15 @@ public class SearchOperationsTest extends AndroidUnitTest {
         user = ModelFixtures.create(ApiUser.class);
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.empty());
-
-        operations = new SearchOperations(apiClientRx, storeTracksCommand, storePlaylistsCommand, storeUsersCommand,
-                                          cacheUniversalSearchCommand, loadPlaylistLikedStatuses, loadFollowingCommand, Schedulers.immediate(),
-                                          featureFlags);
+        operations = new SearchOperations(new SearchStrategyFactory(apiClientRx,
+                                                                    Schedulers.immediate(),
+                                                                    storePlaylistsCommand,
+                                                                    storeTracksCommand,
+                                                                    storeUsersCommand,
+                                                                    cacheUniversalSearchCommand,
+                                                                    loadPlaylistLikedStatuses,
+                                                                    loadFollowingCommand,
+                                                                    featureFlags));
     }
 
     @Test
@@ -507,7 +512,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/premium/next")), isA(TypeToken.class))).
                 thenReturn(Observable.<Object>just(lastPage));
 
-        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingPremiumFunction(SearchType.PLAYLISTS);
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchType.PLAYLISTS);
         final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
         searchResultPager.page(operations.searchPremiumResult("q", SearchType.PLAYLISTS)).subscribe(subscriber);
         searchResultPager.next();
@@ -528,7 +533,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/premium/next")), isA(TypeToken.class))).
                                                                                                                        thenReturn(Observable.<Object>just(lastPage));
 
-        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingPremiumFunction(SearchType.ALBUMS);
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchType.ALBUMS);
         final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
         searchResultPager.page(operations.searchPremiumResult("q", SearchType.ALBUMS)).subscribe(subscriber);
         searchResultPager.next();

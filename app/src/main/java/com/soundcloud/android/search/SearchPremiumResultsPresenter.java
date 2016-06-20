@@ -157,7 +157,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
 
     private CollectionBinding<SearchResult, ListItem> createCollectionBinding(Observable<SearchResult> searchResultObservable) {
         adapter.setUpsellListener(this);
-        pagingFunction = searchOperations.pagingPremiumFunction(searchType);
+        pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
                 .from(searchResultObservable.map(addUpsellItem), TO_PRESENTATION_MODELS)
                 .withAdapter(adapter)
