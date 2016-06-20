@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="InconsistentLayout">
 
-    <ImageView
+    <com.soundcloud.android.view.OverflowAnchorImageButton
         android:id="@+id/overflow_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

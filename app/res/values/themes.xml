@@ -4,7 +4,7 @@
     <style name="BaseTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:windowBackground">@android:color/white</item>
-        <item name="android:popupAnimationStyle">@style/Animation.Popup</item>
+        <item name="popupMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
         <!-- required because of the bug inside support lib v22.1-->
         <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
         <item name="android:listViewStyle">@style/ListView</item>
@@ -24,8 +24,6 @@
     </style>
 
     <style name="Theme.SoundCloud" parent="BaseTheme">
-        <item name="dropDownListViewStyle">@style/DropDownListView</item>
-        <item name="actionDropDownStyle">@style/DropDownNav</item>
         <item name="dialogTheme">@style/LollipopDialogStyle</item>
         <item name="alertDialogTheme">@style/LollipopDialogStyle</item>
     </style>

@@ -28,7 +28,7 @@ public class PopupMenuElement extends Element {
     }
 
     protected String getElementText(ViewElement viewElement) {
-        return new TextElement(viewElement.findOnScreenElement(With.id(android.R.id.title))).getText();
+        return new TextElement(viewElement.findOnScreenElement(With.id(android.support.v7.appcompat.R.id.title))).getText();
     }
 
     protected boolean clickMenuElementForFragment(ViewElement viewElement, String fragmentTAg) {

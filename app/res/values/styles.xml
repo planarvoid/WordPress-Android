@@ -39,19 +39,6 @@
 
     <!-- shared widget styles -->
 
-    <style name="DropDownListView" parent="@style/Widget.AppCompat.ListView.DropDown">
-        <item name="android:listSelector">@drawable/list_selector_dark</item>
-    </style>
-
-    <style name="DropDownNav" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
-        <item name="android:dropDownSelector">@drawable/list_selector_dark</item>
-    </style>
-
-    <style name="SearchAutoCompleteTextView" parent="@style/Widget.AppCompat.AutoCompleteTextView">
-        <item name="android:dropDownSelector">@drawable/list_selector_dark</item>
-        <item name="android:popupBackground">@drawable/menu_dropdown_panel_dark</item>
-    </style>
-
     <style name="RadioButton.Dark" parent="android:Widget.CompoundButton.RadioButton">
         <item name="android:textColor">#ffffffff</item>
         <item name="android:textSize">20sp</item>

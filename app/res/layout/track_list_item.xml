@@ -77,21 +77,22 @@
                 android:visibility="gone" />
 
         <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/private_indicator"
-                style="@style/ListItemText.Private"
-                android:layout_marginTop="2dp"
-                android:layout_marginRight="5dp"
-                android:layout_alignBaseline="@id/list_item_right_info"
-                android:layout_toLeftOf="@id/list_item_right_info"
-                android:visibility="gone" />
+            android:id="@+id/private_indicator"
+            style="@style/ListItemText.Private"
+            android:layout_marginTop="2dp"
+            android:layout_marginRight="5dp"
+            android:layout_alignBaseline="@id/list_item_right_info"
+            android:layout_toLeftOf="@id/list_item_right_info"
+            android:visibility="gone" />
 
     </RelativeLayout>
 
-    <ImageView android:id="@+id/overflow_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/ListItemOverflowButton"
-                android:layout_gravity="bottom|right" />
+    <com.soundcloud.android.view.OverflowAnchorImageButton
+            android:id="@+id/overflow_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/ListItemOverflowButton"
+            android:layout_gravity="bottom|right" />
 
 </FrameLayout>
 
