@@ -74,11 +74,15 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                 @Override
                 public void call(SearchResult searchResult) {
                     queryUrn = searchResult.queryUrn.isPresent() ? searchResult.queryUrn.get() : Urn.NOT_SET;
+                    boolean shouldSendTrackingState = searchTracker.shouldSendResultsScreenEvent(searchType);
                     searchTracker.setTrackingData(searchType, queryUrn, searchResult.getPremiumContent().isPresent());
+                    if (publishSearchSubmissionEvent || shouldSendTrackingState) {
+                        //We need to send the event as soon as the fragment is loaded
+                        searchTracker.trackResultsScreenEvent(searchType);
+                    }
                     if (publishSearchSubmissionEvent) {
                         publishSearchSubmissionEvent = false;
                         searchTracker.trackSearchSubmission(searchType, queryUrn);
-                        searchTracker.trackResultsScreenEvent(searchType);
                     }
                 }
             };
