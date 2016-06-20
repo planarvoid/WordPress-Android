@@ -85,7 +85,7 @@
             android:id="@+id/track_page_like"
             style="@style/PlayerLikeBase.PlayerLike" />
 
-        <com.soundcloud.android.view.OverflowAnchorImageButton
+        <com.soundcloud.android.view.OverflowAnchorImageView
             android:id="@+id/track_page_more"
             style="@style/PlayerMore" />
     </LinearLayout>
