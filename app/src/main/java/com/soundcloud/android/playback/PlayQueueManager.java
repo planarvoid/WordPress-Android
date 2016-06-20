@@ -20,7 +20,6 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.collections.Pair;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +50,6 @@ public class PlayQueueManager implements OriginProvider {
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
-    private Pair<Urn, Long> lastPlayedItemAndPosition = Pair.of(Urn.NOT_SET, (long) Consts.NOT_SET);
 
     @Inject
     public PlayQueueManager(PlayQueueOperations playQueueOperations,
@@ -80,7 +78,13 @@ public class PlayQueueManager implements OriginProvider {
             setNewPlayQueueInternal(playQueue, playSessionSource);
         }
         saveQueue();
-        saveCurrentProgress(0L);
+        saveCurrentPosition();
+    }
+
+    public void saveCurrentPosition() {
+        if (playQueue.hasItems()) {
+            playQueueOperations.savePlayInfo(getPositionToBeSaved(), playSessionSource);
+        }
     }
 
     public boolean isCurrentItem(PlayQueueItem playQueueItem) {
@@ -93,6 +97,7 @@ public class PlayQueueManager implements OriginProvider {
 
     public void setCurrentPlayQueueItem(PlayQueueItem playQueueItem) {
         setPositionInternal(playQueue.indexOfPlayQueueItem(playQueueItem), true);
+        saveCurrentPosition();
     }
 
     public List<PlayQueueItem> getPlayQueueItems(Predicate<PlayQueueItem> predicate) {
@@ -193,14 +198,6 @@ public class PlayQueueManager implements OriginProvider {
         return currentPosition1 < getQueueSize() &&
                 !getPlayQueueItemAtPosition(currentPosition1).isEmpty() &&
                 getPlayQueueItemAtPosition(currentPosition1).getUrn().equals(itemUrn);
-    }
-
-    public boolean wasLastSavedItem(Urn urn) {
-        return lastPlayedItemAndPosition.first().equals(urn);
-    }
-
-    public long getLastSavedProgressPosition() {
-        return lastPlayedItemAndPosition.second();
     }
 
     public boolean isQueueEmpty() {
@@ -329,16 +326,6 @@ public class PlayQueueManager implements OriginProvider {
         broadcastNewPlayQueue();
     }
 
-    public void saveCurrentProgress(long currentProgress) {
-        if (playQueue.hasItems()) {
-            final int savePosition = getPositionToBeSaved();
-            final long progress = getProgressToBeSaved(currentProgress);
-            final Urn itemUrn = getCurrentPlayQueueItem().getUrn();
-            playQueueOperations.savePositionInfo(savePosition, itemUrn, playSessionSource, progress);
-            setLastPlayedItemAndPosition(itemUrn, progress);
-        }
-    }
-
     private int getPositionToBeSaved() {
         int adjustedPosition = currentPosition;
         for (int i = 0; i < currentPosition; i++) {
@@ -349,11 +336,6 @@ public class PlayQueueManager implements OriginProvider {
         return adjustedPosition;
     }
 
-    private long getProgressToBeSaved(long currentTrackProgress) {
-        // we will always have a next track when playing an ad. Start at the beginning of that.
-        return playQueue.shouldPersistItemAt(currentPosition) ? currentTrackProgress : 0;
-    }
-
     public Observable<PlayQueue> loadPlayQueueAsync() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
@@ -362,18 +344,10 @@ public class PlayQueueManager implements OriginProvider {
                 .doOnNext(new Action1<PlayQueue>() {
                     @Override
                     public void call(PlayQueue savedQueue) {
-                        setLastPlayedItemAndPosition(
-                                Urn.forTrack(playQueueOperations.getLastStoredPlayingTrackId()),
-                                playQueueOperations.getLastStoredSeekPosition());
-
                         currentPosition = playQueueOperations.getLastStoredPlayPosition();
                         setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
                     }
                 });
-    }
-
-    private void setLastPlayedItemAndPosition(Urn urn, long lastStoredSeekPosition) {
-        lastPlayedItemAndPosition = Pair.of(urn, lastStoredSeekPosition);
     }
 
     private void publishPositionUpdate() {
@@ -521,7 +495,6 @@ public class PlayQueueManager implements OriginProvider {
                 return trackSourceInfo.getPromotedSourceInfo();
             }
         }
-
         return null;
     }
 

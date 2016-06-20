@@ -178,7 +178,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         peripheralsController.subscribe();
         playSessionController.subscribe();
         playQueueAdvancer.subscribe();
-        playSessionStateProvider.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
         appboyPlaySessionState.subscribe();

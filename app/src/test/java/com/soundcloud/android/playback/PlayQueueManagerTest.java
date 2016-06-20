@@ -5,7 +5,6 @@ import static com.soundcloud.android.testsupport.PlayQueueAssertions.assertPlayQ
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -13,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -406,7 +404,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 1);
 
-        verify(playQueueOperations).savePositionInfo(1, Urn.forTrack(2), playlistSessionSource, 0);
+        verify(playQueueOperations).savePlayInfo(1, playlistSessionSource);
     }
 
     @Test
@@ -422,7 +420,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotUpdateCurrentPositionIfPlayQueueIsNull() {
-        playQueueManager.saveCurrentProgress(22L);
+        playQueueManager.saveCurrentPosition();
         verifyZeroInteractions(sharedPreferences);
     }
 
@@ -434,11 +432,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         when(playQueue.getPlayQueueItem(0)).thenReturn(TestPlayQueueItem.createTrack(currentUrn));
         when(playQueue.shouldPersistItemAt(0)).thenReturn(true);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
-        playQueueManager.saveCurrentProgress(123L);
 
-        InOrder inOrder = Mockito.inOrder(playQueueOperations);
-        inOrder.verify(playQueueOperations).savePositionInfo(0, currentUrn, playlistSessionSource, 0L);
-        inOrder.verify(playQueueOperations).savePositionInfo(0, currentUrn, playlistSessionSource, 123L);
+        verify(playQueueOperations).savePlayInfo(0, playlistSessionSource);
     }
 
     @Test
@@ -448,12 +443,12 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.replace(playQueueManager.getNextPlayQueueItem(), Arrays.<PlayQueueItem>asList(nonPersistedItem));
         playQueueManager.setPosition(2, true);
 
-        playQueueManager.saveCurrentProgress(12L);
+        playQueueManager.saveCurrentPosition();
 
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
         // Saves first time when we call setNewPlayQueue
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(Urn.class), any(PlaySessionSource.class), anyLong());
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(2), any(Urn.class), any(PlaySessionSource.class), anyLong());
+        inOrder.verify(playQueueOperations).savePlayInfo(eq(1), eq(playlistSessionSource));
+        inOrder.verify(playQueueOperations).savePlayInfo(eq(2), eq(playlistSessionSource));
     }
 
     @Test
@@ -463,12 +458,12 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.replace(playQueueManager.getNextPlayQueueItem(), Arrays.<PlayQueueItem>asList(nonPersistedItem));
         playQueueManager.setPosition(1, true);
 
-        playQueueManager.saveCurrentProgress(12L);
+        playQueueManager.saveCurrentPosition();
 
         InOrder inOrder = Mockito.inOrder(playQueueOperations);
         // Saves first time when we call setNewPlayQueue
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(0), any(Urn.class), any(PlaySessionSource.class), anyLong());
-        inOrder.verify(playQueueOperations).savePositionInfo(eq(1), any(Urn.class), any(PlaySessionSource.class), eq(0L));
+        inOrder.verify(playQueueOperations).savePlayInfo(eq(0), eq(playlistSessionSource));
+        inOrder.verify(playQueueOperations).savePlayInfo(eq(1), eq(playlistSessionSource));
     }
 
     @Test
@@ -492,14 +487,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.replace(playQueueManager.getCurrentPlayQueueItem(), Arrays.<PlayQueueItem>asList(replacementItem1, replacementItem2));
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).isQueueUpdate()).isTrue();
-    }
-
-    @Test
-    public void getPlayProgressIsfoReturnsLastSavedProgressInfo() {
-        playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(123L)), playlistSessionSource);
-        playQueueManager.saveCurrentProgress(456L);
-        assertThat(playQueueManager.wasLastSavedItem(Urn.forTrack(123L))).isTrue();
-        assertThat(playQueueManager.getLastSavedProgressPosition()).isEqualTo(456);
     }
 
     @Test
@@ -797,40 +784,19 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldHaveNoLastPositionWhenPlaybackOperationsReturnsEmptyObservable() {
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
-        playQueueManager.loadPlayQueueAsync();
-        assertThat(playQueueManager.getLastSavedProgressPosition()).isEqualTo(Consts.NOT_SET);
-    }
-
-    @Test
     public void shouldNotSetEmptyPlayQueue() {
         playQueueManager.setNewPlayQueue(createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L)), playlistSessionSource, 1);
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(PlayQueue.empty()));
-        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
 
         playQueueManager.loadPlayQueueAsync();
 
         assertPlayQueueItemsEqual(playQueueManager.getCurrentPlayQueueItem(), TestPlayQueueItem.createTrack(Urn.forTrack(2L)));
     }
 
-    @Test
-    public void shouldSetPlayProgressInfoWhenReloadingPlayQueue() {
-        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(PlayQueue.empty()));
-        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
-
-        playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
-        assertThat(playQueueManager.wasLastSavedItem(Urn.forTrack(456))).isTrue();
-        assertThat(playQueueManager.getLastSavedProgressPosition()).isEqualTo(400L);
-    }
 
     @Test
     public void shouldNotSetCurrentPositionIfPQIsNotLoaded() {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
-        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
 
         playQueueManager.loadPlayQueueAsync();
@@ -839,11 +805,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSetCurrentPositionIfPQIsNotLoaded() {
+    public void shouldSetCurrentPositionIfPQIsLoaded() {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
-        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         when(playQueueOperations.getLastStoredPlayPosition()).thenReturn(2);
 
         playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
@@ -856,8 +820,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
 
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
-        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
 
         expectPlayQueueContentToBeEqual(playQueueManager, playQueue);
@@ -866,8 +828,6 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void reloadedPlayQueueIsNotSavedWhenSet() {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
-        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
-        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
         when(playQueue.isEmpty()).thenReturn(false);
         playQueueManager.loadPlayQueueAsync();
         verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class));

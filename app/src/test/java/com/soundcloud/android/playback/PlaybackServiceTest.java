@@ -69,13 +69,14 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Mock private MediaSessionControllerFactory mediaSessionControllerFactory;
     @Mock private VolumeController volumeController;
     @Mock private MediaSessionController mediaSessionController;
+    @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setUp() throws Exception {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         playbackService = new PlaybackService(eventBus,
                 accountOperations, streamPlayer,playbackReceiverFactory, analyticsDispatcher, adsOperations,
-                adsController, volumeControllerFactory, mediaSessionControllerFactory);
+                adsController, volumeControllerFactory, mediaSessionControllerFactory, playSessionStateProvider);
 
         when(playbackReceiverFactory.create(playbackService, accountOperations)).thenReturn(playbackReceiver);
         when(volumeControllerFactory.create(streamPlayer, playbackService)).thenReturn(volumeController);
@@ -280,14 +281,16 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSendPlayerStateTransitionToAnalyticsDispatcher() {
+    public void shouldSendPlayerStateTransitionToAnalyticsDispatcherAfterSessionStateProvider() {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
         final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 123);
         playbackService.onPlaystateChanged(stateTransition);
 
-        verify(analyticsDispatcher).onStateTransition(playbackItem, stateTransition);
+        final InOrder inOrder = Mockito.inOrder(playSessionStateProvider, analyticsDispatcher);
+        inOrder.verify(playSessionStateProvider).onPlayStateTransition(stateTransition);
+        inOrder.verify(analyticsDispatcher).onStateTransition(playbackItem, stateTransition);
     }
 
     @Test

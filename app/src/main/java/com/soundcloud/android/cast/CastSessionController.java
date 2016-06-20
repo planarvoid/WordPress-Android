@@ -1,8 +1,6 @@
 package com.soundcloud.android.cast;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
+import static java.util.Collections.singletonList;
 
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.MediaStatus;
@@ -15,6 +13,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -23,18 +22,18 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.functions.Action1;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-
-import rx.functions.Action1;
-
-import static java.util.Collections.singletonList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 @Singleton
 public class CastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
@@ -83,7 +82,10 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     private void playLocalPlayQueueOnRemote() {
         Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
-        final PlaybackProgress lastProgressForTrack = playSessionStateProvider.getLastProgressEventForCurrentPlayQueueItem();
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        final PlaybackProgress lastProgressForTrack = currentPlayQueueItem.isEmpty() ? PlaybackProgress.empty() :
+                playSessionStateProvider.getLastProgressForItem(currentPlayQueueItem.getUrn());
+
         castPlayer.reloadCurrentQueue()
                 .doOnNext(playCurrent(lastProgressForTrack))
                 .subscribe(expandPlayerSubscriber.get());
