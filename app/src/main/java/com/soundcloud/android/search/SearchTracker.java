@@ -28,21 +28,23 @@ public class SearchTracker {
 
     private final EventBus eventBus;
     private final SearchTypes searchTypes;
-    private final Map<Screen, ScreenData> screenDataMap;
+    private final Map<SearchType, ScreenData> screenDataMap;
     private final FeatureOperations featureOperations;
 
     @Inject
-    public SearchTracker(EventBus eventBus, FeatureOperations featureOperations, SearchTypes searchTypes) {
+    public SearchTracker(EventBus eventBus,
+                         FeatureOperations featureOperations,
+                         SearchTypes searchTypes) {
         this.eventBus = eventBus;
         this.searchTypes = searchTypes;
-        this.screenDataMap = new EnumMap<>(Screen.class);
+        this.screenDataMap = new EnumMap<>(SearchType.class);
         this.featureOperations = featureOperations;
         initializeScreenQueryUrnMap();
     }
 
     private void initializeScreenQueryUrnMap() {
         for (SearchType searchType : searchTypes.available()) {
-            this.screenDataMap.put(searchType.getScreen(), ScreenData.EMPTY);
+            this.screenDataMap.put(searchType, ScreenData.EMPTY);
         }
     }
 
@@ -66,21 +68,20 @@ public class SearchTracker {
     }
 
     void trackResultsScreenEvent(SearchType searchType) {
-        trackResultsScreenEvent(searchType.getScreen());
-    }
-
-    void trackResultsScreenEvent(Screen trackingScreen) {
-        if (screenDataMap.containsKey(trackingScreen)) {
-            final ScreenData screenData = screenDataMap.get(trackingScreen);
+        //We can only track the page event when the page has been already loaded
+        if (screenDataMap.get(searchType).isTrackingDataLoaded()) {
+            final Screen trackingScreen = searchType.getScreen();
+            final ScreenData screenData = screenDataMap.get(searchType);
             final Urn queryUrn = screenData.queryUrn;
-            if (queryUrn != Urn.NOT_SET) {
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(trackingScreen.get(),
-                        new SearchQuerySourceInfo(queryUrn)));
-            }
+            eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(trackingScreen.get(),
+                                                                     new SearchQuerySourceInfo(queryUrn)));
             final boolean hasPremiumContent = screenData.hasPremiumContent;
             if (hasPremiumContent && featureOperations.upsellHighTier()) {
                 eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSearchResultsImpression(trackingScreen));
             }
+        } else {
+            //If the page is not loaded, we save this state and fire the event after search is performed
+            screenDataMap.put(searchType, ScreenData.EVENT_POSTPONED);
         }
     }
 
@@ -106,10 +107,12 @@ public class SearchTracker {
                 UpgradeFunnelEvent.forSearchPremiumResultsClick(getPremiumTrackingScreen()));
     }
 
+    boolean shouldSendResultsScreenEvent(SearchType searchType) {
+        return screenDataMap.get(searchType).hasPostponedEvent();
+    }
+
     void setTrackingData(SearchType searchType, Urn queryUrn, boolean hasPremiumContent) {
-        if (screenDataMap.containsKey(searchType.getScreen())) {
-            screenDataMap.put(searchType.getScreen(), new ScreenData(queryUrn, hasPremiumContent));
-        }
+        screenDataMap.put(searchType, new ScreenData(queryUrn, hasPremiumContent, false));
     }
 
     void reset() {
@@ -121,7 +124,7 @@ public class SearchTracker {
     }
 
     @VisibleForTesting
-    Map<Screen, ScreenData> getScreenDataMap() {
+    Map<SearchType, ScreenData> getScreenDataMap() {
         return Collections.unmodifiableMap(screenDataMap);
     }
 
@@ -141,14 +144,25 @@ public class SearchTracker {
 
     @VisibleForTesting
     static final class ScreenData {
-        static final ScreenData EMPTY = new ScreenData(Urn.NOT_SET, false);
+        static final ScreenData EMPTY = new ScreenData(Urn.NOT_SET, false, false);
+        static final ScreenData EVENT_POSTPONED = new ScreenData(Urn.NOT_SET, false, true);
 
         final Urn queryUrn;
         final boolean hasPremiumContent;
+        final boolean postponedEvent;
 
-        private ScreenData(Urn queryUrn, boolean hasPremiumContent) {
+        private ScreenData(Urn queryUrn, boolean hasPremiumContent, boolean postponedEvent) {
             this.queryUrn = queryUrn;
             this.hasPremiumContent = hasPremiumContent;
+            this.postponedEvent = postponedEvent;
+        }
+
+        boolean isTrackingDataLoaded() {
+            return queryUrn != Urn.NOT_SET;
+        }
+
+        boolean hasPostponedEvent() {
+            return postponedEvent;
         }
     }
 }

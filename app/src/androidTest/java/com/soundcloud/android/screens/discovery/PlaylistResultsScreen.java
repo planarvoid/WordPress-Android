@@ -21,7 +21,7 @@ public class PlaylistResultsScreen extends Screen {
 
     public PlaylistResultsScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag("playlist_results");
+        waiter.assertForFragmentByTag("playlist_results");
     }
 
     @Override

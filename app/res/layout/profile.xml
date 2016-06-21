@@ -58,6 +58,11 @@
                     android:layout_height="match_parent" />
 
                 <View style="@style/ToolbarShadow" />
+
+                <FrameLayout
+                    android:id="@+id/snackbar_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
             </FrameLayout>
 
         </android.support.design.widget.CoordinatorLayout>

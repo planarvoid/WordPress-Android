@@ -47,7 +47,7 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     public void storesLongPlaysAfterInterval() {
         publishStateEvents(TRACK_URN, COLLECTION_URN, true);
 
-        scheduler.advanceTimeBy(10, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(1000, TimeUnit.MILLISECONDS);
 
         verify(storeCommand, times(1)).call(PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN));
     }
@@ -56,7 +56,7 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     public void doesNotStoreShortPlays() {
         publishStateEvents(TRACK_URN, COLLECTION_URN, true);
 
-        scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(500, TimeUnit.MILLISECONDS);
 
         verify(storeCommand, never()).call(PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN));
     }
@@ -64,10 +64,10 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     @Test
     public void resetsOnNewTrack() {
         publishStateEvents(TRACK_URN, COLLECTION_URN, true);
-        scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(500, TimeUnit.MILLISECONDS);
 
         publishStateEvents(TRACK_URN2, COLLECTION_URN, true);
-        scheduler.advanceTimeBy(10, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(1000, TimeUnit.MILLISECONDS);
 
         verify(storeCommand, times(1)).call(PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN));
     }
@@ -75,10 +75,10 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     @Test
     public void emitsMultipleTimes() {
         publishStateEvents(TRACK_URN, COLLECTION_URN, true);
-        scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(500, TimeUnit.MILLISECONDS);
 
         publishStateEvents(TRACK_URN2, COLLECTION_URN, true);
-        scheduler.advanceTimeBy(10, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(1000, TimeUnit.MILLISECONDS);
 
         verify(storeCommand, times(1)).call(PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN));
     }
@@ -87,7 +87,7 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     public void publishesPlayHistoryAddedEvent() {
         publishStateEvents(TRACK_URN, COLLECTION_URN, true);
 
-        scheduler.advanceTimeBy(10, TimeUnit.SECONDS);
+        scheduler.advanceTimeBy(1000, TimeUnit.MILLISECONDS);
 
         List<PlayHistoryEvent> playHistoryEvents = eventBus.eventsOn(EventQueue.PLAY_HISTORY);
         assertThat(playHistoryEvents.size()).isEqualTo(1);

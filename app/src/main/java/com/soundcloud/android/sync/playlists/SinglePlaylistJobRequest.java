@@ -3,7 +3,7 @@ package com.soundcloud.android.sync.playlists;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SingleJobRequest;
 import com.soundcloud.android.sync.SyncJob;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -23,7 +23,7 @@ public class SinglePlaylistJobRequest extends SingleJobRequest {
     public void processJobResult(SyncJob syncJob) {
         Exception exception = syncJob.getException();
         resultEvent = exception == null ?
-                SyncResult.success(action, syncJob.resultedInAChange(), playlistUrn)
-                : SyncResult.failure(action, exception);
+                SyncJobResult.success(action, syncJob.resultedInAChange(), playlistUrn)
+                : SyncJobResult.failure(action, exception);
     }
 }

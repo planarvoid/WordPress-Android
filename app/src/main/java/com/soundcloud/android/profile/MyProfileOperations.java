@@ -9,8 +9,8 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -39,7 +39,7 @@ public class MyProfileOperations {
 
     private final NetworkConnectionHelper networkConnectionHelper;
     private final SyncStateStorage syncStateStorage;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
 
     private final PlaylistPostStorage playlistPostStorage;
     private final UserAssociationStorage userAssociationStorage;
@@ -93,7 +93,7 @@ public class MyProfileOperations {
             PostsStorage postsStorage,
             PlaylistPostStorage playlistPostStorage,
             SyncStateStorage syncStateStorage,
-            SyncInitiator syncInitiator,
+            LegacySyncInitiator syncInitiator,
             NetworkConnectionHelper networkConnectionHelper,
             UserAssociationStorage userAssociationStorage,
             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
@@ -156,10 +156,10 @@ public class MyProfileOperations {
     }
 
     @NonNull
-    private Func1<SyncResult, Observable<List<PropertySet>>> loadFollowings(final int pageSize, final long fromPosition) {
-        return new Func1<SyncResult, Observable<List<PropertySet>>>() {
+    private Func1<SyncJobResult, Observable<List<PropertySet>>> loadFollowings(final int pageSize, final long fromPosition) {
+        return new Func1<SyncJobResult, Observable<List<PropertySet>>>() {
             @Override
-            public Observable<List<PropertySet>> call(SyncResult syncResult) {
+            public Observable<List<PropertySet>> call(SyncJobResult syncJobResult) {
                 return userAssociationStorage.followedUsers(pageSize, fromPosition).subscribeOn(scheduler);
             }
         };

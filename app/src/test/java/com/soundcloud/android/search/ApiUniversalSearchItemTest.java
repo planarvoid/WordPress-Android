@@ -17,7 +17,7 @@ public class ApiUniversalSearchItemTest extends AndroidUnitTest {
     @Test
     public void shouldConvertWrappedApiUserToPropertySet() {
         final ApiUser user = ModelFixtures.create(ApiUser.class);
-        final ApiUniversalSearchItem searchResult = ApiUniversalSearchItem.forUser(user);
+        final ApiUniversalSearchItem searchResult = new ApiUniversalSearchItem(user, null, null);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
@@ -27,7 +27,7 @@ public class ApiUniversalSearchItemTest extends AndroidUnitTest {
     @Test
     public void shouldConvertWrappedApiTrackToPropertySet() {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        final ApiUniversalSearchItem searchResult = ApiUniversalSearchItem.forTrack(track);
+        final ApiUniversalSearchItem searchResult = new ApiUniversalSearchItem(null, null, track);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 
@@ -37,7 +37,7 @@ public class ApiUniversalSearchItemTest extends AndroidUnitTest {
     @Test
     public void shouldConvertWrappedApiPlaylistToPropertySet() {
         final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        final ApiUniversalSearchItem searchResult = ApiUniversalSearchItem.forPlaylist(playlist);
+        final ApiUniversalSearchItem searchResult = new ApiUniversalSearchItem(null, playlist, null);
 
         final PropertySet propertySet = searchResult.toPropertySet();
 

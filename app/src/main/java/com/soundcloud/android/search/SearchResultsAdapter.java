@@ -10,7 +10,7 @@ import com.soundcloud.android.search.SearchUpsellRenderer.OnUpsellClickListener;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +21,7 @@ import java.util.List;
 
 class SearchResultsAdapter
         extends PagingRecyclerItemAdapter<ListItem, SearchResultsAdapter.SearchViewHolder>
-        implements NowPlayingAdapter {
+        implements PlayingTrackAware {
 
     static final int TYPE_USER = ViewTypes.DEFAULT_VIEW_TYPE;
     static final int TYPE_TRACK = ViewTypes.DEFAULT_VIEW_TYPE + 1;

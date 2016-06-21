@@ -1,22 +1,20 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.discovery.ChartsSyncInitiator;
-import com.soundcloud.android.discovery.ChartsSyncRequestFactory;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.StationsSyncInitiator;
-import com.soundcloud.android.stations.StationsSyncRequestFactory;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.sync.recommendations.RecommendationsSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TestSyncer;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,10 +22,15 @@ import org.mockito.Mock;
 
 import android.content.Intent;
 
+import javax.inject.Provider;
+import java.util.concurrent.Callable;
+
 public class SyncRequestFactoryTest extends AndroidUnitTest {
 
     private SyncRequestFactory syncRequestFactory;
 
+    @Mock private SyncerRegistry syncerRegistry;
+    @Mock private SingleJobRequestFactory singleJobRequestFactory;
     @Mock private LegacySyncRequest.Factory syncIntentFactory;
     @Mock private SyncTrackLikesJob syncTrackLikesJob;
     @Mock private SyncPlaylistLikesJob syncPlaylistLikesJob;
@@ -35,26 +38,27 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private ResultReceiverAdapter resultReceiverAdapter;
     @Mock private RecommendationsSyncer recommendationsSyncer;
-    @Mock private StationsSyncRequestFactory stationsSyncRequestFactory;
-    @Mock private ChartsSyncRequestFactory chartsSyncRequestFactory;
 
     @Before
     public void setUp() throws Exception {
-        syncRequestFactory = new SyncRequestFactory(syncIntentFactory,
-                                                    lazyOf(syncTrackLikesJob),
-                                                    lazyOf(syncPlaylistLikesJob),
-                                                    entitySyncRequestFactory,
-                                                    singlePlaylistSyncerFactory,
-                                                    lazyOf(recommendationsSyncer),
-                                                    stationsSyncRequestFactory,
-                                                    chartsSyncRequestFactory, new TestEventBus());
+        syncRequestFactory = new SyncRequestFactory(
+                syncerRegistry,
+                singleJobRequestFactory,
+                syncIntentFactory,
+                lazyOf(syncTrackLikesJob),
+                lazyOf(syncPlaylistLikesJob),
+                entitySyncRequestFactory,
+                singlePlaylistSyncerFactory,
+                lazyOf(recommendationsSyncer),
+                new TestEventBus()
+        );
     }
 
     @Test
     public void returnsSingleRequestJobWithTrackLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES)
-                                                                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                                                                              resultReceiverAdapter));
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                        resultReceiverAdapter));
         assertThat(syncRequest.getPendingJobs()).hasSize(1);
         assertThat(syncRequest.getPendingJobs().contains(syncTrackLikesJob)).isTrue();
     }
@@ -99,20 +103,17 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createSyncStationsRequest() throws Exception {
-        final Intent intent = new Intent("My Action").putExtra(ApiSyncService.EXTRA_TYPE, StationsSyncInitiator.RECENT);
+    public void createsSingleRequestJobForSyncable() throws Exception {
+        final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.CHARTS)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
 
-        syncRequestFactory.create(intent);
+        final SingleJobRequest request = mock(SingleJobRequest.class);
+        final Provider<? extends Callable<Boolean>> syncerProvider = providerOf(new TestSyncer());
+        final SyncerRegistry.SyncData syncData = new SyncerRegistry.SyncData("id", syncerProvider, 0);
+        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(syncData);
+        when(singleJobRequestFactory.create(Syncable.CHARTS, syncData, resultReceiverAdapter, true)).thenReturn(request);
 
-        verify(stationsSyncRequestFactory).create(eq(intent.getAction()), any(ResultReceiverAdapter.class));
-    }
-
-    @Test
-    public void createSyncChartsRequest() throws Exception {
-        final Intent intent = new Intent("My Action").putExtra(ApiSyncService.EXTRA_TYPE, ChartsSyncInitiator.TYPE);
-
-        syncRequestFactory.create(intent);
-
-        verify(chartsSyncRequestFactory).create(eq(intent.getAction()), any(ResultReceiverAdapter.class));
+        assertThat(syncRequestFactory.create(intent)).isSameAs(request);
     }
 }

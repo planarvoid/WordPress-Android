@@ -71,7 +71,8 @@
             android:layout_marginRight="4dp"
             android:src="@drawable/ic_playlist_like" />
 
-        <ImageView android:id="@+id/overflow_button"
+        <com.soundcloud.android.view.OverflowAnchorImageView
+            android:id="@+id/overflow_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="1dp"

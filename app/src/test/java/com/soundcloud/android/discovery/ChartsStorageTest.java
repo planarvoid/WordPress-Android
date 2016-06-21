@@ -19,13 +19,9 @@ import rx.schedulers.Schedulers;
 
 import android.support.annotation.NonNull;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class ChartsStorageTest extends StorageIntegrationTest {
 
-    private final TestSubscriber<List<Chart>> subscriber = new TestSubscriber<>();
+    private final TestSubscriber<ChartBucket> subscriber = new TestSubscriber<>();
 
     private ChartsStorage storage;
     private Scheduler scheduler = Schedulers.immediate();
@@ -38,13 +34,19 @@ public class ChartsStorageTest extends StorageIntegrationTest {
     @Test
     public void returnsChartsWithTracksFromDb() {
         final Chart sourceChart1 = testFixtures().insertChart(createChart(3, ChartType.TOP),
-                                                              Charts.BUCKET_TYPE_GLOBAL);
+                Charts.BUCKET_TYPE_GLOBAL);
         final Chart sourceChart2 = testFixtures().insertChart(createChart(3, ChartType.TRENDING),
-                                                              Charts.BUCKET_TYPE_GLOBAL);
+                Charts.BUCKET_TYPE_GLOBAL);
 
         storage.charts().subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(Collections.singletonList(Arrays.asList(sourceChart1, sourceChart2)));
+        subscriber.assertValueCount(1);
+        final ChartBucket firstEvent = subscriber.getOnNextEvents().get(0);
+        final Chart actualChart1 = firstEvent.getGlobal().get(0);
+        final Chart actualChart2 = firstEvent.getGlobal().get(1);
+
+        assertThat(actualChart1.type()).isEqualTo(sourceChart1.type());
+        assertThat(actualChart2.type()).isEqualTo(sourceChart2.type());
     }
 
     @Test
@@ -52,14 +54,15 @@ public class ChartsStorageTest extends StorageIntegrationTest {
         storage.charts().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
-        final List<Chart> charts = subscriber.getOnNextEvents().get(0);
-        assertThat(charts.size()).isEqualTo(0);
+        final ChartBucket charts = subscriber.getOnNextEvents().get(0);
+        assertThat(charts.getGlobal()).isEmpty();
+        assertThat(charts.getFeaturedGenres()).isEmpty();
     }
 
     @NonNull
     private ApiChart createChart(int countOfTracks, ChartType type) {
         final ModelCollection<ApiTrack> chartTracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class,
-                                                                                                 countOfTracks));
+                countOfTracks));
         return new ApiChart("title", new Urn("soundcloud:genre:all"), type, ChartCategory.NONE, chartTracks);
     }
 }

@@ -4,7 +4,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 import com.soundcloud.java.optional.Optional;
 
 import android.support.annotation.NonNull;
@@ -14,7 +14,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserSoundsAdapter.ViewHolder> implements NowPlayingAdapter {
+public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserSoundsAdapter.ViewHolder> implements PlayingTrackAware {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;

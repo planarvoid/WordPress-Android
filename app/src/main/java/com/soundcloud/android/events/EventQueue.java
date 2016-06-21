@@ -4,7 +4,7 @@ import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.configuration.UserPlanChangedEvent;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.Queue;
 import rx.functions.Action1;
@@ -17,6 +17,8 @@ public final class EventQueue {
             ErrorUtils.handleThrowable(throwable, EventQueue.class);
         }
     };
+
+    public static final Queue<Feedback> SHOW_FEEDBACK = Queue.of(Feedback.class).onError(ON_ERROR).get();
 
     // playback
     public static final Queue<PlaybackStateTransition> PLAYBACK_STATE_CHANGED = Queue.of(PlaybackStateTransition.class).onError(ON_ERROR).replay(PlaybackStateTransition.DEFAULT).get();
@@ -38,7 +40,7 @@ public final class EventQueue {
     public static final Queue<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = Queue.of(ActivityLifeCycleEvent.class).onError(ON_ERROR).get();
 
     // data
-    public static final Queue<SyncResult> SYNC_RESULT = Queue.of(SyncResult.class).onError(ON_ERROR).replay().get();
+    public static final Queue<SyncJobResult> SYNC_RESULT = Queue.of(SyncJobResult.class).onError(ON_ERROR).replay().get();
     public static final Queue<EntityStateChangedEvent> ENTITY_STATE_CHANGED = Queue.of(EntityStateChangedEvent.class).onError(ON_ERROR).get();
     public static final Queue<OfflineContentChangedEvent> OFFLINE_CONTENT_CHANGED = Queue.of(OfflineContentChangedEvent.class).onError(ON_ERROR).replay().get();
     public static final Queue<UploadEvent> UPLOAD = Queue.of(UploadEvent.class).onError(ON_ERROR).replay(UploadEvent.idle()).get();

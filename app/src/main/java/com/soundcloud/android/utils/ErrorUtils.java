@@ -205,6 +205,8 @@ public final class ErrorUtils {
         } else if (error instanceof SyncFailedException) {
             // default Sync Failures to connection for now as we can't tell the diff
             return EmptyView.Status.CONNECTION_ERROR;
+        } else if (error instanceof EmptyThrowable) {
+            return EmptyView.Status.OK;
         } else {
             return EmptyView.Status.ERROR;
         }

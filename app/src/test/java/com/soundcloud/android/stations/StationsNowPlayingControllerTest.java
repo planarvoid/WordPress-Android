@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class StationsNowPlayingControllerTest {
     private Fragment fragment = new Fragment();
     private StationsNowPlayingController controller;
     private TestEventBus eventBus;
-    @Mock NowPlayingAdapter adapter;
+    @Mock PlayingTrackAware adapter;
 
     @Before
     public void setUp() {

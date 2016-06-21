@@ -28,6 +28,7 @@ def systemProperties = [
         "log.tag.PublicApi": "DEBUG",
         "log.tag.ApiSyncer": "DEBUG",
         "log.tag.Timeline": "DEBUG",
+        "log.tag.SC_ANDROID_TEST": "DEBUG",
         "log.tag.BUG_4503": "DEBUG",
         "log.tag.EventTracker": "DEBUG",
         "log.tag.MrLoggaVerifier": "DEBUG",
@@ -61,7 +62,8 @@ task runLollipopTests << {
           "com.soundcloud.android.framework.annotation.BlockedTrackTest",
           "com.soundcloud.android.framework.annotation.GoogleAccountTest",
           "com.soundcloud.android.framework.annotation.PaymentTest",
-          "com.soundcloud.android.framework.annotation.ProfileAlbumTest"
+          "com.soundcloud.android.framework.annotation.ProfileAlbumTest",
+          "com.soundcloud.android.framework.annotation.PreAlbumsTest"
   ] as String[]
 
   runTests("Lollipop", excludeAnnotations, systemProperties, null, null)
@@ -78,7 +80,8 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.QueueExplosionTest",
           "com.soundcloud.android.framework.annotation.StationsTabTest",
           "com.soundcloud.android.framework.annotation.PaymentTest",
-          "com.soundcloud.android.framework.annotation.ProfileAlbumTest"
+          "com.soundcloud.android.framework.annotation.ProfileAlbumTest",
+          "com.soundcloud.android.framework.annotation.AlbumsTest"
   ] as String[]
 
   runTests("Lollipop", excludeAnnotations, systemProperties, null, null)

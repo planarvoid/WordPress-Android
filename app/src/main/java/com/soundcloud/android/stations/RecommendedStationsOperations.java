@@ -3,26 +3,24 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 
 import com.soundcloud.android.discovery.DiscoveryItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscription;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class RecommendedStationsOperations {
 
@@ -37,86 +35,52 @@ public class RecommendedStationsOperations {
                 }
             };
 
-    private static final Func1<List<StationRecord>, DiscoveryItem> TO_RECOMMENDED_STATIONS_BUCKET =
+    private final Func1<List<StationRecord>, DiscoveryItem> toRecommendedStationsBucket =
             new Func1<List<StationRecord>, DiscoveryItem>() {
                 @Override
                 public DiscoveryItem call(List<StationRecord> stationRecords) {
-                    return new RecommendedStationsBucket(stationRecords);
+                    return RecommendedStationsBucketItem.create(transformToStationViewModels(stationRecords));
                 }
             };
-    private static final long SYNC_THRESHOLD = TimeUnit.DAYS.toMillis(1);
 
-    private final Action1<List<StationRecord>> SYNC_IF_NEEDED = new Action1<List<StationRecord>>() {
-        @Override
-        public void call(List<StationRecord> stationRecords) {
-            if (needsRefresh()) {
-                refreshRecommendedStations();
-            }
-        }
-    };
     private final StationsStorage stationsStorage;
-    private final FeatureFlags featureFlags;
+    private final PlayQueueManager playQueueManager;
     private final Scheduler scheduler;
-    private final SyncStateStorage syncStateStorage;
-    private final StationsSyncInitiator syncInitiator;
+    private final SyncOperations syncOperations;
 
     @Inject
     RecommendedStationsOperations(StationsStorage stationsStorage,
-                                  FeatureFlags featureFlags,
+                                  PlayQueueManager playQueueManager,
                                   @Named(HIGH_PRIORITY) Scheduler scheduler,
-                                  SyncStateStorage syncStateStorage,
-                                  StationsSyncInitiator syncInitiator) {
+                                  SyncOperations syncOperations) {
         this.stationsStorage = stationsStorage;
-        this.featureFlags = featureFlags;
+        this.playQueueManager = playQueueManager;
         this.scheduler = scheduler;
-        this.syncStateStorage = syncStateStorage;
-        this.syncInitiator = syncInitiator;
+        this.syncOperations = syncOperations;
     }
 
-    public Observable<DiscoveryItem> stationsBucket() {
-        if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
-            return recommendedStations()
-                    .filter(IS_NOT_EMPTY_LIST)
-                    .map(TO_RECOMMENDED_STATIONS_BUCKET);
-        } else {
-            return Observable.empty();
-        }
+    public Observable<DiscoveryItem> recommendedStations() {
+        return load(syncOperations
+                .lazySyncIfStale(Syncable.RECOMMENDED_STATIONS))
+                .map(toRecommendedStationsBucket);
+    }
+
+    public Observable<DiscoveryItem> refreshRecommendedStations() {
+        return load(syncOperations
+                .sync(Syncable.RECOMMENDED_STATIONS))
+                .map(toRecommendedStationsBucket);
+    }
+
+    private Observable<List<StationRecord>> load(Observable<SyncOperations.Result> source) {
+        return source
+                .flatMap(continueWith(getCollection(RECOMMENDATIONS)))
+                .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
+                .filter(IS_NOT_EMPTY_LIST)
+                .subscribeOn(scheduler);
     }
 
     public void clearData() {
         stationsStorage.clear();
-    }
-
-    private Observable<List<StationRecord>> recommendedStations() {
-        final Observable<List<StationRecord>> source;
-
-        if (hasSyncedBefore()) {
-            source = getCollection(RECOMMENDATIONS);
-        } else {
-            source = stationsRefresh();
-        }
-
-        return source
-                .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
-                .doOnNext(SYNC_IF_NEEDED)
-                .subscribeOn(scheduler);
-    }
-
-    private boolean hasSyncedBefore() {
-        return syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECOMMENDATIONS);
-    }
-
-    private boolean needsRefresh() {
-        return !syncStateStorage.hasSyncedWithin(StationsSyncInitiator.RECOMMENDATIONS, SYNC_THRESHOLD);
-    }
-
-    private Subscription refreshRecommendedStations() {
-        return fireAndForget(syncInitiator.syncRecommendedStations());
-    }
-
-    private Observable<List<StationRecord>> stationsRefresh() {
-        return syncInitiator.syncRecommendedStations()
-                .flatMap(continueWith(getCollection(RECOMMENDATIONS)));
     }
 
     private Observable<List<StationRecord>> getCollection(int collectionType) {
@@ -124,6 +88,17 @@ public class RecommendedStationsOperations {
                 .getStationsCollection(collectionType)
                 .toList()
                 .subscribeOn(scheduler);
+    }
+
+    private List<StationViewModel> transformToStationViewModels(List<StationRecord> records) {
+        final List<StationViewModel> models = new ArrayList<>(records.size());
+        final Urn playingCollectionUrn = playQueueManager.getCollectionUrn();
+        for (StationRecord record : records) {
+            boolean isPlaying = record.getUrn().equals(playingCollectionUrn);
+            StationViewModel viewModel = new StationViewModel(record, isPlaying);
+            models.add(viewModel);
+        }
+        return models;
     }
 
 }

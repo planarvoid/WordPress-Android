@@ -2,7 +2,7 @@ package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.SyncStrategy;
 import dagger.Lazy;
 import org.jetbrains.annotations.NotNull;
@@ -27,10 +27,10 @@ public class MyLikesSyncer implements SyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         Boolean tracksChanged = trackLikesSyncer.get().call();
         Boolean playlistsChanged = playlistLikesSyncer.get().call();
         return tracksChanged || playlistsChanged
-                ? ApiSyncResult.fromSuccessfulChange(uri) : ApiSyncResult.fromSuccessWithoutChange(uri);
+                ? LegacySyncResult.fromSuccessfulChange(uri) : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 }

@@ -1,5 +1,8 @@
 package com.soundcloud.android.collection;
 
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlaylistRenderer;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedProfileRenderer;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedStationRenderer;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
@@ -27,7 +30,10 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
                              CollectionEmptyPlaylistsRenderer emptyPlaylistsRenderer,
                              CollectionPlaylistItemRenderer playlistRenderer,
                              CollectionTrackItemRenderer trackRenderer,
-                             CollectionViewAllRenderer viewAllRenderer) {
+                             CollectionViewAllRenderer viewAllRenderer,
+                             RecentlyPlayedPlaylistRenderer recentlyPlayedPlaylistRenderer,
+                             RecentlyPlayedProfileRenderer recentlyPlayedProfileRenderer,
+                             RecentlyPlayedStationRenderer recentlyPlayedStationRenderer) {
         super(
                 new CellRendererBinding<>(CollectionItem.TYPE_ONBOARDING, onboardingItemCellRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PREVIEW, collectionPreviewRenderer),
@@ -36,7 +42,10 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_EMPTY, emptyPlaylistsRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_ITEM, playlistRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_TRACK_ITEM, trackRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_VIEW_ALL, viewAllRenderer));
+                new CellRendererBinding<>(CollectionItem.TYPE_VIEW_ALL, viewAllRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PLAYLIST, recentlyPlayedPlaylistRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PROFILE, recentlyPlayedProfileRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_STATION, recentlyPlayedStationRenderer));
         this.onboardingItemCellRenderer = onboardingItemCellRenderer;
 
         headerRenderer.setOnSettingsClickListener(this);

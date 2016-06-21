@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class RecommendationsFooterRenderer implements CellRenderer<RecommendationsFooterItem> {
+class RecommendationsFooterRenderer implements CellRenderer<DiscoveryItem> {
 
     @Inject
     public RecommendationsFooterRenderer() {
@@ -22,7 +22,7 @@ class RecommendationsFooterRenderer implements CellRenderer<RecommendationsFoote
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<RecommendationsFooterItem> items) {
+    public void bindItemView(int position, View itemView, List<DiscoveryItem> items) {
 
     }
 }

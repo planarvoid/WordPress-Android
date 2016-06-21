@@ -17,6 +17,7 @@
         <item name="android:src">@drawable/player_overflow</item>
         <item name="android:background">@drawable/btn_player_engagement_ripple</item>
         <item name="android:stateListAnimator">@null</item>
+        <item name="android:scaleType">center</item>
     </style>
 
     <style name="PlayerShare" parent="Widget.AppCompat.Button.Borderless">

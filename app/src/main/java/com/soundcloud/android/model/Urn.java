@@ -46,10 +46,6 @@ public final class Urn extends ContentStringHelper<Urn> {
         this.content = buildFrom(namespace, collection, id);
     }
 
-    public static Urn forSource(String source) {
-        return new Urn(UrnNamespace.LOCAL + SEPARATOR  + UrnCollection.SOURCE + SEPARATOR + source);
-    }
-
     @Override
     @NonNull
     String getContent() {
@@ -119,6 +115,11 @@ public final class Urn extends ContentStringHelper<Urn> {
                 && (collection == UrnCollection.STATIONS
                 || collection == UrnCollection.TRACK_STATIONS
                 || collection == UrnCollection.ARTIST_STATIONS);
+    }
+
+    public boolean isTrackStation() {
+        return isSoundCloud()
+                && collection == UrnCollection.TRACK_STATIONS;
     }
 
     public boolean isArtistStation() {

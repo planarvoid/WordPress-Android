@@ -7,8 +7,8 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.Timestamped;
-import com.soundcloud.android.sync.SyncContent;
-import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
@@ -34,17 +34,17 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
-    private final SyncContent syncContent;
+    private final LegacySyncContent syncContent;
     private final TimelineStorage storage;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final ContentStats contentStats;
     private final Scheduler scheduler;
     private final SyncStateStorage syncStateStorage;
     private final List<ItemT> noMorePagesSentinel = Collections.emptyList();
 
-    public TimelineOperations(SyncContent syncContent,
+    public TimelineOperations(LegacySyncContent syncContent,
                               TimelineStorage storage,
-                              SyncInitiator syncInitiator,
+                              LegacySyncInitiator syncInitiator,
                               ContentStats contentStats,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                               SyncStateStorage syncStateStorage) {

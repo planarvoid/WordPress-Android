@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,15 +34,15 @@ public class LegacySinglePlaylistSyncerTest {
     public void returnsChangeResultIfPlaylistSyncChangedSomething() throws Exception {
         when(singlePlaylistSyncer.call()).thenReturn(true);
 
-        ApiSyncResult result = legacySinglePlaylistSyncer.syncContent(URI, null);
-        assertThat(result.change).isEqualTo(ApiSyncResult.CHANGED);
+        LegacySyncResult result = legacySinglePlaylistSyncer.syncContent(URI, null);
+        assertThat(result.change).isEqualTo(LegacySyncResult.CHANGED);
         assertThat(result.uri).isEqualTo(URI);
     }
 
     @Test
     public void returnsUnchangedResultIfPlaylistSyncDidNotChangeAnything() throws Exception {
-        ApiSyncResult result = legacySinglePlaylistSyncer.syncContent(URI, null);
-        assertThat(result.change).isEqualTo(ApiSyncResult.UNCHANGED);
+        LegacySyncResult result = legacySinglePlaylistSyncer.syncContent(URI, null);
+        assertThat(result.change).isEqualTo(LegacySyncResult.UNCHANGED);
         assertThat(result.uri).isEqualTo(URI);
     }
 }

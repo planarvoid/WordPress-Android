@@ -37,6 +37,8 @@ android {
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
     }
 
     beta {
@@ -44,6 +46,7 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
     }
 
     debug {
@@ -51,24 +54,29 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
     }
 
     release {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
     }
 
     releaseNoProguard {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
     }
 
     releaseNonPlayStore {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
     }
   }
 }

@@ -12,7 +12,7 @@ public class CreatePlaylistScreen extends Screen {
 
     public CreatePlaylistScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag("create_new_set_dialog");
+        waiter.assertForFragmentByTag("create_new_set_dialog");
     }
 
     @Override

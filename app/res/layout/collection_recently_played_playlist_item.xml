@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout android:id="@+id/collections_recently_played_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?attr/selectableItemBackground">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        tools:ignore="UselessParent">
+
+        <com.soundcloud.android.view.SquareImageView
+            android:id="@+id/artwork"
+            android:scaleType="centerCrop"
+            android:padding="1dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/track_count_container"
+            style="@style/Collections.SmallTrackCountContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/artwork">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/track_count"
+                style="@style/Collections.SmallTrackCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="12" />
+        </LinearLayout>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/Collections.ItemTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artwork"
+            android:layout_marginRight="4dp" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/recently_played_type"
+            style="@style/Collections.Creator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:layout_marginRight="4dp" />
+
+    </RelativeLayout>
+
+</FrameLayout>

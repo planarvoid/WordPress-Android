@@ -36,7 +36,7 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Mode
             public void steps(PropellerDatabase propeller) {
                 //For tracking we need to keep both query_urn and query_position.
                 //https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/personalized-recommender-tracking.md
-                long queryPosition = 1;
+                long queryPosition = 0;
                 final Urn queryUrn = recommendations.getQueryUrn().or(Urn.NOT_SET);
 
                 for (ApiRecommendation apiRecommendation : recommendations) {
@@ -98,7 +98,7 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Mode
             case LIKED:
                 return RecommendationSeeds.REASON_LIKED;
             case LISTENED_TO:
-                return RecommendationSeeds.REASON_LISTENED_TO;
+                return RecommendationSeeds.REASON_PLAYED;
             default:
                 throw new IllegalArgumentException("Unhandled reason " + reason);
         }

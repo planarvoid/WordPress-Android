@@ -44,6 +44,7 @@ android {
       signingConfig signingConfigs.release
       multiDexEnabled true
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
+      buildConfigField "String", "APP_ENVIRONMENT", "\"prod\""
     }
 
     release.initWith(buildTypes.releaseNoProguard)
@@ -68,6 +69,7 @@ android {
       versionNameSuffix '-beta'
       proguardFiles = ['buildsystem/proguard.cfg']
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
+      buildConfigField "String", "APP_ENVIRONMENT", "\"beta\""
     }
 
     alpha.initWith(buildTypes.release)
@@ -78,6 +80,7 @@ android {
       ext.betaDistributionNotifications = false
       proguardFiles = ['buildsystem/proguard.cfg']
       buildConfigField "boolean", "RUN_ADS_TEST", "false"
+      buildConfigField "String", "APP_ENVIRONMENT", "\"alpha\""
     }
 
     debug {
@@ -89,6 +92,7 @@ android {
       minifyEnabled project.hasProperty('proguard')
       multiDexEnabled true
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
+      buildConfigField "String", "APP_ENVIRONMENT", "\"dev\""
     }
 
     repack.initWith(buildTypes.debug)

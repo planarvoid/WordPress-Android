@@ -102,6 +102,28 @@ public class ApiClientTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldSendAppVersionHeader() throws Exception {
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
+        mockSuccessfulResponseFor(request);
+
+        ApiResponse response = apiClient.fetchResponse(request);
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().header("App-Version")).matches("\\d+");
+    }
+
+    @Test
+    public void shouldSendAppEnvironmentHeader() throws Exception {
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
+        mockSuccessfulResponseFor(request);
+
+        ApiResponse response = apiClient.fetchResponse(request);
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().header("App-Environment")).matches("(dev|alpha|beta|prod)");
+    }
+
+    @Test
     public void shouldSendDeviceLocaleHeader() throws Exception {
         ApiRequest request = ApiRequest.get(URL).forPrivateApi().build();
         mockSuccessfulResponseFor(request);

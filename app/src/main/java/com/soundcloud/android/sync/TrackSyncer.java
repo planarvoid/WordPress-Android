@@ -29,15 +29,15 @@ public class TrackSyncer implements SyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         final Urn trackUrn = Urn.forTrack(ContentUris.parseId(uri));
         final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACKS.path(trackUrn)).forPrivateApi().build();
         final ApiTrack track = apiClient.fetchMappedResponse(request, ApiTrack.class);
 
         final WriteResult writeResult = storeTracksCommand.call(Collections.singleton(track));
         if (writeResult.success()) {
-            return ApiSyncResult.fromSuccessfulChange(uri);
+            return LegacySyncResult.fromSuccessfulChange(uri);
         }
-        return ApiSyncResult.fromClientError(uri);
+        return LegacySyncResult.fromClientError(uri);
     }
 }

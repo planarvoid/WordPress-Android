@@ -47,7 +47,8 @@
             android:text="@string/title_now_playing" />
     </RelativeLayout>
 
-    <ImageView android:id="@+id/overflow_button"
+    <com.soundcloud.android.view.OverflowAnchorImageView
+        android:id="@+id/overflow_button"
         style="@style/Recommendation.OverflowButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -26,8 +26,8 @@ final class RecommendationSeedMapper extends RxResultMapper<PropertySet> {
         switch (dbReason) {
             case Tables.RecommendationSeeds.REASON_LIKED:
                 return RecommendationReason.LIKED;
-            case Tables.RecommendationSeeds.REASON_LISTENED_TO:
-                return RecommendationReason.LISTENED_TO;
+            case Tables.RecommendationSeeds.REASON_PLAYED:
+                return RecommendationReason.PLAYED;
             default:
                 throw new IllegalStateException("Could not find reason for database value " + dbReason);
         }

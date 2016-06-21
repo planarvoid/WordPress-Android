@@ -32,7 +32,7 @@ public class SearchResultsScreen extends Screen {
     public SearchResultsScreen(Han solo) {
         super(solo);
         this.searchTabs = new SearchTabs(solo);
-        waiter.waitForFragmentByTag(FRAGMENT);
+        waiter.assertForFragmentByTag(FRAGMENT);
     }
 
     public VisualPlayerElement findAndClickFirstTrackItem() {
@@ -44,6 +44,11 @@ public class SearchResultsScreen extends Screen {
 
     public PlaylistDetailsScreen findAndClickFirstPlaylistItem() {
         scrollToItem(With.id(R.id.playlist_list_item)).click();
+        return new PlaylistDetailsScreen(testDriver);
+    }
+
+    public PlaylistDetailsScreen findAndClickFirstAlbumItem() {
+        scrollToItem(With.text(R.string.set_type_album_label)).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
@@ -69,15 +74,19 @@ public class SearchResultsScreen extends Screen {
     }
 
     public SearchResultsScreen goToTracksTab() {
-        return searchTabs.goToTracksTab();
+        return searchTabs.swipeLeftToTracksTab();
     }
 
     public SearchResultsScreen goToPlaylistsTab() {
-        return searchTabs.goToPlaylistsTab();
+        return searchTabs.swipeLeftToPlaylistsTab();
+    }
+
+    public SearchResultsScreen goToAlbumsTab() {
+        return searchTabs.swipeLeftToAlbumsTab();
     }
 
     public SearchResultsScreen goToPeopleTab() {
-        return searchTabs.goToPeopleTab();
+        return searchTabs.swipeLeftToPeopleTab();
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {

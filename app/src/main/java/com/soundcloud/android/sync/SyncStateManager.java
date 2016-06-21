@@ -34,16 +34,12 @@ public class SyncStateManager {
         this.scheduler = scheduler;
     }
 
-    public void clear() {
-        syncStateStorage.clear();
-    }
-
     public boolean forceToStale(final Content content) {
         return updateLastSyncAttempt(content.uri, 0)
                 && updateLastSyncSuccess(content.uri, 0);
     }
 
-    public boolean onSyncComplete(ApiSyncResult result, Uri collectionUri) {
+    public boolean onSyncComplete(LegacySyncResult result, Uri collectionUri) {
         return result != null
                 && result.synced_at > 0
                 && updateLastSyncSuccess(collectionUri, dateProvider.getCurrentTime());
@@ -105,9 +101,9 @@ public class SyncStateManager {
      * @param syncContentEnumSet
      * @param force              force sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
-    public List<Uri> getCollectionsDueForSync(EnumSet<SyncContent> syncContentEnumSet, boolean force) {
+    public List<Uri> getCollectionsDueForSync(EnumSet<LegacySyncContent> syncContentEnumSet, boolean force) {
         List<Uri> urisToSync = new ArrayList<>();
-        for (SyncContent sc : syncContentEnumSet) {
+        for (LegacySyncContent sc : syncContentEnumSet) {
             if (force || isContentDueForSync(sc)) {
                 urisToSync.add(sc.content.uri);
             }
@@ -115,7 +111,7 @@ public class SyncStateManager {
         return urisToSync;
     }
 
-    public boolean isContentDueForSync(SyncContent syncContent) {
+    public boolean isContentDueForSync(LegacySyncContent syncContent) {
         final int syncMisses = syncStateStorage.legacyLoadSyncMisses(syncContent.contentUri());
         final long lastSyncSuccess = syncStateStorage.legacyLoadLastSyncSuccess(syncContent.contentUri());
         final boolean shouldSync = syncContent.shouldSync(syncMisses, lastSyncSuccess);

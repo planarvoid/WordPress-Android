@@ -37,7 +37,6 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recommendations_carousel"
         android:paddingLeft="16dp"
-        android:paddingRight="8dp"
         android:layout_marginBottom="24dp"
         android:clipToPadding="false"
         android:layout_width="match_parent"

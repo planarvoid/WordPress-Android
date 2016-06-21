@@ -9,9 +9,11 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class AddToPlaylistScreen extends Screen {
 
+    public static final String FRAGMENT_TAG = "create_playlist_dialog";
+
     public AddToPlaylistScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag("create_playlist_dialog");
+        waiter.assertForFragmentByTag(FRAGMENT_TAG);
     }
 
     @Override
@@ -21,7 +23,7 @@ public class AddToPlaylistScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return waiter.waitForFragmentByTag("create_playlist_dialog");
+        return waiter.waitForFragmentByTag(FRAGMENT_TAG);
     }
 
     public CreatePlaylistScreen clickCreateNewPlaylist() {

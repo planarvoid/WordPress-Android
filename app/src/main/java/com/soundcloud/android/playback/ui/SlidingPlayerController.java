@@ -59,6 +59,12 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         this.eventBus = eventBus;
     }
 
+    @Nullable
+    public View getSnackbarHolder(){
+        final View view = playerFragment.getView();
+        return view != null ? view.findViewById(R.id.player_pager_holder) : null;
+    }
+
     @Override
     public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
@@ -80,7 +86,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         return (PlayerFragment) activity.getSupportFragmentManager().findFragmentById(R.id.player_root);
     }
 
-    private boolean isExpanded() {
+    public boolean isExpanded() {
         return slidingPanel.getPanelState() == PanelState.EXPANDED;
     }
 

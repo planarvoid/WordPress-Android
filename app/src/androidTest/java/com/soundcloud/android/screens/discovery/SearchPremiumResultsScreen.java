@@ -17,7 +17,7 @@ public class SearchPremiumResultsScreen extends Screen {
 
     public SearchPremiumResultsScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag(FRAGMENT);
+        waiter.assertForFragmentByTag(FRAGMENT);
     }
 
     public UpgradeScreen clickOnUpgradeSubscription() {

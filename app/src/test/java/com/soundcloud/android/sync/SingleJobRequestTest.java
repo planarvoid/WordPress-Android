@@ -76,9 +76,9 @@ public class SingleJobRequestTest extends AndroidUnitTest {
         singleJobRequest.processJobResult(syncJob);
         singleJobRequest.finish();
 
-        final SyncResult syncResult = getSyncResult();
-        assertThat(syncResult.wasSuccess()).isTrue();
-        assertThat(syncResult.wasChanged()).isTrue();
+        final SyncJobResult syncJobResult = getSyncResult();
+        assertThat(syncJobResult.wasSuccess()).isTrue();
+        assertThat(syncJobResult.wasChanged()).isTrue();
     }
 
     @Test
@@ -87,9 +87,9 @@ public class SingleJobRequestTest extends AndroidUnitTest {
         singleJobRequest.processJobResult(syncJob);
         singleJobRequest.finish();
 
-        final SyncResult syncResult = getSyncResult();
-        assertThat(syncResult.wasSuccess()).isTrue();
-        assertThat(syncResult.wasChanged()).isFalse();
+        final SyncJobResult syncJobResult = getSyncResult();
+        assertThat(syncJobResult.wasSuccess()).isTrue();
+        assertThat(syncJobResult.wasChanged()).isFalse();
     }
 
     @Test
@@ -97,7 +97,7 @@ public class SingleJobRequestTest extends AndroidUnitTest {
         singleJobRequest.processJobResult(syncJob);
         singleJobRequest.finish();
 
-        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncResult.success(ACTION, false));
+        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncJobResult.success(ACTION, false));
     }
 
     @Test
@@ -107,7 +107,7 @@ public class SingleJobRequestTest extends AndroidUnitTest {
         singleJobRequest.processJobResult(syncJob);
         singleJobRequest.finish();
 
-        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncResult.success(ACTION, true));
+        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncJobResult.success(ACTION, true));
     }
 
     @Test
@@ -118,10 +118,10 @@ public class SingleJobRequestTest extends AndroidUnitTest {
         singleJobRequest.processJobResult(syncJob);
         singleJobRequest.finish();
 
-        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncResult.failure(ACTION, exception));
+        assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT)).isEqualTo(SyncJobResult.failure(ACTION, exception));
     }
 
-    private SyncResult getSyncResult() {
+    private SyncJobResult getSyncResult() {
         ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
         verify(resultReceiver).send(eq(0), bundleCaptor.capture());
         return bundleCaptor.getValue().getParcelable(ResultReceiverAdapter.SYNC_RESULT);

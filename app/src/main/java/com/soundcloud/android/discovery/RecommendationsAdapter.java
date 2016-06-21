@@ -5,12 +5,12 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, RecommendationsViewHolder> implements NowPlayingAdapter {
+class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, RecommendationsViewHolder> implements PlayingTrackAware {
 
     private static final int RECOMMENDATION_TYPE = 0;
 

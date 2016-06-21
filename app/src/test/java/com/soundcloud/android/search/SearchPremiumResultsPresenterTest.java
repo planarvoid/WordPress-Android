@@ -76,7 +76,7 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
         when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         when(searchOperations.searchPremiumResultFrom(any(List.class), any(Optional.class), any(Urn.class))).thenReturn(searchResultObservable);
         when(searchOperations.searchPremiumResult(anyString(), any(SearchType.class))).thenReturn(searchResultObservable);
-        when(searchOperations.pagingPremiumFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
+        when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
     }
 
     @Test

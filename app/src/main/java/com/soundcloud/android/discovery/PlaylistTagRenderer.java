@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class PlaylistTagRenderer implements CellRenderer<PlaylistDiscoveryItem> {
+class PlaylistTagRenderer implements CellRenderer<PlaylistTagsItem> {
 
     private final PlaylistTagsPresenter playlistTagsPresenter;
 
@@ -22,14 +22,11 @@ class PlaylistTagRenderer implements CellRenderer<PlaylistDiscoveryItem> {
 
     @Override
     public View createItemView(ViewGroup viewGroup) {
-        final View tagsView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.playlist_tags, viewGroup, false);
-        // we don't use this empty view, it is for playlist tags (remove it when we remove the feature flag)
-        tagsView.findViewById(android.R.id.empty).setVisibility(View.GONE);
-        return tagsView;
+        return LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.playlist_tags, viewGroup, false);
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PlaylistDiscoveryItem> discoveryItems) {
+    public void bindItemView(int position, View itemView, List<PlaylistTagsItem> discoveryItems) {
         final List<String> recentTags = discoveryItems.get(position).getRecentTags();
         final List<String> popularTags = discoveryItems.get(position).getPopularTags();
         if (!recentTags.isEmpty()) {

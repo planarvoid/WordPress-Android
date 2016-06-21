@@ -39,7 +39,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
     public void shouldLoadFirstSeed() {
         ApiUser user = testFixtures().insertUser();
         PropertySet first = insertSeedTrack(ModelFixtures.create(ApiTrack.class), user, RecommendationReason.LIKED);
-        insertSeedTrack(ModelFixtures.create(ApiTrack.class), user, RecommendationReason.LISTENED_TO);
+        insertSeedTrack(ModelFixtures.create(ApiTrack.class), user, RecommendationReason.PLAYED);
         TestSubscriber<PropertySet> firstSeedSubscriber = new TestSubscriber<>();
 
         storage.firstSeed().subscribe(firstSeedSubscriber);
@@ -52,7 +52,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         ApiUser user = testFixtures().insertUser();
         final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
         PropertySet first = insertSeedTrack(tracks.get(0), user, RecommendationReason.LIKED);
-        PropertySet second = insertSeedTrack(tracks.get(1), user, RecommendationReason.LISTENED_TO);
+        PropertySet second = insertSeedTrack(tracks.get(1), user, RecommendationReason.PLAYED);
 
         storage.allSeeds().subscribe(subscriber);
 
@@ -128,8 +128,8 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         switch (reason) {
             case LIKED:
                 return RecommendationSeeds.REASON_LIKED;
-            case LISTENED_TO:
-                return RecommendationSeeds.REASON_LISTENED_TO;
+            case PLAYED:
+                return RecommendationSeeds.REASON_PLAYED;
             default:
                 throw new IllegalArgumentException("Unknown recommendation reason " + reason);
         }

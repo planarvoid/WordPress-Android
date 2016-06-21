@@ -5,11 +5,11 @@ import com.soundcloud.android.activities.ActivityKind;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.discovery.ChartBucketType;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.discovery.Chart;
+import com.soundcloud.android.discovery.ChartBucketType;
 import com.soundcloud.android.discovery.ChartTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
@@ -25,7 +25,7 @@ import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.storage.Tables.TrackDownloads;
-import com.soundcloud.android.sync.SyncContent;
+import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.activities.ApiPlaylistRepostActivity;
 import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
@@ -275,16 +275,16 @@ public class DatabaseFixtures {
     public ApiTrack insertPlaylistTrackPendingAddition(ApiPlaylist playlist, int position, Date additionDate) {
         final ApiTrack apiTrack = insertPlaylistTrack(playlist, position);
         database.execSQL("UPDATE PlaylistTracks SET added_at=" + additionDate.getTime()
-                                 + " WHERE playlist_id=" + playlist.getId()
-                                 + " AND track_id=" + apiTrack.getId());
+                + " WHERE playlist_id=" + playlist.getId()
+                + " AND track_id=" + apiTrack.getId());
         return apiTrack;
     }
 
     public ApiTrack insertPlaylistTrackPendingRemoval(ApiPlaylist playlist, int position, Date removalDate) {
         final ApiTrack apiTrack = insertPlaylistTrack(playlist, position);
         database.execSQL("UPDATE PlaylistTracks SET removed_at=" + removalDate.getTime()
-                                 + " WHERE playlist_id=" + playlist.getId()
-                                 + " AND track_id=" + apiTrack.getId());
+                + " WHERE playlist_id=" + playlist.getId()
+                + " AND track_id=" + apiTrack.getId());
         return apiTrack;
     }
 
@@ -399,32 +399,32 @@ public class DatabaseFixtures {
 
     public Chart insertChart(ApiChart apiChart, int bucketType) {
         final ContentValues cv = new ContentValues();
-        cv.put(Tables.Charts.DISPLAY_NAME.name(), apiChart.getDisplayName());
-        if (apiChart.getGenre() != null) {
-            cv.put(Tables.Charts.GENRE.name(), apiChart.getGenre().toString());
+        cv.put(Tables.Charts.DISPLAY_NAME.name(), apiChart.displayName());
+        if (apiChart.genre() != null) {
+            cv.put(Tables.Charts.GENRE.name(), apiChart.genre().toString());
         }
-        cv.put(Tables.Charts.TYPE.name(), apiChart.getType().value());
-        cv.put(Tables.Charts.CATEGORY.name(), apiChart.getCategory().value());
+        cv.put(Tables.Charts.TYPE.name(), apiChart.type().value());
+        cv.put(Tables.Charts.CATEGORY.name(), apiChart.category().value());
         cv.put(Tables.Charts.BUCKET_TYPE.name(), bucketType);
         long chartLocalId = insertInto(Tables.Charts.TABLE, cv);
 
         final ApiUser user = insertUser();
-        final List<ApiTrack> apiChartTracks = apiChart.getTracks().getCollection();
+        final List<ApiTrack> apiChartTracks = apiChart.tracks();
         final List<ChartTrack> chartTracks = new ArrayList<>(apiChartTracks.size());
         for (final ApiTrack track : apiChartTracks) {
             chartTracks.add(insertChartTrack(track, user, chartLocalId));
         }
         return Chart.create(chartLocalId,
-                            apiChart.getType(),
-                            apiChart.getCategory(),
-                            apiChart.getDisplayName(),
-                            apiChart.getGenre(),
-                            getChartBucketType(bucketType),
-                            chartTracks);
+                apiChart.type(),
+                apiChart.category(),
+                apiChart.displayName(),
+                apiChart.genre(),
+                getChartBucketType(bucketType),
+                chartTracks);
     }
 
     private ChartBucketType getChartBucketType(int bucketType) {
-        switch(bucketType) {
+        switch (bucketType) {
             case Tables.Charts.BUCKET_TYPE_FEATURED_GENRE:
                 return ChartBucketType.FEATURED_GENRES;
             default:
@@ -458,12 +458,12 @@ public class DatabaseFixtures {
 
     private ContentValuesBuilder getDefaultStationContentValuesBuilder(StationRecord station, long createdAt) {
         return ContentValuesBuilder.values()
-                                   .put(Stations.STATION_URN, station.getUrn().toString())
-                                   .put(Stations.TITLE, station.getTitle())
-                                   .put(Stations.TYPE, station.getType())
-                                   .put(Stations.PLAY_QUEUE_UPDATED_AT, createdAt)
-                                   .put(Stations.PERMALINK, station.getPermalink())
-                                   .put(Stations.ARTWORK_URL_TEMPLATE, station.getImageUrlTemplate().orNull());
+                .put(Stations.STATION_URN, station.getUrn().toString())
+                .put(Stations.TITLE, station.getTitle())
+                .put(Stations.TYPE, station.getType())
+                .put(Stations.PLAY_QUEUE_UPDATED_AT, createdAt)
+                .put(Stations.PERMALINK, station.getPermalink())
+                .put(Stations.ARTWORK_URL_TEMPLATE, station.getImageUrlTemplate().orNull());
     }
 
     private ContentValues getTrackContentValues(int position, StationRecord stationInfo, StationTrack track) {
@@ -508,8 +508,8 @@ public class DatabaseFixtures {
         insertTrack(track);
         insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, likedDate);
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
-                                 + " WHERE _id=" + track.getUrn().getNumericId()
-                                 + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
+                + " WHERE _id=" + track.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
         return track;
     }
 
@@ -519,8 +519,8 @@ public class DatabaseFixtures {
         insertTrack(track);
         insertLike(track.getId(), TableColumns.Sounds.TYPE_TRACK, likedDate);
         database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
-                                 + " WHERE _id=" + track.getUrn().getNumericId()
-                                 + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
+                + " WHERE _id=" + track.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
         return track;
     }
 
@@ -529,8 +529,8 @@ public class DatabaseFixtures {
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         database.execSQL("UPDATE Sounds SET " + TableColumns.Sounds.MODIFIED_AT + " = " + modifiedDate.getTime()
-                                 + " WHERE _id=" + playlist.getUrn().getNumericId()
-                                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+                + " WHERE _id=" + playlist.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
         return playlist;
     }
 
@@ -592,8 +592,8 @@ public class DatabaseFixtures {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
-                                 + " WHERE _id=" + playlist.getUrn().getNumericId()
-                                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+                + " WHERE _id=" + playlist.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
         return playlist;
     }
 
@@ -603,15 +603,15 @@ public class DatabaseFixtures {
         insertPlaylist(playlist);
         insertLike(playlist.getId(), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
-                                 + " WHERE _id=" + playlist.getUrn().getNumericId()
-                                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+                + " WHERE _id=" + playlist.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
         return playlist;
     }
 
     public ApiPost insertTrackPost(ApiPost apiTrackPost) {
         insertTrackPost(apiTrackPost.getTargetUrn().getNumericId(),
-                        apiTrackPost.getCreatedAt().getTime(),
-                        false);
+                apiTrackPost.getCreatedAt().getTime(),
+                false);
         return apiTrackPost;
     }
 
@@ -827,14 +827,14 @@ public class DatabaseFixtures {
         insertInto(OfflineContent.TABLE, cv.get());
     }
 
-    public void insertSyncAttempt(SyncContent syncContent, long when) {
+    public void insertSyncAttempt(LegacySyncContent syncContent, long when) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, when);
         cv.put(TableColumns.Collections.URI, syncContent.content.uri.toString());
         insertInto(Table.Collections, cv);
     }
 
-    public void insertSyncAttemptAndLast(SyncContent syncContent, long attempt, long last) {
+    public void insertSyncAttemptAndLast(LegacySyncContent syncContent, long attempt, long last) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, attempt);
         cv.put(TableColumns.Collections.LAST_SYNC, last);
@@ -843,7 +843,7 @@ public class DatabaseFixtures {
     }
 
 
-    public void insertSuccessfulSync(SyncContent syncContent, long when) {
+    public void insertSuccessfulSync(LegacySyncContent syncContent, long when) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Collections.LAST_SYNC_ATTEMPT, when);
         cv.put(TableColumns.Collections.LAST_SYNC, when);

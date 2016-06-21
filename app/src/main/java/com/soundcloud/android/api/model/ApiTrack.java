@@ -366,9 +366,12 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
                 TrackProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
                 TrackProperty.CREATOR_NAME.bind(getUserName()),
                 TrackProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
-                TrackProperty.GENRE.bind(Optional.fromNullable(genre)),
                 EntityProperty.IMAGE_URL_TEMPLATE.bind(artworkUrlTemplate)
         );
+
+        if (genre != null) {
+            propertySet.put(TrackProperty.GENRE, genre);
+        }
 
         if (isSubMidTier().isPresent()){
             propertySet.put(TrackProperty.SUB_MID_TIER, isSubMidTier().get());

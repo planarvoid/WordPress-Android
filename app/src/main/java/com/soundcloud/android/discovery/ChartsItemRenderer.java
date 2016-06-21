@@ -7,6 +7,7 @@ import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.util.Log;
@@ -36,21 +37,27 @@ class ChartsItemRenderer implements CellRenderer<ChartsItem> {
     @Override
     public void bindItemView(int position, View itemView, List<ChartsItem> list) {
         final ChartsItem chartsItem = list.get(position);
-        initChart(ButterKnife.<CollectionPreviewView>findById(itemView, R.id.charts_new_and_hot_preview),
-                  chartsItem.newAndHotChart());
-        initChart(ButterKnife.<CollectionPreviewView>findById(itemView, R.id.charts_top_fifty_preview),
-                  chartsItem.topFiftyChart());
-        initChart(ButterKnife.<CollectionPreviewView>findById(itemView, R.id.charts_first_genre),
-                  chartsItem.firstGenreChart());
-        initChart(ButterKnife.<CollectionPreviewView>findById(itemView, R.id.charts_second_genre),
-                  chartsItem.secondGenreChart());
-        initChart(ButterKnife.<CollectionPreviewView>findById(itemView, R.id.charts_third_genre),
-                  chartsItem.thirdGenreChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_new_and_hot_preview), chartsItem.newAndHotChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_top_fifty_preview), chartsItem.topFiftyChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_first_genre), chartsItem.firstGenreChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_second_genre), chartsItem.secondGenreChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_third_genre), chartsItem.thirdGenreChart());
     }
 
-    private void initChart(CollectionPreviewView firstGenreChart, Chart firstGenreChartItem) {
-        setThumbnails(firstGenreChartItem.chartTracks(), firstGenreChart);
-        firstGenreChart.setTag(firstGenreChartItem.genre());
+    private CollectionPreviewView findCollectionPreviewView(View itemView, int charts_new_and_hot_preview) {
+        return ButterKnife.findById(itemView, charts_new_and_hot_preview);
+    }
+
+    private void initChart(CollectionPreviewView preview, Optional<Chart> firstGenreChartItem) {
+        if (firstGenreChartItem.isPresent()) {
+            preview.setVisibility(View.VISIBLE);
+
+            final Chart chart = firstGenreChartItem.get();
+            setThumbnails(chart.tracks(), preview);
+            preview.setTag(chart.genre());
+        } else {
+            preview.setVisibility(View.GONE);
+        }
     }
 
     private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {

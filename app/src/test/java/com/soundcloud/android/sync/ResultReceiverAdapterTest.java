@@ -14,7 +14,7 @@ public class ResultReceiverAdapterTest extends AndroidUnitTest {
 
     private ResultReceiverAdapter adapter;
 
-    private TestSubscriber<SyncResult> subscriber = new TestSubscriber<>();
+    private TestSubscriber<SyncJobResult> subscriber = new TestSubscriber<>();
 
     @Before
     public void setUp() throws Exception {
@@ -24,12 +24,12 @@ public class ResultReceiverAdapterTest extends AndroidUnitTest {
     @Test
     public void shouldForwardSyncResultSuccessToSubscriberWhenSyncFinished() {
         final Bundle resultData = new Bundle();
-        SyncResult syncResult = SyncResult.success("action", true);
-        resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, syncResult);
+        SyncJobResult syncJobResult = SyncJobResult.success("action", true);
+        resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, syncJobResult);
 
         adapter.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
 
-        subscriber.assertValue(syncResult);
+        subscriber.assertValue(syncJobResult);
         subscriber.assertCompleted();
     }
 
@@ -37,7 +37,7 @@ public class ResultReceiverAdapterTest extends AndroidUnitTest {
     public void shouldForwardSyncResultFailureToSubscriberWhenSyncFinished() {
         final Bundle resultData = new Bundle();
         IOException exception = new IOException();
-        SyncResult resultEvent = SyncResult.failure("action", exception);
+        SyncJobResult resultEvent = SyncJobResult.failure("action", exception);
         resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, resultEvent);
 
         adapter.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);

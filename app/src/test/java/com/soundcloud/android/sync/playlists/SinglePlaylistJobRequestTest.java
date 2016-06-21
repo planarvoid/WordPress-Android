@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.rx.eventbus.TestEventBus;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -38,7 +38,7 @@ public class SinglePlaylistJobRequestTest extends AndroidUnitTest {
         singleJobRequest.finish();
 
         assertThat(eventBus.lastEventOn(EventQueue.SYNC_RESULT))
-                .isEqualTo(SyncResult.success(ACTION, true, PLAYLIST_URN));
+                .isEqualTo(SyncJobResult.success(ACTION, true, PLAYLIST_URN));
     }
 
 

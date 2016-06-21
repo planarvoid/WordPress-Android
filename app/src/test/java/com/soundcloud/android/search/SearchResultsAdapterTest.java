@@ -117,15 +117,15 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     }
 
     private UserItem dummyUserItem() {
-        return UserItem.from(ApiUniversalSearchItem.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
+        return UserItem.from(new ApiUniversalSearchItem(ModelFixtures.create(ApiUser.class), null, null).toPropertySet());
     }
 
     private TrackItem dummyTrackItem() {
-        return TrackItem.from(ApiUniversalSearchItem.forTrack(ModelFixtures.create(ApiTrack.class)).toPropertySet());
+        return TrackItem.from(new ApiUniversalSearchItem(null, null, ModelFixtures.create(ApiTrack.class)).toPropertySet());
     }
 
     private PlaylistItem dummyPlaylistItem() {
-        return PlaylistItem.from(ApiUniversalSearchItem.forPlaylist(ModelFixtures.create(ApiPlaylist.class)).toPropertySet());
+        return PlaylistItem.from(new ApiUniversalSearchItem(null, ModelFixtures.create(ApiPlaylist.class), null).toPropertySet());
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {

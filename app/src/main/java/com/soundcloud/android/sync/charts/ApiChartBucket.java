@@ -3,21 +3,24 @@ package com.soundcloud.android.sync.charts;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ModelCollection;
 
+import java.util.List;
+
 public class ApiChartBucket {
-    private final ModelCollection<ApiChart> global;
-    private final ModelCollection<ApiChart> featuredGenres;
+
+    private final List<ApiChart> global;
+    private final List<ApiChart> featuredGenres;
 
     public ApiChartBucket(@JsonProperty("global") ModelCollection<ApiChart> global,
                           @JsonProperty("featuredGenres") ModelCollection<ApiChart> featuredGenres) {
-        this.global = global;
-        this.featuredGenres = featuredGenres;
+        this.global = global.getCollection();
+        this.featuredGenres =  featuredGenres.getCollection();
     }
 
-    public ModelCollection<ApiChart> getGlobal() {
+    public List<ApiChart> getGlobal() {
         return global;
     }
 
-    public ModelCollection<ApiChart> getFeaturedGenres() {
+    public List<ApiChart> getFeaturedGenres() {
         return featuredGenres;
     }
 }

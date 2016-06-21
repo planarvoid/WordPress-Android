@@ -2,8 +2,6 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
 import java.util.ArrayList;
@@ -23,12 +21,10 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     private static final String MONETIZATION_AUDIO = "audio_ad";
     private static final String MONETIZATION_VIDEO = "video_ad";
 
-    public static final long FIRST_PLAY_MAX_PROGRESS = 1000L;
-
     public final TrackSourceInfo trackSourceInfo;
 
     private int stopReason;
-    private PlaybackStateTransition stateTransition;
+    private boolean shouldReportStartWithPlay;
     private List<String> trackingUrls = Collections.emptyList();
 
     public static AdPlaybackSessionEvent forFirstQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
@@ -50,17 +46,13 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
                 .put(PlayableTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
     }
 
-    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
-                                                 PlaybackStateTransition stateTransition) {
+    public static AdPlaybackSessionEvent forPlay(PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
         return new AdPlaybackSessionEvent(EVENT_KIND_PLAY, adData, trackSourceInfo)
-                .setStateTransition(stateTransition)
                 .setPlaybackTrackingUrls(adData);
     }
 
-    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
-                                                 PlaybackStateTransition stateTransition, int stopReason) {
+    public static AdPlaybackSessionEvent forStop(PlayerAdData adData, TrackSourceInfo trackSourceInfo, int stopReason) {
         return new AdPlaybackSessionEvent(EVENT_KIND_STOP, adData, trackSourceInfo)
-                .setStateTransition(stateTransition)
                 .setStopReason(stopReason)
                 .setPlaybackTrackingUrls(adData);
     }
@@ -74,16 +66,12 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
         put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO);
     }
 
-    public boolean isFirstPlay() {
-        if (isKind(EVENT_KIND_PLAY)) {
-            final PlaybackProgress progress = this.stateTransition.getProgress();
-            return 0L <= progress.getPosition() && progress.getPosition() <= FIRST_PLAY_MAX_PROGRESS;
-        }
-        return false;
-    }
-
     public boolean hasAdFinished() {
         return isKind(EVENT_KIND_STOP) && this.stopReason == PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED;
+    }
+
+    public boolean shouldReportStart() {
+        return isKind(EVENT_KIND_PLAY) && shouldReportStartWithPlay;
     }
 
     private boolean wasAdPaused() {
@@ -96,11 +84,6 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
 
     public AdPlaybackSessionEvent setStopReason(int stopReason) {
         this.stopReason = stopReason;
-        return this;
-    }
-
-    public AdPlaybackSessionEvent setStateTransition(PlaybackStateTransition stateTransition) {
-        this.stateTransition = stateTransition;
         return this;
     }
 
@@ -124,16 +107,17 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     }
 
     private AdPlaybackSessionEvent setPlaybackTrackingUrls(PlayerAdData adData) {
+        shouldReportStartWithPlay = !adData.hasReportedStart();
         if (isKind(EVENT_KIND_PLAY)) {
-            setPlayEventTrackingUrls(adData);
+            configurePlayEventTracking(adData);
         } else {
             setStopEventTrackingUrls(adData);
         }
         return this;
     }
 
-    private void setPlayEventTrackingUrls(PlayerAdData adData) {
-        if (isFirstPlay()) {
+    private void configurePlayEventTracking(PlayerAdData adData) {
+        if (shouldReportStartWithPlay) {
             trackingUrls = new ArrayList<>();
             trackingUrls.addAll(adData.getImpressionUrls());
             trackingUrls.addAll(adData.getStartUrls());

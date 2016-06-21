@@ -1,5 +1,7 @@
 package com.soundcloud.android.framework;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.observers.ToastObserver;
@@ -175,6 +177,10 @@ public class Waiter {
 
     public void waitForActivity(Class<? extends Activity> activityClass) {
         solo.waitForCondition(new CurrentActivityCondition(activityClass), TIMEOUT);
+    }
+
+    public void assertForFragmentByTag(String fragmentTag) {
+        assertThat("Fragment should be visible. Tag:" + fragmentTag, solo.waitForFragmentByTag(fragmentTag, TIMEOUT));
     }
 
     public boolean waitForFragmentByTag(String fragmentTag) {

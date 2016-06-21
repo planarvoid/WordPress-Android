@@ -23,6 +23,9 @@
     <color name="orange_radio_on_text">@color/ak_sc_orange</color>
     <color name="orange_radio_off_text">#777777</color>
 
+    <color name="snack_bar_bg_dark">#333</color>
+    <color name="snack_bar_bg_light">#999</color>
+
     <!-- List items -->
     <!-- Legacy cells -->
     <color name="list_text_value">@color/black</color>

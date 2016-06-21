@@ -8,6 +8,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.annotations.VisibleForTesting;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
@@ -16,9 +17,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-class PlayHistoryOperations {
+public class PlayHistoryOperations {
 
     private static final int MAX_HISTORY_ITEMS = 1000;
+    @VisibleForTesting static final int MAX_RECENTLY_PLAYED = 500;
 
     private static final Func1<TrackItem, Long> BY_TRACK_ID =
             new Func1<TrackItem, Long>() {
@@ -41,23 +43,36 @@ class PlayHistoryOperations {
         this.scheduler = scheduler;
     }
 
-    Observable<List<TrackItem>> playHistory() {
+    public Observable<List<TrackItem>> playHistory() {
         return playHistory(MAX_HISTORY_ITEMS);
     }
 
     // We preload up to 2 x limit and remove duplicate tracks by track id
     // rather than having a distinct on all columns or a complex group by
     Observable<List<TrackItem>> playHistory(int limit) {
-        return playHistoryStorage.fetchPlayHistory(limit * 2)
+        return playHistoryStorage.fetchTracks(limit * 2)
                 .distinct(BY_TRACK_ID)
                 .take(limit)
                 .toList()
                 .subscribeOn(scheduler);
     }
 
-    Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
+    public Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
         return playbackInitiator.playTracks(getAllTracksForPlayback(), trackUrn, 0,
-                PlaySessionSource.forPlayHistory(screen));
+                new PlaySessionSource(screen));
+    }
+
+    Observable<List<RecentlyPlayedItem>> recentlyPlayed(int limit) {
+        return playHistoryStorage.fetchContexts(limit)
+                .toList()
+                .subscribeOn(scheduler);
+    }
+
+    public Observable<RecentlyPlayedItem> recentlyPlayed() {
+        return playHistoryStorage
+                .fetchContexts(MAX_RECENTLY_PLAYED)
+                .subscribeOn(scheduler);
+
     }
 
     private Observable<List<Urn>> getAllTracksForPlayback() {

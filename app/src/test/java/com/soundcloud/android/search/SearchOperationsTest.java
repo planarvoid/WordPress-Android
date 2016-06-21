@@ -24,6 +24,8 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
@@ -66,6 +68,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private LoadFollowingCommand loadFollowingCommand;
+    @Mock private FeatureFlags featureFlags;
 
     private ApiTrack track;
     private ApiPlaylist playlist;
@@ -80,9 +83,15 @@ public class SearchOperationsTest extends AndroidUnitTest {
         user = ModelFixtures.create(ApiUser.class);
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.empty());
-
-        operations = new SearchOperations(apiClientRx, storeTracksCommand, storePlaylistsCommand, storeUsersCommand,
-                cacheUniversalSearchCommand, loadPlaylistLikedStatuses, loadFollowingCommand, Schedulers.immediate());
+        operations = new SearchOperations(new SearchStrategyFactory(apiClientRx,
+                                                                    Schedulers.immediate(),
+                                                                    storePlaylistsCommand,
+                                                                    storeTracksCommand,
+                                                                    storeUsersCommand,
+                                                                    cacheUniversalSearchCommand,
+                                                                    loadPlaylistLikedStatuses,
+                                                                    loadFollowingCommand,
+                                                                    featureFlags));
     }
 
     @Test
@@ -104,12 +113,32 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldMakeGETRequestToSearchPlaylistsEndpoint() {
+    public void shouldMakeGETRequestToSearchPlaylistsEndpointWhenAlbumsFeatureFlagDisabled() {
+        when(featureFlags.isEnabled(Flag.ALBUMS)).thenReturn(false);
         operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())
-                .withQueryParam("limit", "30")
-                .withQueryParam("q", "query")), isA(TypeToken.class));
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+    }
+
+    @Test
+    public void shouldMakeGETRequestToSearchPlaylistsWithoutAlbumsEndpointWhenAlbumsFeatureFlagEnabled() {
+        when(featureFlags.isEnabled(Flag.ALBUMS)).thenReturn(true);
+        operations.searchResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
+
+        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS_WITHOUT_ALBUMS.path())
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
+    }
+
+    @Test
+    public void shouldMakeGETRequestToSearchAlbumsEndpoint() {
+        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+
+        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALBUMS.path())
+                                                           .withQueryParam("limit", "30")
+                                                           .withQueryParam("q", "query")), isA(TypeToken.class));
     }
 
     @Test
@@ -144,6 +173,15 @@ public class SearchOperationsTest extends AndroidUnitTest {
         operations.searchPremiumResult("query", SearchType.PLAYLISTS).subscribe(subscriber);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_PLAYLISTS.path())
+                .withQueryParam("limit", "30")
+                .withQueryParam("q", "query")), isA(TypeToken.class));
+    }
+
+    @Test
+    public void shouldMakeGETRequestToPremiumSearchAlbumsEndpoint() {
+        operations.searchPremiumResult("query", SearchType.ALBUMS).subscribe(subscriber);
+
+        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_ALBUMS.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")), isA(TypeToken.class));
     }
@@ -194,6 +232,16 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldCacheAlbumSearchResult() {
+        final SearchModelCollection<ApiPlaylist> albums = new SearchModelCollection<>(ModelFixtures.create(ApiPlaylist.class, 2));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(albums));
+
+        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+
+        verify(storePlaylistsCommand).call(albums);
+    }
+
+    @Test
     public void shouldCachePremiumPlaylistSearchResult() {
         final List<ApiPlaylist> apiPlaylists = ModelFixtures.create(ApiPlaylist.class, 2);
         final SearchModelCollection<ApiPlaylist> premiumPlaylists = new SearchModelCollection<>(apiPlaylists);
@@ -207,6 +255,22 @@ public class SearchOperationsTest extends AndroidUnitTest {
 
         verify(storePlaylistsCommand).call(playlists);
         verify(storePlaylistsCommand).call(premiumPlaylists);
+    }
+
+    @Test
+    public void shouldCachePremiumAlbumSearchResult() {
+        final List<ApiPlaylist> apiAlbums = ModelFixtures.create(ApiPlaylist.class, 2);
+        final SearchModelCollection<ApiPlaylist> premiumAlbums = new SearchModelCollection<>(apiAlbums);
+        final SearchModelCollection<ApiPlaylist> albums = new SearchModelCollection<>(apiAlbums,
+                                                                                         Collections.<String, Link>emptyMap(), "query", premiumAlbums, TRACK_RESULTS_COUNT,
+                                                                                         PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT);
+
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(albums));
+
+        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+
+        verify(storePlaylistsCommand).call(albums);
+        verify(storePlaylistsCommand).call(premiumAlbums);
     }
 
     @Test
@@ -238,9 +302,9 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldCacheUniversalSearchResult() {
         final Observable observable = Observable.just(new SearchModelCollection<>(Lists.newArrayList(
-                ApiUniversalSearchItem.forUser(user),
-                ApiUniversalSearchItem.forTrack(track),
-                ApiUniversalSearchItem.forPlaylist(playlist))));
+                forUser(user),
+                forTrack(track),
+                forPlaylist(playlist))));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
         operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
@@ -251,9 +315,9 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldCachePremiumUniversalSearchResult() {
         final List<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
-                ApiUniversalSearchItem.forUser(user),
-                ApiUniversalSearchItem.forTrack(track),
-                ApiUniversalSearchItem.forPlaylist(playlist));
+                forUser(user),
+                forTrack(track),
+                forPlaylist(playlist));
 
         final SearchModelCollection<ApiUniversalSearchItem> premiumUniversalSearchItems = new SearchModelCollection<>(apiUniversalSearchItems);
         final SearchModelCollection<ApiUniversalSearchItem> universalSearchItems = new SearchModelCollection<>(apiUniversalSearchItems,
@@ -272,9 +336,9 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldBackFillLikesForPlaylistsInUniversalSearchResult() {
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
-                ApiUniversalSearchItem.forUser(user),
-                ApiUniversalSearchItem.forTrack(track),
-                ApiUniversalSearchItem.forPlaylist(playlist));
+                forUser(user),
+                forTrack(track),
+                forPlaylist(playlist));
 
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
@@ -300,10 +364,10 @@ public class SearchOperationsTest extends AndroidUnitTest {
     public void shouldBackFillFollowingsForUsersInUniversalSearchResult() {
         final ApiUser user2 = ModelFixtures.create(ApiUser.class);
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
-                ApiUniversalSearchItem.forUser(user),
-                ApiUniversalSearchItem.forTrack(track),
-                ApiUniversalSearchItem.forUser(user2),
-                ApiUniversalSearchItem.forPlaylist(playlist));
+                forUser(user),
+                forTrack(track),
+                forUser(user2),
+                forPlaylist(playlist));
         final SearchResult expectedSearchResult = SearchResult.fromPropertySetSource(apiUniversalSearchItems,
                 Optional.<Link>absent(), Optional.<Urn>absent());
         final Map<Urn, PropertySet> userFollowings = Collections.singletonMap(user.getUrn(), PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true)));
@@ -329,10 +393,10 @@ public class SearchOperationsTest extends AndroidUnitTest {
     public void shouldRetainOrderWhenBackfillingLikesForPlaylistsInUniversalSearchResult() {
         final ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
-                ApiUniversalSearchItem.forPlaylist(playlist), // should be enriched with like status
-                ApiUniversalSearchItem.forUser(user),
-                ApiUniversalSearchItem.forPlaylist(playlist2), // should be enriched with like status
-                ApiUniversalSearchItem.forTrack(track));
+                forPlaylist(playlist), // should be enriched with like status
+                forUser(user),
+                forPlaylist(playlist2), // should be enriched with like status
+                forTrack(track));
         final Observable observable = Observable.just(new SearchModelCollection<>(apiUniversalSearchItems));
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
@@ -374,7 +438,27 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldProvideResultPager() {
+    public void shouldBackFillLikesForAlbumsInAlbumSearch() {
+        final List<ApiPlaylist> apiPlaylists = Arrays.asList(playlist);
+        final Observable searchObservable = Observable.just(new SearchModelCollection<>(apiPlaylists));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(searchObservable);
+
+        final PropertySet playlistIsLikedStatus = PropertySet.from(PlaylistProperty.IS_USER_LIKE.bind(true));
+        Map<Urn, PropertySet> likedPlaylists = Collections.singletonMap(playlist.getUrn(), playlistIsLikedStatus);
+        final SearchResult expectedSearchResult = SearchResult.fromPropertySetSource(apiPlaylists, Optional.<Link>absent(),
+                                                                                     Optional.<Urn>absent());
+        when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
+
+        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
+        final PropertySet playlistPropSet = searchResult.getItems().get(0);
+        assertThat(playlistPropSet).isEqualTo(playlist.toPropertySet().merge(playlistIsLikedStatus));
+    }
+
+    @Test
+    public void shouldProvideResultPagerForPlaylists() {
         final SearchModelCollection<ApiPlaylist> firstPage = new SearchModelCollection<>(
                 Collections.singletonList(playlist),
                 Collections.singletonMap(ModelCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/next")));
@@ -395,7 +479,29 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldProvidePremiumResultPager() {
+    public void shouldProvideResultPagerForAlbum() {
+        final SearchModelCollection<ApiPlaylist> firstPage = new SearchModelCollection<>(
+                Collections.singletonList(playlist),
+                Collections.singletonMap(ModelCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/next")));
+        final SearchModelCollection<ApiPlaylist> lastPage = new SearchModelCollection<>(Collections.singletonList(playlist));
+
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALBUMS.path())), isA(TypeToken.class)))
+                .thenReturn(Observable.<Object>just(firstPage));
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/next")), isA(TypeToken.class))).
+                                                                                                               thenReturn(Observable.<Object>just(lastPage));
+
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchType.ALBUMS);
+        final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
+        searchResultPager.page(operations.searchResult("q", SearchType.ALBUMS)).subscribe(subscriber);
+        searchResultPager.next();
+
+        subscriber.assertValueCount(2);
+        subscriber.assertCompleted();
+    }
+
+
+    @Test
+    public void shouldProvidePremiumResultPagerForPlaylists() {
         final SearchModelCollection<ApiPlaylist> firstPage = new SearchModelCollection<>(
                 Collections.singletonList(playlist),
                 Collections.singletonMap(ModelCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/premium/next")));
@@ -406,9 +512,30 @@ public class SearchOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/premium/next")), isA(TypeToken.class))).
                 thenReturn(Observable.<Object>just(lastPage));
 
-        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingPremiumFunction(SearchType.PLAYLISTS);
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchType.PLAYLISTS);
         final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
         searchResultPager.page(operations.searchPremiumResult("q", SearchType.PLAYLISTS)).subscribe(subscriber);
+        searchResultPager.next();
+
+        subscriber.assertValueCount(2);
+        subscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldProvidePremiumResultPagerForAlbums() {
+        final SearchModelCollection<ApiPlaylist> firstPage = new SearchModelCollection<>(
+                Collections.singletonList(playlist),
+                Collections.singletonMap(ModelCollection.NEXT_LINK_REL, new Link("http://api-mobile.sc.com/premium/next")));
+        final SearchModelCollection<ApiPlaylist> lastPage = new SearchModelCollection<>(Collections.singletonList(playlist));
+
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PREMIUM_ALBUMS.path())), isA(TypeToken.class)))
+                .thenReturn(Observable.<Object>just(firstPage));
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/premium/next")), isA(TypeToken.class))).
+                                                                                                                       thenReturn(Observable.<Object>just(lastPage));
+
+        final SearchOperations.SearchPagingFunction pagingFunction = operations.pagingFunction(SearchType.ALBUMS);
+        final Pager<SearchResult> searchResultPager = Pager.create(pagingFunction);
+        searchResultPager.page(operations.searchPremiumResult("q", SearchType.ALBUMS)).subscribe(subscriber);
         searchResultPager.next();
 
         subscriber.assertValueCount(2);
@@ -444,9 +571,9 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldMapPremiumContentInUniversalSearchItemWhenBuildingSearchResult() {
         final ArrayList<ApiUniversalSearchItem> searchItems = Lists.newArrayList(
-                ApiUniversalSearchItem.forUser(user),
-                ApiUniversalSearchItem.forTrack(track),
-                ApiUniversalSearchItem.forPlaylist(playlist));
+                forUser(user),
+                forTrack(track),
+                forPlaylist(playlist));
         final SearchModelCollection<ApiUniversalSearchItem> apiPremiumUniversalSearchItems = new SearchModelCollection<>(searchItems);
         mockPremiumSearchApiResponse(searchItems, apiPremiumUniversalSearchItems);
 
@@ -491,6 +618,19 @@ public class SearchOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldNotMapPremiumContentInAlbumsWhenBuildingSearchResult() {
+        final List<ApiPlaylist> searchPlaylistItems = Collections.singletonList(playlist);
+        final SearchModelCollection<ApiPlaylist> apiPremiumPlaylists = new SearchModelCollection<>(searchPlaylistItems);
+        mockPremiumSearchApiResponse(searchPlaylistItems, apiPremiumPlaylists);
+
+        operations.searchResult("query", SearchType.ALBUMS).subscribe(subscriber);
+
+        subscriber.assertValueCount(1);
+        final SearchResult searchResult = subscriber.getOnNextEvents().get(0);
+        assertThat(searchResult.getPremiumContent().isPresent()).isFalse();
+    }
+
+    @Test
     public void shouldNotMapPremiumContentInUsersWhenBuildingSearchResult() {
         final List<ApiUser> searchUserItems = Collections.singletonList(user);
         final SearchModelCollection<ApiUser> apiPremiumUsers = new SearchModelCollection<>(searchUserItems);
@@ -506,9 +646,9 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void premiumContentShouldBeAbsentWhenPremiumCollectionIsNull() {
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
-                ApiUniversalSearchItem.forUser(user),
-                ApiUniversalSearchItem.forTrack(track),
-                ApiUniversalSearchItem.forPlaylist(playlist));
+                forUser(user),
+                forTrack(track),
+                forPlaylist(playlist));
         mockPremiumSearchApiResponse(apiUniversalSearchItems, null);
 
         operations.searchResult("query", SearchType.ALL).subscribe(subscriber);
@@ -533,7 +673,7 @@ public class SearchOperationsTest extends AndroidUnitTest {
     @Test
     public void premiumContentUrnShouldBeIncludedInPaginatedContent() {
         final PropertySet premiumTrack = PropertySet.create().put(EntityProperty.URN, PREMIUM_TRACK_URN);
-        final ArrayList<ApiUniversalSearchItem> searchItems = Lists.newArrayList(ApiUniversalSearchItem.forTrack(track));
+        final ArrayList<ApiUniversalSearchItem> searchItems = Lists.newArrayList(forTrack(track));
         final SearchResult premiumSearchResult = SearchResult.fromPropertySets(Collections.singletonList(premiumTrack),
                 Optional.<Link>absent(), Urn.NOT_SET);
         final SearchResult searchResult = SearchResult.fromPropertySetSource(searchItems, Optional.<Link>absent(),
@@ -574,4 +714,17 @@ public class SearchOperationsTest extends AndroidUnitTest {
                 TRACK_RESULTS_COUNT, PLAYLIST_RESULTS_COUNT, USER_RESULTS_COUNT));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
     }
+
+    private ApiUniversalSearchItem forTrack(ApiTrack track) {
+        return new ApiUniversalSearchItem(null, null, track);
+    }
+
+    private ApiUniversalSearchItem forPlaylist(ApiPlaylist playlist) {
+        return new ApiUniversalSearchItem(null, playlist, null);
+    }
+
+    private ApiUniversalSearchItem forUser(ApiUser user) {
+        return new ApiUniversalSearchItem(user, null, null);
+    }
+
 }

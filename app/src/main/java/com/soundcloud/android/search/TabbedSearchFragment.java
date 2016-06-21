@@ -2,7 +2,6 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.Screen;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -54,7 +53,7 @@ public class TabbedSearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        searchTracker.trackResultsScreenEvent(Screen.SEARCH_EVERYTHING);
+        searchTracker.trackResultsScreenEvent(SearchType.ALL);
     }
 
     @Override

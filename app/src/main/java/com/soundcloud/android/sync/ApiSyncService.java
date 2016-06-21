@@ -3,6 +3,8 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.annotations.VisibleForTesting;
+import com.soundcloud.java.optional.Optional;
 
 import android.app.Service;
 import android.content.Intent;
@@ -16,11 +18,12 @@ import java.util.List;
 public class ApiSyncService extends Service {
     public static final String LOG_TAG = ApiSyncService.class.getSimpleName();
 
+    public static final String EXTRA_SYNCABLE = "com.soundcloud.android.sync.extra.SYNCABLE";
+
     public static final String ACTION_APPEND        = "com.soundcloud.android.sync.action.APPEND";
     public static final String ACTION_PUSH          = "com.soundcloud.android.sync.action.PUSH";
     public static final String ACTION_HARD_REFRESH  = "com.soundcloud.android.sync.action.HARD_REFRESH";
 
-    public static final String EXTRA_TYPE            = "com.soundcloud.android.sync.extra.COLLECTION_TYPE";
     public static final String EXTRA_SYNC_URIS       = "com.soundcloud.android.sync.extra.SYNC_URIS";
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
     public static final String EXTRA_SYNC_RESULT     = "com.soundcloud.android.sync.extra.SYNC_RESULT";
@@ -35,6 +38,7 @@ public class ApiSyncService extends Service {
     public static final int MAX_TASK_LIMIT = 3;
 
     @Inject SyncRequestFactory syncIntentSyncRequestFactory;
+    @Inject SyncStateStorage syncStateStorage;
 
     private int activeTaskCount;
 
@@ -45,6 +49,12 @@ public class ApiSyncService extends Service {
 
     public ApiSyncService() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    ApiSyncService(SyncRequestFactory syncRequestFactory, SyncStateStorage syncStateStorage) {
+        this.syncIntentSyncRequestFactory = syncRequestFactory;
+        this.syncStateStorage = syncStateStorage;
     }
 
     public void onStart(Intent intent, int startId) {
@@ -102,6 +112,11 @@ public class ApiSyncService extends Service {
     }
 
     /* package */ void onSyncJobCompleted(SyncJob syncJob){
+
+        final Optional<Syncable> syncable = syncJob.getSyncable();
+        if (syncable.isPresent() && syncJob.wasSuccess()) {
+            syncStateStorage.synced(syncable.get());
+        }
 
         for (SyncRequest syncRequest : new ArrayList<>(syncRequests)) {
 

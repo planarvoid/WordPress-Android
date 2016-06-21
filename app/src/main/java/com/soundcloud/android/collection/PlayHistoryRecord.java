@@ -6,11 +6,11 @@ import com.soundcloud.android.model.Urn;
 @AutoValue
 public abstract class PlayHistoryRecord {
 
-    private static final int CONTEXT_OTHER = 0;
-    private static final int CONTEXT_PLAYLIST = 1;
-    private static final int CONTEXT_TRACK_STATION = 2;
-    private static final int CONTEXT_ARTIST_STATION = 3;
-    private static final int CONTEXT_ARTIST = 4;
+    static final int CONTEXT_OTHER = 0;
+    static final int CONTEXT_PLAYLIST = 1;
+    static final int CONTEXT_TRACK_STATION = 2;
+    static final int CONTEXT_ARTIST_STATION = 3;
+    static final int CONTEXT_ARTIST = 4;
 
     public static PlayHistoryRecord create(long timestamp, Urn trackUrn, Urn contextUrn) {
         return builder()
@@ -33,7 +33,7 @@ public abstract class PlayHistoryRecord {
     public int getContextType() {
         if (contextUrn().isPlaylist()) {
             return CONTEXT_PLAYLIST;
-        } else if (contextUrn().isStation()) {
+        } else if (contextUrn().isTrackStation()) {
             return CONTEXT_TRACK_STATION;
         } else if (contextUrn().isArtistStation()) {
             return CONTEXT_ARTIST_STATION;
@@ -44,7 +44,6 @@ public abstract class PlayHistoryRecord {
         }
     }
 
-    // todo: this is for next story (collection-324)
     static Urn contextUrnFor(int contextType, long contextId) {
         switch (contextType) {
             case CONTEXT_PLAYLIST:

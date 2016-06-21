@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SyncStateStorageTest extends StorageIntegrationTest {
 
-    private static final SyncContent SYNC_CONTENT = SyncContent.MySoundStream;
+    private static final LegacySyncContent SYNC_CONTENT = LegacySyncContent.MySoundStream;
     private static final Uri CONTENT_URI = SYNC_CONTENT.content.uri;
     private SyncStateStorage storage;
     private TestSubscriber<Boolean> subscriber = new TestSubscriber<>();

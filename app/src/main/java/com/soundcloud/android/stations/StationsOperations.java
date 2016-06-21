@@ -6,8 +6,10 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.propeller.ChangeResult;
 import rx.Observable;
 import rx.Scheduler;
@@ -25,7 +27,7 @@ public class StationsOperations {
     private final StationsApi stationsApi;
     private final StoreTracksCommand storeTracksCommand;
     private final StoreStationCommand storeStationCommand;
-    private final StationsSyncInitiator syncInitiator;
+    private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
 
     private final Action1<ApiStation> storeTracks = new Action1<ApiStation>() {
@@ -48,7 +50,7 @@ public class StationsOperations {
                               StationsApi stationsApi,
                               StoreTracksCommand storeTracksCommand,
                               StoreStationCommand storeStationCommand,
-                              StationsSyncInitiator syncInitiator,
+                              SyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.syncStateStorage = syncStateStorage;
         this.stationsStorage = stationsStorage;
@@ -100,7 +102,7 @@ public class StationsOperations {
 
     public Observable<StationRecord> collection(final int type) {
         final Observable<StationRecord> collection;
-        if (syncStateStorage.hasSyncedBefore(StationsSyncInitiator.RECENT)) {
+        if (syncStateStorage.hasSyncedBefore(Syncable.RECENT_STATIONS)) {
             collection = loadStationsCollection(type);
         } else {
             collection = syncAndLoadStationsCollection(type);
@@ -113,15 +115,15 @@ public class StationsOperations {
     }
 
     private Observable<StationRecord> syncAndLoadStationsCollection(int type) {
-        return syncInitiator.syncRecentStations().flatMap(continueWith(loadStationsCollection(type)));
+        return sync().flatMap(continueWith(loadStationsCollection(type)));
     }
 
     ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
         return stationsStorage.saveLastPlayedTrackPosition(collectionUrn, position);
     }
 
-    public Observable<SyncResult> sync() {
-        return syncInitiator.syncRecentStations();
+    public Observable<SyncJobResult> sync() {
+        return syncInitiator.sync(Syncable.RECENT_STATIONS);
     }
 
     ChangeResult saveRecentlyPlayedStation(Urn stationUrn) {

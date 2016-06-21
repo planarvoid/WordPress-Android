@@ -33,11 +33,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
+    private static final String EVENT_KIND_CHECKPOINT = "checkpoint";
 
     private static final String MONETIZATION_AUDIO_AD = "audio_ad";
     private static final String MONETIZATION_PROMOTED = "promoted";
-
-    public static final long FIRST_PLAY_MAX_PROGRESS = 1000L;
 
     private final Urn trackUrn;
     private final Urn creatorUrn;
@@ -49,6 +48,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private final String monetizationModel;
 
     private int stopReason;
+    private boolean shouldReportAdStart;
     private long listenTime;
     private final TrackSourceInfo trackSourceInfo;
 
@@ -68,6 +68,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
         playbackSessionEvent.setListenTime(playbackSessionEvent.timestamp - lastPlayEvent.getTimestamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
+    }
+
+    public static PlaybackSessionEvent forCheckpoint(PlaybackSessionEventArgs args) {
+        return new PlaybackSessionEvent(EVENT_KIND_CHECKPOINT, args);
     }
 
     // Regular track
@@ -103,6 +107,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.adImpressionUrls = audioAd.getImpressionUrls();
         this.adCompanionImpressionUrls = audioAd.getVisualAd().getImpressionUrls();
         this.adFinishedUrls = audioAd.getFinishUrls();
+        this.shouldReportAdStart = !audioAd.hasReportedStart();
         return this;
     }
 
@@ -113,6 +118,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         if (promotedSource.getPromoterUrn().isPresent()) {
             put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSource.getPromoterUrn().get().toString());
         }
+        this.shouldReportAdStart = !promotedSource.isPlaybackStarted();
         this.promotedPlayUrls = promotedSource.getTrackingUrls();
         return this;
     }
@@ -121,8 +127,12 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return EVENT_KIND_PLAY.equals(kind);
     }
 
+    public boolean isCheckpointEvent() {
+        return EVENT_KIND_CHECKPOINT.equals(kind);
+    }
+
     public boolean isStopEvent() {
-        return !isPlayEvent();
+        return EVENT_KIND_STOP.equals(kind);
     }
 
     public TrackSourceInfo getTrackSourceInfo() {
@@ -202,8 +212,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
                 && attributes.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE).equals(type);
     }
 
-    public boolean isFirstPlay() {
-        return isPlayEvent() && 0L <= progress && progress <= FIRST_PLAY_MAX_PROGRESS;
+    public boolean shouldReportAdStart() {
+        return kind.equals(EVENT_KIND_PLAY) && shouldReportAdStart;
     }
 
     public boolean hasTrackFinished() {

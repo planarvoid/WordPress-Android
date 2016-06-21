@@ -7,9 +7,13 @@
     android:orientation="vertical"
     tools:showIn="@layout/playlist_tags_fragment">
 
+    <View style="@style/Divider.Section" />
+
     <com.soundcloud.android.view.CustomFontTextView
         style="@style/Module.Header"
         android:text="@string/search_tags_title" />
+
+    <View style="@style/Divider.Item" />
 
     <LinearLayout
         android:id="@+id/recent_tags_container"
@@ -19,8 +23,6 @@
         android:background="@color/white"
         android:orientation="vertical"
         android:visibility="gone">
-
-        <View style="@style/Divider.Item" />
 
         <com.soundcloud.android.view.CustomFontTextView
             style="@style/PlaylistDiscovery.TagSubtitleText"
@@ -46,13 +48,6 @@
             style="@style/PlaylistDiscovery.TagSubtitleText"
             android:layout_alignParentTop="true"
             android:text="@string/search_tags_popular_subtitle" />
-
-        <com.soundcloud.android.view.EmptyView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="50dp"
-            android:paddingTop="50dp" />
 
         <com.soundcloud.android.view.FlowLayout
             android:id="@+id/all_tags"

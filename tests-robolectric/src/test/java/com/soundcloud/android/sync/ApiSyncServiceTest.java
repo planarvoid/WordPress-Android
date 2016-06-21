@@ -8,9 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.discovery.ChartsSyncRequestFactory;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.stations.StationsSyncRequestFactory;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.LikesSyncer;
@@ -46,14 +44,14 @@ public class ApiSyncServiceTest {
     private LegacySyncJob.Factory collectionSyncRequestFactory;
     private SyncRequestFactory syncRequestFactory;
 
+    @Mock private SyncerRegistry syncerRegistry;
+    @Mock private SingleJobRequestFactory singleJobRequestFactory;
     @Mock private ApiSyncerFactory apiSyncerFactory;
     @Mock private LikesSyncer<ApiTrack> trackLikesSyncer;
     @Mock private LikesSyncer<ApiPlaylist> playlistLikesSyncer;
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private RecommendationsSyncer recommendationsSyncer;
-    @Mock private StationsSyncRequestFactory stationsSyncRequestFactory;
-    @Mock private ChartsSyncRequestFactory chartsSyncRequestFactory;
     @Mock private SyncStateManager syncStateManager;
 
     @Before
@@ -64,14 +62,14 @@ public class ApiSyncServiceTest {
         when(syncStateManager.updateLastSyncAttemptAsync(any(Uri.class))).thenReturn(Observable.just(true));
 
         syncRequestFactory = new SyncRequestFactory(
+                syncerRegistry,
+                singleJobRequestFactory,
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
                 lazyOf(new SyncTrackLikesJob(InjectionSupport.lazyOf(trackLikesSyncer))),
                 lazyOf(new SyncPlaylistLikesJob(InjectionSupport.lazyOf(playlistLikesSyncer))),
                 entitySyncRequestFactory,
                 singlePlaylistSyncerFactory,
                 lazyOf(recommendationsSyncer),
-                stationsSyncRequestFactory,
-                chartsSyncRequestFactory,
                 new TestEventBus());
     }
 
@@ -138,16 +136,16 @@ public class ApiSyncServiceTest {
 
         intent.putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync);
 
-        SyncRequestFactory syncRequestFactory = new SyncRequestFactory(new LegacySyncRequest.Factory(
-                collectionSyncRequestFactory),
-                                                                       null,
-                                                                       null,
-                                                                       entitySyncRequestFactory,
-                                                                       singlePlaylistSyncerFactory,
-                                                                       lazyOf(recommendationsSyncer),
-                                                                       stationsSyncRequestFactory,
-                                                                       null,
-                                                                       new TestEventBus()
+        SyncRequestFactory syncRequestFactory = new SyncRequestFactory(
+                syncerRegistry,
+                singleJobRequestFactory,
+                new LegacySyncRequest.Factory(collectionSyncRequestFactory),
+                null,
+                null,
+                entitySyncRequestFactory,
+                singlePlaylistSyncerFactory,
+                lazyOf(recommendationsSyncer),
+                new TestEventBus()
         );
         SyncRequest request1 = syncRequestFactory.create(intent);
         SyncRequest request2 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC, Content.ME_LIKES.uri).putExtra(
@@ -164,8 +162,8 @@ public class ApiSyncServiceTest {
         expect(((LegacySyncJob) svc.pendingJobs.peek()).getContentUri()).toBe(Content.ME_LIKES.uri);
 
         SyncRequest request4 = syncRequestFactory.create(new Intent(Intent.ACTION_SYNC,
-                                                                    Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,
-                                                                                                        true));
+                Content.ME_FOLLOWINGS.uri).putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST,
+                true));
         svc.enqueueRequest(request4);
         expect(((LegacySyncJob) svc.pendingJobs.peek()).getContentUri()).toBe(Content.ME_FOLLOWINGS.uri);
 
@@ -179,19 +177,19 @@ public class ApiSyncServiceTest {
         ApiSyncService svc = new ApiSyncService();
         svc.runningJobs.add(new LegacySyncJob(Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
         svc.runningJobs.add(new LegacySyncJob(Content.ME_FOLLOWINGS.uri,
-                                              null,
-                                              false,
-                                              apiSyncerFactory,
-                                              syncStateManager));
+                null,
+                false,
+                apiSyncerFactory,
+                syncStateManager));
 
-        ApiSyncResult result = new ApiSyncResult(Content.ME_LIKES.uri);
+        LegacySyncResult result = new LegacySyncResult(Content.ME_LIKES.uri);
         result.success = true;
 
         svc.onSyncJobCompleted(new LegacySyncJob(Content.ME_LIKES.uri,
-                                                 null,
-                                                 false,
-                                                 apiSyncerFactory,
-                                                 syncStateManager));
+                null,
+                false,
+                apiSyncerFactory,
+                syncStateManager));
         expect(svc.runningJobs.size()).toBe(1);
     }
 }

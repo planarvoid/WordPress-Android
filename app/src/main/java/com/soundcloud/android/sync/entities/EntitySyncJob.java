@@ -5,10 +5,12 @@ import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncJob;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -77,5 +79,15 @@ public class EntitySyncJob implements SyncJob {
     @Override
     public Exception getException() {
         return exception;
+    }
+
+    @Override
+    public Optional<Syncable> getSyncable() {
+        return Optional.absent();
+    }
+
+    @Override
+    public boolean wasSuccess() {
+        return exception == null;
     }
 }

@@ -17,7 +17,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
@@ -108,9 +108,9 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ENDPOINT.path())), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
-        final ApiSyncResult apiSyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_HARD_REFRESH);
-        assertThat(apiSyncResult.success).isTrue();
-        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
+        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_HARD_REFRESH);
+        assertThat(legacySyncResult.success).isTrue();
+        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.CHANGED);
     }
 
     @Test
@@ -135,9 +135,9 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
         timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
 
-        final ApiSyncResult apiSyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-        assertThat(apiSyncResult.success).isTrue();
-        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.CHANGED);
+        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
+        assertThat(legacySyncResult.success).isTrue();
+        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.CHANGED);
     }
 
     @Test
@@ -149,9 +149,9 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
         timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
 
-        final ApiSyncResult apiSyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-        assertThat(apiSyncResult.success).isTrue();
-        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.UNCHANGED);
+        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
+        assertThat(legacySyncResult.success).isTrue();
+        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.UNCHANGED);
     }
 
     @Test
@@ -162,9 +162,9 @@ public class TimelineSyncerTest extends AndroidUnitTest {
 
         timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
 
-        final ApiSyncResult apiSyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-        assertThat(apiSyncResult.success).isTrue();
-        assertThat(apiSyncResult.change).isEqualTo(ApiSyncResult.UNCHANGED);
+        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
+        assertThat(legacySyncResult.success).isTrue();
+        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.UNCHANGED);
     }
 
     @Test

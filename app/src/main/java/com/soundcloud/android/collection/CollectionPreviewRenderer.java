@@ -59,18 +59,23 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         return view;
     }
 
-    private CollectionPreviewView getPlaylistsPreviewView(View view) {
-        return (CollectionPreviewView) view.findViewById(R.id.collection_playlists_preview);
-    }
-
     private void setupRecentStationsView(CollectionPreviewView recentStationsView) {
         recentStationsView.setVisibility(View.VISIBLE);
         recentStationsView.setOnClickListener(goToRecentStationsListener);
     }
 
-    private void setupPlaylistsView(CollectionPreviewView playlistsView) {
+    private void setupPlaylistsView(CollectionPreviewView playlistsView, View divider) {
+        divider.setVisibility(View.VISIBLE);
         playlistsView.setVisibility(View.VISIBLE);
         playlistsView.setOnClickListener(goToPlaylistsListener);
+    }
+
+    private CollectionPreviewView getPlaylistsPreviewView(View view) {
+        return (CollectionPreviewView) view.findViewById(R.id.collection_playlists_preview);
+    }
+
+    private View getPlaylistsPreviewDividerView(View view) {
+        return view.findViewById(R.id.collection_playlists_preview_divider);
     }
 
     private CollectionPreviewView getRecentStationsPreviewView(View view) {
@@ -92,8 +97,10 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
         }
 
         if (item.getPlaylists().isPresent()) {
-            setupPlaylistsView(getPlaylistsPreviewView(view));
-            setThumbnails(item.getPlaylists().get(), getPlaylistsPreviewView(view));
+            final CollectionPreviewView playlistsPreviewView = getPlaylistsPreviewView(view);
+            final View divider = getPlaylistsPreviewDividerView(view);
+            setupPlaylistsView(playlistsPreviewView, divider);
+            setThumbnails(item.getPlaylists().get(), playlistsPreviewView);
         }
     }
 

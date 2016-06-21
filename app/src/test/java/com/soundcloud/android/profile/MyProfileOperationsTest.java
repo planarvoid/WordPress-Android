@@ -11,8 +11,8 @@ import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
-import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -43,7 +43,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Mock private PostsStorage postStorage;
     @Mock private SyncStateStorage syncStateStorage;
-    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator syncInitiator;
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private LikesStorage likesStorage;
@@ -283,7 +283,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
-        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncResult.success("success", true)));
+        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success", true)));
 
         operations.pagedFollowings().subscribe(subscriber);
 
@@ -308,7 +308,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(urns));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(pageOfFollowings));
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.<Boolean>empty());
-        when(syncInitiator.syncUsers(urns)).thenReturn(Observable.just(SyncResult.success("success", true)));
+        when(syncInitiator.syncUsers(urns)).thenReturn(Observable.just(SyncJobResult.success("success", true)));
 
         operations.pagedFollowings().subscribe(subscriber);
 
@@ -326,7 +326,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUsers(PAGE_SIZE, position)).thenReturn(Observable.just(secondPage));
 
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.<Boolean>empty());
-        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncResult.success("success", true)));
+        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success", true)));
 
         operations.followingsPagingFunction().call(firstPage).subscribe(subscriber);
 
@@ -346,7 +346,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(pageOfFollowings));
         when(syncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
-        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncResult.success("success", true)));
+        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success", true)));
 
         operations.updatedFollowings().subscribe(subscriber);
 

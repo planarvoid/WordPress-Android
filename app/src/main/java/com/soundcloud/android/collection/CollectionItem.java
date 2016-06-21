@@ -15,8 +15,11 @@ public abstract class CollectionItem implements ListItem {
     static final int TYPE_ONBOARDING = 5;
     static final int TYPE_TRACK_ITEM = 6;
     static final int TYPE_VIEW_ALL = 7;
+    public static final int TYPE_RECENTLY_PLAYED_PLAYLIST = 8;
+    public static final int TYPE_RECENTLY_PLAYED_STATION = 9;
+    public static final int TYPE_RECENTLY_PLAYED_PROFILE = 10;
 
-    abstract int getType();
+    public abstract int getType();
 
     boolean isSingleSpan() {
         return false;

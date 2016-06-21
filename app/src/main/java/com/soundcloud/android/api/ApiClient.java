@@ -126,6 +126,7 @@ public class ApiClient {
         builder.header(HttpHeaders.ACCEPT, request.getAcceptMediaType());
         builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
         builder.header(ApiHeaders.APP_VERSION, String.valueOf(BuildConfig.VERSION_CODE));
+        builder.header(ApiHeaders.APP_ENVIRONMENT, getAppEnvironment());
         final Optional<String> locale = localeFormatter.getLocale();
         if (locale.isPresent()) {
             builder.header(ApiHeaders.DEVICE_LOCALE, locale.get());
@@ -147,6 +148,14 @@ public class ApiClient {
         for (Map.Entry<String, String> header : headers.entrySet()) {
             builder.header(header.getKey(), header.getValue());
         }
+    }
+
+    private String getAppEnvironment() {
+        final String environment = String.valueOf(BuildConfig.APP_ENVIRONMENT);
+        if (!environment.matches("(dev|alpha|beta|prod)")) {
+            throw new IllegalStateException("App-Environment is not one of dev, alpha, beta or prod");
+        }
+        return environment;
     }
 
     private RequestBody getRequestBody(ApiRequest request) throws ApiMapperException, UnsupportedEncodingException {

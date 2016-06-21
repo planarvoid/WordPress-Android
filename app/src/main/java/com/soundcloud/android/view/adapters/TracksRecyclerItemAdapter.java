@@ -11,7 +11,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, TracksRecyclerItemAdapter.TrackViewHolder>
-        implements NowPlayingAdapter {
+        implements PlayingTrackAware {
 
     private static final int TRACK_ITEM_TYPE = 0;
 

@@ -8,7 +8,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -38,11 +38,11 @@ public class MeSyncer implements SyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {});
         storeMe(me);
         publishChangeEvent(me);
-        return ApiSyncResult.fromSuccessfulChange(Content.ME.uri);
+        return LegacySyncResult.fromSuccessfulChange(Content.ME.uri);
     }
 
     protected ApiRequest buildRequest() {

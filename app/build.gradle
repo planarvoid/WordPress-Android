@@ -197,6 +197,7 @@ dependencies {
   compile (libraries.slidingUpPanel) {
     transitive = true;
   }
+  compile libraries.tSnackBar
   compile libraries.androidCrop
   compile libraries.rxAndroid
   compile libraries.rxJava
@@ -235,6 +236,7 @@ dependencies {
   testCompile unitTestLibraries.robolectricSupport
   testCompile unitTestLibraries.modelCitizen
   testCompile unitTestLibraries.equalsVerifier
+  testCompile unitTestLibraries.sqliteJdbc
 
   /* Acceptance Tests */
   androidTestCompile(libraries.androidMultidexInstrumentation) {

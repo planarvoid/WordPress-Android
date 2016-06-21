@@ -2,6 +2,8 @@ package com.soundcloud.android.sync;
 
 import static java.util.Collections.singletonList;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -9,8 +11,9 @@ import com.soundcloud.rx.eventbus.EventBus;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import java.util.Collection;
+import java.util.List;
 
+@AutoFactory( allowSubclasses = true)
 public class SingleJobRequest implements SyncRequest {
 
     private final DefaultSyncJob syncJob;
@@ -19,9 +22,25 @@ public class SingleJobRequest implements SyncRequest {
     private final EventBus eventBus;
 
     protected final String action;
-    protected SyncResult resultEvent;
+    protected SyncJobResult resultEvent;
 
-    public SingleJobRequest(DefaultSyncJob syncJob, String action, boolean isHighPriority, ResultReceiver resultReceiver, EventBus eventBus) {
+    public SingleJobRequest(Syncable syncable,
+                            SyncerRegistry.SyncData syncData,
+                            ResultReceiver resultReceiver,
+                            boolean isHighPriority,
+                            @Provided EventBus eventBus) {
+        this(new DefaultSyncJob(syncData.syncer.get(), syncable),
+                syncData.id,
+                isHighPriority,
+                resultReceiver,
+                eventBus);
+    }
+
+    public SingleJobRequest(DefaultSyncJob syncJob,
+                            String action,
+                            boolean isHighPriority,
+                            ResultReceiver resultReceiver,
+                            @Provided EventBus eventBus) {
         this.syncJob = syncJob;
         this.action = action;
         this.isHighPriority = isHighPriority;
@@ -35,7 +54,7 @@ public class SingleJobRequest implements SyncRequest {
     }
 
     @Override
-    public Collection<? extends SyncJob> getPendingJobs() {
+    public List<? extends SyncJob> getPendingJobs() {
         return singletonList(syncJob);
     }
 
@@ -49,8 +68,8 @@ public class SingleJobRequest implements SyncRequest {
     public void processJobResult(SyncJob syncJob) {
         Exception exception = syncJob.getException();
         resultEvent = exception == null ?
-                SyncResult.success(action, syncJob.resultedInAChange())
-                : SyncResult.failure(action, syncJob.getException());
+                SyncJobResult.success(action, syncJob.resultedInAChange())
+                : SyncJobResult.failure(action, syncJob.getException());
     }
 
     @Override

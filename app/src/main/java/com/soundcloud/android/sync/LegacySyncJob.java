@@ -8,6 +8,7 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.UnexpectedResponseException;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.java.optional.Optional;
 
 import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
@@ -26,7 +27,7 @@ public class LegacySyncJob implements SyncJob {
     private final SyncStateManager syncStateManager;
     private final ApiSyncerFactory apiSyncerFactory;
 
-    private ApiSyncResult result;
+    private LegacySyncResult result;
     private Exception exception;
 
     public LegacySyncJob(Uri contentUri, String action, boolean isUI,
@@ -36,7 +37,7 @@ public class LegacySyncJob implements SyncJob {
         this.isUI = isUI;
         this.syncStateManager = syncStateManager;
         this.apiSyncerFactory = apiSyncerFactory;
-        result = new ApiSyncResult(this.contentUri);
+        result = new LegacySyncResult(this.contentUri);
     }
 
     @VisibleForTesting
@@ -46,7 +47,7 @@ public class LegacySyncJob implements SyncJob {
         this.isUI = isUI;
         apiSyncerFactory = null;
         syncStateManager = null;
-        result = new ApiSyncResult(this.contentUri);
+        result = new LegacySyncResult(this.contentUri);
     }
 
     @Override
@@ -61,12 +62,22 @@ public class LegacySyncJob implements SyncJob {
 
     @Override
     public boolean resultedInAChange() {
-        return result.change == ApiSyncResult.CHANGED;
+        return result.change == LegacySyncResult.CHANGED;
     }
 
     @Override
     public Exception getException() {
         return exception;
+    }
+
+    @Override
+    public Optional<Syncable> getSyncable() {
+        return Optional.absent();
+    }
+
+    @Override
+    public boolean wasSuccess() {
+        return result.success;
     }
 
     /**
@@ -87,16 +98,16 @@ public class LegacySyncJob implements SyncJob {
             result = apiSyncerFactory.forContentUri(contentUri).syncContent(contentUri, action);
             syncStateManager.onSyncComplete(result, contentUri);
         } catch (InvalidTokenException e) {
-            handleSyncException(ApiSyncResult.fromAuthException(contentUri), e);
+            handleSyncException(LegacySyncResult.fromAuthException(contentUri), e);
         } catch (UnexpectedResponseException e) {
-            handleSyncException(ApiSyncResult.fromUnexpectedResponse(contentUri, e.getStatusCode()), e);
+            handleSyncException(LegacySyncResult.fromUnexpectedResponse(contentUri, e.getStatusCode()), e);
         } catch (IOException e) {
-            handleSyncException(ApiSyncResult.fromIOException(contentUri), e);
+            handleSyncException(LegacySyncResult.fromIOException(contentUri), e);
         } catch (ApiRequestException exception) {
             handleApiRequestException(exception);
         } catch (Exception e) {
             ErrorUtils.handleSilentException(e);
-            handleSyncException(ApiSyncResult.fromGeneralFailure(contentUri), e);
+            handleSyncException(LegacySyncResult.fromGeneralFailure(contentUri), e);
         } finally {
             // should be taken care of when thread dies, but needed for tests
             PublicApi.setBackgroundMode(false);
@@ -109,13 +120,13 @@ public class LegacySyncJob implements SyncJob {
         switch (exception.reason()) {
             case AUTH_ERROR:
             case NOT_ALLOWED:
-                handleSyncException(ApiSyncResult.fromAuthException(contentUri), exception);
+                handleSyncException(LegacySyncResult.fromAuthException(contentUri), exception);
                 break;
             case NETWORK_ERROR:
-                handleSyncException(ApiSyncResult.fromIOException(contentUri), exception);
+                handleSyncException(LegacySyncResult.fromIOException(contentUri), exception);
                 break;
             case SERVER_ERROR:
-                handleSyncException(ApiSyncResult.fromServerError(contentUri), exception);
+                handleSyncException(LegacySyncResult.fromServerError(contentUri), exception);
                 break;
             case UNEXPECTED_RESPONSE:
             case BAD_REQUEST:
@@ -125,15 +136,15 @@ public class LegacySyncJob implements SyncJob {
                 // do not break
             case NOT_FOUND:
             case RATE_LIMITED:
-                handleSyncException(ApiSyncResult.fromClientError(contentUri), exception);
+                handleSyncException(LegacySyncResult.fromClientError(contentUri), exception);
                 break;
             default:
                 throw new IllegalStateException("Unknown error reason : " + exception.reason());
         }
     }
 
-    private void handleSyncException(ApiSyncResult apiSyncResult, Exception exception) {
-        result = apiSyncResult;
+    private void handleSyncException(LegacySyncResult legacySyncResult, Exception exception) {
+        result = legacySyncResult;
         this.exception = exception;
     }
 
@@ -141,11 +152,11 @@ public class LegacySyncJob implements SyncJob {
         return contentUri;
     }
 
-    public ApiSyncResult getResult() {
+    public LegacySyncResult getResult() {
         return result;
     }
 
-    public void setResult(ApiSyncResult result) {
+    public void setResult(LegacySyncResult result) {
         this.result = result;
     }
 

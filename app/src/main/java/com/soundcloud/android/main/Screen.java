@@ -29,6 +29,7 @@ public enum Screen {
     OFFLINE_ONBOARDING("collection:offline_onboarding"),
     OFFLINE_OFFBOARDING("collection:offline_offboarding"),
     PLAY_HISTORY("collection:play_history"),
+    RECENTLY_PLAYED("collection:recently_played"),
 
     // onboarding
     ONBOARDING_MAIN("onboarding:main"),

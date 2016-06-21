@@ -7,7 +7,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.sync.ApiSyncResult;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.android.utils.Log;
@@ -59,7 +59,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
 
     @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         log("Syncing with action=" + action);
 
         if (ApiSyncService.ACTION_APPEND.equals(action)) {
@@ -71,7 +71,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
         }
     }
 
-    private ApiSyncResult safePrepend() throws Exception {
+    private LegacySyncResult safePrepend() throws Exception {
         try {
             return prepend();
         } catch (ApiRequestException exception) {
@@ -83,7 +83,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
         }
     }
 
-    private ApiSyncResult refresh() throws Exception {
+    private LegacySyncResult refresh() throws Exception {
         final ApiRequest.Builder requestBuilder =
                 ApiRequest.get(endpoint.path())
                         .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, LIMIT)
@@ -100,10 +100,10 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
             timelineSyncStorage.storeFuturePageUrl(links.get(FUTURE_LINK_REL));
         }
 
-        return ApiSyncResult.fromSuccessfulChange(contentUri);
+        return LegacySyncResult.fromSuccessfulChange(contentUri);
     }
 
-    private ApiSyncResult append() throws Exception {
+    private LegacySyncResult append() throws Exception {
         if (timelineSyncStorage.hasNextPageUrl()) {
             final String nextPageUrl = timelineSyncStorage.getNextPageUrl();
             log("Building request from stored next link " + nextPageUrl);
@@ -116,18 +116,18 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
             timelineSyncStorage.storeNextPageUrl(items.getNextLink());
 
             if (items.getCollection().isEmpty()) {
-                return ApiSyncResult.fromSuccessWithoutChange(contentUri);
+                return LegacySyncResult.fromSuccessWithoutChange(contentUri);
             } else {
                 storeItemsCommand.call(items.getCollection());
-                return ApiSyncResult.fromSuccessfulChange(contentUri);
+                return LegacySyncResult.fromSuccessfulChange(contentUri);
             }
         } else {
             log("No next link found. Aborting append.");
-            return ApiSyncResult.fromSuccessWithoutChange(contentUri);
+            return LegacySyncResult.fromSuccessWithoutChange(contentUri);
         }
     }
 
-    private ApiSyncResult prepend() throws Exception {
+    private LegacySyncResult prepend() throws Exception {
         final String futurePageUrl = timelineSyncStorage.getFuturePageUrl();
         log("Building request from stored future link " + futurePageUrl);
 
@@ -152,10 +152,10 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
         }
 
         if (items.getCollection().isEmpty()) {
-            return ApiSyncResult.fromSuccessWithoutChange(contentUri);
+            return LegacySyncResult.fromSuccessWithoutChange(contentUri);
         } else {
             insertCommand.call(items.getCollection());
-            return ApiSyncResult.fromSuccessfulChange(contentUri);
+            return LegacySyncResult.fromSuccessfulChange(contentUri);
         }
     }
 

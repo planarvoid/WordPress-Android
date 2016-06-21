@@ -33,10 +33,10 @@ public class TrackSyncerTest extends AndroidUnitTest {
         when(storeTracksCommand.call(singleton(track))).thenReturn(TestStorageResults.successfulInsert());
 
         TrackSyncer syncer = new TrackSyncer(apiClient, storeTracksCommand);
-        ApiSyncResult result = syncer.syncContent(Content.TRACK.forId(track.getId()), Intent.ACTION_SYNC);
+        LegacySyncResult result = syncer.syncContent(Content.TRACK.forId(track.getId()), Intent.ACTION_SYNC);
         assertThat(result.success).isTrue();
         assertThat(result.synced_at).isGreaterThan(0);
-        assertThat(result.change).isEqualTo(ApiSyncResult.CHANGED);
+        assertThat(result.change).isEqualTo(LegacySyncResult.CHANGED);
     }
 
     @Test
@@ -48,9 +48,9 @@ public class TrackSyncerTest extends AndroidUnitTest {
         when(storeTracksCommand.call(singleton(track))).thenReturn(TestStorageResults.failedInsert());
 
         TrackSyncer syncer = new TrackSyncer(apiClient, storeTracksCommand);
-        ApiSyncResult result = syncer.syncContent(Content.TRACK.forId(track.getId()), Intent.ACTION_SYNC);
+        LegacySyncResult result = syncer.syncContent(Content.TRACK.forId(track.getId()), Intent.ACTION_SYNC);
         assertThat(result.success).isFalse();
         assertThat(result.synced_at).isEqualTo(0);
-        assertThat(result.change).isEqualTo(ApiSyncResult.UNCHANGED);
+        assertThat(result.change).isEqualTo(LegacySyncResult.UNCHANGED);
     }
 }

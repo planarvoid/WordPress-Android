@@ -9,7 +9,7 @@ import com.soundcloud.android.sync.ResultReceiverAdapter;
 import com.soundcloud.android.sync.SyncExtras;
 import com.soundcloud.android.sync.SyncJob;
 import com.soundcloud.android.sync.SyncRequest;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +28,7 @@ class EntitySyncRequest implements SyncRequest {
     private final EntitySyncJob entitySyncJob;
     private final EventBus eventBus;
     private final String action;
-    private SyncResult resultEvent;
+    private SyncJobResult resultEvent;
     @Nullable private final ResultReceiver resultReceiver;
 
     EntitySyncRequest(EntitySyncJob entitySyncJob, Intent intent, EventBus eventBus, String action, @Nullable ResultReceiver resultReceiver) {
@@ -68,8 +68,8 @@ class EntitySyncRequest implements SyncRequest {
         if (syncJob.equals(entitySyncJob)) {
             Exception exception = syncJob.getException();
             resultEvent = exception == null ?
-                    SyncResult.success(action, syncJob.resultedInAChange())
-                    : SyncResult.failure(action, syncJob.getException());
+                    SyncJobResult.success(action, syncJob.resultedInAChange())
+                    : SyncJobResult.failure(action, syncJob.getException());
         }
     }
 

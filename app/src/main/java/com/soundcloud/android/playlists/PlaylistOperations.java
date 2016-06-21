@@ -8,8 +8,8 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
-import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -61,7 +61,7 @@ public class PlaylistOperations {
     private final AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     private final EditPlaylistCommand editPlaylistCommand;
-    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator syncInitiator;
     private final EventBus eventBus;
 
     private final Func2<PropertySet, List<TrackItem>, PlaylistWithTracks> mergePlaylistWithTracks =
@@ -83,7 +83,7 @@ public class PlaylistOperations {
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                       SyncInitiator syncInitiator,
+                       LegacySyncInitiator syncInitiator,
                        PlaylistTracksStorage playlistTracksStorage,
                        PlaylistStorage playlistStorage,
                        Provider<LoadPlaylistTrackUrnsCommand> loadPlaylistTrackUrnsProvider,
@@ -180,7 +180,7 @@ public class PlaylistOperations {
                 });
     }
 
-    Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
+    public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
         return playlistWithTracks(playlistUrn).flatMap(syncIfNecessary(playlistUrn));
     }
 
@@ -188,9 +188,9 @@ public class PlaylistOperations {
         return syncInitiator
                 .syncPlaylist(playlistUrn)
                 .observeOn(scheduler)
-                .flatMap(new Func1<SyncResult, Observable<PlaylistWithTracks>>() {
+                .flatMap(new Func1<SyncJobResult, Observable<PlaylistWithTracks>>() {
                     @Override
-                    public Observable<PlaylistWithTracks> call(SyncResult playlistWasUpdated) {
+                    public Observable<PlaylistWithTracks> call(SyncJobResult playlistWasUpdated) {
                         return playlistWithTracks(playlistUrn)
                                 .flatMap(validateLoadedPlaylist);
                     }
@@ -200,9 +200,9 @@ public class PlaylistOperations {
     Observable<List<Urn>> updatedUrnsForPlayback(final Urn playlistUrn) {
         return syncInitiator
                 .syncPlaylist(playlistUrn)
-                .flatMap(new Func1<SyncResult, Observable<List<Urn>>>() {
+                .flatMap(new Func1<SyncJobResult, Observable<List<Urn>>>() {
                     @Override
-                    public Observable<List<Urn>> call(SyncResult syncResult) {
+                    public Observable<List<Urn>> call(SyncJobResult syncJobResult) {
                         return loadPlaylistTrackUrnsProvider.get().with(playlistUrn)
                                 .toObservable()
                                 .subscribeOn(scheduler);

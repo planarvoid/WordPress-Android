@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncStateStorage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +19,6 @@ import java.util.Collections;
 @RunWith(MockitoJUnitRunner.class)
 public class RecommendedStationsSyncerTest {
 
-    @Mock SyncStateStorage syncStateStorage;
     @Mock WriteStationsRecommendationsCommand command;
     @Mock StationsApi api;
     @Mock StationsStorage storage;
@@ -29,7 +27,7 @@ public class RecommendedStationsSyncerTest {
 
     @Before
     public void setUp() {
-        syncer = new RecommendedStationsSyncer(syncStateStorage, api, command);
+        syncer = new RecommendedStationsSyncer(api, command);
     }
 
     @Test
@@ -43,7 +41,6 @@ public class RecommendedStationsSyncerTest {
         assertThat(syncer.call()).isTrue();
 
         verify(command).call(eq(metadata));
-        verify(syncStateStorage).synced(StationsSyncInitiator.RECOMMENDATIONS);
     }
 
     @Test(expected = Exception.class)
@@ -53,6 +50,5 @@ public class RecommendedStationsSyncerTest {
         syncer.call();
 
         verifyNoMoreInteractions(command);
-        verifyNoMoreInteractions(syncStateStorage);
     }
 }

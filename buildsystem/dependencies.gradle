@@ -12,10 +12,10 @@ ext {
   androidMultiDex = "1.0.1"
   androidSupportVersion = '23.4.0'
   playServicesVersion = '9.0.0'
-  androidKitVersion = '0.46'
+  androidKitVersion = '0.48'
   lightCycleVersion = '1.1.0'
   daggerVersion = '1.2.2'
-  propellerVersion = '0.61'
+  propellerVersion = '0.63'
   findBugsVersion = '3.0.0'
   networkManager = '29'
 
@@ -65,6 +65,7 @@ ext {
           facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:4.4.0",
           butterKnife                 : "com.jakewharton:butterknife:7.0.1",
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.8.4-SOUNDCLOUD@aar",
+          tSnackBar                   : "com.androidadvance:topsnackbar:0.0.9",
           undoBar                     : "com.cocosw:undobar:1.4@aar",
 
           // Android libraries
@@ -93,6 +94,7 @@ ext {
           modelCitizen                    : "com.tobedevoured.modelcitizen:core:0.8.1",
           equalsVerifier                  : "nl.jqno.equalsverifier:equalsverifier:1.4.1",
           androidSupportAnnotations       : "com.android.support:support-annotations:$androidSupportVersion",
+          sqliteJdbc                      : "org.xerial:sqlite-jdbc:3.7.15-M1",
   ]
 
   acceptanceTestLibraries = [

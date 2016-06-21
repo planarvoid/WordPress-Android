@@ -1,28 +1,24 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.stations.WriteRecentStationsCollectionsCommand.SyncCollectionsMetadata;
-import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 
 import javax.inject.Inject;
 import java.util.concurrent.Callable;
 
-class RecentStationsSyncer implements Callable<Boolean> {
+public class RecentStationsSyncer implements Callable<Boolean> {
 
-    private final SyncStateStorage syncStateStorage;
     private final StationsApi api;
     private final WriteRecentStationsCollectionsCommand writeCollectionsCommand;
     private final DateProvider dateProvider;
     private final StationsStorage storage;
 
     @Inject
-    public RecentStationsSyncer(SyncStateStorage syncStateStorage,
-                                StationsApi api,
+    public RecentStationsSyncer(StationsApi api,
                                 WriteRecentStationsCollectionsCommand writeCollectionsCommand,
                                 CurrentDateProvider dateProvider,
                                 StationsStorage storage) {
-        this.syncStateStorage = syncStateStorage;
         this.api = api;
         this.writeCollectionsCommand = writeCollectionsCommand;
         this.dateProvider = dateProvider;
@@ -36,11 +32,6 @@ class RecentStationsSyncer implements Callable<Boolean> {
                 syncStartTime,
                 api.syncStationsCollections(storage.getRecentStationsToSync()));
 
-        if (writeCollectionsCommand.call(collections)) {
-            syncStateStorage.synced(StationsSyncInitiator.RECENT);
-            return true;
-        } else {
-            return false;
-        }
+        return writeCollectionsCommand.call(collections);
     }
 }
