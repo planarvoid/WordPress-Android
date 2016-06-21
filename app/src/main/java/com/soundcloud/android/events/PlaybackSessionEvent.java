@@ -28,7 +28,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public static final String KEY_PROTOCOL = "protocol";
     public static final String KEY_POLICY = "policy";
     public static final String PLAYER_TYPE = "player_type";
-    public static final String CONNECTION_TYPE = "connection_type";
 
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
@@ -85,7 +84,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
         put(KEY_PROTOCOL, args.getProtocol());
         put(KEY_POLICY, args.getTrackData().getOrElseNull(TrackProperty.POLICY));
         put(PLAYER_TYPE, args.getPlayerType());
-        put(CONNECTION_TYPE, args.getConnectionType());
         this.trackSourceInfo = args.getTrackSourceInfo();
         this.progress = args.getProgress();
         this.duration = Durations.getTrackPlayDuration(args.getTrackData());

@@ -57,7 +57,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     private static final long TIMESTAMP = new Date().getTime();
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
-    private static final String CONNECTION_TYPE = "3g";
     private static final String CDN_URL = "host.com";
     private static final String SCREEN_TAG = "screen_tag";
     private static final String CONTEXT_TAG = "context_tag";
@@ -668,8 +667,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @NonNull
     private PlaybackSessionEventArgs createEventArgs(PropertySet track, long progress) {
-        return PlaybackSessionEventArgs.create(track, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE,
-                CONNECTION_TYPE, false, false, UUID);
+        return PlaybackSessionEventArgs.create(track, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, false, false, UUID);
     }
 
 }

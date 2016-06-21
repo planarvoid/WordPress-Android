@@ -64,7 +64,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String BOOGALOO_VERSION = "v1.18.1";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
-    private static final String CONNECTION_TYPE = "3g";
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn CREATOR_URN = Urn.forUser(123L);
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
@@ -1167,6 +1166,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private PlaybackSessionEventArgs createArgs(PropertySet track, TrackSourceInfo trackSourceInfo, long progress,
                                                 boolean isOfflineTrack) {
         return PlaybackSessionEventArgs.create(track, trackSourceInfo, progress, PROTOCOL,
-                PLAYER_TYPE, CONNECTION_TYPE, isOfflineTrack, false, UUID);
+                PLAYER_TYPE, isOfflineTrack, false, UUID);
     }
 }

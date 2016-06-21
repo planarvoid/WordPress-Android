@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
@@ -31,9 +30,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     private static final PropertySet AUDIO_AD_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
     private static final String PLAYER_TYPE = "PLAYA";
-    private static final String CONNECTION_TYPE = "CONNECTION";
     private static final String UUID = "uuid";
-    private static final TestDateProvider DATE_PROVIDER = new TestDateProvider();
 
     private AudioAd audioAdData;
 
@@ -63,7 +60,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     @Test
     public void playEventWithStartNotMarkedAsReportedInAdDataIsFirstAdPlay() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA, DATE_PROVIDER)).withAudioAd(audioAdData);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA)).withAudioAd(audioAdData);
         assertThat(playEvent.shouldReportAdStart()).isTrue();
     }
 
@@ -82,15 +79,15 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void playEventWithStartMarkedSentAdDataIsNotAFirstPlay() {
         audioAdData.setStartReported();
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA, DATE_PROVIDER))
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA))
                 .withAudioAd(audioAdData);
         assertThat(playEvent.shouldReportAdStart()).isFalse();
     }
 
     @Test
     public void stopEventIsNotAFirstPlay() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(0L, TRACK_DATA, DATE_PROVIDER)).withAudioAd(audioAdData);
-        final PlaybackSessionEventArgs args = createArgs(0L, TRACK_DATA, DATE_PROVIDER);
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(0L, TRACK_DATA)).withAudioAd(audioAdData);
+        final PlaybackSessionEventArgs args = createArgs(0L, TRACK_DATA);
         PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(playEvent, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, args);
         assertThat(stopEvent.shouldReportAdStart()).isFalse();
     }
@@ -105,7 +102,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     @Test
     public void eventWithAudioAdMonetizationTypeIndicatesAnAudioAd() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withAudioAd(audioAdData);
+                createArgs(0L, AUDIO_AD_TRACK_DATA)).withAudioAd(audioAdData);
 
         assertThat(playEvent.isAd()).isTrue();
     }
@@ -115,7 +112,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
         PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
 
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withPromotedTrack(promotedInfo);
+                createArgs(0L, AUDIO_AD_TRACK_DATA)).withPromotedTrack(promotedInfo);
 
         assertThat(playEvent.isPromotedTrack()).isTrue();
     }
@@ -125,7 +122,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
         PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
 
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withPromotedTrack(promotedInfo);
+                createArgs(0L, AUDIO_AD_TRACK_DATA)).withPromotedTrack(promotedInfo);
 
         assertThat(playEvent.shouldReportAdStart()).isTrue();
     }
@@ -136,7 +133,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
         promotedInfo.setPlaybackStarted();
 
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA, DATE_PROVIDER)).withPromotedTrack(promotedInfo);
+                createArgs(0L, AUDIO_AD_TRACK_DATA)).withPromotedTrack(promotedInfo);
 
         assertThat(playEvent.shouldReportAdStart()).isFalse();
     }
@@ -146,7 +143,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
 
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
-                createArgs(PROGRESS, TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN), new TestDateProvider(1000L))).withAudioAd(audioAd);
+                createArgs(PROGRESS, TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN))).withAudioAd(audioAd);
 
         assertThat(event.isAd()).isTrue();
         assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo("dfp:ads:869");
@@ -159,18 +156,18 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     @Test
     public void eventWithMarketablePlayIndicatesMarketablePlay() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(PlaybackSessionEventArgs.create(TRACK_DATA, trackSourceInfo, 0L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, true, UUID));
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(PlaybackSessionEventArgs.create(TRACK_DATA, trackSourceInfo, 0L, PROTOCOL, PLAYER_TYPE, false, true, UUID));
         assertThat(playEvent.isMarketablePlay()).isTrue();
     }
 
     @NonNull
     private PlaybackSessionEventArgs createArgs() {
-        return createArgs(PROGRESS, TRACK_DATA, DATE_PROVIDER);
+        return createArgs(PROGRESS, TRACK_DATA);
     }
 
     @NonNull
-    private PlaybackSessionEventArgs createArgs(long progress, PropertySet trackData, TestDateProvider dateProvider) {
-        return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
+    private PlaybackSessionEventArgs createArgs(long progress, PropertySet trackData) {
+        return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, false, false, UUID);
     }
 
 }

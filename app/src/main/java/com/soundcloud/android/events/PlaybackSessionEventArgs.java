@@ -17,13 +17,11 @@ public abstract class PlaybackSessionEventArgs {
                                                   long progress,
                                                   String protocol,
                                                   String playerType,
-                                                  String connectionType,
                                                   boolean isOfflineTrack,
                                                   boolean marketablePlay,
                                                   String uuid) {
         return new AutoValue_PlaybackSessionEventArgs(trackData, trackSourceInfo, progress,
-                protocol, playerType, connectionType, isOfflineTrack,
-                marketablePlay, uuid);
+                protocol, playerType, isOfflineTrack, marketablePlay, uuid);
     }
 
     public static PlaybackSessionEventArgs create(PropertySet trackData,
@@ -32,7 +30,7 @@ public abstract class PlaybackSessionEventArgs {
                                                   boolean marketablePlay,
                                                   String uuid) {
         return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, transition.getProgress().getPosition(),
-                getProtocol(transition), getPlayerType(transition), getConnectionType(transition),
+                getProtocol(transition), getPlayerType(transition),
                 isLocalStoragePlayback(transition), marketablePlay, uuid);
     }
 
@@ -43,7 +41,7 @@ public abstract class PlaybackSessionEventArgs {
                                                   boolean marketablePlay,
                                                   String uuid) {
         return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, progress.getPosition(),
-                getProtocol(transition), getPlayerType(transition), getConnectionType(transition),
+                getProtocol(transition), getPlayerType(transition),
                 isLocalStoragePlayback(transition), marketablePlay, uuid);
     }
 
@@ -56,8 +54,6 @@ public abstract class PlaybackSessionEventArgs {
     public abstract String getProtocol();
 
     public abstract String getPlayerType();
-
-    public abstract String getConnectionType();
 
     public abstract boolean isOfflineTrack();
 

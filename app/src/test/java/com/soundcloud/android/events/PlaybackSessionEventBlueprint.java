@@ -15,7 +15,7 @@ public class PlaybackSessionEventBlueprint {
             return PlaybackSessionEvent.forPlay(
                     PlaybackSessionEventArgs.create(
                             TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(1L), Urn.forUser(2L)),
-                            new TrackSourceInfo("screen", true), 456L, "hls", "playa", "3g", false, false, ""
+                            new TrackSourceInfo("screen", true), 456L, "hls", "playa", false, false, ""
                     )
             );
         }

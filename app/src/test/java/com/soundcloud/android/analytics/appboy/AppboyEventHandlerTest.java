@@ -41,11 +41,11 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     private static final String UUID = "uuid";
     private static final PlaybackSessionEvent MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
             PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https",
-                    "player", "wifi", false, true, UUID));
+                    "player", false, true, UUID));
 
     private static final PlaybackSessionEvent NON_MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
             PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https",
-                    "player", "wifi", false, false, UUID));
+                    "player", false, false, UUID));
 
     private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = new AppboyProperties()
             .addProperty("creator_display_name", TRACK.getCreatorName())
@@ -125,7 +125,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotTrackPauseEvents() {
-        final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https", "player", "wifi", false, false, UUID);
+        final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https", "player", false, false, UUID);
         PlaybackSessionEvent event = PlaybackSessionEvent.forStop(NON_MARKETABLE_PLAY_EVENT, PlaybackSessionEvent.STOP_REASON_PAUSE, args);
 
         eventHandler.handleEvent(event);
