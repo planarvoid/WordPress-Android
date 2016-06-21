@@ -19,16 +19,14 @@ import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 
 import android.support.annotation.NonNull;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.concurrent.TimeUnit;
 
 class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
@@ -84,10 +82,12 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     @Override
     public void onProgressCheckpoint(PlaybackStateTransition previousTransition, PlaybackProgressEvent progressEvent) {
-        trackObservable
-                .filter(shouldPublishCheckpoint(progressEvent))
-                .map(toCheckpointEvent(previousTransition, progressEvent))
-                .subscribe(eventBus.queue(EventQueue.TRACKING));
+        if (trackObservable != null) {
+            trackObservable
+                    .filter(shouldPublishCheckpoint(progressEvent))
+                    .map(toCheckpointEvent(previousTransition, progressEvent))
+                    .subscribe(eventBus.queue(EventQueue.TRACKING));
+        }
     }
 
     @Override
@@ -147,12 +147,15 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         };
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> toCheckpointEvent(final PlaybackStateTransition previousTransition, final PlaybackProgressEvent progressEvent) {
+    private Func1<PropertySet, PlaybackSessionEvent> toCheckpointEvent(final PlaybackStateTransition previousTransition,
+                                                                       final PlaybackProgressEvent progressEvent) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet trackPropertySet) {
-                return PlaybackSessionEvent.forCheckpoint(buildEventArgs(trackPropertySet, progressEvent.getPlaybackProgress(), previousTransition))
-                        .withAudioAd((AudioAd) lastPlayedAd.get());
+                return PlaybackSessionEvent.forCheckpoint(buildEventArgs(trackPropertySet,
+                                                                         progressEvent.getPlaybackProgress(),
+                                                                         previousTransition))
+                                           .withAudioAd((AudioAd) lastPlayedAd.get());
             }
         };
     }
@@ -165,7 +168,8 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     private boolean lastEventWasNotPlayEvent() {
-        return !(lastAudioAdPlaySessionEvent.isPresent() && lastAudioAdPlaySessionEvent.get().isPlayEvent()) && !lastPlayedAd.isPresent();
+        return !(lastAudioAdPlaySessionEvent.isPresent() && lastAudioAdPlaySessionEvent.get()
+                                                                                       .isPlayEvent()) && !lastPlayedAd.isPresent();
     }
 
     private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionPlayEvent(final PlaybackStateTransition stateTransition) {
@@ -190,7 +194,10 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         // creates a new value for lastSessionEventData
         if ((lastAudioAdPlaySessionEvent.isPresent() || lastPlayedAd.isPresent()) && currentTrackSourceInfo.isPresent()) {
             if (lastPlayedAd.isPresent() && lastPlayedAd.get() instanceof VideoAd) {
-                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forStop((VideoAd) lastPlayedAd.get(), currentTrackSourceInfo.get(), stopReason));
+                eventBus.publish(EventQueue.TRACKING,
+                                 AdPlaybackSessionEvent.forStop((VideoAd) lastPlayedAd.get(),
+                                                                currentTrackSourceInfo.get(),
+                                                                stopReason));
             } else {
                 trackObservable
                         .map(toAudioAdSessionStopEvent(stopReason, stateTransition, lastAudioAdPlaySessionEvent.get()))
@@ -201,7 +208,9 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         }
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionStopEvent(final int stopReason, final PlaybackStateTransition stateTransition, final PlaybackSessionEvent lastPlayEventData) {
+    private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionStopEvent(final int stopReason,
+                                                                               final PlaybackStateTransition stateTransition,
+                                                                               final PlaybackSessionEvent lastPlayEventData) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
@@ -220,7 +229,9 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @NonNull
-    private PlaybackSessionEventArgs buildEventArgs(PropertySet track, PlaybackProgress playbackProgress, PlaybackStateTransition stateTransition) {
+    private PlaybackSessionEventArgs buildEventArgs(PropertySet track,
+                                                    PlaybackProgress playbackProgress,
+                                                    PlaybackStateTransition stateTransition) {
         return PlaybackSessionEventArgs.createWithProgress(
                 track,
                 accountOperations.getLoggedInUserUrn(),
