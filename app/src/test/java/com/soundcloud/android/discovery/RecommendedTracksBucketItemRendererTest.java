@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 
+import static java.util.Collections.singletonList;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
@@ -35,16 +36,16 @@ import android.widget.TextView;
 
 import javax.inject.Provider;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
+public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
     private static final long SEED_ID = 1;
     private static final int QUERY_POSITION = 1;
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false, QUERY_POSITION, Urn.NOT_SET);
+    private static final Recommendation RECOMMENDATION = getRecommendation();
+
     private static final List<Urn> TRACKS_LIST = Arrays.asList(SEED_TRACK.getUrn(), RECOMMENDED_TRACK.getUrn());
 
     @Mock private ImageOperations imageOperations;
@@ -58,12 +59,15 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        when(playbackInitiator.playTracks(anyListOf(Urn.class), any(Integer.class), any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
+        when(playbackInitiator
+                     .playTracks(anyListOf(Urn.class),
+                                 any(Integer.class),
+                                 any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
     }
 
     @Test
     public void shouldBindHeadingToViewIfViewAllBucket() {
-        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
+        final List<RecommendedTracksBucketItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
         renderer.bindItemView(0, itemView, recommendedTracksItems);
@@ -75,7 +79,7 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideHeadingIfNonViewAllBucket() {
-        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
+        final List<RecommendedTracksBucketItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createDefaultRenderer();
         final View itemView = createItemView(renderer);
 
@@ -86,7 +90,7 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindReasonToView() {
-        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
+        final List<RecommendedTracksBucketItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
@@ -99,7 +103,7 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void tappingOnSeedTrackShouldTriggerRecommendationsBucketListenerIfAvailable() {
-        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
+        final List<RecommendedTracksBucketItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
@@ -112,7 +116,7 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldBindViewAllToViewWhenViewAllBucket() {
-        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
+        final List<RecommendedTracksBucketItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
@@ -124,7 +128,7 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
 
     @Test
     public void shouldHideViewAllWhenNonViewAllBucket() {
-        final List<RecommendedTracksItem> recommendedTracksItems = createRecommendationsBucket();
+        final List<RecommendedTracksBucketItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createDefaultRenderer();
         final View itemView = createItemView(renderer);
 
@@ -164,9 +168,13 @@ public class RecommendedTracksItemRendererTest extends AndroidUnitTest {
         );
     }
 
-    private List<RecommendedTracksItem> createRecommendationsBucket() {
-        final RecommendedTracksItem recommendedTracksItem = RecommendedTracksItem.create(createSeed(), Collections.singletonList(
-                RECOMMENDATION));
-        return Collections.singletonList(recommendedTracksItem);
+    private List<RecommendedTracksBucketItem> createRecommendationsBucket() {
+        return singletonList(RecommendedTracksBucketItem
+                                     .create(createSeed(), singletonList(RECOMMENDATION)));
     }
+
+    private static Recommendation getRecommendation() {
+        return new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false, QUERY_POSITION, Urn.NOT_SET);
+    }
+
 }

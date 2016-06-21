@@ -1,14 +1,15 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
-import com.soundcloud.android.stations.RecommendedStationsItem;
+import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
-import com.soundcloud.android.stations.StationRecord;
+import com.soundcloud.android.stations.StationViewModel;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +59,7 @@ public class DiscoveryPresenterDataSourceTest {
         when(featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)).thenReturn(true);
 
         final ChartBucket chartsItem = ChartBucket.create(Collections.<Chart>emptyList(), Collections.<Chart>emptyList());
-        final RecommendedStationsItem stationsItem = RecommendedStationsItem.create(Collections.<StationRecord>emptyList());
+        final RecommendedStationsBucketItem stationsItem = RecommendedStationsBucketItem.create(Collections.<StationViewModel>emptyList());
         final DiscoveryItem tracksItem =  new DiscoveryItem(DiscoveryItem.Kind.RecommendedTracksItem);
         final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"), Collections.<String>emptyList());
 

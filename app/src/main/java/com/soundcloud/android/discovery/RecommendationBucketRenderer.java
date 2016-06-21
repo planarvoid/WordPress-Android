@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Locale;
 
 @AutoFactory(allowSubclasses = true)
-class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksItem> {
+class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBucketItem> {
 
     private final boolean isViewAllBucket;
     private final Screen trackingScreen;
@@ -77,8 +77,8 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksItem
     }
 
     @Override
-    public void bindItemView(int position, View bucketView, List<RecommendedTracksItem> list) {
-        final RecommendedTracksItem recommendedTracksItem = list.get(position);
+    public void bindItemView(int position, View bucketView, List<RecommendedTracksBucketItem> list) {
+        final RecommendedTracksBucketItem recommendedTracksItem = list.get(position);
 
         bindViewAllViews(bucketView);
         bindReasonView(bucketView, recommendedTracksItem);
@@ -104,13 +104,13 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksItem
         }
     }
 
-    private void bindReasonView(View bucketView, final RecommendedTracksItem bucket) {
+    private void bindReasonView(View bucketView, final RecommendedTracksBucketItem bucket) {
         final TextView reasonView = ButterKnife.findById(bucketView, R.id.reason);
         reasonView.setText(getReasonText(bucket, bucketView.getContext()));
         reasonView.setOnClickListener(buildOnReasonClickListener(bucket));
     }
 
-    private void bindCarousel(RecommendationsAdapter adapter, RecommendedTracksItem recommendationBucket) {
+    private void bindCarousel(RecommendationsAdapter adapter, RecommendedTracksBucketItem recommendationBucket) {
         final List<Recommendation> viewModels = recommendationBucket.getRecommendations();
         adapter.clear();
         for (int i = 0; i < viewModels.size(); i++) {
@@ -119,7 +119,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksItem
         adapter.notifyDataSetChanged();
     }
 
-    private Spannable getReasonText(RecommendedTracksItem recommendationBucket, Context context) {
+    private Spannable getReasonText(RecommendedTracksBucketItem recommendationBucket, Context context) {
         final String reason = getReasonType(recommendationBucket.getRecommendationReason(), context);
         final String reasonText = context.getString(R.string.recommendation_reason_because_you_reason_tracktitle, reason,
                 recommendationBucket.getSeedTrackTitle());
@@ -144,7 +144,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksItem
     }
 
     @NonNull
-    private View.OnClickListener buildOnReasonClickListener(final RecommendedTracksItem bucket) {
+    private View.OnClickListener buildOnReasonClickListener(final RecommendedTracksBucketItem bucket) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -137,7 +137,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         operations.firstBucket().subscribe(subscriber);
         SYNC_SUBJECT.onNext(Result.SYNCING);
 
-        final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
+        final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
 
         assertThat(bucket.getRecommendations().get(0).isPlaying()).isTrue();
     }
@@ -149,7 +149,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         operations.firstBucket().subscribe(subscriber);
         SYNC_SUBJECT.onNext(Result.SYNCING);
 
-        final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
+        final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
 
         assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
     }
@@ -161,7 +161,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         operations.firstBucket().subscribe(subscriber);
         SYNC_SUBJECT.onNext(Result.SYNCING);
 
-        final RecommendedTracksItem bucket = (RecommendedTracksItem) subscriber.getOnNextEvents().get(0);
+        final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
 
         assertThat(bucket.getRecommendations().get(0).isPlaying()).isFalse();
     }
@@ -169,7 +169,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     private void assertRecommendedTrackItem(DiscoveryItem discoveryItem) {
         assertThat(discoveryItem.getKind()).isEqualTo(DiscoveryItem.Kind.RecommendedTracksItem);
 
-        final RecommendedTracksItem recommendationBucket = (RecommendedTracksItem) discoveryItem;
+        final RecommendedTracksBucketItem recommendationBucket = (RecommendedTracksBucketItem) discoveryItem;
         assertThat(recommendationBucket.getSeedTrackLocalId()).isEqualTo(SEED_ID);
         assertThat(recommendationBucket.getSeedTrackUrn()).isEqualTo(SEED_TRACK.getUrn());
         assertThat(recommendationBucket.getSeedTrackTitle()).isEqualTo(SEED_TRACK.getTitle());

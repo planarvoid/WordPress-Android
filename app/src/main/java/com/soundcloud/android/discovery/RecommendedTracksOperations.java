@@ -55,7 +55,7 @@ class RecommendedTracksOperations {
         return new Func1<List<TrackItem>, DiscoveryItem>() {
             @Override
             public DiscoveryItem call(List<TrackItem> trackItems) {
-                return RecommendedTracksItem.create(seed, toRecommendations(seed, trackItems));
+                return RecommendedTracksBucketItem.create(seed, toRecommendations(seed, trackItems));
             }
         };
     }

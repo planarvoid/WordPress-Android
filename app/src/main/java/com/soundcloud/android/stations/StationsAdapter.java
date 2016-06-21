@@ -2,13 +2,13 @@ package com.soundcloud.android.stations;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 import android.view.View;
 
 import javax.inject.Inject;
 
-class StationsAdapter extends RecyclerItemAdapter<StationViewModel, StationsViewHolder> implements NowPlayingAdapter {
+class StationsAdapter extends RecyclerItemAdapter<StationViewModel, StationsViewHolder> implements PlayingTrackAware {
     private static final int STATION_TYPE = 0;
 
     @Inject

@@ -7,7 +7,8 @@ import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
 
 import com.soundcloud.android.discovery.DiscoveryItem;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.java.collections.Lists;
@@ -18,6 +19,7 @@ import rx.functions.Func2;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecommendedStationsOperations {
@@ -33,23 +35,26 @@ public class RecommendedStationsOperations {
                 }
             };
 
-    private static final Func1<List<StationRecord>, DiscoveryItem> TO_RECOMMENDED_STATIONS_BUCKET =
+    private final Func1<List<StationRecord>, DiscoveryItem> toRecommendedStationsBucket =
             new Func1<List<StationRecord>, DiscoveryItem>() {
                 @Override
                 public DiscoveryItem call(List<StationRecord> stationRecords) {
-                    return RecommendedStationsItem.create(stationRecords);
+                    return RecommendedStationsBucketItem.create(transformToStationViewModels(stationRecords));
                 }
             };
 
     private final StationsStorage stationsStorage;
+    private final PlayQueueManager playQueueManager;
     private final Scheduler scheduler;
     private final SyncOperations syncOperations;
 
     @Inject
     RecommendedStationsOperations(StationsStorage stationsStorage,
+                                  PlayQueueManager playQueueManager,
                                   @Named(HIGH_PRIORITY) Scheduler scheduler,
                                   SyncOperations syncOperations) {
         this.stationsStorage = stationsStorage;
+        this.playQueueManager = playQueueManager;
         this.scheduler = scheduler;
         this.syncOperations = syncOperations;
     }
@@ -57,7 +62,7 @@ public class RecommendedStationsOperations {
     public Observable<DiscoveryItem> stationsBucket() {
         return recommendedStations()
                 .filter(IS_NOT_EMPTY_LIST)
-                .map(TO_RECOMMENDED_STATIONS_BUCKET);
+                .map(toRecommendedStationsBucket);
     }
 
     public void clearData() {
@@ -77,6 +82,17 @@ public class RecommendedStationsOperations {
                 .getStationsCollection(collectionType)
                 .toList()
                 .subscribeOn(scheduler);
+    }
+
+    private List<StationViewModel> transformToStationViewModels(List<StationRecord> records) {
+        final List<StationViewModel> models = new ArrayList<>(records.size());
+        final Urn playingCollectionUrn = playQueueManager.getCollectionUrn();
+        for (StationRecord record : records) {
+            boolean isPlaying = record.getUrn().equals(playingCollectionUrn);
+            StationViewModel viewModel = new StationViewModel(record, isPlaying);
+            models.add(viewModel);
+        }
+        return models;
     }
 
 }

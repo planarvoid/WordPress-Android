@@ -6,7 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 import com.soundcloud.android.view.dragdrop.OnStartDragListener;
 import com.soundcloud.android.view.dragdrop.RecyclerDragDropAdapter;
 
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 @AutoFactory(allowSubclasses = true)
 public class PlaylistAdapter
         extends RecyclerDragDropAdapter<TrackItem, RecyclerDragDropAdapter.ViewHolder>
-        implements NowPlayingAdapter {
+        implements PlayingTrackAware {
 
     private static final int TRACK_ITEM_TYPE = 0;
     private static final int EDIT_TRACK_ITEM_TYPE = 1;

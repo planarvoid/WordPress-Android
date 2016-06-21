@@ -3,21 +3,23 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.android.discovery.DiscoveryAdapter.DiscoveryItemListenerBucket;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.stations.RecommendedStationsBucketItem;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.util.Arrays;
 
 public class DiscoveryAdapterTest extends AndroidUnitTest {
 
@@ -29,10 +31,22 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private RecommendationsFooterRenderer recommendationsFooterRenderer;
     @Mock private EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer;
 
+    @Mock private RecommendedStationsBucketItem stationsBucketItem;
+    @Mock private RecommendedTracksBucketItem tracksBucketItem;
+    @Mock private PlaylistTagsItem playlistTagItem;
+    @Mock private ChartsItem chartsItem;
+
+    private DiscoveryItem searchItem = DiscoveryItem.forSearchItem();
     private DiscoveryAdapter adapter;
 
     @Before
     public void setUp() throws Exception {
+        when(stationsBucketItem.getKind()).thenReturn(RecommendedStationsItem);
+        when(tracksBucketItem.getKind()).thenReturn(RecommendedTracksItem);
+        when(playlistTagItem.getKind()).thenReturn(PlaylistTagsItem);
+        when(chartsItem.getKind()).thenReturn(ChartItem);
+
+
         adapter = new DiscoveryAdapter(recommendationBucketRenderer,
                                        playlistTagRenderer,
                                        searchItemRenderer,
@@ -44,21 +58,11 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Test
     public void rendersCorrectViewTypes() {
-        DiscoveryItem searchItem = DiscoveryItem.forSearchItem();
-        DiscoveryItem playlistTagItem = mock(DiscoveryItem.class);
-        when(playlistTagItem.getKind()).thenReturn(PlaylistTagsItem);
-        DiscoveryItem trackRecommendationItem = mock(DiscoveryItem.class);
-        when(trackRecommendationItem.getKind()).thenReturn(RecommendedTracksItem);
-        DiscoveryItem stationRecommendationItem = mock(DiscoveryItem.class);
-        when(stationRecommendationItem.getKind()).thenReturn(RecommendedStationsItem);
-        DiscoveryItem chartRecommendationItem = mock(DiscoveryItem.class);
-        when(chartRecommendationItem.getKind()).thenReturn(ChartItem);
-
-        adapter.onNext(Arrays.asList(searchItem,
-                                     playlistTagItem,
-                                     trackRecommendationItem,
-                                     stationRecommendationItem,
-                                     chartRecommendationItem));
+        adapter.onNext(asList(searchItem,
+                              playlistTagItem,
+                              tracksBucketItem,
+                              stationsBucketItem,
+                              chartsItem));
 
         assertThat(adapter.getBasicItemViewType(0)).isEqualTo(SearchItem.ordinal());
         assertThat(adapter.getBasicItemViewType(1)).isEqualTo(PlaylistTagsItem.ordinal());
@@ -73,5 +77,40 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         adapter.setDiscoveryListener(itemListener);
 
         verify(playlistTagRenderer).setOnTagClickListener(itemListener);
+        verify(searchItemRenderer).setSearchListener(itemListener);
+        verify(recommendedStationsBucketRenderer).setListener(itemListener);
+    }
+
+    @Test
+    public void updatesNowPlayingWithCollection() {
+        final Urn nowPlayingCollection = Urn.forTrackStation(123L);
+        final Urn nowPlayingTrack = Urn.forTrack(123L);
+
+        adapter.onNext(asList(searchItem,
+                              playlistTagItem,
+                              tracksBucketItem,
+                              stationsBucketItem,
+                              chartsItem));
+
+        adapter.updateNowPlayingWithCollection(nowPlayingCollection, nowPlayingTrack);
+
+        verify(stationsBucketItem).updateNowPlaying(nowPlayingCollection);
+        verify(tracksBucketItem).updateNowPlaying(nowPlayingTrack);
+    }
+
+    @Test
+    public void updatesNowPlayingTrack() {
+        final Urn nowPlayingTrack = Urn.forTrack(123L);
+
+        adapter.onNext(asList(searchItem,
+                              playlistTagItem,
+                              tracksBucketItem,
+                              stationsBucketItem,
+                              chartsItem));
+
+        adapter.updateNowPlaying(nowPlayingTrack);
+
+        verify(tracksBucketItem).updateNowPlaying(nowPlayingTrack);
+        verify(stationsBucketItem, never()).updateNowPlaying(nowPlayingTrack);
     }
 }

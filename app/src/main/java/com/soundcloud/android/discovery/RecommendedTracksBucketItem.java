@@ -2,21 +2,21 @@ package com.soundcloud.android.discovery;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 import com.soundcloud.java.collections.PropertySet;
 
 import java.util.List;
 
 @AutoValue
-abstract class RecommendedTracksItem extends DiscoveryItem {
+abstract class RecommendedTracksBucketItem extends DiscoveryItem implements PlayingTrackAware {
 
-    public RecommendedTracksItem() {
+    RecommendedTracksBucketItem() {
         super(Kind.RecommendedTracksItem);
     }
 
-    static RecommendedTracksItem create(PropertySet source, List<Recommendation> recommendations) {
-        return new AutoValue_RecommendedTracksItem(source, recommendations);
+    static RecommendedTracksBucketItem create(PropertySet source, List<Recommendation> recommendations) {
+        return new AutoValue_RecommendedTracksBucketItem(source, recommendations);
     }
-
 
     String getSeedTrackTitle() {
         return getSource().get(RecommendationProperty.SEED_TRACK_TITLE);
@@ -44,5 +44,11 @@ abstract class RecommendedTracksItem extends DiscoveryItem {
 
     long getSeedTrackLocalId() {
         return getSource().get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
+    }
+
+    public void updateNowPlaying(Urn nowPlaying) {
+        for (Recommendation viewModel : getRecommendations()) {
+            viewModel.setIsPlaying(nowPlaying.equals(viewModel.getTrackUrn()));
+        }
     }
 }

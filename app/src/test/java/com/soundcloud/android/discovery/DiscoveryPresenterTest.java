@@ -104,7 +104,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                                  Urn.NOT_SET,
                                  1));
 
-        verify(adapter).updateNowPlaying(TRACK_URN);
+        verify(adapter).updateNowPlayingWithCollection(Urn.NOT_SET, TRACK_URN);
     }
 
     @Test

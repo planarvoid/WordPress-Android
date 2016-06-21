@@ -9,7 +9,7 @@ import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.NowPlayingAdapter;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 class SoundStreamAdapter
         extends PagingRecyclerItemAdapter<StreamItem, SoundStreamAdapter.SoundStreamViewHolder>
-        implements NowPlayingAdapter {
+        implements PlayingTrackAware {
 
     private static final int TRACK_ITEM_TYPE = 0;
     private static final int PLAYLIST_ITEM_TYPE = 1;

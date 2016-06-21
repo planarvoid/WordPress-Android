@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.Navigator;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -9,11 +10,11 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.stations.StationRecord;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.EmptyThrowable;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -34,7 +35,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements DiscoveryAdapter.DiscoveryItemListenerBucket {
+class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
+        implements DiscoveryAdapter.DiscoveryItemListenerBucket {
 
     private final DataSource dataSource;
     private final DiscoveryAdapter adapter;
@@ -69,7 +71,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         getBinding().connect();
-        subscription = eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter));
+        subscription = eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingUrnSubscriber());
     }
 
     @Override
@@ -117,6 +119,17 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     public void onRecommendedStationClicked(Context context, StationRecord station) {
         startStationPresenter.startStation(context, station.getUrn());
+    }
+
+    private class UpdatePlayingUrnSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+
+        @Override
+        public void onNext(CurrentPlayQueueItemEvent event) {
+            if (adapter != null) {
+                adapter.updateNowPlayingWithCollection(event.getCollectionUrn(),
+                                                       event.getCurrentPlayQueueItem().getUrnOrNotSet());
+            }
+        }
     }
 
     public static class DataSource {
