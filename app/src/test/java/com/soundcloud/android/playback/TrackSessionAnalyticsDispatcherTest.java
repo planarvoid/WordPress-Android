@@ -207,7 +207,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotPublishCheckpointEventIfLastTransitionWasntPlayTransition() {
+    public void shouldNotPublishCheckpointEventIfNotPlaying() {
         final PlaybackStateTransition transition = playTransition();
         stopTransition(PlaybackState.IDLE, PlayStateReason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
@@ -220,7 +220,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotPublishCheckpointEventIfPlaybackProgressUrnDoesntMatchPlayTransition() {
+    public void shouldNotPublishCheckpointEventIfProgressEventIsNotForPlayingItem() {
         final PlaybackStateTransition transition = playTransition();
 
         dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L), Urn.forTrack(101L)));

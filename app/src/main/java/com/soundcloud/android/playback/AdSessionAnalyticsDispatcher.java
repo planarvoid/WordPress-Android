@@ -82,12 +82,17 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     @Override
     public void onProgressCheckpoint(PlaybackStateTransition previousTransition, PlaybackProgressEvent progressEvent) {
-        if (trackObservable != null) {
+        if (isCurrentlyPlayingAudioAd()) {
             trackObservable
                     .filter(shouldPublishCheckpoint(progressEvent))
                     .map(toCheckpointEvent(previousTransition, progressEvent))
                     .subscribe(eventBus.queue(EventQueue.TRACKING));
         }
+    }
+
+    private boolean isCurrentlyPlayingAudioAd() {
+        // Checkpoint events are not supported for video ads yet!
+        return trackObservable != null;
     }
 
     @Override
