@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -30,7 +29,6 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     private final EventBus eventBus;
     private final TrackRepository trackRepository;
-    private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final StopReasonProvider stopReasonProvider;
@@ -43,12 +41,10 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     @Inject
     public AdSessionAnalyticsDispatcher(EventBus eventBus, TrackRepository trackRepository,
-                                        AccountOperations accountOperations, PlayQueueManager playQueueManager,
-                                        AdsOperations adsOperations, StopReasonProvider stopReasonProvider,
-                                        UuidProvider uuidProvider) {
+                                        PlayQueueManager playQueueManager, AdsOperations adsOperations,
+                                        StopReasonProvider stopReasonProvider, UuidProvider uuidProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
-        this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
         this.stopReasonProvider = stopReasonProvider;
@@ -232,7 +228,6 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                                     PlaybackStateTransition stateTransition) {
         return PlaybackSessionEventArgs.createWithProgress(
                 track,
-                accountOperations.getLoggedInUserUrn(),
                 currentTrackSourceInfo.get(),
                 playbackProgress,
                 stateTransition,

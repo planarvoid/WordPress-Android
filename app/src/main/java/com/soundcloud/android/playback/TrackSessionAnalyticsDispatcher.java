@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.EventQueue;
@@ -27,7 +26,6 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     private final EventBus eventBus;
     private final TrackRepository trackRepository;
-    private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final StopReasonProvider stopReasonProvider;
@@ -39,12 +37,10 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     @Inject
     public TrackSessionAnalyticsDispatcher(EventBus eventBus, TrackRepository trackRepository,
-                                           AccountOperations accountOperations, PlayQueueManager playQueueManager,
-                                           AppboyPlaySessionState appboyPlaySessionState,
+                                           PlayQueueManager playQueueManager, AppboyPlaySessionState appboyPlaySessionState,
                                            StopReasonProvider stopReasonProvider, UuidProvider uuidProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
-        this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
         this.appboyPlaySessionState = appboyPlaySessionState;
         this.stopReasonProvider = stopReasonProvider;
@@ -169,7 +165,6 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     private PlaybackSessionEventArgs buildEventArgs(PropertySet track, PlaybackProgress progress, PlaybackStateTransition stateTransition) {
         return PlaybackSessionEventArgs.createWithProgress(track,
-                accountOperations.getLoggedInUserUrn(),
                 currentTrackSourceInfo.get(),
                 progress,
                 stateTransition,

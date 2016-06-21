@@ -13,7 +13,6 @@ import android.webkit.URLUtil;
 public abstract class PlaybackSessionEventArgs {
 
     public static PlaybackSessionEventArgs create(PropertySet trackData,
-                                                  Urn userUrn,
                                                   TrackSourceInfo trackSourceInfo,
                                                   long progress,
                                                   String protocol,
@@ -22,37 +21,33 @@ public abstract class PlaybackSessionEventArgs {
                                                   boolean isOfflineTrack,
                                                   boolean marketablePlay,
                                                   String uuid) {
-        return new AutoValue_PlaybackSessionEventArgs(trackData, userUrn, trackSourceInfo, progress,
+        return new AutoValue_PlaybackSessionEventArgs(trackData, trackSourceInfo, progress,
                 protocol, playerType, connectionType, isOfflineTrack,
                 marketablePlay, uuid);
     }
 
     public static PlaybackSessionEventArgs create(PropertySet trackData,
-                                                  Urn userUrn,
                                                   TrackSourceInfo trackSourceInfo,
                                                   PlaybackStateTransition transition,
                                                   boolean marketablePlay,
                                                   String uuid) {
-        return PlaybackSessionEventArgs.create(trackData, userUrn, trackSourceInfo, transition.getProgress().getPosition(),
+        return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, transition.getProgress().getPosition(),
                 getProtocol(transition), getPlayerType(transition), getConnectionType(transition),
                 isLocalStoragePlayback(transition), marketablePlay, uuid);
     }
 
     public static PlaybackSessionEventArgs createWithProgress(PropertySet trackData,
-                                                  Urn userUrn,
                                                   TrackSourceInfo trackSourceInfo,
                                                   PlaybackProgress progress,
                                                   PlaybackStateTransition transition,
                                                   boolean marketablePlay,
                                                   String uuid) {
-        return PlaybackSessionEventArgs.create(trackData, userUrn, trackSourceInfo, progress.getPosition(),
+        return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, progress.getPosition(),
                 getProtocol(transition), getPlayerType(transition), getConnectionType(transition),
                 isLocalStoragePlayback(transition), marketablePlay, uuid);
     }
 
     public abstract PropertySet getTrackData();
-
-    public abstract Urn getUserUrn();
 
     public abstract TrackSourceInfo getTrackSourceInfo();
 

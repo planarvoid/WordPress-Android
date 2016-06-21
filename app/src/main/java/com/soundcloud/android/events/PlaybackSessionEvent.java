@@ -25,7 +25,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public static final int STOP_REASON_ERROR = 6;
     public static final int STOP_REASON_CONCURRENT_STREAMING = 7;
 
-    public static final String KEY_LOGGED_IN_USER_URN = "logged_in_user_urn";
     public static final String KEY_PROTOCOL = "protocol";
     public static final String KEY_POLICY = "policy";
     public static final String PLAYER_TYPE = "player_type";
@@ -83,7 +82,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.trackUrn = args.getTrackData().get(TrackProperty.URN);
         this.creatorUrn = args.getTrackData().get(TrackProperty.CREATOR_URN);
         this.monetizationModel = args.getTrackData().get(TrackProperty.MONETIZATION_MODEL);
-        put(KEY_LOGGED_IN_USER_URN, args.getUserUrn().toString());
         put(KEY_PROTOCOL, args.getProtocol());
         put(KEY_POLICY, args.getTrackData().getOrElseNull(TrackProperty.POLICY));
         put(PLAYER_TYPE, args.getPlayerType());
@@ -96,7 +94,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     // Audio ad
     public PlaybackSessionEvent withAudioAd(AudioAd audioAd) {
-        put(PlayableTrackingKeys.KEY_USER_URN, get(KEY_LOGGED_IN_USER_URN));
         put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getAdUrn().toString());
         put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO_AD);
         put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString());

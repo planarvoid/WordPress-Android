@@ -668,7 +668,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @NonNull
     private PlaybackSessionEventArgs createEventArgs(PropertySet track, long progress) {
-        return PlaybackSessionEventArgs.create(track, LOGGED_IN_USER, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE,
+        return PlaybackSessionEventArgs.create(track, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE,
                 CONNECTION_TYPE, false, false, UUID);
     }
 

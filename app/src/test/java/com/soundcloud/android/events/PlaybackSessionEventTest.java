@@ -25,7 +25,6 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     private static final long DURATION = 1000L;
     private static final long PROGRESS = 12345L;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
-    private static final Urn LOGGED_IN_USER_URN = Urn.forUser(1L);
     private static final Urn CREATOR_URN = Urn.forUser(2L);
     private static final String PROTOCOL = "hls";
     private static final PropertySet TRACK_DATA = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
@@ -160,7 +159,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     @Test
     public void eventWithMarketablePlayIndicatesMarketablePlay() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(PlaybackSessionEventArgs.create(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, 0L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, true, UUID));
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(PlaybackSessionEventArgs.create(TRACK_DATA, trackSourceInfo, 0L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, true, UUID));
         assertThat(playEvent.isMarketablePlay()).isTrue();
     }
 
@@ -171,7 +170,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     @NonNull
     private PlaybackSessionEventArgs createArgs(long progress, PropertySet trackData, TestDateProvider dateProvider) {
-        return PlaybackSessionEventArgs.create(trackData, LOGGED_IN_USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
+        return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
     }
 
 }

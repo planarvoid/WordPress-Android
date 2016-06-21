@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.EventQueue;
@@ -32,7 +31,6 @@ import java.util.List;
 public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(1L);
-    private static final Urn LOGGED_IN_USER_URN = Urn.forUser(2L);
     private static final Urn CREATOR_URN = Urn.forUser(3L);
     private static final long PROGRESS = 1001L;
     private static final long DURATION = 2001L;
@@ -41,7 +39,6 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private PlaybackAnalyticsDispatcher dispatcher;
 
     @Mock private TrackRepository trackRepository;
-    @Mock private AccountOperations accountOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
     @Mock private StopReasonProvider stopReasonProvider;
@@ -59,11 +56,10 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(false);
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
         when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
         dispatcher = new TrackSessionAnalyticsDispatcher(
-                eventBus, trackRepository, accountOperations, playQueueManager, appboyPlaySessionState,
+                eventBus, trackRepository, playQueueManager, appboyPlaySessionState,
                 stopReasonProvider, uuidProvider);
     }
 
@@ -114,7 +110,6 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private void expectCommonAudioEventData(PlaybackStateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
         assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
         assertThat(playbackSessionEvent.getCreatorUrn()).isEqualTo(CREATOR_URN);
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_LOGGED_IN_USER_URN)).isEqualTo(LOGGED_IN_USER_URN.toString());
         assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
         assertThat(playbackSessionEvent.getUUID()).isEqualTo(UUID);
@@ -258,7 +253,6 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     protected void verifyStopEvent(int stopReason) {
         final PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_LOGGED_IN_USER_URN)).isEqualTo(LOGGED_IN_USER_URN.toString());
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
         assertThat(playbackSessionEvent.isStopEvent()).isTrue();
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
