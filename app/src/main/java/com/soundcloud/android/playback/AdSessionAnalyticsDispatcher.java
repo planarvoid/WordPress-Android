@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.ApplicationModule.CURRENT_DATE_PROVIDER;
-
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdsOperations;
@@ -14,7 +12,6 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -25,7 +22,6 @@ import rx.subjects.ReplaySubject;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.concurrent.TimeUnit;
 
 class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
@@ -39,7 +35,6 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private final AdsOperations adsOperations;
     private final StopReasonProvider stopReasonProvider;
     private final UuidProvider uuidProvider;
-    private final DateProvider dateProvider;
 
     private Optional<PlaybackSessionEvent> lastAudioAdPlaySessionEvent = Optional.absent();
     private Optional<AdData> lastPlayedAd = Optional.absent();
@@ -50,8 +45,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     public AdSessionAnalyticsDispatcher(EventBus eventBus, TrackRepository trackRepository,
                                         AccountOperations accountOperations, PlayQueueManager playQueueManager,
                                         AdsOperations adsOperations, StopReasonProvider stopReasonProvider,
-                                        UuidProvider uuidProvider,
-                                        @Named(CURRENT_DATE_PROVIDER) DateProvider dateProvider) {
+                                        UuidProvider uuidProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
@@ -59,7 +53,6 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         this.adsOperations = adsOperations;
         this.stopReasonProvider = stopReasonProvider;
         this.uuidProvider = uuidProvider;
-        this.dateProvider = dateProvider;
     }
 
     @Override
@@ -244,8 +237,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                 playbackProgress,
                 stateTransition,
                 false,
-                uuidProvider.getRandomUuid(),
-                dateProvider);
+                uuidProvider.getRandomUuid());
     }
 
 }

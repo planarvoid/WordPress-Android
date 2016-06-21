@@ -5,7 +5,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 
 import android.webkit.URLUtil;
@@ -22,11 +21,10 @@ public abstract class PlaybackSessionEventArgs {
                                                   String connectionType,
                                                   boolean isOfflineTrack,
                                                   boolean marketablePlay,
-                                                  String uuid,
-                                                  DateProvider dateProvider) {
+                                                  String uuid) {
         return new AutoValue_PlaybackSessionEventArgs(trackData, userUrn, trackSourceInfo, progress,
                 protocol, playerType, connectionType, isOfflineTrack,
-                marketablePlay, uuid, dateProvider);
+                marketablePlay, uuid);
     }
 
     public static PlaybackSessionEventArgs create(PropertySet trackData,
@@ -34,11 +32,10 @@ public abstract class PlaybackSessionEventArgs {
                                                   TrackSourceInfo trackSourceInfo,
                                                   PlaybackStateTransition transition,
                                                   boolean marketablePlay,
-                                                  String uuid,
-                                                  DateProvider dateProvider) {
+                                                  String uuid) {
         return PlaybackSessionEventArgs.create(trackData, userUrn, trackSourceInfo, transition.getProgress().getPosition(),
                 getProtocol(transition), getPlayerType(transition), getConnectionType(transition),
-                isLocalStoragePlayback(transition), marketablePlay, uuid, dateProvider);
+                isLocalStoragePlayback(transition), marketablePlay, uuid);
     }
 
     public static PlaybackSessionEventArgs createWithProgress(PropertySet trackData,
@@ -47,11 +44,10 @@ public abstract class PlaybackSessionEventArgs {
                                                   PlaybackProgress progress,
                                                   PlaybackStateTransition transition,
                                                   boolean marketablePlay,
-                                                  String uuid,
-                                                  DateProvider dateProvider) {
+                                                  String uuid) {
         return PlaybackSessionEventArgs.create(trackData, userUrn, trackSourceInfo, progress.getPosition(),
                 getProtocol(transition), getPlayerType(transition), getConnectionType(transition),
-                isLocalStoragePlayback(transition), marketablePlay, uuid, dateProvider);
+                isLocalStoragePlayback(transition), marketablePlay, uuid);
     }
 
     public abstract PropertySet getTrackData();
@@ -73,8 +69,6 @@ public abstract class PlaybackSessionEventArgs {
     public abstract boolean isMarketablePlay();
 
     public abstract String getUuid();
-
-    public abstract DateProvider getDateProvider();
 
     private static String getPlayerType(PlaybackStateTransition stateTransition) {
         return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE);

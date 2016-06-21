@@ -160,7 +160,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     @Test
     public void eventWithMarketablePlayIndicatesMarketablePlay() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(PlaybackSessionEventArgs.create(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, 0L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, true, UUID, DATE_PROVIDER));
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(PlaybackSessionEventArgs.create(TRACK_DATA, LOGGED_IN_USER_URN, trackSourceInfo, 0L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, true, UUID));
         assertThat(playEvent.isMarketablePlay()).isTrue();
     }
 
@@ -171,7 +171,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
 
     @NonNull
     private PlaybackSessionEventArgs createArgs(long progress, PropertySet trackData, TestDateProvider dateProvider) {
-        return PlaybackSessionEventArgs.create(trackData, LOGGED_IN_USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID, dateProvider);
+        return PlaybackSessionEventArgs.create(trackData, LOGGED_IN_USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, false, false, UUID);
     }
 
 }

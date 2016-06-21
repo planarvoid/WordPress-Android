@@ -39,7 +39,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -252,7 +251,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     public void createsImpressionJsonForAudioAdPlaybackEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L), Urn.forUser(789L));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(createEventArgs(audioAdTrack, 0L, new TestDateProvider(321L)));
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(createEventArgs(audioAdTrack, 0L));
 
         jsonDataBuilder.buildForAudioAdImpression(event.withAudioAd(audioAd));
 
@@ -668,9 +667,9 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @NonNull
-    private PlaybackSessionEventArgs createEventArgs(PropertySet track, long progress, TestDateProvider dateProvider) {
+    private PlaybackSessionEventArgs createEventArgs(PropertySet track, long progress) {
         return PlaybackSessionEventArgs.create(track, LOGGED_IN_USER, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE,
-                CONNECTION_TYPE, false, false, UUID, dateProvider);
+                CONNECTION_TYPE, false, false, UUID);
     }
 
 }

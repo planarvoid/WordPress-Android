@@ -5,7 +5,6 @@ import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.utils.TestDateProvider;
 
 public class TestEvents {
 
@@ -22,7 +21,7 @@ public class TestEvents {
                 PlaybackSessionEventArgs.create(
                         TestPropertySets.expectedTrackForAnalytics(trackUrn, Urn.forUser(2L)), Urn.forUser(1),
                         new TrackSourceInfo("screen", false), playbackProgress, "hls", "playa", "3g", false, false,
-                        "uuid", new TestDateProvider(1000L)));
+                        "uuid"));
     }
 
     public static PlaybackSessionEvent playbackSessionStopEvent() {
@@ -41,11 +40,9 @@ public class TestEvents {
         PlaybackSessionEvent previousPlayEvent = playbackSessionPlayEvent();
         final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(
                 TestPropertySets.expectedTrackForAnalytics(trackUrn, Urn.forUser(2L)), Urn.forUser(1),
-                new TrackSourceInfo("screen", false), (long) 0, "hls", "playa", "3g", false, false, "uuid",
-                new TestDateProvider(1000L));
+                new TrackSourceInfo("screen", false), (long) 0, "hls", "playa", "3g", false, false, "uuid");
 
         return PlaybackSessionEvent.forStop(previousPlayEvent, stopReason, args);
-
     }
 
     public static TrackingEvent unspecifiedTrackingEvent() {

@@ -76,7 +76,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     // Regular track
     private PlaybackSessionEvent(String eventKind, PlaybackSessionEventArgs args) {
-        super(eventKind, args.getDateProvider().getCurrentTime());
+        super(eventKind, System.currentTimeMillis());
         this.isOfflineTrack = args.isOfflineTrack();
         this.marketablePlay = args.isMarketablePlay();
         this.uuid = args.getUuid();

@@ -17,8 +17,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -52,7 +50,6 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.STREAM.get(), true);
 
     private TestEventBus eventBus = new TestEventBus();
-    private DateProvider dateProvider = new TestDateProvider();
 
     @Before
     public void setUp()  {
@@ -67,7 +64,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         dispatcher = new TrackSessionAnalyticsDispatcher(
                 eventBus, trackRepository, accountOperations, playQueueManager, appboyPlaySessionState,
-                stopReasonProvider, uuidProvider, dateProvider);
+                stopReasonProvider, uuidProvider);
     }
 
     @Test
