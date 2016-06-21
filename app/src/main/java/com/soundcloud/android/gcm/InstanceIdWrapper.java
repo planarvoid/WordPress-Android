@@ -1,11 +1,9 @@
 package com.soundcloud.android.gcm;
 
-import com.google.android.gms.iid.InstanceID;
+import com.google.firebase.iid.FirebaseInstanceId;
 
-import android.content.Context;
-
+import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.io.IOException;
 
 public class InstanceIdWrapper {
 
@@ -13,8 +11,9 @@ public class InstanceIdWrapper {
     public InstanceIdWrapper() {
     }
 
-    public String getToken(Context context, String defaultSenderId, String scope) throws IOException {
-        return InstanceID.getInstance(context).getToken(defaultSenderId, scope, null);
+    @Nullable
+    public String getToken() {
+        return FirebaseInstanceId.getInstance().getToken();
     }
 
 }

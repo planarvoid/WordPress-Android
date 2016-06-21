@@ -2,8 +2,6 @@
            tools:ignore="MissingTranslation">
 
     <string name="hockey_app_id">31bb3a437ee0cd325e994283fb8e7da3</string>
-    <!-- api keys -->
-    <string name="google_api_key">984739005367</string>
 
     <!-- http://soundcloud.com/apps/android -->
     <integer name='app_id'>3152</integer>

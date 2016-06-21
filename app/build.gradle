@@ -225,7 +225,9 @@ dependencies {
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesAuth
   compile libraries.androidPlayServicesCast
-  compile libraries.androidPlayServicesGCM
+
+  compile libraries.firebaseCore
+  compile libraries.firebaseMessaging
 
   /* Unit tests */
   testCompile unitTestLibraries.junit
