@@ -86,10 +86,22 @@ class RecommendedTracksOperations {
                 .map(TrackItem.fromPropertySets());
     }
 
-    Observable<DiscoveryItem> firstBucket() {
-        return syncOperations
-                .lazySyncIfStale(Syncable.RECOMMENDED_TRACKS)
-                .flatMap(continueWith(loadFirstBucket()));
+    Observable<DiscoveryItem> recommendedTracks() {
+        return loadFirstBucket(syncOperations
+                .lazySyncIfStale(Syncable.RECOMMENDED_TRACKS))
+                .flatMap(toBucket);
+    }
+
+    Observable<DiscoveryItem> refreshRecommendedTracks() {
+        return loadFirstBucket(syncOperations
+                .sync(Syncable.RECOMMENDED_TRACKS))
+                .flatMap(toBucket);
+    }
+
+    private Observable<PropertySet> loadFirstBucket(Observable<SyncOperations.Result> source) {
+        return source
+                .flatMap(continueWith(recommendationsStorage.firstSeed()
+                .subscribeOn(scheduler)));
     }
 
     Observable<DiscoveryItem> allBuckets() {
@@ -100,12 +112,6 @@ class RecommendedTracksOperations {
 
     void clearData() {
         storeRecommendationsCommand.clearTables();
-    }
-
-    private Observable<DiscoveryItem> loadFirstBucket() {
-        return recommendationsStorage.firstSeed()
-                .flatMap(toBucket)
-                .subscribeOn(scheduler);
     }
 
     private Observable<DiscoveryItem> loadAllBuckets() {

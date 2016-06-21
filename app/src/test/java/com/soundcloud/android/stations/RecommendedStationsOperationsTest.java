@@ -62,7 +62,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
 
-        operations.stationsBucket().subscribe(subscriber);
+        operations.recommendedStations().subscribe(subscriber);
         subscriber.assertNoValues();
 
         syncSubject.onNext(Result.SYNCING);
@@ -76,7 +76,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(just(SUGGESTED_1, RECENT_1, SUGGESTED_2, RECENT_2));
 
-        operations.stationsBucket().subscribe(subscriber);
+        operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
         assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2),
@@ -90,7 +90,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         when(stationsStorage.getStationsCollection(RECENT))
                 .thenReturn(Observable.<StationRecord>empty());
 
-        operations.stationsBucket().subscribe(subscriber);
+        operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
         assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1),
@@ -104,7 +104,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         when(stationsStorage.getStationsCollection(RECENT))
                 .thenReturn(just(RECENT_2));
 
-        operations.stationsBucket().subscribe(subscriber);
+        operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
         assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1));
@@ -116,7 +116,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         when(stationsStorage.getStationsCollection(RECOMMENDATIONS))
                 .thenReturn(just(SUGGESTED_1, SUGGESTED_2));
 
-        operations.stationsBucket().subscribe(subscriber);
+        operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
         assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1, true), viewModelFrom(SUGGESTED_2, false));

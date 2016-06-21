@@ -59,22 +59,28 @@ public class RecommendedStationsOperations {
         this.syncOperations = syncOperations;
     }
 
-    public Observable<DiscoveryItem> stationsBucket() {
-        return recommendedStations()
-                .filter(IS_NOT_EMPTY_LIST)
+    public Observable<DiscoveryItem> recommendedStations() {
+        return load(syncOperations
+                .lazySyncIfStale(Syncable.RECOMMENDED_STATIONS))
                 .map(toRecommendedStationsBucket);
+    }
+
+    public Observable<DiscoveryItem> refreshRecommendedStations() {
+        return load(syncOperations
+                .sync(Syncable.RECOMMENDED_STATIONS))
+                .map(toRecommendedStationsBucket);
+    }
+
+    private Observable<List<StationRecord>> load(Observable<SyncOperations.Result> source) {
+        return source
+                .flatMap(continueWith(getCollection(RECOMMENDATIONS)))
+                .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
+                .filter(IS_NOT_EMPTY_LIST)
+                .subscribeOn(scheduler);
     }
 
     public void clearData() {
         stationsStorage.clear();
-    }
-
-    private Observable<List<StationRecord>> recommendedStations() {
-        return syncOperations
-                .lazySyncIfStale(Syncable.RECOMMENDED_STATIONS)
-                .flatMap(continueWith(getCollection(RECOMMENDATIONS)))
-                .zipWith(getCollection(RECENT), MOVE_RECENT_TO_END)
-                .subscribeOn(scheduler);
     }
 
     private Observable<List<StationRecord>> getCollection(int collectionType) {

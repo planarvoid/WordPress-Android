@@ -10,6 +10,7 @@ import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -49,8 +50,15 @@ class ChartsOperations {
     }
 
     Observable<ChartBucket> charts() {
-        return syncOperations
-                .lazySyncIfStale(Syncable.CHARTS)
+        return load(syncOperations.lazySyncIfStale(Syncable.CHARTS));
+    }
+
+    Observable<ChartBucket> refreshCharts() {
+        return load(syncOperations.sync(Syncable.CHARTS));
+    }
+
+    private Observable<ChartBucket> load(Observable<SyncOperations.Result> source) {
+        return source
                 .flatMap(continueWith(chartsStorage.charts()))
                 .filter(HAS_EXPECTED_CONTENT);
     }

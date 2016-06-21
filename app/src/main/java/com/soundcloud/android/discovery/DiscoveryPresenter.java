@@ -104,6 +104,14 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                 .withAdapter(adapter).build();
     }
 
+    @Override
+    protected CollectionBinding<List<DiscoveryItem>, DiscoveryItem> onRefreshBinding() {
+        adapter.setDiscoveryListener(this);
+        return CollectionBinding
+                .from(dataSource.refreshItems())
+                .withAdapter(adapter).build();
+    }
+
     private void addScrollListeners() {
         getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
@@ -174,13 +182,33 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                 discoveryItems.add(chartsOperations.charts().map(TO_DISCOVERY_ITEM));
             }
             if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
-                discoveryItems.add(recommendedStationsOperations.stationsBucket());
+                discoveryItems.add(recommendedStationsOperations.recommendedStations());
             }
             if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
-                discoveryItems.add(recommendedTracksOperations.firstBucket());
+                discoveryItems.add(recommendedTracksOperations.recommendedTracks());
             }
             discoveryItems.add(playlistDiscoveryOperations.playlistTags());
 
+            return items(discoveryItems);
+        }
+
+        Observable<List<DiscoveryItem>> refreshItems() {
+            List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(4);
+            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
+                discoveryItems.add(chartsOperations.refreshCharts().map(TO_DISCOVERY_ITEM));
+            }
+            if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
+                discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
+            }
+            if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
+                discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
+            }
+            discoveryItems.add(playlistDiscoveryOperations.playlistTags());
+
+            return items(discoveryItems);
+        }
+
+        private Observable<List<DiscoveryItem>> items(List<Observable<DiscoveryItem>> discoveryItems) {
             return Observable
                     .just(discoveryItems)
                     .compose(RxUtils.<DiscoveryItem>concatEagerIgnorePartialErrors())
@@ -189,5 +217,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                     .startWith(SEARCH_ITEM)
                     .toList();
         }
+
     }
 }

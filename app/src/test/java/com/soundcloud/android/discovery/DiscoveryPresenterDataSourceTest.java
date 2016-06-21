@@ -52,8 +52,8 @@ public class DiscoveryPresenterDataSourceTest {
                 chartsOperations,
                 featureFlags);
 
-        when(recommendedTracksOperations.firstBucket()).thenReturn(Observable.<DiscoveryItem>empty());
-        when(recommendedStationsOperations.stationsBucket()).thenReturn(Observable.<DiscoveryItem>empty());
+        when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.<DiscoveryItem>empty());
+        when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>empty());
         when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
         when(featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)).thenReturn(true);
@@ -64,8 +64,8 @@ public class DiscoveryPresenterDataSourceTest {
         final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"), Collections.<String>emptyList());
 
         when(chartsOperations.charts()).thenReturn(Observable.just(chartsItem));
-        when(recommendedStationsOperations.stationsBucket()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));
-        when(recommendedTracksOperations.firstBucket()).thenReturn(Observable.just(tracksItem));
+        when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));
+        when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.<DiscoveryItem>just(playlistTagsItem));
     }
 

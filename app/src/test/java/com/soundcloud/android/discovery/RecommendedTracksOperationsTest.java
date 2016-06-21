@@ -104,7 +104,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
     @Test
     public void waitsForSyncerToReturnData() {
-        operations.firstBucket().subscribe(subscriber);
+        operations.recommendedTracks().subscribe(subscriber);
         subscriber.assertNoValues();
 
         SYNC_SUBJECT.onNext(Result.SYNCING);
@@ -118,7 +118,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     @Test
     public void returnsNoDataWhenSyncerHasFinishedAndResultIsEmpty() {
         when(recommendationsStorage.firstSeed()).thenReturn(Observable.<PropertySet>empty());
-        operations.firstBucket().subscribe(subscriber);
+        operations.recommendedTracks().subscribe(subscriber);
 
         SYNC_SUBJECT.onNext(Result.SYNCING);
 
@@ -134,7 +134,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
 
     @Test
     public void recommendationShouldBePlayingIfCurrentPlayQueueItem() throws Exception {
-        operations.firstBucket().subscribe(subscriber);
+        operations.recommendedTracks().subscribe(subscriber);
         SYNC_SUBJECT.onNext(Result.SYNCING);
 
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
@@ -146,7 +146,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     public void recommendationShouldNotBePlayingIfNotCurrentPlayQueueItem() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(987L)));
 
-        operations.firstBucket().subscribe(subscriber);
+        operations.recommendedTracks().subscribe(subscriber);
         SYNC_SUBJECT.onNext(Result.SYNCING);
 
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
@@ -158,7 +158,7 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
     public void recommendationShouldNotBePlayingIfPlayQueueIsEmpty() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
 
-        operations.firstBucket().subscribe(subscriber);
+        operations.recommendedTracks().subscribe(subscriber);
         SYNC_SUBJECT.onNext(Result.SYNCING);
 
         final RecommendedTracksBucketItem bucket = (RecommendedTracksBucketItem) subscriber.getOnNextEvents().get(0);
