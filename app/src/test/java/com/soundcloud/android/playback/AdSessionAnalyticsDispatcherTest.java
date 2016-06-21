@@ -30,10 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.schedulers.TestScheduler;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
@@ -57,7 +55,6 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private DateProvider dateProvider = new TestDateProvider();
-    private TestScheduler scheduler;
 
     @Before
     public void setUp() throws Exception {
@@ -70,10 +67,9 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
         when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
-        scheduler = new TestScheduler();
         dispatcher = new AdSessionAnalyticsDispatcher(
                 eventBus, trackRepository, accountOperations, playQueueManager, adsOperations, stopReasonProvider,
-                uuidProvider, dateProvider, scheduler);
+                uuidProvider, dateProvider);
     }
 
     @Test
@@ -198,14 +194,40 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
-        playTransition();
+        final PlaybackStateTransition transition = playTransition();
+        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L), transition.getUrn()));
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
-        assertThat(events).hasSize(1);
-        scheduler.advanceTimeBy(4l, TimeUnit.SECONDS);
-        events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
+        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).isCheckpointEvent()).isTrue();
+        assertThat(((PlaybackSessionEvent) events.get(1)).getProgress()).isEqualTo(3000L);
+    }
+
+    @Test
+    public void shouldNotPublishCheckpointEventIfLastTransitionWasntPlayTransition() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
+
+        final PlaybackStateTransition transition = playTransition();
+        stopTransition(PlaybackState.IDLE, PlayStateReason.NONE);
+        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000), transition.getUrn()));
+
+        List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events).hasSize(2);
+        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayEvent()).isTrue();
+        assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
+    }
+
+    @Test
+    public void shouldNotPublishCheckpointEventIfPlaybackProgressUrnDoesntMatchPlayTransition() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
+
+        final PlaybackStateTransition transition = playTransition();
+        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000), Urn.forTrack(101L)));
+
+        assertThat(((PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING)).isPlayEvent()).isTrue();
     }
 
     private void expectCommonAudioEventData(PlaybackStateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {

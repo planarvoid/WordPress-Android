@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableTrackingKeys;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.main.Screen;
@@ -26,11 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.schedulers.TestScheduler;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
@@ -54,7 +53,6 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
     private DateProvider dateProvider = new TestDateProvider();
-    private TestScheduler scheduler;
 
     @Before
     public void setUp()  {
@@ -67,10 +65,9 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER_URN);
         when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
-        scheduler = new TestScheduler();
         dispatcher = new TrackSessionAnalyticsDispatcher(
                 eventBus, trackRepository, accountOperations, playQueueManager, appboyPlaySessionState,
-                stopReasonProvider, uuidProvider, dateProvider, scheduler);
+                stopReasonProvider, uuidProvider, dateProvider);
     }
 
     @Test
@@ -198,14 +195,37 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishCheckpointEvent() {
-        playTransition();
+        final PlaybackStateTransition transition = playTransition();
+
+        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L), transition.getUrn()));
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
-        assertThat(events).hasSize(1);
-        scheduler.advanceTimeBy(31l, TimeUnit.SECONDS);
-        events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
+        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).isCheckpointEvent()).isTrue();
+        assertThat(((PlaybackSessionEvent) events.get(1)).getProgress()).isEqualTo(3000L);
+    }
+
+    @Test
+    public void shouldNotPublishCheckpointEventIfLastTransitionWasntPlayTransition() {
+        final PlaybackStateTransition transition = playTransition();
+        stopTransition(PlaybackState.IDLE, PlayStateReason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
+
+        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L), transition.getUrn()));
+
+        List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
+        assertThat(events).hasSize(2);
+        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayEvent()).isTrue();
+        assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
+    }
+
+    @Test
+    public void shouldNotPublishCheckpointEventIfPlaybackProgressUrnDoesntMatchPlayTransition() {
+        final PlaybackStateTransition transition = playTransition();
+
+        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L), Urn.forTrack(101L)));
+
+        assertThat(((PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING)).isPlayEvent()).isTrue();
     }
 
     protected PlaybackStateTransition playTransition() {

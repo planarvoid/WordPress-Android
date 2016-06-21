@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.ApplicationModule.CURRENT_DATE_PROVIDER;
-import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdData;
@@ -14,29 +13,27 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
-import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscription;
+
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
 
 import android.support.annotation.NonNull;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.concurrent.TimeUnit;
 
 class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
-    public static final int AD_CHECKPOINT_INTERVAL = 3;
+    static final long CHECKPOINT_INTERVAL = TimeUnit.SECONDS.toMillis(3);
+
     private final EventBus eventBus;
     private final TrackRepository trackRepository;
     private final AccountOperations accountOperations;
@@ -45,21 +42,18 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private final StopReasonProvider stopReasonProvider;
     private final UuidProvider uuidProvider;
     private final DateProvider dateProvider;
-    private final Scheduler scheduler;
 
     private Optional<PlaybackSessionEvent> lastAudioAdPlaySessionEvent = Optional.absent();
     private Optional<AdData> lastPlayedAd = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
     private ReplaySubject<PropertySet> trackObservable;
-    private Subscription checkpointSubscription = RxUtils.invalidSubscription();
 
     @Inject
     public AdSessionAnalyticsDispatcher(EventBus eventBus, TrackRepository trackRepository,
                                         AccountOperations accountOperations, PlayQueueManager playQueueManager,
                                         AdsOperations adsOperations, StopReasonProvider stopReasonProvider,
                                         UuidProvider uuidProvider,
-                                        @Named(CURRENT_DATE_PROVIDER) DateProvider dateProvider,
-                                        @Named(LOW_PRIORITY) Scheduler scheduler) {
+                                        @Named(CURRENT_DATE_PROVIDER) DateProvider dateProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
@@ -68,7 +62,6 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         this.stopReasonProvider = stopReasonProvider;
         this.uuidProvider = uuidProvider;
         this.dateProvider = dateProvider;
-        this.scheduler = scheduler;
     }
 
     @Override
@@ -87,12 +80,18 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                 publishAdQuartileEvent(AdPlaybackSessionEvent.forThirdQuartile(adData, currentTrackSourceInfo.get()));
             }
         }
+    }
 
+    @Override
+    public void onProgressCheckpoint(PlaybackStateTransition previousTransition, PlaybackProgressEvent progressEvent) {
+        trackObservable
+                .filter(shouldPublishCheckpoint(progressEvent))
+                .map(toCheckpointEvent(previousTransition, progressEvent))
+                .subscribe(eventBus.queue(EventQueue.TRACKING));
     }
 
     @Override
     public void onPlayTransition(PlaybackStateTransition transition, boolean isNewItem) {
-
         loadTrackIfChanged(transition, isNewItem);
         publishPlayEvent(transition);
     }
@@ -101,7 +100,6 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     public void onStopTransition(PlaybackStateTransition transition, boolean isNewItem) {
         loadTrackIfChanged(transition, isNewItem);
         publishStopEvent(transition, stopReasonProvider.fromTransition(transition));
-        checkpointSubscription.unsubscribe();
     }
 
     private void loadTrackIfChanged(PlaybackStateTransition transition, boolean isNewItem) {
@@ -134,24 +132,27 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                         .map(toAudioAdSessionPlayEvent(stateTransition))
                         .subscribe(eventBus.queue(EventQueue.TRACKING));
             }
-            publishCheckpointEvent(stateTransition);
         }
     }
 
-    private void publishCheckpointEvent(PlaybackStateTransition stateTransition) {
-        checkpointSubscription.unsubscribe();
-        checkpointSubscription = Observable.interval(AD_CHECKPOINT_INTERVAL, TimeUnit.SECONDS, scheduler)
-                .filter(hasLastPlayedAd())
-                .flatMap(RxUtils.continueWith(trackObservable))
-                .map(toCheckpointEvent(stateTransition))
-                .subscribe(eventBus.queue(EventQueue.TRACKING));
+    private Func1<PropertySet, Boolean> shouldPublishCheckpoint(final PlaybackProgressEvent progressEvent) {
+        return new Func1<PropertySet, Boolean>() {
+            @Override
+            public Boolean call(PropertySet propertyBindings) {
+                return lastPlayedAd.isPresent()
+                        && lastAudioAdPlaySessionEvent.isPresent()
+                        && !lastAudioAdPlaySessionEvent.get().isThirdPartyAd()
+                        && lastAudioAdPlaySessionEvent.get().getTrackUrn().equals(progressEvent.getUrn());
+            }
+        };
     }
 
-    private Func1<Long, Boolean> hasLastPlayedAd() {
-        return new Func1<Long, Boolean>() {
+    private Func1<PropertySet, PlaybackSessionEvent> toCheckpointEvent(final PlaybackStateTransition previousTransition, final PlaybackProgressEvent progressEvent) {
+        return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
-            public Boolean call(Long aLong) {
-                return lastPlayedAd.isPresent();
+            public PlaybackSessionEvent call(PropertySet trackPropertySet) {
+                return PlaybackSessionEvent.forCheckpoint(buildEventArgs(trackPropertySet, progressEvent.getPlaybackProgress(), previousTransition))
+                        .withAudioAd((AudioAd) lastPlayedAd.get());
             }
         };
     }
@@ -167,24 +168,12 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         return !(lastAudioAdPlaySessionEvent.isPresent() && lastAudioAdPlaySessionEvent.get().isPlayEvent()) && !lastPlayedAd.isPresent();
     }
 
-    private Func1<PropertySet, TrackingEvent> toCheckpointEvent(final PlaybackStateTransition stateTransition) {
-        return new Func1<PropertySet, TrackingEvent>() {
-            @Override
-            public TrackingEvent call(PropertySet propertyBindings) {
-                return PlaybackSessionEvent
-                        .forCheckpoint(buildEventArgs(propertyBindings, stateTransition))
-                        .withAudioAd((AudioAd) lastPlayedAd.get());
-            }
-        };
-    }
-
     private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionPlayEvent(final PlaybackStateTransition stateTransition) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
                 PlaybackSessionEvent playSessionEventData = PlaybackSessionEvent.forPlay(
                         buildEventArgs(track, stateTransition));
-
                 lastPlayedAd = playQueueManager.getCurrentPlayQueueItem().getAdData();
                 final AudioAd audioAd = (AudioAd) lastPlayedAd.get();
                 playSessionEventData = playSessionEventData.withAudioAd(audioAd);
@@ -227,10 +216,16 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     @NonNull
     private PlaybackSessionEventArgs buildEventArgs(PropertySet track, PlaybackStateTransition stateTransition) {
-        return PlaybackSessionEventArgs.create(
+        return buildEventArgs(track, stateTransition.getProgress(), stateTransition);
+    }
+
+    @NonNull
+    private PlaybackSessionEventArgs buildEventArgs(PropertySet track, PlaybackProgress playbackProgress, PlaybackStateTransition stateTransition) {
+        return PlaybackSessionEventArgs.createWithProgress(
                 track,
                 accountOperations.getLoggedInUserUrn(),
                 currentTrackSourceInfo.get(),
+                playbackProgress,
                 stateTransition,
                 false,
                 uuidProvider.getRandomUuid(),

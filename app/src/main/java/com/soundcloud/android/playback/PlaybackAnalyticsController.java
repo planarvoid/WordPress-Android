@@ -12,6 +12,7 @@ class PlaybackAnalyticsController {
     private final AdSessionAnalyticsDispatcher adAnalyticsDispatcher;
     private final PlayQueueManager playQueueManager;
 
+    private PlaybackProgress lastProgressCheckpoint = PlaybackProgress.empty();
     private PlaybackStateTransition previousTransition = PlaybackStateTransition.DEFAULT;
     @Nullable private PlaybackItem previousItem;
 
@@ -26,7 +27,9 @@ class PlaybackAnalyticsController {
     public void onStateTransition(PlaybackItem currentItem, PlaybackStateTransition newTransition) {
         final PlaybackAnalyticsDispatcher dispatcher = dispatcherForItem(currentItem);
         final boolean isNewItem = !newTransition.getUrn().equals(previousTransition.getUrn());
-        resetPromotedSourceIfNeeded(isNewItem);
+        if (isNewItem) {
+            onPlaybackItemChange();
+        }
 
         if (wasLastItemSkippedWhilePlaying(isNewItem)) {
             dispatcherForItem(previousItem).onSkipTransition(previousTransition);
@@ -42,18 +45,23 @@ class PlaybackAnalyticsController {
         previousItem = currentItem;
     }
 
-    private void resetPromotedSourceIfNeeded(boolean isNewItem) {
-        // Reset shared promoted source info so that individual plays send correct start events
-        if (isNewItem) {
-            final PromotedSourceInfo promotedSource = playQueueManager.getCurrentPlaySessionSource().getPromotedSourceInfo();
-            if (promotedSource != null) {
-                promotedSource.resetPlaybackStarted();
-            }
+    public void onProgressEvent(PlaybackItem currentItem, PlaybackProgressEvent playbackProgress) {
+        final PlaybackProgress currentProgress = playbackProgress.getPlaybackProgress();
+
+        if (currentProgress.getPosition() >= lastProgressCheckpoint.getPosition() + checkpointIntervalForItem(currentItem)) {
+            dispatcherForItem(currentItem).onProgressCheckpoint(previousTransition, playbackProgress);
+            lastProgressCheckpoint = currentProgress;
         }
+        dispatcherForItem(currentItem).onProgressEvent(playbackProgress);
     }
 
-    public void onProgressEvent(PlaybackItem currentItem, PlaybackProgressEvent playbackProgress) {
-        dispatcherForItem(currentItem).onProgressEvent(playbackProgress);
+    private void onPlaybackItemChange() {
+        // Reset shared promoted source info so that individual plays send correct start events
+        final PromotedSourceInfo promotedSource = playQueueManager.getCurrentPlaySessionSource().getPromotedSourceInfo();
+        if (promotedSource != null) {
+            promotedSource.resetPlaybackStarted();
+        }
+        lastProgressCheckpoint = PlaybackProgress.empty();
     }
 
     private boolean wasLastItemSkippedWhilePlaying(boolean isNewItem) {
@@ -62,6 +70,12 @@ class PlaybackAnalyticsController {
 
     private PlaybackAnalyticsDispatcher dispatcherForItem(PlaybackItem currentItem) {
         return isAd(currentItem) ? adAnalyticsDispatcher : trackAnalyticsDispatcher;
+    }
+
+    private long checkpointIntervalForItem(PlaybackItem currentItem) {
+        return isAd(currentItem)
+                ? AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL
+                : TrackSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
     }
 
     private boolean isAd(PlaybackItem item) {

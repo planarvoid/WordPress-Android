@@ -12,4 +12,6 @@ public interface PlaybackAnalyticsDispatcher {
 
     void onSkipTransition(PlaybackStateTransition transition);
 
+    void onProgressCheckpoint(PlaybackStateTransition previousTransition, PlaybackProgressEvent progressEvent);
+
 }

@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.DateProvider;
@@ -12,30 +13,43 @@ import android.webkit.URLUtil;
 @AutoValue
 public abstract class PlaybackSessionEventArgs {
 
-    public static PlaybackSessionEventArgs create( PropertySet trackData,
-                                     Urn userUrn,
-                                     TrackSourceInfo trackSourceInfo,
-                                    long progress,
-                                     String protocol,
-                                     String playerType,
-                                     String connectionType,
-                                    boolean isOfflineTrack,
-                                    boolean marketablePlay,
-                                     String uuid,
-                                     DateProvider dateProvider) {
+    public static PlaybackSessionEventArgs create(PropertySet trackData,
+                                                  Urn userUrn,
+                                                  TrackSourceInfo trackSourceInfo,
+                                                  long progress,
+                                                  String protocol,
+                                                  String playerType,
+                                                  String connectionType,
+                                                  boolean isOfflineTrack,
+                                                  boolean marketablePlay,
+                                                  String uuid,
+                                                  DateProvider dateProvider) {
         return new AutoValue_PlaybackSessionEventArgs(trackData, userUrn, trackSourceInfo, progress,
                 protocol, playerType, connectionType, isOfflineTrack,
                 marketablePlay, uuid, dateProvider);
     }
 
-    public static PlaybackSessionEventArgs create( PropertySet trackData,
-                                                   Urn userUrn,
-                                                   TrackSourceInfo trackSourceInfo,
-                                                   PlaybackStateTransition transition,
+    public static PlaybackSessionEventArgs create(PropertySet trackData,
+                                                  Urn userUrn,
+                                                  TrackSourceInfo trackSourceInfo,
+                                                  PlaybackStateTransition transition,
                                                   boolean marketablePlay,
-                                                   String uuid,
-                                                   DateProvider dateProvider) {
+                                                  String uuid,
+                                                  DateProvider dateProvider) {
         return PlaybackSessionEventArgs.create(trackData, userUrn, trackSourceInfo, transition.getProgress().getPosition(),
+                getProtocol(transition), getPlayerType(transition), getConnectionType(transition),
+                isLocalStoragePlayback(transition), marketablePlay, uuid, dateProvider);
+    }
+
+    public static PlaybackSessionEventArgs createWithProgress(PropertySet trackData,
+                                                  Urn userUrn,
+                                                  TrackSourceInfo trackSourceInfo,
+                                                  PlaybackProgress progress,
+                                                  PlaybackStateTransition transition,
+                                                  boolean marketablePlay,
+                                                  String uuid,
+                                                  DateProvider dateProvider) {
+        return PlaybackSessionEventArgs.create(trackData, userUrn, trackSourceInfo, progress.getPosition(),
                 getProtocol(transition), getPlayerType(transition), getConnectionType(transition),
                 isLocalStoragePlayback(transition), marketablePlay, uuid, dateProvider);
     }
