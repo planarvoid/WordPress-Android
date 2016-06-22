@@ -1,7 +1,9 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.stations.RecommendedStationsOperations.STATIONS_IN_BUCKET;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
+import static com.soundcloud.java.collections.Lists.transform;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,6 +17,7 @@ import com.soundcloud.android.sync.SyncOperations.Result;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.java.functions.Function;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,9 +27,19 @@ import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecommendedStationsOperationsTest extends AndroidUnitTest {
+
+    private static Function<StationRecord, StationViewModel> TO_VIEW_MODEL =
+            new Function<StationRecord, StationViewModel>() {
+                @Override
+                public StationViewModel apply(StationRecord input) {
+                    return viewModelFrom(input, false);
+                }
+            };
+
     private static final Urn URN_1 = Urn.forArtistStation(1);
     private static final Urn URN_2 = Urn.forTrackStation(2);
 
@@ -67,7 +80,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
 
         syncSubject.onNext(Result.SYNCING);
 
-        assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2));
+        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2));
         subscriber.assertCompleted();
     }
 
@@ -79,8 +92,8 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
-        assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2),
-                                                  viewModelFrom(RECENT_2), viewModelFrom(RECENT_1));
+        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(SUGGESTED_2),
+                                                         viewModelFrom(RECENT_2), viewModelFrom(RECENT_1));
     }
 
     @Test
@@ -93,8 +106,8 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
-        assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1),
-                                                  viewModelFrom(SUGGESTED_2), viewModelFrom(RECENT_2));
+        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1),
+                                                         viewModelFrom(SUGGESTED_2), viewModelFrom(RECENT_2));
     }
 
     @Test
@@ -107,7 +120,7 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
-        assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1));
+        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1), viewModelFrom(RECENT_1));
     }
 
     @Test
@@ -119,7 +132,23 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         operations.recommendedStations().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
-        assertThat(getStations()).containsExactly(viewModelFrom(SUGGESTED_1, true), viewModelFrom(SUGGESTED_2, false));
+        assertThat(getEmittedStations()).containsExactly(viewModelFrom(SUGGESTED_1, true),
+                                                         viewModelFrom(SUGGESTED_2, false));
+    }
+
+    @Test
+    public void shouldAlwaysReturnGivenNumberOfSuggestedStations() {
+        List<StationRecord> recommendedStations = stationRecordsList(STATIONS_IN_BUCKET + 2);
+        List<StationRecord> recentlyPlayed = stationRecordsList(STATIONS_IN_BUCKET);
+        when(stationsStorage.getStationsCollection(RECOMMENDATIONS)).thenReturn(Observable.from(recommendedStations));
+        when(stationsStorage.getStationsCollection(RECENT)).thenReturn(Observable.from(recentlyPlayed));
+
+        operations.recommendedStations().subscribe(subscriber);
+        syncSubject.onNext(Result.SYNCING);
+
+        List<StationViewModel> emitted = getEmittedStations();
+        assertThat(emitted).containsAll(transform(recommendedStations.subList(0, STATIONS_IN_BUCKET), TO_VIEW_MODEL));
+        assertThat(emitted).doesNotContainAnyElementsOf(transform(recentlyPlayed, TO_VIEW_MODEL));
     }
 
     @Test
@@ -129,16 +158,24 @@ public class RecommendedStationsOperationsTest extends AndroidUnitTest {
         verify(stationsStorage).clear();
     }
 
-    private List<StationViewModel> getStations() {
+    private List<StationRecord> stationRecordsList(int count) {
+        List<StationRecord> records = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            records.add(StationFixtures.getApiStation());
+        }
+        return records;
+    }
+
+    private List<StationViewModel> getEmittedStations() {
         DiscoveryItem discoveryItem = subscriber.getOnNextEvents().get(0);
         return ((RecommendedStationsBucketItem) discoveryItem).getStations();
     }
 
-    private StationViewModel viewModelFrom(StationRecord record, boolean isPlaying) {
+    private static StationViewModel viewModelFrom(StationRecord record, boolean isPlaying) {
         return new StationViewModel(record, isPlaying);
     }
 
-    private StationViewModel viewModelFrom(StationRecord record) {
+    private static StationViewModel viewModelFrom(StationRecord record) {
         return new StationViewModel(record, false);
     }
 

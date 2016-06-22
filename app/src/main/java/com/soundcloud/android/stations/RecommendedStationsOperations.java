@@ -5,12 +5,14 @@ import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECENT;
 import static com.soundcloud.android.stations.StationsCollectionsTypes.RECOMMENDATIONS;
+import static java.lang.Math.min;
 
 import com.soundcloud.android.discovery.DiscoveryItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
 import rx.Observable;
 import rx.Scheduler;
@@ -23,15 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecommendedStationsOperations {
+    @VisibleForTesting
+    static final int STATIONS_IN_BUCKET = 12;
 
     private static final Func2<List<StationRecord>, List<StationRecord>, List<StationRecord>> MOVE_RECENT_TO_END =
             new Func2<List<StationRecord>, List<StationRecord>, List<StationRecord>>() {
                 @Override
                 public List<StationRecord> call(List<StationRecord> suggestions, List<StationRecord> recent) {
-                    recent.retainAll(suggestions);
-                    suggestions.removeAll(recent);
-                    suggestions.addAll(Lists.reverse(recent));
-                    return suggestions;
+                    return calculateStationsSuggestions(suggestions, recent);
                 }
             };
 
@@ -99,6 +100,15 @@ public class RecommendedStationsOperations {
             models.add(viewModel);
         }
         return models;
+    }
+
+    private static List<StationRecord> calculateStationsSuggestions(List<StationRecord> suggestions,
+                                                                    List<StationRecord> recent) {
+        recent.retainAll(suggestions);
+        suggestions.removeAll(recent);
+        suggestions.addAll(Lists.reverse(recent));
+
+        return suggestions.subList(0, min(suggestions.size(), STATIONS_IN_BUCKET));
     }
 
 }
