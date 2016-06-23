@@ -9,7 +9,7 @@ import com.soundcloud.android.utils.TestDateProvider;
 
 public class TestPlayStates {
 
-    public static final Urn URN = Urn.forTrack(123L);
+    private static final Urn URN = Urn.forTrack(123L);
 
     public static PlaybackStateTransition playing() {
         return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, URN);

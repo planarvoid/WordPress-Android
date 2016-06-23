@@ -48,7 +48,6 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
     @Inject AdsOperations adsOperations;
     @Inject VolumeControllerFactory volumeControllerFactory;
     @Inject MediaSessionControllerFactory mediaSessionControllerFactory;
-    @Inject PlayStatePublisher playStatePublisher;
 
     private Optional<PlaybackItem> currentPlaybackItem = Optional.absent();
     private boolean pauseRequested;
@@ -71,8 +70,7 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
                     AdsOperations adsOperations,
                     AdsController adsController,
                     VolumeControllerFactory volumeControllerFactory,
-                    MediaSessionControllerFactory mediaSessionControllerFactory,
-                    PlayStatePublisher playStatePublisher) {
+                    MediaSessionControllerFactory mediaSessionControllerFactory) {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.streamPlayer = streamPlayer;
@@ -82,7 +80,6 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
         this.adsController = adsController;
         this.volumeControllerFactory = volumeControllerFactory;
         this.mediaSessionControllerFactory = mediaSessionControllerFactory;
-        this.playStatePublisher = playStatePublisher;
     }
 
     @Override
@@ -198,9 +195,12 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
                     onIdleState();
                 }
 
-                playStatePublisher.publish(stateTransition, currentPlaybackItem.get());
+                analyticsDispatcher.onStateTransition(currentPlaybackItem.get(), stateTransition);
+                adsController.onPlayStateTransition(stateTransition);
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
 
                 long position = stateTransition.getProgress().getPosition();
+
                 if (stateTransition.isBuffering()) {
                     mediaSessionController.onBuffering(position);
                 } else if (stateTransition.isPlaying()) {
@@ -248,6 +248,14 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
 
     private boolean isWithinSnippetFadeOut(long fadeDuration, long fadeOffset) {
         return fadeOffset <= fadeDuration && fadeOffset >= -LONG_FADE_PRELOAD_MS;
+    }
+
+    private static PlaybackStateTransition correctUnknownDuration(PlaybackStateTransition stateTransition, PlaybackItem playbackItem) {
+        final PlaybackProgress progress = stateTransition.getProgress();
+        if (!progress.isDurationValid()) {
+            progress.setDuration(playbackItem.getDuration());
+        }
+        return stateTransition;
     }
 
     public void togglePlayback() {

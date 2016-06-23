@@ -12,18 +12,15 @@ import com.google.android.libraries.cast.companionlibrary.cast.exceptions.Transi
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlayStatePublisher;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -49,7 +46,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private final ProgressReporter progressReporter;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
-    private final PlayStatePublisher playStatePublisher;
 
     private Subscription playCurrentSubscription = RxUtils.invalidSubscription();
 
@@ -58,14 +54,12 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                       VideoCastManager castManager,
                       ProgressReporter progressReporter,
                       PlayQueueManager playQueueManager,
-                      EventBus eventBus,
-                      PlayStatePublisher playStatePublisher) {
+                      EventBus eventBus) {
         this.castOperations = castOperations;
         this.castManager = castManager;
         this.progressReporter = progressReporter;
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
-        this.playStatePublisher = playStatePublisher;
 
         castManager.addVideoCastConsumer(this);
         progressReporter.setProgressPuller(this);
@@ -113,8 +107,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     private void reportStateChange(PlaybackStateTransition stateTransition) {
-        playStatePublisher.publish(stateTransition, AudioPlaybackItem.create(castOperations.getRemoteCurrentTrackUrn(),
-                                                                              0, getDuration(), PlaybackType.AUDIO_DEFAULT));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         final boolean playerPlaying = stateTransition.isPlayerPlaying();
         if (playerPlaying) {
             progressReporter.start();
