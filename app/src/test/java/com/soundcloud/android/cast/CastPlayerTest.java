@@ -8,6 +8,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -28,11 +29,13 @@ import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlayStatePublisher;
 import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackItem;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -50,6 +53,7 @@ import rx.observers.TestObserver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class CastPlayerTest extends AndroidUnitTest {
 
@@ -71,13 +75,15 @@ public class CastPlayerTest extends AndroidUnitTest {
     @Mock private ProgressReporter progressReporter;
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private PlayStatePublisher playStatePublisher;
 
     @Captor private ArgumentCaptor<PlaybackStateTransition> transitionArgumentCaptor;
     @Captor private ArgumentCaptor<ProgressReporter.ProgressPuller> progressPusherArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, playQueueManager, eventBus);
+        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, playQueueManager, eventBus,
+                                    playStatePublisher);
         observer = new TestObserver<>();
     }
 
@@ -342,6 +348,7 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void reloadCurrentQueueSetsQueueWithRequestedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
         when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN1),
@@ -356,6 +363,7 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void reloadCurrentQueueReportsErrorStateToEventBusOnUnsuccessfulLoad() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
                                                                                  anyListOf(Urn.class))).thenReturn(
                 Observable.<LocalPlayQueue>error(new Throwable("loading error")));
@@ -371,6 +379,7 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotDefined() {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class),
                                                                          Arrays.asList(TRACK_URN1),
                                                                          createMediaInfo(TRACK_URN1),
@@ -387,6 +396,7 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotFilteredOut() {
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class),
                                                                          Arrays.asList(TRACK_URN1),
                                                                          createMediaInfo(TRACK_URN1),
@@ -503,7 +513,10 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     private PlaybackStateTransition captureLastStateTransition() {
-        return eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        final ArgumentCaptor<PlaybackStateTransition> captor = ArgumentCaptor.forClass(PlaybackStateTransition.class);
+        verify(playStatePublisher, atLeastOnce()).publish(captor.capture(), any(PlaybackItem.class), eq(false));
+        final List<PlaybackStateTransition> values = captor.getAllValues();
+        return values.isEmpty() ? null : values.get(values.size() - 1);
     }
 
     private void verifyProgress(long position, long duration) {

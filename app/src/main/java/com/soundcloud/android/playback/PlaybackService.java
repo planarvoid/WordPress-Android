@@ -4,7 +4,6 @@ import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
@@ -45,11 +44,11 @@ public class PlaybackService extends Service
     @Inject StreamPlayer streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
     @Inject PlaybackAnalyticsController analyticsDispatcher;
-    @Inject AdsController adsController;
     @Inject AdsOperations adsOperations;
     @Inject VolumeControllerFactory volumeControllerFactory;
     @Inject MediaSessionControllerFactory mediaSessionControllerFactory;
     @Inject PlaySessionStateProvider playSessionStateProvider;
+    @Inject PlayStatePublisher playStatePublisher;
 
     private Optional<PlaybackItem> currentPlaybackItem = Optional.absent();
     private boolean pauseRequested;
@@ -70,20 +69,20 @@ public class PlaybackService extends Service
                     PlaybackReceiver.Factory playbackReceiverFactory,
                     PlaybackAnalyticsController analyticsDispatcher,
                     AdsOperations adsOperations,
-                    AdsController adsController,
                     VolumeControllerFactory volumeControllerFactory,
                     MediaSessionControllerFactory mediaSessionControllerFactory,
-                    PlaySessionStateProvider playSessionStateProvider) {
+                    PlaySessionStateProvider playSessionStateProvider,
+                    PlayStatePublisher playStatePublisher) {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
         this.streamPlayer = streamPlayer;
         this.playbackReceiverFactory = playbackReceiverFactory;
         this.analyticsDispatcher = analyticsDispatcher;
         this.adsOperations = adsOperations;
-        this.adsController = adsController;
         this.volumeControllerFactory = volumeControllerFactory;
         this.mediaSessionControllerFactory = mediaSessionControllerFactory;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.playStatePublisher = playStatePublisher;
     }
 
     @Override
@@ -200,15 +199,8 @@ public class PlaybackService extends Service
                     onIdleState();
                 }
 
-                playSessionStateProvider.onPlayStateTransition(stateTransition);
-                analyticsDispatcher.onStateTransition(currentPlaybackItem.get(), stateTransition);
-                adsController.onPlayStateTransition(stateTransition);
-
-                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                                 correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
-
+                playStatePublisher.publish(stateTransition, currentPlaybackItem.get(), true);
                 long position = stateTransition.getProgress().getPosition();
-
                 if (stateTransition.isBuffering()) {
                     mediaSessionController.onBuffering(position);
                 } else if (stateTransition.isPlaying()) {
@@ -231,6 +223,7 @@ public class PlaybackService extends Service
                                                                                         playbackItem.getUrn());
 
             if (currentPlaybackItem.isPresent()) {
+                Log.i("asdf","Publishing progress " + analyticsDispatcher);
                 playSessionStateProvider.onProgressEvent(playbackProgress);
                 analyticsDispatcher.onProgressEvent(currentPlaybackItem.get(), playbackProgress);
             }

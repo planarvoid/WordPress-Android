@@ -21,7 +21,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationRecord;
@@ -90,7 +90,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private List<PlayQueueItem> currentPlayQueue = Collections.emptyList();
     @NotNull private ViewVisibilityProvider viewVisibilityProvider = ViewVisibilityProvider.EMPTY;
     private PlayerUIEvent lastPlayerUIEvent;
-    private PlaybackStateTransition lastStateTransition;
+    private PlayStateEvent lastPlayStateEvent;
     private boolean isForeground;
 
     private final LruCache<Urn, ReplaySubject<PropertySet>> trackObservableCache =
@@ -350,8 +350,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             configurePageFromUiEvent(lastPlayerUIEvent, presenter, view);
         }
 
-        if (lastStateTransition != null) {
-            configurePageFromPlayerState(lastStateTransition, presenter, view);
+        if (lastPlayStateEvent != null) {
+            configurePageFromPlayerState(lastPlayStateEvent, presenter, view);
         }
     }
 
@@ -530,16 +530,16 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private final class PlaybackStateSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
+    private final class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
         @Override
-        public void onNext(PlaybackStateTransition stateTransition) {
-            lastStateTransition = stateTransition;
+        public void onNext(PlayStateEvent playStateEvent) {
+            lastPlayStateEvent = playStateEvent;
 
             for (Map.Entry<View, PlayQueueItem> entry : pagesInPlayer.entrySet()) {
                 final PlayQueueItem pageData = entry.getValue();
                 final PlayerPagePresenter presenter = pagePresenter(pageData);
                 final View view = entry.getKey();
-                configurePageFromPlayerState(stateTransition, presenter, view);
+                configurePageFromPlayerState(playStateEvent, presenter, view);
             }
         }
     }
@@ -596,18 +596,18 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
     }
 
-    private void configurePageFromPlayerState(PlaybackStateTransition stateTransition,
+    private void configurePageFromPlayerState(PlayStateEvent playStateEvent,
                                               PlayerPagePresenter presenter,
                                               View view) {
         final boolean viewPresentingCurrentVideo = pagesInPlayer.containsKey(view)
                 && pagesInPlayer.get(view).isVideo()
-                && stateTransition.getUrn().equals(pagesInPlayer.get(view).getUrn());
+                && playStateEvent.getPlayingItemUrn().equals(pagesInPlayer.get(view).getUrn());
         final boolean viewPresentingCurrentTrack = pagesInPlayer.containsKey(view)
                 && pagesInPlayer.get(view).isTrack()
-                && isTrackViewRelatedToUrn(view, stateTransition.getUrn());
+                && isTrackViewRelatedToUrn(view, playStateEvent.getPlayingItemUrn());
 
         presenter.setPlayState(view,
-                               stateTransition,
+                               playStateEvent,
                                (viewPresentingCurrentTrack || viewPresentingCurrentVideo),
                                isForeground);
     }

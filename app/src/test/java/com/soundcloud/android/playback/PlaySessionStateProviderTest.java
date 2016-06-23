@@ -39,22 +39,47 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void stateListenerIgnoresDefaultEvent() {
-        final PlaybackStateTransition lastTransition = TestPlayStates.playing();
-        provider.onPlayStateTransition(lastTransition);
-        provider.onPlayStateTransition(PlaybackStateTransition.DEFAULT);
+        provider.onPlayStateTransition(TestPlayStates.playing());
+        provider.onPlayStateTransition(PlayStateEvent.DEFAULT);
         assertThat(provider.isPlaying()).isTrue();
     }
 
     @Test
     public void isInErrorStateReturnsTrueIfLastTransitionWasError() {
-        final PlaybackStateTransition lastTransition = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                                   PlayStateReason.ERROR_FAILED,
-                                                                                   TRACK_URN);
-        provider.onPlayStateTransition(lastTransition);
+        provider.onPlayStateTransition(TestPlayStates.error(PlayStateReason.ERROR_FAILED));
 
         assertThat(provider.isInErrorState()).isTrue();
     }
 
+    @Test
+    public void isCurrentlyPlayingTrueIfReceivedEventForTrack() {
+        provider.onPlayStateTransition(TestPlayStates.buffering());
+
+        assertThat(provider.isCurrentlyPlaying(TestPlayStates.URN)).isTrue();
+    }
+
+    @Test
+    public void isCurrentlyPlayingFalseIfReceivedEventForTrack() {
+        provider.onPlayStateTransition(TestPlayStates.buffering());
+
+        assertThat(provider.isCurrentlyPlaying(Urn.forTrack(777))).isFalse();
+    }
+
+    @Test
+    public void isLastPlayedTrueIfStorageReturnsSameTrack() {
+        when(playSessionStateStorage.getLastPlayingItem()).thenReturn(TRACK_URN);
+
+        assertThat(provider.isLastPlayed(TRACK_URN)).isTrue();
+    }
+
+    @Test
+    public void isLastPlayedFalseIfStorageReturnsDifferentTrack() {
+        when(playSessionStateStorage.getLastPlayingItem()).thenReturn(Urn.forTrack(777));
+
+        assertThat(provider.isLastPlayed(TRACK_URN)).isFalse();
+    }
+
+    @Test
     public void isGetCurrentProgressReturns0IfCurrentItemDidNotStartPlaying() {
         sendIdleStateEvent();
 
@@ -86,46 +111,27 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForPlayStoresPlayingItemProgress() throws Exception {
-        provider.onPlayStateTransition(createStateTransition(PlaybackState.PLAYING,
-                                                             PlayStateReason.NONE,
-                                                             TRACK_URN,
-                                                             1,
-                                                             456));
+        provider.onPlayStateTransition(TestPlayStates.playing(1, 456));
 
         Urn nextTrackUrn = Urn.forTrack(321);
-        provider.onPlayStateTransition(createStateTransition(PlaybackState.PLAYING,
-                                                             PlayStateReason.NONE,
-                                                             nextTrackUrn,
-                                                             123,
-                                                             456));
+        provider.onPlayStateTransition(TestPlayStates.playing(nextTrackUrn, 123, 456, dateProvider));
 
         assertThat(provider.getLastProgressForItem(nextTrackUrn)).isEqualTo(createPlaybackProcess(123, 456));
     }
 
     private void sendIdleStateEvent() {
-        final PlaybackStateTransition lastTransition = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                                   PlayStateReason.NONE,
-                                                                                   TRACK_URN);
-        provider.onPlayStateTransition(lastTransition);
+        provider.onPlayStateTransition(TestPlayStates.idle());
     }
 
     @Test
     public void onStateTransitionForItemEndSavesQueueWithPositionWithZero() throws Exception {
-        provider.onPlayStateTransition(createStateTransition(PlaybackState.IDLE,
-                                                             PlayStateReason.PLAYBACK_COMPLETE,
-                                                             TRACK_URN,
-                                                             123,
-                                                             456));
-        verify(playSessionStateStorage).saveProgress(123);
+        provider.onPlayStateTransition(TestPlayStates.complete());
+        verify(playSessionStateStorage).saveProgress(0);
     }
 
     @Test
     public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
-        provider.onPlayStateTransition(createStateTransition(PlaybackState.IDLE,
-                                                             PlayStateReason.NONE,
-                                                             TRACK_URN,
-                                                             123,
-                                                             456));
+        provider.onPlayStateTransition(TestPlayStates.idle(123, 456));
         verify(playSessionStateStorage).saveProgress(123);
     }
 
@@ -133,11 +139,9 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
         when(playSessionStateStorage.getLastPlayingItem()).thenReturn(TRACK_URN);
         when(playSessionStateStorage.getLastStoredProgress()).thenReturn(123L);
-        provider.onPlayStateTransition(createStateTransition(PlaybackState.BUFFERING,
-                                                             PlayStateReason.NONE,
-                                                             TRACK_URN,
-                                                             0,
-                                                             456));
+
+        provider.onPlayStateTransition(TestPlayStates.buffering());
+
         verify(playSessionStateStorage, never()).saveProgress(anyLong());
     }
 
@@ -152,9 +156,9 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
                                                                      123,
                                                                      456);
 
-        provider.onPlayStateTransition(state1);
-        provider.onPlayStateTransition(state2);
-        verify(playSessionStateStorage).saveProgress(123);
+        provider.onPlayStateTransition(TestPlayStates.playing(Urn.forTrack(1), 12, 456));
+        provider.onPlayStateTransition(TestPlayStates.playing(Urn.forTrack(2), 34, 456));
+        verify(playSessionStateStorage).saveProgress(34);
     }
 
     private PlaybackStateTransition createStateTransition(PlaybackState playing,

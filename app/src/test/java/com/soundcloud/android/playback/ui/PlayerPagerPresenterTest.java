@@ -27,17 +27,15 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -188,13 +186,11 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void onPlayingStateEventCallsSetPlayStateOnPresenter() {
         presenter.onResume(playerFragment);
         final View currentTrackView = getPageView();
-        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING,
-                                                                    PlayStateReason.NONE,
-                                                                    TRACK1_URN);
+        final PlayStateEvent stateEvent = TestPlayStates.playing(TRACK1_URN);
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateEvent);
 
-        verify(trackPagePresenter).setPlayState(currentTrackView, state, true, true);
+        verify(trackPagePresenter).setPlayState(currentTrackView, stateEvent, true, true);
     }
 
     @Test
@@ -207,13 +203,11 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         final View viewForOtherTrack = getPageView(1);
 
         Mockito.reset(trackPagePresenter);
-        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING,
-                                                                    PlayStateReason.NONE,
-                                                                    TRACK1_URN);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+        final PlayStateEvent stateEvent = TestPlayStates.playing(TRACK1_URN);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateEvent);
 
-        verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true, true);
-        verify(trackPagePresenter).setPlayState(viewForOtherTrack, state, false, true);
+        verify(trackPagePresenter).setPlayState(viewForCurrentTrack, stateEvent, true, true);
+        verify(trackPagePresenter).setPlayState(viewForOtherTrack, stateEvent, false, true);
     }
 
     @Test
@@ -223,16 +217,11 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
         final View currentVideoView = getVideoAdPageView();
 
-        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING,
-                                                                    PlayStateReason.NONE,
-                                                                    videoAd.getAdUrn(),
-                                                                    0L,
-                                                                    100L,
-                                                                    new TestDateProvider());
+        PlayStateEvent stateEvent = TestPlayStates.playing(videoAd.getAdUrn(), 0, 100);
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateEvent);
 
-        verify(videoAdPresenter).setPlayState(currentVideoView, state, true, true);
+        verify(videoAdPresenter).setPlayState(currentVideoView, stateEvent, true, true);
     }
 
     @Test
@@ -361,15 +350,14 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void creatingNewTrackViewSetThePlayState() {
         presenter.onResume(playerFragment);
-        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING,
-                                                                    PlayStateReason.NONE,
-                                                                    TRACK1_URN);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+        PlayStateEvent playStateEvent = TestPlayStates.playing(TRACK1_URN);
+
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, playStateEvent);
 
         View currentPageView = getPageView();
 
         verify(trackPagePresenter).setPlayState(eq(currentPageView),
-                                                any(PlaybackStateTransition.class),
+                                                any(PlayStateEvent.class),
                                                 eq(true),
                                                 eq(true));
     }
@@ -386,7 +374,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         View currentPageView = (View) adapter.instantiateItem(container, 3);
 
         verify(trackPagePresenter, never()).setPlayState(eq(currentPageView),
-                                                         any(PlaybackStateTransition.class),
+                                                         any(PlayStateEvent.class),
                                                          eq(true),
                                                          eq(true));
     }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -58,7 +59,7 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
                                                                          PlayStateReason.NONE,
                                                                          track);
-        controller.onStateTransition(playbackItem, transition);
+        controller.onStateTransition(playbackItem, wrap(transition));
 
         final long position = TrackSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
         final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
@@ -66,8 +67,8 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         controller.onProgressEvent(playbackItem, progress);
 
         InOrder inOrder = inOrder(trackSessionDispatcher);
-        inOrder.verify(trackSessionDispatcher).onPlayTransition(transition, true);
-        inOrder.verify(trackSessionDispatcher).onProgressCheckpoint(transition, progress);
+        inOrder.verify(trackSessionDispatcher).onPlayTransition(wrap(transition), true);
+        inOrder.verify(trackSessionDispatcher).onProgressCheckpoint(wrap(transition), progress);
     }
 
     @Test
@@ -75,14 +76,14 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
                                                                          PlayStateReason.NONE,
                                                                          track);
-        controller.onStateTransition(playbackItem, transition);
+        controller.onStateTransition(playbackItem, wrap(transition));
 
         final long position = TrackSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL - 1;
         final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
                                                                             track);
         controller.onProgressEvent(playbackItem, progress);
 
-        verify(trackSessionDispatcher, never()).onProgressCheckpoint(any(PlaybackStateTransition.class),
+        verify(trackSessionDispatcher, never()).onProgressCheckpoint(any(PlayStateEvent.class),
                                                                      any(PlaybackProgressEvent.class));
     }
 
@@ -93,7 +94,7 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
                                                                          PlayStateReason.NONE,
                                                                          adTrack.get(EntityProperty.URN));
-        controller.onStateTransition(playbackItem, transition);
+        controller.onStateTransition(playbackItem, wrap(transition));
 
         final long position = AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
         final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
@@ -101,8 +102,8 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         controller.onProgressEvent(playbackItem, progress);
 
         InOrder inOrder = inOrder(adSessionDispatcher);
-        inOrder.verify(adSessionDispatcher).onPlayTransition(transition, true);
-        inOrder.verify(adSessionDispatcher).onProgressCheckpoint(transition, progress);
+        inOrder.verify(adSessionDispatcher).onPlayTransition(wrap(transition), true);
+        inOrder.verify(adSessionDispatcher).onProgressCheckpoint(wrap(transition), progress);
     }
 
     @Test
@@ -112,14 +113,14 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
                                                                          PlayStateReason.NONE,
                                                                          adTrack.get(EntityProperty.URN));
-        controller.onStateTransition(playbackItem, transition);
+        controller.onStateTransition(playbackItem, wrap(transition));
 
         final long position = AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL - 1;
         final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
                                                                             adTrack.get(EntityProperty.URN));
         controller.onProgressEvent(playbackItem, progress);
 
-        verify(adSessionDispatcher, never()).onProgressCheckpoint(any(PlaybackStateTransition.class),
+        verify(adSessionDispatcher, never()).onProgressCheckpoint(any(PlayStateEvent.class),
                                                                   any(PlaybackProgressEvent.class));
     }
 
@@ -129,10 +130,10 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
                                                                          PlayStateReason.NONE,
                                                                          track);
 
-        controller.onStateTransition(playbackItem, transition);
+        controller.onStateTransition(playbackItem, wrap(transition));
 
-        verify(trackSessionDispatcher).onPlayTransition(transition, true);
-        verify(adSessionDispatcher, never()).onPlayTransition(any(PlaybackStateTransition.class), anyBoolean());
+        verify(trackSessionDispatcher).onPlayTransition(wrap(transition), true);
+        verify(adSessionDispatcher, never()).onPlayTransition(any(PlayStateEvent.class), anyBoolean());
     }
 
     @Test
@@ -143,10 +144,10 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
                                                                          PlayStateReason.NONE,
                                                                          track);
 
-        controller.onStateTransition(playbackItem, transition);
+        controller.onStateTransition(playbackItem, wrap(transition));
 
-        verify(adSessionDispatcher).onPlayTransition(transition, true);
-        verify(trackSessionDispatcher, never()).onPlayTransition(any(PlaybackStateTransition.class), anyBoolean());
+        verify(adSessionDispatcher).onPlayTransition(wrap(transition), true);
+        verify(trackSessionDispatcher, never()).onPlayTransition(any(PlayStateEvent.class), anyBoolean());
     }
 
     @Test
@@ -158,12 +159,12 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
                                                                           PlayStateReason.NONE,
                                                                           track);
 
-        controller.onStateTransition(playbackItem, transition1);
-        controller.onStateTransition(playbackItem, transition2);
+        controller.onStateTransition(playbackItem, wrap(transition1));
+        controller.onStateTransition(playbackItem, wrap(transition2));
 
         InOrder inOrder = inOrder(trackSessionDispatcher);
-        inOrder.verify(trackSessionDispatcher).onPlayTransition(transition1, true);
-        inOrder.verify(trackSessionDispatcher).onPlayTransition(transition2, false);
+        inOrder.verify(trackSessionDispatcher).onPlayTransition(wrap(transition1), true);
+        inOrder.verify(trackSessionDispatcher).onPlayTransition(wrap(transition2), false);
     }
 
     @Test
@@ -172,10 +173,10 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
                                                                          PlayStateReason.NONE,
                                                                          track);
 
-        controller.onStateTransition(playbackItem, transition);
+        controller.onStateTransition(playbackItem, wrap(transition));
 
-        verify(trackSessionDispatcher).onStopTransition(transition, true);
-        verify(adSessionDispatcher, never()).onStopTransition(any(PlaybackStateTransition.class), anyBoolean());
+        verify(trackSessionDispatcher).onStopTransition(wrap(transition), true);
+        verify(adSessionDispatcher, never()).onStopTransition(any(PlayStateEvent.class), anyBoolean());
     }
 
     @Test
@@ -189,13 +190,13 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
                                                                           PlayStateReason.NONE,
                                                                           Urn.forAd("dfp", "321-123"));
 
-        controller.onStateTransition(playbackItem, transition1);
-        controller.onStateTransition(playbackItem2, transition2);
+        controller.onStateTransition(playbackItem, wrap(transition1));
+        controller.onStateTransition(playbackItem2, wrap(transition2));
 
         InOrder inOrder = inOrder(trackSessionDispatcher, adSessionDispatcher);
-        inOrder.verify(trackSessionDispatcher).onPlayTransition(transition1, true);
-        inOrder.verify(trackSessionDispatcher).onSkipTransition(transition1);
-        inOrder.verify(adSessionDispatcher).onPlayTransition(transition2, true);
+        inOrder.verify(trackSessionDispatcher).onPlayTransition(wrap(transition1), true);
+        inOrder.verify(trackSessionDispatcher).onSkipTransition(wrap(transition1));
+        inOrder.verify(adSessionDispatcher).onPlayTransition(wrap(transition2), true);
     }
 
     @Test
@@ -213,7 +214,7 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(sessionSource);
         assertThat(promotedInfo.isPlaybackStarted()).isTrue();
 
-        controller.onStateTransition(playbackItem, transition);
+        controller.onStateTransition(playbackItem, wrap(transition));
 
         assertThat(promotedInfo.isPlaybackStarted()).isFalse();
     }

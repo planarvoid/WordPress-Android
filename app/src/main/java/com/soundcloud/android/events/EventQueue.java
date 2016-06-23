@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.configuration.UserPlanChangedEvent;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
-import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.Queue;
@@ -21,10 +21,10 @@ public final class EventQueue {
     public static final Queue<Feedback> SHOW_FEEDBACK = Queue.of(Feedback.class).onError(ON_ERROR).get();
 
     // playback
-    public static final Queue<PlaybackStateTransition> PLAYBACK_STATE_CHANGED = Queue.of(PlaybackStateTransition.class)
-                                                                                     .onError(ON_ERROR)
-                                                                                     .replay(PlaybackStateTransition.DEFAULT)
-                                                                                     .get();
+    public static final Queue<PlayStateEvent> PLAYBACK_STATE_CHANGED = Queue.of(PlayStateEvent.class)
+                                                                            .onError(ON_ERROR)
+                                                                            .replay(PlayStateEvent.DEFAULT)
+                                                                            .get();
     public static final Queue<PlayerLifeCycleEvent> PLAYER_LIFE_CYCLE = Queue.of(PlayerLifeCycleEvent.class)
                                                                              .onError(ON_ERROR)
                                                                              .replay(PlayerLifeCycleEvent.forDestroyed())

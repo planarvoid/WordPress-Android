@@ -7,7 +7,7 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncJobResult;
@@ -26,13 +26,13 @@ public class StationsController {
     private final StationsOperations operations;
     private final Scheduler scheduler;
 
-    public static final Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, CollectionPlaybackState> TO_COLLECTION_PLAY_STATE = new Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, CollectionPlaybackState>() {
+    public static final Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState> TO_COLLECTION_PLAY_STATE = new Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState>() {
         @Override
-        public CollectionPlaybackState call(CurrentPlayQueueItemEvent event, PlaybackStateTransition stateTransition) {
+        public CollectionPlaybackState call(CurrentPlayQueueItemEvent event, PlayStateEvent playStateEvent) {
             return new CollectionPlaybackState(
                     event.getCollectionUrn(),
                     event.getPosition(),
-                    stateTransition.getNewState()
+                    playStateEvent.getNewState()
             );
         }
     };

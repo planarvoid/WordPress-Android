@@ -31,6 +31,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.assertj.core.util.Lists;
@@ -38,7 +39,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
@@ -130,9 +130,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playQueueTrackChangedHandlerDoesNotCallPlayCurrentForTrackIfPlaySessionIsNotActive() {
-        final PlaybackStateTransition lastTransition = Mockito.mock(PlaybackStateTransition.class);
-        when(lastTransition.playSessionIsActive()).thenReturn(false);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
@@ -141,9 +139,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void playQueueTrackChangeHandlerDoesNotCallPlayCurrentForVideoAdIfPlaySessionIsNotActive() {
-        final PlaybackStateTransition lastTransition = Mockito.mock(PlaybackStateTransition.class);
-        when(lastTransition.playSessionIsActive()).thenReturn(false);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
 
         final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -185,28 +181,19 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE,
-                                                     PlayStateReason.PLAY_QUEUE_COMPLETE,
-                                                     trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.playQueueComplete());
         verify(playQueueManager, never()).saveCurrentPosition();
     }
 
     @Test
     public void onStateTransitionForBufferingDoesNotSaveQueuePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.BUFFERING,
-                                                     PlayStateReason.NONE,
-                                                     trackUrn,
-                                                     123,
-                                                     456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
         verify(playQueueManager, never()).saveCurrentPosition();
     }
 
     @Test
     public void onStateTransitionForPlayingDoesNotSaveQueuePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         verify(playQueueManager, never()).saveCurrentPosition();
     }
 

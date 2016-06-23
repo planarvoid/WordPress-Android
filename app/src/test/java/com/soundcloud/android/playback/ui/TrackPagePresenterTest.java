@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.playback.PlayStateReason;
-
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +23,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
@@ -42,7 +41,6 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -235,7 +233,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void playingStateWithCurrentTrackSetsPlayStateOnArtwork() {
-        final PlaybackStateTransition state = TestPlayStates.playing(10, 20, dateProvider);
+        final PlayStateEvent state = TestPlayStates.playing(10, 20, dateProvider);
         presenter.setPlayState(trackView, state, true, true);
 
         verify(artworkController).setPlayState(state, true);

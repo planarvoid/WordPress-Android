@@ -12,11 +12,9 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -318,9 +316,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void setPlayingStateShouldHidePlayControls() {
         presenter.setPlayState(adView,
-                               new PlaybackStateTransition(PlaybackState.PLAYING,
-                                                           PlayStateReason.NONE,
-                                                           Urn.forTrack(123L)),
+                               TestPlayStates.playing(),
                                true,
                                true);
         assertThat(adView.findViewById(R.id.play_controls)).isGone();
@@ -329,9 +325,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void setBufferingStateShouldHidePlayControls() {
         presenter.setPlayState(adView,
-                               new PlaybackStateTransition(PlaybackState.BUFFERING,
-                                                           PlayStateReason.NONE,
-                                                           Urn.forTrack(123L)),
+                               TestPlayStates.buffering(),
                                true,
                                true);
         assertThat(adView.findViewById(R.id.play_controls)).isGone();
@@ -340,9 +334,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Test
     public void setIdleStateShouldShowPlayControls() {
         presenter.setPlayState(adView,
-                               new PlaybackStateTransition(PlaybackState.IDLE,
-                                                           PlayStateReason.NONE,
-                                                           Urn.forTrack(123L)),
+                               TestPlayStates.idle(),
                                true,
                                true);
         assertThat(adView.findViewById(R.id.play_controls)).isVisible();

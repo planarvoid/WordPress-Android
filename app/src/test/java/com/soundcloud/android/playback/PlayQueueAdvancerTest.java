@@ -19,6 +19,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
@@ -57,7 +58,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
                                          adsController);
         advancer.subscribe();
 
-        trackUrn = Urn.forTrack(123);
+        trackUrn = TestPlayStates.URN;
         trackPlayQueueItem = TestPlayQueueItem.createTrack(trackUrn);
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
@@ -72,12 +73,9 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackNotEnded() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, trackUrn));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(PlayStateReason.ERROR_FAILED));
         verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
@@ -85,8 +83,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void onStateTransitionDoesNotAdvanceItemIfTrackEndedWithNotFoundErrorAndNotUserTriggeredWithNoConnection() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(),
                                                                                           false));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_NOT_FOUND, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.error(PlayStateReason.ERROR_NOT_FOUND));
         verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
@@ -96,8 +93,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
                                                                                           false));
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
         when(playQueueManager.autoMoveToNextPlayableItem()).thenReturn(true);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_NOT_FOUND, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.error(PlayStateReason.ERROR_NOT_FOUND));
         verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
@@ -105,8 +101,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackEndedWithNotFoundErrorAndUserTriggered() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(),
                                                                                           true));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_NOT_FOUND, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.error(PlayStateReason.ERROR_NOT_FOUND));
         verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
@@ -114,8 +109,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackEndedWithForbiddenErrorAndNotUserTriggeredAndNoInternet() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(),
                                                                                           false));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FORBIDDEN, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.error(PlayStateReason.ERROR_FORBIDDEN));
         verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
@@ -125,8 +119,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
                                                                                           false));
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
         when(playQueueManager.autoMoveToNextPlayableItem()).thenReturn(true);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FORBIDDEN, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.error(PlayStateReason.ERROR_FORBIDDEN));
         verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
@@ -134,8 +127,7 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackEndedWithForbiddenErrorAndUserTriggered() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(),
                                                                                           true));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FORBIDDEN, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.error(PlayStateReason.ERROR_FORBIDDEN));
         verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
@@ -143,31 +135,27 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     public void onStateTransitionDoesNotTryToAdvanceItemIfTrackEndedWithFailedErrorAndNotUserTriggered() {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo(Screen.ACTIVITIES.get(),
                                                                                           false));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.error(PlayStateReason.ERROR_FAILED));
         verify(playQueueManager, never()).moveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionDoesNotAdvanceTracksIfNotCurrentPlayQueueTrack() {
         when(playQueueManager.isCurrentItem(trackUrn)).thenReturn(false);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
         verify(playQueueManager, never()).autoMoveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionTriesToAdvanceItemIfTrackEndedWhileCasting() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
         verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionTriesToAdvanceItem() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
         verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
@@ -176,16 +164,14 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
         final Urn videoUrn = Urn.forAd("dfp", "video-ad");
         when(playQueueManager.isCurrentItem(videoUrn)).thenReturn(true);
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, videoUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete(videoUrn));
 
         verify(playQueueManager).autoMoveToNextPlayableItem();
     }
 
     @Test
     public void onStateTransitionTriesToReconfigureAd() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
         verify(adsController).reconfigureAdForNextTrack();
         verify(adsController).publishAdDeliveryEventIfUpcoming();
     }
@@ -193,21 +179,20 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     @Test
     public void onStateTransitionDoesNotOpenCurrentTrackAfterFailingToAdvancePlayQueue() throws Exception {
         when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
         verifyZeroInteractions(playSessionController);
     }
 
     @Test
     public void onStateTransitionPublishesPlayQueueCompleteEventAfterFailingToAdvancePlayQueue() throws Exception {
         when(playQueueManager.moveToNextPlayableItem()).thenReturn(false);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, trackUrn));
-        final List<PlaybackStateTransition> stateTransitionEvents = eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
-        assertThat(Iterables.filter(stateTransitionEvents, new Predicate<PlaybackStateTransition>() {
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
+
+        final List<PlayStateEvent> playStateEvents = eventBus.eventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
+        assertThat(Iterables.filter(playStateEvents, new Predicate<PlayStateEvent>() {
             @Override
-            public boolean apply(PlaybackStateTransition event) {
-                return event.getNewState() == PlaybackState.IDLE && event.getReason() == PlayStateReason.PLAY_QUEUE_COMPLETE;
+            public boolean apply(PlayStateEvent event) {
+                return event.isPlayQueueComplete();
             }
         })).hasSize(1);
     }

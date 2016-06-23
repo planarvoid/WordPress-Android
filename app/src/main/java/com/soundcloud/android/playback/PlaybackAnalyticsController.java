@@ -5,7 +5,9 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 class PlaybackAnalyticsController {
 
     private final TrackSessionAnalyticsDispatcher trackAnalyticsDispatcher;
@@ -13,7 +15,7 @@ class PlaybackAnalyticsController {
     private final PlayQueueManager playQueueManager;
 
     private PlaybackProgress lastProgressCheckpoint = PlaybackProgress.empty();
-    private PlaybackStateTransition previousTransition = PlaybackStateTransition.DEFAULT;
+    private PlayStateEvent playStateEvent = PlayStateEvent.DEFAULT;
     @Nullable private PlaybackItem previousItem;
 
     @Inject
@@ -25,24 +27,24 @@ class PlaybackAnalyticsController {
         this.playQueueManager = playQueueManager;
     }
 
-    public void onStateTransition(PlaybackItem currentItem, PlaybackStateTransition newTransition) {
+    public void onStateTransition(PlaybackItem currentItem, PlayStateEvent playState) {
         final PlaybackAnalyticsDispatcher dispatcher = dispatcherForItem(currentItem);
-        final boolean isNewItem = !newTransition.getUrn().equals(previousTransition.getUrn());
+        final boolean isNewItem = !playState.getPlayingItemUrn().equals(playStateEvent.getPlayingItemUrn());
         if (isNewItem) {
             onPlaybackItemChange();
         }
 
         if (wasLastItemSkippedWhilePlaying(isNewItem)) {
-            dispatcherForItem(previousItem).onSkipTransition(previousTransition);
+            dispatcherForItem(previousItem).onSkipTransition(playStateEvent);
         }
 
-        if (newTransition.isPlayerPlaying()) {
-            dispatcher.onPlayTransition(newTransition, isNewItem);
+        if (playState.isPlayerPlaying()) {
+            dispatcher.onPlayTransition(playState, isNewItem);
         } else {
-            dispatcher.onStopTransition(newTransition, isNewItem);
+            dispatcher.onStopTransition(playState, isNewItem);
         }
 
-        previousTransition = newTransition;
+        playStateEvent = playState;
         previousItem = currentItem;
     }
 
@@ -51,7 +53,7 @@ class PlaybackAnalyticsController {
 
         if (currentProgress.getPosition() >= lastProgressCheckpoint.getPosition() + checkpointIntervalForItem(
                 currentItem)) {
-            dispatcherForItem(currentItem).onProgressCheckpoint(previousTransition, playbackProgress);
+            dispatcherForItem(currentItem).onProgressCheckpoint(playStateEvent, playbackProgress);
             lastProgressCheckpoint = currentProgress;
         }
         dispatcherForItem(currentItem).onProgressEvent(playbackProgress);
@@ -68,7 +70,7 @@ class PlaybackAnalyticsController {
     }
 
     private boolean wasLastItemSkippedWhilePlaying(boolean isNewItem) {
-        return isNewItem && previousItem != null && previousTransition.isPlayerPlaying();
+        return isNewItem && previousItem != null && playStateEvent.isPlayerPlaying();
     }
 
     private PlaybackAnalyticsDispatcher dispatcherForItem(PlaybackItem currentItem) {
