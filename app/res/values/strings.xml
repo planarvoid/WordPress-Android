@@ -116,8 +116,8 @@
     <string name="list_empty_notification_secondary">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
     <string name="list_empty_stream_action">FIND PEOPLE TO FOLLOW</string>
     <string name="list_empty_stream_message">Follow your favorite artists, bands and podcasts to hear their latest tracks.</string>
-    <string name="empty_playlist_title">Empty playlist</string>
-    <string name="empty_playlist_description">This playlist has no tracks yet.</string>
+    <string name="custom_empty_playlist_title">Empty %1$s</string>
+    <string name="custom_empty_playlist_description">This %1$s has no tracks yet.</string>
 
     <string name="list_empty_you_sounds_message">Repost sounds to share them with your followers.</string>
     <string name="list_empty_you_playlists_message">Create playlists to make mixes of your favorite sounds.</string>
@@ -321,7 +321,6 @@
     </plurals>
 
     <!-- __PLAYLISTS -->
-    <string name="activity_title_playlist">Playlist</string>
     <string name="playlist_load_error">Could not load this playlist</string>
     <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
     <string name="shuffle_playlist">Shuffle playlist</string>
@@ -827,6 +826,12 @@
     <string name="set_type_ep_label">EP</string>
     <string name="set_type_single_label">Single</string>
     <string name="set_type_compilation_label">Compilation</string>
+
+    <string name="set_type_default_label_for_text">playlist</string>
+    <string name="set_type_album_label_for_text">album</string>
+    <string name="set_type_ep_label_for_text">EP</string>
+    <string name="set_type_single_label_for_text">single</string>
+    <string name="set_type_compilation_label_for_text">compilation</string>
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Go ad-free</string>

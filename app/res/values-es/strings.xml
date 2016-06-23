@@ -108,8 +108,6 @@
   <string name="list_empty_notification_secondary">Sigue a tus artistas favoritos, bandas y podcasts para escuchar sus últimas pistas.</string>
   <string name="list_empty_stream_action">ENCUENTRA GENTE A LA QUE SEGUIR</string>
   <string name="list_empty_stream_message">Sigue a tus artistas favoritos, bandas y podcasts para escuchar sus últimas pistas.</string>
-  <string name="empty_playlist_title">Lista vacía</string>
-  <string name="empty_playlist_description">Esta lista aún no tiene pistas.</string>
   <string name="list_empty_you_sounds_message">Repostea pistas para compartirlas con tus seguidores.</string>
   <string name="list_empty_you_playlists_message">Crea listas para hacer mezclas de tus pistas favoritas.</string>
   <string name="list_empty_you_likes_message">Dale un me gusta a tus pistas favoritas para escucharlas de nuevo.</string>
@@ -297,7 +295,6 @@
     <item quantity="other">%d comentarios sobre esta pista</item>
   </plurals>
   <!--__PLAYLISTS-->
-  <string name="activity_title_playlist">Lista</string>
   <string name="playlist_load_error">No se pudo cargar esta lista</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Lista aleatoria</string>

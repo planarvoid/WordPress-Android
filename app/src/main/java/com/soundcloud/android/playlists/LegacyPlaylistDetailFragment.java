@@ -406,6 +406,8 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
             refreshMetaData(playlist);
             controller.setContent(playlist, getPromotedSourceInfo());
+            setEmptyStateMessage(playlist.getPlaylistItem());
+
             showContent(true);
 
             if (playOnLoad && controller.hasTracks()) {
@@ -432,6 +434,13 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         public void onCompleted() {
             controller.setEmptyViewStatus(EmptyView.Status.OK);
             pullToRefreshController.stopRefreshing();
+        }
+
+        private void setEmptyStateMessage(PlaylistItem playlistItem) {
+            final String label = getContext().getString(playlistItem.getSetTypeLabelForText());
+            final String message = getContext().getString(R.string.custom_empty_playlist_title, label);
+            final String secondaryText = getContext().getString(R.string.custom_empty_playlist_description, label);
+            controller.setEmptyStateMessage(message, secondaryText);
         }
     }
 

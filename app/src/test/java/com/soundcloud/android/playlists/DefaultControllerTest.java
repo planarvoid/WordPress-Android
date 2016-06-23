@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -86,4 +86,10 @@ public class DefaultControllerTest extends AndroidUnitTest {
         verify(adapter).hasContentItems();
     }
 
+    @Test
+    public void shouldSetEmptyStateMessage() {
+        controller.setEmptyStateMessage("title", "description");
+
+        verify(adapter).setEmptyStateMessage("title", "description");
+    }
 }

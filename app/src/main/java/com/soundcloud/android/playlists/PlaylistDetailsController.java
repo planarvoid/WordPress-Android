@@ -90,6 +90,8 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         return adapter.getItems().size() > 0;
     }
 
+    abstract void setEmptyStateMessage(String title, String description);
+
     abstract boolean hasContent();
 
     abstract void setListShown(boolean show);

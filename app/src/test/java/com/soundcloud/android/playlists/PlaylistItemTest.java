@@ -69,6 +69,32 @@ public class PlaylistItemTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldProvideSetTypeLabelForTextWhenPlaylistIsNotAnAlbum() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, false);
+        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
+
+        assertThat(playlistItem.getSetTypeLabelForText()).isEqualTo(R.string.set_type_default_label_for_text);
+    }
+
+    @Test
+    public void shouldProvideSetTypeLabelForTextWhenPlaylistIsAnAlbum() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
+        propertySet.put(PlaylistProperty.SET_TYPE, "ep");
+        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
+
+        assertThat(playlistItem.getSetTypeLabelForText()).isEqualTo(R.string.set_type_ep_label_for_text);
+    }
+
+    @Test
+    public void shouldFallBackToDefaultLabelForTextForUnknownSetTypes() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
+        propertySet.put(PlaylistProperty.SET_TYPE, "unknown");
+        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
+
+        assertThat(playlistItem.getSetTypeLabelForText()).isEqualTo(R.string.set_type_album_label_for_text);
+    }
+
+    @Test
     public void shouldProvideReleaseYearWhenReleaseDateIsAvailable() {
         propertySet.put(PlaylistProperty.RELEASE_DATE, "2010-10-10");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);

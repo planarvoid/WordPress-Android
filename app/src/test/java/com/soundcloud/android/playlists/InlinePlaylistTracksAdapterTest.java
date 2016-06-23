@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.tracks.TrackItem;
@@ -35,5 +36,12 @@ public class InlinePlaylistTracksAdapterTest extends AndroidUnitTest {
     public void hasContentItemsShouldBeTrueOnceItemsHaveBeenAdded() {
         adapter.addItem(TrackItem.from(PropertySet.create()));
         assertThat(adapter.hasContentItems()).isTrue();
+    }
+
+    @Test
+    public void shouldSetEmptyStateMessage() {
+        adapter.setEmptyStateMessage("title", "description");
+
+        verify(emptyRowRenderer).setEmptyStateMessage("title", "description");
     }
 }
