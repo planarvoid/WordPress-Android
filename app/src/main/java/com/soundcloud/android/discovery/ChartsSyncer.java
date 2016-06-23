@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.charts;
+package com.soundcloud.android.discovery;
 
 
 import com.soundcloud.android.api.ApiClient;
@@ -6,6 +6,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.sync.charts.ApiChartBucket;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.WriteResult;
 
@@ -13,7 +14,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-public class ChartsSyncer implements Callable<Boolean> {
+class ChartsSyncer implements Callable<Boolean> {
 
     private final ApiClient apiClient;
     private final StoreChartsCommand storeChartsCommand;

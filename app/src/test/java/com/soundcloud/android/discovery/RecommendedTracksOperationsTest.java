@@ -13,7 +13,6 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.SyncOperations.Result;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;

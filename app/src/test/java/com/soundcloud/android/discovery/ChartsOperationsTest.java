@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.SyncOperations.Result;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.sync.charts.StoreChartsCommand;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;

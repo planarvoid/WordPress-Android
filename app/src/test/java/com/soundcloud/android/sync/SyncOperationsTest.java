@@ -1,10 +1,8 @@
 package com.soundcloud.android.sync;
 
-import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.testsupport.TestSyncer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,10 +34,11 @@ public class SyncOperationsTest {
         syncOperations = new SyncOperations(syncInitiator, syncStateStorage, syncerRegistry);
 
         when(syncInitiator.sync(SYNCABLE)).thenReturn(jobResult);
-        when(syncerRegistry.get(SYNCABLE)).thenReturn(new SyncerRegistry.SyncData(
-                SYNCABLE.name(),
-                providerOf(new TestSyncer()),
-                SYNCABLE_STALE_TIME
+        when(syncerRegistry.get(SYNCABLE)).thenReturn(TestSyncData.from(
+                SYNCABLE,
+                false,
+                SYNCABLE_STALE_TIME,
+                true
         ));
     }
 

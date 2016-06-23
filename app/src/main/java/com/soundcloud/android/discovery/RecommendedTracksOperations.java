@@ -13,7 +13,6 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncOperations;
 import com.soundcloud.android.sync.Syncable;
-import com.soundcloud.android.sync.recommendations.StoreRecommendationsCommand;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;

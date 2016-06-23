@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.recommendations;
+package com.soundcloud.android.discovery;
 
 
 import com.soundcloud.android.api.ApiClient;
@@ -14,13 +14,13 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-public class RecommendationsSyncer implements Callable<Boolean> {
+class RecommendedTracksSyncer implements Callable<Boolean> {
 
     private final ApiClient apiClient;
     private final StoreRecommendationsCommand storeRecommendationsCommand;
 
     @Inject
-    public RecommendationsSyncer(ApiClient apiClient, StoreRecommendationsCommand storeRecommendationsCommand) {
+    public RecommendedTracksSyncer(ApiClient apiClient, StoreRecommendationsCommand storeRecommendationsCommand) {
         this.apiClient = apiClient;
         this.storeRecommendationsCommand = storeRecommendationsCommand;
     }
@@ -28,7 +28,7 @@ public class RecommendationsSyncer implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         final ApiRequest request =
-                ApiRequest.get(ApiEndpoints.RECOMMENDATIONS.path())
+                ApiRequest.get(ApiEndpoints.TRACK_RECOMMENDATIONS.path())
                         .forPrivateApi()
                         .build();
 

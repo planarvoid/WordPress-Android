@@ -29,12 +29,12 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
     private TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
     private TestSubscriber<Long> timeSubscriber = new TestSubscriber<>();
     private TestDateProvider dateProvider;
+    private RoboSharedPreferences roboSharedPreferences = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "TEST", Context.MODE_PRIVATE);
 
     @Before
     public void setUp() throws Exception {
-        RoboSharedPreferences preferences = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "TEST", Context.MODE_PRIVATE);
         dateProvider = new TestDateProvider();
-        storage = new SyncStateStorage(propeller(), preferences, dateProvider);
+        storage = new SyncStateStorage(propeller(), roboSharedPreferences, dateProvider);
     }
 
     @Test
@@ -224,5 +224,30 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
 
         assertThat(storage.legacyLoadLastSyncSuccess(CONTENT_URI.buildUpon()
                 .appendQueryParameter("c", "d").build())).isEqualTo(1);
+    }
+
+    @Test
+    public void getSyncMissesReturnsZeroIfNeverSet() {
+        assertThat(storage.getSyncMisses(Syncable.CHARTS)).isEqualTo(0);
+    }
+
+    @Test
+    public void getSyncMissesReturnsSetValue() {
+        roboSharedPreferences.edit().putInt(Syncable.CHARTS.name() + "_misses", 5).apply();
+
+        assertThat(storage.getSyncMisses(Syncable.CHARTS)).isEqualTo(5);
+    }
+
+    @Test
+    public void resetSyncMissesStoresValue() {
+        storage.resetSyncMisses(Syncable.CHARTS);
+
+        assertThat(roboSharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 4)).isEqualTo(0);
+    }
+    @Test
+    public void incrementSyncMissesStoresValue() {
+        storage.incrementSyncMisses(Syncable.CHARTS);
+
+        assertThat(roboSharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 0)).isEqualTo(1);
     }
 }

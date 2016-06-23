@@ -19,6 +19,7 @@ public class ApiSyncService extends Service {
     public static final String LOG_TAG = ApiSyncService.class.getSimpleName();
 
     public static final String EXTRA_SYNCABLE = "com.soundcloud.android.sync.extra.SYNCABLE";
+    public static final String EXTRA_SYNCABLES = "com.soundcloud.android.sync.extra.SYNCABLES";
 
     public static final String ACTION_APPEND        = "com.soundcloud.android.sync.action.APPEND";
     public static final String ACTION_PUSH          = "com.soundcloud.android.sync.action.PUSH";

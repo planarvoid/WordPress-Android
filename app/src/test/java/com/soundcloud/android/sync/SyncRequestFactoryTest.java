@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
-import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -12,9 +11,7 @@ import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
-import com.soundcloud.android.sync.recommendations.RecommendationsSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.TestSyncer;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,34 +19,31 @@ import org.mockito.Mock;
 
 import android.content.Intent;
 
-import javax.inject.Provider;
-import java.util.concurrent.Callable;
-
 public class SyncRequestFactoryTest extends AndroidUnitTest {
 
     private SyncRequestFactory syncRequestFactory;
 
     @Mock private SyncerRegistry syncerRegistry;
     @Mock private SingleJobRequestFactory singleJobRequestFactory;
+    @Mock private MultiJobRequestFactory multiJobRequestFactory;
     @Mock private LegacySyncRequest.Factory syncIntentFactory;
     @Mock private SyncTrackLikesJob syncTrackLikesJob;
     @Mock private SyncPlaylistLikesJob syncPlaylistLikesJob;
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     @Mock private ResultReceiverAdapter resultReceiverAdapter;
-    @Mock private RecommendationsSyncer recommendationsSyncer;
 
     @Before
     public void setUp() throws Exception {
         syncRequestFactory = new SyncRequestFactory(
                 syncerRegistry,
                 singleJobRequestFactory,
+                multiJobRequestFactory,
                 syncIntentFactory,
                 lazyOf(syncTrackLikesJob),
                 lazyOf(syncPlaylistLikesJob),
                 entitySyncRequestFactory,
                 singlePlaylistSyncerFactory,
-                lazyOf(recommendationsSyncer),
                 new TestEventBus()
         );
     }
@@ -109,10 +103,9 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
 
         final SingleJobRequest request = mock(SingleJobRequest.class);
-        final Provider<? extends Callable<Boolean>> syncerProvider = providerOf(new TestSyncer());
-        final SyncerRegistry.SyncData syncData = new SyncerRegistry.SyncData("id", syncerProvider, 0);
-        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(syncData);
-        when(singleJobRequestFactory.create(Syncable.CHARTS, syncData, resultReceiverAdapter, true)).thenReturn(request);
+        final SyncerRegistry.SyncProvider syncProvider = TestSyncData.get(Syncable.CHARTS);
+        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(syncProvider);
+        when(singleJobRequestFactory.create(Syncable.CHARTS, syncProvider, resultReceiverAdapter, true)).thenReturn(request);
 
         assertThat(syncRequestFactory.create(intent)).isSameAs(request);
     }

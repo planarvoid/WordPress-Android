@@ -36,6 +36,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.stream.StreamNavigationTarget;
+import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -75,7 +76,7 @@ import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.util.Locale;
 
-@Module(library = true, includes = {ApiModule.class, StorageModule.class, FacebookModule.class})
+@Module(library = true, includes = {ApiModule.class, StorageModule.class, FacebookModule.class, SyncModule.class})
 public class ApplicationModule {
 
     public static final String HIGH_PRIORITY = "HighPriority";

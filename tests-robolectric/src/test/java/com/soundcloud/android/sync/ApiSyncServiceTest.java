@@ -15,7 +15,6 @@ import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
-import com.soundcloud.android.sync.recommendations.RecommendationsSyncer;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -51,7 +50,7 @@ public class ApiSyncServiceTest {
     @Mock private LikesSyncer<ApiPlaylist> playlistLikesSyncer;
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
-    @Mock private RecommendationsSyncer recommendationsSyncer;
+    @Mock private MultiJobRequestFactory multiJobRequestFactory;
     @Mock private SyncStateManager syncStateManager;
 
     @Before
@@ -64,12 +63,12 @@ public class ApiSyncServiceTest {
         syncRequestFactory = new SyncRequestFactory(
                 syncerRegistry,
                 singleJobRequestFactory,
+                multiJobRequestFactory,
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
                 lazyOf(new SyncTrackLikesJob(InjectionSupport.lazyOf(trackLikesSyncer))),
                 lazyOf(new SyncPlaylistLikesJob(InjectionSupport.lazyOf(playlistLikesSyncer))),
                 entitySyncRequestFactory,
                 singlePlaylistSyncerFactory,
-                lazyOf(recommendationsSyncer),
                 new TestEventBus());
     }
 
@@ -139,12 +138,12 @@ public class ApiSyncServiceTest {
         SyncRequestFactory syncRequestFactory = new SyncRequestFactory(
                 syncerRegistry,
                 singleJobRequestFactory,
+                multiJobRequestFactory,
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
                 null,
                 null,
                 entitySyncRequestFactory,
                 singlePlaylistSyncerFactory,
-                lazyOf(recommendationsSyncer),
                 new TestEventBus()
         );
         SyncRequest request1 = syncRequestFactory.create(intent);
