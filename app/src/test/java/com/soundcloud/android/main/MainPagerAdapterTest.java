@@ -16,7 +16,7 @@ import android.support.v4.app.FragmentManager;
 public class MainPagerAdapterTest extends AndroidUnitTest {
 
     @Mock FragmentManager fragmentManager;
-    @Mock (extraInterfaces = {ScrollContent.class}) Fragment fragment1;
+    @Mock(extraInterfaces = {ScrollContent.class}) Fragment fragment1;
     @Mock Fragment fragment2;
 
     private MainPagerAdapter adapter;

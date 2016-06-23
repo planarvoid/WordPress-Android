@@ -9,7 +9,8 @@ import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class PagingListItemAdapter<T> extends ListItemAdapter<T> implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
+public class PagingListItemAdapter<T> extends ListItemAdapter<T>
+        implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
 
     private final int progressItemLayoutResId;
 
@@ -111,9 +112,9 @@ public class PagingListItemAdapter<T> extends ListItemAdapter<T> implements Reac
                     "This position is invalid in Idle state. Tracking issue #2377; position=" + position + "; items="
                             + items.size() + "; count=" + getItemCount()));
         }
-        
+
         return appendState != AppendState.IDLE && position == items.size() ? IGNORE_ITEM_VIEW_TYPE
-                 : super.getItemViewType(position);
+                                                                           : super.getItemViewType(position);
     }
 
     @Override

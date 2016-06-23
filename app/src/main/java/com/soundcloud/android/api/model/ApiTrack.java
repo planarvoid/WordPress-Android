@@ -321,25 +321,25 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("title", title)
-                .add("genre", genre)
-                .add("user", user)
-                .add("commentable", commentable)
-                .add("snippetDuration", snippetDuration)
-                .add("fullDuration", fullDuration)
-                .add("streamUrl", streamUrl)
-                .add("waveformUrl", waveformUrl)
-                .add("userTags", userTags)
-                .add("createdAt", createdAt)
-                .add("artworkUrl", artworkUrlTemplate)
-                .add("permalinkUrl", permalinkUrl)
-                .add("monetizable", monetizable)
-                .add("snipped", snipped)
-                .add("blocked", blocked)
-                .add("syncable", syncable)
-                .add("policy", policy)
-                .add("sharing", sharing)
-                .add("stats", stats).toString();
+                          .add("title", title)
+                          .add("genre", genre)
+                          .add("user", user)
+                          .add("commentable", commentable)
+                          .add("snippetDuration", snippetDuration)
+                          .add("fullDuration", fullDuration)
+                          .add("streamUrl", streamUrl)
+                          .add("waveformUrl", waveformUrl)
+                          .add("userTags", userTags)
+                          .add("createdAt", createdAt)
+                          .add("artworkUrl", artworkUrlTemplate)
+                          .add("permalinkUrl", permalinkUrl)
+                          .add("monetizable", monetizable)
+                          .add("snipped", snipped)
+                          .add("blocked", blocked)
+                          .add("syncable", syncable)
+                          .add("policy", policy)
+                          .add("sharing", sharing)
+                          .add("stats", stats).toString();
     }
 
     @Override
@@ -373,10 +373,10 @@ public final class ApiTrack implements ApiEntityHolder, TrackRecord, TrackRecord
             propertySet.put(TrackProperty.GENRE, genre);
         }
 
-        if (isSubMidTier().isPresent()){
+        if (isSubMidTier().isPresent()) {
             propertySet.put(TrackProperty.SUB_MID_TIER, isSubMidTier().get());
         }
-        if (getMonetizationModel().isPresent()){
+        if (getMonetizationModel().isPresent()) {
             propertySet.put(TrackProperty.MONETIZATION_MODEL, getMonetizationModel().get());
         }
 

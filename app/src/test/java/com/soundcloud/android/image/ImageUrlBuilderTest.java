@@ -17,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class ImageUrlBuilderTest {
 
     private ImageUrlBuilder builder;
-    
+
     @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private ImageResource imageResource;
 
@@ -29,7 +29,7 @@ public class ImageUrlBuilderTest {
     @Before
     public void setUp() throws Exception {
         when(apiUrlBuilder.build()).thenReturn(resolveEndpoint);
-        builder  = new ImageUrlBuilder(apiUrlBuilder);
+        builder = new ImageUrlBuilder(apiUrlBuilder);
     }
 
     @Test

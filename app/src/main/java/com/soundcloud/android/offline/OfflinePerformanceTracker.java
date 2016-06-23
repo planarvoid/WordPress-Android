@@ -17,23 +17,23 @@ class OfflinePerformanceTracker {
 
     public void downloadStarted(DownloadRequest request) {
         eventBus.publish(EventQueue.TRACKING,
-                OfflinePerformanceEvent.fromStarted(
-                        request.getUrn(),
-                        request.getTrackingData()));
+                         OfflinePerformanceEvent.fromStarted(
+                                 request.getUrn(),
+                                 request.getTrackingData()));
     }
 
     public void downloadComplete(DownloadState downloadState) {
         eventBus.publish(EventQueue.TRACKING,
-                OfflinePerformanceEvent.fromCompleted(
-                        downloadState.getTrack(),
-                        downloadState.request.getTrackingData()));
+                         OfflinePerformanceEvent.fromCompleted(
+                                 downloadState.getTrack(),
+                                 downloadState.request.getTrackingData()));
     }
 
     public void downloadCancelled(DownloadState downloadState) {
         eventBus.publish(EventQueue.TRACKING,
-                OfflinePerformanceEvent.fromCancelled(
-                        downloadState.getTrack(),
-                        downloadState.request.getTrackingData()));
+                         OfflinePerformanceEvent.fromCancelled(
+                                 downloadState.getTrack(),
+                                 downloadState.request.getTrackingData()));
     }
 
     public void downloadFailed(DownloadState downloadState) {

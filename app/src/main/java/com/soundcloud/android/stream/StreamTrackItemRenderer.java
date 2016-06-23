@@ -40,7 +40,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         final View inflatedView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.stream_track_card, parent, false);
+                                                .inflate(R.layout.stream_track_card, parent, false);
         inflatedView.setTag(new StreamItemViewHolder(inflatedView));
         return inflatedView;
     }
@@ -65,9 +65,9 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
 
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                .contextScreen(Screen.STREAM.get())
-                .pageName(Screen.STREAM.get())
-                .build();
+                                   .contextScreen(Screen.STREAM.get())
+                                   .pageName(Screen.STREAM.get())
+                                   .build();
     }
 
     private void showPlayCountOrNowPlaying(StreamItemViewHolder itemView, TrackItem track) {

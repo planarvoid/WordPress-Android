@@ -29,7 +29,9 @@ public class WaveformScrollView extends HorizontalScrollView {
 
     public interface OnScrollListener {
         void onScroll(int left, int oldLeft);
+
         void onPress();
+
         void onRelease();
     }
 
@@ -92,10 +94,11 @@ public class WaveformScrollView extends HorizontalScrollView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (listener != null){
+        if (listener != null) {
             if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
                 listener.onPress();
-            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL || isOutsideBounds(event)) {
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL || isOutsideBounds(
+                    event)) {
                 listener.onRelease();
             }
         }
@@ -108,8 +111,24 @@ public class WaveformScrollView extends HorizontalScrollView {
     }
 
     @Override
-    protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
-        return super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, adjustedMaxOverScrollX, maxOverScrollY, isTouchEvent);
+    protected boolean overScrollBy(int deltaX,
+                                   int deltaY,
+                                   int scrollX,
+                                   int scrollY,
+                                   int scrollRangeX,
+                                   int scrollRangeY,
+                                   int maxOverScrollX,
+                                   int maxOverScrollY,
+                                   boolean isTouchEvent) {
+        return super.overScrollBy(deltaX,
+                                  deltaY,
+                                  scrollX,
+                                  scrollY,
+                                  scrollRangeX,
+                                  scrollRangeY,
+                                  adjustedMaxOverScrollX,
+                                  maxOverScrollY,
+                                  isTouchEvent);
     }
 
     @Override
@@ -132,17 +151,17 @@ public class WaveformScrollView extends HorizontalScrollView {
     @Override
     public void fling(int velocityX) {
         int newVelocityX = areaWidth == Consts.NOT_SET
-                ? velocityX
-                : (int) (velocityX / ((float) areaWidth / getWidth()));
+                           ? velocityX
+                           : (int) (velocityX / ((float) areaWidth / getWidth()));
 
         super.fling(newVelocityX);
     }
 
-    private static class NoEdgeEffect extends EdgeEffect
-    {
+    private static class NoEdgeEffect extends EdgeEffect {
         public NoEdgeEffect(Context context) {
             super(context);
         }
+
         public boolean draw(Canvas canvas) {
             // Do nothing
             return false;

@@ -42,7 +42,8 @@ public class ViewFetcher {
 
     private boolean waitForBusyUi() {
         if (testDriver.getBusyUiIndicator() != null) {
-            return testDriver.waitForCondition(new BusyIndicatorCondition(testDriver.getBusyUiIndicator()), NETWORK_TIMEOUT);
+            return testDriver.waitForCondition(new BusyIndicatorCondition(testDriver.getBusyUiIndicator()),
+                                               NETWORK_TIMEOUT);
         }
         return true;
     }
@@ -97,16 +98,16 @@ public class ViewFetcher {
                 new Predicate<ViewElement>() {
                     @Override
                     public boolean apply(ViewElement viewElement) {
-                            for (With with : withs) {
-                                try {
-                                    if (!with.apply(viewElement)) {
-                                        return false;
-                                    }
-                                } catch (Exception e) {
+                        for (With with : withs) {
+                            try {
+                                if (!with.apply(viewElement)) {
                                     return false;
                                 }
+                            } catch (Exception e) {
+                                return false;
                             }
-                            return true;
+                        }
+                        return true;
 
                     }
                 }

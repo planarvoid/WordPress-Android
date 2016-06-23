@@ -30,6 +30,6 @@ public abstract class AdData {
     }
 
     protected void setMonetizableTrackUrn(Urn trackUrn) {
-       monetizableTrackUrn = trackUrn;
+        monetizableTrackUrn = trackUrn;
     }
 }

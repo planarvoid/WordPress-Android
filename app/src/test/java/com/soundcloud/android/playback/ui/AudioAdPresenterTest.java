@@ -317,19 +317,34 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void setPlayingStateShouldHidePlayControls() {
-        presenter.setPlayState(adView, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView,
+                               new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                           PlayStateReason.NONE,
+                                                           Urn.forTrack(123L)),
+                               true,
+                               true);
         assertThat(adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
     public void setBufferingStateShouldHidePlayControls() {
-        presenter.setPlayState(adView, new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView,
+                               new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                           PlayStateReason.NONE,
+                                                           Urn.forTrack(123L)),
+                               true,
+                               true);
         assertThat(adView.findViewById(R.id.play_controls)).isGone();
     }
 
     @Test
     public void setIdleStateShouldShowPlayControls() {
-        presenter.setPlayState(adView, new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.forTrack(123L)), true, true);
+        presenter.setPlayState(adView,
+                               new PlaybackStateTransition(PlaybackState.IDLE,
+                                                           PlayStateReason.NONE,
+                                                           Urn.forTrack(123L)),
+                               true,
+                               true);
         assertThat(adView.findViewById(R.id.play_controls)).isVisible();
     }
 
@@ -375,7 +390,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     private AudioAd buildAd(boolean skippable) {
         final AudioAd audioAd = skippable ?
-                AdFixtures.getAudioAd(TRACK_URN) : AdFixtures.getNonskippableAudioAd(TRACK_URN);
+                                AdFixtures.getAudioAd(TRACK_URN) : AdFixtures.getNonskippableAudioAd(TRACK_URN);
         return prepareAd(audioAd);
     }
 

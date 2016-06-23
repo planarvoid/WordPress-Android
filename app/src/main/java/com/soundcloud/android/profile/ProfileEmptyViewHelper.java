@@ -16,8 +16,8 @@ class ProfileEmptyViewHelper {
         this.accountOperations = accountOperations;
     }
 
-    public void configureBuilderForUserDetails(EmptyView emptyView, Urn userUrn){
-        if (isLoggedInUser(userUrn)){
+    public void configureBuilderForUserDetails(EmptyView emptyView, Urn userUrn) {
+        if (isLoggedInUser(userUrn)) {
             emptyView.setMessageText(R.string.info_empty_you_message);
             emptyView.setSecondaryText(R.string.info_empty_you_secondary);
             emptyView.setImage(R.drawable.empty_profile);

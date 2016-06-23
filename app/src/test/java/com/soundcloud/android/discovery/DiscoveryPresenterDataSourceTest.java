@@ -47,10 +47,10 @@ public class DiscoveryPresenterDataSourceTest {
     @Before
     public void setUp() throws Exception {
         dataSource = new DiscoveryPresenter.DataSource(recommendedTracksOperations,
-                playlistDiscoveryOperations,
-                recommendedStationsOperations,
-                chartsOperations,
-                featureFlags);
+                                                       playlistDiscoveryOperations,
+                                                       recommendedStationsOperations,
+                                                       chartsOperations,
+                                                       featureFlags);
 
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>empty());
@@ -58,10 +58,12 @@ public class DiscoveryPresenterDataSourceTest {
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
         when(featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)).thenReturn(true);
 
-        final ChartBucket chartsItem = ChartBucket.create(Collections.<Chart>emptyList(), Collections.<Chart>emptyList());
+        final ChartBucket chartsItem = ChartBucket.create(Collections.<Chart>emptyList(),
+                                                          Collections.<Chart>emptyList());
         final RecommendedStationsBucketItem stationsItem = RecommendedStationsBucketItem.create(Collections.<StationViewModel>emptyList());
-        final DiscoveryItem tracksItem =  new DiscoveryItem(DiscoveryItem.Kind.RecommendedTracksItem);
-        final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"), Collections.<String>emptyList());
+        final DiscoveryItem tracksItem = new DiscoveryItem(DiscoveryItem.Kind.RecommendedTracksItem);
+        final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"),
+                                                                          Collections.<String>emptyList());
 
         when(chartsOperations.charts()).thenReturn(Observable.just(chartsItem));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));

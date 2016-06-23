@@ -49,7 +49,9 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         updater.onCreate(fragment, null);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(trackItemRenderer).setPlayingTrack(playingTrack);
     }
@@ -61,7 +63,9 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         updater.onDestroy(fragment);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(trackItemRenderer, never()).setPlayingTrack(playingTrack);
     }
@@ -72,7 +76,9 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         updater.onCreate(fragment, null);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack),
+                                                                Urn.NOT_SET,
+                                                                0));
 
         verify(trackItemRenderer).setPlayingTrack(playingTrack);
     }
@@ -84,7 +90,9 @@ public class PlayableListUpdaterTest extends AndroidUnitTest {
         updater.onDestroy(fragment);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack),
+                                                                Urn.NOT_SET,
+                                                                0));
 
         verify(trackItemRenderer, never()).setPlayingTrack(playingTrack);
     }

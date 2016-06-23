@@ -20,7 +20,10 @@ class OfflineTrackAssetDownloader {
     private final WaveformStorage waveformStorage;
 
     @Inject
-    public OfflineTrackAssetDownloader(ImageOperations imageOperations, Resources resources, WaveformFetchCommand waveformFetchCommand, WaveformStorage waveformStorage) {
+    public OfflineTrackAssetDownloader(ImageOperations imageOperations,
+                                       Resources resources,
+                                       WaveformFetchCommand waveformFetchCommand,
+                                       WaveformStorage waveformStorage) {
         this.waveformFetchCommand = waveformFetchCommand;
         this.waveformStorage = waveformStorage;
         this.imageOperations = imageOperations;

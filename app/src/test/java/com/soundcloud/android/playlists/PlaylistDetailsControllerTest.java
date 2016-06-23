@@ -22,11 +22,11 @@ public class PlaylistDetailsControllerTest extends AndroidUnitTest {
 
     @Mock private PlaylistTrackItemRenderer trackItemRenderer;
     @Mock private ListItemAdapter<TrackItem> itemAdapter;
-    
+
     private EventBus eventBus = new TestEventBus();
     private PlaylistWithTracks playlist;
     private PlaylistDetailsController controller;
-    
+
     @Before
     public void setUp() throws Exception {
         controller = new PlaylistDetailsControllerImpl(trackItemRenderer, itemAdapter, eventBus);

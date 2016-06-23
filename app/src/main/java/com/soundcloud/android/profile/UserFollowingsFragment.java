@@ -19,9 +19,11 @@ public class UserFollowingsFragment extends ScrollableProfileFragment {
 
     @Inject @LightCycle UserFollowingsPresenter presenter;
 
-    public static UserFollowingsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static UserFollowingsFragment create(Urn userUrn,
+                                                Screen screen,
+                                                SearchQuerySourceInfo searchQuerySourceInfo) {
         UserFollowingsFragment fragment = new UserFollowingsFragment();
-        fragment.setArguments(ProfileArguments.from(userUrn,screen, searchQuerySourceInfo));
+        fragment.setArguments(ProfileArguments.from(userUrn, screen, searchQuerySourceInfo));
         return fragment;
     }
 

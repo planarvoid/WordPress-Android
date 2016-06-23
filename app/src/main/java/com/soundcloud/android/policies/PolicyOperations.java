@@ -101,23 +101,23 @@ public class PolicyOperations {
 
     public Observable<List<Urn>> refreshedTrackPolicies() {
         return policyStorage.tracksForPolicyUpdate()
-                .doOnNext(clearTrackPolicies)
-                .flatMap(updatePoliciesCommand.toContinuation())
-                .flatMap(RxUtils.<ApiPolicyInfo>iterableToObservable())
-                .map(TO_TRACK_URN)
-                .toList()
-                .doOnError(handleErrorAction)
-                .subscribeOn(scheduler);
+                            .doOnNext(clearTrackPolicies)
+                            .flatMap(updatePoliciesCommand.toContinuation())
+                            .flatMap(RxUtils.<ApiPolicyInfo>iterableToObservable())
+                            .map(TO_TRACK_URN)
+                            .toList()
+                            .doOnError(handleErrorAction)
+                            .subscribeOn(scheduler);
     }
 
     public Observable<Long> getMostRecentPolicyUpdateTimestamp() {
         return loadPolicyUpdateTimeCommand.toObservable(null)
-                .subscribeOn(scheduler);
+                                          .subscribeOn(scheduler);
     }
 
     private Observable<Collection<ApiPolicyInfo>> fetchAndStorePolicies(Collection<Urn> urns) {
         return updatePoliciesCommand.toObservable(urns)
-                .subscribeOn(scheduler);
+                                    .subscribeOn(scheduler);
     }
 
     private void handlePolicyUpdateFailure(Throwable error, boolean isBackgroundUpdate) {
@@ -128,8 +128,8 @@ public class PolicyOperations {
         Throwable cause = error instanceof PolicyUpdateFailure ? error.getCause() : error;
         final PolicyUpdateFailureEvent failureEvent =
                 cause instanceof PropellerWriteException
-                        ? PolicyUpdateFailureEvent.insertFailed(isBackgroundUpdate)
-                        : PolicyUpdateFailureEvent.fetchFailed(isBackgroundUpdate);
+                ? PolicyUpdateFailureEvent.insertFailed(isBackgroundUpdate)
+                : PolicyUpdateFailureEvent.fetchFailed(isBackgroundUpdate);
         eventBus.publish(EventQueue.TRACKING, failureEvent);
     }
 }

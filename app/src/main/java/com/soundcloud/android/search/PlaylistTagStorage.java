@@ -33,7 +33,8 @@ public class PlaylistTagStorage {
     private final Scheduler scheduler;
 
     @Inject
-    public PlaylistTagStorage(@Named(StorageModule.PLAYLIST_TAGS) SharedPreferences sharedPreferences, CurrentDateProvider dateProvider) {
+    public PlaylistTagStorage(@Named(StorageModule.PLAYLIST_TAGS) SharedPreferences sharedPreferences,
+                              CurrentDateProvider dateProvider) {
         this(sharedPreferences, dateProvider, ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 

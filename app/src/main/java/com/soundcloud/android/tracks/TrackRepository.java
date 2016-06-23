@@ -54,7 +54,7 @@ public class TrackRepository {
             @Override
             public Observable<PropertySet> call(PropertySet track) {
                 return track.isEmpty() ? syncThenLoadTrack(trackUrn, trackFromStorage(trackUrn))
-                        : Observable.just(track);
+                                       : Observable.just(track);
             }
         };
     }
@@ -69,7 +69,8 @@ public class TrackRepository {
                 .subscribeOn(scheduler);
     }
 
-    private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn, final Observable<PropertySet> loadObservable) {
+    private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn,
+                                                      final Observable<PropertySet> loadObservable) {
         return syncInitiator.syncTrack(trackUrn).flatMap(continueWith(loadObservable));
     }
 }

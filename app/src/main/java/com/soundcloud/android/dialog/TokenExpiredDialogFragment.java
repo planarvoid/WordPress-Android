@@ -23,11 +23,11 @@ public class TokenExpiredDialogFragment extends DialogFragment {
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setPositiveButton(R.string.pref_revoke_access, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                LogoutActivity.start(getActivity());
-                                dismiss();
-                            }
-                        }
+                                       public void onClick(DialogInterface dialog, int which) {
+                                           LogoutActivity.start(getActivity());
+                                           dismiss();
+                                       }
+                                   }
                 ).create();
     }
 }

@@ -72,7 +72,8 @@ public class AddCommentDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
-        final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION), TimeUnit.MILLISECONDS);
+        final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION),
+                                                                 TimeUnit.MILLISECONDS);
 
         final View dialogView = View.inflate(getActivity(), R.layout.comment_input, null);
         final TextView title = (TextView) dialogView.findViewById(R.id.custom_dialog_title);
@@ -110,8 +111,8 @@ public class AddCommentDialogFragment extends DialogFragment {
 
         final FragmentActivity activity = (FragmentActivity) getActivity();
         subscription = commentsOperations.addComment(trackUrn, commentText, position)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CommentAddedSubscriber(activity, trackUrn, eventBus));
+                                         .observeOn(AndroidSchedulers.mainThread())
+                                         .subscribe(new CommentAddedSubscriber(activity, trackUrn, eventBus));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(getEventContextMetadata(),
                                                                   EntityMetadata.from(track)));
@@ -153,7 +154,7 @@ public class AddCommentDialogFragment extends DialogFragment {
         private UndoBarStyle createViewCommentBarStyle() {
             return new UndoBarStyle(R.drawable.undobar_button, R.string.btn_view)
                     .setAnim(AnimationUtils.loadAnimation(activity, android.R.anim.fade_in),
-                            AnimationUtils.loadAnimation(activity, android.R.anim.fade_out));
+                             AnimationUtils.loadAnimation(activity, android.R.anim.fade_out));
         }
 
         @Override
@@ -174,7 +175,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                 @Override
                 public void onNext(PlayerUIEvent args) {
                     context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                            .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
+                                                  .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
                 }
             };
         }

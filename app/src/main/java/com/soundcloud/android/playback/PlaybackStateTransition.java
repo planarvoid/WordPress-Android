@@ -24,18 +24,36 @@ public class PlaybackStateTransition {
     // used to pass various additional meta data with the event, often for tracking/analytics
     private final SparseArray<String> extraAttributes = new SparseArray<>(2);
 
-    public static final PlaybackStateTransition DEFAULT = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.NOT_SET);
+    public static final PlaybackStateTransition DEFAULT = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                                      PlayStateReason.NONE,
+                                                                                      Urn.NOT_SET);
 
     public PlaybackStateTransition(PlaybackState newState, PlayStateReason reason, Urn itemUrn) {
         this(newState, reason, itemUrn, 0, 0);
     }
 
-    public PlaybackStateTransition(PlaybackState newState, PlayStateReason reason, Urn itemUrn, long currentProgress, long duration) {
+    public PlaybackStateTransition(PlaybackState newState,
+                                   PlayStateReason reason,
+                                   Urn itemUrn,
+                                   long currentProgress,
+                                   long duration) {
         this(newState, reason, itemUrn, currentProgress, duration, new CurrentDateProvider());
     }
 
-    public PlaybackStateTransition(PlaybackState newState, PlayStateReason reason, Urn itemUrn, long currentProgress, long duration, CurrentDateProvider dateProvider) {
-        this(newState, reason, itemUrn, currentProgress, duration, Skippy.SkippyMediaType.UNKNOWN.name(), 0, dateProvider);
+    public PlaybackStateTransition(PlaybackState newState,
+                                   PlayStateReason reason,
+                                   Urn itemUrn,
+                                   long currentProgress,
+                                   long duration,
+                                   CurrentDateProvider dateProvider) {
+        this(newState,
+             reason,
+             itemUrn,
+             currentProgress,
+             duration,
+             Skippy.SkippyMediaType.UNKNOWN.name(),
+             0,
+             dateProvider);
     }
 
     public PlaybackStateTransition(PlaybackState newState,

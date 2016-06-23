@@ -64,16 +64,18 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
                 return UserDetailsFragment.create(userUrn);
             case TAB_SOUNDS:
                 return isLoggedInUser
-                        ? UserSoundsFragment.createForCurrentUser(userUrn, Screen.USER_SOUNDS, searchQuerySourceInfo)
-                        : UserSoundsFragment.create(userUrn, Screen.USER_SOUNDS, searchQuerySourceInfo);
+                       ? UserSoundsFragment.createForCurrentUser(userUrn, Screen.USER_SOUNDS, searchQuerySourceInfo)
+                       : UserSoundsFragment.create(userUrn, Screen.USER_SOUNDS, searchQuerySourceInfo);
             case TAB_FOLLOWINGS:
                 return isLoggedInUser
-                        ? MyFollowingsFragment.create(Screen.YOUR_FOLLOWINGS, searchQuerySourceInfo)
-                        : UserFollowingsFragment.create(userUrn, Screen.USER_FOLLOWINGS, searchQuerySourceInfo);
+                       ? MyFollowingsFragment.create(Screen.YOUR_FOLLOWINGS, searchQuerySourceInfo)
+                       : UserFollowingsFragment.create(userUrn, Screen.USER_FOLLOWINGS, searchQuerySourceInfo);
             case TAB_FOLLOWERS:
                 return isLoggedInUser
-                        ? UserFollowersFragment.createForCurrentUser(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo)
-                        : UserFollowersFragment.create(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo);
+                       ?
+                       UserFollowersFragment.createForCurrentUser(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo)
+                       :
+                       UserFollowersFragment.create(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo);
             default:
                 throw new IllegalArgumentException("Unexpected position for " + position);
         }

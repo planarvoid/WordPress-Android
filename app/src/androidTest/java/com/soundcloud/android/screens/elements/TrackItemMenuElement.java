@@ -45,11 +45,13 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     private ViewElement likeItem() {
-        return getRootViewElement().findOnScreenElement(With.text(testDriver.getString(R.string.btn_like), testDriver.getString(R.string.btn_unlike)));
+        return getRootViewElement().findOnScreenElement(With.text(testDriver.getString(R.string.btn_like),
+                                                                  testDriver.getString(R.string.btn_unlike)));
     }
 
     private ViewElement repostItem() {
-        return getRootViewElement().findOnScreenElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)));
+        return getRootViewElement().findOnScreenElement(With.text(testDriver.getString(R.string.repost),
+                                                                  testDriver.getString(R.string.unpost)));
     }
 
     private void clickItemWithText(String text) {

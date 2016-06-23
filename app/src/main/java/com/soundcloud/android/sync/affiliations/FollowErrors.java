@@ -36,7 +36,9 @@ public class FollowErrors {
         return false;
     }
 
-    public @Nullable Integer getAge() {
+    public
+    @Nullable
+    Integer getAge() {
         for (FollowError error : errors) {
             if (error.age != null) {
                 return error.age;

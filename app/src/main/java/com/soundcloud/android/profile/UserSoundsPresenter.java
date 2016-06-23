@@ -44,8 +44,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         @Override
         public PropertySet apply(final UserSoundsItem userSoundsItem) {
             return userSoundsItem.getPlayableItem()
-                    .transform(PLAYABLE_ITEM_TO_PROPERTY_SET)
-                    .orNull();
+                                 .transform(PLAYABLE_ITEM_TO_PROPERTY_SET)
+                                 .orNull();
         }
     };
 
@@ -86,8 +86,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
                         EventBus eventBus,
                         Resources resources) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.user_profile_card_grid_span_count)
-                .useDividers(Options.DividerMode.NONE)
-                .build());
+                                           .useDividers(Options.DividerMode.NONE)
+                                           .build());
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
         this.operations = operations;
@@ -129,8 +129,8 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         super.onCreateCollectionView(fragment, view, savedInstanceState);
 
         viewLifeCycle = new CompositeSubscription(
-            eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
-            eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
     }
 
@@ -162,21 +162,27 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         final List<PropertySet> playables = filterPlayableItems(userSoundsItems);
         final int playablePosition = filterPlayableItems(userSoundsItems.subList(0, position)).size();
 
-        clickListener.onItemClick(Observable.just(playables), view, playablePosition, clickedItem, userUrn, searchQuerySourceInfo);
+        clickListener.onItemClick(Observable.just(playables),
+                                  view,
+                                  playablePosition,
+                                  clickedItem,
+                                  userUrn,
+                                  searchQuerySourceInfo);
     }
 
     private void displaySecondaryTextForOtherUser() {
         userSubscription.unsubscribe();
         userSubscription = operations.getLocalProfileUser(userUrn)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DefaultSubscriber<ProfileUser>() {
-                    @Override
-                    public void onNext(ProfileUser profileUser) {
-                        getEmptyView().setSecondaryText(
-                                resources.getString(R.string.empty_user_sounds_message_secondary, profileUser.getName())
-                        );
-                    }
-                });
+                                     .observeOn(AndroidSchedulers.mainThread())
+                                     .subscribe(new DefaultSubscriber<ProfileUser>() {
+                                         @Override
+                                         public void onNext(ProfileUser profileUser) {
+                                             getEmptyView().setSecondaryText(
+                                                     resources.getString(R.string.empty_user_sounds_message_secondary,
+                                                                         profileUser.getName())
+                                             );
+                                         }
+                                     });
     }
 
     private void configureEmptyView(final EmptyView emptyView, final Fragment fragment) {
@@ -195,7 +201,7 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
 
     private List<PropertySet> filterPlayableItems(final List<UserSoundsItem> userSoundsItems) {
         return transform(newArrayList(filter(userSoundsItems, FILTER_PLAYABLE_USER_SOUNDS_ITEMS)),
-                USER_SOUNDS_ITEM_TO_PROPERTY_SET);
+                         USER_SOUNDS_ITEM_TO_PROPERTY_SET);
     }
 
 }

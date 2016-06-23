@@ -6,6 +6,7 @@ import rx.Subscription;
 public interface ReactiveComponent<ObservableT extends Observable<?>> {
 
     ObservableT buildObservable();
+
     Subscription connectObservable(ObservableT observable);
 
 }

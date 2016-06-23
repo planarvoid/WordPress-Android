@@ -32,7 +32,15 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createTimeToPlayEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, MEDIA_TYPE, BIT_RATE, userUrn, false);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L,
+                                                                             PROTOCOL,
+                                                                             PLAYER_TYPE,
+                                                                             CONNECTION_TYPE,
+                                                                             CDN_HOST,
+                                                                             MEDIA_TYPE,
+                                                                             BIT_RATE,
+                                                                             userUrn,
+                                                                             false);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -45,7 +53,15 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createTimeToPlayEventForVideo() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, VIDEO_MEDIA_TYPE, BIT_RATE, userUrn, true);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L,
+                                                                             PROTOCOL,
+                                                                             PLAYER_TYPE,
+                                                                             CONNECTION_TYPE,
+                                                                             CDN_HOST,
+                                                                             VIDEO_MEDIA_TYPE,
+                                                                             BIT_RATE,
+                                                                             userUrn,
+                                                                             true);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -60,7 +76,14 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createTimeToPlaylistEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlaylist(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, MEDIA_TYPE, BIT_RATE, userUrn);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlaylist(1000L,
+                                                                                 PROTOCOL,
+                                                                                 PLAYER_TYPE,
+                                                                                 CONNECTION_TYPE,
+                                                                                 CDN_HOST,
+                                                                                 MEDIA_TYPE,
+                                                                                 BIT_RATE,
+                                                                                 userUrn);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -75,7 +98,14 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createTimeToBufferEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToBuffer(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, MEDIA_TYPE, BIT_RATE, userUrn);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToBuffer(1000L,
+                                                                               PROTOCOL,
+                                                                               PLAYER_TYPE,
+                                                                               CONNECTION_TYPE,
+                                                                               CDN_HOST,
+                                                                               MEDIA_TYPE,
+                                                                               BIT_RATE,
+                                                                               userUrn);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -90,7 +120,14 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createFragmentDownloadEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.fragmentDownloadRate(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, MEDIA_TYPE, BIT_RATE, userUrn);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.fragmentDownloadRate(1000L,
+                                                                                       PROTOCOL,
+                                                                                       PLAYER_TYPE,
+                                                                                       CONNECTION_TYPE,
+                                                                                       CDN_HOST,
+                                                                                       MEDIA_TYPE,
+                                                                                       BIT_RATE,
+                                                                                       userUrn);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -105,7 +142,14 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createTimeToSeekEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToSeek(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, MEDIA_TYPE, BIT_RATE, userUrn);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToSeek(1000L,
+                                                                             PROTOCOL,
+                                                                             PLAYER_TYPE,
+                                                                             CONNECTION_TYPE,
+                                                                             CDN_HOST,
+                                                                             MEDIA_TYPE,
+                                                                             BIT_RATE,
+                                                                             userUrn);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -120,7 +164,14 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createTimeToLoadEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToLoad(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, MEDIA_TYPE, BIT_RATE, userUrn);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToLoad(1000L,
+                                                                             PROTOCOL,
+                                                                             PLAYER_TYPE,
+                                                                             CONNECTION_TYPE,
+                                                                             CDN_HOST,
+                                                                             MEDIA_TYPE,
+                                                                             BIT_RATE,
+                                                                             userUrn);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -135,7 +186,14 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createUninterruptedPlaytimeEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, MEDIA_TYPE, BIT_RATE, false);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(1000L,
+                                                                                          PROTOCOL,
+                                                                                          PLAYER_TYPE,
+                                                                                          CONNECTION_TYPE,
+                                                                                          CDN_HOST,
+                                                                                          MEDIA_TYPE,
+                                                                                          BIT_RATE,
+                                                                                          false);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -149,7 +207,14 @@ public class PlaybackPerformanceEventTest {
 
     @Test
     public void createUninterruptedPlaytimeEventForVideo() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, VIDEO_MEDIA_TYPE, BIT_RATE, true);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(1000L,
+                                                                                          PROTOCOL,
+                                                                                          PLAYER_TYPE,
+                                                                                          CONNECTION_TYPE,
+                                                                                          CDN_HOST,
+                                                                                          VIDEO_MEDIA_TYPE,
+                                                                                          BIT_RATE,
+                                                                                          true);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);

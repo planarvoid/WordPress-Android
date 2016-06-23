@@ -228,7 +228,8 @@ public class PullToRefreshControllerTest extends AndroidUnitTest {
         }
 
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {}
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        }
 
         @Override
         public ConnectableObservable<List<String>> buildObservable() {

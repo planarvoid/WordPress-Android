@@ -52,7 +52,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playSessionController, playQueueManager, eventBus,
-                likeOperations, navigator, engagementsTracking);
+                                         likeOperations, navigator, engagementsTracking);
     }
 
     @Test
@@ -87,11 +87,11 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onToggleLike(true, TRACK_URN);
 
         EventContextMetadata contextMetadata = EventContextMetadata.builder()
-                .invokerScreen("player")
-                .contextScreen("context_screen")
-                .pageName("tracks:main")
-                .pageUrn(TRACK_URN)
-                .build();
+                                                                   .invokerScreen("player")
+                                                                   .contextScreen("context_screen")
+                                                                   .pageName("tracks:main")
+                                                                   .pageUrn(TRACK_URN)
+                                                                   .build();
 
         verify(engagementsTracking).likeTrackUrn(TRACK_URN, true, contextMetadata, null);
     }
@@ -106,11 +106,11 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onToggleLike(false, TRACK_URN);
 
         EventContextMetadata contextMetadata = EventContextMetadata.builder()
-                .invokerScreen("player")
-                .contextScreen("context_screen")
-                .pageName("tracks:main")
-                .pageUrn(TRACK_URN)
-                .build();
+                                                                   .invokerScreen("player")
+                                                                   .contextScreen("context_screen")
+                                                                   .pageName("tracks:main")
+                                                                   .pageUrn(TRACK_URN)
+                                                                   .build();
         verify(engagementsTracking).likeTrackUrn(TRACK_URN, false, contextMetadata, null);
     }
 

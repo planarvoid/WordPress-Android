@@ -24,7 +24,7 @@ public class ApiTrackLike implements ApiEntityHolder, TrackRecordHolder {
     }
 
     @Override
-    public TrackRecord getTrackRecord(){
+    public TrackRecord getTrackRecord() {
         return apiTrack;
     }
 

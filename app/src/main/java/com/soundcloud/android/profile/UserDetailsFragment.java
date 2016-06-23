@@ -47,6 +47,6 @@ public class UserDetailsFragment extends ScrollableProfileFragment {
     public View[] getRefreshableViews() {
         final View view = getView();
         return new View[]{view.findViewById(android.R.id.empty),
-                            view.findViewById(R.id.user_details_holder)};
+                view.findViewById(R.id.user_details_holder)};
     }
 }

@@ -71,7 +71,7 @@ public class SyncAdapterService extends Service {
         if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
             syncAdapter = newSyncAdapterProvider.get();
         } else {
-            syncAdapter= createLegacySyncAdapter();
+            syncAdapter = createLegacySyncAdapter();
         }
     }
 
@@ -83,7 +83,11 @@ public class SyncAdapterService extends Service {
              * Called by the framework to indicate a sync request.
              */
             @Override
-            public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+            public void onPerformSync(Account account,
+                                      Bundle extras,
+                                      String authority,
+                                      ContentProviderClient provider,
+                                      SyncResult syncResult) {
                 PublicApi.setBackgroundMode(true);
 
                 // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
@@ -91,16 +95,23 @@ public class SyncAdapterService extends Service {
                 looper = Looper.myLooper();
 
                 if (performSync((SoundCloudApplication) getApplication(),
-                        extras, syncResult, accountOperations.getSoundCloudToken(),
-                        userAssociationStorage,
-                        new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "sync finished");
-                        sendBroadcast(new Intent(SYNC_FINISHED));
-                        looper.quit();
-                    }
-                }, syncStateManager, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage, syncConfig)) {
+                                extras,
+                                syncResult,
+                                accountOperations.getSoundCloudToken(),
+                                userAssociationStorage,
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.d(TAG, "sync finished");
+                                        sendBroadcast(new Intent(SYNC_FINISHED));
+                                        looper.quit();
+                                    }
+                                },
+                                syncStateManager,
+                                syncServiceResultReceiverFactory,
+                                myLikesStateProvider,
+                                playlistStorage,
+                                syncConfig)) {
                     Looper.loop(); // wait for results to come in
                 }
                 PublicApi.setBackgroundMode(false);
@@ -158,18 +169,20 @@ public class SyncAdapterService extends Service {
         setContentStatsIfNeverSeen(app, Content.ME_ACTIVITIES);
 
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userAssociationStorage,
-                playlistStorage, myLikesStateProvider, syncConfig);
+                                                playlistStorage, myLikesStateProvider, syncConfig);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
-            final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(syncResult, new SyncServiceResultReceiver.OnResultListener() {
-                @Override
-                public void onResultReceived() {
-                    // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
-                    if (onResult != null) {
-                        onResult.run();
-                    }
-                }
-            });
+            final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(
+                    syncResult,
+                    new SyncServiceResultReceiver.OnResultListener() {
+                        @Override
+                        public void onResultReceived() {
+                            // make sure the looper quits in any case - otherwise sync just hangs, holding wakelock
+                            if (onResult != null) {
+                                onResult.run();
+                            }
+                        }
+                    });
             syncIntent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, syncServiceResultReceiver);
             app.startService(syncIntent);
             return true;
@@ -204,7 +217,8 @@ public class SyncAdapterService extends Service {
         final ArrayList<Uri> urisToSync = new ArrayList<>();
 
         if (manual || syncConfig.shouldSyncCollections()) {
-            final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(LegacySyncContent.NON_ACTIVITIES, manual);
+            final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(LegacySyncContent.NON_ACTIVITIES,
+                                                                                   manual);
             Log.d(TAG, "collection due for sync:" + dueForSync);
             urisToSync.addAll(dueForSync);
         } else {

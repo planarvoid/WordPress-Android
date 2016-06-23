@@ -10,7 +10,8 @@ public class ApiStreamPlaylistPost {
     private final ApiPlaylist apiPlaylist;
     private final long createdAtTime;
 
-    public ApiStreamPlaylistPost(@JsonProperty("playlist") ApiPlaylist apiPlaylist, @JsonProperty("created_at") Date createdAt) {
+    public ApiStreamPlaylistPost(@JsonProperty("playlist") ApiPlaylist apiPlaylist,
+                                 @JsonProperty("created_at") Date createdAt) {
         this.apiPlaylist = apiPlaylist;
         this.createdAtTime = createdAt.getTime();
     }

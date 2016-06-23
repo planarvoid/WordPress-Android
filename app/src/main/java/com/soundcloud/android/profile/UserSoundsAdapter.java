@@ -14,7 +14,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserSoundsAdapter.ViewHolder> implements PlayingTrackAware {
+public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserSoundsAdapter.ViewHolder>
+        implements PlayingTrackAware {
     static final int TYPE_DIVIDER = 0;
     static final int TYPE_HEADER = 1;
     static final int TYPE_VIEW_ALL = 2;
@@ -55,13 +56,13 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
                       UserSoundsPlaylistItemRenderer playlistItemRenderer,
                       EndOfListDividerRenderer endOfListDividerRenderer) {
         super(new CellRendererBinding<>(TYPE_DIVIDER, dividerRenderer),
-                new CellRendererBinding<>(TYPE_HEADER, headerRenderer),
-                new CellRendererBinding<>(TYPE_VIEW_ALL, viewAllRenderer),
-                new CellRendererBinding<>(TYPE_TRACK_CARD, trackCardRenderer),
-                new CellRendererBinding<>(TYPE_TRACK_ITEM, trackItemRenderer),
-                new CellRendererBinding<>(TYPE_PLAYLIST_CARD, playlistCardRenderer),
-                new CellRendererBinding<>(TYPE_PLAYLIST_ITEM, playlistItemRenderer),
-                new CellRendererBinding<>(TYPE_END_OF_LIST_DIVIDER, endOfListDividerRenderer));
+              new CellRendererBinding<>(TYPE_HEADER, headerRenderer),
+              new CellRendererBinding<>(TYPE_VIEW_ALL, viewAllRenderer),
+              new CellRendererBinding<>(TYPE_TRACK_CARD, trackCardRenderer),
+              new CellRendererBinding<>(TYPE_TRACK_ITEM, trackItemRenderer),
+              new CellRendererBinding<>(TYPE_PLAYLIST_CARD, playlistCardRenderer),
+              new CellRendererBinding<>(TYPE_PLAYLIST_ITEM, playlistItemRenderer),
+              new CellRendererBinding<>(TYPE_END_OF_LIST_DIVIDER, endOfListDividerRenderer));
     }
 
     @Override
@@ -99,7 +100,8 @@ public class UserSoundsAdapter extends RecyclerItemAdapter<UserSoundsItem, UserS
         super.onBindViewHolder(holder, position);
 
         final UserSoundsItem item = getItem(position);
-        final StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
+        final StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams) holder.itemView
+                .getLayoutParams();
         layoutParams.setFullSpan(spansFullWidth(item));
     }
 

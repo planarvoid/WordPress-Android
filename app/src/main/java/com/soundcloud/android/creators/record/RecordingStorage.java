@@ -101,7 +101,10 @@ public class RecordingStorage {
         return unsavedRecordings;
     }
 
-    public Observable<Recording> upload(final File uploadDir, final Uri stream, final String type, final ContentResolver resolver) {
+    public Observable<Recording> upload(final File uploadDir,
+                                        final Uri stream,
+                                        final String type,
+                                        final ContentResolver resolver) {
         return Observable.create(new Observable.OnSubscribe<Recording>() {
             @Override
             public void call(Subscriber<? super Recording> subscriber) {
@@ -132,7 +135,10 @@ public class RecordingStorage {
     }
 
     @NotNull
-    private File copyStreamToFile(File uploadDir, Uri stream, String type, ContentResolver resolver) throws IOException {
+    private File copyStreamToFile(File uploadDir,
+                                  Uri stream,
+                                  String type,
+                                  ContentResolver resolver) throws IOException {
         File file;
         InputStream input = resolver.openInputStream(stream);
         String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(type);

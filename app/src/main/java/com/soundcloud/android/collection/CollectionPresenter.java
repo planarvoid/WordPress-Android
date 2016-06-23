@@ -86,9 +86,10 @@ public class CollectionPresenter extends BaseCollectionPresenter
         List<TrackItem> playHistoryTrackItems = myCollection.getPlayHistoryTrackItems();
         List<PlaylistItem> playlistItems = myCollection.getPlaylistItems();
         List<CollectionItem> collectionItems = new ArrayList<>(playlistItems.size() +
-                playHistoryTrackItems.size() + NON_PLAYLIST_OR_TRACK_COLLECTION_ITEMS);
+                                                                       playHistoryTrackItems.size() + NON_PLAYLIST_OR_TRACK_COLLECTION_ITEMS);
 
-        collectionItems.add(PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()));
+        collectionItems.add(PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(),
+                                                                      myCollection.getRecentStations()));
         collectionItems.addAll(playlistCollectionItems(playlistItems));
 
         return collectionItems;

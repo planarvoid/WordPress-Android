@@ -21,19 +21,19 @@ public class ApiSyncService extends Service {
     public static final String EXTRA_SYNCABLE = "com.soundcloud.android.sync.extra.SYNCABLE";
     public static final String EXTRA_SYNCABLES = "com.soundcloud.android.sync.extra.SYNCABLES";
 
-    public static final String ACTION_APPEND        = "com.soundcloud.android.sync.action.APPEND";
-    public static final String ACTION_PUSH          = "com.soundcloud.android.sync.action.PUSH";
-    public static final String ACTION_HARD_REFRESH  = "com.soundcloud.android.sync.action.HARD_REFRESH";
+    public static final String ACTION_APPEND = "com.soundcloud.android.sync.action.APPEND";
+    public static final String ACTION_PUSH = "com.soundcloud.android.sync.action.PUSH";
+    public static final String ACTION_HARD_REFRESH = "com.soundcloud.android.sync.action.HARD_REFRESH";
 
-    public static final String EXTRA_SYNC_URIS       = "com.soundcloud.android.sync.extra.SYNC_URIS";
+    public static final String EXTRA_SYNC_URIS = "com.soundcloud.android.sync.extra.SYNC_URIS";
     public static final String EXTRA_STATUS_RECEIVER = "com.soundcloud.android.sync.extra.STATUS_RECEIVER";
-    public static final String EXTRA_SYNC_RESULT     = "com.soundcloud.android.sync.extra.SYNC_RESULT";
-    public static final String EXTRA_IS_UI_REQUEST   = "com.soundcloud.android.sync.extra.IS_UI_REQUEST";
+    public static final String EXTRA_SYNC_RESULT = "com.soundcloud.android.sync.extra.SYNC_RESULT";
+    public static final String EXTRA_IS_UI_REQUEST = "com.soundcloud.android.sync.extra.IS_UI_REQUEST";
 
-    public static final int STATUS_SYNC_ERROR      = 0x2;
-    public static final int STATUS_SYNC_FINISHED   = 0x3;
+    public static final int STATUS_SYNC_ERROR = 0x2;
+    public static final int STATUS_SYNC_FINISHED = 0x3;
 
-    public static final int STATUS_APPEND_ERROR    = 0x4;
+    public static final int STATUS_APPEND_ERROR = 0x4;
     public static final int STATUS_APPEND_FINISHED = 0x5;
 
     public static final int MAX_TASK_LIMIT = 3;
@@ -43,7 +43,8 @@ public class ApiSyncService extends Service {
 
     private int activeTaskCount;
 
-    @SuppressWarnings({"PMD.LooseCoupling"}) // for some reason PMD thinks I should use an interface here, which doesnt seem to work
+    @SuppressWarnings({"PMD.LooseCoupling"})
+    // for some reason PMD thinks I should use an interface here, which doesnt seem to work
     /* package */ final LinkedList<SyncJob> pendingJobs = new LinkedList<>();
     /* package */ final List<SyncRequest> syncRequests = new ArrayList<>();
     /* package */ final List<SyncJob> runningJobs = new ArrayList<>();
@@ -60,8 +61,8 @@ public class ApiSyncService extends Service {
 
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        Log.d(LOG_TAG, "startListening("+intent+")");
-        if (intent != null){
+        Log.d(LOG_TAG, "startListening(" + intent + ")");
+        if (intent != null) {
             enqueueRequest(syncIntentSyncRequestFactory.create(intent));
         }
         flushSyncRequests();
@@ -112,7 +113,7 @@ public class ApiSyncService extends Service {
         pendingJobs.addFirst(existing);
     }
 
-    /* package */ void onSyncJobCompleted(SyncJob syncJob){
+    /* package */ void onSyncJobCompleted(SyncJob syncJob) {
 
         final Optional<Syncable> syncable = syncJob.getSyncable();
         if (syncable.isPresent() && syncJob.wasSuccess()) {
@@ -121,10 +122,10 @@ public class ApiSyncService extends Service {
 
         for (SyncRequest syncRequest : new ArrayList<>(syncRequests)) {
 
-            if (syncRequest.isWaitingForJob(syncJob)){
+            if (syncRequest.isWaitingForJob(syncJob)) {
                 syncRequest.processJobResult(syncJob);
 
-                if (syncRequest.isSatisfied()){
+                if (syncRequest.isSatisfied()) {
                     syncRequest.finish();
                     syncRequests.remove(syncRequest);
                 }

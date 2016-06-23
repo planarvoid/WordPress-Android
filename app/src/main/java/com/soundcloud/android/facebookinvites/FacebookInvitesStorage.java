@@ -96,8 +96,8 @@ public class FacebookInvitesStorage {
 
     private void setCounter(String key, int count) {
         sharedPreferences.edit()
-                .putInt(key, count)
-                .apply();
+                         .putInt(key, count)
+                         .apply();
     }
 
     private long getTimestamp(String key) {
@@ -110,8 +110,8 @@ public class FacebookInvitesStorage {
 
     private void setTimestamp(String key, long ts) {
         sharedPreferences.edit()
-                .putLong(key, ts)
-                .apply();
+                         .putLong(key, ts)
+                         .apply();
     }
 
     private void setCurrentTimestamp(String key) {

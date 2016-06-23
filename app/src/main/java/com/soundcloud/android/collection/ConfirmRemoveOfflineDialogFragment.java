@@ -35,7 +35,9 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     @Inject EventBus eventBus;
     @Inject ScreenProvider screenProvider;
 
-    public static void showForPlaylist(FragmentManager fragmentManager, Urn playlist, PromotedSourceInfo promotedSourceInfo) {
+    public static void showForPlaylist(FragmentManager fragmentManager,
+                                       Urn playlist,
+                                       PromotedSourceInfo promotedSourceInfo) {
         ConfirmRemoveOfflineDialogFragment fragment = new ConfirmRemoveOfflineDialogFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable(PLAYLIST_URN, playlist);
@@ -76,7 +78,8 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
         offlineContentOperations.disableOfflineCollection();
         Optional<Urn> playlist = isForPlaylist() ? Optional.of(playlistUrn()) : Optional.<Urn>absent();
         eventBus.publish(EventQueue.TRACKING,
-                OfflineInteractionEvent.fromDisableCollectionSync(screenProvider.getLastScreenTag(), playlist));
+                         OfflineInteractionEvent.fromDisableCollectionSync(screenProvider.getLastScreenTag(),
+                                                                           playlist));
     }
 
     private void proceedWithRemoval() {
@@ -90,13 +93,15 @@ public class ConfirmRemoveOfflineDialogFragment extends DialogFragment {
     private void removeOfflineLikes() {
         fireAndForget(offlineContentOperations.disableOfflineLikedTracks());
         eventBus.publish(EventQueue.TRACKING,
-                OfflineInteractionEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
+                         OfflineInteractionEvent.fromRemoveOfflineLikes(screenProvider.getLastScreenTag()));
     }
 
     private void removeOfflinePlaylist(Urn urn) {
         fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(urn));
         eventBus.publish(EventQueue.TRACKING,
-                OfflineInteractionEvent.fromRemoveOfflinePlaylist(screenProvider.getLastScreenTag(), urn, promotedSourceInfo()));
+                         OfflineInteractionEvent.fromRemoveOfflinePlaylist(screenProvider.getLastScreenTag(),
+                                                                           urn,
+                                                                           promotedSourceInfo()));
     }
 
     private boolean isForPlaylist() {

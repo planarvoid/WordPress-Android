@@ -12,7 +12,8 @@ import javax.inject.Inject;
  * Receives and processes the results from a sync run initiated in {@link SyncAdapterService}, creating
  * notifications if necessary.
  */
-@SuppressLint("ParcelCreator") // we need to review this; not an easy fix
+@SuppressLint("ParcelCreator")
+        // we need to review this; not an easy fix
 class SyncServiceResultReceiver extends ResultReceiver {
     private final SyncStateManager syncStateManager;
     private final SyncResult result;

@@ -84,7 +84,8 @@ public class UserProfileOperationsLegacyPlaylistsTest {
     @Test
     public void userPlaylistsMergesInPlaylistLikeInfo() {
         when(profileApi.userLegacyPlaylists(USER_URN)).thenReturn(Observable.just(page));
-        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist2));
+        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(
+                apiPlaylist2));
 
         operations.legacyPagedPlaylists(USER_URN).subscribe(observer);
 
@@ -103,7 +104,8 @@ public class UserProfileOperationsLegacyPlaylistsTest {
 
     @Test
     public void userPlaylistsPagerReturnsNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userLegacyPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.legacyPlaylistsPagingFunction().call(page1).subscribe(observer);
@@ -113,9 +115,11 @@ public class UserProfileOperationsLegacyPlaylistsTest {
 
     @Test
     public void userPlaylistsPagerMergesInPlaylistLikeInfo() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userLegacyPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
-        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist2));
+        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(
+                apiPlaylist2));
 
         operations.legacyPlaylistsPagingFunction().call(page1).subscribe(observer);
 
@@ -124,7 +128,8 @@ public class UserProfileOperationsLegacyPlaylistsTest {
 
     @Test
     public void userPlaylistsPagerStoresNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userLegacyPlaylists(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.legacyPlaylistsPagingFunction().call(page1).subscribe(observer);

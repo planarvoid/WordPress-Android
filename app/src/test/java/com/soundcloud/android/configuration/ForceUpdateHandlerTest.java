@@ -83,13 +83,13 @@ public class ForceUpdateHandlerTest {
 
     private Configuration normalConfiguration() {
         return Configuration.builder()
-                .selfDestruct(false)
-                .build();
+                            .selfDestruct(false)
+                            .build();
     }
 
     private Configuration forceUpdateConfiguration() {
         return Configuration.builder()
-                .selfDestruct(true)
-                .build();
+                            .selfDestruct(true)
+                            .build();
     }
 }

@@ -34,8 +34,13 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
     private static final String TEST_SCENARIO_ALBUMS_LIST = "audio-events-v1-you-profile-albums-list";
 
     // Have to do this because Java can't do import aliasing ;_;
-    private static Matcher<Screen> isScreenVisible() { return is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()); }
-    private static Matcher<Element> isElementVisible() { return is(com.soundcloud.android.framework.matcher.element.IsVisible.visible()); }
+    private static Matcher<Screen> isScreenVisible() {
+        return is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible());
+    }
+
+    private static Matcher<Element> isElementVisible() {
+        return is(com.soundcloud.android.framework.matcher.element.IsVisible.visible());
+    }
 
     private ProfileScreen profileScreen;
 
@@ -69,7 +74,8 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
     public void testOpenPlaylistFromPlaylistsBucket() {
         startScenario(TEST_SCENARIO_PLAYLISTS_BUCKET);
 
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToBucketAndClickFirstPlaylist(ProfileScreen.Bucket.PLAYLISTS);
+        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToBucketAndClickFirstPlaylist(
+                ProfileScreen.Bucket.PLAYLISTS);
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
@@ -80,7 +86,8 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
     public void testOpenPlaylistFromAlbumsBucket() {
         startScenario(TEST_SCENARIO_ALBUMS_BUCKET);
 
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToBucketAndClickFirstPlaylist(ProfileScreen.Bucket.ALBUMS);
+        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToBucketAndClickFirstPlaylist(
+                ProfileScreen.Bucket.ALBUMS);
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
@@ -113,7 +120,7 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
         startScenario(TEST_SCENARIO_TRACKS_LIST);
 
         final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllTracks()
-                .clickFirstTrack();
+                                                               .clickFirstTrack();
 
         assertPlayAndPause(playerElement);
 
@@ -124,7 +131,7 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
         startScenario(TEST_SCENARIO_PLAYLISTS_LIST);
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToAndClickViewAllPlaylists()
-                .clickFirstPlaylist();
+                                                                         .clickFirstPlaylist();
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
@@ -136,7 +143,7 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
         startScenario(TEST_SCENARIO_ALBUMS_LIST);
 
         final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToAndClickViewAllAlbums()
-                .clickFirstPlaylist();
+                                                                         .clickFirstPlaylist();
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
@@ -147,7 +154,7 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
         startScenario(TEST_SCENARIO_REPOSTS_LIST);
 
         final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllReposts()
-                .clickFirstTrack();
+                                                               .clickFirstTrack();
 
         assertPlayAndPause(playerElement);
 
@@ -158,7 +165,7 @@ public class ProfileEventGatewayAudioTest extends TrackingActivityTest<MainActiv
         startScenario(TEST_SCENARIO_LIKES_LIST);
 
         final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllLikes()
-                .clickFirstTrack();
+                                                               .clickFirstTrack();
 
         assertPlayAndPause(playerElement);
 

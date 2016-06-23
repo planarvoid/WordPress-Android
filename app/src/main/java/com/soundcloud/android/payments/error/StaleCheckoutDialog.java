@@ -30,7 +30,7 @@ public class StaleCheckoutDialog extends UnrecoverableErrorDialog {
         final Activity activity = getActivity();
         if (activity != null) {
             activity.startActivity(new Intent(Intent.ACTION_VIEW)
-                    .setData(Uri.parse(getString(R.string.url_contact_support))));
+                                           .setData(Uri.parse(getString(R.string.url_contact_support))));
         }
     }
 
@@ -43,8 +43,8 @@ public class StaleCheckoutDialog extends UnrecoverableErrorDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = new CustomFontViewBuilder(getActivity())
                 .setContent(R.drawable.dialog_payment_error,
-                        R.string.payments_error_title_stale,
-                        R.string.payments_error_stale).get();
+                            R.string.payments_error_title_stale,
+                            R.string.payments_error_stale).get();
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)

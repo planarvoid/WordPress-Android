@@ -39,12 +39,12 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
         final Where stalePolicyCondition = stalePolicyCondition();
         if (isOfflineLikesEnabled()) {
             set.addAll(database.query(buildOfflineLikedTracksQuery()
-                    .where(stalePolicyCondition)).toList(new TrackUrnMapper()));
+                                              .where(stalePolicyCondition)).toList(new TrackUrnMapper()));
 
         }
         set.addAll(database.query(buildOfflinePlaylistTracksQuery()
-                .where(stalePolicyCondition))
-                .toList(new TrackUrnMapper()));
+                                          .where(stalePolicyCondition))
+                           .toList(new TrackUrnMapper()));
 
         return set;
     }
@@ -68,12 +68,12 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
 
         final String likeId = Likes.field(TableColumns.Likes._ID);
         return Query.from(Likes.name())
-                .select(
-                        field(likeId).as(BaseColumns._ID))
-                .innerJoin(Sounds.name(), whereTrackDataExists)
-                .leftJoin(TrackPolicies.name(), likeId, TableColumns.TrackPolicies.TRACK_ID)
-                .whereEq(Likes.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT));
+                    .select(
+                            field(likeId).as(BaseColumns._ID))
+                    .innerJoin(Sounds.name(), whereTrackDataExists)
+                    .leftJoin(TrackPolicies.name(), likeId, TableColumns.TrackPolicies.TRACK_ID)
+                    .whereEq(Likes.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                    .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     static Query buildOfflinePlaylistTracksQuery() {
@@ -83,9 +83,11 @@ class LoadTracksWithStalePoliciesCommand extends Command<Void, Collection<Urn>> 
 
         final String trackIdFromPlaylistTracks = PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID);
         return Query.from(PlaylistTracks.name())
-                .select(
-                        field(trackIdFromPlaylistTracks).as(BaseColumns._ID))
-                .innerJoin(OfflineContent.TABLE.name(), filterOfflinePlaylist)
-                .leftJoin(TrackPolicies.name(), trackIdFromPlaylistTracks, TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID));
+                    .select(
+                            field(trackIdFromPlaylistTracks).as(BaseColumns._ID))
+                    .innerJoin(OfflineContent.TABLE.name(), filterOfflinePlaylist)
+                    .leftJoin(TrackPolicies.name(),
+                              trackIdFromPlaylistTracks,
+                              TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID));
     }
 }

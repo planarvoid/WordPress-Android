@@ -60,7 +60,8 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         public SearchResult call(SearchResult searchResult) {
             if (featureOperations.upsellHighTier()) {
                 searchTracker.trackPremiumResultsUpsellImpression();
-                final PropertySet upsellItem = PropertySet.create().put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN);
+                final PropertySet upsellItem = PropertySet.create()
+                                                          .put(EntityProperty.URN, SearchUpsellItem.UPSELL_URN);
                 searchResult.addItem(0, upsellItem);
             }
             return searchResult;
@@ -132,7 +133,7 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
         searchTracker.trackSearchPremiumItemClick(urn, searchQuerySourceInfo);
         clickListenerFactory.create(searchTracker.getPremiumTrackingScreen(),
-                searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);
+                                    searchQuerySourceInfo).onItemClick(adapter.getItems(), view, position);
     }
 
     @Override
@@ -140,9 +141,12 @@ class SearchPremiumResultsPresenter extends RecyclerViewPresenter<SearchResult, 
         searchQuery = bundle.getString(EXTRA_SEARCH_QUERY);
         searchType = Optional.fromNullable((SearchType) bundle.getSerializable(EXTRA_SEARCH_TYPE)).or(SearchType.ALL);
         final List<PropertySet> premiumContentList = bundle.getParcelableArrayList(EXTRA_PREMIUM_CONTENT_RESULTS);
-        final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(EXTRA_PREMIUM_CONTENT_NEXT_HREF));
+        final Optional<Link> nextHref = Optional.fromNullable((Link) bundle.getParcelable(
+                EXTRA_PREMIUM_CONTENT_NEXT_HREF));
         final Urn queryUrn = bundle.getParcelable(EXTRA_SEARCH_QUERY_URN);
-        return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList, nextHref, queryUrn));
+        return createCollectionBinding(searchOperations.searchPremiumResultFrom(premiumContentList,
+                                                                                nextHref,
+                                                                                queryUrn));
     }
 
     @Override

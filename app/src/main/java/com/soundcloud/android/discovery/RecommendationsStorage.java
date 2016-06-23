@@ -43,14 +43,14 @@ class RecommendationsStorage {
                 .whereEq(RecommendationSeeds.SEED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
 
         return Query.from(RecommendationSeeds.TABLE)
-                           .select(RecommendationSeeds._ID,
-                                   RecommendationSeeds.SEED_SOUND_ID,
-                                   RecommendationSeeds.RECOMMENDATION_REASON,
-                                   field(SoundView.field(TableColumns.SoundView.TITLE)).as(RecommendationSeedMapper.SEED_TITLE),
-                                   RecommendationSeeds.QUERY_POSITION,
-                                   RecommendationSeeds.QUERY_URN)
-                           .order(RecommendationSeeds._ID, Query.Order.ASC)
-                           .innerJoin(SoundView.name(), soundsViewJoin);
+                    .select(RecommendationSeeds._ID,
+                            RecommendationSeeds.SEED_SOUND_ID,
+                            RecommendationSeeds.RECOMMENDATION_REASON,
+                            field(SoundView.field(TableColumns.SoundView.TITLE)).as(RecommendationSeedMapper.SEED_TITLE),
+                            RecommendationSeeds.QUERY_POSITION,
+                            RecommendationSeeds.QUERY_URN)
+                    .order(RecommendationSeeds._ID, Query.Order.ASC)
+                    .innerJoin(SoundView.name(), soundsViewJoin);
     }
 
     Observable<List<PropertySet>> recommendedTracksForSeed(long localSeedId) {
@@ -62,20 +62,20 @@ class RecommendationsStorage {
                 .whereEq(Recommendations.RECOMMENDED_SOUND_ID, SoundView.field(TableColumns.SoundView._ID));
 
         final Query query = Query.from(Recommendations.TABLE)
-                .select(Recommendations.SEED_ID,
-                        Recommendations.RECOMMENDED_SOUND_ID,
-                        TableColumns.SoundView.TITLE,
-                        TableColumns.SoundView.USER_ID,
-                        TableColumns.SoundView.USERNAME,
-                        TableColumns.SoundView.SNIPPET_DURATION,
-                        TableColumns.SoundView.FULL_DURATION,
-                        TableColumns.SoundView.PLAYBACK_COUNT,
-                        TableColumns.SoundView.LIKES_COUNT,
-                        TableColumns.SoundView.CREATED_AT)
+                                 .select(Recommendations.SEED_ID,
+                                         Recommendations.RECOMMENDED_SOUND_ID,
+                                         TableColumns.SoundView.TITLE,
+                                         TableColumns.SoundView.USER_ID,
+                                         TableColumns.SoundView.USERNAME,
+                                         TableColumns.SoundView.SNIPPET_DURATION,
+                                         TableColumns.SoundView.FULL_DURATION,
+                                         TableColumns.SoundView.PLAYBACK_COUNT,
+                                         TableColumns.SoundView.LIKES_COUNT,
+                                         TableColumns.SoundView.CREATED_AT)
 
-                .innerJoin(RecommendationSeeds.TABLE, recommendationsJoin)
-                .innerJoin(SoundView.name(), soundsViewJoin)
-                .whereEq(Recommendations.SEED_ID, localSeedId);
+                                 .innerJoin(RecommendationSeeds.TABLE, recommendationsJoin)
+                                 .innerJoin(SoundView.name(), soundsViewJoin)
+                                 .whereEq(Recommendations.SEED_ID, localSeedId);
 
         return propellerRx.query(query).map(new RecommendedTrackMapper()).toList();
     }

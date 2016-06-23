@@ -33,8 +33,8 @@ class WaveformStorage {
 
     public boolean hasWaveform(Urn trackUrn) {
         final Query query = Query.apply(exists(Query.from(Table.Waveforms.name())
-                .whereEq(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId()))
-                .as(HAS_WAVEFORM));
+                                                    .whereEq(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId()))
+                                                .as(HAS_WAVEFORM));
 
         return propeller.query(query).first(Boolean.class);
     }
@@ -45,11 +45,11 @@ class WaveformStorage {
 
     private ContentValues buildContentValues(Urn trackUrn, WaveformData data) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId())
-                .put(TableColumns.Waveforms.MAX_AMPLITUDE, data.maxAmplitude)
-                .put(TableColumns.Waveforms.SAMPLES, serializer.serialize(data.samples))
-                .put(TableColumns.Waveforms.CREATED_AT, dateProvider.getCurrentTime())
-                .get();
+                                   .put(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId())
+                                   .put(TableColumns.Waveforms.MAX_AMPLITUDE, data.maxAmplitude)
+                                   .put(TableColumns.Waveforms.SAMPLES, serializer.serialize(data.samples))
+                                   .put(TableColumns.Waveforms.CREATED_AT, dateProvider.getCurrentTime())
+                                   .get();
     }
 
 }

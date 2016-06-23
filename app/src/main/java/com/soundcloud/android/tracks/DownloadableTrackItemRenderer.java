@@ -27,8 +27,8 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
                                          Navigator navigator,
                                          TrackItemView.Factory trackItemViewFactory) {
         super(imageOperations, numberFormatter, trackItemMenuPresenter,
-                eventBus, screenProvider, navigator,
-                featureOperations, trackItemViewFactory);
+              eventBus, screenProvider, navigator,
+              featureOperations, trackItemViewFactory);
     }
 
     @Override

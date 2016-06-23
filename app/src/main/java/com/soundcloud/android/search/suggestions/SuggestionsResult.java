@@ -56,9 +56,13 @@ class SuggestionsResult implements Iterable<PropertySet> {
         return (items != null) ? items.size() : 0;
     }
 
-    private static IllegalStateException getMissingItemException(List<? extends PropertySetSource> items, int emptyItems) {
+    private static IllegalStateException getMissingItemException(List<? extends PropertySetSource> items,
+                                                                 int emptyItems) {
         return new IllegalStateException(
-                String.format(Locale.getDefault(), "%d/%d empty items in suggestions result", emptyItems, items.size()));
+                String.format(Locale.getDefault(),
+                              "%d/%d empty items in suggestions result",
+                              emptyItems,
+                              items.size()));
     }
 
     @Override

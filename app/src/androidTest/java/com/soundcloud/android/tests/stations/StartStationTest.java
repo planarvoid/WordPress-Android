@@ -32,7 +32,7 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
         super.setUp();
 
         playlistDetailsScreen = mainNavHelper.goToCollections()
-                .scrollToAndClickPlaylistWithTitle("track-stations");
+                                             .scrollToAndClickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
     }
@@ -88,7 +88,8 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
 
         // If you play the same station, it should simply expand the player without changing tracks
         player.pressBackToCollapse();
-        final String resumeCurrentlyPlayingStationTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
+        final String resumeCurrentlyPlayingStationTitle = playlistDetailsScreen.startStationFromFirstTrack()
+                                                                               .getTrackTitle();
         assertThat(resumedTrackTitle, is(equalTo(resumeCurrentlyPlayingStationTitle)));
     }
 }

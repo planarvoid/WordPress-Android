@@ -59,7 +59,7 @@ public class MyProfileOperations {
         @Override
         public Observable<List<PropertySet>> call(Boolean ignored) {
             return postsStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)
-                    .subscribeOn(scheduler);
+                               .subscribeOn(scheduler);
         }
     };
 
@@ -74,7 +74,7 @@ public class MyProfileOperations {
         @Override
         public Observable<List<PropertySet>> call(Boolean ignored) {
             return likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)
-                    .subscribeOn(scheduler);
+                               .subscribeOn(scheduler);
         }
     };
 
@@ -131,7 +131,7 @@ public class MyProfileOperations {
 
     Observable<List<PropertySet>> updatedFollowings() {
         return syncInitiator.refreshFollowings()
-                .flatMap(loadInitialFollowings);
+                            .flatMap(loadInitialFollowings);
     }
 
     private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {
@@ -141,22 +141,24 @@ public class MyProfileOperations {
     }
 
     @NonNull
-    private Func1<List<Urn>, Observable<List<PropertySet>>> syncAndReloadFollowings(final int pageSize, final long fromPosition) {
+    private Func1<List<Urn>, Observable<List<PropertySet>>> syncAndReloadFollowings(final int pageSize,
+                                                                                    final long fromPosition) {
         return new Func1<List<Urn>, Observable<List<PropertySet>>>() {
             @Override
             public Observable<List<PropertySet>> call(List<Urn> urns) {
-                if (urns.isEmpty()){
+                if (urns.isEmpty()) {
                     return Observable.just(Collections.<PropertySet>emptyList());
                 } else {
                     return syncInitiator.syncUsers(urns)
-                            .flatMap(loadFollowings(pageSize, fromPosition));
+                                        .flatMap(loadFollowings(pageSize, fromPosition));
                 }
             }
         };
     }
 
     @NonNull
-    private Func1<SyncJobResult, Observable<List<PropertySet>>> loadFollowings(final int pageSize, final long fromPosition) {
+    private Func1<SyncJobResult, Observable<List<PropertySet>>> loadFollowings(final int pageSize,
+                                                                               final long fromPosition) {
         return new Func1<SyncJobResult, Observable<List<PropertySet>>>() {
             @Override
             public Observable<List<PropertySet>> call(SyncJobResult syncJobResult) {
@@ -184,14 +186,14 @@ public class MyProfileOperations {
 
     private Observable<List<PropertySet>> likedItems(long beforeTime) {
         return likesStorage.loadLikes(PAGE_SIZE, beforeTime)
-                .subscribeOn(scheduler)
-                .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                .switchIfEmpty(updatedLikes());
+                           .subscribeOn(scheduler)
+                           .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                           .switchIfEmpty(updatedLikes());
     }
 
     Observable<List<PropertySet>> updatedLikes() {
         return syncInitiator.refreshLikes()
-                .flatMap(loadInitialLikes);
+                            .flatMap(loadInitialLikes);
     }
 
     Observable<List<PropertySet>> pagedLikes() {
@@ -221,22 +223,24 @@ public class MyProfileOperations {
 
     Observable<List<PropertySet>> updatedPosts() {
         return syncInitiator.refreshPosts()
-                .flatMap(loadInitialPosts);
+                            .flatMap(loadInitialPosts);
     }
 
     private Observable<List<PropertySet>> postedItems(final long beforeTime) {
         return syncStateStorage.hasSyncedMyPostsBefore()
-                .flatMap(new Func1<Boolean, Observable<List<PropertySet>>>() {
-                    @Override
-                    public Observable<List<PropertySet>> call(Boolean hasSynced) {
-                        return hasSynced ? postsStorage.loadPosts(PAGE_SIZE, beforeTime) : updatedPosts();
-                    }
-                }).subscribeOn(scheduler);
+                               .flatMap(new Func1<Boolean, Observable<List<PropertySet>>>() {
+                                   @Override
+                                   public Observable<List<PropertySet>> call(Boolean hasSynced) {
+                                       return hasSynced ?
+                                              postsStorage.loadPosts(PAGE_SIZE, beforeTime) :
+                                              updatedPosts();
+                                   }
+                               }).subscribeOn(scheduler);
     }
 
     public Observable<Optional<PropertySet>> lastPublicPostedTrack() {
         return postsStorage.loadLastPublicPostedTrack()
-                .subscribeOn(scheduler);
+                           .subscribeOn(scheduler);
     }
 
     Observable<List<PropertySet>> pagedPlaylistItems() {
@@ -254,8 +258,8 @@ public class MyProfileOperations {
                 } else {
                     Date oldestPlaylistDate = getLast(result).get(PostProperty.CREATED_AT);
                     return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, oldestPlaylistDate.getTime())
-                            .doOnNext(syncPlaylistMetadata)
-                            .subscribeOn(scheduler);
+                                              .doOnNext(syncPlaylistMetadata)
+                                              .subscribeOn(scheduler);
                 }
             }
         };
@@ -263,12 +267,12 @@ public class MyProfileOperations {
 
     Observable<List<PropertySet>> updatedPlaylists() {
         return syncInitiator.refreshMyPlaylists()
-                .flatMap(loadInitialPlaylistPosts);
+                            .flatMap(loadInitialPlaylistPosts);
     }
 
     private Observable<List<PropertySet>> initialPlaylistPage() {
         return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)
-                .doOnNext(syncPlaylistMetadata)
-                .subscribeOn(scheduler);
+                                  .doOnNext(syncPlaylistMetadata)
+                                  .subscribeOn(scheduler);
     }
 }

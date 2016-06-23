@@ -127,7 +127,7 @@ public class CircularProgressDrawable extends Drawable
     }
 
     private void cancelProgressAnimation() {
-        if(mObjectAnimatorProgress != null) {
+        if (mObjectAnimatorProgress != null) {
             mObjectAnimatorProgress.cancel();
         }
     }

@@ -27,7 +27,9 @@ public class UserRepository {
     };
 
     @Inject
-    public UserRepository(UserStorage userStorage, LegacySyncInitiator syncInitiator, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    public UserRepository(UserStorage userStorage,
+                          LegacySyncInitiator syncInitiator,
+                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.userStorage = userStorage;
         this.syncInitiator = syncInitiator;
         this.scheduler = scheduler;

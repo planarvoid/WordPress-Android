@@ -25,12 +25,12 @@ abstract class ApiBaseAdVisual {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this.getClass())
-                .add("urn", urn)
-                .add("imageUrl", imageUrl)
-                .add("clickthroughUrl", clickthroughUrl)
-                .add("trackingImpressionUrls", trackingImpressionUrls)
-                .add("trackingClickUrls", trackingClickUrls)
-                .toString();
+                          .add("urn", urn)
+                          .add("imageUrl", imageUrl)
+                          .add("clickthroughUrl", clickthroughUrl)
+                          .add("trackingImpressionUrls", trackingImpressionUrls)
+                          .add("trackingClickUrls", trackingClickUrls)
+                          .toString();
     }
 
 }

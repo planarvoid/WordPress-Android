@@ -19,6 +19,7 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
 
     interface Listener {
         void onPlaylistSettingsClicked(View view);
+
         void onRemoveFilterClicked();
     }
 

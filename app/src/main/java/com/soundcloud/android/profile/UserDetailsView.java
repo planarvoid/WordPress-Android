@@ -22,7 +22,7 @@ class UserDetailsView {
     private static final String MYSPACE_PATH = "http://www.myspace.com/%s";
 
     @Inject ProfileEmptyViewHelper profileEmptyViewHelper;
-    
+
     @Bind(R.id.description) TextView descriptionText;
     @Bind(R.id.website) TextView websiteText;
     @Bind(R.id.discogs_name) TextView discogsText;
@@ -41,20 +41,20 @@ class UserDetailsView {
         this.listener = listener;
     }
 
-    public void setUrn(Urn userUrn){
+    public void setUrn(Urn userUrn) {
         this.userUrn = userUrn;
     }
 
-    public void setView(View view){
+    public void setView(View view) {
         ButterKnife.bind(this, view);
     }
 
-    public void clearViews(){
+    public void clearViews() {
         ButterKnife.unbind(this);
     }
 
-    void showEmptyView(EmptyView.Status status){
-        if (emptyView != null){
+    void showEmptyView(EmptyView.Status status) {
+        if (emptyView != null) {
             profileEmptyViewHelper.configureBuilderForUserDetails(emptyView, this.userUrn);
             emptyView.setStatus(status);
             emptyView.setVisibility(View.VISIBLE);
@@ -62,7 +62,7 @@ class UserDetailsView {
     }
 
     void hideEmptyView() {
-        if (emptyView != null){
+        if (emptyView != null) {
             emptyView.setVisibility(View.GONE);
         }
     }

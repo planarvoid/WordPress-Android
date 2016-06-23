@@ -14,7 +14,7 @@ import java.util.Locale;
 public class StreamCacheConfig {
 
     @VisibleForTesting
-    static final long MIN_SIZE_BYTES = 60  * 1024 * 1024; // 60MB
+    static final long MIN_SIZE_BYTES = 60 * 1024 * 1024; // 60MB
     static final long MAX_SIZE_BYTES = 500 * 1024 * 1024; // 500MB
     static final int STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE = 1;
 
@@ -30,7 +30,7 @@ public class StreamCacheConfig {
         this.ioUtils = ioUtils;
     }
 
-    public long getStreamCacheSize(){
+    public long getStreamCacheSize() {
         final String countryCode = countryProvider.getCountryCode();
         if (Strings.isBlank(countryCode)
                 || Locale.US.getCountry().equalsIgnoreCase(countryCode)
@@ -53,7 +53,8 @@ public class StreamCacheConfig {
 
     public long getRemainingCacheSpace() {
         final double usableDiskPercentLeft = (((double) streamCacheDirectory.getUsableSpace()) / streamCacheDirectory.getTotalSpace()) * 100;
-        final long spaceRemainingUnderPercentCeiling = (long) ((usableDiskPercentLeft - STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE) * streamCacheDirectory.getTotalSpace());
+        final long spaceRemainingUnderPercentCeiling = (long) ((usableDiskPercentLeft - STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE) * streamCacheDirectory
+                .getTotalSpace());
         final long spaceRemainingUnderSizeCeiling = getStreamCacheSize() - ioUtils.dirSize(streamCacheDirectory);
         return Math.max(0, Math.min(spaceRemainingUnderPercentCeiling, spaceRemainingUnderSizeCeiling));
     }

@@ -50,8 +50,8 @@ public class TrackCommentsActivity extends PlayerActivity {
 
         final Urn trackUrn = getIntent().getParcelableExtra(EXTRA_COMMENTED_TRACK_URN);
         trackSubscription = trackRepository.track(trackUrn)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new TrackSubscriber());
+                                           .observeOn(AndroidSchedulers.mainThread())
+                                           .subscribe(new TrackSubscriber());
 
         if (bundle == null) {
             attachCommentsFragment(trackUrn);

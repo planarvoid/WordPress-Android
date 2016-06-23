@@ -16,7 +16,7 @@ public enum DeepLink {
 
     private static final EnumSet<DeepLink> LOGGED_IN_REQUIRED =
             EnumSet.of(EXPLORE, DISCOVERY, SEARCH, RECORD, ENTITY, SOUNDCLOUD_GO_UPSELL, SOUNDCLOUD_GO_BUY,
-                    NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS);
+                       NOTIFICATION_PREFERENCES, COLLECTION, OFFLINE_SETTINGS);
 
     private static final Pattern[] WEB_VIEW_URL_PATTERNS = {
             Pattern.compile("^/login/reset/[0-9a-f]+$"),

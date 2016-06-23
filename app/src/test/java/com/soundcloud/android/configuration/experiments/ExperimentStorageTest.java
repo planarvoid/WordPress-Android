@@ -58,7 +58,8 @@ public class ExperimentStorageTest extends AndroidUnitTest {
 
     @Test
     public void returnEmptyAssignmentWhenDeserializationFailed() throws IOException, ApiMapperException {
-        when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenThrow(new ApiMapperException("Fake exception"));
+        when(jsonTransformer.fromJson(eq(JSON),
+                                      any(TypeToken.class))).thenThrow(new ApiMapperException("Fake exception"));
 
         TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
         storage.readAssignment().subscribe(subscriber);
@@ -68,7 +69,8 @@ public class ExperimentStorageTest extends AndroidUnitTest {
     @Test
     public void deleteFileWhenDeserializationFailed() throws IOException, ApiMapperException {
         writeAssignment(getAssignmentFile(), JSON);
-        when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenThrow(new ApiMapperException("Fake exception"));
+        when(jsonTransformer.fromJson(eq(JSON),
+                                      any(TypeToken.class))).thenThrow(new ApiMapperException("Fake exception"));
 
         storage.readAssignment().subscribe(new TestSubscriber<Assignment>());
 
@@ -96,7 +98,7 @@ public class ExperimentStorageTest extends AndroidUnitTest {
 
     private void writeAssignment(File file, String json) throws IOException {
         OutputStream output = null;
-        try  {
+        try {
             output = new FileOutputStream(file);
             output.write(json.getBytes());
         } finally {

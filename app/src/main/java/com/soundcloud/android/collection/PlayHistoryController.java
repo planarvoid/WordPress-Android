@@ -50,7 +50,8 @@ public class PlayHistoryController {
     private static final Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>> COMBINE_EVENTS =
             new Func2<CurrentPlayQueueItemEvent, PlaybackStateTransition, Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>>() {
                 @Override
-                public Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition> call(CurrentPlayQueueItemEvent queueItemEvent, PlaybackStateTransition stateTransition) {
+                public Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition> call(CurrentPlayQueueItemEvent queueItemEvent,
+                                                                                     PlaybackStateTransition stateTransition) {
                     return Pair.of(queueItemEvent, stateTransition);
                 }
             };
@@ -91,7 +92,8 @@ public class PlayHistoryController {
         };
     }
 
-    private PlayHistoryRecord buildRecord(CurrentPlayQueueItemEvent queueItemEvent, PlaybackStateTransition stateTransition) {
+    private PlayHistoryRecord buildRecord(CurrentPlayQueueItemEvent queueItemEvent,
+                                          PlaybackStateTransition stateTransition) {
         return PlayHistoryRecord.create(
                 stateTransition.getProgress().getCreatedAt(),
                 queueItemEvent.getCurrentPlayQueueItem().getUrn(),
@@ -100,11 +102,11 @@ public class PlayHistoryController {
 
     private void schedulePlayHistoryStorage(PlayHistoryRecord record) {
         subscription = Observable.timer(LONG_PLAY_MINIMAL_DURATION_SECONDS, TimeUnit.SECONDS, scheduler)
-                .flatMap(continueWith(Observable.just(record)))
-                .doOnNext(storeCommand.toAction1())
-                .doOnNext(publishNewPlayHistory())
-                .subscribeOn(scheduler)
-                .subscribe(new DefaultSubscriber<PlayHistoryRecord>());
+                                 .flatMap(continueWith(Observable.just(record)))
+                                 .doOnNext(storeCommand.toAction1())
+                                 .doOnNext(publishNewPlayHistory())
+                                 .subscribeOn(scheduler)
+                                 .subscribe(new DefaultSubscriber<PlayHistoryRecord>());
     }
 
     @NonNull
@@ -117,7 +119,8 @@ public class PlayHistoryController {
         };
     }
 
-    private class PlayHistorySubscriber extends DefaultSubscriber<Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>> {
+    private class PlayHistorySubscriber
+            extends DefaultSubscriber<Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition>> {
         @Override
         public void onNext(Pair<CurrentPlayQueueItemEvent, PlaybackStateTransition> pair) {
             PlayHistoryRecord record = buildRecord(pair.first(), pair.second());

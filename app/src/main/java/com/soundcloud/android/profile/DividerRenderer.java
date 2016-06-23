@@ -18,7 +18,7 @@ class DividerRenderer implements CellRenderer<UserSoundsItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.profile_user_sounds_divider, parent, false);
+                             .inflate(R.layout.profile_user_sounds_divider, parent, false);
     }
 
     @Override

@@ -74,7 +74,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
 
         controller = new MediaSessionController(context(), listener, mediaSessionWrapper,
-                actionController, metadataOperations, playQueueManager, adsOperations);
+                                                actionController, metadataOperations, playQueueManager, adsOperations);
 
         setupMetadataMocks();
     }
@@ -285,8 +285,8 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
 
     private void setupWithAudioFocus(boolean success) {
         int status = success
-                ? AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-                : AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+                     ? AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                     : AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 
         when(audioManager.requestAudioFocus(
                 any(AudioManager.OnAudioFocusChangeListener.class),

@@ -13,8 +13,8 @@ import java.util.Locale;
 
 @NonUiTest
 public class ImageUtilsTest extends ScAndroidTest {
-    private static final String IMAGE_LANDSCAPE_JPG      = "image/landscape.jpg";
-    private static final String IMAGE_PORTRAIT_JPG       = "image/portrait.jpg";
+    private static final String IMAGE_LANDSCAPE_JPG = "image/landscape.jpg";
+    private static final String IMAGE_PORTRAIT_JPG = "image/portrait.jpg";
     private static final String IMAGE_LARGE_PORTRAIT_JPG = "image/large-portrait.jpg";
 
     private File resize(String file) throws Exception {

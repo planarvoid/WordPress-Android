@@ -60,7 +60,8 @@ public class ConfigurationUpdateLightCycleTest {
     public void shouldResetAppForDowngrade() {
         lightCycle.onStart(activity);
 
-        eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forDowngrade(Plan.HIGH_TIER, Plan.FREE_TIER));
+        eventBus.publish(EventQueue.USER_PLAN_CHANGE,
+                         UserPlanChangedEvent.forDowngrade(Plan.HIGH_TIER, Plan.FREE_TIER));
 
         verify(navigator).resetForAccountDowngrade(activity);
     }

@@ -29,7 +29,7 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
                                      FeatureOperations featureOperations, ScreenProvider screenProvider,
                                      Navigator navigator, TrackItemView.Factory trackItemViewFactory) {
         super(imageOperations, numberFormatter, trackItemMenuPresenter, eventBus, featureOperations, screenProvider,
-                navigator, trackItemViewFactory);
+              navigator, trackItemViewFactory);
     }
 
     public void setRemoveTrackListener(RemoveTrackListener removeTrackListener) {
@@ -44,7 +44,7 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
     @Override
     protected void showTrackItemMenu(View button, TrackItem track, int position) {
         trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position, pageUrn,
-                removeTrackListener, promotedSourceInfo);
+                                    removeTrackListener, promotedSourceInfo);
     }
 
     @Override

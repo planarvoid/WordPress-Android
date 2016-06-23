@@ -36,7 +36,12 @@ public class PlayPublisherTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playPublisher = new PlayPublisher(resources(), gcmStorage, new TestDateProvider(123L), eventBus, Schedulers.immediate(), apiClient);
+        playPublisher = new PlayPublisher(resources(),
+                                          gcmStorage,
+                                          new TestDateProvider(123L),
+                                          eventBus,
+                                          Schedulers.immediate(),
+                                          apiClient);
         playPublisher.subscribe();
 
         when(gcmStorage.getToken()).thenReturn("token");
@@ -46,21 +51,29 @@ public class PlayPublisherTest extends AndroidUnitTest {
     public void playEventCausesPlayPublishApiRequest() {
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(new ApiResponse(null, 200, "body"));
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
 
-        verify(apiClient).fetchResponse(argThat(isPublicApiRequestTo("POST", "/tpub").withContent(new PlayPublisher.Payload(resources().getString(R.string.gcm_gateway_id), "token", 123L, TRACK_URN))));
+        verify(apiClient).fetchResponse(argThat(isPublicApiRequestTo("POST",
+                                                                     "/tpub").withContent(new PlayPublisher.Payload(
+                resources().getString(R.string.gcm_gateway_id),
+                "token",
+                123L,
+                TRACK_URN))));
     }
 
     @Test
     public void bufferingEventDoesNotCausePlayPublishApiRequest() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN));
 
         verify(apiClient, never()).fetchResponse(any(ApiRequest.class));
     }
 
     @Test
     public void idleEventDoesNotCausePlayPublishApiRequest() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN));
 
         verify(apiClient, never()).fetchResponse(any(ApiRequest.class));
     }

@@ -275,21 +275,27 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void cancelledByUser(List<DownloadRequest> requests, boolean noContentRequested, DownloadRequest currentRequest) {
+    private void cancelledByUser(List<DownloadRequest> requests,
+                                 boolean noContentRequested,
+                                 DownloadRequest currentRequest) {
         Log.d(OfflineContentService.TAG, "Cancelling " + currentRequest);
         setNewRequests(requests, noContentRequested);
         downloadHandler.cancel();
         publisher.publishRemoved(currentRequest.getUrn());
     }
 
-    private void cancelledByInvalidConnection(List<DownloadRequest> requests, boolean noContentRequested, DownloadRequest currentRequest) {
+    private void cancelledByInvalidConnection(List<DownloadRequest> requests,
+                                              boolean noContentRequested,
+                                              DownloadRequest currentRequest) {
         Log.d(OfflineContentService.TAG, "Canceling, no valid connection " + currentRequest);
         setNewRequests(requests, noContentRequested);
         downloadHandler.cancel();
         publisher.publishRequested(currentRequest.getUrn());
     }
 
-    private void continueCurrentDownload(List<DownloadRequest> requests, boolean noContentRequested, DownloadRequest currentRequest) {
+    private void continueCurrentDownload(List<DownloadRequest> requests,
+                                         boolean noContentRequested,
+                                         DownloadRequest currentRequest) {
         Log.d(OfflineContentService.TAG, "Keep downloading." + currentRequest);
         requests.remove(currentRequest);
         setNewRequests(requests, noContentRequested);

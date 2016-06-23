@@ -54,9 +54,9 @@ public class AnalyticsProviderFactoryTest {
         when(appboyAnalyticsProvider.get()).thenReturn(mock(AppboyAnalyticsProvider.class));
         baseProviders = Arrays.<AnalyticsProvider>asList(eventLoggerProvider, promotedProvider);
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
-                analyticsSettings, appboyAnalyticsProvider,
-                adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider,
-                baseProviders);
+                                               analyticsSettings, appboyAnalyticsProvider,
+                                               adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider,
+                                               baseProviders);
     }
 
     @Test
@@ -101,8 +101,8 @@ public class AnalyticsProviderFactoryTest {
     @Test
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
-                analyticsSettings, appboyAnalyticsProvider,
-                adjustAnalyticsProvider, null, fabricAnalyticsProvider,baseProviders);
+                                               analyticsSettings, appboyAnalyticsProvider,
+                                               adjustAnalyticsProvider, null, fabricAnalyticsProvider, baseProviders);
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();

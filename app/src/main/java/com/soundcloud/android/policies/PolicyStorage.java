@@ -24,7 +24,8 @@ public class PolicyStorage {
 
     private static final int DEFAULT_BATCH_SIZE = 500; // default SQL var limit is 999. Being safe
     private static final Query TRACKS_FOR_POLICY_UPDATE_QUERY = Query.from(Sounds)
-            .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                                                                     .whereEq(TableColumns.Sounds._TYPE,
+                                                                              TableColumns.Sounds.TYPE_TRACK);
 
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
@@ -55,7 +56,7 @@ public class PolicyStorage {
         this.batchSize = batchSize;
     }
 
-    Observable<Map<Urn,Boolean>> loadBlockedStatuses(List<Urn> urns) {
+    Observable<Map<Urn, Boolean>> loadBlockedStatuses(List<Urn> urns) {
         List<Observable<CursorReader>> batches = new ArrayList<>((urns.size() / batchSize) + 1);
         for (List<Urn> batch : Lists.partition(urns, batchSize)) {
             batches.add(propellerRx.query(buildPolicyQueries(batch)));
@@ -65,12 +66,12 @@ public class PolicyStorage {
 
     private Query buildPolicyQueries(List<Urn> urns) {
         return Query.from(Table.SoundView.name())
-                .select(
-                        TableColumns.SoundView._ID,
-                        TableColumns.SoundView.POLICIES_BLOCKED
-                )
-                .whereIn(TableColumns.SoundView._ID, Urns.toIds(urns))
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .select(
+                            TableColumns.SoundView._ID,
+                            TableColumns.SoundView.POLICIES_BLOCKED
+                    )
+                    .whereIn(TableColumns.SoundView._ID, Urns.toIds(urns))
+                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 
     List<Urn> loadTracksForPolicyUpdate() {

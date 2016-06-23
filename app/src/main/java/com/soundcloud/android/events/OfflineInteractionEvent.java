@@ -58,7 +58,7 @@ public class OfflineInteractionEvent extends TrackingEvent {
 
     public static OfflineInteractionEvent forOnlyWifiOverWifiToggle(boolean wifiOnlySyncEnabled) {
         return new OfflineInteractionEvent(wifiOnlySyncEnabled ?
-                KIND_WIFI_SYNC_ENABLE : KIND_WIFI_SYNC_DISABLE);
+                                           KIND_WIFI_SYNC_ENABLE : KIND_WIFI_SYNC_DISABLE);
     }
 
     public static OfflineInteractionEvent fromRemoveOfflineLikes(String pageName) {

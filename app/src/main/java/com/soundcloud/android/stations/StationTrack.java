@@ -17,5 +17,6 @@ public abstract class StationTrack {
     }
 
     public abstract Urn getTrackUrn();
+
     public abstract Urn getQueryUrn();
 }

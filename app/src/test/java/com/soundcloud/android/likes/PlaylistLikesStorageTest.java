@@ -38,7 +38,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         testListSubscriber = new TestSubscriber<>();
-        testSubscriber =  new TestSubscriber<>();
+        testSubscriber = new TestSubscriber<>();
         playlistLikesStorage = new PlaylistLikesStorage(propellerRx());
 
         playlist1 = testFixtures().insertLikedPlaylist(LIKED_DATE_1);
@@ -114,7 +114,9 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
         playlistLikesStorage.loadLikedPlaylist(playlist1.getUrn()).subscribe(testSubscriber);
 
-        testSubscriber.assertValue(expectedLikedPlaylistWithOfflineState(playlist1, LIKED_DATE_1, OfflineState.UNAVAILABLE));
+        testSubscriber.assertValue(expectedLikedPlaylistWithOfflineState(playlist1,
+                                                                         LIKED_DATE_1,
+                                                                         OfflineState.UNAVAILABLE));
     }
 
     @Test
@@ -128,7 +130,9 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
         playlistLikesStorage.loadLikedPlaylist(playlist1.getUrn()).subscribe(testSubscriber);
 
-        testSubscriber.assertValue(expectedLikedPlaylistWithOfflineState(playlist1, LIKED_DATE_1, OfflineState.DOWNLOADED));
+        testSubscriber.assertValue(expectedLikedPlaylistWithOfflineState(playlist1,
+                                                                         LIKED_DATE_1,
+                                                                         OfflineState.DOWNLOADED));
     }
 
     @Test

@@ -124,19 +124,21 @@ abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollectio
     protected CollectionBinding<MyCollection, CollectionItem> onBuildBinding(Bundle bundle) {
         final Observable<MyCollection> collections = myCollection().observeOn(AndroidSchedulers.mainThread());
         return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionItems)
-                .withAdapter(adapter)
-                .build();
+                                .withAdapter(adapter)
+                                .build();
     }
 
     @Override
     protected CollectionBinding<MyCollection, CollectionItem> onRefreshBinding() {
         final Observable<MyCollection> collections =
                 updatedMyCollection()
-                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.COLLECTIONS)))
+                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING,
+                                                               new PullToRefreshEvent(Screen.COLLECTIONS)))
                         .observeOn(AndroidSchedulers.mainThread());
-        return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext), toCollectionItems)
-                .withAdapter(adapter)
-                .build();
+        return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext),
+                                      toCollectionItems)
+                                .withAdapter(adapter)
+                                .build();
     }
 
     @Override
@@ -155,8 +157,8 @@ abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollectio
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(clearOnNext);
         retryWith(CollectionBinding
-                .from(source, toCollectionItems)
-                .withAdapter(adapter).build());
+                          .from(source, toCollectionItems)
+                          .withAdapter(adapter).build());
     }
 
     protected boolean showOnboarding() {
@@ -183,8 +185,8 @@ abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollectio
 
     private void showError() {
         Toast.makeText(getRecyclerView().getContext(),
-                R.string.collections_loading_error,
-                Toast.LENGTH_LONG).show();
+                       R.string.collections_loading_error,
+                       Toast.LENGTH_LONG).show();
     }
 
     private void subscribeForUpdates() {
@@ -225,7 +227,7 @@ abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollectio
     }
 
     private List<CollectionItem> collectionWithOnboarding(List<CollectionItem> collectionItems) {
-        List<CollectionItem> collectionItemsWithOnboarding = new ArrayList<>(collectionItems.size()+1);
+        List<CollectionItem> collectionItemsWithOnboarding = new ArrayList<>(collectionItems.size() + 1);
         collectionItemsWithOnboarding.add(OnboardingCollectionItem.create());
         collectionItemsWithOnboarding.addAll(collectionItems);
         return collectionItemsWithOnboarding;

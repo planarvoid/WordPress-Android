@@ -44,7 +44,8 @@ public class MyPlaylistsPresenterTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
     private static final Urn PLAYLIST2_URN = Urn.forPlaylist(456L);
 
-    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, new Bundle());
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh,
+                                                                    new Bundle());
 
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
     @Mock private MyProfileOperations operations;
@@ -57,7 +58,8 @@ public class MyPlaylistsPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        fragmentRule.setFragmentArguments(MyPlaylistsFragment.createBundle(Screen.YOU, mock(SearchQuerySourceInfo.class)));
+        fragmentRule.setFragmentArguments(MyPlaylistsFragment.createBundle(Screen.YOU,
+                                                                           mock(SearchQuerySourceInfo.class)));
         when(factory.create(adapter, adapter.getTrackRenderer())).thenReturn(listUpdater);
 
         presenter = new MyPlaylistsPresenter(
@@ -72,13 +74,14 @@ public class MyPlaylistsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void refreshesAdapterContentWhenPlaylistDeleted() {
-        when(operations.pagedPlaylistItems()).thenReturn(Observable.just(playlists()), Observable.just(updatedPlaylists()));
+        when(operations.pagedPlaylistItems()).thenReturn(Observable.just(playlists()),
+                                                         Observable.just(updatedPlaylists()));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                EntityStateChangedEvent.fromEntityDeleted(PLAYLIST_URN));
+                         EntityStateChangedEvent.fromEntityDeleted(PLAYLIST_URN));
 
         final InOrder inOrder = Mockito.inOrder(adapter);
         inOrder.verify(adapter).onNext(captor.capture());

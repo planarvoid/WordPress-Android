@@ -17,7 +17,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
-    static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends", "user_likes");
+    static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile",
+                                                                                "email",
+                                                                                "user_birthday",
+                                                                                "user_friends",
+                                                                                "user_likes");
     static List<String> EMAIL_ONLY_PERMISSION = singletonList("email");
 
     private final WeakReference<FacebookLoginCallbacks> activityRef;
@@ -65,7 +69,9 @@ public class FacebookSessionCallback implements FacebookCallback<LoginResult> {
 
     interface FacebookLoginCallbacks {
         void loginWithFacebook(String facebookToken);
+
         void confirmRequestForFacebookEmail();
+
         void onFacebookAuthenticationFailedMessage();
     }
 

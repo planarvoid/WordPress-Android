@@ -19,6 +19,7 @@ public final class PromotedSourceInfo implements Parcelable {
         public PromotedSourceInfo createFromParcel(Parcel in) {
             return new PromotedSourceInfo(in);
         }
+
         public PromotedSourceInfo[] newArray(int size) {
             return new PromotedSourceInfo[size];
         }

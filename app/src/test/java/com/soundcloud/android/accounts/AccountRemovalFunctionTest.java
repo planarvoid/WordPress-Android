@@ -28,8 +28,8 @@ public class AccountRemovalFunctionTest extends AndroidUnitTest {
     private TestSubscriber<Void> subscriber = new TestSubscriber<>();
 
     @Before
-    public void setup(){
-        when(accountManager.removeAccount(soundCloudAccount,null,null)).thenReturn(future);
+    public void setup() {
+        when(accountManager.removeAccount(soundCloudAccount, null, null)).thenReturn(future);
         function = new AccountRemovalFunction(soundCloudAccount, accountManager);
     }
 

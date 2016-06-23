@@ -95,7 +95,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
         if (track instanceof PromotedTrackItem) {
             show(activity, button, track, position, Urn.NOT_SET, null,
-                    PromotedSourceInfo.fromItem((PromotedTrackItem) track));
+                 PromotedSourceInfo.fromItem((PromotedTrackItem) track));
         } else {
             show(activity, button, track, position, Urn.NOT_SET, null, null);
         }
@@ -170,13 +170,13 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
             case R.id.remove_from_playlist:
                 checkState(isOwnedPlaylist());
                 playlistOperations.removeTrackFromPlaylist(removeTrackListener.getPlaylistUrn(), track.getUrn())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new DefaultSubscriber<PropertySet>() {
-                            @Override
-                            public void onNext(PropertySet args) {
-                                removeTrackListener.onPlaylistTrackRemoved(positionInAdapter);
-                            }
-                        });
+                                  .observeOn(AndroidSchedulers.mainThread())
+                                  .subscribe(new DefaultSubscriber<PropertySet>() {
+                                      @Override
+                                      public void onNext(PropertySet args) {
+                                          removeTrackListener.onPlaylistTrackRemoved(positionInAdapter);
+                                      }
+                                  });
                 return true;
             case R.id.start_station:
                 startStationPresenter.startStationForTrack(context, track.getUrn());
@@ -201,40 +201,40 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         final Urn trackUrn = track.getUrn();
 
         eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleLike(addLike,
-                        trackUrn,
-                        getEventContextMetadata(),
-                        getPromotedSource(),
-                        EntityMetadata.from(track)));
+                         UIEvent.fromToggleLike(addLike,
+                                                trackUrn,
+                                                getEventContextMetadata(),
+                                                getPromotedSource(),
+                                                EntityMetadata.from(track)));
     }
 
     private void trackRepost(boolean repost) {
         final Urn trackUrn = track.getUrn();
 
         eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleRepost(repost,
-                        trackUrn,
-                        getEventContextMetadata(),
-                        getPromotedSource(),
-                        EntityMetadata.from(track)));
+                         UIEvent.fromToggleRepost(repost,
+                                                  trackUrn,
+                                                  getEventContextMetadata(),
+                                                  getPromotedSource(),
+                                                  EntityMetadata.from(track)));
     }
 
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder()
-                .invokerScreen(ScreenElement.LIST.get())
-                .contextScreen(screenProvider.getLastScreenTag())
-                .pageName(screenProvider.getLastScreenTag())
-                .pageUrn(pageUrn)
-                .isFromOverflow(true)
-                .build();
+                                   .invokerScreen(ScreenElement.LIST.get())
+                                   .contextScreen(screenProvider.getLastScreenTag())
+                                   .pageName(screenProvider.getLastScreenTag())
+                                   .pageUrn(pageUrn)
+                                   .isFromOverflow(true)
+                                   .build();
     }
 
     private void handleLike() {
         final Urn trackUrn = track.getUrn();
         final boolean addLike = !track.isLiked();
         likeOperations.toggleLike(trackUrn, addLike)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new LikeToggleSubscriber(context, addLike));
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .subscribe(new LikeToggleSubscriber(context, addLike));
 
         trackLike(addLike);
     }
@@ -243,8 +243,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         final Urn trackUrn = track.getUrn();
         final boolean repost = !track.isReposted();
         repostOperations.toggleRepost(trackUrn, repost)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new RepostResultSubscriber(context, repost));
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RepostResultSubscriber(context, repost));
 
         trackRepost(repost);
     }

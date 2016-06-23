@@ -185,7 +185,8 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         return create(PLAYLIST_MARKED_FOR_DOWNLOAD, toMarkedForOfflinePropertySets(playlistUrns, false));
     }
 
-    private static Collection<PropertySet> toMarkedForOfflinePropertySets(List<Urn> playlistUrns, final boolean markedForOffline) {
+    private static Collection<PropertySet> toMarkedForOfflinePropertySets(List<Urn> playlistUrns,
+                                                                          final boolean markedForOffline) {
         return MoreCollections.transform(playlistUrns, new Function<Urn, PropertySet>() {
             @Override
             public PropertySet apply(Urn urn) {

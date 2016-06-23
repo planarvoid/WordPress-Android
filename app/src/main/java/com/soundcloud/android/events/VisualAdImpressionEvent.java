@@ -16,7 +16,11 @@ public class VisualAdImpressionEvent extends TrackingEvent {
     }
 
     @VisibleForTesting
-    public VisualAdImpressionEvent(AudioAd adData, Urn audioAdTrack, Urn userUrn, TrackSourceInfo sessionSource, long timeStamp) {
+    public VisualAdImpressionEvent(AudioAd adData,
+                                   Urn audioAdTrack,
+                                   Urn userUrn,
+                                   TrackSourceInfo sessionSource,
+                                   long timeStamp) {
         super(KIND_DEFAULT, timeStamp);
         put(PlayableTrackingKeys.KEY_USER_URN, userUrn.toString());
         put(PlayableTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString());

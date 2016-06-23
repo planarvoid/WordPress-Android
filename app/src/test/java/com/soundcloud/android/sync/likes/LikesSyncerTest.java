@@ -63,8 +63,8 @@ public class LikesSyncerTest extends AndroidUnitTest {
     @Before
     public void setup() throws Exception {
         syncer = new LikesSyncer(fetchLikes, fetchLikedResources, pushLikeAdditions, pushLikeDeletions, loadLikes,
-                loadLikesPendingAddition, loadLikesPendingRemoval, storeLikedResources, storeLikes,
-                removeLikes, eventBus);
+                                 loadLikesPendingAddition, loadLikesPendingRemoval, storeLikedResources, storeLikes,
+                                 removeLikes, eventBus);
         trackLike = ModelFixtures.apiTrackLike();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
     }
@@ -149,7 +149,8 @@ public class LikesSyncerTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveLikeRemotelyIfLocalLikeIsPendingRemovalAndExistsRemotelyWithOlderTimestamp() throws Exception {
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() + 1));
+                                                       .put(LikeProperty.REMOVED_AT,
+                                                            new Date(trackLike.getCreatedAt().getTime() + 1));
         PropertySet deletedLike = PropertySet.from(LikeProperty.TARGET_URN.bind(trackLike.getTargetUrn()));
 
         withRemoteTrackLikes(trackLike);
@@ -166,7 +167,8 @@ public class LikesSyncerTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveLikeLocallyIfPendingRemovalRequestSucceeded() throws Exception {
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() + 1));
+                                                       .put(LikeProperty.REMOVED_AT,
+                                                            new Date(trackLike.getCreatedAt().getTime() + 1));
         PropertySet deletedLike = PropertySet.from(LikeProperty.TARGET_URN.bind(trackLike.getTargetUrn()));
 
         withRemoteTrackLikes(trackLike);
@@ -184,10 +186,12 @@ public class LikesSyncerTest extends AndroidUnitTest {
     @Test
     public void shouldNotRemoveLikeLocallyIfPendingRemovalRequestFailed() throws Exception {
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() + 1));
+                                                       .put(LikeProperty.REMOVED_AT,
+                                                            new Date(trackLike.getCreatedAt().getTime() + 1));
         final ApiLike otherLike = ModelFixtures.apiTrackLike();
         PropertySet otherLikePendingRemoval = otherLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(otherLike.getCreatedAt().getTime() + 1));
+                                                       .put(LikeProperty.REMOVED_AT,
+                                                            new Date(otherLike.getCreatedAt().getTime() + 1));
 
         withRemoteTrackLikes(trackLike, otherLike);
         withLocalTrackLikes();
@@ -207,7 +211,8 @@ public class LikesSyncerTest extends AndroidUnitTest {
     @Test
     public void shouldRemoveLikeOnlyLocallyIfPendingRemovalAndDoesNotExistRemotely() throws Exception {
         PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() + 1));
+                                                       .put(LikeProperty.REMOVED_AT,
+                                                            new Date(trackLike.getCreatedAt().getTime() + 1));
 
         withRemoteTrackLikes();
         withLocalTrackLikes();
@@ -234,13 +239,18 @@ public class LikesSyncerTest extends AndroidUnitTest {
 
         ApiLike newRemoteLike = ModelFixtures.apiTrackLike();
         PropertySet existsLocallyPendingAddition = newRemoteLike.toPropertySet()
-                .put(LikeProperty.ADDED_AT, new Date(existsRemotelyPendingRemoval.getCreatedAt().getTime() + 1));
+                                                                .put(LikeProperty.ADDED_AT,
+                                                                     new Date(existsRemotelyPendingRemoval.getCreatedAt()
+                                                                                                          .getTime() + 1));
 
         PropertySet existsLocallyPendingRemoval = existsRemotelyPendingRemoval.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(existsRemotelyPendingRemoval.getCreatedAt().getTime() + 1));
+                                                                              .put(LikeProperty.REMOVED_AT,
+                                                                                   new Date(existsRemotelyPendingRemoval
+                                                                                                    .getCreatedAt()
+                                                                                                    .getTime() + 1));
         PropertySet existsLocallyNotRemotelyPendingRemoval =
                 ModelFixtures.apiTrackLike().toPropertySet()
-                        .put(LikeProperty.REMOVED_AT, new Date());
+                             .put(LikeProperty.REMOVED_AT, new Date());
         when(pushLikeDeletions.call()).thenReturn(singleton(existsLocallyPendingRemoval));
 
         // assertThated outcome:
@@ -257,7 +267,8 @@ public class LikesSyncerTest extends AndroidUnitTest {
 
         verify(storeLikes).call(singleton(existsRemotelyNotLocally.toPropertySet()));
         verify(removeLikes).call(newHashSet(existsLocallyPendingRemoval,
-                existsLocallyNotRemotely.toPropertySet(), existsLocallyNotRemotelyPendingRemoval));
+                                            existsLocallyNotRemotely.toPropertySet(),
+                                            existsLocallyNotRemotelyPendingRemoval));
 
 
         verify(pushLikeAdditions, times(1)).call();

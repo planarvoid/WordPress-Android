@@ -40,18 +40,28 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playerArtworkLoader = new BlurringPlayerArtworkLoader(imageOperations, resources(), Schedulers.immediate(), Schedulers.immediate());
+        playerArtworkLoader = new BlurringPlayerArtworkLoader(imageOperations,
+                                                              resources(),
+                                                              Schedulers.immediate(),
+                                                              Schedulers.immediate());
     }
 
     @Test
     public void loadArtworkLoadsArtworkThroughImageOperations() {
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
-        when(imageOperations.blurredPlayerArtwork(resources(), imageResource, immediateScheduler, immediateScheduler)).thenReturn(Observable.<Bitmap>empty());
+        when(imageOperations.blurredPlayerArtwork(resources(),
+                                                  imageResource,
+                                                  immediateScheduler,
+                                                  immediateScheduler)).thenReturn(Observable.<Bitmap>empty());
 
-        playerArtworkLoader.loadArtwork(imageResource, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(imageResource,
+                                        wrappedImageView,
+                                        imageOverlayView,
+                                        true,
+                                        viewVisibilityProvider);
 
         verify(imageOperations).displayInPlayer(imageResource, ApiImageSize.getFullImageSize(resources()),
-                wrappedImageView, cachedBitmap, true);
+                                                wrappedImageView, cachedBitmap, true);
     }
 
     @Test
@@ -61,7 +71,11 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         when(imageOperations.blurredPlayerArtwork(resources(), imageResource, immediateScheduler, immediateScheduler))
                 .thenReturn(Observable.just(blurredBitmap));
 
-        playerArtworkLoader.loadArtwork(imageResource, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(imageResource,
+                                        wrappedImageView,
+                                        imageOverlayView,
+                                        true,
+                                        viewVisibilityProvider);
 
         verify(imageOverlayView).setImageBitmap(blurredBitmap);
     }
@@ -74,7 +88,11 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(blurredBitmap));
         when(viewVisibilityProvider.isCurrentlyVisible(imageOverlayView)).thenReturn(true);
 
-        playerArtworkLoader.loadArtwork(imageResource, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(imageResource,
+                                        wrappedImageView,
+                                        imageOverlayView,
+                                        true,
+                                        viewVisibilityProvider);
 
         ArgumentCaptor<TransitionDrawable> captor = ArgumentCaptor.forClass(TransitionDrawable.class);
         verify(imageOverlayView).setImageDrawable(captor.capture());
@@ -90,8 +108,16 @@ public class BlurringPlayerArtworkLoaderTest extends AndroidUnitTest {
         when(imageOperations.blurredPlayerArtwork(resources(), imageResource, immediateScheduler, immediateScheduler))
                 .thenReturn(firstBlurObservable, secondBlurObservable);
 
-        playerArtworkLoader.loadArtwork(imageResource, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
-        playerArtworkLoader.loadArtwork(imageResource, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(imageResource,
+                                        wrappedImageView,
+                                        imageOverlayView,
+                                        true,
+                                        viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(imageResource,
+                                        wrappedImageView,
+                                        imageOverlayView,
+                                        true,
+                                        viewVisibilityProvider);
 
         assertThat(firstBlurObservable.hasObservers()).isFalse();
         assertThat(secondBlurObservable.hasObservers()).isTrue();

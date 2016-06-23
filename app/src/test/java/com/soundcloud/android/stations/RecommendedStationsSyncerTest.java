@@ -33,7 +33,8 @@ public class RecommendedStationsSyncerTest {
     @Test
     public void shouldStoreRecommendationsAndUpdateLastSync() throws Exception {
         final Urn station = Urn.forTrackStation(1L);
-        final ModelCollection<ApiStationMetadata> metadata = StationFixtures.createStationsCollection(Collections.singletonList(station));
+        final ModelCollection<ApiStationMetadata> metadata = StationFixtures.createStationsCollection(Collections.singletonList(
+                station));
 
         when(api.fetchStationRecommendations()).thenReturn(metadata);
         when(command.call(metadata)).thenReturn(true);

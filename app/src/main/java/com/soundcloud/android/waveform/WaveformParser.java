@@ -16,7 +16,8 @@ class WaveformParser {
     private static final String SAMPLES = "samples";
 
     @Inject
-    public WaveformParser() {}
+    public WaveformParser() {
+    }
 
     public WaveformData parse(InputStream data) throws JSONException, IOException {
         final JSONObject obj = new JSONObject(IOUtils.readInputStream(data));
@@ -34,7 +35,7 @@ class WaveformParser {
         }
 
         for (int i = 0; i < width; i++) {
-            double value =  Math.pow(sampleArray.getDouble(i) / height, 1.5);
+            double value = Math.pow(sampleArray.getDouble(i) / height, 1.5);
             samples[i] = (int) (height * value);
         }
 

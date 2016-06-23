@@ -84,7 +84,7 @@ public class LogoutFragmentTest extends AndroidUnitTest {
         fragmentController.create();
 
         assertThat(activity).nextStartedService()
-                .containsAction("action_stop_download")
-                .startsService(OfflineContentService.class);
+                            .containsAction("action_stop_download")
+                            .startsService(OfflineContentService.class);
     }
 }

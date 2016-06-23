@@ -110,7 +110,10 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         when(adapter.getViewTypeCount()).thenReturn(1);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks));
         when(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn())).thenReturn(playlistTrackUrns);
-        when(playbackInitiator.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
+        when(playbackInitiator.playTracks(any(Observable.class),
+                                          any(Urn.class),
+                                          anyInt(),
+                                          any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(312L));
     }
 
@@ -144,14 +147,16 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithoutTracks));
         createFragmentView();
 
-        verify(controller).showTrackRemovalOptions(eq(playlistWithoutTracks.getUrn()), any(PlaylistDetailsController.Listener.class));
+        verify(controller).showTrackRemovalOptions(eq(playlistWithoutTracks.getUrn()),
+                                                   any(PlaylistDetailsController.Listener.class));
     }
 
     @Test
     public void playlistContentChangeForcesReloadOfPlaylistInfo() {
         PlaylistWithTracks updatedPlaylistWithTracks = createPlaylist();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(playlistWithTracks.getCreatorUrn());
-        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks), Observable.just(updatedPlaylistWithTracks));
+        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks),
+                                                                     Observable.just(updatedPlaylistWithTracks));
         createFragmentView();
 
         ArgumentCaptor<PlaylistDetailsController.Listener> captor = ArgumentCaptor.forClass(PlaylistDetailsController.Listener.class);
@@ -160,8 +165,10 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         captor.getValue().onPlaylistContentChanged();
 
         InOrder inOrder = Mockito.inOrder(playlistEngagementsPresenter);
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(eq(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource())));
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(eq(PlaylistHeaderItem.create(updatedPlaylistWithTracks, getPlaySessionSource())));
+        inOrder.verify(playlistEngagementsPresenter)
+               .setPlaylistInfo(eq(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource())));
+        inOrder.verify(playlistEngagementsPresenter)
+               .setPlaylistInfo(eq(PlaylistHeaderItem.create(updatedPlaylistWithTracks, getPlaySessionSource())));
     }
 
     @Test
@@ -170,7 +177,8 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithoutTracks));
         createFragmentView();
 
-        verify(controller, never()).showTrackRemovalOptions(any(Urn.class), any(PlaylistDetailsController.Listener.class));
+        verify(controller, never()).showTrackRemovalOptions(any(Urn.class),
+                                                            any(PlaylistDetailsController.Listener.class));
     }
 
     @Test
@@ -192,7 +200,10 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         TrackItem playlistTrack = ModelFixtures.create(TrackItem.class);
         when(adapter.getItem(0)).thenReturn(playlistTrack);
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.STREAM,
+                                                                                  playlistWithTracks.getUrn(),
+                                                                                  playlistWithTracks.getCreatorUrn(),
+                                                                                  playlistWithTracks.getTrackCount());
 
         when(controller.hasTracks()).thenReturn(true);
 
@@ -205,7 +216,8 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     public void shouldHidePlayToggleButtonOnSecondPlaylistEmissionWithNoTracks() {
         final PlaylistWithTracks updatedPlaylistWithTracks = createPlaylistWithoutTracks();
 
-        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks, updatedPlaylistWithTracks));
+        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks,
+                                                                                     updatedPlaylistWithTracks));
         View layout = createFragmentView();
 
         assertThat(getPlayButton(layout)).isNotVisible();
@@ -217,7 +229,10 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         when(adapter.getItem(0)).thenReturn(playlistTrack);
         View layout = createFragmentView();
 
-        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+        final PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(Screen.STREAM,
+                                                                                  playlistWithTracks.getUrn(),
+                                                                                  playlistWithTracks.getCreatorUrn(),
+                                                                                  playlistWithTracks.getTrackCount());
 
         getPlayButton(layout).performClick();
 
@@ -259,7 +274,8 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
 
     @Test
     public void callsShowContentWhenErrorIsReturned() {
-        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>error(new Exception("something bad happened")));
+        when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>error(new Exception(
+                "something bad happened")));
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(controller);
@@ -292,7 +308,8 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     @Test
     public void setsPlayableOnEngagementsControllerWhenPlaylistIsReturned() {
         createFragmentView();
-        verify(playlistEngagementsPresenter).setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+        verify(playlistEngagementsPresenter).setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks,
+                                                                                       getPlaySessionSource()));
     }
 
     @Test
@@ -321,9 +338,10 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
 
         InOrder inOrder = Mockito.inOrder(playlistEngagementsPresenter);
         inOrder.verify(playlistEngagementsPresenter)
-                .setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+               .setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
         inOrder.verify(playlistEngagementsPresenter)
-                .setPlaylistInfo(PlaylistHeaderItem.create(updatedPlaylistWithTracks, getPlaySessionSource(updatedPlaylistWithTracks)));
+               .setPlaylistInfo(PlaylistHeaderItem.create(updatedPlaylistWithTracks,
+                                                          getPlaySessionSource(updatedPlaylistWithTracks)));
     }
 
     @Test
@@ -409,7 +427,8 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
-        assertThat(fragment.getArguments().getParcelable(LegacyPlaylistDetailFragment.EXTRA_URN)).isEqualTo(newPlaylist.getUrn());
+        assertThat(fragment.getArguments()
+                           .getParcelable(LegacyPlaylistDetailFragment.EXTRA_URN)).isEqualTo(newPlaylist.getUrn());
     }
 
     private View createFragmentView() {
@@ -458,7 +477,10 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     }
 
     private PlaySessionSource getPlaySessionSource(PlaylistWithTracks playlistWithTracks) {
-        return PlaySessionSource.forPlaylist(Screen.STREAM, playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+        return PlaySessionSource.forPlaylist(Screen.STREAM,
+                                             playlistWithTracks.getUrn(),
+                                             playlistWithTracks.getCreatorUrn(),
+                                             playlistWithTracks.getTrackCount());
     }
 
 }

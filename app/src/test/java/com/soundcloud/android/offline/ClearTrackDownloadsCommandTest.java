@@ -22,7 +22,10 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        command = new ClearTrackDownloadsCommand(propeller(), secureFileStorage, offlineContentStorage, trackOfflineStateProvider);
+        command = new ClearTrackDownloadsCommand(propeller(),
+                                                 secureFileStorage,
+                                                 offlineContentStorage,
+                                                 trackOfflineStateProvider);
     }
 
     @Test

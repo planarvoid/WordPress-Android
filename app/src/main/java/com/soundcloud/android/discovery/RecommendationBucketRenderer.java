@@ -45,7 +45,8 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBuck
 
     @Override
     public View createItemView(ViewGroup viewGroup) {
-        final View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.recommendation_bucket, viewGroup, false);
+        final View view = LayoutInflater.from(viewGroup.getContext())
+                                        .inflate(R.layout.recommendation_bucket, viewGroup, false);
         initCarousel(view, ButterKnife.<RecyclerView>findById(view, R.id.recommendations_carousel));
         return view;
     }
@@ -106,13 +107,20 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBuck
 
     private Spannable getReasonText(RecommendedTracksBucketItem recommendationBucket, Context context) {
         final String reason = getReasonType(recommendationBucket.getRecommendationReason(), context);
-        final String reasonText = context.getString(R.string.recommendation_reason_because_you_reason_tracktitle, reason,
-                recommendationBucket.getSeedTrackTitle());
+        final String reasonText = context.getString(R.string.recommendation_reason_because_you_reason_tracktitle,
+                                                    reason,
+                                                    recommendationBucket.getSeedTrackTitle());
         final int endOfReasonIndex = reasonText.indexOf(reason) + reason.length();
 
         final Spannable spannable = new SpannableString(reasonText);
-        spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.recommendation_reason_text)), 0, endOfReasonIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.seed_track_text)), endOfReasonIndex, reasonText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.recommendation_reason_text)),
+                          0,
+                          endOfReasonIndex,
+                          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.seed_track_text)),
+                          endOfReasonIndex,
+                          reasonText.length(),
+                          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         return spannable;
     }

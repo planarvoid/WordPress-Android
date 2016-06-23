@@ -27,6 +27,7 @@ public class RecentlyPlayedProfileRenderer implements CellRenderer<CollectionIte
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
+
     @Inject
     public RecentlyPlayedProfileRenderer(ImageOperations imageOperations,
                                          Resources resources,
@@ -38,7 +39,8 @@ public class RecentlyPlayedProfileRenderer implements CellRenderer<CollectionIte
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.collection_recently_played_profile_item, parent, false);
+        return LayoutInflater.from(parent.getContext())
+                             .inflate(R.layout.collection_recently_played_profile_item, parent, false);
     }
 
     @Override

@@ -76,15 +76,17 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Before
-    public void setUp()  {
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, InjectionSupport.lazyOf(dataBuilderv0),
-                InjectionSupport.lazyOf(dataBuilderv1), sharedPreferences);
+    public void setUp() {
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker,
+                                                                        InjectionSupport.lazyOf(dataBuilderv0),
+                                                                        InjectionSupport.lazyOf(dataBuilderv1),
+                                                                        sharedPreferences);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"));
     }
 
     @Test
-    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpression()  {
+    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpression() {
         PlaybackSessionEvent event = mock(PlaybackSessionEvent.class);
         when(event.isAd()).thenReturn(true);
         when(event.shouldReportAdStart()).thenReturn(true);
@@ -103,7 +105,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick()  {
+    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClick() {
         AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent().withAudioAd(audioAd);
         when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
@@ -120,9 +122,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpressionForThirdPartyAd()  {
+    public void shouldTrackPlaybackEventAtStartOfAdTrackAsAdImpressionForThirdPartyAd() {
         AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(Urn.forTrack(123L));
-        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0, AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN).withAudioAd(audioAd);
+        PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0,
+                                                                                     AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN)
+                                               .withAudioAd(audioAd);
         when(dataBuilderv0.buildForAudioAdImpression(event)).thenReturn("impressionUrl");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -135,9 +139,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClickForThirdPartyAd()  {
+    public void shouldTrackPlaybackEventAtEndOfAdTrackAsAdFinishClickForThirdPartyAd() {
         AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(Urn.forTrack(123L));
-        PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN).withAudioAd(audioAd);
+        PlaybackSessionEvent event = TestEvents.playbackSessionTrackFinishedEvent(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN)
+                                               .withAudioAd(audioAd);
         when(dataBuilderv0.buildForAdFinished(event)).thenReturn("clickUrl");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -150,7 +155,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackPlaybackEventAsEventLoggerEvent()  {
+    public void shouldTrackPlaybackEventAsEventLoggerEvent() {
         PlaybackSessionEvent event = TestEvents.playbackSessionPlayEvent();
         when(dataBuilderv1.buildForAudioEvent(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
@@ -162,9 +167,16 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent()  {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
-                ConnectionType.FOUR_G, "uri", Skippy.SkippyMediaType.UNKNOWN.name(), 0, userUrn, false);
+    public void shouldTrackPlaybackPerformanceEventAsEventLoggerEvent() {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L,
+                                                                             PlaybackProtocol.HLS,
+                                                                             PlayerType.MEDIA_PLAYER,
+                                                                             ConnectionType.FOUR_G,
+                                                                             "uri",
+                                                                             Skippy.SkippyMediaType.UNKNOWN.name(),
+                                                                             0,
+                                                                             userUrn,
+                                                                             false);
         when(dataBuilderv0.build(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -175,8 +187,15 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     public void shouldTrackRichMediaPlaybackPerformanceEventAsEventLoggerEvent() throws Exception {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
-                ConnectionType.FOUR_G, "uri", "video/mp4", 200, userUrn, true);
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L,
+                                                                             PlaybackProtocol.HLS,
+                                                                             PlayerType.MEDIA_PLAYER,
+                                                                             ConnectionType.FOUR_G,
+                                                                             "uri",
+                                                                             "video/mp4",
+                                                                             200,
+                                                                             userUrn,
+                                                                             true);
         when(dataBuilderv1.buildForRichMediaPerformance(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
@@ -190,8 +209,13 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackPlaybackErrorEventAsEventLoggerEvent()  {
-        PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HLS, "uri", Skippy.SkippyMediaType.MP3.name(), 128000, ConnectionType.FOUR_G);
+    public void shouldTrackPlaybackErrorEventAsEventLoggerEvent() {
+        PlaybackErrorEvent event = new PlaybackErrorEvent("category",
+                                                          PlaybackProtocol.HLS,
+                                                          "uri",
+                                                          Skippy.SkippyMediaType.MP3.name(),
+                                                          128000,
+                                                          ConnectionType.FOUR_G);
         when(dataBuilderv0.build(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -203,8 +227,15 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAudioAdRelatedUIEvents() {
-        UIEvent event1 = UIEvent.fromAudioAdClick(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(456), userUrn, trackSourceInfo);
-        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(456), userUrn, trackSourceInfo, 1000);
+        UIEvent event1 = UIEvent.fromAudioAdClick(AdFixtures.getAudioAd(Urn.forTrack(123L)),
+                                                  Urn.forTrack(456),
+                                                  userUrn,
+                                                  trackSourceInfo);
+        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(AdFixtures.getAudioAd(Urn.forTrack(123L)),
+                                                                  Urn.forTrack(456),
+                                                                  userUrn,
+                                                                  trackSourceInfo,
+                                                                  1000);
         when(dataBuilderv0.build(event1)).thenReturn("url1");
         when(dataBuilderv0.build(event2)).thenReturn("url2");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
@@ -224,7 +255,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
-        UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.EMPTY);
+        UIEvent event = UIEvent.fromToggleLike(true,
+                                               Urn.forTrack(123),
+                                               eventContext,
+                                               promotedSourceInfo,
+                                               EntityMetadata.EMPTY);
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForLikeEvent");
 
@@ -239,7 +274,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().invokerScreen("invoker_screen").build();
-        UIEvent event = UIEvent.fromToggleLike(false, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.EMPTY);
+        UIEvent event = UIEvent.fromToggleLike(false,
+                                               Urn.forTrack(123),
+                                               eventContext,
+                                               promotedSourceInfo,
+                                               EntityMetadata.EMPTY);
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnlikeEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -255,7 +294,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
-        UIEvent event = UIEvent.fromToggleRepost(true, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.from(trackProperties));
+        UIEvent event = UIEvent.fromToggleRepost(true,
+                                                 Urn.forTrack(123),
+                                                 eventContext,
+                                                 promotedSourceInfo,
+                                                 EntityMetadata.from(trackProperties));
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForRepostEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -271,7 +314,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         PromotedListItem promotedTrack = PromotedTrackItem.from(trackProperties);
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
         EventContextMetadata eventContext = eventContextBuilder().build();
-        UIEvent event = UIEvent.fromToggleRepost(false, Urn.forTrack(123), eventContext, promotedSourceInfo, EntityMetadata.from(trackProperties));
+        UIEvent event = UIEvent.fromToggleRepost(false,
+                                                 Urn.forTrack(123),
+                                                 eventContext,
+                                                 promotedSourceInfo,
+                                                 EntityMetadata.from(trackProperties));
         when(dataBuilderv1.buildForUIEvent(event)).thenReturn("ForUnRepostEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -284,7 +331,10 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        VisualAdImpressionEvent event = new VisualAdImpressionEvent(AdFixtures.getAudioAd(Urn.forTrack(123L)), Urn.forTrack(123L), Urn.forUser(456L), sourceInfo);
+        VisualAdImpressionEvent event = new VisualAdImpressionEvent(AdFixtures.getAudioAd(Urn.forTrack(123L)),
+                                                                    Urn.forTrack(123L),
+                                                                    Urn.forUser(456L),
+                                                                    sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -297,7 +347,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackLeaveBehindImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(
+                123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForAudioAdImpression");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -310,7 +361,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackLeaveBehindClickTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
-        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
+        AdOverlayTrackingEvent event = AdOverlayTrackingEvent.forImpression(AdFixtures.getLeaveBehindAd(Urn.forTrack(
+                123L)), Urn.forTrack(123), Urn.forUser(456), sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForAudioAdClick");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -380,7 +432,8 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackAdPlaybackQuartileEvents() {
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forFirstQuartile(AdFixtures.getAudioAd(Urn.forTrack(321L)), trackSourceInfo);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forFirstQuartile(AdFixtures.getAudioAd(Urn.forTrack(321L)),
+                                                                                 trackSourceInfo);
         when(dataBuilderv1.buildForAdProgressQuartileEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -417,7 +470,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldNotTrackAdPauseEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,
+                                                                        trackSourceInfo,
+                                                                        PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
@@ -427,7 +482,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdFinishEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forStop(videoAd,
+                                                                        trackSourceInfo,
+                                                                        PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         when(dataBuilderv1.buildForAdFinished(adEvent)).thenReturn("AdPlaybackSessionEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -466,7 +523,13 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldTrackAdDeliveryEvents() {
         AdsReceived adsReceived = new AdsReceived(Urn.NOT_SET, Urn.NOT_SET, Urn.NOT_SET);
-        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123), Urn.NOT_SET, "endpoint", adsReceived, false, false, false);
+        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(Urn.forTrack(123),
+                                                            Urn.NOT_SET,
+                                                            "endpoint",
+                                                            adsReceived,
+                                                            false,
+                                                            false,
+                                                            false);
         when(dataBuilderv1.buildForAdDelivery(event)).thenReturn("AdDeliveredEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -526,8 +589,11 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackPlaylistToOfflineEvent() {
-        OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist("page_name", Urn.forPlaylist(123L), null);
-        assertThat(v1OfflineInteractionEventCaptor("ForOfflinePlaylistEvent", event)).isEqualTo("ForOfflinePlaylistEvent");
+        OfflineInteractionEvent event = OfflineInteractionEvent.fromAddOfflinePlaylist("page_name",
+                                                                                       Urn.forPlaylist(123L),
+                                                                                       null);
+        assertThat(v1OfflineInteractionEventCaptor("ForOfflinePlaylistEvent", event)).isEqualTo(
+                "ForOfflinePlaylistEvent");
     }
 
     @Test
@@ -592,9 +658,9 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     private EventContextMetadata.Builder eventContextBuilder() {
         return EventContextMetadata.builder()
-                .contextScreen("context_screen")
-                .pageName("page_name")
-                .pageUrn(Urn.NOT_SET);
+                                   .contextScreen("context_screen")
+                                   .pageName("page_name")
+                                   .pageUrn(Urn.NOT_SET);
     }
 
     private void assertEventTracked(TrackingRecord record, String data, long ts) {

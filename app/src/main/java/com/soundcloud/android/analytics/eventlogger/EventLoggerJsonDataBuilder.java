@@ -58,8 +58,8 @@ public class EventLoggerJsonDataBuilder {
     public String build(ScreenEvent event) {
         try {
             return jsonTransformer.toJson(buildBaseEvent(PAGEVIEW_EVENT, event)
-                    .pageName(event.getScreenTag())
-                    .queryUrn(event.getQueryUrn()));
+                                                  .pageName(event.getScreenTag())
+                                                  .queryUrn(event.getQueryUrn()));
         } catch (ApiMapperException e) {
             throw new IllegalArgumentException(e);
         }
@@ -85,7 +85,7 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData getEngagementEvent(String clickName, UIEvent event) {
-        final EventLoggerEventData eventData =  buildBaseEvent(CLICK_EVENT, event)
+        final EventLoggerEventData eventData = buildBaseEvent(CLICK_EVENT, event)
                 .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
                 .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
                 .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
@@ -257,16 +257,16 @@ public class EventLoggerJsonDataBuilder {
             case SearchEvent.KIND_RESULTS:
             case SearchEvent.KIND_SUGGESTION:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
-                        .pageName(event.get(SearchEvent.KEY_PAGE_NAME))
-                        .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
-                        .queryPosition(event.getClickPosition())
-                        .clickName(event.get(SearchEvent.KEY_CLICK_NAME))
-                        .clickObject(event.get(SearchEvent.KEY_CLICK_OBJECT)));
+                                         .pageName(event.get(SearchEvent.KEY_PAGE_NAME))
+                                         .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
+                                         .queryPosition(event.getClickPosition())
+                                         .clickName(event.get(SearchEvent.KEY_CLICK_NAME))
+                                         .clickObject(event.get(SearchEvent.KEY_CLICK_OBJECT)));
 
             case SearchEvent.KIND_SUBMIT:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
-                        .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
-                        .clickName(event.get(SearchEvent.KEY_CLICK_NAME)));
+                                         .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
+                                         .clickName(event.get(SearchEvent.KEY_CLICK_NAME)));
             default:
                 throw new IllegalArgumentException("Unexpected Search Event type " + event);
         }
@@ -276,9 +276,9 @@ public class EventLoggerJsonDataBuilder {
         switch (event.getKind()) {
             case ForegroundEvent.KIND_OPEN:
                 return transform(buildBaseEvent(FOREGROUND_EVENT, event)
-                        .pageName(event.get(ForegroundEvent.KEY_PAGE_NAME))
-                        .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
-                        .referrer(event.get(ForegroundEvent.KEY_REFERRER)));
+                                         .pageName(event.get(ForegroundEvent.KEY_PAGE_NAME))
+                                         .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
+                                         .referrer(event.get(ForegroundEvent.KEY_REFERRER)));
             default:
                 throw new IllegalArgumentException("Unexpected Foreground Event type " + event);
         }
@@ -308,7 +308,12 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
-        EventLoggerEventData eventData = new EventLoggerEventData(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(), timestamp);
+        EventLoggerEventData eventData = new EventLoggerEventData(eventName,
+                                                                  BOOGALOO_VERSION,
+                                                                  appId,
+                                                                  getAnonymousId(),
+                                                                  getUserUrn(),
+                                                                  timestamp);
         addExperiments(eventData);
         return eventData;
     }

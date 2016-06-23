@@ -11,7 +11,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class MixedPlayableRecyclerItemAdapter extends PagingRecyclerItemAdapter<PlayableItem, MixedPlayableRecyclerItemAdapter.MixedPlayableViewHolder> {
+public class MixedPlayableRecyclerItemAdapter
+        extends PagingRecyclerItemAdapter<PlayableItem, MixedPlayableRecyclerItemAdapter.MixedPlayableViewHolder> {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
@@ -21,7 +22,7 @@ public class MixedPlayableRecyclerItemAdapter extends PagingRecyclerItemAdapter<
     @Inject
     public MixedPlayableRecyclerItemAdapter(TrackItemRenderer trackRenderer, PlaylistItemRenderer playlistRenderer) {
         super(new CellRendererBinding<>(TRACK_ITEM_TYPE, trackRenderer),
-                new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistRenderer));
+              new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistRenderer));
         this.trackRenderer = trackRenderer;
     }
 

@@ -110,7 +110,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
                         follower.put(UserProperty.IS_FOLLOWED_BY_ME, false)
                                 .put(UserAssociationProperty.POSITION, 1L),
                         followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
-                                .put(UserAssociationProperty.POSITION, 2L)
+                                            .put(UserAssociationProperty.POSITION, 2L)
                 )
         );
     }
@@ -130,7 +130,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValues(singletonList(
                 followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
-                        .put(UserAssociationProperty.POSITION, 2L)));
+                                    .put(UserAssociationProperty.POSITION, 2L)));
     }
 
     @Test
@@ -140,7 +140,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValues(
                 following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
-                        .put(UserAssociationProperty.POSITION, 3L)
+                         .put(UserAssociationProperty.POSITION, 3L)
         );
     }
 
@@ -151,9 +151,9 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         subscriber.assertValues(
                 asList(
                         followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
-                                .put(UserAssociationProperty.POSITION, 2L),
+                                            .put(UserAssociationProperty.POSITION, 2L),
                         following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
-                                .put(UserAssociationProperty.POSITION, 3L)
+                                 .put(UserAssociationProperty.POSITION, 3L)
                 )
         );
     }
@@ -164,7 +164,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValues(singletonList(
                 followingAndFollower.put(UserProperty.IS_FOLLOWED_BY_ME, true)
-                        .put(UserAssociationProperty.POSITION, 2L)));
+                                    .put(UserAssociationProperty.POSITION, 2L)));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValues(singletonList(
                 following.put(UserProperty.IS_FOLLOWED_BY_ME, true)
-                        .put(UserAssociationProperty.POSITION, 3L)));
+                         .put(UserAssociationProperty.POSITION, 3L)));
     }
 
 
@@ -208,9 +208,9 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         final List<PropertySet> followings = storage.loadStaleFollowings();
 
         Assertions.assertThat(followings).containsExactly(following
-                        .put(UserAssociationProperty.ADDED_AT, new Date(123))
-                        .put(UserAssociationProperty.POSITION, 0L)
-                        .put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                                                                  .put(UserAssociationProperty.ADDED_AT, new Date(123))
+                                                                  .put(UserAssociationProperty.POSITION, 0L)
+                                                                  .put(UserProperty.IS_FOLLOWED_BY_ME, true)
         );
     }
 
@@ -221,9 +221,10 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         final List<PropertySet> followings = storage.loadStaleFollowings();
 
         Assertions.assertThat(followings).containsExactly(following
-                        .put(UserAssociationProperty.REMOVED_AT, new Date(123))
-                        .put(UserAssociationProperty.POSITION, 0L)
-                        .put(UserProperty.IS_FOLLOWED_BY_ME, true)
+                                                                  .put(UserAssociationProperty.REMOVED_AT,
+                                                                       new Date(123))
+                                                                  .put(UserAssociationProperty.POSITION, 0L)
+                                                                  .put(UserProperty.IS_FOLLOWED_BY_ME, true)
         );
     }
 
@@ -252,12 +253,12 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
         // should not delete the FOLLOWER association
         assertThat(select(Query.from(UserAssociations)
-                .whereEq(TARGET_ID, followingAndFollowerUrn.getNumericId())))
+                               .whereEq(TARGET_ID, followingAndFollowerUrn.getNumericId())))
                 .counts(1);
         // should only delete the FOLLOWING association
         assertThat(select(Query.from(UserAssociations)
-                .whereEq(TARGET_ID, followingAndFollowerUrn.getNumericId())
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
+                               .whereEq(TARGET_ID, followingAndFollowerUrn.getNumericId())
+                               .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
                 .isEmpty();
     }
 
@@ -269,14 +270,14 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.insertFollowedUsers(Arrays.<UserRecord>asList(user1, user2));
 
         assertThat(select(Query.from(UserAssociations)
-                .whereEq(TARGET_ID, user1.getUrn().getNumericId())
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                .whereEq(POSITION, 0)))
+                               .whereEq(TARGET_ID, user1.getUrn().getNumericId())
+                               .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                               .whereEq(POSITION, 0)))
                 .counts(1);
         assertThat(select(Query.from(UserAssociations)
-                .whereEq(TARGET_ID, user2.getUrn().getNumericId())
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                .whereEq(POSITION, 1)))
+                               .whereEq(TARGET_ID, user2.getUrn().getNumericId())
+                               .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                               .whereEq(POSITION, 1)))
                 .counts(1);
     }
 
@@ -288,10 +289,10 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.insertFollowedUsers(Arrays.<UserRecord>asList(user1, user2));
 
         assertThat(select(Query.from(Users)
-                .whereEq(BaseColumns._ID, user1.getUrn().getNumericId())))
+                               .whereEq(BaseColumns._ID, user1.getUrn().getNumericId())))
                 .counts(1);
         assertThat(select(Query.from(Users)
-                .whereEq(BaseColumns._ID, user2.getUrn().getNumericId())))
+                               .whereEq(BaseColumns._ID, user2.getUrn().getNumericId())))
                 .counts(1);
     }
 
@@ -303,23 +304,23 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
         storage.insertFollowedUserIds(asList(user1.getId(), user2.getId()), 2);
 
         assertThat(select(Query.from(UserAssociations)
-                .whereEq(TARGET_ID, user1.getUrn().getNumericId())
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                .whereEq(POSITION, 2)))
+                               .whereEq(TARGET_ID, user1.getUrn().getNumericId())
+                               .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                               .whereEq(POSITION, 2)))
                 .counts(1);
         assertThat(select(Query.from(UserAssociations)
-                .whereEq(TARGET_ID, user2.getUrn().getNumericId())
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                .whereEq(POSITION, 3)))
+                               .whereEq(TARGET_ID, user2.getUrn().getNumericId())
+                               .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                               .whereEq(POSITION, 3)))
                 .counts(1);
     }
 
     @Test
     public void shouldResetPendingFollowingAddition() {
         final Query addedAtQuery = Query.from(UserAssociations)
-                .select(ADDED_AT)
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                .whereEq(TARGET_ID, followingUrn.getNumericId());
+                                        .select(ADDED_AT)
+                                        .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                                        .whereEq(TARGET_ID, followingUrn.getNumericId());
         markFollowingAsAdded(followingUrn);
         long addedAtBefore = propeller().query(addedAtQuery).firstOrDefault(Long.class, 0L);
         Assertions.assertThat(addedAtBefore).isGreaterThan(0L);
@@ -334,15 +335,15 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
     public void shouldDeletePendingFollowingRemoval() {
         markFollowingAsRemoved(followingUrn);
         assertThat(select(Query.from(UserAssociations)
-                .whereEq(TARGET_ID, followingUrn.getNumericId())
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
+                               .whereEq(TARGET_ID, followingUrn.getNumericId())
+                               .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
                 .counts(1);
 
         storage.updateFollowingFromPendingState(followingUrn);
 
         assertThat(select(Query.from(UserAssociations)
-                .whereEq(TARGET_ID, followingUrn.getNumericId())
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
+                               .whereEq(TARGET_ID, followingUrn.getNumericId())
+                               .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)))
                 .isEmpty();
     }
 
@@ -353,14 +354,14 @@ public class UserAssociationStorageTest extends StorageIntegrationTest {
 
     private void markFollowingAsAdded(Urn followingUrn) {
         propeller().update(UserAssociations,
-                values().put(ADDED_AT, 123).get(),
-                filter().whereEq(TARGET_ID, followingUrn.getNumericId()));
+                           values().put(ADDED_AT, 123).get(),
+                           filter().whereEq(TARGET_ID, followingUrn.getNumericId()));
     }
 
     private void markFollowingAsRemoved(Urn followingUrn) {
         propeller().update(UserAssociations,
-                values().put(REMOVED_AT, 123).get(),
-                filter().whereEq(TARGET_ID, followingUrn.getNumericId()));
+                           values().put(REMOVED_AT, 123).get(),
+                           filter().whereEq(TARGET_ID, followingUrn.getNumericId()));
     }
 
     private PropertySet apiUserToResultSet(ApiUser apiUser1) {

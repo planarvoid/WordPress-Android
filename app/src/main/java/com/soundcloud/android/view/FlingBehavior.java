@@ -24,7 +24,12 @@ public final class FlingBehavior extends AppBarLayout.Behavior {
     }
 
     @Override
-    public boolean onNestedFling(CoordinatorLayout coordinatorLayout, AppBarLayout child, View target, float velocityX, float velocityY, boolean consumed) {
+    public boolean onNestedFling(CoordinatorLayout coordinatorLayout,
+                                 AppBarLayout child,
+                                 View target,
+                                 float velocityX,
+                                 float velocityY,
+                                 boolean consumed) {
         if (velocityY > 0 && !isPositive || velocityY < 0 && isPositive) {
             velocityY = velocityY * -1;
         }
@@ -38,7 +43,12 @@ public final class FlingBehavior extends AppBarLayout.Behavior {
     }
 
     @Override
-    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, AppBarLayout child, View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout,
+                                  AppBarLayout child,
+                                  View target,
+                                  int dx,
+                                  int dy,
+                                  int[] consumed) {
         super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed);
         isPositive = dy > 0;
     }

@@ -36,7 +36,10 @@ public class FabricAnalyticsProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        provider = new FabricAnalyticsProvider(applicationProperties, fabricProvider, databaseReporting, fabricReporter);
+        provider = new FabricAnalyticsProvider(applicationProperties,
+                                               fabricProvider,
+                                               databaseReporting,
+                                               fabricReporter);
         when(databaseReporting.countTracks()).thenReturn(3);
         when(fabricProvider.getExecutor()).thenReturn(new Executor() {
             @Override

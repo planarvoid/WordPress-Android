@@ -49,18 +49,22 @@ public class PlaylistStorage {
 
     public boolean hasLocalChanges() {
         final QueryResult queryResult = propeller.query(apply(exists(from(Table.Sounds.name())
-                .select(TableColumns.SoundView._ID, TableColumns.Sounds.REMOVED_AT)
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereLt(TableColumns.Sounds._ID, 0)).as("has_local_playlists")
-                .orWhereNotNull(TableColumns.Sounds.REMOVED_AT)));
+                                                                             .select(TableColumns.SoundView._ID,
+                                                                                     TableColumns.Sounds.REMOVED_AT)
+                                                                             .whereEq(TableColumns.SoundView._TYPE,
+                                                                                      TableColumns.Sounds.TYPE_PLAYLIST)
+                                                                             .whereLt(TableColumns.Sounds._ID, 0)).as(
+                "has_local_playlists")
+                                                                                                                  .orWhereNotNull(
+                                                                                                                          TableColumns.Sounds.REMOVED_AT)));
         return queryResult.first(Boolean.class);
     }
 
     public Set<Urn> getPlaylistsDueForSync() {
         final QueryResult queryResult = propeller.query(from(Table.PlaylistTracks.name())
-                .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
-                .where(hasLocalTracks())
-                .where(isNotLocal()));
+                                                                .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
+                                                                .where(hasLocalTracks())
+                                                                .where(isNotLocal()));
 
         Set<Urn> returnSet = new HashSet<>();
         for (CursorReader reader : queryResult) {
@@ -82,57 +86,59 @@ public class PlaylistStorage {
 
     public PropertySet loadPlaylistModifications(Urn playlistUrn) {
         return propeller.query(buildPlaylistModificationQuery(playlistUrn))
-                .firstOrDefault(new PlaylistModificationMapper(), PropertySet.create());
+                        .firstOrDefault(new PlaylistModificationMapper(), PropertySet.create());
     }
 
     public Observable<PropertySet> loadPlaylist(Urn playlistUrn) {
         return propellerRx.query(buildSinglePlaylistQuery(playlistUrn))
-                .map(new PlaylistInfoMapper(accountOperations.getLoggedInUserUrn()))
-                .defaultIfEmpty(PropertySet.create());
+                          .map(new PlaylistInfoMapper(accountOperations.getLoggedInUserUrn()))
+                          .defaultIfEmpty(PropertySet.create());
     }
 
     private Query buildPlaylistModificationQuery(Urn playlistUrn) {
         return Query.from(Table.Sounds.name())
-                .select(
-                        TableColumns.Sounds._ID,
-                        TableColumns.Sounds.TITLE,
-                        TableColumns.Sounds.SHARING
-                )
-                .whereEq(TableColumns.Sounds._ID, playlistUrn.getNumericId())
-                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereNotNull(TableColumns.Sounds.MODIFIED_AT);
+                    .select(
+                            TableColumns.Sounds._ID,
+                            TableColumns.Sounds.TITLE,
+                            TableColumns.Sounds.SHARING
+                    )
+                    .whereEq(TableColumns.Sounds._ID, playlistUrn.getNumericId())
+                    .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                    .whereNotNull(TableColumns.Sounds.MODIFIED_AT);
     }
 
     private Query buildSinglePlaylistQuery(Urn playlistUrn) {
         return Query.from(Table.SoundView.name())
-                .select(
-                        TableColumns.SoundView._ID,
-                        TableColumns.SoundView.TITLE,
-                        TableColumns.SoundView.USERNAME,
-                        TableColumns.SoundView.USER_ID,
-                        TableColumns.SoundView.DURATION,
-                        TableColumns.SoundView.TRACK_COUNT,
-                        TableColumns.SoundView.LIKES_COUNT,
-                        TableColumns.SoundView.REPOSTS_COUNT,
-                        TableColumns.SoundView.PERMALINK_URL,
-                        TableColumns.SoundView.SHARING,
-                        TableColumns.SoundView.CREATED_AT,
-                        TableColumns.SoundView.ARTWORK_URL,
-                        TableColumns.SoundView.IS_ALBUM,
-                        TableColumns.SoundView.SET_TYPE,
-                        TableColumns.SoundView.RELEASE_DATE,
-                        count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
-                        exists(likeQuery(playlistUrn)).as(TableColumns.SoundView.USER_LIKE),
-                        exists(repostQuery(playlistUrn)).as(TableColumns.SoundView.USER_REPOST),
-                        exists(pendingPlaylistTracksUrns(playlistUrn)).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
-                        exists(hasOfflineTracks(playlistUrn)).as(PostedPlaylistMapper.HAS_DOWNLOADED_TRACKS),
-                        exists(hasUnavailableTracks(playlistUrn)).as(PostedPlaylistMapper.HAS_UNAVAILABLE_TRACKS),
-                        exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE)
-                )
-                .whereEq(TableColumns.SoundView._ID, playlistUrn.getNumericId())
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
-                .groupBy(Table.SoundView.field(TableColumns.SoundView._ID));
+                    .select(
+                            TableColumns.SoundView._ID,
+                            TableColumns.SoundView.TITLE,
+                            TableColumns.SoundView.USERNAME,
+                            TableColumns.SoundView.USER_ID,
+                            TableColumns.SoundView.DURATION,
+                            TableColumns.SoundView.TRACK_COUNT,
+                            TableColumns.SoundView.LIKES_COUNT,
+                            TableColumns.SoundView.REPOSTS_COUNT,
+                            TableColumns.SoundView.PERMALINK_URL,
+                            TableColumns.SoundView.SHARING,
+                            TableColumns.SoundView.CREATED_AT,
+                            TableColumns.SoundView.ARTWORK_URL,
+                            TableColumns.SoundView.IS_ALBUM,
+                            TableColumns.SoundView.SET_TYPE,
+                            TableColumns.SoundView.RELEASE_DATE,
+                            count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
+                            exists(likeQuery(playlistUrn)).as(TableColumns.SoundView.USER_LIKE),
+                            exists(repostQuery(playlistUrn)).as(TableColumns.SoundView.USER_REPOST),
+                            exists(pendingPlaylistTracksUrns(playlistUrn)).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
+                            exists(hasOfflineTracks(playlistUrn)).as(PostedPlaylistMapper.HAS_DOWNLOADED_TRACKS),
+                            exists(hasUnavailableTracks(playlistUrn)).as(PostedPlaylistMapper.HAS_UNAVAILABLE_TRACKS),
+                            exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE)
+                    )
+                    .whereEq(TableColumns.SoundView._ID, playlistUrn.getNumericId())
+                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                    .leftJoin(Table.PlaylistTracks.name(),
+                              Table.SoundView.field(TableColumns.SoundView._ID),
+                              TableColumns.PlaylistTracks.PLAYLIST_ID)
+                    .groupBy(Table.SoundView.field(TableColumns.SoundView._ID));
     }
 
     private Query hasOfflineTracks(Urn playlistUrn) {
@@ -149,7 +155,8 @@ public class PlaylistStorage {
 
     private Query getQuery(Urn playlistUrn, Where offlineFilter) {
         final Where joinConditions = filter()
-                .whereEq(Table.SoundView.field(TableColumns.Sounds._ID), Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
+                .whereEq(Table.SoundView.field(TableColumns.Sounds._ID),
+                         Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
                 .whereEq(Table.SoundView.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST);
         return Query
                 .from(TrackDownloads.TABLE)
@@ -166,10 +173,10 @@ public class PlaylistStorage {
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
 
         return Query.from(Table.Likes.name())
-                .innerJoin(Table.Sounds.name(), joinConditions)
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), playlistUrn.getNumericId())
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+                    .innerJoin(Table.Sounds.name(), joinConditions)
+                    .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), playlistUrn.getNumericId())
+                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
+                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private Query repostQuery(Urn playlistUrn) {
@@ -178,10 +185,10 @@ public class PlaylistStorage {
                 .whereEq(TableColumns.Sounds._TYPE, TableColumns.Posts.TARGET_TYPE);
 
         return Query.from(Table.Posts.name())
-                .innerJoin(Table.Sounds.name(), joinConditions)
-                .whereEq(TableColumns.Sounds._ID, playlistUrn.getNumericId())
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
+                    .innerJoin(Table.Sounds.name(), joinConditions)
+                    .whereEq(TableColumns.Sounds._ID, playlistUrn.getNumericId())
+                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
+                    .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
     }
 
     private static class PlaylistModificationMapper implements ResultMapper<PropertySet> {
@@ -190,7 +197,9 @@ public class PlaylistStorage {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
             propertySet.put(PlaylistProperty.URN, Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID)));
             propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
-            propertySet.put(PlaylistProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+            propertySet.put(PlaylistProperty.IS_PRIVATE,
+                            Sharing.PRIVATE.name()
+                                           .equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
             return propertySet;
         }
     }

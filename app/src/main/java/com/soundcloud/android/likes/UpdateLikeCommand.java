@@ -34,9 +34,12 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.update(Table.Sounds, ContentValuesBuilder.values().put(TableColumns.Sounds.LIKES_COUNT, updatedLikesCount).get(),
-                        filter().whereEq(TableColumns.Sounds._ID, params.targetUrn.getNumericId())
-                                .whereEq(TableColumns.Sounds._TYPE, getSoundType(params.targetUrn))));
+                step(propeller.update(Table.Sounds,
+                                      ContentValuesBuilder.values()
+                                                          .put(TableColumns.Sounds.LIKES_COUNT, updatedLikesCount)
+                                                          .get(),
+                                      filter().whereEq(TableColumns.Sounds._ID, params.targetUrn.getNumericId())
+                                              .whereEq(TableColumns.Sounds._TYPE, getSoundType(params.targetUrn))));
                 step(propeller.upsert(Table.Likes, buildContentValuesForLike(params)));
             }
         });
@@ -49,10 +52,10 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
 
     private int obtainNewLikesCount(PropellerDatabase propeller, UpdateLikeParams params) {
         int count = propeller.query(from(Table.SoundView.name())
-                .select(SoundView.LIKES_COUNT)
-                .whereEq(SoundView._ID, params.targetUrn.getNumericId())
-                .whereEq(SoundView._TYPE, getSoundType(params.targetUrn)))
-                .first(Integer.class);
+                                            .select(SoundView.LIKES_COUNT)
+                                            .whereEq(SoundView._ID, params.targetUrn.getNumericId())
+                                            .whereEq(SoundView._TYPE, getSoundType(params.targetUrn)))
+                             .first(Integer.class);
 
         if (count == Consts.NOT_SET) {
             return Consts.NOT_SET;

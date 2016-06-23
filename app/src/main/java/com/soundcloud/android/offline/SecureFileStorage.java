@@ -46,7 +46,9 @@ public class SecureFileStorage {
         }
     }
 
-    public void storeTrack(Urn urn, InputStream input, Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
+    public void storeTrack(Urn urn,
+                           InputStream input,
+                           Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
         if (!createDirectoryIfNeeded()) {
             throw new IOException("Failed to create directory for " + OFFLINE_DIR.getAbsolutePath());
         }

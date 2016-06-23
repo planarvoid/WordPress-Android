@@ -41,15 +41,15 @@ public class LoadPlaylistRepostStatuses extends Command<Iterable<PropertySet>, M
 
     private Query forReposts(Iterable<PropertySet> input) {
         return Query.from(Table.SoundView.name())
-                .select(SoundView._ID, Posts.TYPE)
-                .leftJoin(Table.Posts.name(), joinCondition())
-                .whereIn(SoundView._ID, extractIds(input, Optional.of(playlistPredicate())));
+                    .select(SoundView._ID, Posts.TYPE)
+                    .leftJoin(Table.Posts.name(), joinCondition())
+                    .whereIn(SoundView._ID, extractIds(input, Optional.of(playlistPredicate())));
     }
 
     private static Where joinCondition() {
         return filter().whereEq(SoundView._ID, Posts.TARGET_ID)
-                .whereEq(Table.Posts.field(Posts.TARGET_TYPE), Sounds.TYPE_PLAYLIST)
-                .whereNull(Table.Posts.field(Likes.REMOVED_AT));
+                       .whereEq(Table.Posts.field(Posts.TARGET_TYPE), Sounds.TYPE_PLAYLIST)
+                       .whereNull(Table.Posts.field(Likes.REMOVED_AT));
     }
 
     private Map<Urn, PropertySet> toRepostedSet(QueryResult queryResult) {

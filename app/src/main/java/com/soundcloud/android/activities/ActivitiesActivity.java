@@ -20,7 +20,7 @@ public class ActivitiesActivity extends PlayerActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(getContentHolderViewId(), new ActivitiesFragment()).commit();
+                                       .add(getContentHolderViewId(), new ActivitiesFragment()).commit();
         }
     }
 

@@ -55,7 +55,7 @@ public class AuthTaskTest {
     }
 
     @Test
-    public void shouldCreateUserIfUserAccountAddedSuccessfully(){
+    public void shouldCreateUserIfUserAccountAddedSuccessfully() {
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.API)).thenReturn(true);
         authTask.addAccount(user, token, SignupVia.API);
         verify(storeUsersCommand).call(Collections.singleton(user));

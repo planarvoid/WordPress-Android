@@ -137,21 +137,23 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                 .create(new Observable.OnSubscribe<PlaybackResult>() {
                     @Override
                     public void call(Subscriber<? super PlaybackResult> subscriber) {
-                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue, initialTrackPosition,
-                                initialTrackUrn, playSessionSource);
-                         String message = "setNewQueue -> " +
+                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueue,
+                                                                                                         initialTrackPosition,
+                                                                                                         initialTrackUrn,
+                                                                                                         playSessionSource);
+                        String message = "setNewQueue -> " +
                                 "playQueue = [" + playQueue + "], " +
                                 "initialTrackUrn = [" + initialTrackUrn + "], " +
                                 "initialTrackPosition = [" + initialTrackPosition + "], " +
-                                 "playSessionSource = [" + playSessionSource + "]" +
-                                 "updatedPosition = [" + updatedPosition + "]" +
-                                 "updated PlayQueueItem = [" + playQueue.getPlayQueueItem(updatedPosition) + "]";
+                                "playSessionSource = [" + playSessionSource + "]" +
+                                "updatedPosition = [" + updatedPosition + "]" +
+                                "updated PlayQueueItem = [" + playQueue.getPlayQueueItem(updatedPosition) + "]";
                         if (initialTrackPosition < playQueue.size()) {
                             message += "initial PlayQueueItem = [" + playQueue.getPlayQueueItem(initialTrackPosition) + "]";
                         }
 
                         Log.d(TAG_BUG_4503,
-                                message
+                              message
                         );
 
                         playQueueManager.setNewPlayQueue(playQueue, playSessionSource, updatedPosition);

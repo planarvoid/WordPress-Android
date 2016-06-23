@@ -32,7 +32,9 @@ class TrackLikesHeaderView {
 
     interface Listener {
         void onShuffle();
+
         void onUpsell();
+
         void onMakeAvailableOffline(boolean isAvailable);
     }
 
@@ -47,7 +49,9 @@ class TrackLikesHeaderView {
         setupView(view, downloadStateView, listener);
     }
 
-    private void setupView(View view, DownloadStateView downloadStateView, final TrackLikesHeaderView.Listener listener) {
+    private void setupView(View view,
+                           DownloadStateView downloadStateView,
+                           final TrackLikesHeaderView.Listener listener) {
         final View headerView = view.findViewById(R.id.track_likes_header);
         downloadStateView.onViewCreated(headerView);
         headerOpt = Optional.of(headerView);

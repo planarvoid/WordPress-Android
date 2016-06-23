@@ -64,7 +64,7 @@ public class RoundedColorButton extends Button {
 
     private void drawBackground(Canvas canvas) {
         int backgroundColor = backgroundColorStateList.getColorForState(getDrawableState(),
-                backgroundColorStateList.getDefaultColor());
+                                                                        backgroundColorStateList.getDefaultColor());
         backgroundPaint.setColor(backgroundColor);
         rectangle.right = getWidth();
         rectangle.bottom = getHeight();

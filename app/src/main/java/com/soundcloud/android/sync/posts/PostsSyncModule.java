@@ -47,7 +47,7 @@ public class PostsSyncModule {
                                              StorePlaylistsCommand storePlaylistsCommand,
                                              EventBus eventBus) {
         return new PostsSyncer<>(loadLocalPosts, fetchRemotePosts, storePostsCommand, removePostsCommand,
-                fetchPlaylistsCommand, storePlaylistsCommand, eventBus);
+                                 fetchPlaylistsCommand, storePlaylistsCommand, eventBus);
     }
 
     @Provides
@@ -72,6 +72,6 @@ public class PostsSyncModule {
                                      StoreTracksCommand storeTracksCommand,
                                      EventBus eventBus) {
         return new PostsSyncer<>(loadLocalPosts, fetchRemotePosts, storePostsCommand, removePostsCommand,
-                fetchTracksCommand, storeTracksCommand, eventBus);
+                                 fetchTracksCommand, storeTracksCommand, eventBus);
     }
 }

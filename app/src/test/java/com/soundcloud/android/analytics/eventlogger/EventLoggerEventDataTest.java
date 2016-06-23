@@ -14,8 +14,8 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     @Test
     public void implementsEqualsContract() throws Exception {
         EqualsVerifier.forClass(EventLoggerEventData.class)
-                .suppress(Warning.NONFINAL_FIELDS)
-                .verify();
+                      .suppress(Warning.NONFINAL_FIELDS)
+                      .verify();
     }
 
     @Test

@@ -93,29 +93,31 @@ class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, Track
     @Override
     protected CollectionBinding<List<PropertySet>, TrackItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
-                .withAdapter(adapter)
-                .withPager(likeOperations.pagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(likeOperations.pagingFunction())
+                                .build();
     }
 
     @Override
     protected CollectionBinding<List<PropertySet>, TrackItem> onRefreshBinding() {
         return CollectionBinding.from(
                 likeOperations.updatedLikedTracks()
-                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.LIKES))),
+                              .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING,
+                                                                     new PullToRefreshEvent(Screen.LIKES))),
                 TrackItem.fromPropertySets())
-                .withAdapter(adapter)
-                .withPager(likeOperations.pagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(likeOperations.pagingFunction())
+                                .build();
     }
 
     @Override
-    protected void onSubscribeBinding(CollectionBinding<List<PropertySet>, TrackItem> collectionBinding, CompositeSubscription viewLifeCycle) {
+    protected void onSubscribeBinding(CollectionBinding<List<PropertySet>, TrackItem> collectionBinding,
+                                      CompositeSubscription viewLifeCycle) {
         Observable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
-                .first()
-                .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
-                .observeOn(AndroidSchedulers.mainThread())
-                .cache();
+                                                                   .first()
+                                                                   .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
+                                                                   .observeOn(AndroidSchedulers.mainThread())
+                                                                   .cache();
         collectionSubscription = allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber());
     }
 
@@ -129,30 +131,30 @@ class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, Track
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
-                        new UpdatePlayingTrackSubscriber(adapter)),
+                                   new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.queue(OFFLINE_CONTENT_CHANGED)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED,
-                        new UpdateEntityListSubscriber(adapter)),
+                                   new UpdateEntityListSubscriber(adapter)),
 
                 likeOperations.onTrackLiked()
-                        .map(TrackItem.fromPropertySet())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new PrependItemToListSubscriber<>(adapter)),
+                              .map(TrackItem.fromPropertySet())
+                              .observeOn(AndroidSchedulers.mainThread())
+                              .subscribe(new PrependItemToListSubscriber<>(adapter)),
                 likeOperations.onTrackUnliked()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RemoveEntityListSubscriber(adapter)),
+                              .observeOn(AndroidSchedulers.mainThread())
+                              .subscribe(new RemoveEntityListSubscriber(adapter)),
 
                 offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()
-                        .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
+                                        .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
 
         entityStateChangedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
-                .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new AllLikedTracksSubscriber());
+                                                 .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
+                                                 .flatMap(RxUtils.continueWith(likeOperations.likedTrackUrns()))
+                                                 .observeOn(AndroidSchedulers.mainThread())
+                                                 .subscribe(new AllLikedTracksSubscriber());
     }
 
     @Override

@@ -36,13 +36,14 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
     private final TestEventBus eventBus = new TestEventBus();
     private final Urn nextTrackUrn = Urn.forTrack(123L);
-    private final PropertySet track = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn), TrackProperty.SNIPPED.bind(true));
+    private final PropertySet track = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
+                                                       TrackProperty.SNIPPED.bind(true));
     private final PreloadItem preloadItem = new AutoParcel_PreloadItem(nextTrackUrn, PlaybackType.AUDIO_SNIPPET);
 
     @Before
     public void setUp() throws Exception {
         preloader = new StreamPreloader(eventBus, trackRepository, playQueueManager,
-                offlinePlaybackOperations, serviceInitiator, streamCacheConfig);
+                                        offlinePlaybackOperations, serviceInitiator, streamCacheConfig);
         preloader.subscribe();
 
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(track));
@@ -68,8 +69,10 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
         final int position = 1000;
         final long duration = position + StreamPreloader.MOBILE_TIME_TOLERANCE - 1;
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(new PlaybackProgress(position, duration), Urn.NOT_SET));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
+                         PlaybackProgressEvent.create(new PlaybackProgress(position, duration), Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 
         verify(serviceInitiator).preload(preloadItem);
@@ -131,9 +134,11 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
         firePlayQueueItemChanged();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, Urn.NOT_SET));
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.WIFI);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
+                         PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
 
         verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
@@ -144,9 +149,11 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         setupValidSpaceRemaining();
 
         firePlayQueueItemChanged();
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.UNKNOWN);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
+                         PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
 
         verify(serviceInitiator, never()).preload(any(PreloadItem.class));
     }
@@ -159,8 +166,10 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         firePlayQueueItemChanged();
         final int position = 1000;
         final long duration = position + StreamPreloader.MOBILE_TIME_TOLERANCE;
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(new PlaybackProgress(position, duration), Urn.NOT_SET));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
+                         PlaybackProgressEvent.create(new PlaybackProgress(position, duration), Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 
         verify(serviceInitiator, never()).preload(any(PreloadItem.class));
@@ -176,12 +185,15 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     }
 
     private void firePlayQueueItemChanged() {
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(PlayQueueItem.EMPTY, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(PlayQueueItem.EMPTY, Urn.NOT_SET, 0));
     }
 
     private void publishValidPlaybackConditions() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.WIFI);
-        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
+                         PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
     }
 }

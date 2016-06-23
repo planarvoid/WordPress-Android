@@ -40,7 +40,7 @@ public class AudioAdTest extends AdBaseTest {
         swipeToAd();
         assertThat(playerElement, is(not(SkipAllowed())));
 
-        if (playerElement.isFullbleedAd()){
+        if (playerElement.isFullbleedAd()) {
             playerElement.clickAdArtwork();
         }
 

@@ -6,11 +6,13 @@ import android.text.TextUtils;
 
 public final class SharedPreferencesUtils {
 
-    private SharedPreferencesUtils() {}
+    private SharedPreferencesUtils() {
+    }
 
     /**
      * Creates a preference which has the current value in the title
-     * @param list the list preference
+     *
+     * @param list    the list preference
      * @param titleId the title id string resource
      */
     public static void listWithLabel(final ListPreference list, final int titleId) {

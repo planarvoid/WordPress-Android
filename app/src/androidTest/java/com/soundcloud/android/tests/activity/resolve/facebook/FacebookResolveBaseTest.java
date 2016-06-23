@@ -22,7 +22,8 @@ public abstract class FacebookResolveBaseTest extends ActivityTest<MainActivity>
 
     @Override
     protected void setUp() throws Exception {
-        final Intent activityIntent = new Intent(getInstrumentation().getTargetContext(), MainActivity.class).setData(getUri());
+        final Intent activityIntent = new Intent(getInstrumentation().getTargetContext(), MainActivity.class).setData(
+                getUri());
         setActivityIntent(activityIntent);
         super.setUp();
     }

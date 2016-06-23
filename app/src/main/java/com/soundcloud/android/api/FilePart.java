@@ -56,9 +56,9 @@ public final class FilePart extends FormPart {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("partName", partName)
-                .add("file", file)
-                .add("fileName", fileName)
-                .toString();
+                          .add("partName", partName)
+                          .add("file", file)
+                          .add("fileName", fileName)
+                          .toString();
     }
 }

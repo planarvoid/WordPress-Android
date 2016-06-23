@@ -39,14 +39,18 @@ class GoBackOnlineDialogPresenter {
         if (remainingDays == 0) {
             return resources.getString(R.string.offline_dialog_go_online_error_title);
         }
-        return resources.getQuantityString(R.plurals.offline_dialog_go_online_warning_title, remainingDays, remainingDays);
+        return resources.getQuantityString(R.plurals.offline_dialog_go_online_warning_title,
+                                           remainingDays,
+                                           remainingDays);
     }
 
     private String getContentText(int remainingDays) {
         if (remainingDays == 0) {
             return resources.getString(R.string.offline_dialog_go_online_error_content);
         }
-        return resources.getQuantityString(R.plurals.offline_dialog_go_online_warning_content, remainingDays, remainingDays);
+        return resources.getQuantityString(R.plurals.offline_dialog_go_online_warning_content,
+                                           remainingDays,
+                                           remainingDays);
     }
 
     @VisibleForTesting

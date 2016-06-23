@@ -28,7 +28,7 @@ public class PlaybackStateTransitionTest extends AndroidUnitTest {
     @Test
     public void implementsEqualsContract() {
         EqualsVerifier.forClass(PlaybackStateTransition.class)
-                .usingGetClass()
-                .verify();
+                      .usingGetClass()
+                      .verify();
     }
 }

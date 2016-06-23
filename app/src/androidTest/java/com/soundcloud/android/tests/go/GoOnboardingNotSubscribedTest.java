@@ -35,7 +35,7 @@ public class GoOnboardingNotSubscribedTest extends ActivityTest<GoOnboardingActi
         assertThat(errorElement, is(elementVisible()));
 
         Screen nextScreen = errorElement.clickTryLater();
-        assertThat(nextScreen , is(screenVisible()));
+        assertThat(nextScreen, is(screenVisible()));
     }
 
     private Matcher<Element> elementVisible() {

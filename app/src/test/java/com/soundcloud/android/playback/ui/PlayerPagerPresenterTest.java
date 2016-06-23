@@ -106,22 +106,27 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
 
-        when(trackPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(view1, view2, view3, view4, view5, view6);
+        when(trackPagePresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(view1,
+                                                                                                          view2,
+                                                                                                          view3,
+                                                                                                          view4,
+                                                                                                          view5,
+                                                                                                          view6);
         when(audioAdPresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(audioAdView);
         when(videoAdPresenter.createItemView(any(ViewGroup.class), any(SkipListener.class))).thenReturn(videoAdView);
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
 
         eventBus = new TestEventBus();
         presenter = new PlayerPagerPresenter(playQueueManager,
-                playSessionStateProvider,
-                trackRepository,
-                stationsOperations,
-                trackPagePresenter,
-                audioAdPresenter,
-                videoAdPresenter,
-                castConnectionHelper,
-                adOperations,
-                eventBus
+                                             playSessionStateProvider,
+                                             trackRepository,
+                                             stationsOperations,
+                                             trackPagePresenter,
+                                             audioAdPresenter,
+                                             videoAdPresenter,
+                                             castConnectionHelper,
+                                             adOperations,
+                                             eventBus
         );
 
         presenter.setCurrentPlayQueue(playQueue, 0);
@@ -136,9 +141,9 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.setCurrentPlayQueue(playQueue, 0);
 
         track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
-                PlayableProperty.TITLE.bind("title"),
-                PlayableProperty.CREATOR_NAME.bind("artist"),
-                PlayableProperty.CREATOR_URN.bind(Urn.forUser(123l)));
+                                 PlayableProperty.TITLE.bind("title"),
+                                 PlayableProperty.CREATOR_NAME.bind("artist"),
+                                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123l)));
 
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
                 PropertySet.from(
@@ -159,7 +164,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onNextOnSkipListenerSetsPagerToNextPosition() {
-        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
+        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager),
+                                                                 skipListenerArgumentCaptor.capture());
         when(playerTrackPager.getCurrentItem()).thenReturn(3);
 
         skipListenerArgumentCaptor.getValue().onNext();
@@ -169,7 +175,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onPreviousOnSkipListenerSetsPagerToPreviousPosition() {
-        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager), skipListenerArgumentCaptor.capture());
+        verify(trackPagePresenter, atLeastOnce()).createItemView(same(playerTrackPager),
+                                                                 skipListenerArgumentCaptor.capture());
         when(playerTrackPager.getCurrentItem()).thenReturn(3);
 
         skipListenerArgumentCaptor.getValue().onPrevious();
@@ -181,7 +188,9 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void onPlayingStateEventCallsSetPlayStateOnPresenter() {
         presenter.onResume(playerFragment);
         final View currentTrackView = getPageView();
-        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK1_URN);
+        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                    PlayStateReason.NONE,
+                                                                    TRACK1_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
@@ -198,7 +207,9 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         final View viewForOtherTrack = getPageView(1);
 
         Mockito.reset(trackPagePresenter);
-        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK1_URN);
+        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                    PlayStateReason.NONE,
+                                                                    TRACK1_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
         verify(trackPagePresenter).setPlayState(viewForCurrentTrack, state, true, true);
@@ -212,7 +223,12 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
         final View currentVideoView = getVideoAdPageView();
 
-        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, videoAd.getAdUrn(), 0L, 100L, new TestDateProvider());
+        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                    PlayStateReason.NONE,
+                                                                    videoAd.getAdUrn(),
+                                                                    0L,
+                                                                    100L,
+                                                                    new TestDateProvider());
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
@@ -240,7 +256,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-     public void onPlaybackProgressEventSetsProgressOnCurrentPlayingVideoPage() {
+    public void onPlaybackProgressEventSetsProgressOnCurrentPlayingVideoPage() {
         final VideoAd videoAd = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
 
@@ -256,7 +272,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-     public void onPlaybackProgressEventDoesntSetProgressOnNonCurrentPlayingVideoPage() {
+    public void onPlaybackProgressEventDoesntSetProgressOnNonCurrentPlayingVideoPage() {
         final VideoAd videoAd = AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
 
@@ -264,7 +280,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         View currentPageView = getVideoAdPageView();
 
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), Urn.forAd("dfp", "other-ad-urn"));
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l),
+                                                                   Urn.forAd("dfp", "other-ad-urn"));
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -344,12 +361,17 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void creatingNewTrackViewSetThePlayState() {
         presenter.onResume(playerFragment);
-        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK1_URN);
+        PlaybackStateTransition state = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                    PlayStateReason.NONE,
+                                                                    TRACK1_URN);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
 
         View currentPageView = getPageView();
 
-        verify(trackPagePresenter).setPlayState(eq(currentPageView), any(PlaybackStateTransition.class), eq(true), eq(true));
+        verify(trackPagePresenter).setPlayState(eq(currentPageView),
+                                                any(PlaybackStateTransition.class),
+                                                eq(true),
+                                                eq(true));
     }
 
     @Test
@@ -363,7 +385,10 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         View currentPageView = (View) adapter.instantiateItem(container, 3);
 
-        verify(trackPagePresenter, never()).setPlayState(eq(currentPageView), any(PlaybackStateTransition.class), eq(true), eq(true));
+        verify(trackPagePresenter, never()).setPlayState(eq(currentPageView),
+                                                         any(PlaybackStateTransition.class),
+                                                         eq(true),
+                                                         eq(true));
     }
 
     @Test
@@ -617,7 +642,8 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         setCurrentTrackState(3, true);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(MONETIZABLE_TRACK_URN), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(
+                                 MONETIZABLE_TRACK_URN), Urn.NOT_SET, 0));
 
         verify(trackPagePresenter, times(2)).clearAdOverlay(viewForCurrentTrack);
         verify(trackPagePresenter, never()).clearAdOverlay(viewForOtherTrack);
@@ -696,6 +722,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     private void setupVideoAd() {
-        presenter.setCurrentPlayQueue(Arrays.<PlayQueueItem>asList(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(MONETIZABLE_TRACK_URN))), 0);
+        presenter.setCurrentPlayQueue(Arrays.<PlayQueueItem>asList(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(
+                MONETIZABLE_TRACK_URN))), 0);
     }
 }

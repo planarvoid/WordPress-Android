@@ -32,9 +32,10 @@ public class LoadLocalPostsCommand extends LegacyCommand<Object, List<PropertySe
     @Override
     public List<PropertySet> call() throws Exception {
         return database.query(Query.from(Table.Posts.name())
-                .select(Posts.TARGET_ID, Posts.CREATED_AT, Posts.TYPE)
-                .whereEq(Posts.TARGET_TYPE, resourceType)
-                .order(Posts.CREATED_AT, DESC)).toList(new PlaylistMapper(resourceType == TableColumns.Sounds.TYPE_PLAYLIST));
+                                   .select(Posts.TARGET_ID, Posts.CREATED_AT, Posts.TYPE)
+                                   .whereEq(Posts.TARGET_TYPE, resourceType)
+                                   .order(Posts.CREATED_AT, DESC))
+                       .toList(new PlaylistMapper(resourceType == TableColumns.Sounds.TYPE_PLAYLIST));
     }
 
     private static class PlaylistMapper extends RxResultMapper<PropertySet> {

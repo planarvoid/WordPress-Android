@@ -49,10 +49,10 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         List<ContentValues> contentValues = new ArrayList<>(creatorOptOut.size());
         for (Urn track : creatorOptOut) {
             contentValues.add(ContentValuesBuilder.values(3)
-                    .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
-                    .put(TrackDownloads.REQUESTED_AT, null)
-                    .put(TrackDownloads._ID, track.getNumericId())
-                    .get());
+                                                  .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime())
+                                                  .put(TrackDownloads.REQUESTED_AT, null)
+                                                  .put(TrackDownloads._ID, track.getNumericId())
+                                                  .get());
         }
         return contentValues;
     }
@@ -61,10 +61,10 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         List<ContentValues> contentValues = new ArrayList<>(removedTracks.size());
         for (Urn track : removedTracks) {
             contentValues.add(ContentValuesBuilder
-                    .values(2)
-                    .put(TrackDownloads._ID, track.getNumericId())
-                    .put(TrackDownloads.REMOVED_AT, dateProvider.getCurrentTime())
-                    .get());
+                                      .values(2)
+                                      .put(TrackDownloads._ID, track.getNumericId())
+                                      .put(TrackDownloads.REMOVED_AT, dateProvider.getCurrentTime())
+                                      .get());
         }
         return contentValues;
     }
@@ -73,12 +73,12 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         List<ContentValues> contentValues = new ArrayList<>(downloadedTracks.size());
         for (Urn track : downloadedTracks) {
             contentValues.add(ContentValuesBuilder
-                    .values(4)
-                    .put(_ID, track.getNumericId())
-                    .put(UNAVAILABLE_AT, null)
-                    .put(REMOVED_AT, null)
-                    .put(DOWNLOADED_AT, dateProvider.getCurrentTime())
-                    .get());
+                                      .values(4)
+                                      .put(_ID, track.getNumericId())
+                                      .put(UNAVAILABLE_AT, null)
+                                      .put(REMOVED_AT, null)
+                                      .put(DOWNLOADED_AT, dateProvider.getCurrentTime())
+                                      .get());
         }
         return contentValues;
     }
@@ -87,13 +87,13 @@ class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<OfflineCont
         List<ContentValues> contentValues = new ArrayList<>(pendingDownloads.size());
         for (Urn track : pendingDownloads) {
             contentValues.add(ContentValuesBuilder
-                    .values()
-                    .put(_ID, track.getNumericId())
-                    .put(REQUESTED_AT, dateProvider.getCurrentTime())
-                    .put(REMOVED_AT, null)
-                    .put(DOWNLOADED_AT, null)
-                    .put(UNAVAILABLE_AT, null)
-                    .get());
+                                      .values()
+                                      .put(_ID, track.getNumericId())
+                                      .put(REQUESTED_AT, dateProvider.getCurrentTime())
+                                      .put(REMOVED_AT, null)
+                                      .put(DOWNLOADED_AT, null)
+                                      .put(UNAVAILABLE_AT, null)
+                                      .get());
         }
         return contentValues;
     }

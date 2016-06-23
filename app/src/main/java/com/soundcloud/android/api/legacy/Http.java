@@ -60,7 +60,7 @@ public final class Http {
             return new JSONObject(json);
         } catch (JSONException e) {
             throw new IOException("could not parse JSON document: " + e.getMessage() + " " +
-                    (json.length() > 80 ? (json.substring(0, 79) + "...") : json));
+                                          (json.length() > 80 ? (json.substring(0, 79) + "...") : json));
         }
     }
 

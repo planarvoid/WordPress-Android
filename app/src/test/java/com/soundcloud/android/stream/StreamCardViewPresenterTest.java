@@ -62,7 +62,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new StreamCardViewPresenter(headerSpannableBuilder, eventBus, screenProvider,
-                navigator, resources(), imageOperations);
+                                                navigator, resources(), imageOperations);
     }
 
     @Test
@@ -216,7 +216,8 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
         verify(imageOperations)
                 .displayCircularInAdapterView(
-                        argThat(isImageResourceFor(promotedItem.getPromoterUrn().get(), promotedItem.getAvatarUrlTemplate())),
+                        argThat(isImageResourceFor(promotedItem.getPromoterUrn().get(),
+                                                   promotedItem.getAvatarUrlTemplate())),
                         any(ApiImageSize.class),
                         any(ImageView.class));
     }

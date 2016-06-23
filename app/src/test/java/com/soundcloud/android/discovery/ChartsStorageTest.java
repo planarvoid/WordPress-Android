@@ -34,9 +34,9 @@ public class ChartsStorageTest extends StorageIntegrationTest {
     @Test
     public void returnsChartsWithTracksFromDb() {
         final Chart sourceChart1 = testFixtures().insertChart(createChart(3, ChartType.TOP),
-                Charts.BUCKET_TYPE_GLOBAL);
+                                                              Charts.BUCKET_TYPE_GLOBAL);
         final Chart sourceChart2 = testFixtures().insertChart(createChart(3, ChartType.TRENDING),
-                Charts.BUCKET_TYPE_GLOBAL);
+                                                              Charts.BUCKET_TYPE_GLOBAL);
 
         storage.charts().subscribe(subscriber);
 
@@ -62,7 +62,7 @@ public class ChartsStorageTest extends StorageIntegrationTest {
     @NonNull
     private ApiChart createChart(int countOfTracks, ChartType type) {
         final ModelCollection<ApiTrack> chartTracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class,
-                countOfTracks));
+                                                                                                 countOfTracks));
         return new ApiChart("title", new Urn("soundcloud:genre:all"), type, ChartCategory.NONE, chartTracks);
     }
 }

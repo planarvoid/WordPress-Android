@@ -24,7 +24,9 @@ class PushLikesCommand<ApiModel extends PropertySetSource>
     private final ApiEndpoints endpoint;
     private final TypeToken<? extends ModelCollection<ApiModel>> typeToken;
 
-    <T extends ModelCollection<ApiModel>> PushLikesCommand(ApiClient apiClient, ApiEndpoints endpoint, TypeToken<? extends ModelCollection<ApiModel>> typeToken) {
+    <T extends ModelCollection<ApiModel>> PushLikesCommand(ApiClient apiClient,
+                                                           ApiEndpoints endpoint,
+                                                           TypeToken<? extends ModelCollection<ApiModel>> typeToken) {
         this.apiClient = apiClient;
         this.endpoint = endpoint;
         this.typeToken = typeToken;

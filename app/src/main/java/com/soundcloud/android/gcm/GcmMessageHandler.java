@@ -45,7 +45,7 @@ public class GcmMessageHandler {
             final String scApiKey = resources.getString(R.string.google_api_key);
             if (scApiKey.equals(intent.getStringExtra(EXTRA_FROM))) {
                 final String payload = intent.getStringExtra(EXTRA_DATA);
-                if (Strings.isBlank(payload)){
+                if (Strings.isBlank(payload)) {
                     ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Gcm Payload : " + intent));
                 } else {
                     handleScMessage(payload);

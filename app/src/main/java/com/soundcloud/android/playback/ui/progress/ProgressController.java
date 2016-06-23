@@ -88,7 +88,7 @@ public class ProgressController {
     }
 
     private void startProgressAnimationInternal() {
-        if (progressAnimator != null){
+        if (progressAnimator != null) {
             progressAnimator.cancel();
         }
         final float progressProportion = getProgressProportion();

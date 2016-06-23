@@ -26,14 +26,15 @@ public class PlaySessionStateProvider {
         this.playSessionStateStorage = playSessionStateStorage;
     }
 
-    void onPlayStateTransition(PlaybackStateTransition stateTransition){
+    void onPlayStateTransition(PlaybackStateTransition stateTransition) {
         if (!PlaybackStateTransition.DEFAULT.equals(stateTransition)) {
             final boolean isItemChange = !playSessionStateStorage.getLastPlayingItem().equals(stateTransition.getUrn());
             currentPlayingUrn = stateTransition.getUrn();
             lastStateTransition = stateTransition;
             lastProgress = stateTransition.getProgress();
 
-            if (playingNewItemFromBeginning(stateTransition, isItemChange) || playbackStoppedMidSession(stateTransition)) {
+            if (playingNewItemFromBeginning(stateTransition,
+                                            isItemChange) || playbackStoppedMidSession(stateTransition)) {
                 playSessionStateStorage.saveProgress(getPositionIfPlayingTrack());
             }
 
@@ -62,7 +63,7 @@ public class PlaySessionStateProvider {
     }
 
     public PlaybackProgress getLastProgressForItem(Urn urn) {
-        if (currentPlayingUrn.equals(urn) && lastProgress.isDurationValid()){
+        if (currentPlayingUrn.equals(urn) && lastProgress.isDurationValid()) {
             return lastProgress;
 
         } else if (isCurrentlyPlaying(urn)) {

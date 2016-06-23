@@ -129,7 +129,8 @@ public class NewItemsIndicator implements NewItemsIndicatorScrollListener.Listen
     private void setIndicatorText() {
         if (textResourceId != Consts.NOT_SET) {
             String newItemsString = newItems > 9 ? "9+" : String.valueOf(newItems);
-            indicatorTextView.setText(context.getResources().getQuantityString(textResourceId, newItems, newItemsString));
+            indicatorTextView.setText(context.getResources()
+                                             .getQuantityString(textResourceId, newItems, newItemsString));
         }
     }
 

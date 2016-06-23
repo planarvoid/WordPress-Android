@@ -40,10 +40,10 @@ public abstract class ApiVideoAd {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(getClass())
-                .add("urn", getAdUrn())
-                .add("clickthroughUrl", getClickThroughUrl())
-                .add("displayProperties", getDisplayProperties())
-                .add("videoSources", getVideoSources())
-                .toString();
+                          .add("urn", getAdUrn())
+                          .add("clickthroughUrl", getClickThroughUrl())
+                          .add("displayProperties", getDisplayProperties())
+                          .add("videoSources", getVideoSources())
+                          .toString();
     }
 }

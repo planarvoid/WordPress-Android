@@ -38,7 +38,11 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        feedbackController = new FeedbackController(playerController, playerSnackBarWrapper, defaultSnackBarWrapper, eventBus, featureFlags);
+        feedbackController = new FeedbackController(playerController,
+                                                    playerSnackBarWrapper,
+                                                    defaultSnackBarWrapper,
+                                                    eventBus,
+                                                    featureFlags);
         when(playerController.getSnackbarHolder()).thenReturn(playerSnackBarView);
     }
 

@@ -34,53 +34,91 @@ public class LikesSyncModule {
     @Provides
     @Named(TRACK_LIKES_SYNCER)
     LikesSyncer<ApiTrack> provideTrackLikesSyncer(
-            FetchLikesCommand fetchLikesCommand, FetchTracksCommand fetchTracks, LoadLikesCommand loadLikes,
+            FetchLikesCommand fetchLikesCommand,
+            FetchTracksCommand fetchTracks,
+            LoadLikesCommand loadLikes,
             @Named(TRACK_LIKE_ADDITIONS) PushLikesCommand<ApiLike> pushLikeAdditions,
             @Named(TRACK_LIKE_DELETIONS) PushLikesCommand<ApiDeletedLike> pushLikeDeletions,
-            LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
-            StoreTracksCommand storeTracks, StoreLikesCommand storeLikes,
-            @Named(REMOVE_TRACK_LIKES) RemoveLikesCommand removeLikes, EventBus eventBus) {
-        return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS), fetchTracks, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_TRACK),
-                loadLikesPendingAddition.with(Sounds.TYPE_TRACK), loadLikesPendingRemoval.with(Sounds.TYPE_TRACK), storeTracks, storeLikes,
-                removeLikes, eventBus);
+            LoadLikesPendingAdditionCommand loadLikesPendingAddition,
+            LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
+            StoreTracksCommand storeTracks,
+            StoreLikesCommand storeLikes,
+            @Named(REMOVE_TRACK_LIKES) RemoveLikesCommand removeLikes,
+            EventBus eventBus) {
+        return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS),
+                                 fetchTracks,
+                                 pushLikeAdditions,
+                                 pushLikeDeletions,
+                                 loadLikes.with(Sounds.TYPE_TRACK),
+                                 loadLikesPendingAddition.with(Sounds.TYPE_TRACK),
+                                 loadLikesPendingRemoval.with(Sounds.TYPE_TRACK),
+                                 storeTracks,
+                                 storeLikes,
+                                 removeLikes,
+                                 eventBus);
     }
 
     @Provides
     @Named(PLAYLIST_LIKES_SYNCER)
     LikesSyncer<ApiPlaylist> providePlaylistLikesSyncer(
-            FetchLikesCommand fetchLikesCommand, FetchPlaylistsCommand fetchPlaylists, LoadLikesCommand loadLikes,
+            FetchLikesCommand fetchLikesCommand,
+            FetchPlaylistsCommand fetchPlaylists,
+            LoadLikesCommand loadLikes,
             @Named(PLAYLIST_LIKE_ADDITIONS) PushLikesCommand<ApiLike> pushLikeAdditions,
             @Named(PLAYLIST_LIKE_DELETIONS) PushLikesCommand<ApiDeletedLike> pushLikeDeletions,
-            LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
-            StorePlaylistsCommand storePlaylists, StoreLikesCommand storeLikes,
-            @Named(REMOVE_PLAYLIST_LIKES) RemoveLikesCommand removeLikes, EventBus eventBus) {
-        return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_PLAYLISTS), fetchPlaylists, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_PLAYLIST),
-                loadLikesPendingAddition.with(Sounds.TYPE_PLAYLIST), loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST), storePlaylists, storeLikes,
-                removeLikes, eventBus);
+            LoadLikesPendingAdditionCommand loadLikesPendingAddition,
+            LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
+            StorePlaylistsCommand storePlaylists,
+            StoreLikesCommand storeLikes,
+            @Named(REMOVE_PLAYLIST_LIKES) RemoveLikesCommand removeLikes,
+            EventBus eventBus) {
+        return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_PLAYLISTS),
+                                 fetchPlaylists,
+                                 pushLikeAdditions,
+                                 pushLikeDeletions,
+                                 loadLikes.with(Sounds.TYPE_PLAYLIST),
+                                 loadLikesPendingAddition.with(Sounds.TYPE_PLAYLIST),
+                                 loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST),
+                                 storePlaylists,
+                                 storeLikes,
+                                 removeLikes,
+                                 eventBus);
     }
 
     @Provides
     @Named(TRACK_LIKE_ADDITIONS)
     PushLikesCommand<ApiLike> provideTrackLikeAdditionsPushCommand(ApiClient apiClient) {
-        return new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_TRACK_LIKES, new TypeToken<ModelCollection<ApiLike>>() {});
+        return new PushLikesCommand<>(apiClient,
+                                      ApiEndpoints.CREATE_TRACK_LIKES,
+                                      new TypeToken<ModelCollection<ApiLike>>() {
+                                      });
     }
 
     @Provides
     @Named(TRACK_LIKE_DELETIONS)
     PushLikesCommand<ApiDeletedLike> provideTrackLikeDeletionsPushCommand(ApiClient apiClient) {
-        return new PushLikesCommand<>(apiClient, ApiEndpoints.DELETE_TRACK_LIKES, new TypeToken<ModelCollection<ApiDeletedLike>>() {});
+        return new PushLikesCommand<>(apiClient,
+                                      ApiEndpoints.DELETE_TRACK_LIKES,
+                                      new TypeToken<ModelCollection<ApiDeletedLike>>() {
+                                      });
     }
 
     @Provides
     @Named(PLAYLIST_LIKE_ADDITIONS)
     PushLikesCommand<ApiLike> providePlaylistLikeAdditionsPushCommand(ApiClient apiClient) {
-        return new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_PLAYLIST_LIKES, new TypeToken<ModelCollection<ApiLike>>() {});
+        return new PushLikesCommand<>(apiClient,
+                                      ApiEndpoints.CREATE_PLAYLIST_LIKES,
+                                      new TypeToken<ModelCollection<ApiLike>>() {
+                                      });
     }
 
     @Provides
     @Named(PLAYLIST_LIKE_DELETIONS)
     PushLikesCommand<ApiDeletedLike> providePlaylistLikeDeletionsPushCommand(ApiClient apiClient) {
-        return new PushLikesCommand<>(apiClient, ApiEndpoints.DELETE_PLAYLIST_LIKES, new TypeToken<ModelCollection<ApiDeletedLike>>() {});
+        return new PushLikesCommand<>(apiClient,
+                                      ApiEndpoints.DELETE_PLAYLIST_LIKES,
+                                      new TypeToken<ModelCollection<ApiDeletedLike>>() {
+                                      });
     }
 
     @Provides

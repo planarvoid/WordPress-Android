@@ -34,7 +34,8 @@ public class OfflineLoginFlowTest extends LoginTest {
                 .failToLoginAs(scAccount.getEmail(), scAccount.getPassword());
 
         assertThat(loginErrorScreen, is(visible()));
-        assertThat(loginErrorScreen.errorMessage(), is(solo.getString(R.string.authentication_error_no_connection_message)));
+        assertThat(loginErrorScreen.errorMessage(),
+                   is(solo.getString(R.string.authentication_error_no_connection_message)));
     }
 
     @GoogleAccountTest
@@ -46,7 +47,8 @@ public class OfflineLoginFlowTest extends LoginTest {
                 .failToLogin();
 
         assertThat(loginErrorScreen, is(visible()));
-        assertThat(loginErrorScreen.errorMessage(), is(solo.getString(R.string.authentication_error_no_connection_message)));
+        assertThat(loginErrorScreen.errorMessage(),
+                   is(solo.getString(R.string.authentication_error_no_connection_message)));
     }
 
     public void testLoginWithFacebookAccountWithoutNetworkConnection() {
@@ -56,7 +58,8 @@ public class OfflineLoginFlowTest extends LoginTest {
                 .failToLogin();
 
         assertThat(loginErrorScreen, is(visible()));
-        assertThat(loginErrorScreen.errorMessage(), is(solo.getString(R.string.facebook_authentication_failed_message)));
+        assertThat(loginErrorScreen.errorMessage(),
+                   is(solo.getString(R.string.facebook_authentication_failed_message)));
     }
 
     public void testRecoverPasswordWithoutNetworkConnection() {

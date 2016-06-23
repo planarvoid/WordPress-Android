@@ -90,7 +90,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Test
     public void userFollowersPagerReturnsNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
@@ -100,7 +101,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Test
     public void userFollowersPagerStoresNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
@@ -130,7 +132,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Test
     public void userFollowingsPagerReturnsNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.followersPagingFunction().call(page1).subscribe(observer);
@@ -140,7 +143,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
 
     @Test
     public void userFollowingsPagerStoresNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.followersPagingFunction().call(page1).subscribe(observer);

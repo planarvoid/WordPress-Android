@@ -52,11 +52,17 @@ public class ImageResizer implements Runnable {
 
             File resized = File.createTempFile("upload_tmp_" + recording.getId(), ".jpg");
             final long start = System.currentTimeMillis();
-            if (ImageUtils.resizeImageFile(recording.artwork_path, resized, ImageUtils.RECOMMENDED_IMAGE_SIZE, ImageUtils.RECOMMENDED_IMAGE_SIZE)) {
+            if (ImageUtils.resizeImageFile(recording.artwork_path,
+                                           resized,
+                                           ImageUtils.RECOMMENDED_IMAGE_SIZE,
+                                           ImageUtils.RECOMMENDED_IMAGE_SIZE)) {
                 recording.resized_artwork_path = resized;
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, String.format("resized %s => %s  in %d ms", recording.artwork_path, recording.resized_artwork_path,
-                            System.currentTimeMillis() - start));
+                    Log.d(TAG,
+                          String.format("resized %s => %s  in %d ms",
+                                        recording.artwork_path,
+                                        recording.resized_artwork_path,
+                                        System.currentTimeMillis() - start));
                 }
                 eventBus.publish(EventQueue.UPLOAD, UploadEvent.resizeSuccess(recording));
             } else {

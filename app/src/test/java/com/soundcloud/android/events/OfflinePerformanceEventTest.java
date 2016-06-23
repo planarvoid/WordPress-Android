@@ -51,7 +51,9 @@ public class OfflinePerformanceEventTest {
         assertThatTrackContextValuesAreEqual(event, TRACK_URN, TRACK_CONTEXT);
     }
 
-    private void assertThatTrackContextValuesAreEqual(OfflinePerformanceEvent event, Urn track, TrackingMetadata context) {
+    private void assertThatTrackContextValuesAreEqual(OfflinePerformanceEvent event,
+                                                      Urn track,
+                                                      TrackingMetadata context) {
         assertThat(event.getTrackUrn()).isEqualTo(track);
         assertThat(event.getTrackOwner()).isEqualTo(context.getCreatorUrn());
         assertThat(event.isFromLikes()).isEqualTo(context.isFromLikes());

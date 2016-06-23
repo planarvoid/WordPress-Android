@@ -73,7 +73,8 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
         new EmptyViewBuilder().configureForSearch(getEmptyView());
         getRecyclerView().addOnScrollListener(new RecyclerViewParallaxer());
 
-        eventSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter));
+        eventSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED,
+                                               new UpdateEntityListSubscriber(adapter));
     }
 
     @Override
@@ -86,9 +87,9 @@ class PlaylistResultsPresenter extends RecyclerViewPresenter<SearchResult, Playl
     protected CollectionBinding<SearchResult, PlaylistItem> onBuildBinding(Bundle fragmentArgs) {
         String playlistTag = fragmentArgs.getString(PlaylistResultsFragment.KEY_PLAYLIST_TAG);
         return CollectionBinding.from(operations.playlistsForTag(playlistTag), TO_PRESENTATION_MODELS)
-                .withAdapter(adapter)
-                .withPager(operations.pager(playlistTag))
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(operations.pager(playlistTag))
+                                .build();
     }
 
     @Override

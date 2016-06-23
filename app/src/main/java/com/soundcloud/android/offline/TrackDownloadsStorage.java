@@ -79,31 +79,33 @@ class TrackDownloadsStorage {
 
     Observable<List<Urn>> playlistTrackUrns(Urn playlistUrn) {
         final Query query = Query.from(TrackDownloads.TABLE)
-                .select(TrackDownloads._ID.name())
-                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads._ID.name())
-                .whereEq(PlaylistTracks.field(PLAYLIST_ID), playlistUrn.getNumericId())
-                .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
-                .order(PlaylistTracks.field(POSITION), ASC);
+                                 .select(TrackDownloads._ID.name())
+                                 .innerJoin(PlaylistTracks.name(),
+                                            PlaylistTracks.field(TRACK_ID),
+                                            TrackDownloads._ID.name())
+                                 .whereEq(PlaylistTracks.field(PLAYLIST_ID), playlistUrn.getNumericId())
+                                 .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
+                                 .order(PlaylistTracks.field(POSITION), ASC);
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> likesUrns() {
         final Query query = Query.from(TrackDownloads.TABLE)
-                .select(TrackDownloads._ID.qualifiedName())
-                .innerJoin(Likes.name(), TrackDownloads._ID.qualifiedName(), Likes.field(_ID))
-                .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
-                .order(Likes.field(CREATED_AT), DESC);
+                                 .select(TrackDownloads._ID.qualifiedName())
+                                 .innerJoin(Likes.name(), TrackDownloads._ID.qualifiedName(), Likes.field(_ID))
+                                 .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
+                                 .order(Likes.field(CREATED_AT), DESC);
 
         return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     public Observable<Map<Urn, OfflineState>> getOfflineStates() {
         final Query query = Query.from(TrackDownloads.TABLE)
-                .select(TrackDownloads._ID,
-                        TrackDownloads.REQUESTED_AT,
-                        TrackDownloads.REMOVED_AT,
-                        TrackDownloads.DOWNLOADED_AT,
-                        TrackDownloads.UNAVAILABLE_AT);
+                                 .select(TrackDownloads._ID,
+                                         TrackDownloads.REQUESTED_AT,
+                                         TrackDownloads.REMOVED_AT,
+                                         TrackDownloads.DOWNLOADED_AT,
+                                         TrackDownloads.UNAVAILABLE_AT);
         return propellerRx.query(query).toMap(CURSOR_TO_URN, CURSOR_TO_OFFLINE_STATE);
     }
 
@@ -111,10 +113,10 @@ class TrackDownloadsStorage {
         List<Urn> result = new ArrayList<>((tracks.size() / DEFAULT_BATCH_SIZE) + 1);
         for (List<Urn> batch : Lists.partition(tracks, DEFAULT_BATCH_SIZE)) {
             result.addAll(propeller.query(Query.from(TrackDownloads.TABLE)
-                    .select(TrackDownloads._ID.as(_ID))
-                    .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
-                    .whereIn(TrackDownloads._ID, Urns.toIds(batch)))
-                    .toList(new TrackUrnMapper()));
+                                               .select(TrackDownloads._ID.as(_ID))
+                                               .where(OfflineFilters.DOWNLOADED_OFFLINE_TRACK_FILTER)
+                                               .whereIn(TrackDownloads._ID, Urns.toIds(batch)))
+                                   .toList(new TrackUrnMapper()));
         }
         return result;
     }
@@ -122,8 +124,8 @@ class TrackDownloadsStorage {
     public Observable<OfflineState> getLikesOfflineState() {
         return propellerRx
                 .query(Query
-                        .from(TrackDownloads.TABLE)
-                        .innerJoin(Likes.name(), likedTrackFilter()))
+                               .from(TrackDownloads.TABLE)
+                               .innerJoin(Likes.name(), likedTrackFilter()))
                 .map(CURSOR_TO_OFFLINE_STATE)
                 .toList()
                 .map(TO_COLLECTION_STATE);
@@ -138,27 +140,29 @@ class TrackDownloadsStorage {
     Observable<List<Urn>> getTracksToRemove() {
         final long removalDelayedTimestamp = dateProvider.getCurrentTime() - DELAY_BEFORE_REMOVAL;
         return propellerRx.query(Query.from(TrackDownloads.TABLE)
-                .select(_ID)
-                .whereLe(TrackDownloads.REMOVED_AT, removalDelayedTimestamp))
-                .map(new TrackUrnMapper())
-                .toList();
+                                      .select(_ID)
+                                      .whereLe(TrackDownloads.REMOVED_AT, removalDelayedTimestamp))
+                          .map(new TrackUrnMapper())
+                          .toList();
     }
 
     WriteResult storeCompletedDownload(DownloadState downloadState) {
         final ContentValues contentValues = ContentValuesBuilder.values(3)
-                .put(_ID, downloadState.getTrack().getNumericId())
-                .put(TrackDownloads.UNAVAILABLE_AT, null)
-                .put(TrackDownloads.DOWNLOADED_AT, downloadState.timestamp)
-                .get();
+                                                                .put(_ID, downloadState.getTrack().getNumericId())
+                                                                .put(TrackDownloads.UNAVAILABLE_AT, null)
+                                                                .put(TrackDownloads.DOWNLOADED_AT,
+                                                                     downloadState.timestamp)
+                                                                .get();
 
         return propeller.upsert(TrackDownloads.TABLE, contentValues);
     }
 
     public WriteResult markTrackAsUnavailable(Urn track) {
         final ContentValues contentValues = ContentValuesBuilder.values(1)
-                .put(TrackDownloads.UNAVAILABLE_AT, dateProvider.getCurrentTime()).get();
+                                                                .put(TrackDownloads.UNAVAILABLE_AT,
+                                                                     dateProvider.getCurrentTime()).get();
 
         return propeller.update(TrackDownloads.TABLE, contentValues,
-                filter().whereEq(_ID, track.getNumericId()));
+                                filter().whereEq(_ID, track.getNumericId()));
     }
 }

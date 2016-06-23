@@ -38,12 +38,16 @@ public class SearchPremiumResultsActivity extends PlayerActivity {
         final Intent intent = getIntent();
         checkIntentArguments(intent);
         final Fragment fragment = SearchPremiumResultsFragment.create(intent.getExtras());
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment, SearchPremiumResultsFragment.TAG).commit();
+        getSupportFragmentManager().beginTransaction()
+                                   .replace(R.id.container, fragment, SearchPremiumResultsFragment.TAG)
+                                   .commit();
     }
 
     private void checkIntentArguments(Intent intent) {
-        final ArrayList<PropertySet> premiumContentList = intent.getParcelableArrayListExtra(EXTRA_PREMIUM_CONTENT_RESULTS);
-        Preconditions.checkState(premiumContentList != null && !premiumContentList.isEmpty(), "Invalid search premium content list");
+        final ArrayList<PropertySet> premiumContentList = intent.getParcelableArrayListExtra(
+                EXTRA_PREMIUM_CONTENT_RESULTS);
+        Preconditions.checkState(premiumContentList != null && !premiumContentList.isEmpty(),
+                                 "Invalid search premium content list");
     }
 
     @Override

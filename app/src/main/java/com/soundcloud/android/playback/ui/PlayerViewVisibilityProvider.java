@@ -18,7 +18,7 @@ class PlayerViewVisibilityProvider implements ViewVisibilityProvider {
     @Override
     public boolean isCurrentlyVisible(View view) {
         PlayerTrackPager playerTrackPager = playerTrackPagerRef.get();
-        if (playerTrackPager != null){
+        if (playerTrackPager != null) {
             Rect scrollBounds = new Rect();
             playerTrackPager.getHitRect(scrollBounds);
             return view.getLocalVisibleRect(scrollBounds);

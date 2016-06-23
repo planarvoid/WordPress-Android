@@ -217,7 +217,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     public void onStatusUpdatedWithIdleInterruptedStateDoesNotReportTranslatedState() throws Exception {
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
-        castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_INTERRUPTED);
+        castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE,
+                                                      MediaStatus.IDLE_REASON_INTERRUPTED);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
@@ -226,7 +227,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     public void onStatusUpdatedWithIdleUnknownStateDoesNotReportTranslatedState() throws Exception {
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
-        castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_INTERRUPTED);
+        castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE,
+                                                      MediaStatus.IDLE_REASON_INTERRUPTED);
 
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
@@ -260,19 +262,27 @@ public class CastPlayerTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(playQueueManager.getCurrentQueueTrackUrns()).thenReturn(localPlayQueueTracks);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        LocalPlayQueue localPlayQueue = new LocalPlayQueue(new JSONObject(), localPlayQueueTracks, createMediaInfo(TRACK_URN1), TRACK_URN1);
-        when(castOperations.loadLocalPlayQueue(TRACK_URN1, localPlayQueueTracks)).thenReturn(Observable.just(localPlayQueue));
+        LocalPlayQueue localPlayQueue = new LocalPlayQueue(new JSONObject(),
+                                                           localPlayQueueTracks,
+                                                           createMediaInfo(TRACK_URN1),
+                                                           TRACK_URN1);
+        when(castOperations.loadLocalPlayQueue(TRACK_URN1, localPlayQueueTracks)).thenReturn(Observable.just(
+                localPlayQueue));
 
         castPlayer.playCurrent();
 
-        verify(castManager).loadMedia(eq(localPlayQueue.mediaInfo), anyBoolean(), anyInt(), eq(localPlayQueue.playQueueTracksJSON));
+        verify(castManager).loadMedia(eq(localPlayQueue.mediaInfo),
+                                      anyBoolean(),
+                                      anyInt(),
+                                      eq(localPlayQueue.playQueueTracksJSON));
     }
 
     @Test
     public void playCurrentLoadsMediaWithAutoPlay() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(
+                LocalPlayQueue.class)));
 
         castPlayer.playCurrent();
 
@@ -283,7 +293,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     public void playCurrentLoadsMediaWithZeroedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(
+                LocalPlayQueue.class)));
 
         castPlayer.playCurrent();
 
@@ -294,7 +305,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     public void playCurrentLoadsMediaWithNonZeroPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(
+                LocalPlayQueue.class)));
 
         castPlayer.playCurrent(123L);
 
@@ -305,7 +317,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     public void playCurrentReportsBufferingEvent() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(
+                LocalPlayQueue.class)));
 
         castPlayer.playCurrent();
 
@@ -316,7 +329,8 @@ public class CastPlayerTest extends AndroidUnitTest {
     public void playCurrentReportsBufferingEventBeforeLoadingFinishes() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>empty());
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1),
+                                               anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>empty());
 
         castPlayer.playCurrent();
 
@@ -330,7 +344,9 @@ public class CastPlayerTest extends AndroidUnitTest {
     public void reloadCurrentQueueSetsQueueWithRequestedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN1),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(createLocalPlayQueue()));
 
         castPlayer.reloadCurrentQueue().subscribe(observer);
 
@@ -340,7 +356,9 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void reloadCurrentQueueReportsErrorStateToEventBusOnUnsuccessfulLoad() throws TransientNetworkDisconnectionException, NoConnectionException {
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.<LocalPlayQueue>error(new Throwable("loading error")));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
 
         castPlayer.reloadCurrentQueue().subscribe(observer);
@@ -353,8 +371,13 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotDefined() {
-        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN1), createMediaInfo(TRACK_URN1), TRACK_URN1);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.just(filteredLocalPlayQueue));
+        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class),
+                                                                         Arrays.asList(TRACK_URN1),
+                                                                         createMediaInfo(TRACK_URN1),
+                                                                         TRACK_URN1);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(filteredLocalPlayQueue));
 
         castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), Urn.NOT_SET, PlaySessionSource.EMPTY).subscribe(observer);
 
@@ -364,8 +387,13 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotFilteredOut() {
-        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN1), createMediaInfo(TRACK_URN1), TRACK_URN1);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.just(filteredLocalPlayQueue));
+        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class),
+                                                                         Arrays.asList(TRACK_URN1),
+                                                                         createMediaInfo(TRACK_URN1),
+                                                                         TRACK_URN1);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(filteredLocalPlayQueue));
 
         castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
@@ -375,32 +403,46 @@ public class CastPlayerTest extends AndroidUnitTest {
 
     @Test
     public void setNewQueueEmitsTrackUnavailablePlaybackResultWhenInitialTrackIsFilteredOut() {
-        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN2), createMediaInfo(TRACK_URN2), TRACK_URN2);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.just(filteredLocalPlayQueue));
+        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class),
+                                                                         Arrays.asList(TRACK_URN2),
+                                                                         createMediaInfo(TRACK_URN2),
+                                                                         TRACK_URN2);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(filteredLocalPlayQueue));
 
-        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1, TRACK_URN2), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
+        castPlayer.setNewQueue(Arrays.asList(TRACK_URN1, TRACK_URN2), TRACK_URN1, PlaySessionSource.EMPTY)
+                  .subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
-        assertThat(observer.getOnNextEvents().get(0).getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
+        assertThat(observer.getOnNextEvents()
+                           .get(0)
+                           .getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
     }
 
     @Test
     public void setNewQueueEmitsTrackUnavailablePlaybackResultWhenLocalQueueIsEmpty() {
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.just(LocalPlayQueue.empty()));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class),
+                                                                                 anyListOf(Urn.class))).thenReturn(
+                Observable.just(LocalPlayQueue.empty()));
 
         castPlayer.setNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, PlaySessionSource.EMPTY).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
-        assertThat(observer.getOnNextEvents().get(0).getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
+        assertThat(observer.getOnNextEvents()
+                           .get(0)
+                           .getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
     }
 
     @Test
     public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() throws Exception {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1),
+                                               anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable(
+                "loading error")));
 
         castPlayer.playCurrent();
 
@@ -471,7 +513,10 @@ public class CastPlayerTest extends AndroidUnitTest {
     }
 
     private LocalPlayQueue createLocalPlayQueue() {
-        return new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN1), createMediaInfo(TRACK_URN1), TRACK_URN1);
+        return new LocalPlayQueue(mock(JSONObject.class),
+                                  Arrays.asList(TRACK_URN1),
+                                  createMediaInfo(TRACK_URN1),
+                                  TRACK_URN1);
     }
 
     private void expectLastStateTransitionToBe(PlaybackState newState, PlayStateReason reason, Urn trackUrn) {

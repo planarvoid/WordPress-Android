@@ -45,14 +45,18 @@ public class StreamUrlBuilderTest extends AndroidUnitTest {
     public void buildsHttpsStreamUrl() throws Exception {
         String result = streamUrlBuilder.buildHttpsStreamUrl(trackUrn);
 
-        assertThat(result, urlEqualTo("https://api-mobile/tracks/soundcloud:tracks:2/streams/https?client_id=clientId&oauth_token=token"));
+        assertThat(result,
+                   urlEqualTo(
+                           "https://api-mobile/tracks/soundcloud:tracks:2/streams/https?client_id=clientId&oauth_token=token"));
     }
 
     @Test
     public void buildsHttpStreamUrl() throws Exception {
         String result = streamUrlBuilder.buildHttpStreamUrl(trackUrn);
 
-        assertThat(result, urlEqualTo("https://api-mobile/tracks/soundcloud:tracks:2/streams/http?client_id=clientId&oauth_token=token"));
+        assertThat(result,
+                   urlEqualTo(
+                           "https://api-mobile/tracks/soundcloud:tracks:2/streams/http?client_id=clientId&oauth_token=token"));
     }
 
 }

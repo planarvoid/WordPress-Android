@@ -17,7 +17,7 @@ class SeekHandler extends Handler {
     @Override
     public void handleMessage(Message msg) {
         ScrubController scrubController = scrubControllerRef.get();
-        if (scrubController != null){
+        if (scrubController != null) {
             if (scrubController.isDragging()) {
                 scrubController.setPendingSeek((Float) msg.obj);
             } else {
@@ -33,7 +33,7 @@ class SeekHandler extends Handler {
             // Required by Dagger.
         }
 
-        SeekHandler create(ScrubController scrubController){
+        SeekHandler create(ScrubController scrubController) {
             return new SeekHandler(scrubController);
         }
     }

@@ -109,7 +109,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
         when(offlineStateOperations.loadLikedTracksOfflineState())
                 .thenReturn(just(OfflineState.NOT_OFFLINE));
         when(offlineContentOperations.getOfflineLikedTracksStatusChanges()).thenReturn(just(true));
-        when(headerViewFactory.create(any(View.class), any(TrackLikesHeaderView.Listener.class))).thenReturn(headerView);
+        when(headerViewFactory.create(any(View.class),
+                                      any(TrackLikesHeaderView.Listener.class))).thenReturn(headerView);
         when(connectionHelper.isNetworkConnected()).thenReturn(true);
     }
 
@@ -226,7 +227,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/3500")
     public void ignoresCurrentDownloadEventsWhenOfflineLikesWereDisabled() {
         enableOfflineLikes();
-        final OfflineContentChangedEvent downloadingEvent = downloading(Arrays.asList(TRACK1, Urn.forPlaylist(123L)), false);
+        final OfflineContentChangedEvent downloadingEvent = downloading(Arrays.asList(TRACK1, Urn.forPlaylist(123L)),
+                                                                        false);
         final OfflineContentChangedEvent offlineLikesDisabled = removed(true);
         presenter.onViewCreated(fragment, layoutView, null);
         presenter.onResume(fragment);
@@ -418,7 +420,8 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
 
         presenter.onMakeAvailableOffline(false);
 
-        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
+                                                                     OfflineInteractionEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_LIKES_REMOVE);
         assertThat(trackingEvent.getAttributes().containsValue(Screen.LIKES.get())).isTrue();
     }

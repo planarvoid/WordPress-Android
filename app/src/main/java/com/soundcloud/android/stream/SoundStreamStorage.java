@@ -95,7 +95,8 @@ public class SoundStreamStorage implements TimelineStorage {
                         .from(Table.Users)
                         .select(TableColumns.Users.AVATAR_URL)
                         .whereEq(TableColumns.Users._ID, promoterId);
-                final String avatarUrlTemplate = propeller.query(promoterArtworkQuery).firstOrDefault(String.class, null);
+                final String avatarUrlTemplate = propeller.query(promoterArtworkQuery)
+                                                          .firstOrDefault(String.class, null);
                 propertySet.put(SoundStreamProperty.AVATAR_URL_TEMPLATE, Optional.fromNullable(avatarUrlTemplate));
             }
         }
@@ -120,26 +121,26 @@ public class SoundStreamStorage implements TimelineStorage {
     @Override
     public Observable<PropertySet> timelineItems(final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
-                .select(PROMOTED_STREAM_SELECTION)
-                .leftJoin(Table.PromotedTracks.name(),
-                        Table.PromotedTracks.field(PromotedTracks._ID),
-                        TableColumns.SoundStream.PROMOTED_ID)
-                .whereLe(Table.SoundStreamView.field(SoundStreamView.CREATED_AT), Long.MAX_VALUE)
-                .whereNotNull(SoundView.TITLE)
-                .limit(limit);
+                                 .select(PROMOTED_STREAM_SELECTION)
+                                 .leftJoin(Table.PromotedTracks.name(),
+                                           Table.PromotedTracks.field(PromotedTracks._ID),
+                                           TableColumns.SoundStream.PROMOTED_ID)
+                                 .whereLe(Table.SoundStreamView.field(SoundStreamView.CREATED_AT), Long.MAX_VALUE)
+                                 .whereNotNull(SoundView.TITLE)
+                                 .limit(limit);
 
         return propellerRx.query(query)
-                .map(new PromotedStreamItemMapper())
-                .doOnNext(backfillPromoterAvatar);
+                          .map(new PromotedStreamItemMapper())
+                          .doOnNext(backfillPromoterAvatar);
     }
 
     @Override
     public Observable<PropertySet> timelineItemsBefore(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
-                .select(STREAM_SELECTION)
-                .whereLt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
-                .whereNull(SoundStreamView.PROMOTED_ID)
-                .limit(limit);
+                                 .select(STREAM_SELECTION)
+                                 .whereLt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
+                                 .whereNull(SoundStreamView.PROMOTED_ID)
+                                 .limit(limit);
 
         return propellerRx.query(query).map(new StreamItemMapper());
     }
@@ -147,26 +148,26 @@ public class SoundStreamStorage implements TimelineStorage {
     @Override
     public List<PropertySet> timelineItemsSince(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
-                .select(STREAM_SELECTION)
-                .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
-                .whereNull(SoundStreamView.PROMOTED_ID)
-                .limit(limit);
+                                 .select(STREAM_SELECTION)
+                                 .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
+                                 .whereNull(SoundStreamView.PROMOTED_ID)
+                                 .limit(limit);
 
         return propeller.query(query).toList(new StreamItemMapper());
     }
 
     public Observable<Integer> timelineItemCountSince(final long timestamp) {
         Query query = Query.count(Table.SoundStreamView.name())
-                .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
-                .whereNull(SoundStreamView.PROMOTED_ID)
-                .whereNotNull(SoundView.TITLE);
+                           .whereGt((Table.SoundStreamView.field(SoundStreamView.CREATED_AT)), timestamp)
+                           .whereNull(SoundStreamView.PROMOTED_ID)
+                           .whereNotNull(SoundView.TITLE);
 
         return propellerRx.query(query).map(scalar(Integer.class));
     }
 
     public Observable<PropertySet> playbackItems() {
         Query query = Query.from(Table.SoundStreamView.name())
-                .select(PLAYBACK_ITEMS_SELECTION);
+                           .select(PLAYBACK_ITEMS_SELECTION);
         return propellerRx.query(query).map(new ItemsForPlayback());
     }
 
@@ -182,11 +183,14 @@ public class SoundStreamStorage implements TimelineStorage {
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
             propertySet.put(PlayableProperty.CREATOR_URN, Urn.forUser(cursorReader.getInt(SoundView.USER_ID)));
             propertySet.put(SoundStreamProperty.AVATAR_URL_TEMPLATE,
-                    Optional.fromNullable(cursorReader.getString(SoundView.USER_AVATAR_URL)));
-            propertySet.put(SoundStreamProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
+                            Optional.fromNullable(cursorReader.getString(SoundView.USER_AVATAR_URL)));
+            propertySet.put(SoundStreamProperty.CREATED_AT,
+                            cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,
-                    Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
-            propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(cursorReader.getString(SoundView.ARTWORK_URL)));
+                            Sharing.PRIVATE.name()
+                                           .equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+            propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE,
+                            Optional.fromNullable(cursorReader.getString(SoundView.ARTWORK_URL)));
 
             addDurations(cursorReader, propertySet, urn.isPlaylist());
             addUserLike(cursorReader, propertySet);
@@ -220,7 +224,7 @@ public class SoundStreamStorage implements TimelineStorage {
             final String string = cursorReader.getString(SoundView.TITLE);
             if (string == null) {
                 ErrorUtils.handleSilentException("urn : " + readSoundUrn(cursorReader),
-                        new IllegalStateException("Unexpected null title in stream"));
+                                                 new IllegalStateException("Unexpected null title in stream"));
                 propertySet.put(PlayableProperty.TITLE, Strings.EMPTY);
             } else {
                 propertySet.put(PlayableProperty.TITLE, string);
@@ -253,9 +257,10 @@ public class SoundStreamStorage implements TimelineStorage {
             final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
             if (Strings.isNotBlank(reposter)) {
                 propertySet.put(PostProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
-                propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
+                propertySet.put(PostProperty.REPOSTER_URN,
+                                Urn.forUser(cursorReader.getInt(SoundStreamView.REPOSTER_ID)));
                 propertySet.put(SoundStreamProperty.AVATAR_URL_TEMPLATE,
-                        Optional.fromNullable(cursorReader.getString(SoundStreamView.REPOSTER_AVATAR_URL)));
+                                Optional.fromNullable(cursorReader.getString(SoundStreamView.REPOSTER_AVATAR_URL)));
             }
         }
     }
@@ -267,7 +272,8 @@ public class SoundStreamStorage implements TimelineStorage {
                     EntityProperty.URN.bind(readSoundUrn(cursorReader))
             );
             if (cursorReader.isNotNull(SoundStreamView.REPOSTER_ID)) {
-                propertySet.put(PostProperty.REPOSTER_URN, Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
+                propertySet.put(PostProperty.REPOSTER_URN,
+                                Urn.forUser(cursorReader.getLong(SoundStreamView.REPOSTER_ID)));
             }
             return propertySet;
         }
@@ -294,18 +300,24 @@ public class SoundStreamStorage implements TimelineStorage {
         private void addOptionalPromotedProperties(CursorReader cursorReader, PropertySet propertySet) {
             if (cursorReader.isNotNull(PromotedTracks.AD_URN)) {
                 propertySet.put(PromotedItemProperty.AD_URN, cursorReader.getString(PromotedTracks.AD_URN));
-                propertySet.put(PromotedItemProperty.TRACK_CLICKED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_CLICKED_URLS)));
-                propertySet.put(PromotedItemProperty.TRACK_IMPRESSION_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS)));
-                propertySet.put(PromotedItemProperty.TRACK_PLAYED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_PLAYED_URLS)));
-                propertySet.put(PromotedItemProperty.PROMOTER_CLICKED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS)));
+                propertySet.put(PromotedItemProperty.TRACK_CLICKED_URLS,
+                                splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_CLICKED_URLS)));
+                propertySet.put(PromotedItemProperty.TRACK_IMPRESSION_URLS,
+                                splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS)));
+                propertySet.put(PromotedItemProperty.TRACK_PLAYED_URLS,
+                                splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_PLAYED_URLS)));
+                propertySet.put(PromotedItemProperty.PROMOTER_CLICKED_URLS,
+                                splitUrls(cursorReader.getString(PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS)));
                 addOptionalPromoter(cursorReader, propertySet);
             }
         }
 
         private void addOptionalPromoter(CursorReader cursorReader, PropertySet propertySet) {
             if (cursorReader.isNotNull(PromotedTracks.PROMOTER_ID)) {
-                propertySet.put(PromotedItemProperty.PROMOTER_URN, Optional.of(Urn.forUser(cursorReader.getLong(PromotedTracks.PROMOTER_ID))));
-                propertySet.put(PromotedItemProperty.PROMOTER_NAME, Optional.of(cursorReader.getString(PromotedTracks.PROMOTER_NAME)));
+                propertySet.put(PromotedItemProperty.PROMOTER_URN,
+                                Optional.of(Urn.forUser(cursorReader.getLong(PromotedTracks.PROMOTER_ID))));
+                propertySet.put(PromotedItemProperty.PROMOTER_NAME,
+                                Optional.of(cursorReader.getString(PromotedTracks.PROMOTER_NAME)));
             } else {
                 propertySet.put(PromotedItemProperty.PROMOTER_URN, Optional.<Urn>absent());
                 propertySet.put(PromotedItemProperty.PROMOTER_NAME, Optional.<String>absent());
@@ -319,16 +331,16 @@ public class SoundStreamStorage implements TimelineStorage {
 
     private static Query likeQuery() {
         return Query.from(Table.Likes.name(), Table.Sounds.name())
-                .joinOn(SoundStreamView.SOUND_ID, Table.Likes.field(TableColumns.Likes._ID))
-                .joinOn(SoundStreamView.SOUND_TYPE, Table.Likes.field(TableColumns.Likes._TYPE))
-                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+                    .joinOn(SoundStreamView.SOUND_ID, Table.Likes.field(TableColumns.Likes._ID))
+                    .joinOn(SoundStreamView.SOUND_TYPE, Table.Likes.field(TableColumns.Likes._TYPE))
+                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private static Query repostQuery() {
         return Query.from(Table.Posts.name(), Table.Sounds.name())
-                .joinOn(SoundStreamView.SOUND_ID, Table.Posts.field(TableColumns.Posts.TARGET_ID))
-                .joinOn(SoundStreamView.SOUND_TYPE, Table.Posts.field(TableColumns.Posts.TARGET_TYPE))
-                .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_REPOST);
+                    .joinOn(SoundStreamView.SOUND_ID, Table.Posts.field(TableColumns.Posts.TARGET_ID))
+                    .joinOn(SoundStreamView.SOUND_TYPE, Table.Posts.field(TableColumns.Posts.TARGET_TYPE))
+                    .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_REPOST);
     }
 
 }

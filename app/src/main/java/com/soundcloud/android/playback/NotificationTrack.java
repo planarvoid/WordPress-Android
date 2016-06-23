@@ -20,14 +20,14 @@ public class NotificationTrack {
 
     public String getTitle() {
         return isAudioAd()
-                ? resources.getString(R.string.ads_advertisement)
-                : source.get(PlayableProperty.TITLE);
+               ? resources.getString(R.string.ads_advertisement)
+               : source.get(PlayableProperty.TITLE);
     }
 
     public String getCreatorName() {
         return isAudioAd()
-                ? Strings.EMPTY
-                : source.get(PlayableProperty.CREATOR_NAME);
+               ? Strings.EMPTY
+               : source.get(PlayableProperty.CREATOR_NAME);
     }
 
     public boolean isAudioAd() {

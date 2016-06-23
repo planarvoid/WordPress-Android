@@ -44,13 +44,19 @@ public class OnboardActivityTest extends AndroidUnitTest {
 
     @Before
     public void setup() throws Exception {
-        activity = new OnboardActivityWithSettableBundle(configurationManager, bugReporter, eventBus, tokenUtils,
-                navigator, facebookSdk, facebookLoginManager, facebookCallbackManager);
+        activity = new OnboardActivityWithSettableBundle(configurationManager,
+                                                         bugReporter,
+                                                         eventBus,
+                                                         tokenUtils,
+                                                         navigator,
+                                                         facebookSdk,
+                                                         facebookLoginManager,
+                                                         facebookCallbackManager);
         activityController = TestActivityController.of(activity);
     }
 
     @Test
-    public void shouldSpecifyThatRequestHasContinueIfIntentContainsAuthenticatorResponse(){
+    public void shouldSpecifyThatRequestHasContinueIfIntentContainsAuthenticatorResponse() {
         final Intent intent = new Intent();
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
 
@@ -61,7 +67,7 @@ public class OnboardActivityTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSpecifyResultOnAccountAuthenticationIfBundleIsNotNull(){
+    public void shouldSpecifyResultOnAccountAuthenticationIfBundleIsNotNull() {
         final Bundle bundle = new Bundle();
         final Intent intent = new Intent();
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
@@ -75,7 +81,7 @@ public class OnboardActivityTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSpecifyActionCancelledIfBundleIsNull(){
+    public void shouldSpecifyActionCancelledIfBundleIsNull() {
         final Intent intent = new Intent();
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
 
@@ -97,7 +103,7 @@ public class OnboardActivityTest extends AndroidUnitTest {
                                                  LoginManager facebookLoginManager,
                                                  CallbackManager facebookCallbackManager) {
             super(configurationManager, bugReporter, eventBus, tokenUtils, navigator, facebookSdk,
-                    facebookLoginManager, facebookCallbackManager);
+                  facebookLoginManager, facebookCallbackManager);
         }
 
         protected void setBundle(Bundle bundle) {

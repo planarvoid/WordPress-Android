@@ -225,7 +225,7 @@ public class NetworkConnectionHelperTest {
 
                 int networkTypeValue = field.getInt(null);
 
-                if(TelephonyManager.NETWORK_TYPE_UNKNOWN == networkTypeValue){
+                if (TelephonyManager.NETWORK_TYPE_UNKNOWN == networkTypeValue) {
                     continue;
                 }
 

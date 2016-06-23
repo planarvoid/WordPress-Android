@@ -31,7 +31,7 @@ public class BasicUpsellTest extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         UpgradeScreen upgradeScreen = mainNavHelper.goToOfflineSettings()
-                .clickSubscribe();
+                                                   .clickSubscribe();
 
         assertThat(upgradeScreen, is(visible()));
         assertThat(upgradeScreen.upgradeButton(), is(IsVisible.visible()));

@@ -107,7 +107,14 @@ public class BatchTrackingApiTest extends AndroidUnitTest {
 
     private void checkPostRequest(int call, String expectedBody) throws IOException {
         assertThat(requestCaptor.getAllValues().get(call).method()).isEqualTo("POST");
-        assertThat(requestCaptor.getAllValues().get(call).body().contentLength()).isEqualTo((long) expectedBody.length());
-        assertThat(requestCaptor.getAllValues().get(call).body().contentType().toString()).isEqualTo("application/json");
+        assertThat(requestCaptor.getAllValues()
+                                .get(call)
+                                .body()
+                                .contentLength()).isEqualTo((long) expectedBody.length());
+        assertThat(requestCaptor.getAllValues()
+                                .get(call)
+                                .body()
+                                .contentType()
+                                .toString()).isEqualTo("application/json");
     }
 }

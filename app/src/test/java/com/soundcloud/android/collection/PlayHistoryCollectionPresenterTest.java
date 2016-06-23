@@ -39,9 +39,22 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
     private static final List<TrackItem> PLAY_HISTORY = singletonList(mock(TrackItem.class));
     private static final List<RecentlyPlayedItem> RECENTLY_PLAYED = singletonList(mock(RecentlyPlayedItem.class));
 
-    private static final MyCollection MY_COLLECTION = MyCollection.forCollectionWithPlayHistory(LIKES, PLAYLISTS, PLAY_HISTORY, RECENTLY_PLAYED, false);
-    private static final MyCollection MY_COLLECTION_WITHOUT_PLAY_HISTORY = MyCollection.forCollectionWithPlayHistory(LIKES, PLAYLISTS, Collections.<TrackItem>emptyList(), Collections.<RecentlyPlayedItem>emptyList(), false);
-    private static final MyCollection MY_COLLECTION_EMPTY = MyCollection.forCollectionWithPlayHistory(NO_LIKES, Collections.<PlaylistItem>emptyList(), Collections.<TrackItem>emptyList(), Collections.<RecentlyPlayedItem>emptyList(), false);
+    private static final MyCollection MY_COLLECTION = MyCollection.forCollectionWithPlayHistory(LIKES,
+                                                                                                PLAYLISTS,
+                                                                                                PLAY_HISTORY,
+                                                                                                RECENTLY_PLAYED,
+                                                                                                false);
+    private static final MyCollection MY_COLLECTION_WITHOUT_PLAY_HISTORY = MyCollection.forCollectionWithPlayHistory(
+            LIKES,
+            PLAYLISTS,
+            Collections.<TrackItem>emptyList(),
+            Collections.<RecentlyPlayedItem>emptyList(),
+            false);
+    private static final MyCollection MY_COLLECTION_EMPTY = MyCollection.forCollectionWithPlayHistory(NO_LIKES,
+                                                                                                      Collections.<PlaylistItem>emptyList(),
+                                                                                                      Collections.<TrackItem>emptyList(),
+                                                                                                      Collections.<RecentlyPlayedItem>emptyList(),
+                                                                                                      false);
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);
 
@@ -61,7 +74,12 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
         when(collectionOperations.collectionsForPlayHistory()).thenReturn(Observable.just(MY_COLLECTION));
         when(collectionOperations.onCollectionChangedWithPlayHistory()).thenReturn(Observable.empty());
         when(RECENTLY_PLAYED.get(0).getUrn()).thenReturn(Urn.forPlaylist(123L));
-        presenter = new PlayHistoryCollectionPresenter(swipeRefreshAttacher, collectionOperations, collectionOptionsStorage, adapter, resources(), eventBus);
+        presenter = new PlayHistoryCollectionPresenter(swipeRefreshAttacher,
+                                                       collectionOperations,
+                                                       collectionOptionsStorage,
+                                                       adapter,
+                                                       resources(),
+                                                       eventBus);
     }
 
     @Test

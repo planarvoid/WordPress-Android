@@ -17,13 +17,13 @@ public class ConfigurationBlueprint {
         @Override
         public Object createInstance() {
             return Configuration.builder()
-                    .features(createFeatures())
-                    .userPlan(new UserPlan("free", Collections.singletonList("mid_tier")))
-                    .assignment(new Assignment(createLayers()))
-                    .deviceManagement(new DeviceManagement(false, true))
-                    .selfDestruct(false)
-                    .imageSizeSpecs(Collections.<String>emptyList())
-                    .build();
+                                .features(createFeatures())
+                                .userPlan(new UserPlan("free", Collections.singletonList("mid_tier")))
+                                .assignment(new Assignment(createLayers()))
+                                .deviceManagement(new DeviceManagement(false, true))
+                                .selfDestruct(false)
+                                .imageSizeSpecs(Collections.<String>emptyList())
+                                .build();
         }
     };
 

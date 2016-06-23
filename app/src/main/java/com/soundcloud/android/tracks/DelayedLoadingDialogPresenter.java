@@ -25,7 +25,9 @@ public class DelayedLoadingDialogPresenter {
     private final DialogInterface.OnCancelListener onCancelListener;
 
     @SuppressLint("ShowToast")
-    DelayedLoadingDialogPresenter(String loadingMessage, String onErrorToastText, DialogInterface.OnCancelListener onCancelListener) {
+    DelayedLoadingDialogPresenter(String loadingMessage,
+                                  String onErrorToastText,
+                                  DialogInterface.OnCancelListener onCancelListener) {
         this.loadingMessage = loadingMessage;
         this.onErrorToastText = onErrorToastText;
         this.onCancelListener = onCancelListener;

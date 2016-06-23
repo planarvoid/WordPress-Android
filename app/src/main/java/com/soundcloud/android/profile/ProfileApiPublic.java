@@ -30,7 +30,7 @@ public class ProfileApiPublic implements ProfileApi {
         @Override
         public ModelCollection<ApiPlaylist> call(CollectionHolder<PublicApiPlaylist> playlistsHolder) {
             List<ApiPlaylist> playlists = new ArrayList<>(playlistsHolder.size());
-            for (PublicApiPlaylist publicApiPlaylist : playlistsHolder){
+            for (PublicApiPlaylist publicApiPlaylist : playlistsHolder) {
                 playlists.add(publicApiPlaylist.toApiMobilePlaylist());
             }
             return new ModelCollection<>(playlists, playlistsHolder.getNextHref());
@@ -41,7 +41,7 @@ public class ProfileApiPublic implements ProfileApi {
         @Override
         public ModelCollection<ApiUser> call(CollectionHolder<PublicApiUser> usersHolder) {
             List<ApiUser> users = new ArrayList<>(usersHolder.size());
-            for (PublicApiUser publicApiUser : usersHolder){
+            for (PublicApiUser publicApiUser : usersHolder) {
                 users.add(publicApiUser.toApiMobileUser());
             }
             return new ModelCollection<>(users, usersHolder.getNextHref());
@@ -161,29 +161,31 @@ public class ProfileApiPublic implements ProfileApi {
     @NotNull
     private Observable<ModelCollection<ApiPlaylist>> getPlaylists(String path) {
         final ApiRequest request = ApiRequest.get(path)
-                .forPublicApi()
-                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
-                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
-                .build();
+                                             .forPublicApi()
+                                             .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
+                                             .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                                             .build();
 
         return apiClientRx.mappedResponse(request, playlistHolderToken)
-                .map(PLAYLISTS_TO_COLLECTION);
+                          .map(PLAYLISTS_TO_COLLECTION);
     }
 
     @NotNull
     private Observable<ModelCollection<ApiUser>> getUsers(String path) {
         final ApiRequest request = ApiRequest.get(path)
-                .forPublicApi()
-                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
-                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
-                .build();
+                                             .forPublicApi()
+                                             .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
+                                             .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                                             .build();
 
         return apiClientRx.mappedResponse(request, userHolderToken)
-                .map(USERS_TO_COLLECTION);
+                          .map(USERS_TO_COLLECTION);
     }
 
-    private final TypeToken<CollectionHolder<PublicApiPlaylist>> playlistHolderToken = new TypeToken<CollectionHolder<PublicApiPlaylist>>() {};
+    private final TypeToken<CollectionHolder<PublicApiPlaylist>> playlistHolderToken = new TypeToken<CollectionHolder<PublicApiPlaylist>>() {
+    };
 
-    private final TypeToken<CollectionHolder<PublicApiUser>> userHolderToken = new TypeToken<CollectionHolder<PublicApiUser>>() {};
+    private final TypeToken<CollectionHolder<PublicApiUser>> userHolderToken = new TypeToken<CollectionHolder<PublicApiUser>>() {
+    };
 
 }

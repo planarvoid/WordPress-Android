@@ -41,7 +41,8 @@ class DevDrawerExperimentsHelper {
         }
     }
 
-    private ListPreference buildExperimentListPreference(final PreferenceScreen screen, final ExperimentConfiguration experiment) {
+    private ListPreference buildExperimentListPreference(final PreferenceScreen screen,
+                                                         final ExperimentConfiguration experiment) {
         ListPreference listPreference = new ListPreference(screen.getContext());
         String experimentKey = getExperimentLayerPrefix(experiment.getLayerName()) + experiment.getName();
 
@@ -100,7 +101,8 @@ class DevDrawerExperimentsHelper {
         String currentVariant = experimentOperations.getExperimentVariant(experiment);
 
         if (!isNullOrEmpty(currentVariant)) {
-            preference.setSummary(resources.getString(R.string.dev_drawer_section_experiments_enabled_prefix, currentVariant));
+            preference.setSummary(resources.getString(R.string.dev_drawer_section_experiments_enabled_prefix,
+                                                      currentVariant));
             preference.setValue(currentVariant);
         } else {
             clearExperimentSummary(preference);

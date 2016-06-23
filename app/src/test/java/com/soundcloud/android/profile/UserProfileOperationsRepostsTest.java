@@ -100,7 +100,8 @@ public class UserProfileOperationsRepostsTest extends AndroidUnitTest {
 
     @Test
     public void userRepostsPagerMergesInPlaylistLikeInfo() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userReposts(NEXT_HREF)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page))))
                 .thenReturn(likedStatusForPlaylistLike(apiPlaylist));
@@ -112,7 +113,8 @@ public class UserProfileOperationsRepostsTest extends AndroidUnitTest {
 
     @Test
     public void userRepostsPagerStoresNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userReposts(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.repostsPagingFunction().call(page1).subscribe(subscriber);

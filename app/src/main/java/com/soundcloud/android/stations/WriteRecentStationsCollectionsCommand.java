@@ -75,7 +75,9 @@ class WriteRecentStationsCollectionsCommand
         return propeller.bulkUpsert(Tables.Stations.TABLE, Lists.transform(stations, TO_CONTENT_VALUES));
     }
 
-    private TxnResult addStationsToCollection(PropellerDatabase propeller, int type, List<ApiStationMetadata> stations) {
+    private TxnResult addStationsToCollection(PropellerDatabase propeller,
+                                              int type,
+                                              List<ApiStationMetadata> stations) {
         return propeller.bulkInsert(
                 Tables.StationsCollections.TABLE,
                 toStationsCollectionsContentValues(stations, type),
@@ -90,7 +92,9 @@ class WriteRecentStationsCollectionsCommand
         return stationsToSave;
     }
 
-    private ContentValues buildStationsCollectionsItemContentValues(ApiStationMetadata station, int type, int position) {
+    private ContentValues buildStationsCollectionsItemContentValues(ApiStationMetadata station,
+                                                                    int type,
+                                                                    int position) {
         return ContentValuesBuilder
                 .values()
                 .put(Tables.StationsCollections.STATION_URN, station.getUrn().toString())

@@ -97,7 +97,8 @@ public class ObfuscatedPreferencesTest extends AndroidUnitTest {
 
         verify(obfuscator).obfuscate("a");
         verify(obfuscator).obfuscate("b");
-        assertThat(wrappedPreferences.getStringSet(mockObfuscate(KEY), null)).containsOnly(mockObfuscate("a"), mockObfuscate("b"));
+        assertThat(wrappedPreferences.getStringSet(mockObfuscate(KEY), null)).containsOnly(mockObfuscate("a"),
+                                                                                           mockObfuscate("b"));
     }
 
     @Test

@@ -36,9 +36,12 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private ReplaySubject<PropertySet> trackObservable;
 
     @Inject
-    public TrackSessionAnalyticsDispatcher(EventBus eventBus, TrackRepository trackRepository,
-                                           PlayQueueManager playQueueManager, AppboyPlaySessionState appboyPlaySessionState,
-                                           StopReasonProvider stopReasonProvider, UuidProvider uuidProvider) {
+    public TrackSessionAnalyticsDispatcher(EventBus eventBus,
+                                           TrackRepository trackRepository,
+                                           PlayQueueManager playQueueManager,
+                                           AppboyPlaySessionState appboyPlaySessionState,
+                                           StopReasonProvider stopReasonProvider,
+                                           UuidProvider uuidProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
@@ -71,7 +74,8 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @Override
-    public void onProgressCheckpoint(PlaybackStateTransition previousTransition, final PlaybackProgressEvent progressEvent) {
+    public void onProgressCheckpoint(PlaybackStateTransition previousTransition,
+                                     final PlaybackProgressEvent progressEvent) {
         trackObservable
                 .filter(new Func1<PropertySet, Boolean>() {
                     @Override
@@ -107,7 +111,8 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
-                PlaybackSessionEvent playSessionEvent = PlaybackSessionEvent.forPlay(buildEventArgs(track, stateTransition));
+                PlaybackSessionEvent playSessionEvent = PlaybackSessionEvent.forPlay(buildEventArgs(track,
+                                                                                                    stateTransition));
 
                 final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
                 PlaySessionSource playSource = playQueueManager.getCurrentPlaySessionSource();
@@ -136,8 +141,8 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                         @Override
                         public PlaybackSessionEvent call(PropertySet track) {
                             return PlaybackSessionEvent.forStop(lastPlaySessionEvent.get(),
-                                    stopReason,
-                                    buildEventArgs(track, stateTransition));
+                                                                stopReason,
+                                                                buildEventArgs(track, stateTransition));
                         }
                     })
                     .subscribe(eventBus.queue(EventQueue.TRACKING));
@@ -145,17 +150,22 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         }
     }
 
-    private Func1<PropertySet, TrackingEvent> stateTransitionToCheckpointEvent(final PlaybackStateTransition stateTransition, final PlaybackProgressEvent progressEvent) {
+    private Func1<PropertySet, TrackingEvent> stateTransitionToCheckpointEvent(final PlaybackStateTransition stateTransition,
+                                                                               final PlaybackProgressEvent progressEvent) {
         return new Func1<PropertySet, TrackingEvent>() {
             @Override
             public TrackingEvent call(PropertySet track) {
-                return PlaybackSessionEvent.forCheckpoint(buildEventArgs(track, progressEvent.getPlaybackProgress(), stateTransition));
+                return PlaybackSessionEvent.forCheckpoint(buildEventArgs(track,
+                                                                         progressEvent.getPlaybackProgress(),
+                                                                         stateTransition));
             }
         };
     }
 
     private boolean isForPlayingTrack(PlaybackProgressEvent progressEvent) {
-        return lastPlaySessionEvent.isPresent() && lastPlaySessionEvent.get().getTrackUrn().equals(progressEvent.getUrn());
+        return lastPlaySessionEvent.isPresent() && lastPlaySessionEvent.get()
+                                                                       .getTrackUrn()
+                                                                       .equals(progressEvent.getUrn());
     }
 
     @NonNull
@@ -163,13 +173,15 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         return buildEventArgs(track, stateTransition.getProgress(), stateTransition);
     }
 
-    private PlaybackSessionEventArgs buildEventArgs(PropertySet track, PlaybackProgress progress, PlaybackStateTransition stateTransition) {
+    private PlaybackSessionEventArgs buildEventArgs(PropertySet track,
+                                                    PlaybackProgress progress,
+                                                    PlaybackStateTransition stateTransition) {
         return PlaybackSessionEventArgs.createWithProgress(track,
-                currentTrackSourceInfo.get(),
-                progress,
-                stateTransition,
-                appboyPlaySessionState.isMarketablePlay(),
-                uuidProvider.getRandomUuid());
+                                                           currentTrackSourceInfo.get(),
+                                                           progress,
+                                                           stateTransition,
+                                                           appboyPlaySessionState.isMarketablePlay(),
+                                                           uuidProvider.getRandomUuid());
     }
 
 }

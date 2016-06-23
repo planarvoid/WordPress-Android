@@ -92,8 +92,10 @@ public class ExploreTracksOperationsTest extends AndroidUnitTest {
     }
 
     private SuggestedTracksCollection buildSuggestedTracksResponse() {
-        SuggestedTracksCollection collection = new SuggestedTracksCollection(Collections.singletonList(ModelFixtures.create(ApiTrack.class)), null, null, null);
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class))).thenReturn(Observable.just(collection));
+        SuggestedTracksCollection collection = new SuggestedTracksCollection(Collections.singletonList(ModelFixtures.create(
+                ApiTrack.class)), null, null, null);
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class))).thenReturn(
+                Observable.just(collection));
         return collection;
     }
 }

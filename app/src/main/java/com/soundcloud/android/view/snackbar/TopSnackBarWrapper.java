@@ -38,7 +38,7 @@ class TopSnackBarWrapper implements SnackBarWrapper {
     private TSnackbar createSnackBar(View anchor, int resId, int length) {
         final TSnackbar snackBar = TSnackbar.make(anchor, resId, length);
         final View view = snackBar.getView();
-        final TextView textView = (TextView)  view.findViewById(com.androidadvance.topsnackbar.R.id.snackbar_text);
+        final TextView textView = (TextView) view.findViewById(com.androidadvance.topsnackbar.R.id.snackbar_text);
         view.setBackgroundColor(view.getResources().getColor(R.color.snack_bar_bg_light));
         textView.setTextColor(Color.WHITE);
         textView.setSingleLine();

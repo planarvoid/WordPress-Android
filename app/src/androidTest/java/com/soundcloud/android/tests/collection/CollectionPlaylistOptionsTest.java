@@ -34,20 +34,20 @@ public class CollectionPlaylistOptionsTest extends ActivityTest<MainActivity> {
         int unfilteredCount = collectionScreen.getLoadedItemCount();
 
         collectionScreen.clickPlaylistOptions()
-                .clickCreated()
-                .clickDone();
+                        .clickCreated()
+                        .clickDone();
 
         assertThat(collectionScreen.getLoadedItemCount(), is(lessThan(unfilteredCount)));
 
         collectionScreen.clickPlaylistOptions()
-                .clickLiked()
-                .clickDone();
+                        .clickLiked()
+                        .clickDone();
 
         assertThat(collectionScreen.getLoadedItemCount(), is(equalTo(unfilteredCount)));
 
         collectionScreen.clickPlaylistOptions()
-                .clickCreated()
-                .clickDone();
+                        .clickCreated()
+                        .clickDone();
 
         assertThat(collectionScreen.getLoadedItemCount(), is(lessThan(unfilteredCount)));
 
@@ -62,16 +62,16 @@ public class CollectionPlaylistOptionsTest extends ActivityTest<MainActivity> {
         final String firstPlaylistTitle = collectionScreen.scrollToFirstPlaylist().getTitle();
 
         collectionScreen.clickPlaylistOptions()
-                .clickSortByTitle()
-                .clickDone();
+                        .clickSortByTitle()
+                        .clickDone();
 
         assertThat(collectionScreen.scrollToFirstPlaylist().getTitle(), is(not(equalTo(firstPlaylistTitle))));
 
         collectionScreen.clickPlaylistOptions()
-                .clickSortByCreatedAt()
-                .clickDone();
+                        .clickSortByCreatedAt()
+                        .clickDone();
 
         assertThat(collectionScreen.scrollToFirstPlaylist().getTitle(), is(equalTo(firstPlaylistTitle)));
     }
-    
+
 }

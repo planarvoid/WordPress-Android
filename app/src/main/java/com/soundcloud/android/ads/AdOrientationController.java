@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AdOrientationController extends DefaultActivityLightCycle<AppCompatActivity> {
 
-    private  static final long ORIENTATION_UNLOCK_DELAY = TimeUnit.SECONDS.toMillis(5);
+    private static final long ORIENTATION_UNLOCK_DELAY = TimeUnit.SECONDS.toMillis(5);
 
     private final AdsOperations adsOperations;
     private final EventBus eventBus;
@@ -38,7 +38,10 @@ public class AdOrientationController extends DefaultActivityLightCycle<AppCompat
     private Handler unlockHandler = new Handler();
 
     @Inject
-    public AdOrientationController(AdsOperations adsOperations, EventBus eventBus, DeviceHelper deviceHelper, PlayQueueManager playQueueManager) {
+    public AdOrientationController(AdsOperations adsOperations,
+                                   EventBus eventBus,
+                                   DeviceHelper deviceHelper,
+                                   PlayQueueManager playQueueManager) {
         this.adsOperations = adsOperations;
         this.eventBus = eventBus;
         this.deviceHelper = deviceHelper;
@@ -81,9 +84,11 @@ public class AdOrientationController extends DefaultActivityLightCycle<AppCompat
     private void trackVideoSizeChange() {
         final VideoAd videoAd = (VideoAd) adsOperations.getCurrentTrackAdData().get();
         if (deviceHelper.isOrientation(Configuration.ORIENTATION_PORTRAIT)) {
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdShrink(videoAd, playQueueManager.getCurrentTrackSourceInfo()));
+            eventBus.publish(EventQueue.TRACKING,
+                             UIEvent.fromVideoAdShrink(videoAd, playQueueManager.getCurrentTrackSourceInfo()));
         } else if (deviceHelper.isOrientation(Configuration.ORIENTATION_LANDSCAPE)) {
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromVideoAdFullscreen(videoAd, playQueueManager.getCurrentTrackSourceInfo()));
+            eventBus.publish(EventQueue.TRACKING,
+                             UIEvent.fromVideoAdFullscreen(videoAd, playQueueManager.getCurrentTrackSourceInfo()));
         }
     }
 

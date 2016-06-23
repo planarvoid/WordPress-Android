@@ -96,7 +96,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
                 item.getTrackCount());
 
         return context.getString(R.string.playlist_new_info_header_text_trackcount_duration,
-                trackCount, item.geFormattedDuration());
+                                 trackCount, item.geFormattedDuration());
     }
 
     void showOfflineState(OfflineState state) {
@@ -184,11 +184,11 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     public void updateLikeItem(int likesCount, boolean likedByUser) {
         updateToggleButton(likeToggle,
-                R.string.accessibility_like_action,
-                R.plurals.accessibility_stats_likes,
-                likesCount,
-                likedByUser,
-                R.string.accessibility_stats_user_liked);
+                           R.string.accessibility_like_action,
+                           R.plurals.accessibility_stats_likes,
+                           likesCount,
+                           likedByUser,
+                           R.string.accessibility_stats_user_liked);
     }
 
     void enableShuffle() {

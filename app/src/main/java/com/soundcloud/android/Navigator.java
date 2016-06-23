@@ -187,47 +187,47 @@ public class Navigator {
 
     public void openProfile(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         context.startActivity(createProfileIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+                                      .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
 
     public PendingIntent openProfileFromNotification(Context context, Urn user) {
         return PendingIntent.getActivity(context,
-                NO_FLAGS,
-                createProfileIntent(context, user, Screen.NOTIFICATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK),
-                PendingIntent.FLAG_CANCEL_CURRENT);
+                                         NO_FLAGS,
+                                         createProfileIntent(context, user, Screen.NOTIFICATION)
+                                                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK),
+                                         PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     public PendingIntent openProfileFromWidget(Context context, Urn user, int requestCode) {
         return PendingIntent.getActivity(context,
-                requestCode,
-                createProfileIntent(context, user, Screen.WIDGET, Referrer.PLAYBACK_WIDGET),
-                PendingIntent.FLAG_CANCEL_CURRENT);
+                                         requestCode,
+                                         createProfileIntent(context, user, Screen.WIDGET, Referrer.PLAYBACK_WIDGET),
+                                         PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     public void openProfileReposts(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfileRepostsIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
+                                      .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
     public void openProfileTracks(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfileTracksIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
+                                      .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
     public void openProfileAlbums(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfileAlbumsIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
+                                      .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
     public void openProfileLikes(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfileLikesIntent(context, user, screen)
-                .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
+                                      .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
     public void openProfilePlaylists(Context context, Urn user, Screen screen, SearchQuerySourceInfo querySourceInfo) {
         context.startActivity(createProfilePlaylistsIntent(context, user, screen)
-                .putExtra(UserPlaylistsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
+                                      .putExtra(UserPlaylistsActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, querySourceInfo));
     }
 
     public void openActivities(Context context) {
@@ -261,7 +261,7 @@ public class Navigator {
 
     public void openNotificationPreferencesFromDeeplink(Context context) {
         context.startActivity(new Intent(context, NotificationPreferencesActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                                      .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
     }
 
     public void openLegal(Context context) {
@@ -270,7 +270,7 @@ public class Navigator {
 
     public void openHelpCenter(Context context) {
         context.startActivity(new Intent(Intent.ACTION_VIEW,
-                Uri.parse(context.getString(R.string.url_support))));
+                                         Uri.parse(context.getString(R.string.url_support))));
     }
 
     public void openOnboarding(Context context, Urn deeplinkUrn, Screen screen) {
@@ -336,7 +336,7 @@ public class Navigator {
 
     public void openTrackComments(Context context, Urn trackUrn) {
         context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
+                                      .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
     }
 
     public void openOfflineSettingsOnboarding(Context context) {

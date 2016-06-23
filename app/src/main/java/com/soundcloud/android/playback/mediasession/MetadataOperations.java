@@ -46,7 +46,9 @@ class MetadataOperations {
         this.scheduler = scheduler;
     }
 
-    Observable<MediaMetadataCompat> metadata(final Urn urn, boolean isAd, Optional<MediaMetadataCompat> existingMetadata) {
+    Observable<MediaMetadataCompat> metadata(final Urn urn,
+                                             boolean isAd,
+                                             Optional<MediaMetadataCompat> existingMetadata) {
         if (urn.isTrack()) {
             return trackRepository
                     .track(urn)
@@ -104,12 +106,12 @@ class MetadataOperations {
         final int targetSize = getTargetImageSize();
 
         return imageOperations.artwork(imageResource, getImageSize(), targetSize, targetSize)
-                .map(new Func1<Bitmap, TrackAndBitmap>() {
-                    @Override
-                    public TrackAndBitmap call(Bitmap bitmap) {
-                        return new TrackAndBitmap(track, Optional.fromNullable(bitmap));
-                    }
-                });
+                              .map(new Func1<Bitmap, TrackAndBitmap>() {
+                                  @Override
+                                  public TrackAndBitmap call(Bitmap bitmap) {
+                                      return new TrackAndBitmap(track, Optional.fromNullable(bitmap));
+                                  }
+                              });
     }
 
     @Nullable
@@ -139,8 +141,8 @@ class MetadataOperations {
                         new NotificationTrack(resources, trackAndBitmap.track);
 
                 Bitmap bitmap = notificationTrack.isAudioAd()
-                        ? getAdArtwork()
-                        : trackAndBitmap.bitmap.orNull();
+                                ? getAdArtwork()
+                                : trackAndBitmap.bitmap.orNull();
 
                 MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
                         .putString(METADATA_KEY_TITLE, notificationTrack.getTitle())

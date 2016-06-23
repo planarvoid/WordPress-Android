@@ -15,7 +15,7 @@ public class TrackingMetadata {
         this.fromPlaylists = fromPlaylists;
     }
 
-    public void update(TrackingMetadata metadata){
+    public void update(TrackingMetadata metadata) {
         this.fromLikes = fromLikes || metadata.fromLikes;
         this.fromPlaylists = fromPlaylists || metadata.fromPlaylists;
     }
@@ -50,9 +50,9 @@ public class TrackingMetadata {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("creatorUrn", creatorUrn)
-                .add("fromLikes", fromLikes)
-                .add("fromPlaylists", fromPlaylists)
-                .toString();
+                          .add("creatorUrn", creatorUrn)
+                          .add("fromLikes", fromLikes)
+                          .add("fromPlaylists", fromPlaylists)
+                          .toString();
     }
 }

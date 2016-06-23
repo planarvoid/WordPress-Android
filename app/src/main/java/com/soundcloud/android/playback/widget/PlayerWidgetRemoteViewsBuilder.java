@@ -59,7 +59,9 @@ public class PlayerWidgetRemoteViewsBuilder {
         if (isLikeable) {
             boolean isUserLike = item.isUserLike().get();
             widgetRemoteView.setImageViewResource(R.id.btn_like, isUserLike
-                    ? R.drawable.widget_like_orange : R.drawable.widget_like_grey);
+                                                                 ?
+                                                                 R.drawable.widget_like_orange :
+                                                                 R.drawable.widget_like_grey);
         }
     }
 

@@ -132,11 +132,11 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         last_playback_error = b.getInt("last_playback_error");
     }
 
-    public void setPolicy(String policy){
+    public void setPolicy(String policy) {
         this.policy = policy;
     }
 
-    public String getPolicy(){
+    public String getPolicy() {
         return policy;
     }
 
@@ -286,15 +286,16 @@ public class PublicApiTrack extends Playable implements TrackRecord {
 
     public PropertySet toPropertySet() {
         final PropertySet track = super.toPropertySet()
-                .put(TrackProperty.URN, Urn.forTrack(getId()))
-                .put(TrackProperty.PLAY_COUNT, playback_count)
-                .put(TrackProperty.COMMENTS_COUNT, comment_count)
-                .put(TrackProperty.SNIPPET_DURATION, duration)
-                .put(TrackProperty.FULL_DURATION, duration)
-                .put(TrackProperty.DESCRIPTION, description == null ? Strings.EMPTY : description);
+                                       .put(TrackProperty.URN, Urn.forTrack(getId()))
+                                       .put(TrackProperty.PLAY_COUNT, playback_count)
+                                       .put(TrackProperty.COMMENTS_COUNT, comment_count)
+                                       .put(TrackProperty.SNIPPET_DURATION, duration)
+                                       .put(TrackProperty.FULL_DURATION, duration)
+                                       .put(TrackProperty.DESCRIPTION,
+                                            description == null ? Strings.EMPTY : description);
 
         // we may not have policy in the db yet, as it was not always part of the public API
-        if (policy != null){
+        if (policy != null) {
             track.put(TrackProperty.POLICY, policy);
             track.put(TrackProperty.MONETIZABLE, isMonetizable());
         } else {
@@ -350,7 +351,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
 
         if (!TextUtils.isEmpty(label_name)) {
             str.append("<b>Released By</b><br/>")
-                    .append(label_name).append("<br/>");
+               .append(label_name).append("<br/>");
 
             if (release_day > 0) {
                 str.append(release_year).append("<br/>");
@@ -360,10 +361,10 @@ public class PublicApiTrack extends Playable implements TrackRecord {
 
         if (created_with != null && !created_with.isEmpty()) {
             str.append("Created with <a href=\"")
-                    .append(created_with.permalink_url)
-                    .append("\">")
-                    .append(created_with.name)
-                    .append("</a><br/>");
+               .append(created_with.permalink_url)
+               .append("\">")
+               .append(created_with.name)
+               .append("</a><br/>");
         }
 
         return str.toString();
@@ -376,10 +377,10 @@ public class PublicApiTrack extends Playable implements TrackRecord {
             String cc = license.substring(3, license.length());
 
             sb.append("Licensed under a Creative Commons License (<a href='")
-                    .append(getCCLink(cc))
-                    .append("'>")
-                    .append(cc.toUpperCase(Locale.US))
-                    .append("</a>)");
+              .append(getCCLink(cc))
+              .append("'>")
+              .append(cc.toUpperCase(Locale.US))
+              .append("</a>)");
         } else if ("no-rights-reserved".equals(license)) {
             sb.append("No Rights Reserved");
         }
@@ -394,15 +395,15 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("id", getId())
-                .add("title", title)
-                .add("policy", policy)
-                .add("permalink_url", permalink_url)
-                .add("artwork_url", artwork_url)
-                .add("duration", duration)
-                .add("state", state)
-                .add("user", user)
-                .toString();
+                          .add("id", getId())
+                          .add("title", title)
+                          .add("policy", policy)
+                          .add("permalink_url", permalink_url)
+                          .add("artwork_url", artwork_url)
+                          .add("duration", duration)
+                          .add("state", state)
+                          .add("user", user)
+                          .toString();
     }
 
     public

@@ -76,7 +76,8 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         when(accountOperations.isLoggedInUser(playableItem.getCreatorUrn())).thenReturn(true);
         presenter.bind(viewHolder, playableItem, contextMetadata);
 
-        verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.getRepostCount()), playableItem.isReposted());
+        verify(viewHolder, never()).showRepostStats(formattedStats(playableItem.getRepostCount()),
+                                                    playableItem.isReposted());
         verify(viewHolder).hideRepostStats();
     }
 
@@ -107,7 +108,9 @@ public class CardEngagementsPresenterTest extends AndroidUnitTest {
         captureListener().onRepostClick(view);
 
         UIEvent trackingEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(trackingEvent.getKind()).isEqualTo(playableItem.isReposted() ? UIEvent.KIND_UNREPOST : UIEvent.KIND_REPOST);
+        assertThat(trackingEvent.getKind()).isEqualTo(playableItem.isReposted() ?
+                                                      UIEvent.KIND_UNREPOST :
+                                                      UIEvent.KIND_REPOST);
         assertThat(trackingEvent.isFromOverflow()).isFalse();
     }
 

@@ -22,10 +22,10 @@ public class ByEmailAgeOfMajority extends SignUpTest {
                 .saveSignUpDetails();
 
         final ProfileScreen profileScreen = mainNavHelper.goToDiscovery()
-                .clickSearch()
-                .doSearch("annoymouse")
-                .goToPeopleTab()
-                .findAndClickFirstUserItem();
+                                                         .clickSearch()
+                                                         .doSearch("annoymouse")
+                                                         .goToPeopleTab()
+                                                         .findAndClickFirstUserItem();
 
         assertThat(profileScreen.areCurrentlyFollowing(), is(false));
 

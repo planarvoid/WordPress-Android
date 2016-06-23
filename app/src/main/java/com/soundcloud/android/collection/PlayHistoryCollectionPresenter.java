@@ -46,7 +46,8 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
         List<RecentlyPlayedItem> recentlyPlayedItems = myCollection.getRecentlyPlayedItems();
         List<CollectionItem> collectionItems = new ArrayList<>(playHistoryTrackItems.size() + recentlyPlayedItems.size() + 4);
 
-        collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems()));
+        collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(),
+                                                                       myCollection.getPlaylistItems()));
 
         if (recentlyPlayedItems.size() > 0) {
             collectionItems.addAll(recentlyPlayedItems(recentlyPlayedItems));

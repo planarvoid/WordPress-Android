@@ -45,9 +45,9 @@ public class SmoothNavigator extends Navigator {
 
             Pair[] sharedElements = new Pair[]{
                     Pair.create(activity.findViewById(R.id.search_text),
-                            activity.getString(R.string.search_text_transition_name)),
+                                activity.getString(R.string.search_text_transition_name)),
                     Pair.create(activity.findViewById(R.id.search_holder),
-                            activity.getString(R.string.search_text_holder_transition_name))
+                                activity.getString(R.string.search_text_holder_transition_name))
             };
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
             activity.startActivity(new Intent(activity, SearchActivity.class), options.toBundle());

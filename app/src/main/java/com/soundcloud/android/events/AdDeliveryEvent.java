@@ -17,7 +17,12 @@ public class AdDeliveryEvent extends TrackingEvent {
     public boolean adOptimized;
     public Urn adUrn;
 
-    private AdDeliveryEvent(String kind, Urn monetizableUrn, boolean adsRequested, String endpoint, boolean playerVisible, boolean inForeground) {
+    private AdDeliveryEvent(String kind,
+                            Urn monetizableUrn,
+                            boolean adsRequested,
+                            String endpoint,
+                            boolean playerVisible,
+                            boolean inForeground) {
         super(kind, System.currentTimeMillis());
         this.put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, monetizableUrn.toString());
         this.put(PlayableTrackingKeys.KEY_ADS_ENDPOINT, endpoint);
@@ -28,14 +33,22 @@ public class AdDeliveryEvent extends TrackingEvent {
 
     public static AdDeliveryEvent adDelivered(Urn monetizableUrn, Urn adUrn, String endpoint, AdsReceived adsReceived,
                                               boolean adOptimized, boolean playerVisible, boolean inForeground) {
-        AdDeliveryEvent event = new AdDeliveryEvent(AD_DELIVERED_KIND, monetizableUrn, true, endpoint, playerVisible, inForeground);
+        AdDeliveryEvent event = new AdDeliveryEvent(AD_DELIVERED_KIND,
+                                                    monetizableUrn,
+                                                    true,
+                                                    endpoint,
+                                                    playerVisible,
+                                                    inForeground);
         event.adOptimized = adOptimized;
         event.adUrn = adUrn;
         event.adsReceived = adsReceived;
         return event;
     }
 
-    public static AdDeliveryEvent adsRequestFailed(Urn monetizableUrn, String endpoint, boolean playerVisible, boolean inForeground) {
+    public static AdDeliveryEvent adsRequestFailed(Urn monetizableUrn,
+                                                   String endpoint,
+                                                   boolean playerVisible,
+                                                   boolean inForeground) {
         return new AdDeliveryEvent(AD_FAILED_KIND, monetizableUrn, true, endpoint, playerVisible, inForeground);
     }
 

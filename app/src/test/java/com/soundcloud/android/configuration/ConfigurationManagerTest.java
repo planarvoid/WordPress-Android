@@ -17,12 +17,16 @@ import rx.subjects.PublishSubject;
 public class ConfigurationManagerTest extends AndroidUnitTest {
 
     private static final Configuration AUTHORIZED_DEVICE_CONFIG = Configuration.builder()
-            .deviceManagement(new DeviceManagement(true, false))
-            .build();
+                                                                               .deviceManagement(new DeviceManagement(
+                                                                                       true,
+                                                                                       false))
+                                                                               .build();
 
     private static final Configuration UNAUTHORIZED_DEVICE_CONFIG = Configuration.builder()
-            .deviceManagement(new DeviceManagement(false, true))
-            .build();
+                                                                                 .deviceManagement(new DeviceManagement(
+                                                                                         false,
+                                                                                         true))
+                                                                                 .build();
 
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;
@@ -34,7 +38,7 @@ public class ConfigurationManagerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         manager = new ConfigurationManager(configurationOperations, accountOperations,
-                deviceManagementStorage, forceUpdateHandler);
+                                           deviceManagementStorage, forceUpdateHandler);
     }
 
     @Test

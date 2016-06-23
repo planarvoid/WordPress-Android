@@ -39,7 +39,7 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(requestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()){
+        if (requestRegistry.timeSinceFirstUnauthorisedRequestIsBeyondLimit()) {
             requestRegistry.clearObservedUnauthorisedRequestTimestamp();
             if (fragmentManager.findFragmentByTag(TokenExpiredDialogFragment.TAG) == null) {
                 tokenExpiredDialog.show(fragmentManager, TokenExpiredDialogFragment.TAG);
@@ -57,7 +57,8 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
 
         @Override
         public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
-            unauthoriedRequestReceiver = new UnauthorisedRequestReceiver(activity.getApplicationContext(), activity.getSupportFragmentManager());
+            unauthoriedRequestReceiver = new UnauthorisedRequestReceiver(activity.getApplicationContext(),
+                                                                         activity.getSupportFragmentManager());
         }
 
         @Override

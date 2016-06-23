@@ -39,7 +39,7 @@ class PlayerSnackBarWrapper implements SnackBarWrapper {
     private Snackbar createSnackBar(View anchor, int resId, int length) {
         final Snackbar snackBar = Snackbar.make(anchor, resId, length);
         final View view = snackBar.getView();
-        final TextView textView = (TextView)  view.findViewById(com.androidadvance.topsnackbar.R.id.snackbar_text);
+        final TextView textView = (TextView) view.findViewById(com.androidadvance.topsnackbar.R.id.snackbar_text);
         view.setBackgroundColor(anchor.getResources().getColor(R.color.snack_bar_bg_dark));
         textView.setTextColor(Color.WHITE);
         textView.setSingleLine();

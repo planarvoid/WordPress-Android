@@ -65,10 +65,10 @@ public class AdsOperations {
         final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi();
 
         return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
-                .subscribeOn(scheduler)
-                .doOnError(logFailedAds(sourceUrn, endpoint, playerVisible, inForeground))
-                .doOnNext(logAds(sourceUrn))
-                .doOnNext(cacheAudioAdTrack);
+                          .subscribeOn(scheduler)
+                          .doOnError(logFailedAds(sourceUrn, endpoint, playerVisible, inForeground))
+                          .doOnNext(logAds(sourceUrn))
+                          .doOnNext(cacheAudioAdTrack);
     }
 
     private Action1<? super ApiAdsForTrack> logAds(final Urn sourceUrn) {
@@ -86,7 +86,8 @@ public class AdsOperations {
             @Override
             public void call(Throwable throwable) {
                 Log.i(ADS_TAG, "Failed to retrieve ads for " + sourceUrn.toString(), throwable);
-                eventBus.publish(EventQueue.TRACKING, AdDeliveryEvent.adsRequestFailed(sourceUrn, endpoint, playerVisible, inForeground));
+                eventBus.publish(EventQueue.TRACKING,
+                                 AdDeliveryEvent.adsRequestFailed(sourceUrn, endpoint, playerVisible, inForeground));
             }
         };
     }
@@ -136,7 +137,9 @@ public class AdsOperations {
         }
     }
 
-    private void insertAudioAdWithoutLeaveBehind(TrackQueueItem monetizableItem, ApiAudioAd apiAudioAd, AudioAd audioAdData) {
+    private void insertAudioAdWithoutLeaveBehind(TrackQueueItem monetizableItem,
+                                                 ApiAudioAd apiAudioAd,
+                                                 AudioAd audioAdData) {
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
         final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(apiAudioAd.getApiTrack().getUrn())
                 .withAdData(audioAdData)
@@ -145,8 +148,11 @@ public class AdsOperations {
         playQueueManager.replace(monetizableItem, Arrays.<PlayQueueItem>asList(audioAdItem, newMonetizableItem));
     }
 
-    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd, AudioAd audioAdData, TrackQueueItem monetizableItem) {
-        final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiAudioAd.getLeaveBehind(), apiAudioAd.getApiTrack().getUrn());
+    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd,
+                                              AudioAd audioAdData,
+                                              TrackQueueItem monetizableItem) {
+        final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiAudioAd.getLeaveBehind(),
+                                                                 apiAudioAd.getApiTrack().getUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem)
                 .withAdData(leaveBehindAd).build();
         final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(apiAudioAd.getApiTrack().getUrn())

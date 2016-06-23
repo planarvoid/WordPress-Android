@@ -28,24 +28,24 @@ class MyPostsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
                      PlayableListUpdater.Factory updaterFactory,
                      MyProfileOperations profileOperations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
-                clickListenerFactory, updaterFactory);
+              clickListenerFactory, updaterFactory);
         this.profileOperations = profileOperations;
     }
 
     @Override
     protected CollectionBinding<List<PropertySet>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(profileOperations.pagedPostItems(), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.postsPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.postsPagingFunction())
+                                .build();
     }
 
     @Override
     protected CollectionBinding<List<PropertySet>, PlayableItem> onRefreshBinding() {
         return CollectionBinding.from(profileOperations.updatedPosts(), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.postsPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.postsPagingFunction())
+                                .build();
     }
 
     @Override

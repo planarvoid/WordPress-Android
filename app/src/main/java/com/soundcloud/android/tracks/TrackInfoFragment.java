@@ -68,8 +68,8 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
         setStyle(STYLE_NO_FRAME, R.style.Theme_TrackInfoDialog);
         loadTrack = trackRepository.fullTrackWithUpdate(getArguments().<Urn>getParcelable(EXTRA_URN))
-                .observeOn(mainThread())
-                .cache();
+                                   .observeOn(mainThread())
+                                   .cache();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
                     new TrackInfoCommentClickListener(TrackInfoFragment.this, eventBus, trackUrn, navigator);
             presenter.bind(view, propertySet, commentClickListener);
 
-            if (propertySet.contains(TrackProperty.DESCRIPTION)){
+            if (propertySet.contains(TrackProperty.DESCRIPTION)) {
                 presenter.bindDescription(view, propertySet);
             } else {
                 presenter.showSpinner(view);
@@ -149,7 +149,10 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
             }
         }
 
-        public TrackInfoCommentClickListener(TrackInfoFragment fragment, EventBus eventBus, Urn trackurn, Navigator navigator) {
+        public TrackInfoCommentClickListener(TrackInfoFragment fragment,
+                                             EventBus eventBus,
+                                             Urn trackurn,
+                                             Navigator navigator) {
             this.navigator = navigator;
             this.trackInfoFragmentRef = new WeakReference<>(fragment);
             this.eventBus = eventBus;
@@ -160,7 +163,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         @Override
         public void onCommentsClicked() {
             final TrackInfoFragment trackInfoFragment = trackInfoFragmentRef.get();
-            if (trackInfoFragment != null && !trackInfoFragment.isDetached()){
+            if (trackInfoFragment != null && !trackInfoFragment.isDetached()) {
                 collapsePlayerOnDelay(trackInfoFragment.getActivity());
                 trackInfoFragment.dismiss();
             }

@@ -20,7 +20,16 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
     protected final boolean shouldPersist;
     protected final boolean blocked;
 
-    public PlayableQueueItem(Urn urn, Urn reposter, String source, String sourceVersion, Urn queryUrn, Urn relatedEntity, boolean blocked, boolean shouldPersist, Urn sourceUrn, Optional<AdData> adData) {
+    public PlayableQueueItem(Urn urn,
+                             Urn reposter,
+                             String source,
+                             String sourceVersion,
+                             Urn queryUrn,
+                             Urn relatedEntity,
+                             boolean blocked,
+                             boolean shouldPersist,
+                             Urn sourceUrn,
+                             Optional<AdData> adData) {
         this.sourceVersion = sourceVersion;
         this.source = source;
         this.queryUrn = queryUrn;
@@ -72,7 +81,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
     @Override
     public abstract Kind getKind();
 
-    public static abstract class Builder <T extends Builder<T>> {
+    public static abstract class Builder<T extends Builder<T>> {
         protected final Urn playable;
         protected Urn reposter;
         protected boolean blocked;
@@ -90,7 +99,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
 
         public Builder(PropertySet entity) {
             this(entity.get(EntityProperty.URN),
-                    entity.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
+                 entity.getOrElse(PostProperty.REPOSTER_URN, Urn.NOT_SET));
         }
 
         public Builder(Urn playable, Urn reposter) {
@@ -120,7 +129,7 @@ public abstract class PlayableQueueItem extends PlayQueueItem {
             return getThis();
         }
 
-        public T withAdData(AdData adData){
+        public T withAdData(AdData adData) {
             this.adData = Optional.of(adData);
             return getThis();
         }

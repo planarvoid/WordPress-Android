@@ -70,7 +70,12 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         when(repostOperations.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostSubject);
         when(playQueueManager.getScreenTag()).thenReturn("screen");
 
-        controller = new TrackPageMenuController.Factory(playQueueManager, repostOperations, popupMenuWrapperFactory, startStationPresenter, eventBus, shareOperations)
+        controller = new TrackPageMenuController.Factory(playQueueManager,
+                                                         repostOperations,
+                                                         popupMenuWrapperFactory,
+                                                         startStationPresenter,
+                                                         eventBus,
+                                                         shareOperations)
                 .create(textView);
         controller.setTrack(track);
     }
@@ -101,11 +106,11 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller.onMenuItemClick(share, activityContext);
 
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
-                .contextScreen("screen")
-                .pageName(Screen.PLAYER_MAIN.get())
-                .pageUrn(track.getUrn())
-                .isFromOverflow(true)
-                .build();
+                                                                        .contextScreen("screen")
+                                                                        .pageName(Screen.PLAYER_MAIN.get())
+                                                                        .pageUrn(track.getUrn())
+                                                                        .isFromOverflow(true)
+                                                                        .build();
         verify(shareOperations).share(activityContext, track.getSource(), eventContextMetadata, null);
     }
 
@@ -206,7 +211,8 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     public void shouldHideCommentOptionWhenTrackIsNotCommentable() {
         verify(popupMenuWrapper).setItemVisible(R.id.comment, true);
 
-        final PropertySet notCommentable = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.IS_COMMENTABLE, false);
+        final PropertySet notCommentable = TestPropertySets.expectedTrackForPlayer()
+                                                           .put(TrackProperty.IS_COMMENTABLE, false);
         track = new PlayerTrackState(notCommentable, false, false, null);
         controller.setTrack(track);
 

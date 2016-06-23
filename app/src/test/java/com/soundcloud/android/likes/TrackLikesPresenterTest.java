@@ -61,16 +61,23 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
     @Mock private CollapsingScrollHelper collapsingScrollHelper;
 
     private final PublishSubject<List<PropertySet>> likedTracksObservable = PublishSubject.create();
-    private final Observable<List<Urn>> likedTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2)));
+    private final Observable<List<Urn>> likedTrackUrns = Observable.just(Arrays.asList(Urn.forTrack(1),
+                                                                                       Urn.forTrack(2)));
     private TestSubscriber testSubscriber = new TestSubscriber();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setup() {
-        presenter = new TrackLikesPresenter(likeOperations, playbackInitiator,
-                offlineContentOperations, adapter, headerPresenter, expandPlayerSubscriberProvider,
-                eventBus, swipeRefreshAttacher, collapsingScrollHelper);
+        presenter = new TrackLikesPresenter(likeOperations,
+                                            playbackInitiator,
+                                            offlineContentOperations,
+                                            adapter,
+                                            headerPresenter,
+                                            expandPlayerSubscriberProvider,
+                                            eventBus,
+                                            swipeRefreshAttacher,
+                                            collapsingScrollHelper);
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrns);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
@@ -191,7 +198,10 @@ public class TrackLikesPresenterTest extends AndroidUnitTest {
 
         PlaybackResult playbackResult = PlaybackResult.success();
         when(adapter.getItem(0)).thenReturn(clickedTrack);
-        when(playbackInitiator.playTracks(eq(likedTrackUrns), eq(clickedTrack.getUrn()), eq(0), isA(PlaySessionSource.class)))
+        when(playbackInitiator.playTracks(eq(likedTrackUrns),
+                                          eq(clickedTrack.getUrn()),
+                                          eq(0),
+                                          isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(playbackResult));
         return playbackResult;
     }

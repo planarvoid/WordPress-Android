@@ -177,8 +177,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     private String getAudioAdStream(AudioAdPlaybackItem adPlaybackItem) {
         return adPlaybackItem.isThirdParty()
-                ? adPlaybackItem.getThirdPartyStreamUrl()
-                : urlBuilder.buildHttpsStreamUrl(adPlaybackItem.getUrn());
+               ? adPlaybackItem.getThirdPartyStreamUrl()
+               : urlBuilder.buildHttpsStreamUrl(adPlaybackItem.getUrn());
     }
 
     @Override
@@ -214,8 +214,14 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
         if (!isThirdPartyAudio()) {
             final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                    getPlaybackProtocol(), PlayerType.MEDIA_PLAYER, networkConnectionHelper.getCurrentConnectionType(),
-                    streamUrl, getCurrentFormat(), getCurrentBitrate(), accountOperations.getLoggedInUserUrn(), isPlayingVideo());
+                                                                                       getPlaybackProtocol(),
+                                                                                       PlayerType.MEDIA_PLAYER,
+                                                                                       networkConnectionHelper.getCurrentConnectionType(),
+                                                                                       streamUrl,
+                                                                                       getCurrentFormat(),
+                                                                                       getCurrentBitrate(),
+                                                                                       accountOperations.getLoggedInUserUrn(),
+                                                                                       isPlayingVideo());
             eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
         }
     }
@@ -422,21 +428,26 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                     currentItem.getUrn(), progress, duration,
                     getCurrentFormat(), getCurrentBitrate(),
                     dateProvider);
-            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
-            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, PlayerType.MEDIA_PLAYER.getValue());
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL,
+                                              getPlaybackProtocol().getValue());
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE,
+                                              PlayerType.MEDIA_PLAYER.getValue());
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
-            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
+            stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE,
+                                              networkConnectionHelper.getCurrentConnectionType().getValue());
             playerListener.onPlaystateChanged(stateTransition);
             bufferUnderrunListener.onPlaystateChanged(stateTransition,
-                    getPlaybackProtocol(),
-                    PlayerType.MEDIA_PLAYER,
-                    networkConnectionHelper.getCurrentConnectionType()
+                                                      getPlaybackProtocol(),
+                                                      PlayerType.MEDIA_PLAYER,
+                                                      networkConnectionHelper.getCurrentConnectionType()
             );
         }
     }
 
     String getCurrentFormat() {
-        return currentVideoSource.isPresent() ? currentVideoSource.get().getType() : Skippy.SkippyMediaType.UNKNOWN.name();
+        return currentVideoSource.isPresent() ?
+               currentVideoSource.get().getType() :
+               Skippy.SkippyMediaType.UNKNOWN.name();
     }
 
     int getCurrentBitrate() {
@@ -493,7 +504,9 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                 throw new IllegalArgumentException("Trying to seek before 0");
             }
 
-            final long currentPos = (mediaPlayer != null && !internalState.isError()) ? mediaPlayer.getCurrentPosition() : 0;
+            final long currentPos = (mediaPlayer != null && !internalState.isError()) ?
+                                    mediaPlayer.getCurrentPosition() :
+                                    0;
             if (mediaPlayer == null) {
                 return currentPos;
             } else {
@@ -579,7 +592,9 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private PlayStateReason getTranslatedReason() {
         switch (internalState) {
             case ERROR:
-                return networkConnectionHelper.isNetworkConnected() ? PlayStateReason.ERROR_NOT_FOUND : PlayStateReason.ERROR_FAILED;
+                return networkConnectionHelper.isNetworkConnected() ?
+                       PlayStateReason.ERROR_NOT_FOUND :
+                       PlayStateReason.ERROR_FAILED;
             case COMPLETED:
                 return PlayStateReason.PLAYBACK_COMPLETE;
             default:
@@ -647,7 +662,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {

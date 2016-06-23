@@ -107,7 +107,10 @@ public class LegacySyncJobTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsFoUnexpectedResponseException() throws Exception {
-        setupExceptionThrowingSync(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, HttpStatus.SC_CONFLICT, "conflict")));
+        setupExceptionThrowingSync(ApiRequestException.unexpectedResponse(null,
+                                                                          new ApiResponse(null,
+                                                                                          HttpStatus.SC_CONFLICT,
+                                                                                          "conflict")));
 
         legacySyncItem.onQueued();
         legacySyncItem.run();
@@ -207,7 +210,8 @@ public class LegacySyncJobTest extends AndroidUnitTest {
 
     @Test
     public void shouldSetSyncStateToIdleAndNotSetStatsForUnexpectedResponseException() throws Exception {
-        final UnexpectedResponseException unexpectedResponseException = new UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
+        final UnexpectedResponseException unexpectedResponseException = new UnexpectedResponseException(Mockito.mock(
+                Request.class), Mockito.mock(StatusLine.class));
         setupExceptionThrowingSync(unexpectedResponseException);
 
         legacySyncItem.onQueued();

@@ -38,20 +38,20 @@ public class CollectionOptionsStorage {
 
     public PlaylistsOptions getLastOrDefault() {
         return PlaylistsOptions.builder()
-                .showLikes(preferences.getBoolean(KEY_SHOW_LIKES, false))
-                .showPosts(preferences.getBoolean(KEY_SHOW_POSTS, false))
-                .showOfflineOnly(preferences.getBoolean(KEY_SHOW_OFFLINE_ONLY, false))
-                .sortByTitle(preferences.getBoolean(KEY_SORT_BY_TITLE, false))
-                .build();
+                               .showLikes(preferences.getBoolean(KEY_SHOW_LIKES, false))
+                               .showPosts(preferences.getBoolean(KEY_SHOW_POSTS, false))
+                               .showOfflineOnly(preferences.getBoolean(KEY_SHOW_OFFLINE_ONLY, false))
+                               .sortByTitle(preferences.getBoolean(KEY_SORT_BY_TITLE, false))
+                               .build();
     }
 
     public void store(PlaylistsOptions options) {
         preferences.edit()
-                .putBoolean(KEY_SHOW_LIKES, options.showLikes())
-                .putBoolean(KEY_SHOW_POSTS, options.showPosts())
-                .putBoolean(KEY_SHOW_OFFLINE_ONLY, options.showOfflineOnly())
-                .putBoolean(KEY_SORT_BY_TITLE, options.sortByTitle())
-                .apply();
+                   .putBoolean(KEY_SHOW_LIKES, options.showLikes())
+                   .putBoolean(KEY_SHOW_POSTS, options.showPosts())
+                   .putBoolean(KEY_SHOW_OFFLINE_ONLY, options.showOfflineOnly())
+                   .putBoolean(KEY_SORT_BY_TITLE, options.sortByTitle())
+                   .apply();
     }
 
 }

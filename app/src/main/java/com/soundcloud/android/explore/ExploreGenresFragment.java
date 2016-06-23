@@ -42,8 +42,12 @@ public class ExploreGenresFragment extends LightCycleSupportFragment<ExploreGenr
                 @Override
                 public Observable<GenreSection<ExploreGenre>> call(ExploreGenresSections categories) {
                     return Observable.from(Arrays.asList(
-                            new GenreSection<>(MUSIC_SECTION, R.string.explore_genre_header_music, categories.getMusic()),
-                            new GenreSection<>(AUDIO_SECTION, R.string.explore_genre_header_audio, categories.getAudio())));
+                            new GenreSection<>(MUSIC_SECTION,
+                                               R.string.explore_genre_header_music,
+                                               categories.getMusic()),
+                            new GenreSection<>(AUDIO_SECTION,
+                                               R.string.explore_genre_header_audio,
+                                               categories.getAudio())));
                 }
             };
 
@@ -81,9 +85,10 @@ public class ExploreGenresFragment extends LightCycleSupportFragment<ExploreGenr
     @Override
     public ConnectableObservable<GenreSection<ExploreGenre>> buildObservable() {
         final ConnectableObservable<GenreSection<ExploreGenre>> observable = exploreOperations.getCategories()
-                .flatMap(GENRES_TO_SECTIONS)
-                .observeOn(mainThread())
-                .replay();
+                                                                                              .flatMap(
+                                                                                                      GENRES_TO_SECTIONS)
+                                                                                              .observeOn(mainThread())
+                                                                                              .replay();
         observable.subscribe(new GenreSectionSubscriber());
         return observable;
     }

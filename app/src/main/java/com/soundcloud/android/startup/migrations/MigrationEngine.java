@@ -28,8 +28,8 @@ public class MigrationEngine {
                            SettingsMigration settingsMigration, DiskCacheMigration diskCacheMigration,
                            StreamCacheMigration streamCacheMigration) {
         this(BuildConfig.VERSION_CODE,
-                sharedPreferences,
-                settingsMigration, diskCacheMigration, streamCacheMigration);
+             sharedPreferences,
+             settingsMigration, diskCacheMigration, streamCacheMigration);
     }
 
     @VisibleForTesting
@@ -46,7 +46,9 @@ public class MigrationEngine {
 
         if (previousVersionCode != DEFAULT_APP_VERSION_CODE && previousVersionCode < currentVersion) {
             List<Migration> applicableMigrations = newArrayList(MoreCollections.filter(migrations,
-                    new ApplicableMigrationsPredicate(previousVersionCode, currentVersion)));
+                                                                                       new ApplicableMigrationsPredicate(
+                                                                                               previousVersionCode,
+                                                                                               currentVersion)));
             Collections.sort(applicableMigrations, Migration.APPLICABLE_VERSION_COMPARATOR);
 
             for (Migration migration : applicableMigrations) {

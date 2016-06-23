@@ -177,7 +177,9 @@ public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialo
             if (birthday.isValid()) {
                 final String email = getEmail();
                 final String password = getPassword();
-                final @Nullable String gender = (selectedGenderOption != null) ? selectedGenderOption.getApiValue(getCustomGender()) : null;
+                final @Nullable String gender = (selectedGenderOption != null) ?
+                                                selectedGenderOption.getApiValue(getCustomGender()) :
+                                                null;
                 hideKeyboardOnSignup(emailField, passwordField);
                 signUpHandler.onSignUp(email, password, birthday, gender);
 

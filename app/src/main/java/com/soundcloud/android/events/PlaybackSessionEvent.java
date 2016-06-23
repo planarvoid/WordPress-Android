@@ -60,7 +60,9 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     @NonNull
-    public static PlaybackSessionEvent forStop(PlaybackSessionEvent lastPlayEvent, int stopReason, PlaybackSessionEventArgs args) {
+    public static PlaybackSessionEvent forStop(PlaybackSessionEvent lastPlayEvent,
+                                               int stopReason,
+                                               PlaybackSessionEventArgs args) {
         final PlaybackSessionEvent playbackSessionEvent =
                 new PlaybackSessionEvent(EVENT_KIND_STOP, args);
         playbackSessionEvent.setListenTime(playbackSessionEvent.timestamp - lastPlayEvent.getTimestamp());

@@ -46,7 +46,11 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
         String newSchema = Table.Sounds.createString.substring(0, insertIndex) +
                 " new_column INTEGER," + Table.Sounds.createString.substring(insertIndex);
 
-        final int colCount = SchemaMigrationHelper.alterColumns(db, Table.Sounds.name(), newSchema, new String[0], new String[0]).size();
+        final int colCount = SchemaMigrationHelper.alterColumns(db,
+                                                                Table.Sounds.name(),
+                                                                newSchema,
+                                                                new String[0],
+                                                                new String[0]).size();
         final List<String> columnNames = SchemaMigrationHelper.getColumnNames(db, Table.Sounds.name());
         assertThat(columnNames).contains("new_column");
         assertThat(columnNames.size()).isEqualTo(colCount + 1);
@@ -93,15 +97,15 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
     public void shouldAlterColumnsWithRenamingColumn() throws Exception {
         SQLiteDatabase db = new DatabaseManager(context()).getWritableDatabase();
 
-        String oldSchema =Table.buildCreateString("foo","(_id INTEGER PRIMARY KEY," +
+        String oldSchema = Table.buildCreateString("foo", "(_id INTEGER PRIMARY KEY," +
                 " keep_me VARCHAR(255)," +
                 " drop_me INTEGER," +
-                " rename_me INTEGER);",false);
+                " rename_me INTEGER);", false);
 
-        String newSchema =Table.buildCreateString("foo","(_id INTEGER PRIMARY KEY," +
+        String newSchema = Table.buildCreateString("foo", "(_id INTEGER PRIMARY KEY," +
                 " keep_me VARCHAR(255)," +
                 " new_column INTEGER," +
-                " renamed INTEGER); ",false);
+                " renamed INTEGER); ", false);
 
         db.execSQL(oldSchema);
 
@@ -112,10 +116,17 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
 
         assertThat(db.insert("foo", null, cv)).isEqualTo(1L);
 
-        assertThat(SchemaMigrationHelper.alterColumns(db, "foo", newSchema, new String[]{"rename_me"}, new String[]{"renamed"}))
+        assertThat(SchemaMigrationHelper.alterColumns(db,
+                                                      "foo",
+                                                      newSchema,
+                                                      new String[]{"rename_me"},
+                                                      new String[]{"renamed"}))
                 .containsExactly("renamed", "_id", "keep_me");
 
-        assertThat(SchemaMigrationHelper.getColumnNames(db, "foo")).containsExactly("_id", "keep_me", "new_column", "renamed");
+        assertThat(SchemaMigrationHelper.getColumnNames(db, "foo")).containsExactly("_id",
+                                                                                    "keep_me",
+                                                                                    "new_column",
+                                                                                    "renamed");
 
         Cursor c = db.query("foo", null, null, null, null, null, null);
 

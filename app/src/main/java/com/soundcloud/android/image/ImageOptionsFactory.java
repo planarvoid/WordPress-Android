@@ -28,7 +28,9 @@ final class ImageOptionsFactory {
         return adapterView(placeholderDrawable, apiImageSize, new PlaceholderTransitionDisplayer());
     }
 
-    private static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable, ApiImageSize apiImageSize, PlaceholderTransitionDisplayer displayer) {
+    private static DisplayImageOptions adapterView(@Nullable Drawable placeholderDrawable,
+                                                   ApiImageSize apiImageSize,
+                                                   PlaceholderTransitionDisplayer displayer) {
         DisplayImageOptions.Builder options = fullCacheBuilder()
                 .resetViewBeforeLoading(true)
                 .showImageOnLoading(placeholderDrawable)
@@ -182,5 +184,6 @@ final class ImageOptionsFactory {
         }
     }
 
-    private ImageOptionsFactory() {}
+    private ImageOptionsFactory() {
+    }
 }

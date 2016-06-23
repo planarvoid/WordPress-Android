@@ -74,7 +74,10 @@ public final class ApiRequestException extends Exception {
         return new ApiRequestException(MALFORMED_INPUT, request, e);
     }
 
-    public static ApiRequestException validationError(ApiRequest request, ApiResponse response, String errorKey, int errorCode) {
+    public static ApiRequestException validationError(ApiRequest request,
+                                                      ApiResponse response,
+                                                      String errorKey,
+                                                      int errorCode) {
         return new ApiRequestException(VALIDATION_ERROR, request, response, errorKey, errorCode);
     }
 
@@ -88,7 +91,9 @@ public final class ApiRequestException extends Exception {
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, ApiResponse response) {
-        super("Request failed with reason " + errorReason + "; request = " + request + "; body = " + (response == null ? "<no response>" : response.getResponseBody()));
+        super("Request failed with reason " + errorReason + "; request = " + request + "; body = " + (response == null ?
+                                                                                                      "<no response>" :
+                                                                                                      response.getResponseBody()));
         this.errorReason = errorReason;
         this.errorKey = ERROR_KEY_NONE;
         this.errorCode = Consts.NOT_SET;
@@ -102,14 +107,24 @@ public final class ApiRequestException extends Exception {
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request, ApiResponse response, String errorKey) {
-        super("Request failed with reason " + errorReason + "; errorKey = " + errorKey + "; request = " + request + "; body = " + (response == null ? "<no response>" : response.getResponseBody()));
+        super("Request failed with reason " + errorReason + "; errorKey = " + errorKey + "; request = " + request + "; body = " + (
+                response == null ?
+                "<no response>" :
+                response.getResponseBody()));
         this.errorReason = errorReason;
         this.errorKey = errorKey;
         this.errorCode = Consts.NOT_SET;
     }
 
-    private ApiRequestException(Reason errorReason, ApiRequest request, ApiResponse response, String errorKey, int errorCode) {
-        super("Request failed with reason " + errorReason + "; errorKey = " + errorKey + "; errorCode = " + errorCode + "; request = " + request + "; body = " + (response == null ? "<no response>" : response.getResponseBody()));
+    private ApiRequestException(Reason errorReason,
+                                ApiRequest request,
+                                ApiResponse response,
+                                String errorKey,
+                                int errorCode) {
+        super("Request failed with reason " + errorReason + "; errorKey = " + errorKey + "; errorCode = " + errorCode + "; request = " + request + "; body = " + (
+                response == null ?
+                "<no response>" :
+                response.getResponseBody()));
         this.errorReason = errorReason;
         this.errorKey = errorKey;
         this.errorCode = errorCode;

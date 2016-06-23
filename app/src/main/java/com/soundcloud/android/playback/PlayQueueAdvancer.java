@@ -52,7 +52,7 @@ public class PlayQueueAdvancer {
         this.adsController = adsController;
     }
 
-    public void subscribe(){
+    public void subscribe() {
         eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                 .filter(shouldAdvanceItems)
                 .doOnNext(reconfigureUpcomingAd)
@@ -71,7 +71,8 @@ public class PlayQueueAdvancer {
         @Override
         public void onNext(PlaybackStateTransition stateTransition) {
             if (!playQueueManager.autoMoveToNextPlayableItem()) {
-                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getUrn()));
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                                 createPlayQueueCompleteEvent(stateTransition.getUrn()));
             } else if (!stateTransition.playSessionIsActive()) {
                 playSessionController.playCurrent();
             }

@@ -69,7 +69,8 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
         when(loadOfflinePlaylistsContainingTrackCommand.call(TRACK1)).thenReturn(Collections.<Urn>emptyList());
 
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1, DOWNLOADING);
+        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1,
+                                                                                                      DOWNLOADING);
 
         assertThat(collections).isEmpty();
     }
@@ -78,7 +79,8 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     public void returnRequestedWhenATrackNewStateIsDownloading() {
         setPlaylist(TRACK1, PLAYLIST, createTrack(TRACK1, REQUESTED));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1, DOWNLOADING);
+        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1,
+                                                                                                      DOWNLOADING);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
         assertThat(collections).containsExactly(entry(DOWNLOADING, expected));
@@ -88,7 +90,8 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     public void returnRequestedWhenATrackNewStateIsRequested() {
         setPlaylist(TRACK1, PLAYLIST, createTrack(TRACK1, REQUESTED), createTrack(TRACK2, DOWNLOADED));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1, REQUESTED);
+        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1,
+                                                                                                      REQUESTED);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
         assertThat(collections).containsExactly(entry(REQUESTED, expected));
@@ -98,7 +101,8 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     public void returnRequestedWhenAtLeastOneTrackIsRequested() {
         setPlaylist(TRACK1, PLAYLIST, createTrack(TRACK1, REQUESTED), createTrack(TRACK2, REQUESTED));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1, DOWNLOADED);
+        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1,
+                                                                                                      DOWNLOADED);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
         assertThat(collections).containsExactly(entry(REQUESTED, expected));
@@ -108,7 +112,8 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     public void returnUnavailable() {
         setPlaylist(TRACK1, PLAYLIST, createTrack(TRACK1, NOT_OFFLINE), createTrack(TRACK2, UNAVAILABLE));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1, NOT_OFFLINE);
+        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1,
+                                                                                                      NOT_OFFLINE);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
         assertThat(collections).containsExactly(entry(UNAVAILABLE, expected));
@@ -118,7 +123,8 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
     public void returnDownloaded() {
         setPlaylist(TRACK1, PLAYLIST, createTrack(TRACK1, UNAVAILABLE), createTrack(TRACK2, DOWNLOADED));
 
-        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1, UNAVAILABLE);
+        final Map<OfflineState, TrackCollections> collections = operations.loadTracksCollectionsState(TRACK1,
+                                                                                                      UNAVAILABLE);
 
         final TrackCollections expected = TrackCollections.create(singletonList(PLAYLIST), true);
         assertThat(collections).containsExactly(entry(DOWNLOADED, expected));
@@ -149,12 +155,13 @@ public class OfflineStateOperationsTest extends AndroidUnitTest {
         final List<PropertySet> tracksList = Arrays.asList(tracks);
         when(loadOfflinePlaylistsContainingTrackCommand.call(track)).thenReturn(singletonList(playlist));
         when(loadPlaylistsTracksCommand.call(playlist)).thenReturn(tracksList);
-        when(loadLikedTracksUrnsCommand.call(null)).thenReturn(Lists.transform(tracksList, new Function<PropertySet, Urn>() {
-            @Override
-            public Urn apply(PropertySet entity) {
-                return entity.get(EntityProperty.URN);
-            }
-        }));
+        when(loadLikedTracksUrnsCommand.call(null)).thenReturn(Lists.transform(tracksList,
+                                                                               new Function<PropertySet, Urn>() {
+                                                                                   @Override
+                                                                                   public Urn apply(PropertySet entity) {
+                                                                                       return entity.get(EntityProperty.URN);
+                                                                                   }
+                                                                               }));
         when(loadLikedTracksCommand.call(null)).thenReturn(tracksList);
     }
 

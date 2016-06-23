@@ -56,7 +56,10 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
     private Subscription loadPlaylistSubscription = RxUtils.invalidSubscription();
     private Observable<List<AddTrackToPlaylistItem>> loadPlaylists;
 
-    public static AddToPlaylistDialogFragment from(Urn trackUrn, String trackTitle, String invokerScreen, String contextScreen) {
+    public static AddToPlaylistDialogFragment from(Urn trackUrn,
+                                                   String trackTitle,
+                                                   String invokerScreen,
+                                                   String contextScreen) {
         return createFragment(createBundle(trackUrn, trackTitle, invokerScreen, contextScreen));
     }
 
@@ -138,9 +141,9 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder()
-                .invokerScreen(getArguments().getString(KEY_INVOKER_SCREEN))
-                .contextScreen(getArguments().getString(KEY_CONTEXT_SCREEN))
-                .build();
+                                   .invokerScreen(getArguments().getString(KEY_INVOKER_SCREEN))
+                                   .contextScreen(getArguments().getString(KEY_CONTEXT_SCREEN))
+                                   .build();
     }
 
     @Override

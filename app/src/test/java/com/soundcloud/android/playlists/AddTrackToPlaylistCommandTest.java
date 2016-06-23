@@ -33,7 +33,8 @@ public class AddTrackToPlaylistCommandTest extends StorageIntegrationTest {
     public void addsTrackToAPlaylistReturnsUpdatedTrackCount() {
         final ApiPlaylist apiPlaylist = testFixtures().insertEmptyPlaylist();
 
-        final Integer updatedCount = command.call(new AddTrackToPlaylistCommand.AddTrackToPlaylistParams(apiPlaylist.getUrn(), TRACK_URN));
+        final Integer updatedCount = command.call(new AddTrackToPlaylistCommand.AddTrackToPlaylistParams(apiPlaylist.getUrn(),
+                                                                                                         TRACK_URN));
 
         assertThat(updatedCount).isEqualTo(apiPlaylist.getTrackCount() + 1);
     }
@@ -44,6 +45,7 @@ public class AddTrackToPlaylistCommandTest extends StorageIntegrationTest {
 
         command.call(new AddTrackToPlaylistCommand.AddTrackToPlaylistParams(apiPlaylist.getUrn(), TRACK_URN));
 
-        databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), Collections.singletonList(TRACK_URN));
+        databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(),
+                                                     Collections.singletonList(TRACK_URN));
     }
 }

@@ -176,8 +176,12 @@ public class RecommendedTracksOperationsTest extends AndroidUnitTest {
         assertThat(recommendationBucket.getSeedTrackQueryPosition()).isEqualTo(QUERY_POSITION);
         assertThat(recommendationBucket.getQueryUrn()).isEqualTo(QUERY_URN);
 
-        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getTitle()).isEqualTo(RECOMMENDED_TRACKS.get(0).getTitle());
-        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(RECOMMENDED_TRACKS.get(0).getUserName());
+        assertThat(recommendationBucket.getRecommendations()
+                                       .get(0)
+                                       .getTrack()
+                                       .getTitle()).isEqualTo(RECOMMENDED_TRACKS.get(0).getTitle());
+        assertThat(recommendationBucket.getRecommendations().get(0).getTrack().getCreatorName()).isEqualTo(
+                RECOMMENDED_TRACKS.get(0).getUserName());
     }
 
     private PropertySet createSeed() {

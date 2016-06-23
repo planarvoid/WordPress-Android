@@ -145,7 +145,8 @@ public class StorageModule {
     @Singleton
     @Named(FEATURES)
     public SharedPreferences provideFeaturePrefs(Context context, Obfuscator obfuscator) {
-        return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURES, Context.MODE_PRIVATE), obfuscator);
+        return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURES, Context.MODE_PRIVATE),
+                                         obfuscator);
     }
 
     @Provides

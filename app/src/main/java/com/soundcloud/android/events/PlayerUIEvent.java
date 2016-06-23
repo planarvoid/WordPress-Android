@@ -15,7 +15,7 @@ public class PlayerUIEvent {
             return playerUIEvent.getKind() == PlayerUIEvent.PLAYER_COLLAPSED;
         }
     };
-    
+
     /**
      * Panel is completely expanded.
      */

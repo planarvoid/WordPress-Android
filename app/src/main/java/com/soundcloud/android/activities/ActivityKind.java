@@ -12,8 +12,11 @@ public enum ActivityKind {
     USER_FOLLOW("user_follow");
 
     public static final String[] SUPPORTED_IDENTIFIERS = supportedIdentifiers();
-    public static final EnumSet<ActivityKind> PLAYABLE_RELATED = EnumSet.of(TRACK_LIKE, PLAYLIST_LIKE,
-            TRACK_REPOST, PLAYLIST_REPOST, TRACK_COMMENT);
+    public static final EnumSet<ActivityKind> PLAYABLE_RELATED = EnumSet.of(TRACK_LIKE,
+                                                                            PLAYLIST_LIKE,
+                                                                            TRACK_REPOST,
+                                                                            PLAYLIST_REPOST,
+                                                                            TRACK_COMMENT);
 
     private final String identifier;
 

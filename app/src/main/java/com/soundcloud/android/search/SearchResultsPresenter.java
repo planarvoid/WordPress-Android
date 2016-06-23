@@ -53,7 +53,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                 final List<PropertySet> premiumSearchResultItems = premiumSearchResult.getItems();
                 premiumItems = buildPremiumItemsList(premiumSearchResultItems);
                 searchItems.add(new SearchPremiumItem(premiumSearchResultItems,
-                        premiumSearchResult.nextHref, premiumSearchResult.getResultsCount()));
+                                                      premiumSearchResult.nextHref,
+                                                      premiumSearchResult.getResultsCount()));
             }
             for (PropertySet source : sourceSetsItems) {
                 searchItems.add(SearchResultItem.fromPropertySet(source).build());
@@ -149,8 +150,8 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
         pagingFunction = searchOperations.pagingFunction(searchType);
         return CollectionBinding
                 .from(searchOperations
-                        .searchResult(searchQuery, searchType)
-                        .doOnNext(trackSearch), toPresentationModels)
+                              .searchResult(searchQuery, searchType)
+                              .doOnNext(trackSearch), toPresentationModels)
                 .withAdapter(adapter)
                 .withPager(pagingFunction)
                 .build();
@@ -185,12 +186,12 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
     @Override
     protected void onItemClicked(View view, int position) {
         final List<ListItem> playQueue = premiumItems.isPresent() ?
-                buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems();
+                                         buildPlaylistWithPremiumContent(this.premiumItems.get()) : adapter.getItems();
         final Urn urn = adapter.getItem(position).getUrn();
         final SearchQuerySourceInfo searchQuerySourceInfo = pagingFunction.getSearchQuerySourceInfo(position, urn);
         searchTracker.trackSearchItemClick(searchType, urn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(),
-                searchQuerySourceInfo).onItemClick(playQueue, view, position);
+                                    searchQuerySourceInfo).onItemClick(playQueue, view, position);
     }
 
     @Override
@@ -200,7 +201,9 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                 pagingFunction.getSearchQuerySourceInfo(PREMIUM_ITEMS_POSITION, firstPremiumItemUrn);
         searchTracker.trackSearchItemClick(searchType, firstPremiumItemUrn, searchQuerySourceInfo);
         clickListenerFactory.create(searchType.getScreen(), searchQuerySourceInfo)
-                .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList), view, PREMIUM_ITEMS_POSITION);
+                            .onItemClick(buildPlaylistWithPremiumContent(premiumItemsList),
+                                         view,
+                                         PREMIUM_ITEMS_POSITION);
     }
 
     @Override
@@ -214,6 +217,6 @@ class SearchResultsPresenter extends RecyclerViewPresenter<SearchResult, ListIte
                                                Optional<Link> nextHref) {
         searchTracker.trackPremiumResultsScreenEvent(queryUrn);
         navigator.openSearchPremiumContentResults(context, searchQuery, searchType, premiumItemsSource,
-                nextHref, queryUrn);
+                                                  nextHref, queryUrn);
     }
 }

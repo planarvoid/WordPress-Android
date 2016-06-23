@@ -55,11 +55,11 @@ public class MetadataOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new MetadataOperations(context().getResources(), trackRepository,
-                imageOperations, Schedulers.immediate());
+                                            imageOperations, Schedulers.immediate());
 
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(TRACK));
         when(imageOperations.artwork(eq(SimpleImageResource.create(TRACK)),
-                any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
+                                     any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
         when(imageOperations.decodeResource(context().getResources(), R.drawable.notification_loading))
                 .thenReturn(adBitmap);
     }
@@ -161,7 +161,7 @@ public class MetadataOperationsTest extends AndroidUnitTest {
         operations.preload(TRACK_URN);
 
         verify(imageOperations).artwork(eq(SimpleImageResource.create(TRACK)),
-                any(ApiImageSize.class), anyInt(), anyInt());
+                                        any(ApiImageSize.class), anyInt(), anyInt());
     }
 
     @Test
@@ -171,12 +171,12 @@ public class MetadataOperationsTest extends AndroidUnitTest {
         operations.preload(TRACK_URN);
 
         verify(imageOperations, never()).artwork(eq(SimpleImageResource.create(TRACK)),
-                any(ApiImageSize.class), anyInt(), anyInt());
+                                                 any(ApiImageSize.class), anyInt(), anyInt());
     }
 
     private void setCachedBitmap(PropertySet track, Bitmap bitmap) {
         when(imageOperations.getCachedBitmap(eq(SimpleImageResource.create(track)),
-                any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
+                                             any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
     }
 
     private MediaMetadataCompat getMetadata(int position) {

@@ -36,7 +36,7 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
 
     private ProfileApiMobile api;
     private final TestSubscriber<ModelCollection<ApiEntityHolder>> subscriber = new TestSubscriber<>();
-    private final ApiTrack apiTrack =  ModelFixtures.create(ApiTrack.class);
+    private final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     private final ModelCollection<ApiPostSource> apiMobileHolder = new ModelCollection<>(
             Arrays.asList(
@@ -55,9 +55,11 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
     @Test
     public void returnsUserPostsByUrnFromApi() {
         final Observable<ModelCollection<ApiPostSource>> results = Observable.just(apiMobileHolder);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/posted_and_reposted_tracks_and_playlists")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET",
+                                                               "/users/soundcloud%3Ausers%3A123/posted_and_reposted_tracks_and_playlists")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userPosts(Urn.forUser(123L)).subscribe(subscriber);
         assertAllPostsEmitted();
@@ -67,8 +69,9 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
     public void returnsUserPostsByNextPageLinkFromApi() {
         final Observable<ModelCollection<ApiPostSource>> results = Observable.just(apiMobileHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userPosts(NEXT_HREF).subscribe(subscriber);
         assertAllPostsEmitted();
@@ -76,9 +79,14 @@ public class ProfileApiMobilePostTest extends AndroidUnitTest {
 
     private void assertAllPostsEmitted() {
         subscriber.assertReceivedOnNext(Arrays.asList(new ModelCollection<>(Arrays.asList(new ApiTrackPost(apiTrack),
-                new ApiTrackRepost(apiTrack, REPOST_DATE),
-                new ApiPlaylistPost(apiPlaylist),
-                new ApiPlaylistRepost(apiPlaylist, REPOST_DATE)), NEXT_HREF)));
+                                                                                          new ApiTrackRepost(apiTrack,
+                                                                                                             REPOST_DATE),
+                                                                                          new ApiPlaylistPost(
+                                                                                                  apiPlaylist),
+                                                                                          new ApiPlaylistRepost(
+                                                                                                  apiPlaylist,
+                                                                                                  REPOST_DATE)),
+                                                                            NEXT_HREF)));
     }
 
 }

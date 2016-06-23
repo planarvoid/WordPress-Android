@@ -63,7 +63,7 @@ public class FeatureOperations {
     }
 
     public Observable<Boolean> offlineContentEnabled() {
-         return getUpdates(FeatureName.OFFLINE_SYNC);
+        return getUpdates(FeatureName.OFFLINE_SYNC);
     }
 
     private Observable<Boolean> getUpdates(String name) {

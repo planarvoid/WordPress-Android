@@ -50,7 +50,9 @@ public class FetchPlaylistsCommandTest extends AndroidUnitTest {
     @Test
     public void shouldResolveUrnsToFullPlaylistsViaApiMobileInPages() throws Exception {
         final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 3);
-        final List<Urn> urns = Arrays.asList(playlists.get(0).getUrn(), playlists.get(1).getUrn(), playlists.get(2).getUrn());
+        final List<Urn> urns = Arrays.asList(playlists.get(0).getUrn(),
+                                             playlists.get(1).getUrn(),
+                                             playlists.get(2).getUrn());
 
         setupRequest(urns.subList(0, 2), playlists.subList(0, 2));
         setupRequest(urns.subList(2, 3), playlists.subList(2, 3));

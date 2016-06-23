@@ -74,7 +74,13 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        operations = new PlaylistDiscoveryOperations(apiClientRx, connectionHelper, tagStorage, storePlaylistsCommand, loadPlaylistLikedStatuses, loadPlaylistRepostStatuses, Schedulers.immediate());
+        operations = new PlaylistDiscoveryOperations(apiClientRx,
+                                                     connectionHelper,
+                                                     tagStorage,
+                                                     storePlaylistsCommand,
+                                                     loadPlaylistLikedStatuses,
+                                                     loadPlaylistRepostStatuses,
+                                                     Schedulers.immediate());
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPlaylistCollection.class)))
                 .thenReturn(Observable.<ApiPlaylistCollection>empty());
     }
@@ -104,7 +110,8 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
     @Test
     public void doesNotStorePopularTagsWhenRequestFails() {
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.error(new Exception()));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class),
+                                        isA(TypeToken.class))).thenReturn(Observable.error(new Exception()));
 
         operations.popularPlaylistTags().subscribe(observer);
 
@@ -127,7 +134,8 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         operations.playlistsForTag("electronic").subscribe(observer);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET",
-                ApiEndpoints.PLAYLIST_DISCOVERY.path())), eq(ApiPlaylistCollection.class));
+                                                                  ApiEndpoints.PLAYLIST_DISCOVERY.path())),
+                                           eq(ApiPlaylistCollection.class));
     }
 
     @Test
@@ -268,7 +276,8 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
 
     @Test
     public void addsSearchedTagToRecentTagsStorageWhenRequestFails() {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.error(new Exception()));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class),
+                                        isA(TypeToken.class))).thenReturn(Observable.error(new Exception()));
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
@@ -302,6 +311,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
 
         verifyZeroInteractions(apiClientRx);
     }
+
     @Test
     public void loadsPlaylistDiscoTagsWhenThereAreNoRecommendations() {
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(POPULAR_TAGS));
@@ -376,8 +386,8 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         return collection;
     }
 
-    private SearchResult toSearchResult(ApiPlaylistCollection collection){
+    private SearchResult toSearchResult(ApiPlaylistCollection collection) {
         return SearchResult.fromPropertySetSource(buildPlaylistSummariesResponse().getCollection(),
-                Optional.<Link>absent(), Optional.<Urn>absent());
+                                                  Optional.<Link>absent(), Optional.<Urn>absent());
     }
 }

@@ -48,9 +48,9 @@ class ConfigurationSettingsStorage {
 
     void clearPendingPlanChanges() {
         sharedPreferences.edit()
-                .remove(KEY_PLAN_DOWNGRADE)
-                .remove(KEY_PLAN_UPGRADE)
-                .apply();
+                         .remove(KEY_PLAN_DOWNGRADE)
+                         .remove(KEY_PLAN_UPGRADE)
+                         .apply();
     }
 
     Plan getPendingPlanUpgrade() {

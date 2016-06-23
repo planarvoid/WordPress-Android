@@ -7,4 +7,5 @@ import dagger.Module;
 @Module(addsTo = ApplicationModule.class,
         injects = {PlayerWidgetReceiver.class,
                 PlayerAppWidgetProvider.class})
-public class WidgetModule { }
+public class WidgetModule {
+}

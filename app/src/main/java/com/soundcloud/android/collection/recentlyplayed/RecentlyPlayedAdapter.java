@@ -16,8 +16,8 @@ class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<CollectionItem, Re
                           RecentlyPlayedProfileRenderer recentlyPlayedProfileRenderer,
                           RecentlyPlayedStationRenderer recentlyPlayedStationRenderer) {
         super(new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PLAYLIST, recentlyPlayedPlaylistRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PROFILE, recentlyPlayedProfileRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_STATION, recentlyPlayedStationRenderer));
+              new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PROFILE, recentlyPlayedProfileRenderer),
+              new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_STATION, recentlyPlayedStationRenderer));
     }
 
     @Override

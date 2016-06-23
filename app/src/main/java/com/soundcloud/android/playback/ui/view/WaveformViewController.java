@@ -26,7 +26,8 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.BitSet;
 
-public class WaveformViewController implements ScrubController.OnScrubListener, ProgressAware, WaveformView.OnWidthChangedListener {
+public class WaveformViewController
+        implements ScrubController.OnScrubListener, ProgressAware, WaveformView.OnWidthChangedListener {
 
     private static final int NUM_FLAGS = 5;
 
@@ -195,7 +196,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     private float getRawPlayableProportion(PlaybackProgress progress) {
         if (progress.isDurationValid() && fullDuration > 0) {
             return ((float) progress.getDuration()) / fullDuration;
-        } else if (playDuration > 0 && fullDuration > 0){
+        } else if (playDuration > 0 && fullDuration > 0) {
             return ((float) playDuration) / fullDuration;
         } else {
             return DEFAULT_PLAYABLE_PROPORTION;
@@ -280,7 +281,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     private void startProgressAnimations() {
-        if (fullDuration > 0 && latestProgress != null){
+        if (fullDuration > 0 && latestProgress != null) {
             leftProgressController.startProgressAnimation(latestProgress, fullDuration);
             rightProgressController.startProgressAnimation(latestProgress, fullDuration);
             dragProgressController.startProgressAnimation(latestProgress, fullDuration);
@@ -333,7 +334,10 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         }
 
         public WaveformViewController create(WaveformView waveformView) {
-            return new WaveformViewController(waveformView, animationControllerFactory, scrubControllerFactory, featureFlags);
+            return new WaveformViewController(waveformView,
+                                              animationControllerFactory,
+                                              scrubControllerFactory,
+                                              featureFlags);
         }
     }
 

@@ -21,8 +21,8 @@ public final class ForceUpdateEvent implements MetricEvent {
     @Override
     public Metric toMetric() {
         return Metric.create("ForceUpdate",
-                DataPoint.string("Platform version", androidVersion),
-                DataPoint.string("App version", formattedVersion(appVersionName, appVersionCode)));
+                             DataPoint.string("Platform version", androidVersion),
+                             DataPoint.string("App version", formattedVersion(appVersionName, appVersionCode)));
     }
 
     private static String formattedVersion(String appVersionName, int appVersionCode) {

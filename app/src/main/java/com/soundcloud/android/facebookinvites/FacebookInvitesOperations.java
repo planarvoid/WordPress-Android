@@ -64,8 +64,8 @@ public class FacebookInvitesOperations {
     public Observable<Optional<FacebookInvitesItem>> creatorInvites() {
         if (canShowForCreators()) {
             return myProfileOperations.lastPublicPostedTrack()
-                    .map(toCreatorInvitesItem)
-                    .onErrorResumeNext(NO_INVITES);
+                                      .map(toCreatorInvitesItem)
+                                      .onErrorResumeNext(NO_INVITES);
         } else {
             return NO_INVITES;
         }

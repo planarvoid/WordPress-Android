@@ -31,20 +31,20 @@ public enum ConnectionType {
     }
 
     public static ConnectionType fromNetworkInfo(NetworkInfo activeNetworkInfo, int networkType) {
-        if(activeNetworkInfo == null){
+        if (activeNetworkInfo == null) {
             return ConnectionType.OFFLINE;
         }
 
         int activeNetworkType = activeNetworkInfo.getType();
-        switch (activeNetworkType){
-            case ConnectivityManager.TYPE_WIFI :
-            case ConnectivityManager.TYPE_WIMAX :
+        switch (activeNetworkType) {
+            case ConnectivityManager.TYPE_WIFI:
+            case ConnectivityManager.TYPE_WIMAX:
                 return ConnectionType.WIFI;
-            case ConnectivityManager.TYPE_MOBILE :
-            case ConnectivityManager.TYPE_MOBILE_DUN :
-            case ConnectivityManager.TYPE_MOBILE_HIPRI :
-            case ConnectivityManager.TYPE_MOBILE_MMS :
-            case ConnectivityManager.TYPE_MOBILE_SUPL :
+            case ConnectivityManager.TYPE_MOBILE:
+            case ConnectivityManager.TYPE_MOBILE_DUN:
+            case ConnectivityManager.TYPE_MOBILE_HIPRI:
+            case ConnectivityManager.TYPE_MOBILE_MMS:
+            case ConnectivityManager.TYPE_MOBILE_SUPL:
                 return fromNetworkType(networkType);
             default:
                 Log.d("ConnectionType", "No connection type match for Active Network type " + activeNetworkType);

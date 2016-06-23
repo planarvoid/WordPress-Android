@@ -16,8 +16,8 @@ public class FiletimeComparator implements Comparator<File> {
     @Override
     public int compare(File f1, File f2) {
         return oldestFirst ?
-                getTimestamp(f1, filetimes).compareTo(getTimestamp(f2, filetimes)) :
-                getTimestamp(f2, filetimes).compareTo(getTimestamp(f1, filetimes));
+               getTimestamp(f1, filetimes).compareTo(getTimestamp(f2, filetimes)) :
+               getTimestamp(f2, filetimes).compareTo(getTimestamp(f1, filetimes));
     }
 
     private static Long getTimestamp(File f, Map<File, Long> map) {

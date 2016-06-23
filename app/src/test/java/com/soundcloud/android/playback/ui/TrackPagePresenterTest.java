@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.playback.PlayStateReason;
+
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.assertj.android.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,14 +97,26 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         ViewGroup container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(waveformOperations, featureOperations, listener, likeButtonPresenter, waveformFactory,
-                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, adOverlayControllerFactory,
-                errorControllerFactory, castConnectionHelper, resources(), upsellImpressionController, shareExperiment);
+        presenter = new TrackPagePresenter(waveformOperations,
+                                           featureOperations,
+                                           listener,
+                                           likeButtonPresenter,
+                                           waveformFactory,
+                                           artworkFactory,
+                                           playerOverlayControllerFactory,
+                                           trackMenuControllerFactory,
+                                           adOverlayControllerFactory,
+                                           errorControllerFactory,
+                                           castConnectionHelper,
+                                           resources(),
+                                           upsellImpressionController,
+                                           shareExperiment);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackPageMenuController);
-        when(adOverlayControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
+        when(adOverlayControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(
+                adOverlayController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         trackView = presenter.createItemView(container, skipListener);
         dateProvider = new TestDateProvider();
@@ -126,7 +139,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         populateTrackPage();
         assertThat(getHolder(trackView).likeToggle).isChecked();
         verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 1,
-                R.drawable.player_like_active, R.drawable.player_like);
+                                                 R.drawable.player_like_active, R.drawable.player_like);
     }
 
     @Test
@@ -145,7 +158,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
     @Test
     public void bindItemViewLoadsStationsContext() {
-        final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(), true, true, viewVisibilityProvider);
+        final PlayerTrackState trackState = new PlayerTrackState(TestPropertySets.expectedTrackForPlayer(),
+                                                                 true,
+                                                                 true,
+                                                                 viewVisibilityProvider);
         final StationRecord station = StationFixtures.getStation(Urn.forTrackStation(123L));
         trackState.setStation(station);
 
@@ -345,7 +361,7 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
         verify(likeButtonPresenter).setLikeCount(getHolder(trackView).likeToggle, 9999,
-                R.drawable.player_like_active, R.drawable.player_like);
+                                                 R.drawable.player_like_active, R.drawable.player_like);
     }
 
     @Test
@@ -764,8 +780,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     private PropertySet bindUpsellableHighTierTrack() {
         final PropertySet source = TestPropertySets.upsellableTrackForPlayer();
         presenter.bindItemView(trackView,
-                new PlayerTrackState(source, true, true,
-                        viewVisibilityProvider));
+                               new PlayerTrackState(source, true, true,
+                                                    viewVisibilityProvider));
         return source;
     }
 }

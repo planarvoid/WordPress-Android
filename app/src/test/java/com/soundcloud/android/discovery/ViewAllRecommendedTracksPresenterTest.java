@@ -57,7 +57,9 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(discoveryItems);
         when(recommendedTracksOperations.allBuckets()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedTracksOperations.tracksForSeed(anyLong())).thenReturn(Observable.<List<TrackItem>>empty());
-        when(recommendationBucketRendererFactory.create(eq(false), any(ViewAllRecommendedTracksPresenter.class))).thenReturn(recommendationBucketRenderer);
+        when(recommendationBucketRendererFactory.create(eq(false),
+                                                        any(ViewAllRecommendedTracksPresenter.class))).thenReturn(
+                recommendationBucketRenderer);
         when(adapterFactory.create(any(RecommendationBucketRenderer.class))).thenReturn(adapter);
         when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -101,12 +103,17 @@ public class ViewAllRecommendedTracksPresenterTest extends AndroidUnitTest {
     @Test
     public void propagatesOnReasonClickedToRecommendationPlaybackInitiator() {
         presenter.onReasonClicked(SEED_URN);
-        verify(trackRecommendationPlaybackInitiator).playFromReason(SEED_URN, Screen.RECOMMENDATIONS_MAIN, discoveryItems);
+        verify(trackRecommendationPlaybackInitiator).playFromReason(SEED_URN,
+                                                                    Screen.RECOMMENDATIONS_MAIN,
+                                                                    discoveryItems);
     }
 
     @Test
     public void propagatesOnTrackClickedToRecommendationPlaybackInitiator() {
         presenter.onTrackClicked(SEED_URN, TRACK_URN);
-        verify(trackRecommendationPlaybackInitiator).playFromRecommendation(SEED_URN, TRACK_URN, Screen.RECOMMENDATIONS_MAIN, discoveryItems);
+        verify(trackRecommendationPlaybackInitiator).playFromRecommendation(SEED_URN,
+                                                                            TRACK_URN,
+                                                                            Screen.RECOMMENDATIONS_MAIN,
+                                                                            discoveryItems);
     }
 }

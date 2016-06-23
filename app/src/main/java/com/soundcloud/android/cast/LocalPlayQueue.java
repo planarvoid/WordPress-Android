@@ -14,7 +14,10 @@ class LocalPlayQueue {
     public final MediaInfo mediaInfo;
     public final Urn currentTrackUrn;
 
-    public LocalPlayQueue(JSONObject playQueueTracksJSON, List<Urn> playQueueTrackUrns, MediaInfo mediaInfo, Urn currentTrackUrn) {
+    public LocalPlayQueue(JSONObject playQueueTracksJSON,
+                          List<Urn> playQueueTrackUrns,
+                          MediaInfo mediaInfo,
+                          Urn currentTrackUrn) {
         this.playQueueTracksJSON = playQueueTracksJSON;
         this.playQueueTrackUrns = Collections.unmodifiableList(playQueueTrackUrns);
         this.mediaInfo = mediaInfo;
@@ -28,5 +31,5 @@ class LocalPlayQueue {
     public boolean isEmpty() {
         return playQueueTrackUrns.isEmpty();
     }
-    
+
 }

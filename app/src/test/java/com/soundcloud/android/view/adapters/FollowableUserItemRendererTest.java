@@ -41,7 +41,10 @@ public class FollowableUserItemRendererTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        renderer = new FollowableUserItemRenderer(imageOperations, numberFormatter, followingOperations, engagementsTracking);
+        renderer = new FollowableUserItemRenderer(imageOperations,
+                                                  numberFormatter,
+                                                  followingOperations,
+                                                  engagementsTracking);
 
         itemView = LayoutInflater.from(context()).inflate(R.layout.user_list_item, new FrameLayout(context()), false);
         user = ModelFixtures.create(ApiUser.class);

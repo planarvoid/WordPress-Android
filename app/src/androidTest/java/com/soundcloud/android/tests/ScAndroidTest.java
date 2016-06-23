@@ -60,7 +60,7 @@ public abstract class ScAndroidTest extends AndroidTestCase {
 
     protected void checkStorage() {
         assertEquals("need writable external storage",
-                Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
+                     Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
     }
 
     protected void log(String s, Object... args) {

@@ -69,13 +69,20 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         configuration = ModelFixtures.create(Configuration.class);
         TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
         operations = new ConfigurationOperations(apiClientRx,
-                experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler, configurationSettingsStorage,
-                imageConfigurationStorage, factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1), scheduler);
+                                                 experimentOperations,
+                                                 featureOperations,
+                                                 planChangeDetector,
+                                                 forceUpdateHandler,
+                                                 configurationSettingsStorage,
+                                                 imageConfigurationStorage,
+                                                 factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1),
+                                                 scheduler);
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(configuration);
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(configuration));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(
+                configuration));
         when(featureOperations.getCurrentPlan()).thenReturn(Plan.FREE_TIER);
     }
 
@@ -161,7 +168,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void awaitConfigurationWithPlanSavesConfigurationWhenExpectedPlanIsReturned() throws Exception{
+    public void awaitConfigurationWithPlanSavesConfigurationWhenExpectedPlanIsReturned() throws Exception {
         final Configuration withPlan = getHighTierConfiguration();
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class)))
                 .thenReturn(withPlan);
@@ -175,7 +182,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void awaitConfigurationWithPlanFailsAfterThreeAttempts() {
         final Configuration noPlan = getNoPlanConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(
+                noPlan));
 
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
 
@@ -186,7 +194,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void awaitConfigurationWithPlanDoesNotSaveConfigurationIfFailed() {
         final Configuration noPlan = getNoPlanConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(noPlan));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(
+                noPlan));
 
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(5, TimeUnit.SECONDS);
@@ -196,7 +205,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void awaitConfigurationWithPlanReturnsEmptyWhenNoPlanChangeToHighTierAfterRetries() {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.<Configuration>empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class),
+                                        eq(Configuration.class))).thenReturn(Observable.<Configuration>empty());
 
         operations.awaitConfigurationWithPlan(Plan.HIGH_TIER).subscribe(configSubscriber);
         scheduler.advanceTimeBy(10, TimeUnit.SECONDS);
@@ -254,7 +264,9 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         scheduler.advanceTimeBy(2, TimeUnit.SECONDS);
 
         verify(apiClient).fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
-                .withQueryParam("experiment_layers", "android_listening", "ios")), eq(Configuration.class));
+                                                              .withQueryParam("experiment_layers",
+                                                                              "android_listening",
+                                                                              "ios")), eq(Configuration.class));
     }
 
     @Test
@@ -262,8 +274,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         Token token = new Token("accessToken", "refreshToken");
         when(apiClient.fetchMappedResponse(
                 argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
-                        .withQueryParam("experiment_layers", "android_listening", "ios")
-                        .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
+                                .withQueryParam("experiment_layers", "android_listening", "ios")
+                                .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
                 eq(Configuration.class))).thenReturn(configuration);
 
         assertThat(operations.registerDevice(token)).isSameAs(configuration.getDeviceManagement());
@@ -273,8 +285,11 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     public void registerDeviceStoresConfiguration() throws Exception {
         Token token = new Token("accessToken", "refreshToken");
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
-                .withQueryParam("experiment_layers", "android_listening", "ios")
-                .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")), eq(Configuration.class))).thenReturn(configuration);
+                                                           .withQueryParam("experiment_layers",
+                                                                           "android_listening",
+                                                                           "ios")
+                                                           .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
+                                           eq(Configuration.class))).thenReturn(configuration);
 
         operations.registerDevice(token);
 
@@ -288,8 +303,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
         Token token = new Token("accessToken", "refreshToken");
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CONFIGURATION.path())
-                        .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
-                eq(Configuration.class))).thenReturn(configuration);
+                                                           .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
+                                           eq(Configuration.class))).thenReturn(configuration);
 
         assertThat(operations.forceRegisterDevice(token)).isSameAs(configuration.getDeviceManagement());
     }
@@ -297,8 +312,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void saveConfigurationStoresFeatures() {
         final Configuration configuration = Configuration.builder()
-                .features(TestFeatures.asList())
-                .build();
+                                                         .features(TestFeatures.asList())
+                                                         .build();
 
         operations.saveConfiguration(configuration);
 
@@ -308,8 +323,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void saveConfigurationStoresUserPlan() {
         final Configuration configuration = Configuration.builder()
-                .userPlan(getHighTierConfiguration().getUserPlan())
-                .build();
+                                                         .userPlan(getHighTierConfiguration().getUserPlan())
+                                                         .build();
 
         operations.saveConfiguration(configuration);
 
@@ -319,8 +334,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void saveConfigurationStoresExperimentAssignments() {
         final Configuration configuration = Configuration.builder()
-                .assignment(new Assignment(ConfigurationBlueprint.createLayers()))
-                .build();
+                                                         .assignment(new Assignment(ConfigurationBlueprint.createLayers()))
+                                                         .build();
 
         operations.saveConfiguration(configuration);
 
@@ -330,8 +345,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     @Test
     public void saveConfigurationStoresImageSizeSpecs() {
         final Configuration configuration = Configuration.builder()
-                .imageSizeSpecs(asList("t500x500", "t47"))
-                .build();
+                                                         .imageSizeSpecs(asList("t500x500", "t47"))
+                                                         .build();
 
         operations.saveConfiguration(configuration);
 

@@ -43,6 +43,6 @@ public class OtherProfileAlbumTest extends ActivityTest<ResolveActivity> {
     public void testViewAllAlbums() {
         profileScreen.clickViewAllAlbums();
         assertEquals(profileScreen.getActionBarTitle(),
-                ressourceString(R.string.user_profile_sounds_header_albums));
+                     ressourceString(R.string.user_profile_sounds_header_albums));
     }
 }

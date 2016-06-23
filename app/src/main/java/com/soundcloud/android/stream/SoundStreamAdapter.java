@@ -40,11 +40,11 @@ class SoundStreamAdapter
                               FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer,
                               UpsellNotificationItemRenderer upsellNotificationItemRenderer) {
         super(new CellRendererBinding<>(TRACK_ITEM_TYPE, trackItemRenderer),
-                new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistItemRenderer),
-                new CellRendererBinding<>(FACEBOOK_INVITES_ITEM_TYPE, facebookListenerInvitesItemRenderer),
-                new CellRendererBinding<>(STATIONS_ONBOARDING_STREAM_ITEM_TYPE, stationsOnboardingStreamItemRenderer),
-                new CellRendererBinding<>(FACEBOOK_CREATOR_INVITES_ITEM_TYPE, facebookCreatorInvitesItemRenderer),
-                new CellRendererBinding<>(STREAM_UPSELL_ITEM_TYPE, upsellNotificationItemRenderer));
+              new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistItemRenderer),
+              new CellRendererBinding<>(FACEBOOK_INVITES_ITEM_TYPE, facebookListenerInvitesItemRenderer),
+              new CellRendererBinding<>(STATIONS_ONBOARDING_STREAM_ITEM_TYPE, stationsOnboardingStreamItemRenderer),
+              new CellRendererBinding<>(FACEBOOK_CREATOR_INVITES_ITEM_TYPE, facebookCreatorInvitesItemRenderer),
+              new CellRendererBinding<>(STREAM_UPSELL_ITEM_TYPE, upsellNotificationItemRenderer));
         this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
         this.facebookCreatorInvitesItemRenderer = facebookCreatorInvitesItemRenderer;
         this.stationsOnboardingStreamItemRenderer = stationsOnboardingStreamItemRenderer;

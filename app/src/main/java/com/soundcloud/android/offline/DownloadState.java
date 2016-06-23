@@ -131,9 +131,9 @@ public final class DownloadState {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("status", status)
-                .add("request", request)
-                .add("timestamp", timestamp)
-                .toString();
+                          .add("status", status)
+                          .add("request", request)
+                          .add("timestamp", timestamp)
+                          .toString();
     }
 }

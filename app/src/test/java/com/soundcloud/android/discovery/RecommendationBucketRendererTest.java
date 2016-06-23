@@ -34,7 +34,11 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false, QUERY_POSITION, Urn.NOT_SET);
+    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK,
+                                                                            SEED_TRACK.getUrn(),
+                                                                            false,
+                                                                            QUERY_POSITION,
+                                                                            Urn.NOT_SET);
 
     @Mock private ImageOperations imageOperations;
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
@@ -150,9 +154,10 @@ public class RecommendationBucketRendererTest extends AndroidUnitTest {
     }
 
     private List<RecommendedTracksBucketItem> createRecommendationsBucket() {
-        final RecommendedTracksBucketItem recommendedTracksItem = RecommendedTracksBucketItem.create(createSeed(), Collections
-                .singletonList(
-                        RECOMMENDATION));
+        final RecommendedTracksBucketItem recommendedTracksItem = RecommendedTracksBucketItem.create(createSeed(),
+                                                                                                     Collections
+                                                                                                             .singletonList(
+                                                                                                                     RECOMMENDATION));
         return Collections.singletonList(recommendedTracksItem);
     }
 

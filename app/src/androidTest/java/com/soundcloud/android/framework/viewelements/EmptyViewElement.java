@@ -57,7 +57,7 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public boolean isElementOnScreen(With id) {
-         throw new ViewNotFoundException(selector);
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
@@ -116,12 +116,12 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
-    public int getTop()  {
+    public int getTop() {
         throw new ViewNotFoundException(selector);
     }
 
     @Override
-    public int getGlobalTop()  {
+    public int getGlobalTop() {
         throw new ViewNotFoundException(selector);
     }
 
@@ -186,10 +186,14 @@ public final class EmptyViewElement extends ViewElement {
     }
 
     @Override
-    /* package */ View getView() { throw new ViewNotFoundException(selector); }
+    /* package */ View getView() {
+        throw new ViewNotFoundException(selector);
+    }
 
     @Override
-    /* package */ Han getTestDriver() { throw new ViewNotFoundException(selector); }
+    /* package */ Han getTestDriver() {
+        throw new ViewNotFoundException(selector);
+    }
 
     @Override
     public List<ViewElement> getDirectChildren() {

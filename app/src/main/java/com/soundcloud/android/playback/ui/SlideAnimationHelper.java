@@ -9,19 +9,28 @@ class SlideAnimationHelper {
     private static final Pair<Float, Float> SLIDE_TRANSITION_BOUNDS_FOOTER = new Pair<>(.6f, 1f);
     private static final Pair<Float, Float> SLIDE_TRANSITION_BOUNDS_FULLSCREEN = new Pair<>(.4f, .9f);
 
-    void configureViewsFromSlide(float slideOffset, View footerView, Iterable<View> fullscreenViews, PlayerOverlayController... overlayController) {
+    void configureViewsFromSlide(float slideOffset,
+                                 View footerView,
+                                 Iterable<View> fullscreenViews,
+                                 PlayerOverlayController... overlayController) {
         configureViewsFromSlide(slideOffset, footerView, overlayController);
         setAlpha(getSlideAnimateValue(slideOffset, SLIDE_TRANSITION_BOUNDS_FULLSCREEN), fullscreenViews);
     }
 
-    void configureViewsFromSlide(float slideOffset, View footerView, View fullscreenView, PlayerOverlayController... overlayController) {
+    void configureViewsFromSlide(float slideOffset,
+                                 View footerView,
+                                 View fullscreenView,
+                                 PlayerOverlayController... overlayController) {
         configureViewsFromSlide(slideOffset, footerView, overlayController);
         setAlpha(getSlideAnimateValue(slideOffset, SLIDE_TRANSITION_BOUNDS_FULLSCREEN), fullscreenView);
     }
 
-    private void configureViewsFromSlide(float slideOffset, View footerView, PlayerOverlayController... overlayControllers) {
-        for (PlayerOverlayController overlayController : overlayControllers){
-            overlayController.setAlphaFromCollapse(getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_ARTWORK));
+    private void configureViewsFromSlide(float slideOffset,
+                                         View footerView,
+                                         PlayerOverlayController... overlayControllers) {
+        for (PlayerOverlayController overlayController : overlayControllers) {
+            overlayController.setAlphaFromCollapse(getSlideAnimateValue(1 - slideOffset,
+                                                                        SLIDE_TRANSITION_BOUNDS_ARTWORK));
         }
         setAlpha(getSlideAnimateValue(1 - slideOffset, SLIDE_TRANSITION_BOUNDS_FOOTER), footerView);
     }

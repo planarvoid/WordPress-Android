@@ -21,7 +21,7 @@ public abstract class PlaybackSessionEventArgs {
                                                   boolean marketablePlay,
                                                   String uuid) {
         return new AutoValue_PlaybackSessionEventArgs(trackData, trackSourceInfo, progress,
-                protocol, playerType, isOfflineTrack, marketablePlay, uuid);
+                                                      protocol, playerType, isOfflineTrack, marketablePlay, uuid);
     }
 
     public static PlaybackSessionEventArgs create(PropertySet trackData,
@@ -30,19 +30,19 @@ public abstract class PlaybackSessionEventArgs {
                                                   boolean marketablePlay,
                                                   String uuid) {
         return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, transition.getProgress().getPosition(),
-                getProtocol(transition), getPlayerType(transition),
-                isLocalStoragePlayback(transition), marketablePlay, uuid);
+                                               getProtocol(transition), getPlayerType(transition),
+                                               isLocalStoragePlayback(transition), marketablePlay, uuid);
     }
 
     public static PlaybackSessionEventArgs createWithProgress(PropertySet trackData,
-                                                  TrackSourceInfo trackSourceInfo,
-                                                  PlaybackProgress progress,
-                                                  PlaybackStateTransition transition,
-                                                  boolean marketablePlay,
-                                                  String uuid) {
+                                                              TrackSourceInfo trackSourceInfo,
+                                                              PlaybackProgress progress,
+                                                              PlaybackStateTransition transition,
+                                                              boolean marketablePlay,
+                                                              String uuid) {
         return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, progress.getPosition(),
-                getProtocol(transition), getPlayerType(transition),
-                isLocalStoragePlayback(transition), marketablePlay, uuid);
+                                               getProtocol(transition), getPlayerType(transition),
+                                               isLocalStoragePlayback(transition), marketablePlay, uuid);
     }
 
     public abstract PropertySet getTrackData();

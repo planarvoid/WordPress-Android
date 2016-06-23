@@ -41,7 +41,7 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithContentDescription(description);
     }
 
-    public static With className (Class<? extends View> classToSearch) {
+    public static With className(Class<? extends View> classToSearch) {
         return new WithClass(classToSearch);
     }
 
@@ -56,8 +56,8 @@ public abstract class With implements Predicate<ViewElement> {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("selector", getSelector())
-                .toString();
+                          .add("selector", getSelector())
+                          .toString();
     }
 
     static class WithId extends With {
@@ -97,7 +97,7 @@ public abstract class With implements Predicate<ViewElement> {
 
         @Override
         public String getSelector() {
-            return String.format("With text: %s", searchedText );
+            return String.format("With text: %s", searchedText);
         }
     }
 

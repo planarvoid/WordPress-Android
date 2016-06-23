@@ -28,13 +28,14 @@ class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PropertySet>,
     @Override
     public List<PropertySet> call() throws Exception {
         final QueryResult queryResult = database.query(Query.from(Table.Sounds.name())
-                .select(
-                        TableColumns.SoundView._ID,
-                        TableColumns.SoundView.TITLE,
-                        TableColumns.SoundView.SHARING
-                )
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereLt(TableColumns.Sounds._ID, 0));
+                                                            .select(
+                                                                    TableColumns.SoundView._ID,
+                                                                    TableColumns.SoundView.TITLE,
+                                                                    TableColumns.SoundView.SHARING
+                                                            )
+                                                            .whereEq(TableColumns.SoundView._TYPE,
+                                                                     TableColumns.Sounds.TYPE_PLAYLIST)
+                                                            .whereLt(TableColumns.Sounds._ID, 0));
         return queryResult.toList(new LocalPlaylistsMapper());
     }
 

@@ -34,7 +34,11 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     private static final int QUERY_POSITION = 99;
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false, QUERY_POSITION, Urn.NOT_SET);
+    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK,
+                                                                            SEED_TRACK.getUrn(),
+                                                                            false,
+                                                                            QUERY_POSITION,
+                                                                            Urn.NOT_SET);
     private static final List<Recommendation> RECOMMENDATIONS = Collections.singletonList(RECOMMENDATION);
     private static final int TRACK_POSITION = RECOMMENDATIONS.indexOf(RECOMMENDATION);
 
@@ -58,14 +62,16 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     public void shouldBindCreatorNameToView() {
         renderer.bindItemView(TRACK_POSITION, itemView, RECOMMENDATIONS);
 
-        assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendation_artist)).containsText(RECOMMENDED_TRACK.getCreatorName());
+        assertThat(ButterKnife.<TextView>findById(itemView,
+                                                  R.id.recommendation_artist)).containsText(RECOMMENDED_TRACK.getCreatorName());
     }
 
     @Test
     public void shouldBindTitleToView() {
         renderer.bindItemView(TRACK_POSITION, itemView, RECOMMENDATIONS);
 
-        assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendation_title)).containsText(RECOMMENDED_TRACK.getTitle());
+        assertThat(ButterKnife.<TextView>findById(itemView,
+                                                  R.id.recommendation_title)).containsText(RECOMMENDED_TRACK.getTitle());
     }
 
     @Test
@@ -75,7 +81,10 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
         overflowButton.performClick();
 
-        verify(trackItemMenuPresenter).show((FragmentActivity) overflowButton.getContext(), overflowButton, RECOMMENDED_TRACK, 0);
+        verify(trackItemMenuPresenter).show((FragmentActivity) overflowButton.getContext(),
+                                            overflowButton,
+                                            RECOMMENDED_TRACK,
+                                            0);
     }
 
     @Test

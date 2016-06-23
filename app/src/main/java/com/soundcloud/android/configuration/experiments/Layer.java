@@ -47,11 +47,11 @@ public class Layer {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("layerName", layerName)
-                .add("experimentId", experimentId)
-                .add("experimentName", experimentName)
-                .add("variantId", variantId)
-                .add("variantName", variantName)
-                .toString();
+                          .add("layerName", layerName)
+                          .add("experimentId", experimentId)
+                          .add("experimentName", experimentName)
+                          .add("variantId", variantId)
+                          .add("variantName", variantName)
+                          .toString();
     }
 }

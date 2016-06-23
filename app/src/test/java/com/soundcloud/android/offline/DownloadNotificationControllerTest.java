@@ -24,7 +24,7 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class DownloadNotificationControllerTest extends AndroidUnitTest{
+public class DownloadNotificationControllerTest extends AndroidUnitTest {
 
     private static final String DOWNLOAD_IN_PROGRESS = getString(R.string.offline_update_in_progress);
     private static final String DOWNLOAD_COMPLETED = getString(R.string.offline_update_completed_title);
@@ -96,7 +96,8 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     public void onDownloadsFinishedDoesNotShowNotificationWhenNoPendingRequests() {
         notificationController.onDownloadsFinished(successfulDownloadState, true);
 
-        verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+        verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID),
+                                                    any(Notification.class));
     }
 
     @Test
@@ -169,7 +170,8 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
         notificationController.onDownloadSuccess(successfulDownloadState);
         Mockito.reset(notificationBuilder, notificationManager);
 
-        notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest, TRACK_DURATION_IN_BYTES / 2));
+        notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest,
+                                                                           TRACK_DURATION_IN_BYTES / 2));
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -187,8 +189,10 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
         notificationController.onDownloadSuccess(successfulDownloadState);
         Mockito.reset(notificationBuilder, notificationManager);
 
-        notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest, TRACK_DURATION_IN_BYTES / 2));
-        notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest, TRACK_DURATION_IN_BYTES / 2));
+        notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest,
+                                                                           TRACK_DURATION_IN_BYTES / 2));
+        notificationController.onDownloadProgress(DownloadState.inProgress(downloadRequest,
+                                                                           TRACK_DURATION_IN_BYTES / 2));
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
     }
@@ -218,7 +222,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-        verify(notificationBuilder).setProgress(DownloadNotificationController.PROGRESS_MAX, 333 , false);
+        verify(notificationBuilder).setProgress(DownloadNotificationController.PROGRESS_MAX, 333, false);
         verify(notificationBuilder).setContentText(getQuantifiedDownloadString(2, 3));
         verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
@@ -283,7 +287,7 @@ public class DownloadNotificationControllerTest extends AndroidUnitTest{
     private DownloadQueue createQueue(int size) {
         final DownloadQueue downloadQueue = new DownloadQueue();
         final Collection<DownloadRequest> requests = new ArrayList<>();
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             requests.add(ModelFixtures.downloadRequestFromLikes(Urn.forTrack(i)));
         }
         downloadQueue.set(requests);

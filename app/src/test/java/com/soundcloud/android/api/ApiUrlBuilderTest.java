@@ -39,7 +39,8 @@ public class ApiUrlBuilderTest extends AndroidUnitTest {
     @Test
     public void shouldBuildFullUrlFromApiMobileEndpointWithPathParameters() {
         final String url = urlBuilder.from(ApiEndpoints.ADS, "soundcloud:tracks:1").build();
-        assertThat(url).isEqualTo("https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:1/ads?client_id=test_client_id");
+        assertThat(url).isEqualTo(
+                "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:1/ads?client_id=test_client_id");
     }
 
     @Test
@@ -68,8 +69,8 @@ public class ApiUrlBuilderTest extends AndroidUnitTest {
         MultiMap<String, String> params = new ListMultiMap<>();
         params.putAll("k", asList("v1", "v2"));
         final String url = urlBuilder.from(ApiEndpoints.SEARCH_TRACKS)
-                .withQueryParams(params)
-                .build();
+                                     .withQueryParams(params)
+                                     .build();
         assertThat(url).isEqualTo("https://api-mobile.soundcloud.com/search/tracks?client_id=test_client_id&k=v1%2Cv2");
     }
 
@@ -81,7 +82,10 @@ public class ApiUrlBuilderTest extends AndroidUnitTest {
 
     @Test
     public void shouldAddSingleConstantQueryParamToUrl() {
-        final String url = urlBuilder.from(ApiEndpoints.SEARCH_TRACKS).withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "x").build();
-        assertThat(url).isEqualTo("https://api-mobile.soundcloud.com/search/tracks?client_id=test_client_id&oauth_token=x");
+        final String url = urlBuilder.from(ApiEndpoints.SEARCH_TRACKS)
+                                     .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "x")
+                                     .build();
+        assertThat(url).isEqualTo(
+                "https://api-mobile.soundcloud.com/search/tracks?client_id=test_client_id&oauth_token=x");
     }
 }

@@ -12,7 +12,10 @@ class StationBucket {
     private final int bucketSize;
     private final List<StationViewModel> stationViewModels;
 
-    public StationBucket(String title, final int collectionType, int bucketSize, List<StationViewModel> stationViewModels) {
+    public StationBucket(String title,
+                         final int collectionType,
+                         int bucketSize,
+                         List<StationViewModel> stationViewModels) {
         this.title = title;
         this.collectionType = collectionType;
         this.bucketSize = bucketSize;
@@ -35,7 +38,9 @@ class StationBucket {
         return bucketSize;
     }
 
-    public static Func1<List<StationViewModel>, StationBucket> fromStationViewModels(final String name, final int collectionType, final int bucketSize) {
+    public static Func1<List<StationViewModel>, StationBucket> fromStationViewModels(final String name,
+                                                                                     final int collectionType,
+                                                                                     final int bucketSize) {
         return new Func1<List<StationViewModel>, StationBucket>() {
             @Override
             public StationBucket call(List<StationViewModel> stationViewModels) {

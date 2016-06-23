@@ -12,7 +12,8 @@ public class UserProfileTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateUserProfileFromUserProfileRecord() throws Exception {
-        final UserProfileRecord userProfileRecord = new UserProfileRecordFixtures.Builder().populateAllCollections().build();
+        final UserProfileRecord userProfileRecord = new UserProfileRecordFixtures.Builder().populateAllCollections()
+                                                                                           .build();
 
         UserProfile userProfile = UserProfile.fromUserProfileRecord(userProfileRecord);
 

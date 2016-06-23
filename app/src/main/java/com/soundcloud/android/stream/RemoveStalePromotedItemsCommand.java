@@ -42,10 +42,10 @@ public class RemoveStalePromotedItemsCommand extends WriteStorageCommand<Void, W
                 final long staleItemCutoff = dateProvider.getCurrentTime() - STALE_TIME_MILLIS;
                 final Where whereClause = filter().whereLt(TableColumns.PromotedTracks.CREATED_AT, staleItemCutoff);
                 removeItems = db.query(Query.from(Table.PromotedTracks.name())
-                        .select(TableColumns.PromotedTracks._ID)
-                        .where(whereClause))
-                        .toList(RxResultMapper.scalar(Long.class));
-                if (!removeItems.isEmpty()){
+                                            .select(TableColumns.PromotedTracks._ID)
+                                            .where(whereClause))
+                                .toList(RxResultMapper.scalar(Long.class));
+                if (!removeItems.isEmpty()) {
                     for (Long id : removeItems) {
                         step(db.delete(Table.SoundStream, filter().whereEq(TableColumns.SoundStream.PROMOTED_ID, id)));
                         step(db.delete(Table.PromotedTracks, filter().whereEq(TableColumns.PromotedTracks._ID, id)));

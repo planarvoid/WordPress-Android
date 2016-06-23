@@ -77,7 +77,9 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private Bundle args;
     private PlaylistPresenter presenter;
-    private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(playlist.toPropertySet(), Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
+    private PlaylistWithTracks playlistWithTracks = new PlaylistWithTracks(playlist.toPropertySet(),
+                                                                           Arrays.asList(TrackItem.from(track1),
+                                                                                         TrackItem.from(track2)));
 
     @Before
     public void setUp() throws Exception {
@@ -87,7 +89,14 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
         when(adapterFactory.create(any(OnStartDragListener.class))).thenReturn(adapter);
 
-        presenter = new PlaylistPresenter(operations, swipeAttacher, headerPresenter, playlistContentPresenter, adapterFactory, playbackInitiator, expandPlayerSubscriberProvider, eventBus);
+        presenter = new PlaylistPresenter(operations,
+                                          swipeAttacher,
+                                          headerPresenter,
+                                          playlistContentPresenter,
+                                          adapterFactory,
+                                          playbackInitiator,
+                                          expandPlayerSubscriberProvider,
+                                          eventBus);
     }
 
     @Test
@@ -103,7 +112,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                EntityStateChangedEvent.fromEntityDeleted(PLAYLIST_URN));
+                         EntityStateChangedEvent.fromEntityDeleted(PLAYLIST_URN));
 
         assertThat(fragmentRule.getActivity().isFinishing()).isTrue();
     }
@@ -115,7 +124,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         final PropertySet updatedPlaylist = PropertySet.from(PlaylistProperty.URN.bind(UPDATED_PLAYLIST_URN));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                EntityStateChangedEvent.fromPlaylistPushedToServer(PLAYLIST_URN, updatedPlaylist));
+                         EntityStateChangedEvent.fromPlaylistPushedToServer(PLAYLIST_URN, updatedPlaylist));
 
         final Bundle fragmentArgs = fragmentRule.getFragment().getArguments();
         assertThat(fragmentArgs.get(PlaylistDetailFragment.EXTRA_URN)).isEqualTo(UPDATED_PLAYLIST_URN);
@@ -128,7 +137,9 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(5)), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(5)),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adapter).updateNowPlaying(Urn.forTrack(5));
     }
@@ -141,7 +152,8 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(listItems());
 
         final Urn urn = track1.get(TrackProperty.URN);
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, OfflineContentChangedEvent.downloading(Collections.singletonList(urn), false));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                         OfflineContentChangedEvent.downloading(Collections.singletonList(urn), false));
 
         assertThat(track1.get(OfflineProperty.OFFLINE_STATE)).isEqualTo(OfflineState.DOWNLOADING);
 
@@ -172,7 +184,14 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         when(mockEventBus.queue(any(Queue.class))).thenReturn(queueSubject);
         when(mockEventBus.subscribe(any(Queue.class), any(Observer.class))).thenReturn(mock(Subscription.class));
-        presenter = new PlaylistPresenter(operations, swipeAttacher, headerPresenter, playlistContentPresenter, adapterFactory, playbackInitiator, expandPlayerSubscriberProvider, eventBus);
+        presenter = new PlaylistPresenter(operations,
+                                          swipeAttacher,
+                                          headerPresenter,
+                                          playlistContentPresenter,
+                                          adapterFactory,
+                                          playbackInitiator,
+                                          expandPlayerSubscriberProvider,
+                                          eventBus);
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -187,7 +206,10 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         final List<Urn> tracks = Arrays.asList(track1.get(EntityProperty.URN), track2.get(EntityProperty.URN));
         final List<TrackItem> trackItems = Arrays.asList(TrackItem.from(track1), TrackItem.from(track2));
         when(adapter.getItems()).thenReturn(trackItems);
-        when(operations.editPlaylist(playlistWithTracks.getUrn(), playlistWithTracks.getTitle(), playlistWithTracks.isPrivate(), tracks)).thenReturn(editPlaylistOperation);
+        when(operations.editPlaylist(playlistWithTracks.getUrn(),
+                                     playlistWithTracks.getTitle(),
+                                     playlistWithTracks.isPrivate(),
+                                     tracks)).thenReturn(editPlaylistOperation);
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);

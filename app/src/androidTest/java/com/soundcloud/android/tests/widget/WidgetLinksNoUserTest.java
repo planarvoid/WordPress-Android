@@ -19,8 +19,8 @@ public class WidgetLinksNoUserTest extends ActivityTest<MainActivity> {
 
     public void testOpenAppFromWidgetWithoutUserShowsLoginScreen() {
         setActivityIntent(new Intent(getInstrumentation().getContext(), MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false));
+                                  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                  .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false));
 
         assertThat(new HomeScreen(solo), is(visible()));
     }

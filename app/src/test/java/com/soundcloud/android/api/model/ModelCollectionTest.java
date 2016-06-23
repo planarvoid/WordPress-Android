@@ -9,7 +9,7 @@ public class ModelCollectionTest {
     @Test
     public void implementsHashCodeAndEquals() {
         EqualsVerifier.forClass(ModelCollection.class)
-                .suppress(Warning.NONFINAL_FIELDS)
-                .verify();
+                      .suppress(Warning.NONFINAL_FIELDS)
+                      .verify();
     }
 }

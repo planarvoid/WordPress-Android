@@ -8,17 +8,26 @@ import com.soundcloud.java.optional.Optional;
 
 public class TrackQueueItem extends PlayableQueueItem {
 
-        private TrackQueueItem(Urn trackUrn,
-                   Urn reposter,
-                   Urn relatedEntity,
-                   String source,
-                   String sourceVersion,
-                   Optional<AdData> adData,
-                   boolean shouldPersist,
-                   Urn sourceUrn,
-                   Urn queryUrn,
-                   boolean blocked) {
-        super(trackUrn, reposter, source, sourceVersion, queryUrn, relatedEntity, blocked, shouldPersist, sourceUrn, adData);
+    private TrackQueueItem(Urn trackUrn,
+                           Urn reposter,
+                           Urn relatedEntity,
+                           String source,
+                           String sourceVersion,
+                           Optional<AdData> adData,
+                           boolean shouldPersist,
+                           Urn sourceUrn,
+                           Urn queryUrn,
+                           boolean blocked) {
+        super(trackUrn,
+              reposter,
+              source,
+              sourceVersion,
+              queryUrn,
+              relatedEntity,
+              blocked,
+              shouldPersist,
+              sourceUrn,
+              adData);
     }
 
     @Override
@@ -29,16 +38,16 @@ public class TrackQueueItem extends PlayableQueueItem {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("urn", urn)
-                .add("reposter", reposter)
-                .add("relatedEntity", relatedEntity)
-                .add("source", source)
-                .add("sourceVersion", sourceVersion)
-                .add("sourceUrn", sourceUrn)
-                .add("queryUrn", queryUrn)
-                .add("shouldPersist", shouldPersist)
-                .add("blocked", blocked)
-                .toString();
+                          .add("urn", urn)
+                          .add("reposter", reposter)
+                          .add("relatedEntity", relatedEntity)
+                          .add("source", source)
+                          .add("sourceVersion", sourceVersion)
+                          .add("sourceUrn", sourceUrn)
+                          .add("queryUrn", queryUrn)
+                          .add("shouldPersist", shouldPersist)
+                          .add("blocked", blocked)
+                          .toString();
     }
 
     public static class Builder extends PlayableQueueItem.Builder<Builder> {
@@ -72,7 +81,7 @@ public class TrackQueueItem extends PlayableQueueItem {
 
         public TrackQueueItem build() {
             return new TrackQueueItem(playable, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist,
-                    sourceUrn, queryUrn, blocked);
+                                      sourceUrn, queryUrn, blocked);
         }
     }
 }

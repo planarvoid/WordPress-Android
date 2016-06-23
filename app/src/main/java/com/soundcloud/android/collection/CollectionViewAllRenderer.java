@@ -25,7 +25,7 @@ class CollectionViewAllRenderer implements CellRenderer<CollectionItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.sounds_view_all, parent, false);
+                             .inflate(R.layout.sounds_view_all, parent, false);
     }
 
     @Override
@@ -42,7 +42,7 @@ class CollectionViewAllRenderer implements CellRenderer<CollectionItem> {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch(target) {
+                switch (target) {
                     case ViewAllCollectionItem.TYPE_PLAY_HISTORY:
                         navigator.openPlayHistory(v.getContext());
                         break;

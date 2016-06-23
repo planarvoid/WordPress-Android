@@ -51,21 +51,21 @@ public class PlayHistoryOperations {
     // rather than having a distinct on all columns or a complex group by
     Observable<List<TrackItem>> playHistory(int limit) {
         return playHistoryStorage.fetchTracks(limit * 2)
-                .distinct(BY_TRACK_ID)
-                .take(limit)
-                .toList()
-                .subscribeOn(scheduler);
+                                 .distinct(BY_TRACK_ID)
+                                 .take(limit)
+                                 .toList()
+                                 .subscribeOn(scheduler);
     }
 
     public Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
         return playbackInitiator.playTracks(getAllTracksForPlayback(), trackUrn, 0,
-                new PlaySessionSource(screen));
+                                            new PlaySessionSource(screen));
     }
 
     Observable<List<RecentlyPlayedItem>> recentlyPlayed(int limit) {
         return playHistoryStorage.fetchContexts(limit)
-                .toList()
-                .subscribeOn(scheduler);
+                                 .toList()
+                                 .subscribeOn(scheduler);
     }
 
     public Observable<RecentlyPlayedItem> recentlyPlayed() {
@@ -77,7 +77,7 @@ public class PlayHistoryOperations {
 
     private Observable<List<Urn>> getAllTracksForPlayback() {
         return playHistoryStorage.fetchPlayHistoryForPlayback()
-                .toList()
-                .subscribeOn(scheduler);
+                                 .toList()
+                                 .subscribeOn(scheduler);
     }
 }

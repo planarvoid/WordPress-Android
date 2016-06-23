@@ -14,7 +14,7 @@ public class ApiResponseException extends IOException {
 
     public ApiResponseException(HttpResponse resp, String error) {
         super(resp.getStatusLine().getStatusCode() + ": [" + resp.getStatusLine().getReasonPhrase() + "] "
-                + (error != null ? error : ""));
+                      + (error != null ? error : ""));
         this.response = resp;
     }
 

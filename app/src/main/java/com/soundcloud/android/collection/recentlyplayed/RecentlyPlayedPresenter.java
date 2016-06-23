@@ -56,9 +56,9 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<CollectionItem>
     protected CollectionBinding<List<CollectionItem>, CollectionItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding
                 .from(playHistoryOperations
-                        .recentlyPlayed()
-                        .map(TO_COLLECTION_ITEM)
-                        .toList())
+                              .recentlyPlayed()
+                              .map(TO_COLLECTION_ITEM)
+                              .toList())
                 .withAdapter(adapter)
                 .build();
     }

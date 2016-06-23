@@ -31,7 +31,8 @@ public class SyncInitiator {
                 .create(new Observable.OnSubscribe<SyncJobResult>() {
                     @Override
                     public void call(Subscriber<? super SyncJobResult> subscriber) {
-                        final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
+                        final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber,
+                                                                                                Looper.getMainLooper());
                         context.startService(intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiverAdapter));
                     }
                 });

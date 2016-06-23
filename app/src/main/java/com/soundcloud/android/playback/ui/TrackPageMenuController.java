@@ -34,7 +34,8 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class TrackPageMenuController implements ProgressAware, ScrubController.OnScrubListener, PopupMenuWrapper.PopupMenuWrapperListener {
+public class TrackPageMenuController
+        implements ProgressAware, ScrubController.OnScrubListener, PopupMenuWrapper.PopupMenuWrapperListener {
 
     public static final String INFO_DIALOG_TAG = "info_dialog";
     public static final String ADD_COMMENT_DIALOG_TAG = "add_comment_dialog";
@@ -145,13 +146,15 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     public void handleShare(Context context) {
         Urn trackUrn = track.getUrn();
         shareOperations.share(context,
-                track.getSource(),
-                getContextMetadata(trackUrn),
-                playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
+                              track.getSource(),
+                              getContextMetadata(trackUrn),
+                              playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
     }
 
     private void handleComment() {
-        final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource(), commentPosition, playQueueManager.getScreenTag());
+        final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource(),
+                                                                                  commentPosition,
+                                                                                  playQueueManager.getScreenTag());
         fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
     }
 
@@ -159,21 +162,21 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         fireAndForget(repostOperations.toggleRepost(trackUrn, wasReposted));
 
         eventBus.publish(EventQueue.TRACKING,
-                UIEvent.fromToggleRepost(wasReposted,
-                        trackUrn,
-                        getContextMetadata(trackUrn),
-                        playQueueManager.getCurrentPromotedSourceInfo(trackUrn),
-                        EntityMetadata.from(track)));
+                         UIEvent.fromToggleRepost(wasReposted,
+                                                  trackUrn,
+                                                  getContextMetadata(trackUrn),
+                                                  playQueueManager.getCurrentPromotedSourceInfo(trackUrn),
+                                                  EntityMetadata.from(track)));
     }
 
     private EventContextMetadata getContextMetadata(Urn trackUrn) {
         return EventContextMetadata.builder()
-                .contextScreen(playQueueManager.getScreenTag())
-                .pageName(Screen.PLAYER_MAIN.get())
-                .pageUrn(trackUrn)
-                .trackSourceInfo(playQueueManager.getCurrentTrackSourceInfo())
-                .isFromOverflow(true)
-                .build();
+                                   .contextScreen(playQueueManager.getScreenTag())
+                                   .pageName(Screen.PLAYER_MAIN.get())
+                                   .pageUrn(trackUrn)
+                                   .trackSourceInfo(playQueueManager.getCurrentTrackSourceInfo())
+                                   .isFromOverflow(true)
+                                   .build();
     }
 
     private void showAddToPlaylistDialog(PlayerTrackState track) {
@@ -246,9 +249,14 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
         TrackPageMenuController create(View anchorView) {
 
-            return new TrackPageMenuController(playQueueManager, repostOperations,
-                    getFragmentActivity(anchorView), popupMenuWrapperFactory.build(getFragmentActivity(anchorView), anchorView),
-                    startStationPresenter, eventBus, shareOperations);
+            return new TrackPageMenuController(playQueueManager,
+                                               repostOperations,
+                                               getFragmentActivity(anchorView),
+                                               popupMenuWrapperFactory.build(getFragmentActivity(anchorView),
+                                                                             anchorView),
+                                               startStationPresenter,
+                                               eventBus,
+                                               shareOperations);
         }
     }
 

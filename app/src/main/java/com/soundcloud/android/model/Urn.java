@@ -58,8 +58,8 @@ public final class Urn extends ContentStringHelper<Urn> {
 
     public static Urn forPlaylist(long id) {
         UrnNamespace namespace = id >= 0
-                ? UrnNamespace.SOUNDCLOUD
-                : UrnNamespace.LOCAL;
+                                 ? UrnNamespace.SOUNDCLOUD
+                                 : UrnNamespace.LOCAL;
         return new Urn(namespace, UrnCollection.PLAYLISTS, id);
     }
 

@@ -95,7 +95,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
 
     private void loadTrackArtwork(View view, TrackItem track) {
         imageOperations.displayInAdapterView(track, ApiImageSize.getFullImageSize(view.getResources()),
-                ButterKnife.<ImageView>findById(view, R.id.recommendation_artwork)
+                                             ButterKnife.<ImageView>findById(view, R.id.recommendation_artwork)
         );
     }
 

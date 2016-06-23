@@ -51,8 +51,9 @@ public class ProfileApiMobileRepostsTest extends AndroidUnitTest {
     public void shouldReturnUserRepostsByUrn() throws Exception {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiRepostsHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/reposts")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userReposts(Urn.forUser(123L)).subscribe(subscriber);
         assertAllRepostsEmitted();
@@ -62,8 +63,9 @@ public class ProfileApiMobileRepostsTest extends AndroidUnitTest {
     public void shouldReturnUserRepostsByNextPageLink() {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiRepostsHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userReposts(NEXT_HREF).subscribe(subscriber);
         assertAllRepostsEmitted();

@@ -20,7 +20,8 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 
-class AddTrackToPlaylistCommand extends WriteStorageCommand<AddTrackToPlaylistCommand.AddTrackToPlaylistParams, WriteResult, Integer> {
+class AddTrackToPlaylistCommand
+        extends WriteStorageCommand<AddTrackToPlaylistCommand.AddTrackToPlaylistParams, WriteResult, Integer> {
 
     private int updatedTrackCount;
 
@@ -37,27 +38,31 @@ class AddTrackToPlaylistCommand extends WriteStorageCommand<AddTrackToPlaylistCo
         final int currentTrackCount = getCurrentTrackCount(propeller, params.playlistUrn);
         updatedTrackCount = currentTrackCount + 1;
         return propeller.insert(Table.PlaylistTracks,
-                getContentValues(params.playlistUrn.getNumericId(), params.trackUrn, currentTrackCount));
+                                getContentValues(params.playlistUrn.getNumericId(),
+                                                 params.trackUrn,
+                                                 currentTrackCount));
     }
 
     private int getCurrentTrackCount(PropellerDatabase propeller, Urn playlistUrn) {
         return propeller.query(Query.from(Table.SoundView.name())
-                .select(
-                        SoundView.TRACK_COUNT,
-                        count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
-                .whereEq(SoundView._ID, playlistUrn.getNumericId())
-                .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .leftJoin(Table.PlaylistTracks.name(), SoundView._ID, TableColumns.PlaylistTracks.PLAYLIST_ID))
-                .first(new TrackCountMapper());
+                                    .select(
+                                            SoundView.TRACK_COUNT,
+                                            count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
+                                    .whereEq(SoundView._ID, playlistUrn.getNumericId())
+                                    .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                                    .leftJoin(Table.PlaylistTracks.name(),
+                                              SoundView._ID,
+                                              TableColumns.PlaylistTracks.PLAYLIST_ID))
+                        .first(new TrackCountMapper());
     }
 
     private ContentValues getContentValues(long playlistId, Urn trackUrn, int position) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
-                .put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
-                .put(TableColumns.PlaylistTracks.POSITION, position)
-                .put(TableColumns.PlaylistTracks.ADDED_AT, dateProvider.getCurrentDate().getTime())
-                .get();
+                                   .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
+                                   .put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
+                                   .put(TableColumns.PlaylistTracks.POSITION, position)
+                                   .put(TableColumns.PlaylistTracks.ADDED_AT, dateProvider.getCurrentDate().getTime())
+                                   .get();
     }
 
     @Override

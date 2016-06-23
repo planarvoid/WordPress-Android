@@ -109,34 +109,34 @@ public class EventLoggerV1JsonDataBuilder {
 
     private String buildAdRequestFailedEvent(AdDeliveryEvent eventData) {
         return transform(buildBaseAdDeliveryEvent(eventData)
-                .adsRequestSuccess(false));
+                                 .adsRequestSuccess(false));
     }
 
     public String buildForAdProgressQuartileEvent(AdPlaybackSessionEvent eventData) {
         return transform(buildBaseEvent(CLICK_EVENT, eventData)
-                .clickName(eventData.get(PlayableTrackingKeys.KEY_QUARTILE_TYPE))
-                .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
-                .pageName(eventData.trackSourceInfo.getOriginScreen())
-                .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
+                                 .clickName(eventData.get(PlayableTrackingKeys.KEY_QUARTILE_TYPE))
+                                 .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
+                                 .pageName(eventData.trackSourceInfo.getOriginScreen())
+                                 .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                                 .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
     public String buildForAdFinished(AdPlaybackSessionEvent eventData) {
         return transform(buildBaseEvent(CLICK_EVENT, eventData)
-                .clickName("ad::finish")
-                .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
-                .pageName(eventData.trackSourceInfo.getOriginScreen())
-                .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
+                                 .clickName("ad::finish")
+                                 .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
+                                 .pageName(eventData.trackSourceInfo.getOriginScreen())
+                                 .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                                 .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
     public String buildForAdImpression(AdPlaybackSessionEvent eventData) {
         return transform(buildBaseEvent(IMPRESSION_EVENT, eventData)
-                .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
-                .pageName(eventData.trackSourceInfo.getOriginScreen())
-                .impressionName("video_ad_impression")
-                .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
+                                 .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
+                                 .pageName(eventData.trackSourceInfo.getOriginScreen())
+                                 .impressionName("video_ad_impression")
+                                 .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                                 .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
     public EventLoggerEventData buildAdClickThroughEvent(String clickName, UIEvent event) {
@@ -146,13 +146,13 @@ public class EventLoggerV1JsonDataBuilder {
 
     public String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
         return transform(buildBaseEvent(RICH_MEDIA_PERFORMANCE_EVENT, event.getTimestamp())
-                .mediaType("video")
-                .protocol(event.getProtocol().getValue())
-                .playerType(event.getPlayerType().getValue())
-                .format(getRichMediaFormatName(event.getFormat()))
-                .bitrate(event.getBitrate())
-                .metric(getRichMediaPerformanceEventType(event.getMetric()), event.getMetricValue())
-                .host(event.getCdnHost()));
+                                 .mediaType("video")
+                                 .protocol(event.getProtocol().getValue())
+                                 .playerType(event.getPlayerType().getValue())
+                                 .format(getRichMediaFormatName(event.getFormat()))
+                                 .bitrate(event.getBitrate())
+                                 .metric(getRichMediaPerformanceEventType(event.getMetric()), event.getMetricValue())
+                                 .host(event.getCdnHost()));
     }
 
     private String getRichMediaFormatName(String format) {
@@ -190,35 +190,35 @@ public class EventLoggerV1JsonDataBuilder {
         switch (event.getKind()) {
             case UpgradeFunnelEvent.KIND_UPSELL_CLICK:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
-                        .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
-                        .clickName("clickthrough::consumer_sub_ad")
-                        .clickObject(getUpsellTrackingCode(event))
-                        .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
-                        .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
+                                         .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                                         .clickName("clickthrough::consumer_sub_ad")
+                                         .clickObject(getUpsellTrackingCode(event))
+                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
+                                         .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
 
             case UpgradeFunnelEvent.KIND_UPSELL_IMPRESSION:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                        .impressionName("consumer_sub_ad")
-                        .impressionObject(getUpsellTrackingCode(event))
-                        .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
-                        .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
+                                         .impressionName("consumer_sub_ad")
+                                         .impressionObject(getUpsellTrackingCode(event))
+                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME))
+                                         .pageUrn(event.get(UpgradeFunnelEvent.KEY_PAGE_URN)));
 
             case UpgradeFunnelEvent.KIND_UPGRADE_SUCCESS:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                        .impressionName("consumer_sub_upgrade_success"));
+                                         .impressionName("consumer_sub_upgrade_success"));
 
             case UpgradeFunnelEvent.KIND_RESUBSCRIBE_CLICK:
                 return transform(buildBaseEvent(CLICK_EVENT, event)
-                        .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
-                        .clickName("clickthrough::consumer_sub_resubscribe")
-                        .clickObject(getUpsellTrackingCode(event))
-                        .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
+                                         .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                                         .clickName("clickthrough::consumer_sub_resubscribe")
+                                         .clickObject(getUpsellTrackingCode(event))
+                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
 
             case UpgradeFunnelEvent.KIND_RESUBSCRIBE_IMPRESSION:
                 return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                        .impressionName("consumer_sub_resubscribe")
-                        .impressionObject(getUpsellTrackingCode(event))
-                        .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
+                                         .impressionName("consumer_sub_resubscribe")
+                                         .impressionObject(getUpsellTrackingCode(event))
+                                         .pageName(event.get(UpgradeFunnelEvent.KEY_PAGE_NAME)));
 
             default:
                 throw new IllegalArgumentException("Unexpected upsell tracking event type " + event);
@@ -259,18 +259,18 @@ public class EventLoggerV1JsonDataBuilder {
     public String buildForOfflineInteractionEvent(OfflineInteractionEvent event) {
         if (OfflineInteractionEvent.KIND_LIMIT_BELOW_USAGE.equals(event.getKind())) {
             return transform(buildBaseEvent(IMPRESSION_EVENT, event)
-                    .impressionCategory("consumer_subs")
-                    .impressionName(event.getKind())
-                    .pageName(event.getPageName()));
+                                     .impressionCategory("consumer_subs")
+                                     .impressionName(event.getKind())
+                                     .pageName(event.getPageName()));
         } else {
             return transform(buildBaseEvent(CLICK_EVENT, event)
-                    .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
-                    .clickName(event.getKind())
-                    .pageName(event.getPageName())
-                    .clickObject(event.getClickObject())
-                    .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                    .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
-                    .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN)));
+                                     .clickCategory(EventLoggerClickCategories.CONSUMER_SUBS)
+                                     .clickName(event.getKind())
+                                     .pageName(event.getPageName())
+                                     .clickObject(event.getClickObject())
+                                     .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
+                                     .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
+                                     .promotedBy(event.get(PlayableTrackingKeys.KEY_PROMOTER_URN)));
         }
     }
 
@@ -376,10 +376,10 @@ public class EventLoggerV1JsonDataBuilder {
 
         if (event.isPlayEvent()) {
             data.action(AUDIO_ACTION_PLAY);
-        } else if(event.isStopEvent()) {
+        } else if (event.isStopEvent()) {
             data.action(AUDIO_ACTION_PAUSE);
             data.reason(getStopReason(event));
-        } else if(event.isCheckpointEvent()) {
+        } else if (event.isCheckpointEvent()) {
             data.action(AUDIO_ACTION_CHECKPOINT);
         } else {
             throw new IllegalArgumentException("Unexpected audio event:" + event.getKind());
@@ -457,9 +457,15 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
-        EventLoggerEventDataV1 eventData = new EventLoggerEventDataV1(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(),
-                timestamp, connectionHelper.getCurrentConnectionType().getValue(),
-                String.valueOf(deviceHelper.getAppVersionCode()));
+        EventLoggerEventDataV1 eventData = new EventLoggerEventDataV1(eventName,
+                                                                      BOOGALOO_VERSION,
+                                                                      appId,
+                                                                      getAnonymousId(),
+                                                                      getUserUrn(),
+                                                                      timestamp,
+                                                                      connectionHelper.getCurrentConnectionType()
+                                                                                      .getValue(),
+                                                                      String.valueOf(deviceHelper.getAppVersionCode()));
         addExperiments(eventData);
         return eventData;
     }

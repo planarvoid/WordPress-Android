@@ -49,7 +49,7 @@ class MyPlaylistsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
                          PlayableListUpdater.Factory updaterFactory,
                          MyProfileOperations profileOperations, EventBus eventBus) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
-                clickListenerFactory, updaterFactory);
+              clickListenerFactory, updaterFactory);
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
     }
@@ -59,9 +59,9 @@ class MyPlaylistsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
         super.onViewCreated(fragment, view, savedInstanceState);
 
         playlistDeletedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(EntityStateChangedEvent.IS_PLAYLIST_DELETED)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new RefreshSubscriber());
+                                              .filter(EntityStateChangedEvent.IS_PLAYLIST_DELETED)
+                                              .observeOn(AndroidSchedulers.mainThread())
+                                              .subscribe(new RefreshSubscriber());
     }
 
     @Override
@@ -73,17 +73,17 @@ class MyPlaylistsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
     @Override
     protected CollectionBinding<List<PropertySet>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(profileOperations.pagedPlaylistItems(), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.playlistPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.playlistPagingFunction())
+                                .build();
     }
 
     @Override
     protected CollectionBinding<List<PropertySet>, PlayableItem> onRefreshBinding() {
         return CollectionBinding.from(profileOperations.updatedPlaylists(), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.playlistPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.playlistPagingFunction())
+                                .build();
     }
 
     @Override
@@ -106,9 +106,9 @@ class MyPlaylistsPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
                     .doOnNext(clearAdapterOnNext);
 
             retryWith(CollectionBinding.from(collectionObservable, pageTransformer)
-                    .withAdapter(adapter)
-                    .withPager(profileOperations.playlistPagingFunction())
-                    .build());
+                                       .withAdapter(adapter)
+                                       .withPager(profileOperations.playlistPagingFunction())
+                                       .build());
         }
     }
 }

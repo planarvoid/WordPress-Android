@@ -17,7 +17,8 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragment> implements RefreshableScreen, ScrollContent {
+public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragment>
+        implements RefreshableScreen, ScrollContent {
 
     @Inject @LightCycle DiscoveryPresenter presenter;
 
@@ -27,7 +28,9 @@ public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragme
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         final View fragmentView = inflater.inflate(R.layout.recyclerview_with_refresh_and_page_bg, container, false);
         fragmentView.setBackgroundColor(getResources().getColor(R.color.page_background));
         adjustProgressViewPosition(fragmentView);
@@ -37,7 +40,8 @@ public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragme
 
     private void adjustProgressViewPosition(View fragmentView) {
         // On this specific screen, it has to be positioned a bit down - under the search bar.
-        final int endPtrSpinnerPx = getContext().getResources().getDimensionPixelSize(R.dimen.search_ptr_layout_end_position);
+        final int endPtrSpinnerPx = getContext().getResources()
+                                                .getDimensionPixelSize(R.dimen.search_ptr_layout_end_position);
         final SwipeRefreshLayout swipeToRefreshLayout = (SwipeRefreshLayout) fragmentView.findViewById(R.id.str_layout);
         swipeToRefreshLayout.setProgressViewEndTarget(false, endPtrSpinnerPx);
     }

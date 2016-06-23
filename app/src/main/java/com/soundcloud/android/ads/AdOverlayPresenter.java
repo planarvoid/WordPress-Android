@@ -41,7 +41,10 @@ public abstract class AdOverlayPresenter {
         }
     };
 
-    public abstract boolean shouldDisplayOverlay(OverlayAdData data, boolean isExpanded, boolean isPortrait, boolean isForeground);
+    public abstract boolean shouldDisplayOverlay(OverlayAdData data,
+                                                 boolean isExpanded,
+                                                 boolean isPortrait,
+                                                 boolean isForeground);
 
     public void onAdVisible(PlayQueueItem playQueueItem, OverlayAdData data, TrackSourceInfo trackSourceInfo) {
         overlay.setClickable(true);
@@ -74,11 +77,21 @@ public abstract class AdOverlayPresenter {
 
     public interface Listener {
         void onAdImageLoaded();
+
         void onImageClick();
+
         void onCloseButtonClick();
     }
 
-    protected AdOverlayPresenter(View trackView, int overlayId, int overlayStubId, int adImageId, int adClickId, int headerId, final Listener listener, ImageOperations imageOperations, EventBus eventBus) {
+    protected AdOverlayPresenter(View trackView,
+                                 int overlayId,
+                                 int overlayStubId,
+                                 int adImageId,
+                                 int adClickId,
+                                 int headerId,
+                                 final Listener listener,
+                                 ImageOperations imageOperations,
+                                 EventBus eventBus) {
         this.overlay = getOverlayView(trackView, overlayId, overlayStubId);
         this.listener = listener;
         this.eventBus = eventBus;
@@ -106,7 +119,7 @@ public abstract class AdOverlayPresenter {
 
     private View getOverlayView(View trackView, int overlayId, int overlayStubId) {
         View overlayView = trackView.findViewById(overlayId);
-        if (overlayView == null){
+        if (overlayView == null) {
             overlayView = ((ViewStub) trackView.findViewById(overlayStubId)).inflate();
         }
         return overlayView;

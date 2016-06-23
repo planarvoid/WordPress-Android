@@ -28,14 +28,15 @@ public class LoadPlaylistTrackUrnsCommand extends LegacyCommand<Urn, List<Urn>, 
     @Override
     public List<Urn> call() throws Exception {
         final Where whereTrackDataExists = filter()
-                .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID), Table.Sounds.field(TableColumns.Sounds._ID))
+                .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID),
+                         Table.Sounds.field(TableColumns.Sounds._ID))
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK);
 
         Query query = Query.from(Table.PlaylistTracks.name())
-                .innerJoin(Table.Sounds.name(), whereTrackDataExists)
-                .select(field(TableColumns.PlaylistTracks.TRACK_ID).as(_ID))
-                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, input.getNumericId())
-                .order(TableColumns.PlaylistTracks.POSITION, Query.Order.ASC);
+                           .innerJoin(Table.Sounds.name(), whereTrackDataExists)
+                           .select(field(TableColumns.PlaylistTracks.TRACK_ID).as(_ID))
+                           .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, input.getNumericId())
+                           .order(TableColumns.PlaylistTracks.POSITION, Query.Order.ASC);
         return database.query(query).toList(new TrackUrnMapper());
     }
 

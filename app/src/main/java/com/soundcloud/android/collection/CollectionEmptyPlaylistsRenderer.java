@@ -18,7 +18,8 @@ class CollectionEmptyPlaylistsRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.empty_collections_playlists_view, parent, false);
+        return LayoutInflater.from(parent.getContext())
+                             .inflate(R.layout.empty_collections_playlists_view, parent, false);
     }
 
     @Override

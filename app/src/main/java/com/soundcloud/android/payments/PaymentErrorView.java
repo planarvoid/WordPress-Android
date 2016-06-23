@@ -35,8 +35,8 @@ class PaymentErrorView {
     public void showCancelled() {
         final View view = new CustomFontViewBuilder(activity)
                 .setContent(R.drawable.dialog_payment_error,
-                        R.string.payments_error_title_canceled,
-                        R.string.payments_error_cancelled).get();
+                            R.string.payments_error_title_canceled,
+                            R.string.payments_error_cancelled).get();
         new AlertDialog.Builder(activity)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, null)

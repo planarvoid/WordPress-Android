@@ -30,8 +30,14 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     private static ApiVideoSource SOURCE_360P = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_MP4, 736);
     private static ApiVideoSource SOURCE_480P = createApiVideoSource(858, 480, PlaybackConstants.MIME_TYPE_MP4, 1000);
     private static ApiVideoSource SOURCE_720P = createApiVideoSource(1920, 720, PlaybackConstants.MIME_TYPE_MP4, 2128);
-    private static ApiVideoSource SOURCE_1080P = createApiVideoSource(1280, 1080, PlaybackConstants.MIME_TYPE_MP4, 3628);
-    private static final List<ApiVideoSource> VALID_SOURCES = Arrays.asList(SOURCE_480P, SOURCE_720P, SOURCE_1080P, SOURCE_360P);
+    private static ApiVideoSource SOURCE_1080P = createApiVideoSource(1280,
+                                                                      1080,
+                                                                      PlaybackConstants.MIME_TYPE_MP4,
+                                                                      3628);
+    private static final List<ApiVideoSource> VALID_SOURCES = Arrays.asList(SOURCE_480P,
+                                                                            SOURCE_720P,
+                                                                            SOURCE_1080P,
+                                                                            SOURCE_360P);
 
     @Mock private ApplicationProperties applicationProperties;
     @Mock private DeviceHelper deviceHelper;
@@ -47,7 +53,10 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         when(applicationProperties.canAccessCodecInformation()).thenReturn(false);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
 
-        videoSourceProvider = new VideoSourceProvider(applicationProperties, deviceHelper, mediaCodecInfoProvider, networkConnectionHelper);
+        videoSourceProvider = new VideoSourceProvider(applicationProperties,
+                                                      deviceHelper,
+                                                      mediaCodecInfoProvider,
+                                                      networkConnectionHelper);
         videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), VALID_SOURCES), 0L);
     }
 
@@ -155,7 +164,9 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     public void videoSourceProviderRecognizes1080x1920as1080p() {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_1080P)).thenReturn(true);
         final ApiVideoSource VERTICAL_1080P = createApiVideoSource(1080, 1920, PlaybackConstants.MIME_TYPE_MP4, 12);
-        videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L), Collections.singletonList(VERTICAL_1080P)), 0L);
+        videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(Urn.forTrack(123L),
+                                                                             Collections.singletonList(VERTICAL_1080P)),
+                                                       0L);
 
         final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
@@ -170,6 +181,6 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     }
 
     private static ApiVideoSource createApiVideoSource(int width, int height, String type, int bitRate) {
-       return AdFixtures.getApiVideoSource(width, height, type, bitRate);
+        return AdFixtures.getApiVideoSource(width, height, type, bitRate);
     }
 }

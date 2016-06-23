@@ -79,7 +79,7 @@ public class PlaybackProgressTest {
 
     @Test
     public void isPastThirdQuartileReturnsFalseWhenInvalidDuration() {
-        PlaybackProgress event = createPlaybackProgress(0,0);
+        PlaybackProgress event = createPlaybackProgress(0, 0);
         assertThat(event.isPastThirdQuartile()).isFalse();
     }
 

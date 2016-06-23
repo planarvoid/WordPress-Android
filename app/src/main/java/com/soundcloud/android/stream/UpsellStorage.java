@@ -15,7 +15,7 @@ class UpsellStorage {
 
     @VisibleForTesting
     static final String UPSELL_DISMISSED = "upsell_dismissed";
-    
+
     @VisibleForTesting
     static final long UPSELL_REAPPEAR_DELAY_IN_HOURS = 48;
 
@@ -23,7 +23,8 @@ class UpsellStorage {
     private final DateProvider dateProvider;
 
     @Inject
-    public UpsellStorage(@Named(StorageModule.STREAM) SharedPreferences sharedPreferences, CurrentDateProvider dateProvider) {
+    public UpsellStorage(@Named(StorageModule.STREAM) SharedPreferences sharedPreferences,
+                         CurrentDateProvider dateProvider) {
         this.sharedPreferences = sharedPreferences;
         this.dateProvider = dateProvider;
     }
@@ -34,8 +35,8 @@ class UpsellStorage {
 
     void setUpsellDismissed() {
         sharedPreferences.edit()
-                .putLong(UPSELL_DISMISSED, dateProvider.getCurrentTime())
-                .apply();
+                         .putLong(UPSELL_DISMISSED, dateProvider.getCurrentTime())
+                         .apply();
     }
 
     boolean canDisplayUpsell() {
@@ -47,7 +48,8 @@ class UpsellStorage {
     }
 
     private boolean canDisplayAgain() {
-        long lastDisplayedMillis = dateProvider.getCurrentTime() - sharedPreferences.getLong(UPSELL_DISMISSED, dateProvider.getCurrentTime());
+        long lastDisplayedMillis = dateProvider.getCurrentTime() - sharedPreferences.getLong(UPSELL_DISMISSED,
+                                                                                             dateProvider.getCurrentTime());
         return TimeUnit.MILLISECONDS.toHours(lastDisplayedMillis) >= UPSELL_REAPPEAR_DELAY_IN_HOURS;
     }
 

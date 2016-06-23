@@ -33,7 +33,10 @@ public class SignupTask extends AuthTask {
     private TokenInformationGenerator tokenUtils;
     private ApiClient apiClient;
 
-    public SignupTask(SoundCloudApplication soundCloudApplication, StoreUsersCommand storeUsersCommand, TokenInformationGenerator tokenUtils, ApiClient apiClient) {
+    public SignupTask(SoundCloudApplication soundCloudApplication,
+                      StoreUsersCommand storeUsersCommand,
+                      TokenInformationGenerator tokenUtils,
+                      ApiClient apiClient) {
         super(soundCloudApplication, storeUsersCommand);
         this.tokenUtils = tokenUtils;
         this.apiClient = apiClient;
@@ -61,10 +64,10 @@ public class SignupTask extends AuthTask {
     AuthTaskResult doSignup(Bundle parameters) {
         try {
             final ApiRequest request = ApiRequest.post(ApiEndpoints.LEGACY_USERS.path())
-                    .forPublicApi()
-                    .withFormMap(signupParameters(parameters))
-                    .withToken(tokenUtils.verifyScopes(Token.SCOPE_SIGNUP))
-                    .build();
+                                                 .forPublicApi()
+                                                 .withFormMap(signupParameters(parameters))
+                                                 .withToken(tokenUtils.verifyScopes(Token.SCOPE_SIGNUP))
+                                                 .build();
 
             ApiUser user = apiClient.fetchMappedResponse(request, PublicApiUser.class).toApiMobileUser();
             return AuthTaskResult.success(user, SignupVia.API, false);

@@ -20,7 +20,7 @@ public class PlaySessionStateStorageTest extends AndroidUnitTest {
 
     private static final Urn TRACK = Urn.forTrack(123);
     private RoboSharedPreferences prefs = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(),
-            "prefs", Context.MODE_PRIVATE);
+                                                                    "prefs", Context.MODE_PRIVATE);
 
     private PlaySessionStateStorage storage;
 

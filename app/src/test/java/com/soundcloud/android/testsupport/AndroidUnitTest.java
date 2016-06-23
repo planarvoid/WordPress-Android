@@ -51,10 +51,10 @@ public abstract class AndroidUnitTest {
 
     protected static FragmentActivity fragmentActivity() {
         return Robolectric.buildActivity(FragmentActivity.class)
-                .create()
-                .start()
-                .resume()
-                .get();
+                          .create()
+                          .start()
+                          .resume()
+                          .get();
     }
 
     protected static Resources resources() {

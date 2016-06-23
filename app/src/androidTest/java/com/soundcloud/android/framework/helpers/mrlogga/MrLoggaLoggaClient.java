@@ -100,9 +100,9 @@ class MrLoggaLoggaClient {
 
     private String buildValidationUrl(String action, String scenarioId) {
         return Uri.parse(loggingEndpoint).buildUpon().appendPath(action)
-                .appendQueryParameter(PARAM_ANONYMOUS_ID, deviceUDID)
-                .appendQueryParameter(PARAM_SCENARIO_ID, scenarioId)
-                .build().toString();
+                  .appendQueryParameter(PARAM_ANONYMOUS_ID, deviceUDID)
+                  .appendQueryParameter(PARAM_SCENARIO_ID, scenarioId)
+                  .build().toString();
     }
 
     private MrLoggaResponse sendPostLoggingRequest(String action) {

@@ -195,7 +195,7 @@ public class SoundRecorderService extends Service {
 
     private Notification createRecordingNotification(Recording recording) {
         recordPendingIntent = PendingIntent.getActivity(this, 0, recording.getViewIntent(),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                                                        PendingIntent.FLAG_UPDATE_CURRENT);
 
         return ongoingNotificationBuilder(
                 getString(R.string.cloud_recorder_event_title),
@@ -242,7 +242,7 @@ public class SoundRecorderService extends Service {
         Notification notification = ongoingNotificationBuilder(
                 getString(R.string.cloud_recorder_event_title),
                 getString(R.string.cloud_recorder_event_message_recordtime,
-                        ScTextUtils.formatTimeElapsed(getResources(), recordTime, false)),
+                          ScTextUtils.formatTimeElapsed(getResources(), recordTime, false)),
                 recordPendingIntent).build();
         notificationManager.notify(RECORD_NOTIFY_ID, notification);
     }

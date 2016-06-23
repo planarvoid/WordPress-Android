@@ -46,7 +46,7 @@ public class ResolveOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new ResolveOperations(apiClient, scheduler,
-                storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+                                           storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
     }
 
     @Test
@@ -76,7 +76,8 @@ public class ResolveOperationsTest extends AndroidUnitTest {
 
     @Test
     public void followsClickTrackingUrlsThenResolvesUrlQuery() throws Exception {
-        Uri uri = Uri.parse("http://soundcloud.com/-/t/click/best-email?url=http%3A%2F%2Fsoundcloud.com%2Fskrillex/music");
+        Uri uri = Uri.parse(
+                "http://soundcloud.com/-/t/click/best-email?url=http%3A%2F%2Fsoundcloud.com%2Fskrillex/music");
         ApiResolvedResource resolvedResource = resolvedTrack();
         mockResolutionFor("http://soundcloud.com/skrillex/music", resolvedResource);
 

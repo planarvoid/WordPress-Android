@@ -66,18 +66,21 @@ public class RecyclerViewParallaxer extends RecyclerView.OnScrollListener {
         }
 
         if (!parallaxBgImageViewMap.containsKey(itemView)) {
-            parallaxBgImageViewMap.put(itemView, Iterables.transform(Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
-                @Override
-                public boolean apply(View input) {
-                    return input instanceof ParallaxImageView;
-                }
-            }), new Function<View, ParallaxImageView>() {
-                @Nullable
-                @Override
-                public ParallaxImageView apply(@Nullable View input) {
-                    return (ParallaxImageView) input;
-                }
-            }));
+            parallaxBgImageViewMap.put(itemView,
+                                       Iterables.transform(Iterables.filter(ViewUtils.allChildViewsOf(itemView),
+                                                                            new Predicate<View>() {
+                                                                                @Override
+                                                                                public boolean apply(View input) {
+                                                                                    return input instanceof ParallaxImageView;
+                                                                                }
+                                                                            }),
+                                                           new Function<View, ParallaxImageView>() {
+                                                               @Nullable
+                                                               @Override
+                                                               public ParallaxImageView apply(@Nullable View input) {
+                                                                   return (ParallaxImageView) input;
+                                                               }
+                                                           }));
         }
     }
 }

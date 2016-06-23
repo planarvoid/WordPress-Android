@@ -36,7 +36,7 @@ class RecommendedTracksOperations {
 
         for (TrackItem trackItem : trackItems) {
             boolean isPlaying = !currentPlayQueueItem.isEmpty() && currentPlayQueueItem.getUrn()
-                    .equals(trackItem.getUrn());
+                                                                                       .equals(trackItem.getUrn());
             recommendations.add(new Recommendation(trackItem, seedUrn, isPlaying, queryPosition, queryUrn));
         }
 
@@ -81,26 +81,26 @@ class RecommendedTracksOperations {
     @VisibleForTesting
     Observable<List<TrackItem>> tracksForSeed(long seedTrackLocalId) {
         return recommendationsStorage.recommendedTracksForSeed(seedTrackLocalId)
-                .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                .map(TrackItem.fromPropertySets());
+                                     .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                                     .map(TrackItem.fromPropertySets());
     }
 
     Observable<DiscoveryItem> recommendedTracks() {
         return loadFirstBucket(syncOperations
-                .lazySyncIfStale(Syncable.RECOMMENDED_TRACKS))
+                                       .lazySyncIfStale(Syncable.RECOMMENDED_TRACKS))
                 .flatMap(toBucket);
     }
 
     Observable<DiscoveryItem> refreshRecommendedTracks() {
         return loadFirstBucket(syncOperations
-                .sync(Syncable.RECOMMENDED_TRACKS))
+                                       .sync(Syncable.RECOMMENDED_TRACKS))
                 .flatMap(toBucket);
     }
 
     private Observable<PropertySet> loadFirstBucket(Observable<SyncOperations.Result> source) {
         return source
                 .flatMap(continueWith(recommendationsStorage.firstSeed()
-                .subscribeOn(scheduler)));
+                                                            .subscribeOn(scheduler)));
     }
 
     Observable<DiscoveryItem> allBuckets() {
@@ -115,7 +115,7 @@ class RecommendedTracksOperations {
 
     private Observable<DiscoveryItem> loadAllBuckets() {
         return recommendationsStorage.allSeeds()
-                .flatMap(toBucket)
-                .subscribeOn(scheduler);
+                                     .flatMap(toBucket)
+                                     .subscribeOn(scheduler);
     }
 }

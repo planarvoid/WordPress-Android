@@ -45,7 +45,8 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.stream_playlist_card, parent, false);
+        final View inflatedView = LayoutInflater.from(parent.getContext())
+                                                .inflate(R.layout.stream_playlist_card, parent, false);
         inflatedView.setTag(new StreamPlaylistViewHolder(inflatedView));
         return inflatedView;
     }
@@ -80,9 +81,9 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                .contextScreen(Screen.STREAM.get())
-                .pageName(Screen.STREAM.get())
-                .build();
+                                   .contextScreen(Screen.STREAM.get())
+                                   .pageName(Screen.STREAM.get())
+                                   .build();
     }
 
     static class StreamPlaylistViewHolder extends StreamItemViewHolder {

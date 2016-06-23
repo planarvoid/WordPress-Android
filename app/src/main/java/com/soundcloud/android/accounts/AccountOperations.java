@@ -125,7 +125,9 @@ public class AccountOperations {
         loggedInUserUrn = ANONYMOUS_USER_URN;
     }
 
-    public String getGoogleAccountToken(String accountName, String scope, Bundle bundle) throws GoogleAuthException, IOException {
+    public String getGoogleAccountToken(String accountName,
+                                        String scope,
+                                        Bundle bundle) throws GoogleAuthException, IOException {
         return GoogleAuthUtil.getToken(context, accountName, scope, bundle);
     }
 
@@ -199,10 +201,12 @@ public class AccountOperations {
         checkNotNull(soundCloudAccount, "One does not simply remove something that does not exist");
 
         return configurationOperations.get()
-                .deregisterDevice()
-                .flatMap(continueWith(Observable.create(new AccountRemovalFunction(soundCloudAccount, accountManager))))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(scheduler);
+                                      .deregisterDevice()
+                                      .flatMap(continueWith(Observable.create(new AccountRemovalFunction(
+                                              soundCloudAccount,
+                                              accountManager))))
+                                      .observeOn(AndroidSchedulers.mainThread())
+                                      .subscribeOn(scheduler);
     }
 
     public Observable<Void> purgeUserData() {

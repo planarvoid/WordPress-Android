@@ -33,7 +33,8 @@ public class PlayableListUpdater extends DefaultSupportFragmentLightCycle<Fragme
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         fragmentLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new LegacyUpdatePlayingTrackSubscriber(adapter, trackItemRenderer)),
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                                   new LegacyUpdatePlayingTrackSubscriber(adapter, trackItemRenderer)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
     }
@@ -53,7 +54,8 @@ public class PlayableListUpdater extends DefaultSupportFragmentLightCycle<Fragme
             this.eventBus = eventBus;
         }
 
-        public PlayableListUpdater create(ItemAdapter<? extends ListItem> adapter, TrackItemRenderer trackItemRenderer){
+        public PlayableListUpdater create(ItemAdapter<? extends ListItem> adapter,
+                                          TrackItemRenderer trackItemRenderer) {
             return new PlayableListUpdater(eventBus, adapter, trackItemRenderer);
         }
     }

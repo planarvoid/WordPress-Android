@@ -27,6 +27,7 @@ class ConversionView {
 
     interface Listener {
         void startPurchase();
+
         void close();
     }
 
@@ -75,8 +76,8 @@ class ConversionView {
     // Design decision, in FR conversion by trial does not include days
     public void showTrialDays(int trialDays) {
         buyButton.setActionText(trialDays > 0
-                ? resources.getString(R.string.conversion_buy_trial, trialDays)
-                : resources.getString(R.string.conversion_buy_no_trial));
+                                ? resources.getString(R.string.conversion_buy_trial, trialDays)
+                                : resources.getString(R.string.conversion_buy_no_trial));
     }
 
     public void setBuyButtonReady() {

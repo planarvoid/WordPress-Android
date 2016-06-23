@@ -24,14 +24,14 @@ public abstract class ProgressHelper {
     }
 
     public float getProgressFromPosition(int position) {
-        return ((float) position - startPosition)/(endPosition - startPosition);
+        return ((float) position - startPosition) / (endPosition - startPosition);
     }
 
-    public void setValueFromProportion(View progressView, float value){
+    public void setValueFromProportion(View progressView, float value) {
         setValue(progressView, getValueFromProportion(value));
     }
 
-    protected float getValueFromProportion(float proportion){
+    protected float getValueFromProportion(float proportion) {
         return startPosition + ((endPosition - startPosition) * proportion);
     }
 

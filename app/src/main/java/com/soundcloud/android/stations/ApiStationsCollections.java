@@ -17,7 +17,9 @@ public abstract class ApiStationsCollections {
     }
 
     private static List<ApiStationMetadata> getCollection(ModelCollection<ApiStationMetadata> stationsCollection) {
-        return stationsCollection == null ? Collections.<ApiStationMetadata>emptyList() : stationsCollection.getCollection();
+        return stationsCollection == null ?
+               Collections.<ApiStationMetadata>emptyList() :
+               stationsCollection.getCollection();
     }
 
     public abstract List<ApiStationMetadata> getRecents();

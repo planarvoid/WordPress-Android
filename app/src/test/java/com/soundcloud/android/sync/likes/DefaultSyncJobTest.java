@@ -14,9 +14,9 @@ import java.util.concurrent.Callable;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultSyncJobTest {
-    
+
     private DefaultSyncJob defaultSyncJob;
-    
+
     @Mock private Callable<Boolean> syncer;
 
     @Before

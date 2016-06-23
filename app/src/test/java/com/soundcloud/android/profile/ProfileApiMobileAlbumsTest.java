@@ -42,8 +42,9 @@ public class ProfileApiMobileAlbumsTest extends AndroidUnitTest {
     public void shouldReturnUserAlbumsByUrn() throws Exception {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/albums/posted")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userAlbums(Urn.forUser(123L)).subscribe(subscriber);
         subscriber.assertValue(new ModelCollection<>(newArrayList(playlistPost), NEXT_HREF));
@@ -53,8 +54,9 @@ public class ProfileApiMobileAlbumsTest extends AndroidUnitTest {
     public void shouldReturnUserAlbumsByNextPageLink() throws Exception {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userAlbums(NEXT_HREF).subscribe(subscriber);
         subscriber.assertValue(new ModelCollection<>(newArrayList(playlistPost), NEXT_HREF));

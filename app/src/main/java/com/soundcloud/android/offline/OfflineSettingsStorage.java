@@ -73,8 +73,8 @@ public class OfflineSettingsStorage {
 
     Observable<Boolean> getWifiOnlyOfflineSyncStateChange() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
-                .filter(FILTER_WIFI_ONLY_KEY)
-                .map(toValue);
+                         .filter(FILTER_WIFI_ONLY_KEY)
+                         .map(toValue);
     }
 
     public void clear() {

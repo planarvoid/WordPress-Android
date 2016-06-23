@@ -99,9 +99,14 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
         final PlaybackState playbackState = playing ? PlaybackState.PLAYING : PlaybackState.IDLE;
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                new PlaybackStateTransition(playbackState, PlayStateReason.NONE, trackUrn, 0, 1000, dateProvider));
+                         new PlaybackStateTransition(playbackState,
+                                                     PlayStateReason.NONE,
+                                                     trackUrn,
+                                                     0,
+                                                     1000,
+                                                     dateProvider));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromNewQueue(item, collectionUrn, 0));
+                         CurrentPlayQueueItemEvent.fromNewQueue(item, collectionUrn, 0));
     }
 
 }

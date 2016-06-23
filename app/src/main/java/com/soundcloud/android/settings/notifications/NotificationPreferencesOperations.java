@@ -37,8 +37,8 @@ class NotificationPreferencesOperations {
 
     Observable<NotificationPreferences> refresh() {
         return storage.isPendingSync()
-                ? sync().flatMap(fetchOnSuccess())
-                : fetch();
+               ? sync().flatMap(fetchOnSuccess())
+               : fetch();
     }
 
     Observable<ApiResponse> sync() {

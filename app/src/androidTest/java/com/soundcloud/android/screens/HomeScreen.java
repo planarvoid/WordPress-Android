@@ -34,7 +34,7 @@ public class HomeScreen extends Screen {
     }
 
     private ViewElement logInButton() {
-       return bottomBar().findOnScreenElement(With.id(R.id.btn_login));
+        return bottomBar().findOnScreenElement(With.id(R.id.btn_login));
     }
 
     @Override

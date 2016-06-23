@@ -29,7 +29,7 @@ class UserRepostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollectio
                          PlayableListUpdater.Factory updaterFactory,
                          UserProfileOperations operations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
-                clickListenerFactory, updaterFactory);
+              clickListenerFactory, updaterFactory);
         this.operations = operations;
     }
 
@@ -37,9 +37,9 @@ class UserRepostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollectio
     protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
         return CollectionBinding.from(operations.userReposts(userUrn), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(operations.repostsPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(operations.repostsPagingFunction())
+                                .build();
     }
 
     @Override

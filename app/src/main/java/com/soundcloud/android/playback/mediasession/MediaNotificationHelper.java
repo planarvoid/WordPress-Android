@@ -28,7 +28,9 @@ class MediaNotificationHelper {
     public static final int PLAY_PAUSE_ACTION_POSITION = 1;
     public static final int NEXT_ACTION_POSITION = 2;
 
-    static Optional<NotificationCompat.Builder> from(Context context, MediaSessionCompat mediaSession, boolean playing) {
+    static Optional<NotificationCompat.Builder> from(Context context,
+                                                     MediaSessionCompat mediaSession,
+                                                     boolean playing) {
         Optional<MediaDescriptionCompat> descriptionOpt = getMediaDescription(mediaSession);
 
         if (descriptionOpt.isPresent()) {
@@ -89,7 +91,7 @@ class MediaNotificationHelper {
         Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         intent.setPackage(context.getPackageName());
         intent.putExtra(Intent.EXTRA_KEY_EVENT,
-                new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                        new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
         return PendingIntent.getBroadcast(context, keyCode, intent, 0);
     }
 

@@ -16,7 +16,9 @@ public class OfflineContentStorageTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        storage = new OfflineContentStorage(null, sharedPreferences("Test", Context.MODE_PRIVATE), isOfflineLikedTracksEnabledCommand);
+        storage = new OfflineContentStorage(null,
+                                            sharedPreferences("Test", Context.MODE_PRIVATE),
+                                            isOfflineLikedTracksEnabledCommand);
     }
 
     @Test

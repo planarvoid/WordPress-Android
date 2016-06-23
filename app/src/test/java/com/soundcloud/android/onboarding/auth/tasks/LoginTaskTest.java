@@ -52,7 +52,7 @@ public class LoginTaskTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         bundle = new Bundle();
         loginTask = new LoginTask(application, tokenInformationGenerator, storeUsersCommand,
-                configurationOperations, new TestEventBus(), accountOperations, apiClient);
+                                  configurationOperations, new TestEventBus(), accountOperations, apiClient);
 
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
         when(apiClient.fetchMappedResponse(argThat(

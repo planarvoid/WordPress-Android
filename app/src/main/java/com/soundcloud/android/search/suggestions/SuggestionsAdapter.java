@@ -17,11 +17,11 @@ class SuggestionsAdapter extends RecyclerItemAdapter<SuggestionItem, Suggestions
 
     @Inject
     SuggestionsAdapter(SearchSuggestionItemRenderer searchItemRenderer,
-                              TrackSuggestionItemRenderer trackItemRenderer,
-                              UserSuggestionItemRenderer userItemRenderer) {
+                       TrackSuggestionItemRenderer trackItemRenderer,
+                       UserSuggestionItemRenderer userItemRenderer) {
         super(new CellRendererBinding<>(TYPE_SEARCH, searchItemRenderer),
-                new CellRendererBinding<>(TYPE_TRACK, trackItemRenderer),
-                new CellRendererBinding<>(TYPE_USER, userItemRenderer));
+              new CellRendererBinding<>(TYPE_TRACK, trackItemRenderer),
+              new CellRendererBinding<>(TYPE_USER, userItemRenderer));
     }
 
     @Override

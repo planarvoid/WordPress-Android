@@ -25,8 +25,8 @@ public class EngagementTest extends ActivityTest<MainActivity> {
 
     public void testPrivateTrackHasDisabledShareAndRepost() {
         PlayerMenuElement menu = mainNavHelper.goToMyProfile()
-                .playTrack(0)
-                .clickMenu();
+                                              .playTrack(0)
+                                              .clickMenu();
 
         assertThat(menu.repostItem(), is(not(Enabled())));
         assertThat(menu.shareItem(), is(not(Enabled())));
@@ -34,7 +34,7 @@ public class EngagementTest extends ActivityTest<MainActivity> {
 
     public void testPublicTrackHasEnabledShareAndRepost() {
         mainNavHelper.goToExplore()
-                .playFirstTrack();
+                     .playFirstTrack();
         PlayerMenuElement menu = new VisualPlayerElement(solo).clickMenu();
 
         assertThat(menu.repostItem(), is(Enabled()));
@@ -43,8 +43,8 @@ public class EngagementTest extends ActivityTest<MainActivity> {
 
     public void testLikeTrackAlwaysShowsTheShareButton() {
         VisualPlayerElement player = mainNavHelper.goToExplore()
-                .playFirstTrack()
-                .unlike();
+                                                  .playFirstTrack()
+                                                  .unlike();
 
         player.likeButton().click();
         assertThat(player.shareButton(), is(visible()));

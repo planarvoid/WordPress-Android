@@ -109,8 +109,10 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
                 final ApiEngagementActivity repost = maybeRepost.get();
                 final Urn playableUrn = repost.getTargetUrn();
                 insert(propeller, valuesFor(repost,
-                        playableUrn.isTrack() ? ActivityKind.TRACK_REPOST : ActivityKind.PLAYLIST_REPOST,
-                        playableUrn
+                                            playableUrn.isTrack() ?
+                                            ActivityKind.TRACK_REPOST :
+                                            ActivityKind.PLAYLIST_REPOST,
+                                            playableUrn
                 ));
             }
         }
@@ -148,8 +150,8 @@ class StoreActivitiesCommand extends DefaultWriteStorageCommand<Iterable<ApiActi
             return valuesFor(activity, activityKind)
                     .put(Activities.SOUND_ID, playableUrn.getNumericId())
                     .put(Activities.SOUND_TYPE, playableUrn.isTrack()
-                            ? TableColumns.Sounds.TYPE_TRACK
-                            : TableColumns.Sounds.TYPE_PLAYLIST);
+                                                ? TableColumns.Sounds.TYPE_TRACK
+                                                : TableColumns.Sounds.TYPE_PLAYLIST);
         }
 
         private void insert(PropellerDatabase propeller, ContentValuesBuilder builder) {

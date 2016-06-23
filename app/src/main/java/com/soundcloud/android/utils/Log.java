@@ -80,5 +80,6 @@ public final class Log {
         e(SoundCloudApplication.TAG, message);
     }
 
-    private Log() {}
+    private Log() {
+    }
 }

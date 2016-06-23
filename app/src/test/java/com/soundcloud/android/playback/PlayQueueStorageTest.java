@@ -47,8 +47,11 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldInsertPlayQueueAndReplaceExistingItems() {
         insertPlayableQueueItem(new Builder(forTrack(1))
-                .fromSource("existing", "existing_version", new Urn("existing_sourceUrn"), new Urn("existing_queryUrn"))
-                .build());
+                                        .fromSource("existing",
+                                                    "existing_version",
+                                                    new Urn("existing_sourceUrn"),
+                                                    new Urn("existing_queryUrn"))
+                                        .build());
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
@@ -73,23 +76,23 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(2);
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE)
-                .whereEq(ENTITY_ID, 123L)
-                .whereEq(ENTITY_TYPE, ENTITY_TYPE_TRACK)
-                .whereNull(REPOSTER_ID)
-                .whereEq(Tables.PlayQueue.RELATED_ENTITY, RELATED_ENTITY.toString())
-                .whereEq(SOURCE, "source1")
-                .whereEq(SOURCE_VERSION, "version1")
-                .whereEq(SOURCE_URN, "sourceUrn1")
-                .whereEq(QUERY_URN, "queryUrn1"))).counts(1);
+                                                  .whereEq(ENTITY_ID, 123L)
+                                                  .whereEq(ENTITY_TYPE, ENTITY_TYPE_TRACK)
+                                                  .whereNull(REPOSTER_ID)
+                                                  .whereEq(Tables.PlayQueue.RELATED_ENTITY, RELATED_ENTITY.toString())
+                                                  .whereEq(SOURCE, "source1")
+                                                  .whereEq(SOURCE_VERSION, "version1")
+                                                  .whereEq(SOURCE_URN, "sourceUrn1")
+                                                  .whereEq(QUERY_URN, "queryUrn1"))).counts(1);
 
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE)
-                .whereEq(ENTITY_ID, 456L)
-                .whereEq(ENTITY_TYPE, Tables.PlayQueue.ENTITY_TYPE_PLAYLIST)
-                .whereEq(REPOSTER_ID, 456L)
-                .whereEq(SOURCE, "source2")
-                .whereEq(SOURCE_VERSION, "version2")
-                .whereEq(SOURCE_URN, "sourceUrn2")
-                .whereEq(QUERY_URN, "queryUrn2"))).counts(1);
+                                                  .whereEq(ENTITY_ID, 456L)
+                                                  .whereEq(ENTITY_TYPE, Tables.PlayQueue.ENTITY_TYPE_PLAYLIST)
+                                                  .whereEq(REPOSTER_ID, 456L)
+                                                  .whereEq(SOURCE, "source2")
+                                                  .whereEq(SOURCE_VERSION, "version2")
+                                                  .whereEq(SOURCE_URN, "sourceUrn2")
+                                                  .whereEq(QUERY_URN, "queryUrn2"))).counts(1);
     }
 
     @Test
@@ -113,8 +116,11 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     public void shouldDeleteAllPlayQueueItems() {
         TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
         insertPlayableQueueItem(new Builder(forTrack(123L), forUser(123L))
-                .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
-                .build());
+                                        .fromSource("source",
+                                                    "source_version",
+                                                    new Urn("sourceUrn"),
+                                                    new Urn("queryUrn"))
+                                        .build());
         QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
 
         storage.clearAsync().subscribe(subscriber);
@@ -186,17 +192,18 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     private void insertPlayableQueueItem(PlayableQueueItem playableQueueItem) {
         ContentValues cv = new ContentValues();
         cv.put(Tables.PlayQueue.ENTITY_ID.name(), playableQueueItem.getUrn().getNumericId());
-        cv.put(Tables.PlayQueue.ENTITY_TYPE.name(), playableQueueItem.getUrn().isTrack() ? ENTITY_TYPE_TRACK : ENTITY_TYPE_PLAYLIST);
+        cv.put(Tables.PlayQueue.ENTITY_TYPE.name(),
+               playableQueueItem.getUrn().isTrack() ? ENTITY_TYPE_TRACK : ENTITY_TYPE_PLAYLIST);
         cv.put(Tables.PlayQueue.SOURCE.name(), playableQueueItem.getSource());
         cv.put(Tables.PlayQueue.SOURCE_VERSION.name(), playableQueueItem.getSourceVersion());
         cv.put(Tables.PlayQueue.SOURCE_URN.name(), playableQueueItem.getSourceUrn().toString());
         cv.put(Tables.PlayQueue.QUERY_URN.name(), playableQueueItem.getQueryUrn().toString());
 
-        if (!Urn.NOT_SET.equals(playableQueueItem.getRelatedEntity())){
+        if (!Urn.NOT_SET.equals(playableQueueItem.getRelatedEntity())) {
             cv.put(Tables.PlayQueue.RELATED_ENTITY.name(), playableQueueItem.getRelatedEntity().toString());
         }
 
-        if (playableQueueItem.getReposter().isUser()){
+        if (playableQueueItem.getReposter().isUser()) {
             cv.put(Tables.PlayQueue.REPOSTER_ID.name(), playableQueueItem.getReposter().getNumericId());
         }
 

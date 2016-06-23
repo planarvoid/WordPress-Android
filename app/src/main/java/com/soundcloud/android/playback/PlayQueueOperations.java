@@ -56,14 +56,14 @@ public class PlayQueueOperations {
         }
 
         return playQueueStorage.loadAsync()
-                .toList()
-                .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
-                    @Override
-                    public PlayQueue call(List<PlayQueueItem> playQueueItems) {
-                        return new PlayQueue(playQueueItems);
-                    }
-                })
-                .subscribeOn(scheduler);
+                               .toList()
+                               .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
+                                   @Override
+                                   public PlayQueue call(List<PlayQueueItem> playQueueItems) {
+                                       return new PlayQueue(playQueueItems);
+                                   }
+                               })
+                               .subscribeOn(scheduler);
     }
 
     Subscription saveQueue(PlayQueue playQueue) {
@@ -92,13 +92,13 @@ public class PlayQueueOperations {
     public Observable<RecommendedTracksCollection> relatedTracks(Urn seedTrack, boolean continuousPlay) {
         final String endpoint = String.format(ApiEndpoints.RELATED_TRACKS.path(), seedTrack.toEncodedString());
         final ApiRequest request = ApiRequest.get(endpoint)
-                .forPrivateApi()
-                .addQueryParam("continuous_play", continuousPlay ? "true" : "false")
-                .build();
+                                             .forPrivateApi()
+                                             .addQueryParam("continuous_play", continuousPlay ? "true" : "false")
+                                             .build();
 
         return apiClientRx.mappedResponse(request, RecommendedTracksCollection.class)
-                .doOnNext(storeTracksCommand.toAction1())
-                .subscribeOn(scheduler);
+                          .doOnNext(storeTracksCommand.toAction1())
+                          .subscribeOn(scheduler);
     }
 
     public Observable<PlayQueue> relatedTracksPlayQueue(final Urn seedTrack, boolean continuousPlay) {

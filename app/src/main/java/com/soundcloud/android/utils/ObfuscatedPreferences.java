@@ -62,8 +62,8 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
     private boolean toBoolean(String value, boolean defaultValue) {
         return value == null
-                ? defaultValue
-                : obfuscator.deobfuscateBoolean(value);
+               ? defaultValue
+               : obfuscator.deobfuscateBoolean(value);
     }
 
     @Override
@@ -98,8 +98,9 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
     @Override
     public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener register) {
-        synchronized(this) {
-            ObfuscatedOnSharedPreferenceChangeListener listener = new ObfuscatedOnSharedPreferenceChangeListener(register);
+        synchronized (this) {
+            ObfuscatedOnSharedPreferenceChangeListener listener = new ObfuscatedOnSharedPreferenceChangeListener(
+                    register);
             listeners.put(register, listener);
             wrappedPrefs.registerOnSharedPreferenceChangeListener(listener);
         }
@@ -107,10 +108,11 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
     @Override
     public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener unregister) {
-        synchronized(this) {
+        synchronized (this) {
             OnSharedPreferenceChangeListener wrappedListener = null;
             ObfuscatedOnSharedPreferenceChangeListener listener = null;
-            for (Map.Entry<OnSharedPreferenceChangeListener, ObfuscatedOnSharedPreferenceChangeListener> entry : listeners.entrySet()) {
+            for (Map.Entry<OnSharedPreferenceChangeListener, ObfuscatedOnSharedPreferenceChangeListener> entry : listeners
+                    .entrySet()) {
                 if (entry.getKey().equals(unregister)) {
                     wrappedListener = entry.getKey();
                     listener = entry.getValue();

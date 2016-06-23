@@ -29,21 +29,24 @@ public class PlaylistOperations {
     private final Action1<PropertySet> publishTrackAddedToPlaylistEvent = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newPlaylistTrackData) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromTrackAddedToPlaylist(newPlaylistTrackData));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                             EntityStateChangedEvent.fromTrackAddedToPlaylist(newPlaylistTrackData));
         }
     };
 
     private final Action1<PropertySet> publishPlaylistEditedEvent = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newPlaylistTrackData) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistEdited(newPlaylistTrackData));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                             EntityStateChangedEvent.fromPlaylistEdited(newPlaylistTrackData));
         }
     };
 
     private final Action1<PropertySet> publishTrackRemovedFromPlaylistEvent = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newPlaylistTrackData) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromTrackRemovedFromPlaylist(newPlaylistTrackData));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                             EntityStateChangedEvent.fromTrackRemovedFromPlaylist(newPlaylistTrackData));
         }
     };
 
@@ -76,8 +79,8 @@ public class PlaylistOperations {
         @Override
         public Observable<PlaylistWithTracks> call(PlaylistWithTracks playlistWithTracks) {
             return playlistWithTracks.isMissingMetaData()
-                    ? Observable.<PlaylistWithTracks>error(new PlaylistOperations.PlaylistMissingException())
-                    : Observable.just(playlistWithTracks);
+                   ? Observable.<PlaylistWithTracks>error(new PlaylistOperations.PlaylistMissingException())
+                   : Observable.just(playlistWithTracks);
         }
     };
 
@@ -109,35 +112,38 @@ public class PlaylistOperations {
 
     Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
-                .doOnNext(publishPlaylistCreatedEvent)
-                .subscribeOn(scheduler)
-                .doOnCompleted(syncInitiator.requestSystemSyncAction());
+                                    .doOnNext(publishPlaylistCreatedEvent)
+                                    .subscribeOn(scheduler)
+                                    .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
     Observable<PropertySet> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
-        return editPlaylistCommand.toObservable(new EditPlaylistCommandParams(playlistUrn, title, isPrivate, updatedTracklist))
-                .map(toEditedChangeSet(playlistUrn, title, isPrivate))
-                .doOnNext(publishPlaylistEditedEvent)
-                .doOnCompleted(syncInitiator.requestSystemSyncAction())
-                .subscribeOn(scheduler);
+        return editPlaylistCommand.toObservable(new EditPlaylistCommandParams(playlistUrn,
+                                                                              title,
+                                                                              isPrivate,
+                                                                              updatedTracklist))
+                                  .map(toEditedChangeSet(playlistUrn, title, isPrivate))
+                                  .doOnNext(publishPlaylistEditedEvent)
+                                  .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                  .subscribeOn(scheduler);
     }
 
     Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
         final AddTrackToPlaylistParams params = new AddTrackToPlaylistParams(playlistUrn, trackUrn);
         return addTrackToPlaylistCommand.toObservable(params)
-                .map(toChangeSet(playlistUrn))
-                .doOnNext(publishTrackAddedToPlaylistEvent)
-                .doOnCompleted(syncInitiator.requestSystemSyncAction())
-                .subscribeOn(scheduler);
+                                        .map(toChangeSet(playlistUrn))
+                                        .doOnNext(publishTrackAddedToPlaylistEvent)
+                                        .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                        .subscribeOn(scheduler);
     }
 
     public Observable<PropertySet> removeTrackFromPlaylist(Urn playlistUrn, Urn trackUrn) {
         final RemoveTrackFromPlaylistParams params = new RemoveTrackFromPlaylistParams(playlistUrn, trackUrn);
         return removeTrackFromPlaylistCommand.toObservable(params)
-                .map(toChangeSet(playlistUrn))
-                .doOnNext(publishTrackRemovedFromPlaylistEvent)
-                .doOnCompleted(syncInitiator.requestSystemSyncAction())
-                .subscribeOn(scheduler);
+                                             .map(toChangeSet(playlistUrn))
+                                             .doOnNext(publishTrackRemovedFromPlaylistEvent)
+                                             .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                             .subscribeOn(scheduler);
     }
 
     private Func1<Integer, PropertySet> toChangeSet(final Urn targetUrn) {
@@ -151,7 +157,9 @@ public class PlaylistOperations {
         };
     }
 
-    private Func1<Integer, PropertySet> toEditedChangeSet(final Urn targetUrn, final String title, final boolean isPrivate) {
+    private Func1<Integer, PropertySet> toEditedChangeSet(final Urn targetUrn,
+                                                          final String title,
+                                                          final boolean isPrivate) {
         return new Func1<Integer, PropertySet>() {
             @Override
             public PropertySet call(Integer newTrackCount) {
@@ -166,18 +174,18 @@ public class PlaylistOperations {
 
     public Observable<List<Urn>> trackUrnsForPlayback(final Urn playlistUrn) {
         return loadPlaylistTrackUrnsProvider.get().with(playlistUrn)
-                .toObservable()
-                .subscribeOn(scheduler)
-                .flatMap(new Func1<List<Urn>, Observable<List<Urn>>>() {
-                    @Override
-                    public Observable<List<Urn>> call(List<Urn> trackItems) {
-                        if (trackItems.isEmpty()) {
-                            return updatedUrnsForPlayback(playlistUrn);
-                        } else {
-                            return Observable.just(trackItems);
-                        }
-                    }
-                });
+                                            .toObservable()
+                                            .subscribeOn(scheduler)
+                                            .flatMap(new Func1<List<Urn>, Observable<List<Urn>>>() {
+                                                @Override
+                                                public Observable<List<Urn>> call(List<Urn> trackItems) {
+                                                    if (trackItems.isEmpty()) {
+                                                        return updatedUrnsForPlayback(playlistUrn);
+                                                    } else {
+                                                        return Observable.just(trackItems);
+                                                    }
+                                                }
+                                            });
     }
 
     public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
@@ -204,8 +212,8 @@ public class PlaylistOperations {
                     @Override
                     public Observable<List<Urn>> call(SyncJobResult syncJobResult) {
                         return loadPlaylistTrackUrnsProvider.get().with(playlistUrn)
-                                .toObservable()
-                                .subscribeOn(scheduler);
+                                                            .toObservable()
+                                                            .subscribeOn(scheduler);
                     }
                 });
     }

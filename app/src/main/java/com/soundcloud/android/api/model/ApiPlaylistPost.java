@@ -20,8 +20,8 @@ public class ApiPlaylistPost implements ApiEntityHolder, PlaylistRecordHolder {
     @Override
     public PropertySet toPropertySet() {
         return apiPlaylist.toPropertySet()
-                .put(PostProperty.IS_REPOST, false)
-                .put(PostProperty.CREATED_AT, apiPlaylist.getCreatedAt());
+                          .put(PostProperty.IS_REPOST, false)
+                          .put(PostProperty.CREATED_AT, apiPlaylist.getCreatedAt());
     }
 
     @Override

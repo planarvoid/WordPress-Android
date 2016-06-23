@@ -108,7 +108,8 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     @Test
     public void userPostsMergesInPlaylistLikeInfo() {
         when(profileApi.userPosts(USER_URN)).thenReturn(Observable.just(page));
-        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist2));
+        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(
+                apiPlaylist2));
 
         operations.pagedPostItems(USER_URN).subscribe(observer);
 
@@ -126,7 +127,8 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
     @Test
     public void userPostsPagerReturnsNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userPosts(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.postsPagingFunction(USER_URN).call(page1).subscribe(observer);
@@ -136,9 +138,11 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
     @Test
     public void userPostsPagerMergesInPlaylistLikeInfo() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userPosts(NEXT_HREF)).thenReturn(Observable.just(page));
-        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(apiPlaylist2));
+        when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page)))).thenReturn(likedStatusForPlaylistLike(
+                apiPlaylist2));
 
         operations.postsPagingFunction(USER_URN).call(page1).subscribe(observer);
 
@@ -147,7 +151,8 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
 
     @Test
     public void userPostsPagerStoresNextPage() {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userPosts(NEXT_HREF)).thenReturn(Observable.just(page));
 
         operations.postsPagingFunction(USER_URN).call(page1).subscribe(observer);
@@ -175,9 +180,11 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
         subscriber.assertValues(
                 Arrays.asList(
                         PropertySet.from(TrackProperty.URN.bind(trackPostItem.getUrn())),
-                        PropertySet.from(TrackProperty.URN.bind(trackRepostItem.getUrn()), PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn())),
+                        PropertySet.from(TrackProperty.URN.bind(trackRepostItem.getUrn()),
+                                         PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn())),
                         PropertySet.from(PlaylistProperty.URN.bind(playlistPostItem.getUrn())),
-                        PropertySet.from(PlaylistProperty.URN.bind(playlistRepostItem.getUrn()), PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn()))
+                        PropertySet.from(PlaylistProperty.URN.bind(playlistRepostItem.getUrn()),
+                                         PostProperty.REPOSTER_URN.bind(trackRepostItem.getReposterUrn()))
                 )
         );
     }

@@ -68,8 +68,18 @@ public class YouPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new YouPresenter(youViewFactory, userRepository, accountOperations, imageOperations, resources(),
-                eventBus, featureOperations, offlineContentOperations, navigator, bugReporter, appProperties, storage);
+        presenter = new YouPresenter(youViewFactory,
+                                     userRepository,
+                                     accountOperations,
+                                     imageOperations,
+                                     resources(),
+                                     eventBus,
+                                     featureOperations,
+                                     offlineContentOperations,
+                                     navigator,
+                                     bugReporter,
+                                     appProperties,
+                                     storage);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(youViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(youView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));

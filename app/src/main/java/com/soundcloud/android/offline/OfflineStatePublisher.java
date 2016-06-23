@@ -31,7 +31,8 @@ class OfflineStatePublisher {
     }
 
     void publishEmptyCollections(ExpectedOfflineContent expectedOfflineContent) {
-        final boolean isLikedTracksEmpty = expectedOfflineContent.isLikedTracksExpected && expectedOfflineContent.likedTracks.isEmpty();
+        final boolean isLikedTracksEmpty = expectedOfflineContent.isLikedTracksExpected && expectedOfflineContent.likedTracks
+                .isEmpty();
 
         eventBus.publish(
                 EventQueue.OFFLINE_CONTENT_CHANGED,
@@ -82,16 +83,18 @@ class OfflineStatePublisher {
     private void publishUpdatesForTrack(OfflineState newTracksState, Collection<Urn> tracks) {
         Map<OfflineState, TrackCollections> collectionsStates = new HashMap<>();
         for (Urn track : tracks) {
-            collectionsStates = mergeStates(collectionsStates, collectionStateOperations.loadTracksCollectionsState(track, newTracksState));
+            collectionsStates = mergeStates(collectionsStates,
+                                            collectionStateOperations.loadTracksCollectionsState(track,
+                                                                                                 newTracksState));
         }
 
         for (OfflineState state : OfflineState.values()) {
             final Optional<Collection<Urn>> tracksForState = newTracksState.equals(state)
-                    ? Optional.of(tracks)
-                    : Optional.<Collection<Urn>>absent();
+                                                             ? Optional.of(tracks)
+                                                             : Optional.<Collection<Urn>>absent();
             final Optional<TrackCollections> collectionsForState = collectionsStates.containsKey(state)
-                    ? Optional.of(collectionsStates.get(state))
-                    : Optional.<TrackCollections>absent();
+                                                                   ? Optional.of(collectionsStates.get(state))
+                                                                   : Optional.<TrackCollections>absent();
 
             if (tracksForState.isPresent() || collectionsForState.isPresent()) {
                 eventBus.publish(
@@ -102,7 +105,8 @@ class OfflineStatePublisher {
         }
     }
 
-    private static HashMap<OfflineState, TrackCollections> mergeStates(Map<OfflineState, TrackCollections> previousStates, Map<OfflineState, TrackCollections> addedStates) {
+    private static HashMap<OfflineState, TrackCollections> mergeStates(Map<OfflineState, TrackCollections> previousStates,
+                                                                       Map<OfflineState, TrackCollections> addedStates) {
         final HashMap<OfflineState, TrackCollections> newStates = new HashMap<>();
         newStates.putAll(previousStates);
 
@@ -113,7 +117,9 @@ class OfflineStatePublisher {
             if (previousStates.containsKey(state)) {
                 final TrackCollections collections = previousStates.get(state);
                 final boolean isLikedTracksCollection = collections.likesCollection() || newTrackCollections.likesCollection();
-                final List<Urn> mergedPlaylists = new ArrayList<>(collections.playlists().size() + newTrackCollections.playlists().size());
+                final List<Urn> mergedPlaylists = new ArrayList<>(collections.playlists()
+                                                                             .size() + newTrackCollections.playlists()
+                                                                                                          .size());
                 mergedPlaylists.addAll(collections.playlists());
                 mergedPlaylists.addAll(newTrackCollections.playlists());
                 newStates.put(state, TrackCollections.create(mergedPlaylists, isLikedTracksCollection));
@@ -124,7 +130,9 @@ class OfflineStatePublisher {
         return newStates;
     }
 
-    private static OfflineContentChangedEvent createOfflineContentChangedEvent(OfflineState state, Optional<Collection<Urn>> track, Optional<TrackCollections> collections) {
+    private static OfflineContentChangedEvent createOfflineContentChangedEvent(OfflineState state,
+                                                                               Optional<Collection<Urn>> track,
+                                                                               Optional<TrackCollections> collections) {
         final Collection<Urn> entities = new ArrayList<>();
         final boolean isLikedTrackCollection;
         if (collections.isPresent()) {

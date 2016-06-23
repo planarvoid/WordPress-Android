@@ -11,7 +11,7 @@ import android.os.ResultReceiver;
 import java.util.HashSet;
 import java.util.List;
 
-@AutoFactory( allowSubclasses = true)
+@AutoFactory(allowSubclasses = true)
 public class MultiJobRequest implements SyncRequest {
 
     private final List<SyncJob> syncJobs;
@@ -58,8 +58,9 @@ public class MultiJobRequest implements SyncRequest {
             final Exception exception = syncJob.getException();
             final String syncableName = getSyncableName(syncJob);
             final SyncJobResult resultEvent = exception == null ?
-                    SyncJobResult.success(syncableName, syncJob.resultedInAChange())
-                    : SyncJobResult.failure(syncableName, syncJob.getException());
+                                              SyncJobResult.success(syncableName, syncJob.resultedInAChange())
+                                                                :
+                                              SyncJobResult.failure(syncableName, syncJob.getException());
 
             resultBundle.putParcelable(syncableName, resultEvent);
 

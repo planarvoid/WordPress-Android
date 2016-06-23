@@ -23,9 +23,9 @@ public class LoadPlaylistPendingRemovalCommand extends Command<Void, List<Urn>> 
     @Override
     public List<Urn> call(Void input) {
         return database.query(Query.from(Table.Sounds.name())
-                .select(TableColumns.SoundView._ID)
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereNotNull(TableColumns.Sounds.REMOVED_AT)).toList(new PlaylistUrnMapper());
+                                   .select(TableColumns.SoundView._ID)
+                                   .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                                   .whereNotNull(TableColumns.Sounds.REMOVED_AT)).toList(new PlaylistUrnMapper());
     }
 
 }

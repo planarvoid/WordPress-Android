@@ -26,6 +26,6 @@ public class MyPostsSyncer implements SyncStrategy {
     @Override
     public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         return trackPostsSyncer.call() || playlistPostsSyncer.call() ?
-                LegacySyncResult.fromSuccessfulChange(uri) : LegacySyncResult.fromSuccessWithoutChange(uri);
+               LegacySyncResult.fromSuccessfulChange(uri) : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 }

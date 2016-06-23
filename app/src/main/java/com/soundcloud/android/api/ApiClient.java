@@ -70,7 +70,7 @@ public class ApiClient {
     public ApiResponse fetchResponse(ApiRequest request) {
         if (assertBackgroundThread) {
             checkState(Thread.currentThread() != Looper.getMainLooper().getThread(),
-                    "Detected execution of API request on main thread");
+                       "Detected execution of API request on main thread");
         }
         try {
             final com.squareup.okhttp.Request.Builder builder = new com.squareup.okhttp.Request.Builder();
@@ -183,7 +183,8 @@ public class ApiClient {
                 builder.addFormDataPart(part.getPartName(), value);
             } else if (part instanceof FilePart) {
                 final FilePart filePart = (FilePart) part;
-                final RequestBody requestBody = RequestBody.create(MediaType.parse(part.getContentType()), filePart.getFile());
+                final RequestBody requestBody = RequestBody.create(MediaType.parse(part.getContentType()),
+                                                                   filePart.getFile());
                 builder.addFormDataPart(filePart.getPartName(), filePart.getFileName(), requestBody);
             }
         }
@@ -218,7 +219,8 @@ public class ApiClient {
         }
     }
 
-    private <T> T parseJsonResponse(ApiResponse apiResponse, TypeToken<T> typeToken) throws IOException, ApiMapperException {
+    private <T> T parseJsonResponse(ApiResponse apiResponse,
+                                    TypeToken<T> typeToken) throws IOException, ApiMapperException {
         final T resource = jsonTransformer.fromJson(apiResponse.getResponseBody(), typeToken);
 
         if (resource == null || UnknownResource.class.isAssignableFrom(resource.getClass())) {

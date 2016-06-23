@@ -18,11 +18,12 @@ public class OfflineStateMapper extends RxResultMapper<PropertySet> {
 
     private PropertySet addOptionalOfflineSyncDates(CursorReader cursorReader) {
         final PropertySet propertySet = PropertySet.create(1);
-        propertySet.put(OfflineProperty.OFFLINE_STATE, fromDates(cursorReader, cursorReader.isNotNull(OfflineContent._ID)));
+        propertySet.put(OfflineProperty.OFFLINE_STATE,
+                        fromDates(cursorReader, cursorReader.isNotNull(OfflineContent._ID)));
         return propertySet;
     }
 
-    public static OfflineState fromDates(CursorReader cursorReader, boolean unavailableEnabled){
+    public static OfflineState fromDates(CursorReader cursorReader, boolean unavailableEnabled) {
         final Date defaultDate = new Date(0);
         final Date requestedAt = getDateOr(cursorReader, TrackDownloads.REQUESTED_AT, defaultDate);
         final Date removedAt = getDateOr(cursorReader, TrackDownloads.REMOVED_AT, defaultDate);

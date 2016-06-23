@@ -118,8 +118,8 @@ public class PlaySessionController {
         if (playQueueManager.isQueueEmpty()) {
             subscription.unsubscribe();
             subscription = playQueueManager.loadPlayQueueAsync()
-                    .doOnNext(showPlayer)
-                    .subscribe(new DefaultSubscriber<PlayQueue>());
+                                           .doOnNext(showPlayer)
+                                           .subscribe(new DefaultSubscriber<PlayQueue>());
         }
     }
 
@@ -193,7 +193,8 @@ public class PlaySessionController {
             final PlayerAdData ad = (PlayerAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
             final boolean adIsNotSkippable = !ad.isSkippable();
             final boolean waitingForAdToStart = !isPlayingCurrentPlayQueueItem();
-            final boolean haveNotReachedSkippableCheckpoint = playSessionStateProvider.getLastProgressEvent().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
+            final boolean haveNotReachedSkippableCheckpoint = playSessionStateProvider.getLastProgressEvent()
+                                                                                      .getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
             return adIsNotSkippable || waitingForAdToStart || haveNotReachedSkippableCheckpoint;
         } else {
             return false;
@@ -214,9 +215,9 @@ public class PlaySessionController {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
             return playbackStrategyProvider.get()
-                    .setNewQueue(playQueue, initialTrack, startPosition, playSessionSource)
-                    .doOnSubscribe(stopLoadingPreviousTrack)
-                    .doOnNext(playCurrentTrack);
+                                           .setNewQueue(playQueue, initialTrack, startPosition, playSessionSource)
+                                           .doOnSubscribe(stopLoadingPreviousTrack)
+                                           .doOnNext(playCurrentTrack);
         }
     }
 
@@ -224,20 +225,23 @@ public class PlaySessionController {
         final Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
         if (adsOperations.isCurrentItemAudioAd()) {
             final UIEvent audioSkipEvent = UIEvent.fromSkipAudioAdClick((AudioAd) adData.get(),
-                    playQueueManager.getCurrentPlayQueueItem().getUrn(),
-                    accountOperations.getLoggedInUserUrn(),
-                    playQueueManager.getCurrentTrackSourceInfo());
+                                                                        playQueueManager.getCurrentPlayQueueItem()
+                                                                                        .getUrn(),
+                                                                        accountOperations.getLoggedInUserUrn(),
+                                                                        playQueueManager.getCurrentTrackSourceInfo());
             eventBus.publish(EventQueue.TRACKING, audioSkipEvent);
         } else if (adsOperations.isCurrentItemVideoAd()) {
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromSkipVideoAdClick((VideoAd) adData.get(), playQueueManager.getCurrentTrackSourceInfo()));
+            eventBus.publish(EventQueue.TRACKING,
+                             UIEvent.fromSkipVideoAdClick((VideoAd) adData.get(),
+                                                          playQueueManager.getCurrentTrackSourceInfo()));
         }
     }
 
     void playCurrent() {
         subscription.unsubscribe();
         Observable<Void> playCurrentObservable = playQueueManager.isQueueEmpty()
-                ? playQueueManager.loadPlayQueueAsync().flatMap(toPlayCurrent)
-                : playbackStrategyProvider.get().playCurrent();
+                                                 ? playQueueManager.loadPlayQueueAsync().flatMap(toPlayCurrent)
+                                                 : playbackStrategyProvider.get().playCurrent();
 
         subscription = playCurrentObservable.subscribe(new PlayCurrentSubscriber());
     }

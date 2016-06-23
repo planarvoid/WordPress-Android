@@ -178,7 +178,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
                 if (mode != null) {
-                    TextView title = (TextView) LayoutInflater.from(fragment.getContext()).inflate(R.layout.toolbar_title, null);
+                    TextView title = (TextView) LayoutInflater.from(fragment.getContext())
+                                                              .inflate(R.layout.toolbar_title, null);
                     title.setText(R.string.edit_playlist);
                     mode.setCustomView(title);
                 }
@@ -208,7 +209,10 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
 
         final PlaylistWithTracks playlist = playlistWithTracks.get();
         final List<Urn> tracks = Lists.transform(adapter.getItems(), TrackItem.TO_URN);
-        fireAndForget(playlistOperations.editPlaylist(playlist.getUrn(), playlist.getTitle(), playlist.isPrivate(), new ArrayList<>(tracks)));
+        fireAndForget(playlistOperations.editPlaylist(playlist.getUrn(),
+                                                      playlist.getTitle(),
+                                                      playlist.isPrivate(),
+                                                      new ArrayList<>(tracks)));
     }
 
     @Override
@@ -225,14 +229,14 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
     protected CollectionBinding<PlaylistWithTracks, TrackItem> onBuildBinding(Bundle fragmentArgs) {
 
         return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)), TO_LIST_ITEMS)
-                .withAdapter(adapter).build();
+                                .withAdapter(adapter).build();
     }
 
     void play(int trackPosition) {
         playbackInitiator.playTracks(
                 playlistOperations.trackUrnsForPlayback(playSessionSource.getCollectionUrn()),
                 adapter.getItem(trackPosition).getUrn(), trackPosition, playSessionSource)
-                .subscribe(expandPlayerSubscriberProvider.get());
+                         .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     private Observable<PlaylistWithTracks> loadPlaylistObservable(Urn playlistUrn) {
@@ -252,7 +256,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
     }
 
     @Override
-    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, TrackItem> collectionBinding, CompositeSubscription viewLifeCycle) {
+    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, TrackItem> collectionBinding,
+                                      CompositeSubscription viewLifeCycle) {
         collectionBinding.source().subscribe(new PlaylistSubscriber());
     }
 
@@ -261,8 +266,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
         final Urn playlistUrn = getPlaylistUrn(fragment.getArguments());
 
         return CollectionBinding.from(playlistOperations.updatedPlaylistInfo(playlistUrn), TO_LIST_ITEMS)
-                .withAdapter(adapter)
-                .build();
+                                .withAdapter(adapter)
+                                .build();
     }
 
     private PromotedSourceInfo getPromotedSourceInfo() {
@@ -276,8 +281,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
 
     void reloadPlaylist() {
         retryWith(CollectionBinding
-                .from(loadPlaylistObservable(getPlaylistUrn()), TO_LIST_ITEMS)
-                .withAdapter(adapter).build());
+                          .from(loadPlaylistObservable(getPlaylistUrn()), TO_LIST_ITEMS)
+                          .withAdapter(adapter).build());
     }
 
     private class GoBackSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {

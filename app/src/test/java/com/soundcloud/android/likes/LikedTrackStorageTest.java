@@ -120,7 +120,7 @@ public class LikedTrackStorageTest extends StorageIntegrationTest {
 
         storage.loadTrackLike(track1.get(TrackProperty.URN)).subscribe(testObserver);
 
-       testObserver.assertValue(expectedRemovedLikedTrackFor(track1, LIKED_DATE_1));
+        testObserver.assertValue(expectedRemovedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
     @Test

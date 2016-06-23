@@ -27,7 +27,7 @@ class SearchSuggestions<T extends SearchSuggestion> {
         return collection;
     }
 
-    public static SearchSuggestions<Shortcut> fromShortcuts(List<Shortcut> shortcuts){
+    public static SearchSuggestions<Shortcut> fromShortcuts(List<Shortcut> shortcuts) {
         return new SearchSuggestions<>(shortcuts, Urn.NOT_SET);
     }
 }

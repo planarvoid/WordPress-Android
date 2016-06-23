@@ -146,7 +146,8 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         return intersection;
     }
 
-    private void pushPendingAdditionsToApi(Set<PropertySet> pendingRemoteAdditions, Set<PropertySet> pendingLocalAdditions) throws Exception {
+    private void pushPendingAdditionsToApi(Set<PropertySet> pendingRemoteAdditions,
+                                           Set<PropertySet> pendingLocalAdditions) throws Exception {
         if (!pendingRemoteAdditions.isEmpty()) {
             final Collection<PropertySet> successfulAdditions = pushLikeAdditions.with(pendingRemoteAdditions).call();
             // make sure we replace the existing local records with server side data
@@ -154,7 +155,8 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         }
     }
 
-    private void pushPendingRemovalsToApi(Set<PropertySet> pendingRemoteRemovals, Set<PropertySet> pendingLocalRemovals) throws Exception {
+    private void pushPendingRemovalsToApi(Set<PropertySet> pendingRemoteRemovals,
+                                          Set<PropertySet> pendingLocalRemovals) throws Exception {
         if (!pendingRemoteRemovals.isEmpty()) {
             final Collection<PropertySet> successfulDeletions = pushLikeDeletions.with(pendingRemoteRemovals).call();
             // make sure we also remove successful remote deletions from local storage

@@ -1,10 +1,11 @@
 package com.soundcloud.android.playback.mediaplayer;
 
 import java.util.EnumSet;
+
 /**
  * States the mediaplayer can be in - we need to track these manually.
  */
-    enum PlaybackState {
+enum PlaybackState {
     STOPPED,            // initial state, or stopped
     ERROR,              // onError() was called
     ERROR_RETRYING,     // onError() + retry

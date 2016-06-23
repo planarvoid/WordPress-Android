@@ -49,7 +49,7 @@ public class UserItem implements ListItem {
 
     public Optional<String> getCountry() {
         return source.contains(UserProperty.COUNTRY) ?
-                Optional.of(source.get(UserProperty.COUNTRY)) : Optional.<String>absent();
+               Optional.of(source.get(UserProperty.COUNTRY)) : Optional.<String>absent();
     }
 
     public int getFollowersCount() {

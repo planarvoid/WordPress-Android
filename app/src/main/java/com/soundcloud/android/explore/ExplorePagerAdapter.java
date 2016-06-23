@@ -22,7 +22,9 @@ public class ExplorePagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public float getPageWidth(int position) {
-        return position == 0 ? resources.getDimension(R.dimen.explore_category_page_size) : super.getPageWidth(position);
+        return position == 0 ?
+               resources.getDimension(R.dimen.explore_category_page_size) :
+               super.getPageWidth(position);
     }
 
     @Override

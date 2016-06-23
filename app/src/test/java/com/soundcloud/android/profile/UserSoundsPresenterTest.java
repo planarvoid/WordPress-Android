@@ -81,7 +81,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(fragmentArgs);
 
         presenter = new UserSoundsPresenter(imagePauseOnScrollListener, swipeRefreshAttacker, adapter, operations,
-                userSoundsItemMapper, clickListenerFactory, eventBus, resources);
+                                            userSoundsItemMapper, clickListenerFactory, eventBus, resources);
 
         doReturn(Observable.just(userProfileResponse)).when(operations).userProfile(USER_URN);
         doReturn(clickListener).when(clickListenerFactory).create(SEARCH_QUERY_SOURCE_INFO);
@@ -156,7 +156,12 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onItemClicked(view, 0);
 
-        verify(clickListener).onItemClick(argumentCaptor.capture(), same(view), eq(0), same(userSoundsItem), eq(USER_URN), same(SEARCH_QUERY_SOURCE_INFO));
+        verify(clickListener).onItemClick(argumentCaptor.capture(),
+                                          same(view),
+                                          eq(0),
+                                          same(userSoundsItem),
+                                          eq(USER_URN),
+                                          same(SEARCH_QUERY_SOURCE_INFO));
 
         final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
         argumentCaptor.getValue().subscribe(subscriber);

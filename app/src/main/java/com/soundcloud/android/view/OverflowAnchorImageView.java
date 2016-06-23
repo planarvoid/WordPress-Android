@@ -35,7 +35,8 @@ public class OverflowAnchorImageView extends ImageView {
         return false;
     }
 
-    @Override public boolean requestRectangleOnScreen(Rect rectangle, boolean immediate) {
+    @Override
+    public boolean requestRectangleOnScreen(Rect rectangle, boolean immediate) {
         return false;
     }
 }

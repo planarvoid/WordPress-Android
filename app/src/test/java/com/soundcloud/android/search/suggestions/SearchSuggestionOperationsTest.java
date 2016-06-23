@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class SearchSuggestionOperationsTest extends AndroidUnitTest{
+public class SearchSuggestionOperationsTest extends AndroidUnitTest {
 
     private static final String SEARCH_QUERY = "query";
     private static final int MAX_RESULTS_NUMBER = 5;
@@ -50,7 +50,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
     @Before
     public void setUp() throws Exception {
         operations = new SearchSuggestionOperations(apiClientRx, writeMixedRecordsCommand,
-                Schedulers.immediate(), suggestionStorage);
+                                                    Schedulers.immediate(), suggestionStorage);
         suggestionsResultSubscriber = new TestSubscriber<>();
         track = ModelFixtures.create(ApiTrack.class);
     }
@@ -58,7 +58,8 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
     @Test
     public void returnsLocalSuggestionsWhenEmptyRemote() {
         List<PropertySet> localSuggestions = getLocalSuggestions();
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(localSuggestions));
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
+                localSuggestions));
 
         final List<ApiSearchSuggestion> apiSearchSuggestions = Lists.newArrayList();
         setupRemoteSuggestions(apiSearchSuggestions);
@@ -66,23 +67,30 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
         final SuggestionsResult localSuggestionsResult = SuggestionsResult.localFromPropertySets(localSuggestions);
-        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.remoteFromPropertySetSource(apiSearchSuggestions);
-        suggestionsResultSubscriber.assertReceivedOnNext(Arrays.asList(localSuggestionsResult, remoteSuggestionsResult));
+        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.remoteFromPropertySetSource(
+                apiSearchSuggestions);
+        suggestionsResultSubscriber.assertReceivedOnNext(Arrays.asList(localSuggestionsResult,
+                                                                       remoteSuggestionsResult));
     }
 
     @Test
     public void returnsRemoteSuggestionsWhenEmptyLocal() {
         List<PropertySet> localSuggestions = Lists.newArrayList();
-        when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(localSuggestions));
+        when(suggestionStorage.getSuggestions(SEARCH_QUERY, MAX_RESULTS_NUMBER)).thenReturn(Observable.just(
+                localSuggestions));
 
-        final List<ApiSearchSuggestion> apiSearchSuggestions = Collections.singletonList(getSuggestion(SEARCH_QUERY, track, null));
+        final List<ApiSearchSuggestion> apiSearchSuggestions = Collections.singletonList(getSuggestion(SEARCH_QUERY,
+                                                                                                       track,
+                                                                                                       null));
         setupRemoteSuggestions(apiSearchSuggestions);
 
         operations.suggestionsFor(SEARCH_QUERY).subscribe(suggestionsResultSubscriber);
 
         final SuggestionsResult localSuggestionsResult = SuggestionsResult.localFromPropertySets(localSuggestions);
-        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.remoteFromPropertySetSource(apiSearchSuggestions);
-        suggestionsResultSubscriber.assertReceivedOnNext(Arrays.asList(localSuggestionsResult, remoteSuggestionsResult));
+        final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.remoteFromPropertySetSource(
+                apiSearchSuggestions);
+        suggestionsResultSubscriber.assertReceivedOnNext(Arrays.asList(localSuggestionsResult,
+                                                                       remoteSuggestionsResult));
     }
 
     @NonNull
@@ -115,7 +123,7 @@ public class SearchSuggestionOperationsTest extends AndroidUnitTest{
     private ApiSearchSuggestion getSuggestion(String query, ApiTrack track, ApiUser user) {
         return ApiSearchSuggestion.create(
                 query,
-                Collections.<Map<String,Integer>>emptyList(),
+                Collections.<Map<String, Integer>>emptyList(),
                 track,
                 user);
     }

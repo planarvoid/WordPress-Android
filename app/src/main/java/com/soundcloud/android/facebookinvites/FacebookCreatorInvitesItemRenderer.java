@@ -35,7 +35,7 @@ public class FacebookCreatorInvitesItemRenderer implements CellRenderer<Facebook
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.facebook_creator_invites_notification_card, parent, false);
+                             .inflate(R.layout.facebook_creator_invites_notification_card, parent, false);
     }
 
     @Override

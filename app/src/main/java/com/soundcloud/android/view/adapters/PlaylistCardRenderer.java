@@ -61,7 +61,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
     public View createItemView(ViewGroup parent) {
         final View inflatedView =
                 LayoutInflater.from(parent.getContext())
-                        .inflate(layoutResource, parent, false);
+                              .inflate(layoutResource, parent, false);
         inflatedView.setTag(new PlaylistViewHolder(inflatedView));
         return inflatedView;
     }
@@ -101,9 +101,9 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                .contextScreen(Screen.SEARCH_PLAYLIST_DISCO.get())
-                .pageName(Screen.SEARCH_PLAYLIST_DISCO.get())
-                .build();
+                                   .contextScreen(Screen.SEARCH_PLAYLIST_DISCO.get())
+                                   .pageName(Screen.SEARCH_PLAYLIST_DISCO.get())
+                                   .build();
     }
 
     private void bindArtworkView(PlaylistViewHolder itemView, final PlayableItem playableItem) {

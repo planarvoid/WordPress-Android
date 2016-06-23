@@ -175,7 +175,7 @@ public class UpgradeFunnelEventTest {
         assertThat(event.getKind()).isEqualTo(UpgradeFunnelEvent.KIND_UPSELL_CLICK);
         assertThat(event.get(UpgradeFunnelEvent.KEY_ID)).isEqualTo(UpgradeFunnelEvent.ID_STREAM);
     }
-    
+
     @Test
     public void createsEventForUpgradeButtonImpression() {
         UpgradeFunnelEvent event = UpgradeFunnelEvent.forUpgradeButtonImpression();

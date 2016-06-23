@@ -28,8 +28,11 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
 
     public interface SuggestionListener {
         void onScrollChanged();
+
         void onSearchClicked(String searchQuery);
+
         void onTrackClicked(Urn trackUrn);
+
         void onUserClicked(Urn userUrn);
     }
 
@@ -37,14 +40,17 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
         return new Func1<SuggestionsResult, List<SuggestionItem>>() {
             @Override
             public List<SuggestionItem> call(SuggestionsResult suggestionsResult) {
-                final List<SuggestionItem> itemList = new ArrayList<>(localSuggestionResult.size() + remoteSuggestionResult.size() + 1);
+                final List<SuggestionItem> itemList = new ArrayList<>(localSuggestionResult.size() + remoteSuggestionResult
+                        .size() + 1);
                 itemList.add(SuggestionItem.forSearch(searchQuery));
                 addSuggestionItemsToList(localSuggestionResult, itemList, searchQuery);
                 addSuggestionItemsToList(remoteSuggestionResult, itemList, searchQuery);
                 return itemList;
             }
 
-            private void addSuggestionItemsToList(SuggestionsResult searchResult, List<SuggestionItem> itemList, String searchQuery) {
+            private void addSuggestionItemsToList(SuggestionsResult searchResult,
+                                                  List<SuggestionItem> itemList,
+                                                  String searchQuery) {
                 for (PropertySet propertySet : searchResult.getItems()) {
                     final Urn urn = propertySet.get(SearchSuggestionProperty.URN);
                     if (urn.isTrack()) {

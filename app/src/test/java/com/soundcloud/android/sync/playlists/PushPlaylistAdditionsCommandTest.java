@@ -41,9 +41,13 @@ public class PushPlaylistAdditionsCommandTest extends AndroidUnitTest {
         final List<Urn> input = Arrays.asList(track1, track2);
 
         when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(TestApiResponses.ok());
+                isApiRequestTo("POST",
+                               ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
+                TestApiResponses.ok());
         when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track2))))).thenReturn(TestApiResponses.status(404));
+                isApiRequestTo("POST",
+                               ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track2))))).thenReturn(
+                TestApiResponses.status(404));
 
         Collection<Urn> result = command.with(playlistUrn).with(input).call();
 
@@ -57,7 +61,9 @@ public class PushPlaylistAdditionsCommandTest extends AndroidUnitTest {
         final List<Urn> input = singletonList(track1);
 
         when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(TestApiResponses.networkError());
+                isApiRequestTo("POST",
+                               ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
+                TestApiResponses.networkError());
 
         command.with(playlistUrn).with(input).call();
     }
@@ -69,12 +75,14 @@ public class PushPlaylistAdditionsCommandTest extends AndroidUnitTest {
         final List<Urn> input = singletonList(track1);
 
         when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(TestApiResponses.status(503));
+                isApiRequestTo("POST",
+                               ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn)).withContent(getBodyFor(track1))))).thenReturn(
+                TestApiResponses.status(503));
 
         command.with(playlistUrn).with(input).call();
     }
 
-    private Map getBodyFor(Urn trackUrn){
+    private Map getBodyFor(Urn trackUrn) {
         return Collections.singletonMap("track_urn", trackUrn.toString());
     }
 }

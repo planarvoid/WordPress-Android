@@ -34,6 +34,8 @@ class UpdateAgeCommand extends LegacyCommand<BirthdayInfo, Boolean, UpdateAgeCom
     }
 
     public void call(BirthdayInfo birthday, Subscriber<Boolean> responseHandler) {
-        call(birthday).subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER).observeOn(AndroidSchedulers.mainThread()).subscribe(responseHandler);
+        call(birthday).subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER)
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .subscribe(responseHandler);
     }
 }

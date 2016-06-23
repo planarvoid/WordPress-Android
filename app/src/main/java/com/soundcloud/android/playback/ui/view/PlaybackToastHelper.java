@@ -41,9 +41,9 @@ public class PlaybackToastHelper {
 
     public void showUnskippableAdToast() {
         Toast.makeText(context, playSessionStateProvider.isPlaying()
-                        ? R.string.ads_ad_in_progress
-                        : R.string.ads_resume_playing_ad_to_continue,
-                Toast.LENGTH_SHORT).show();
+                                ? R.string.ads_ad_in_progress
+                                : R.string.ads_resume_playing_ad_to_continue,
+                       Toast.LENGTH_SHORT).show();
     }
 
     public void showTrackUnavailableOfflineToast() {

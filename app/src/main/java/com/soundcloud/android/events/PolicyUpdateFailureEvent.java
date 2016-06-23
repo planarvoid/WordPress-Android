@@ -14,12 +14,12 @@ public class PolicyUpdateFailureEvent extends TrackingEvent implements MetricEve
 
     public static PolicyUpdateFailureEvent fetchFailed(boolean inBackground) {
         return new PolicyUpdateFailureEvent(KIND_POLICY_FETCH_FAILED,
-                inBackground ? CONTEXT_BACKGROUND : CONTEXT_UPSELL);
+                                            inBackground ? CONTEXT_BACKGROUND : CONTEXT_UPSELL);
     }
 
     public static PolicyUpdateFailureEvent insertFailed(boolean inBackground) {
         return new PolicyUpdateFailureEvent(KIND_POLICY_WRITE_FAILED,
-                inBackground ? CONTEXT_BACKGROUND : CONTEXT_UPSELL);
+                                            inBackground ? CONTEXT_BACKGROUND : CONTEXT_UPSELL);
     }
 
     protected PolicyUpdateFailureEvent(@NotNull String reason, String context) {
@@ -30,7 +30,7 @@ public class PolicyUpdateFailureEvent extends TrackingEvent implements MetricEve
     @Override
     public Metric toMetric() {
         return Metric.create("PolicyUpdateFailure",
-                DataPoint.string("Reason", kind),
-                DataPoint.string("Context", context));
+                             DataPoint.string("Reason", kind),
+                             DataPoint.string("Context", context));
     }
 }

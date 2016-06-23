@@ -101,7 +101,9 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         final DownloadRequest downloadRequest1 = ModelFixtures.downloadRequestFromLikes(TRACK_URN_1);
         final DownloadRequest downloadRequest2 = ModelFixtures.downloadRequestFromLikes(TRACK_URN_2);
         final DownloadRequest downloadRequest3 = ModelFixtures.downloadRequestFromLikes(TRACK_URN_3);
-        final ExpectedOfflineContent expectedRequests = createExpectedContent(downloadRequest1, downloadRequest2, downloadRequest3);
+        final ExpectedOfflineContent expectedRequests = createExpectedContent(downloadRequest1,
+                                                                              downloadRequest2,
+                                                                              downloadRequest3);
         final OfflineContentUpdates offlineContentUpdates = command.call(expectedRequests);
 
         assertThat(offlineContentUpdates.tracksToRemove()).isEmpty();
@@ -111,7 +113,10 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     }
 
     private ExpectedOfflineContent createExpectedContent(DownloadRequest... downloadRequest) {
-        return new ExpectedOfflineContent(Arrays.asList(downloadRequest), Collections.<Urn>emptyList(), false, Collections.<Urn>emptyList());
+        return new ExpectedOfflineContent(Arrays.asList(downloadRequest),
+                                          Collections.<Urn>emptyList(),
+                                          false,
+                                          Collections.<Urn>emptyList());
     }
 
     private void actualPendingRemovals(Urn track, long remoteAt) {

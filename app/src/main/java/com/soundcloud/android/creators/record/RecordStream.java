@@ -56,7 +56,8 @@ public class RecordStream {
             if (amplitudeFile != null && amplitudeFile.exists()) {
                 amplitudeData = AmplitudeData.fromFile(amplitudeFile);
             } else {
-                Log.d(SoundRecorder.TAG, "Amplitude file not found at " + (amplitudeFile == null ? "<null>" : amplitudeFile.getPath()));
+                Log.d(SoundRecorder.TAG,
+                      "Amplitude file not found at " + (amplitudeFile == null ? "<null>" : amplitudeFile.getPath()));
             }
         } catch (IOException e) {
             Log.w(SoundRecorder.TAG, "error reading amplitude data", e);
@@ -152,7 +153,7 @@ public class RecordStream {
                 last -= slope;
                 buffer.putShort((short) last);
                 amplitudeBuffer.putShort((short) last);
-                if (i % bufferSize == 0){
+                if (i % bufferSize == 0) {
                     final float sample = amplitudeAnalyzer.frameAmplitude(amplitudeBuffer, bufferSize);
                     amplitudeData.add(sample);
                     amplitudeBuffer.rewind();

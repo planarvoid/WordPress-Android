@@ -54,7 +54,7 @@ class ApiAudioAd {
     }
 
     public boolean isSkippable() {
-       return skippable;
+        return skippable;
     }
 
     public List<String> getTrackingImpressionUrls() {
@@ -108,13 +108,13 @@ class ApiAudioAd {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(getClass())
-                .add("urn", urn)
-                .add("apiTrack", apiTrack)
-                .add("visualAd", visualAd)
-                .add("leaveBehind", leaveBehind)
-                .add("trackingImpressionUrls", trackingImpressionUrls)
-                .add("trackingFinishUrls", trackingFinishUrls)
-                .add("trackingSkipUrls", trackingSkipUrls)
-                .toString();
+                          .add("urn", urn)
+                          .add("apiTrack", apiTrack)
+                          .add("visualAd", visualAd)
+                          .add("leaveBehind", leaveBehind)
+                          .add("trackingImpressionUrls", trackingImpressionUrls)
+                          .add("trackingFinishUrls", trackingFinishUrls)
+                          .add("trackingSkipUrls", trackingSkipUrls)
+                          .toString();
     }
 }

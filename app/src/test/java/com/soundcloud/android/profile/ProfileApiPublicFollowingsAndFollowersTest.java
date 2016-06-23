@@ -54,9 +54,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     public void returnsUserFollowingsByUrnFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followings")
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("linked_partitioning", "1")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        any(TypeToken.class))).thenReturn(results);
 
         api.userFollowings(Urn.forUser(123L)).subscribe(observer);
         assertAllItemsEmitted();
@@ -66,9 +67,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     public void returnsUserFollowingsByNextPageLinkFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("linked_partitioning", "1")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        any(TypeToken.class))).thenReturn(results);
 
         api.userFollowings(NEXT_HREF).subscribe(observer);
         assertAllItemsEmitted();
@@ -78,9 +80,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     public void returnsUserFollowersByUrnFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followers")
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("linked_partitioning", "1")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        any(TypeToken.class))).thenReturn(results);
 
         api.userFollowers(Urn.forUser(123L)).subscribe(observer);
         assertAllItemsEmitted();
@@ -90,9 +93,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest extends AndroidUnitTest 
     public void returnsUserFollowersByNextPageLinkFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("linked_partitioning", "1")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        any(TypeToken.class))).thenReturn(results);
 
         api.userFollowers(NEXT_HREF).subscribe(observer);
         assertAllItemsEmitted();

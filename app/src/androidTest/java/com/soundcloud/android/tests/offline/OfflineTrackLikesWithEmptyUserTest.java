@@ -37,8 +37,8 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
 
     public void testDownloadsTrackWhenLiked() {
         mainNavHelper.goToStream()
-                .clickFirstTrackCardOverflowButton()
-                .toggleLike();
+                     .clickFirstTrackCardOverflowButton()
+                     .toggleLike();
 
         final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
         likesScreen
@@ -55,8 +55,8 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
 
     public void testDownloadResumesWhenConnectionBack() {
         mainNavHelper.goToStream()
-                .clickFirstTrackCardOverflowButton()
-                .toggleLike();
+                     .clickFirstTrackCardOverflowButton()
+                     .toggleLike();
 
         final TrackLikesScreen likesScreen = mainNavHelper.goToTrackLikes();
 

@@ -37,7 +37,7 @@ public class StoreProfileCommand extends Command<UserProfileRecord, Boolean> {
                 playlists.getCollection(),
                 TO_RECORD_HOLDERS(reposts),
                 TO_RECORD_HOLDERS(likes)
-                );
+        );
 
         return writeMixedRecordsCommand.call(entities);
     }

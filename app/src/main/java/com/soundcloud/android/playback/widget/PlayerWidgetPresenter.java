@@ -30,14 +30,14 @@ import javax.inject.Inject;
 class PlayerWidgetPresenter {
 
     private static final ComponentName PLAYER_WIDGET_PROVIDER = new ComponentName(BuildConfig.APPLICATION_ID,
-            PlayerAppWidgetProvider.class.getCanonicalName());
+                                                                                  PlayerAppWidgetProvider.class.getCanonicalName());
 
     private final AppWidgetManager appWidgetManager;
     private final ImageOperations imageOperations;
 
     private Subscription artworkSubscription = RxUtils.invalidSubscription();
 
-   @Nullable  private WidgetItem widgetItem;
+    @Nullable private WidgetItem widgetItem;
 
     @Inject
     PlayerWidgetPresenter(AppWidgetManager appWidgetManager, ImageOperations imageOperations) {
@@ -82,17 +82,19 @@ class PlayerWidgetPresenter {
 
     private void loadArtwork(Context context) {
         artworkSubscription = imageOperations.artwork(widgetItem,
-                getApiImageSize(context.getResources()),
-                context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_width),
-                context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(getArtworkSubscriber(context));
+                                                      getApiImageSize(context.getResources()),
+                                                      context.getResources()
+                                                             .getDimensionPixelSize(R.dimen.widget_image_estimated_width),
+                                                      context.getResources()
+                                                             .getDimensionPixelSize(R.dimen.widget_image_estimated_height))
+                                             .observeOn(AndroidSchedulers.mainThread())
+                                             .subscribe(getArtworkSubscriber(context));
     }
 
     private void updateRemoveViews(Context context) {
         pushUpdate(new PlayerWidgetRemoteViewsBuilder()
-                .forItem(widgetItem)
-                .build(context));
+                           .forItem(widgetItem)
+                           .build(context));
     }
 
     private void updateRemoveViews(Context context, Bitmap artwork) {
@@ -105,7 +107,7 @@ class PlayerWidgetPresenter {
 
     @NotNull
     private DefaultSubscriber<Bitmap> getArtworkSubscriber(final Context context) {
-        return new DefaultSubscriber<Bitmap>(){
+        return new DefaultSubscriber<Bitmap>() {
             @Override
             public void onNext(Bitmap bitmap) {
                 updateRemoveViews(context, bitmap);
@@ -117,7 +119,7 @@ class PlayerWidgetPresenter {
         Log.d(PlayerWidgetPresenter.this, "resetting widget");
         artworkSubscription.unsubscribe();
         widgetItem = null;
-        
+
         pushUpdate(buildEmptyRemoteViews(context));
     }
 
@@ -130,7 +132,7 @@ class PlayerWidgetPresenter {
     private PendingIntent getPendingIntentForMainActivity(Context context) {
         Intent intent = new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return PendingIntent.getActivity(context,
-                R.id.player_widget_request_id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                                         R.id.player_widget_request_id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     private void pushUpdate(RemoteViews views) {
@@ -140,8 +142,10 @@ class PlayerWidgetPresenter {
 
     private Bitmap getCachedBitmap(Context context, final ImageResource imageResource) {
         return imageOperations.getCachedBitmap(imageResource, getApiImageSize(context.getResources()),
-                context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_width),
-                context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_height));
+                                               context.getResources()
+                                                      .getDimensionPixelSize(R.dimen.widget_image_estimated_width),
+                                               context.getResources()
+                                                      .getDimensionPixelSize(R.dimen.widget_image_estimated_height));
     }
 
     private ApiImageSize getApiImageSize(Resources resources) {

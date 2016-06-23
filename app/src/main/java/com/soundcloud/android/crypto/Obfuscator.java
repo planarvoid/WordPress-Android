@@ -14,7 +14,8 @@ public class Obfuscator {
     private static final String TAG = Obfuscator.class.getSimpleName();
 
     @Inject
-    public Obfuscator() {}
+    public Obfuscator() {
+    }
 
     public String obfuscate(String input) {
         String output = Base64.encodeToString(xor(input, RANDOM).getBytes(Charsets.UTF_8), Base64.DEFAULT).trim();

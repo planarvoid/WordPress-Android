@@ -53,9 +53,13 @@ public class BufferUnderrunListener {
             uninterruptedPlayTime = incrementPlaytime(uninterruptedPlayTime);
             if (isBufferUnderrun) {
                 checkForEmptyPlayerType(stateTransition);
-                emitUninterruptedPlaytimeEvent(stateTransition.getUrn(), playbackProtocol, playerType,
-                        currentConnectionType, uninterruptedPlayTime, stateTransition.getFormat(),
-                        stateTransition.getBitrate());
+                emitUninterruptedPlaytimeEvent(stateTransition.getUrn(),
+                                               playbackProtocol,
+                                               playerType,
+                                               currentConnectionType,
+                                               uninterruptedPlayTime,
+                                               stateTransition.getFormat(),
+                                               stateTransition.getBitrate());
                 uninterruptedPlayTime = 0L;
             }
             enteringPlayingStateTime = null;
@@ -67,10 +71,23 @@ public class BufferUnderrunListener {
         return uninterruptedPlayTime + (dateProvider.getCurrentDate().getTime() - enteringPlayingStateTime.getTime());
     }
 
-    private void emitUninterruptedPlaytimeEvent(Urn item, PlaybackProtocol playbackProtocol, PlayerType playerType, ConnectionType currentConnectionType, long uninterruptedPlayTime, String format, int bitrate) {
+    private void emitUninterruptedPlaytimeEvent(Urn item,
+                                                PlaybackProtocol playbackProtocol,
+                                                PlayerType playerType,
+                                                ConnectionType currentConnectionType,
+                                                long uninterruptedPlayTime,
+                                                String format,
+                                                int bitrate) {
         if (!AdUtils.isThirdPartyAudioAd(item)) {
-            final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(uninterruptedPlayTime,
-                    playbackProtocol, playerType, currentConnectionType, item.toString(), format, bitrate, item.isAd());
+            final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(
+                    uninterruptedPlayTime,
+                    playbackProtocol,
+                    playerType,
+                    currentConnectionType,
+                    item.toString(),
+                    format,
+                    bitrate,
+                    item.isAd());
             Log.i(TAG, "Playa buffer underrun. " + event);
             eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
         }
@@ -80,7 +97,8 @@ public class BufferUnderrunListener {
     private void checkForEmptyPlayerType(PlaybackStateTransition stateTransition) {
         if (TextUtils.isEmpty(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE))) {
             ErrorUtils.handleSilentException(TAG,
-                    new IllegalStateException("Buffer Underrun event with empty player type: " + stateTransition.toString()));
+                                             new IllegalStateException("Buffer Underrun event with empty player type: " + stateTransition
+                                                     .toString()));
         }
     }
 

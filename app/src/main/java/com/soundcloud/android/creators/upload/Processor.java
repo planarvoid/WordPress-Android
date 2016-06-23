@@ -39,7 +39,7 @@ public class Processor implements Runnable {
         File processFile = recording.getProcessedFile();
 
         long start = recording.getPlaybackStream().getStartPos();
-        long end   = recording.getPlaybackStream().getEndPos();
+        long end = recording.getPlaybackStream().getEndPos();
 
         Log.d(TAG, String.format("Processor.run(%s, start=%d, end=%d)", recording, start, end));
 
@@ -49,7 +49,7 @@ public class Processor implements Runnable {
                 VorbisEncoder.extract(recording.getEncodedFile(), processFile, start / 1000d, end / 1000d);
                 eventBus.publish(EventQueue.UPLOAD, UploadEvent.processingSuccess(recording));
             } catch (EncoderException e) {
-                Log.w(TAG, "error processing "+encoded, e);
+                Log.w(TAG, "error processing " + encoded, e);
                 eventBus.publish(EventQueue.UPLOAD, UploadEvent.error(recording));
             }
         } else {

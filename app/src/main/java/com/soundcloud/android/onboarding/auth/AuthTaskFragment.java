@@ -82,7 +82,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
         task.executeOnThreadPool(getArguments());
     }
 
-    @Override @NotNull
+    @Override
+    @NotNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         ProgressDialog dialog = new ProgressDialog(getActivity(), AlertDialog.THEME_HOLO_DARK);
         dialog.setMessage(getString(R.string.authentication_login_progress_message));
@@ -163,7 +164,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
             if (result.wasSuccess()) {
                 listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
-                        this instanceof SignupTaskFragment);
+                                            this instanceof SignupTaskFragment);
             } else if (result.wasEmailTaken()) {
                 listener.onEmailTaken();
             } else if (result.wasSpam()) {

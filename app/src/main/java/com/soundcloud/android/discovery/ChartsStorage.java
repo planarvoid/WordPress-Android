@@ -54,19 +54,19 @@ class ChartsStorage {
 
     Observable<ChartBucket> charts() {
         final Query query = Query.from(Charts.TABLE)
-                .select(Charts._ID,
-                        Charts.TYPE,
-                        Charts.DISPLAY_NAME,
-                        Charts.CATEGORY,
-                        Charts.GENRE,
-                        Charts.BUCKET_TYPE);
+                                 .select(Charts._ID,
+                                         Charts.TYPE,
+                                         Charts.DISPLAY_NAME,
+                                         Charts.CATEGORY,
+                                         Charts.GENRE,
+                                         Charts.BUCKET_TYPE);
 
         return propellerRx.query(query)
-                .map(new ChartMapper())
-                .flatMap(addTracksToChart)
-                .toList()
-                .map(toChartBucket())
-                .subscribeOn(scheduler);
+                          .map(new ChartMapper())
+                          .flatMap(addTracksToChart)
+                          .toList()
+                          .map(toChartBucket())
+                          .subscribeOn(scheduler);
     }
 
     private Func1<List<Chart>, ChartBucket> toChartBucket() {
@@ -94,9 +94,9 @@ class ChartsStorage {
 
         final Where soundsViewJoin = filter().whereEq(ChartTracks.SOUND_ID, SoundView.field(_ID));
         final Query query = Query.from(ChartTracks.TABLE)
-                .select(ChartTracks.SOUND_ID, field(SoundView.field(ARTWORK_URL)).as(ARTWORK_URL))
-                .innerJoin(SoundView.name(), soundsViewJoin)
-                .whereEq(ChartTracks.CHART_ID, chartId);
+                                 .select(ChartTracks.SOUND_ID, field(SoundView.field(ARTWORK_URL)).as(ARTWORK_URL))
+                                 .innerJoin(SoundView.name(), soundsViewJoin)
+                                 .whereEq(ChartTracks.CHART_ID, chartId);
 
         return propellerRx
                 .query(query)
@@ -108,7 +108,7 @@ class ChartsStorage {
         @Override
         public ChartTrack map(CursorReader cursorReader) {
             return ChartTrack.create(Urn.forTrack(cursorReader.getLong(ChartTracks.SOUND_ID)),
-                    Optional.fromNullable(cursorReader.getString(ARTWORK_URL)));
+                                     Optional.fromNullable(cursorReader.getString(ARTWORK_URL)));
         }
     }
 
@@ -117,11 +117,11 @@ class ChartsStorage {
         public Chart map(CursorReader cursorReader) {
             final String genre = cursorReader.getString(Charts.GENRE);
             return Chart.create(cursorReader.getLong(Charts._ID),
-                    ChartType.from(cursorReader.getString(Charts.TYPE)),
-                    ChartCategory.from(cursorReader.getString(Charts.CATEGORY)),
-                    cursorReader.getString(Charts.DISPLAY_NAME),
-                    new Urn(genre),
-                    toChartBucketType(cursorReader.getInt(Charts.BUCKET_TYPE)));
+                                ChartType.from(cursorReader.getString(Charts.TYPE)),
+                                ChartCategory.from(cursorReader.getString(Charts.CATEGORY)),
+                                cursorReader.getString(Charts.DISPLAY_NAME),
+                                new Urn(genre),
+                                toChartBucketType(cursorReader.getInt(Charts.BUCKET_TYPE)));
         }
 
         private ChartBucketType toChartBucketType(int bucketType) {

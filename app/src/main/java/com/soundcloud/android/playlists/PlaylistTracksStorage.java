@@ -61,7 +61,8 @@ class PlaylistTracksStorage {
         return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.insert(Table.Sounds, getContentValuesForPlaylistsTable(playlist, createdAt, title, isPrivate)));
+                step(propeller.insert(Table.Sounds,
+                                      getContentValuesForPlaylistsTable(playlist, createdAt, title, isPrivate)));
                 step(propeller.insert(Table.Posts, getContentValuesForPostsTable(playlist, createdAt)));
                 step(propeller.insert(Table.PlaylistTracks, getContentValuesForPlaylistTrack(playlist, firstTrackUrn)));
             }
@@ -81,69 +82,75 @@ class PlaylistTracksStorage {
 
     private Query queryPlaylistsWithTrackExistStatus(Urn trackUrn) {
         return Query.from(Table.SoundView.name())
-                .select(
-                        field(Table.SoundView.field(SoundView._ID)).as(SoundView._ID),
-                        field(Table.SoundView.field(SoundView.TITLE)).as(SoundView.TITLE),
-                        field(Table.SoundView.field(SoundView.ARTWORK_URL)).as(SoundView.ARTWORK_URL),
-                        field(Table.SoundView.field(SoundView.SHARING)).as(SoundView.SHARING),
-                        field(Table.SoundView.field(SoundView.TRACK_COUNT)).as(SoundView.TRACK_COUNT),
-                        count(PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
-                        exists(isTrackInPlaylist(trackUrn)).as(IS_TRACK_ALREADY_ADDED),
-                        exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE))
+                    .select(
+                            field(Table.SoundView.field(SoundView._ID)).as(SoundView._ID),
+                            field(Table.SoundView.field(SoundView.TITLE)).as(SoundView.TITLE),
+                            field(Table.SoundView.field(SoundView.ARTWORK_URL)).as(SoundView.ARTWORK_URL),
+                            field(Table.SoundView.field(SoundView.SHARING)).as(SoundView.SHARING),
+                            field(Table.SoundView.field(SoundView.TRACK_COUNT)).as(SoundView.TRACK_COUNT),
+                            count(PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
+                            exists(isTrackInPlaylist(trackUrn)).as(IS_TRACK_ALREADY_ADDED),
+                            exists(PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY).as(IS_MARKED_FOR_OFFLINE))
 
-                .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(SoundView._ID), PlaylistTracks.PLAYLIST_ID)
-                .innerJoin(Table.Posts.name(),
-                        on(Table.Posts.field(Posts.TARGET_ID), Table.SoundView.field(SoundView._ID))
-                                .whereEq(Table.Posts.field(Posts.TARGET_TYPE), Table.SoundView.field(SoundView._TYPE)))
+                    .leftJoin(Table.PlaylistTracks.name(),
+                              Table.SoundView.field(SoundView._ID),
+                              PlaylistTracks.PLAYLIST_ID)
+                    .innerJoin(Table.Posts.name(),
+                               on(Table.Posts.field(Posts.TARGET_ID), Table.SoundView.field(SoundView._ID))
+                                       .whereEq(Table.Posts.field(Posts.TARGET_TYPE),
+                                                Table.SoundView.field(SoundView._TYPE)))
 
-                .whereEq(Table.Posts.field(Posts.TYPE), Posts.TYPE_POST)
-                .whereEq(Table.SoundView.field(Sounds._TYPE), Sounds.TYPE_PLAYLIST)
-                .groupBy(Table.SoundView.field(SoundView._ID))
-                .order(Table.SoundView.field(SoundView.CREATED_AT), Query.Order.DESC);
+                    .whereEq(Table.Posts.field(Posts.TYPE), Posts.TYPE_POST)
+                    .whereEq(Table.SoundView.field(Sounds._TYPE), Sounds.TYPE_PLAYLIST)
+                    .groupBy(Table.SoundView.field(SoundView._ID))
+                    .order(Table.SoundView.field(SoundView.CREATED_AT), Query.Order.DESC);
     }
 
     private Query isTrackInPlaylist(Urn trackUrn) {
         return Query.from(Table.PlaylistTracks.name())
-                .innerJoin(Table.Sounds.name(), filter()
-                        .whereEq(PlaylistTracks.PLAYLIST_ID, Table.SoundView.field(SoundView._ID))
-                        .whereEq(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
-                        .whereEq(SoundView._TYPE, Sounds.TYPE_PLAYLIST))
-                .whereNull(Table.PlaylistTracks.field(PlaylistTracks.REMOVED_AT));
+                    .innerJoin(Table.Sounds.name(), filter()
+                            .whereEq(PlaylistTracks.PLAYLIST_ID, Table.SoundView.field(SoundView._ID))
+                            .whereEq(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
+                            .whereEq(SoundView._TYPE, Sounds.TYPE_PLAYLIST))
+                    .whereNull(Table.PlaylistTracks.field(PlaylistTracks.REMOVED_AT));
     }
 
     private ContentValues getContentValuesForPlaylistTrack(long playlistNumericId, Urn trackUrn, int position) {
         return ContentValuesBuilder.values()
-                .put(PlaylistTracks.PLAYLIST_ID, playlistNumericId)
-                .put(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
-                .put(PlaylistTracks.POSITION, position)
-                .put(PlaylistTracks.ADDED_AT, dateProvider.getCurrentDate().getTime())
-                .get();
+                                   .put(PlaylistTracks.PLAYLIST_ID, playlistNumericId)
+                                   .put(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
+                                   .put(PlaylistTracks.POSITION, position)
+                                   .put(PlaylistTracks.ADDED_AT, dateProvider.getCurrentDate().getTime())
+                                   .get();
     }
 
     private ContentValues getContentValuesForPlaylistTrack(Urn playlist, Urn firstTrackUrn) {
         return getContentValuesForPlaylistTrack(playlist.getNumericId(), firstTrackUrn, 0);
     }
 
-    private ContentValues getContentValuesForPlaylistsTable(Urn playlist, long createdAt, String title, boolean isPrivate) {
+    private ContentValues getContentValuesForPlaylistsTable(Urn playlist,
+                                                            long createdAt,
+                                                            String title,
+                                                            boolean isPrivate) {
         return ContentValuesBuilder.values()
-                .put(Sounds._ID, playlist.getNumericId())
-                .put(Sounds._TYPE, Sounds.TYPE_PLAYLIST)
-                .put(Sounds.TITLE, title)
-                .put(Sounds.SHARING, isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
-                .put(Sounds.CREATED_AT, createdAt)
-                .put(Sounds.USER_ID, accountOperations.getLoggedInUserUrn().getNumericId())
-                .put(Sounds.SET_TYPE, Strings.EMPTY)
-                .put(Sounds.RELEASE_DATE, Strings.EMPTY)
-                .get();
+                                   .put(Sounds._ID, playlist.getNumericId())
+                                   .put(Sounds._TYPE, Sounds.TYPE_PLAYLIST)
+                                   .put(Sounds.TITLE, title)
+                                   .put(Sounds.SHARING, isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
+                                   .put(Sounds.CREATED_AT, createdAt)
+                                   .put(Sounds.USER_ID, accountOperations.getLoggedInUserUrn().getNumericId())
+                                   .put(Sounds.SET_TYPE, Strings.EMPTY)
+                                   .put(Sounds.RELEASE_DATE, Strings.EMPTY)
+                                   .get();
     }
 
     private ContentValues getContentValuesForPostsTable(Urn playlist, long createdAt) {
         return ContentValuesBuilder.values()
-                .put(Posts.TARGET_ID, playlist.getNumericId())
-                .put(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)
-                .put(Posts.CREATED_AT, createdAt)
-                .put(Posts.TYPE, Posts.TYPE_POST)
-                .get();
+                                   .put(Posts.TARGET_ID, playlist.getNumericId())
+                                   .put(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)
+                                   .put(Posts.CREATED_AT, createdAt)
+                                   .put(Posts.TYPE, Posts.TYPE_POST)
+                                   .get();
     }
 
     private static final class AddTrackToPlaylistItemMapper extends RxResultMapper<AddTrackToPlaylistItem> {

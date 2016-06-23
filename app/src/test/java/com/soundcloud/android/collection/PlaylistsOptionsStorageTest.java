@@ -71,10 +71,10 @@ public class PlaylistsOptionsStorageTest extends AndroidUnitTest {
 
     private PlaylistsOptions getAllTrueOptions() {
         return PlaylistsOptions.builder()
-                    .showLikes(true)
-                    .showPosts(true)
-                    .sortByTitle(true)
-                    .showOfflineOnly(true)
-                    .build();
+                               .showLikes(true)
+                               .showPosts(true)
+                               .sortByTitle(true)
+                               .showOfflineOnly(true)
+                               .build();
     }
 }

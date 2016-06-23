@@ -34,8 +34,12 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
 
     interface OnPremiumContentClickListener {
         void onPremiumContentHelpClicked(Context context);
+
         void onPremiumItemClicked(View view, List<ListItem> premiumItems);
-        void onPremiumContentViewAllClicked(Context context, List<PropertySet> premiumItemsSource, Optional<Link> nextHref);
+
+        void onPremiumContentViewAllClicked(Context context,
+                                            List<PropertySet> premiumItemsSource,
+                                            Optional<Link> nextHref);
     }
 
     private final TrackItemRenderer trackItemRenderer;
@@ -51,8 +55,11 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
     private View userItemView;
 
     @Inject
-    SearchPremiumContentRenderer(TrackItemRenderer trackItemRenderer, PlaylistItemRenderer playlistItemRenderer,
-                                 UserItemRenderer userItemRenderer, Resources resources, FeatureOperations featureOperations) {
+    SearchPremiumContentRenderer(TrackItemRenderer trackItemRenderer,
+                                 PlaylistItemRenderer playlistItemRenderer,
+                                 UserItemRenderer userItemRenderer,
+                                 Resources resources,
+                                 FeatureOperations featureOperations) {
         this.trackItemRenderer = trackItemRenderer;
         this.playlistItemRenderer = playlistItemRenderer;
         this.userItemRenderer = userItemRenderer;
@@ -77,15 +84,21 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
         if (item.isTrack()) {
             trackItemView.setVisibility(View.VISIBLE);
             trackItemView.setOnClickListener(new ListItemClickListener(premiumContentListener, premiumItems));
-            trackItemRenderer.bindItemView(position, trackItemView, Collections.singletonList((TrackItem) premiumItem.getFirstItem()));
+            trackItemRenderer.bindItemView(position,
+                                           trackItemView,
+                                           Collections.singletonList((TrackItem) premiumItem.getFirstItem()));
         } else if (item.isPlaylist()) {
             playListItemView.setVisibility(View.VISIBLE);
             playListItemView.setOnClickListener(new ListItemClickListener(premiumContentListener, premiumItems));
-            playlistItemRenderer.bindItemView(position, playListItemView, Collections.singletonList((PlaylistItem) premiumItem.getFirstItem()));
+            playlistItemRenderer.bindItemView(position,
+                                              playListItemView,
+                                              Collections.singletonList((PlaylistItem) premiumItem.getFirstItem()));
         } else if (item.isUser()) {
             userItemView.setVisibility(View.VISIBLE);
             userItemView.setOnClickListener(new ListItemClickListener(premiumContentListener, premiumItems));
-            userItemRenderer.bindItemView(position, userItemView, Collections.singletonList((UserItem) premiumItem.getFirstItem()));
+            userItemRenderer.bindItemView(position,
+                                          userItemView,
+                                          Collections.singletonList((UserItem) premiumItem.getFirstItem()));
         }
 
         getView(itemView, R.id.premium_item_container).setOnClickListener(null);
@@ -205,7 +218,8 @@ class SearchPremiumContentRenderer implements CellRenderer<SearchPremiumItem> {
             if (listener != null) {
                 final SearchPremiumItem searchPremiumItem = premiumItems.get(0);
                 listener.onPremiumContentViewAllClicked(view.getContext(),
-                        searchPremiumItem.getSourceSet(), searchPremiumItem.getNextHref());
+                                                        searchPremiumItem.getSourceSet(),
+                                                        searchPremiumItem.getNextHref());
             }
         }
     }

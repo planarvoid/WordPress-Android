@@ -58,7 +58,8 @@ public class PushPlaylistRemovalsCommandTest extends AndroidUnitTest {
         final List<Urn> input = singletonList(track1);
 
         when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(TestApiResponses.networkError());
+                isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(
+                TestApiResponses.networkError());
 
         command.with(playlistUrn).with(input).call();
     }
@@ -70,7 +71,8 @@ public class PushPlaylistRemovalsCommandTest extends AndroidUnitTest {
         final List<Urn> input = singletonList(track1);
 
         when(apiClient.fetchResponse(argThat(
-                isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(TestApiResponses.status(502));
+                isApiRequestTo("DELETE", ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, track1))))).thenReturn(
+                TestApiResponses.status(502));
 
         command.with(playlistUrn).with(input).call();
     }

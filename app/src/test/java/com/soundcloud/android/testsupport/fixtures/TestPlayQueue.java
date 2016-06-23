@@ -12,15 +12,21 @@ import java.util.Map;
 
 public class TestPlayQueue {
 
-    public static PlayQueue fromTracks(PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracksMap, PropertySet... tracks) {
+    public static PlayQueue fromTracks(PlaySessionSource playSessionSource,
+                                       Map<Urn, Boolean> blockedTracksMap,
+                                       PropertySet... tracks) {
         return PlayQueue.fromPlayableList(Arrays.asList(tracks), playSessionSource, blockedTracksMap);
     }
 
     public static PlayQueue fromTracks(PlaySessionSource playSessionSource, PropertySet... tracks) {
-        return PlayQueue.fromPlayableList(Arrays.asList(tracks), playSessionSource, Collections.<Urn, Boolean>emptyMap());
+        return PlayQueue.fromPlayableList(Arrays.asList(tracks),
+                                          playSessionSource,
+                                          Collections.<Urn, Boolean>emptyMap());
     }
 
-    public static PlayQueue fromUrns(PlaySessionSource playSessionSource, Map<Urn, Boolean> blockedTracksMap, Urn... trackUrns) {
+    public static PlayQueue fromUrns(PlaySessionSource playSessionSource,
+                                     Map<Urn, Boolean> blockedTracksMap,
+                                     Urn... trackUrns) {
         return PlayQueue.fromTrackUrnList(Arrays.asList(trackUrns), playSessionSource, blockedTracksMap);
     }
 

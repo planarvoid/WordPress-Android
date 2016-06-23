@@ -40,7 +40,8 @@ public class DailyUpdateScheduler {
     public void schedule() {
         if (!isNextUpdateAlreadyScheduled()) {
             Log.d(TAG, "Scheduling new policy update");
-            final PendingIntent intent = pendingIntentFactory.getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT);
+            final PendingIntent intent = pendingIntentFactory.getPendingIntent(context,
+                                                                               PendingIntent.FLAG_UPDATE_CURRENT);
             final long initialDelay = dateProvider.getCurrentTime() + POLICY_UPDATE_DELAY;
             alarmManager.setInexactRepeating(ALARM_TYPE, initialDelay, AlarmManager.INTERVAL_DAY, intent);
         }

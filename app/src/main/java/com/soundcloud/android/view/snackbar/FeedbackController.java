@@ -60,7 +60,7 @@ public class FeedbackController extends ActivityLightCycleDispatcher<FragmentAct
         @Override
         public void onNext(Feedback args) {
             if (playerController.isExpanded()) {
-                playerSnackBarWrapper.show(playerController.getSnackbarHolder(),args);
+                playerSnackBarWrapper.show(playerController.getSnackbarHolder(), args);
             } else {
                 topSnackBarWrapper.show(snackBarHolder, args);
             }

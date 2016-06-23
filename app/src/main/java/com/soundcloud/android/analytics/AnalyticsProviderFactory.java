@@ -69,9 +69,10 @@ public class AnalyticsProviderFactory {
     // A list of providers that should always be enabled, regardless of user preference
     private List<AnalyticsProvider> getBaseProviders() {
         List<AnalyticsProvider> providers = new ArrayList<>(EXPECTED_PROVIDER_COUNT);
-        final Set<String> disabledProviders = analyticsSettings.getStringSet(DISABLED_PROVIDERS, Collections.<String>emptySet());
+        final Set<String> disabledProviders = analyticsSettings.getStringSet(DISABLED_PROVIDERS,
+                                                                             Collections.<String>emptySet());
         for (AnalyticsProvider provider : baseProviders) {
-            if (!disabledProviders.contains(provider.getClass().getName())){
+            if (!disabledProviders.contains(provider.getClass().getName())) {
                 providers.add(provider);
             }
         }

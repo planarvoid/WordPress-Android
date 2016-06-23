@@ -27,7 +27,8 @@ public class RepostOperations {
     private final Action1<PropertySet> publishEntityStateChanged = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet newRepostState) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(singletonList(newRepostState)));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                             EntityStateChangedEvent.fromRepost(singletonList(newRepostState)));
         }
     };
 
@@ -79,18 +80,18 @@ public class RepostOperations {
 
     private Observable<PropertySet> addRepostLocally(Urn soundUrn) {
         return repostStorage.addRepost().toObservable(soundUrn)
-                .subscribeOn(scheduler)
-                .map(toRepostProperties(soundUrn, true))
-                .doOnNext(publishEntityStateChanged)
-                .doOnError(rollbackRepost(soundUrn, false));
+                            .subscribeOn(scheduler)
+                            .map(toRepostProperties(soundUrn, true))
+                            .doOnNext(publishEntityStateChanged)
+                            .doOnError(rollbackRepost(soundUrn, false));
     }
 
     private Observable<PropertySet> removeRepostLocally(Urn soundUrn) {
         return repostStorage.removeRepost().toObservable(soundUrn)
-                .subscribeOn(scheduler)
-                .map(toRepostProperties(soundUrn, false))
-                .doOnNext(publishEntityStateChanged)
-                .doOnError(rollbackRepost(soundUrn, true));
+                            .subscribeOn(scheduler)
+                            .map(toRepostProperties(soundUrn, false))
+                            .doOnNext(publishEntityStateChanged)
+                            .doOnError(rollbackRepost(soundUrn, true));
     }
 
     private Action1<Throwable> rollbackRepost(final Urn soundUrn, final boolean addRepost) {
@@ -119,17 +120,17 @@ public class RepostOperations {
 
     private Observable<ApiResponse> pushAddRepost(Urn soundUrn) {
         final ApiRequest request = ApiRequest.put(getRepostEndpoint(soundUrn)
-                .path(soundUrn.getNumericId()))
-                .forPublicApi()
-                .build();
+                                                          .path(soundUrn.getNumericId()))
+                                             .forPublicApi()
+                                             .build();
         return apiClientRx.response(request);
     }
 
     private Observable<ApiResponse> pushRemoveRepost(Urn soundUrn) {
         final ApiRequest request = ApiRequest.delete(getRepostEndpoint(soundUrn)
-                .path(soundUrn.getNumericId()))
-                .forPublicApi()
-                .build();
+                                                             .path(soundUrn.getNumericId()))
+                                             .forPublicApi()
+                                             .build();
         return apiClientRx.response(request);
     }
 

@@ -14,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 
-public class ClearText extends EditText{
+public class ClearText extends EditText {
 
     private Drawable originalRightDrawable;
     private OnClickListener defaultDrawableListener;
@@ -38,12 +38,12 @@ public class ClearText extends EditText{
         applyCustomFont(context, this, attrs);
     }
 
-    public void setDefaultDrawableClickListener(OnClickListener listener){
+    public void setDefaultDrawableClickListener(OnClickListener listener) {
         defaultDrawableListener = listener;
     }
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    private void init(){
+    private void init() {
         String value = "";//any text you are pre-filling in the EditText
         setText(value);
 
@@ -63,8 +63,8 @@ public class ClearText extends EditText{
                     return false;
                 }
                 if (event.getX() > getWidth() - getPaddingRight() - x.getIntrinsicWidth()) {
-                    if (TextUtils.isEmpty(getText())){
-                        if (defaultDrawableListener != null){
+                    if (TextUtils.isEmpty(getText())) {
+                        if (defaultDrawableListener != null) {
                             defaultDrawableListener.onClick(ClearText.this);
                         }
                     } else {

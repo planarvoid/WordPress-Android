@@ -210,10 +210,10 @@ public class VorbisEncoder {
             WavHeader header = new WavHeader(in);
 
             VorbisEncoder encoder = new VorbisEncoder(out,
-                    "w",
-                    header.getNumChannels(),
-                    header.getSampleRate(),
-                    options.quality);
+                                                      "w",
+                                                      header.getNumChannels(),
+                                                      header.getSampleRate(),
+                                                      options.quality);
 
             WavHeader.AudioData data = header.getAudioData(options.start, options.end);
 
@@ -244,10 +244,10 @@ public class VorbisEncoder {
         final ProgressListener listener = options.listener;
 
         VorbisEncoder encoder = new VorbisEncoder(out,
-                "w",
-                info.channels,
-                info.sampleRate,
-                options.quality);
+                                                  "w",
+                                                  info.channels,
+                                                  info.sampleRate,
+                                                  options.quality);
 
         if (options.start != 0) {
             final int error = decoder.timeSeek(options.start / 1000d);

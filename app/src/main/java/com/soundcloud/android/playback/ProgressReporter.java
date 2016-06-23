@@ -31,12 +31,12 @@ public class ProgressReporter {
         progressPullerReference = new WeakReference<>(progressPuller);
     }
 
-    public void start(){
+    public void start() {
         subscription.unsubscribe();
         subscription = castOperations.intervalForProgressPull().subscribe(new ProgressTickSubscriber());
     }
 
-    public void stop(){
+    public void stop() {
         subscription.unsubscribe();
     }
 

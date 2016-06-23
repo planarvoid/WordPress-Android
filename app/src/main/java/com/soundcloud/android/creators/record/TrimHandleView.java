@@ -39,14 +39,16 @@ public class TrimHandleView extends ImageButton {
     }
 
     public static RelativeLayout.LayoutParams getRightLayoutParams() {
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                                                                         ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.addRule(ALIGN_PARENT_BOTTOM, 1);
         lp.addRule(ALIGN_PARENT_RIGHT, 1);
         return lp;
     }
 
     private static RelativeLayout.LayoutParams getLeftLayoutParams() {
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                                                                         ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.addRule(ALIGN_PARENT_BOTTOM, 1);
         lp.addRule(ALIGN_PARENT_LEFT, 1);
         return lp;

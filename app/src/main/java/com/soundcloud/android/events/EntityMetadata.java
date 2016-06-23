@@ -15,7 +15,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 public class EntityMetadata {
-    public static final EntityMetadata EMPTY = new EntityMetadata(Strings.EMPTY, Urn.NOT_SET, Strings.EMPTY, Urn.NOT_SET);
+    public static final EntityMetadata EMPTY = new EntityMetadata(Strings.EMPTY,
+                                                                  Urn.NOT_SET,
+                                                                  Strings.EMPTY,
+                                                                  Urn.NOT_SET);
 
     public static final String KEY_CREATOR_NAME = "creator_display_name";
     public static final String KEY_CREATOR_URN = "creator_urn";
@@ -122,10 +125,10 @@ public class EntityMetadata {
 
     void addToTrackingEvent(@NonNull TrackingEvent event) {
         event.put(KEY_CREATOR_NAME, creatorName)
-                .put(KEY_CREATOR_URN, creatorUrn.toString())
-                .put(KEY_PLAYABLE_TITLE, playableTitle)
-                .put(KEY_PLAYABLE_URN, playableUrn.toString())
-                .put(KEY_PLAYABLE_TYPE, getPlayableType());
+             .put(KEY_CREATOR_URN, creatorUrn.toString())
+             .put(KEY_PLAYABLE_TITLE, playableTitle)
+             .put(KEY_PLAYABLE_URN, playableUrn.toString())
+             .put(KEY_PLAYABLE_TYPE, getPlayableType());
     }
 
     private String getPlayableType() {

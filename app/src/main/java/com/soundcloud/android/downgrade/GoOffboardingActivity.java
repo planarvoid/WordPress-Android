@@ -22,8 +22,8 @@ public class GoOffboardingActivity extends RootActivity {
         if (fragment == null) {
             fragment = new GoOffboardingFragment();
             fm.beginTransaction()
-                    .replace(R.id.go_offboarding_fragment, fragment)
-                    .commit();
+              .replace(R.id.go_offboarding_fragment, fragment)
+              .commit();
         }
         if (screenTracker.isEnteringScreen()) {
             fragment.enterScreen();

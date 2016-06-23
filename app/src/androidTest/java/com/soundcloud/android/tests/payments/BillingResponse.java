@@ -72,7 +72,8 @@ final class BillingResponse {
     }
 
     private String loadCheckoutUrn(Context context) {
-        return context.getSharedPreferences("payments", Context.MODE_PRIVATE).getString("pending_transaction_urn", null);
+        return context.getSharedPreferences("payments", Context.MODE_PRIVATE)
+                      .getString("pending_transaction_urn", null);
     }
 
     private Intent buildPayload(FakeResult result) {

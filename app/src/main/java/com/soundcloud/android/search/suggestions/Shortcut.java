@@ -9,10 +9,10 @@ import java.util.Map;
 @AutoValue
 public abstract class Shortcut extends SearchSuggestion {
 
-    public static Shortcut create(Urn urn, String displayText){
+    public static Shortcut create(Urn urn, String displayText) {
         return new AutoValue_Shortcut(urn,
-                displayText,
-                Collections.<Map<String,Integer>>emptyList(),
-                false);
+                                      displayText,
+                                      Collections.<Map<String, Integer>>emptyList(),
+                                      false);
     }
 }

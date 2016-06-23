@@ -91,7 +91,8 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
 
     @Test
     public void setsPagingEnabledOnPageSelectedWithAdAtCurrentPosition() {
-        final TrackQueueItem item = TestPlayQueueItem.createTrack(Urn.forTrack(1), AdFixtures.getAudioAd(Urn.forTrack(2)));
+        final TrackQueueItem item = TestPlayQueueItem.createTrack(Urn.forTrack(1),
+                                                                  AdFixtures.getAudioAd(Urn.forTrack(2)));
         when(presenter.getItemAtPosition(1)).thenReturn(item);
         when(playQueueManager.isCurrentItem(item)).thenReturn(true);
 

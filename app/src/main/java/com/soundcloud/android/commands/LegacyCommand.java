@@ -8,7 +8,8 @@ import rx.util.async.operators.OperatorFromFunctionals;
 import java.util.concurrent.Callable;
 
 @Deprecated
-public abstract class LegacyCommand<I, O, This extends LegacyCommand<I, O, This>> implements Callable<O>, Func1<I, Observable<O>> {
+public abstract class LegacyCommand<I, O, This extends LegacyCommand<I, O, This>>
+        implements Callable<O>, Func1<I, Observable<O>> {
 
     protected I input;
 

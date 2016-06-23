@@ -21,7 +21,7 @@ public class YouScreen extends Screen {
         return MainActivity.class;
     }
 
-    public ActivitiesScreen clickActivitiesLink(){
+    public ActivitiesScreen clickActivitiesLink() {
         activityLink().click();
         return new ActivitiesScreen(testDriver);
     }

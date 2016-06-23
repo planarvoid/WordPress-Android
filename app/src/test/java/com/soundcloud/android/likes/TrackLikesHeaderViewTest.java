@@ -28,7 +28,10 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         View view = View.inflate(context(), R.layout.track_likes_header, null);
-        trackLikesHeaderView = new TrackLikesHeaderView(resources(), new DownloadStateView(resources()), view, listener);
+        trackLikesHeaderView = new TrackLikesHeaderView(resources(),
+                                                        new DownloadStateView(resources()),
+                                                        view,
+                                                        listener);
     }
 
     @Test
@@ -77,7 +80,9 @@ public class TrackLikesHeaderViewTest extends AndroidUnitTest {
     public void showNumberOfLikedTracksForMoreThanZeroLikedTracks() {
         trackLikesHeaderView.updateTrackCount(1);
         assertThat(getHeaderText()).hasText(RuntimeEnvironment.application.getResources()
-                .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, 1, 1));
+                                                                          .getQuantityString(R.plurals.number_of_liked_tracks_you_liked,
+                                                                                             1,
+                                                                                             1));
     }
 
     private View getShuffleButton() {

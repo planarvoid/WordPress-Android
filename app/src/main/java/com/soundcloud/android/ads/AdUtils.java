@@ -8,7 +8,8 @@ import com.soundcloud.java.functions.Predicate;
 
 public final class AdUtils {
 
-    private AdUtils() {}
+    private AdUtils() {
+    }
 
     public static final Predicate<PlayQueueItem> IS_PLAYER_AD_ITEM = new Predicate<PlayQueueItem>() {
         @Override

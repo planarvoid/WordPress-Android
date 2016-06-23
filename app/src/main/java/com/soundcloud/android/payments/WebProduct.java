@@ -39,25 +39,33 @@ public abstract class WebProduct implements Parcelable {
     }
 
     public abstract String getPlanId();
+
     public abstract String getPackageUrn();
+
     public abstract String getPrice();
+
     public abstract Optional<String> getDiscountPrice();
+
     public abstract String getRawPrice();
+
     public abstract String getRawCurrency();
+
     public abstract int getTrialDays();
+
     public abstract String getStartDate();
+
     public abstract String getExpiryDate();
 
     private static Optional<String> reformatDiscount(@Nullable String discountPrice) {
         return discountPrice == null
-                ? Optional.<String>absent()
-                : Optional.of(reformatPrice(discountPrice));
+               ? Optional.<String>absent()
+               : Optional.of(reformatPrice(discountPrice));
     }
 
     private static String reformatPrice(String price) {
         return price.charAt(0) == '€'
-                ? reformatForLocale(price.charAt(0), price.substring(1, price.length()))
-                : price;
+               ? reformatForLocale(price.charAt(0), price.substring(1, price.length()))
+               : price;
     }
 
     private static String reformatForLocale(char symbol, String value) {

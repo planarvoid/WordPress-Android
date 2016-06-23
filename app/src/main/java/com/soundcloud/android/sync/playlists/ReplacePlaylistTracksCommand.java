@@ -23,7 +23,7 @@ class ReplacePlaylistTracksCommand extends StoreCommand<List<Urn>> {
         super(database);
     }
 
-    public ReplacePlaylistTracksCommand with(Urn playlistUrn){
+    public ReplacePlaylistTracksCommand with(Urn playlistUrn) {
         this.playlistUrn = playlistUrn;
         return this;
     }
@@ -34,15 +34,16 @@ class ReplacePlaylistTracksCommand extends StoreCommand<List<Urn>> {
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.delete(Table.PlaylistTracks,
-                        filter().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())));
-                for (int i = 0; i < input.size(); i++){
+                                      filter().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID,
+                                                       playlistUrn.getNumericId())));
+                for (int i = 0; i < input.size(); i++) {
                     step(propeller.upsert(Table.PlaylistTracks, buildPlaylistTrackContentValues(input.get(i), i)));
                 }
             }
         });
     }
 
-    private ContentValues buildPlaylistTrackContentValues(Urn trackUrn, int position){
+    private ContentValues buildPlaylistTrackContentValues(Urn trackUrn, int position) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId());
         contentValues.put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId());

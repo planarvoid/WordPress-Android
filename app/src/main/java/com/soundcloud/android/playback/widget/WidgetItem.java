@@ -37,12 +37,12 @@ class WidgetItem implements ImageResource {
     }
 
     public static WidgetItem fromPropertySet(PropertySet source) {
-            return new WidgetItem(source.get(PlayableProperty.TITLE),
-                    source.get(PlayableProperty.CREATOR_NAME),
-                    source.get(PlayableProperty.CREATOR_URN),
-                    source.get(TrackProperty.URN),
-                    source.get(TrackProperty.IMAGE_URL_TEMPLATE),
-                    source.get(PlayableProperty.IS_USER_LIKE));
+        return new WidgetItem(source.get(PlayableProperty.TITLE),
+                              source.get(PlayableProperty.CREATOR_NAME),
+                              source.get(PlayableProperty.CREATOR_URN),
+                              source.get(TrackProperty.URN),
+                              source.get(TrackProperty.IMAGE_URL_TEMPLATE),
+                              source.get(PlayableProperty.IS_USER_LIKE));
     }
 
     public static WidgetItem forAudioAd(Resources res) {

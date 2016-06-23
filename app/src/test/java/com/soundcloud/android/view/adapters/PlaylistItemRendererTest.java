@@ -65,7 +65,7 @@ public class PlaylistItemRendererTest extends AndroidUnitTest {
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
         renderer = new PlaylistItemRenderer(resources(), imageOperations, numberFormatter,
-                playlistItemMenuPresenter, eventBus, screenProvider, navigator);
+                                            playlistItemMenuPresenter, eventBus, screenProvider, navigator);
     }
 
     @Test

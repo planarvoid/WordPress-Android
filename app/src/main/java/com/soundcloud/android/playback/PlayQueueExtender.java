@@ -37,7 +37,11 @@ public class PlayQueueExtender {
     private Subscription loadRecommendedSubscription = RxUtils.invalidSubscription();
 
     @Inject
-    public PlayQueueExtender(PlayQueueManager playQueueManager, PlayQueueOperations playQueueOperations, StationsOperations stationsOperations, SharedPreferences sharedPreferences, EventBus eventBus) {
+    public PlayQueueExtender(PlayQueueManager playQueueManager,
+                             PlayQueueOperations playQueueOperations,
+                             StationsOperations stationsOperations,
+                             SharedPreferences sharedPreferences,
+                             EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.stationsOperations = stationsOperations;

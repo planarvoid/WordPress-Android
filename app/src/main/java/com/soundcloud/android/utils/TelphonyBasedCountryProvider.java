@@ -15,8 +15,10 @@ public class TelphonyBasedCountryProvider implements CountryProvider {
     }
 
     @Override
-    public @Nullable String getCountryCode() {
-        if (telephonyManager != null){
+    public
+    @Nullable
+    String getCountryCode() {
+        if (telephonyManager != null) {
             final String simCountryIso = telephonyManager.getSimCountryIso();
             return simCountryIso == null ? telephonyManager.getNetworkCountryIso() : simCountryIso;
         } else {

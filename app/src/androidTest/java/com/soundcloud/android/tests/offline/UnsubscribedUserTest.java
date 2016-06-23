@@ -36,23 +36,23 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
 
     public void testDownloadIsUnavailableWhenTheyAccessLikes() throws Exception {
         final ViewElement offlineToggle = mainNavHelper.goToTrackLikes()
-                .offlineToggle();
+                                                       .offlineToggle();
 
         assertThat(offlineToggle, is(not(visible())));
     }
 
     public void testDownloadIsUnavailableWhenTheyAccessPlaylists() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
-                .clickOnFirstPlaylist()
-                .getDownloadToggle();
+                                                     .clickOnFirstPlaylist()
+                                                     .getDownloadToggle();
 
         assertThat(offlineItem, is(not(visible())));
     }
 
     public void testDownloadIsUnavailableWhenTheyAccessPlaylistDetailScreen() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
-                .clickOnFirstPlaylist()
-                .getDownloadToggle();
+                                                     .clickOnFirstPlaylist()
+                                                     .getDownloadToggle();
 
         assertThat(offlineItem, is(not(visible())));
     }

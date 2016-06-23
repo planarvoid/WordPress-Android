@@ -66,7 +66,8 @@ public class ClearCacheDialog extends DialogFragment {
             public void call(Subscriber<? super Void> subscriber) {
                 waveformOperations.clearWaveforms();
                 imageOperations.clearDiskCache();
-                IOUtils.cleanDirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, streamCacheConfig.getStreamCacheDirectory());
+                IOUtils.cleanDirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY,
+                                  streamCacheConfig.getStreamCacheDirectory());
                 subscriber.onCompleted();
             }
         });

@@ -35,7 +35,10 @@ public class CollectionPreviewView extends FrameLayout {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CollectionPreviewView);
         final TextView title = (TextView) findViewById(R.id.title);
         title.setText(a.getString(R.styleable.CollectionPreviewView_collectionTitle));
-        title.setCompoundDrawablesWithIntrinsicBounds(a.getDrawable(R.styleable.CollectionPreviewView_collectionIcon), null, null, null);
+        title.setCompoundDrawablesWithIntrinsicBounds(a.getDrawable(R.styleable.CollectionPreviewView_collectionIcon),
+                                                      null,
+                                                      null,
+                                                      null);
         a.recycle();
     }
 
@@ -75,14 +78,16 @@ public class CollectionPreviewView extends FrameLayout {
 
             ImageView thumbnail = (ImageView) thumbnailContainer.getChildAt(j + numEmptyThumbnails);
             imageOperations.displayWithPlaceholder(imageResources.get(j),
-                                                   ApiImageSize.getListItemImageSize(thumbnailContainer.getResources()), thumbnail);
+                                                   ApiImageSize.getListItemImageSize(thumbnailContainer.getResources()),
+                                                   thumbnail);
         }
     }
 
     private void inflateThumbnailViewIntoHolder() {
         inflater.inflate(R.layout.collections_preview_item_icon_sm, thumbnailContainer);
         if (isLastThumbnail()) {
-            thumbnailContainer.getChildAt(thumbnailContainer.getChildCount() - 1).setBackgroundResource(R.drawable.bg_collection_empty_slot_end);
+            thumbnailContainer.getChildAt(thumbnailContainer.getChildCount() - 1)
+                              .setBackgroundResource(R.drawable.bg_collection_empty_slot_end);
         }
     }
 

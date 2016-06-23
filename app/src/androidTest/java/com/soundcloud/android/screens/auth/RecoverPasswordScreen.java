@@ -27,7 +27,7 @@ public class RecoverPasswordScreen extends Screen {
         return this;
     }
 
-    public void clickOkButton () {
+    public void clickOkButton() {
         testDriver.findOnScreenElement(With.id(R.id.btn_ok)).click();
     }
 

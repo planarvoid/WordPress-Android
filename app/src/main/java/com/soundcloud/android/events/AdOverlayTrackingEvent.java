@@ -22,7 +22,13 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
 
     private final List<String> trackingUrls;
 
-    private AdOverlayTrackingEvent(long timeStamp, String kindImpression, OverlayAdData adData, Urn monetizableTrack, Urn user, List<String> trackingUrls, @Nullable TrackSourceInfo trackSourceInfo) {
+    private AdOverlayTrackingEvent(long timeStamp,
+                                   String kindImpression,
+                                   OverlayAdData adData,
+                                   Urn monetizableTrack,
+                                   Urn user,
+                                   List<String> trackingUrls,
+                                   @Nullable TrackSourceInfo trackSourceInfo) {
         super(kindImpression, timeStamp);
         this.trackingUrls = trackingUrls;
 
@@ -52,7 +58,10 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
         return Strings.EMPTY;
     }
 
-    public static AdOverlayTrackingEvent forClick(OverlayAdData adData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {
+    public static AdOverlayTrackingEvent forClick(OverlayAdData adData,
+                                                  Urn track,
+                                                  Urn user,
+                                                  @Nullable TrackSourceInfo sourceInfo) {
         return forClick(System.currentTimeMillis(), adData, track, user, sourceInfo);
     }
 
@@ -60,12 +69,19 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
         return trackingUrls;
     }
 
-    public static AdOverlayTrackingEvent forImpression(OverlayAdData adData, Urn track, Urn user, @Nullable TrackSourceInfo sourceInfo) {
+    public static AdOverlayTrackingEvent forImpression(OverlayAdData adData,
+                                                       Urn track,
+                                                       Urn user,
+                                                       @Nullable TrackSourceInfo sourceInfo) {
         return forImpression(System.currentTimeMillis(), adData, track, user, sourceInfo);
     }
 
     @VisibleForTesting
-    public static AdOverlayTrackingEvent forImpression(long timeStamp, OverlayAdData adData, Urn track, Urn user, TrackSourceInfo sourceInfo) {
+    public static AdOverlayTrackingEvent forImpression(long timeStamp,
+                                                       OverlayAdData adData,
+                                                       Urn track,
+                                                       Urn user,
+                                                       TrackSourceInfo sourceInfo) {
         final List<String> trackingUrls = adData.getImpressionUrls();
         return new AdOverlayTrackingEvent(
                 timeStamp,
@@ -79,7 +95,11 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
     }
 
     @VisibleForTesting
-    public static AdOverlayTrackingEvent forClick(long timestamp, OverlayAdData adData, Urn track, Urn user, TrackSourceInfo sourceInfo) {
+    public static AdOverlayTrackingEvent forClick(long timestamp,
+                                                  OverlayAdData adData,
+                                                  Urn track,
+                                                  Urn user,
+                                                  TrackSourceInfo sourceInfo) {
         final List<String> trackingUrls = adData.getClickUrls();
         return new AdOverlayTrackingEvent(
                 timestamp,

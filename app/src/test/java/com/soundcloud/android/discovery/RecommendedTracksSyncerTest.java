@@ -38,7 +38,8 @@ public class RecommendedTracksSyncerTest extends AndroidUnitTest { // because of
         final WriteResult writeResult = mock(WriteResult.class);
 
         when(apiClient.fetchMappedResponse(
-                argThat(isApiRequestTo("GET", ApiEndpoints.TRACK_RECOMMENDATIONS.path())), isA(TypeToken.class))).thenReturn(recommendations);
+                argThat(isApiRequestTo("GET", ApiEndpoints.TRACK_RECOMMENDATIONS.path())),
+                isA(TypeToken.class))).thenReturn(recommendations);
         when(storeRecommendationsCommand.call(recommendations)).thenReturn(writeResult);
 
         recommendationsSyncer.call();

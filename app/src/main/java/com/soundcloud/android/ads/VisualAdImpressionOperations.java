@@ -63,15 +63,17 @@ public class VisualAdImpressionOperations {
 
     private final Func3<ActivityLifeCycleEvent, CurrentPlayQueueItemEvent, PlayerUIEvent, State> combineFunction =
             new Func3<ActivityLifeCycleEvent, CurrentPlayQueueItemEvent, PlayerUIEvent, State>() {
-        @Override
-        public State call(ActivityLifeCycleEvent event, CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
-            return new State(
-                    currentItemEvent.getCurrentPlayQueueItem().getUrn(),
-                    event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
-                    adsOperations.isCurrentItemAudioAd(),
-                    playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED);
-        }
-    };
+                @Override
+                public State call(ActivityLifeCycleEvent event,
+                                  CurrentPlayQueueItemEvent currentItemEvent,
+                                  PlayerUIEvent playerUIEvent) {
+                    return new State(
+                            currentItemEvent.getCurrentPlayQueueItem().getUrn(),
+                            event.getKind() == ActivityLifeCycleEvent.ON_RESUME_EVENT,
+                            adsOperations.isCurrentItemAudioAd(),
+                            playerUIEvent.getKind() == PlayerUIEvent.PLAYER_EXPANDED);
+                }
+            };
 
     private boolean impressionEventEmitted;
 
@@ -82,7 +84,8 @@ public class VisualAdImpressionOperations {
         this.accountOperations = accountOperations;
         this.adsOperations = adsOperations;
         this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
-        this.currentTrackQueue = eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM).filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM);
+        this.currentTrackQueue = eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                                         .filter(PlayQueueFunctions.IS_TRACK_QUEUE_ITEM);
         this.playerUIEventQueue = eventBus.queue(EventQueue.PLAYER_UI);
     }
 
@@ -104,7 +107,10 @@ public class VisualAdImpressionOperations {
         private final boolean currentTrackIsAnAudioAd;
         private final boolean playerIsExpanding;
 
-        public State(Urn currentTrackUrn, boolean isAppInForeground, boolean currentTrackIsAnAudioAd, boolean playerIsExpanding) {
+        public State(Urn currentTrackUrn,
+                     boolean isAppInForeground,
+                     boolean currentTrackIsAnAudioAd,
+                     boolean playerIsExpanding) {
             this.currentTrackUrn = currentTrackUrn;
             this.isAppInForeground = isAppInForeground;
             this.currentTrackIsAnAudioAd = currentTrackIsAnAudioAd;

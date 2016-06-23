@@ -37,15 +37,15 @@ public class LoadTrackRepostStatuses extends Command<Iterable<PropertySet>, Map<
 
     private Query forReposts(Iterable<PropertySet> input) {
         return Query.from(Table.SoundView.name())
-                .select(TableColumns.SoundView._ID, TableColumns.Posts.TYPE)
-                .leftJoin(Table.Posts.name(), joinCondition())
-                .whereIn(TableColumns.SoundView._ID, extractIds(input, Optional.of(trackPredicate())));
+                    .select(TableColumns.SoundView._ID, TableColumns.Posts.TYPE)
+                    .leftJoin(Table.Posts.name(), joinCondition())
+                    .whereIn(TableColumns.SoundView._ID, extractIds(input, Optional.of(trackPredicate())));
     }
 
     private static Where joinCondition() {
         return filter().whereEq(TableColumns.SoundView._ID, TableColumns.Posts.TARGET_ID)
-                .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(Table.Posts.field(TableColumns.Likes.REMOVED_AT));
+                       .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_TRACK)
+                       .whereNull(Table.Posts.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private Map<Urn, PropertySet> toRepostedSet(QueryResult queryResult) {

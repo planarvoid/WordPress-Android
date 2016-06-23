@@ -37,8 +37,8 @@ public class NotificationPreferencesStorage {
 
     void storeBackup(String key) {
         sharedPreferences.edit()
-                .putBoolean(backupKey(key), sharedPreferences.getBoolean(key, DEFAULT_VALUE))
-                .apply();
+                         .putBoolean(backupKey(key), sharedPreferences.getBoolean(key, DEFAULT_VALUE))
+                         .apply();
     }
 
     boolean getBackup(String key) {
@@ -51,8 +51,8 @@ public class NotificationPreferencesStorage {
 
     void setPendingSync(boolean value) {
         sharedPreferences.edit()
-                .putBoolean(PENDING_SYNC, value)
-                .apply();
+                         .putBoolean(PENDING_SYNC, value)
+                         .apply();
     }
 
     long getLastUpdateAgo() {
@@ -97,8 +97,8 @@ public class NotificationPreferencesStorage {
 
     private boolean getFromOptionalKey(Optional<String> optKey) {
         return optKey.isPresent()
-                ? sharedPreferences.getBoolean(optKey.get(), DEFAULT_VALUE)
-                : DEFAULT_VALUE;
+               ? sharedPreferences.getBoolean(optKey.get(), DEFAULT_VALUE)
+               : DEFAULT_VALUE;
     }
 
     private String backupKey(String key) {

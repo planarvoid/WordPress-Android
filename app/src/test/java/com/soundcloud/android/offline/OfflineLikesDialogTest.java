@@ -36,10 +36,11 @@ public class OfflineLikesDialogTest extends AndroidUnitTest {
         when(screenProvider.getLastScreenTag()).thenReturn("page_name");
         dialog.onClick(mock(DialogInterface.class), 0);
 
-        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
+                                                                     OfflineInteractionEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_LIKES_ADD);
         assertThat(trackingEvent.getAttributes()
-                .containsValue("page_name")).isTrue();
+                                .containsValue("page_name")).isTrue();
     }
 
 }

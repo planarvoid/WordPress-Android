@@ -21,7 +21,9 @@ public class PlayQueueEvent {
         return kind;
     }
 
-    public Urn getCollectionUrn() { return  collectionUrn; }
+    public Urn getCollectionUrn() {
+        return collectionUrn;
+    }
 
     public static PlayQueueEvent fromNewQueue(Urn collectionUrn) {
         return new PlayQueueEvent(NEW_QUEUE, collectionUrn);

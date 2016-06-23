@@ -50,7 +50,7 @@ public class OfflineLikesDialog extends DialogFragment implements DialogInterfac
     public void onClick(DialogInterface dialog, int which) {
         fireAndForget(offlineOperations.enableOfflineLikedTracks());
         eventBus.publish(EventQueue.TRACKING,
-                OfflineInteractionEvent.fromEnableOfflineLikes(screenProvider.getLastScreenTag()));
+                         OfflineInteractionEvent.fromEnableOfflineLikes(screenProvider.getLastScreenTag()));
     }
 
     @Override

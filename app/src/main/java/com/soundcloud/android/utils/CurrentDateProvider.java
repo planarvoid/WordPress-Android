@@ -10,7 +10,7 @@ public class CurrentDateProvider implements DateProvider {
     }
 
     @Override
-    public Date getCurrentDate(){
+    public Date getCurrentDate() {
         return new Date();
     }
 

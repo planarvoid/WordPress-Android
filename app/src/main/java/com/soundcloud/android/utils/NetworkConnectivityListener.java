@@ -25,7 +25,9 @@ public class NetworkConnectivityListener {
     private final EventBus eventBus;
 
     @Inject
-    public NetworkConnectivityListener(Context context, NetworkConnectionHelper networkConnectionHelper, EventBus eventBus) {
+    public NetworkConnectivityListener(Context context,
+                                       NetworkConnectionHelper networkConnectionHelper,
+                                       EventBus eventBus) {
         this.context = context;
         this.networkConnectionHelper = networkConnectionHelper;
         this.eventBus = eventBus;
@@ -46,7 +48,7 @@ public class NetworkConnectivityListener {
         @Override
         public void onReceive(Context context, Intent intent) {
             final ConnectionType currentConnectionType = networkConnectionHelper.getCurrentConnectionType();
-            Log.d(TAG,"Connectivity change detected, current connection : " + currentConnectionType);
+            Log.d(TAG, "Connectivity change detected, current connection : " + currentConnectionType);
             eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, currentConnectionType);
         }
     }

@@ -40,21 +40,24 @@ public class LoadTrackLikedStatuses extends Command<Iterable<PropertySet>, Map<U
 
     private Query forLikes(Iterable<PropertySet> input) {
         final Query isLiked = Query.from(Table.Likes.name())
-                .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
-                .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+                                   .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID,
+                                           Table.Likes.name() + "." + TableColumns.Likes._ID)
+                                   .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE,
+                                            TableColumns.Sounds.TYPE_TRACK)
+                                   .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
 
         return Query.from(Table.SoundView.name())
-                .select(TableColumns.SoundView._ID, exists(isLiked).as(COLUMN_IS_LIKED))
-                .whereIn(TableColumns.SoundView._ID, extractIds(input, Optional.of(trackPredicate())))
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .select(TableColumns.SoundView._ID, exists(isLiked).as(COLUMN_IS_LIKED))
+                    .whereIn(TableColumns.SoundView._ID, extractIds(input, Optional.of(trackPredicate())))
+                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 
     private Map<Urn, PropertySet> toLikedSet(QueryResult result) {
         Map<Urn, PropertySet> likedMap = new HashMap<>();
         for (CursorReader reader : result) {
             final Urn trackUrn = Urn.forTrack(reader.getLong(TableColumns.SoundView._ID));
-            likedMap.put(trackUrn, PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(reader.getBoolean(COLUMN_IS_LIKED))));
+            likedMap.put(trackUrn,
+                         PropertySet.from(PlayableProperty.IS_USER_LIKE.bind(reader.getBoolean(COLUMN_IS_LIKED))));
         }
         return likedMap;
     }

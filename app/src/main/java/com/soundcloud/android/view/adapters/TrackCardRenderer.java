@@ -80,9 +80,9 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
 
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                .contextScreen(Screen.STREAM.get())
-                .pageName(Screen.STREAM.get())
-                .build();
+                                   .contextScreen(Screen.STREAM.get())
+                                   .pageName(Screen.STREAM.get())
+                                   .build();
     }
 
     private void showPlayCountOrNowPlaying(TrackCardViewHolder itemView, TrackItem track) {

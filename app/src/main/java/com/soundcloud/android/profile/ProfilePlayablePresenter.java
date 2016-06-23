@@ -33,7 +33,8 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>> extends RecyclerViewPresenter<DataT, PlayableItem> {
+abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>>
+        extends RecyclerViewPresenter<DataT, PlayableItem> {
 
     private static final Function<PlayableItem, PropertySet> PLAYABLE_ITEM_TO_PROPERTY_SET = new Function<PlayableItem, PropertySet>() {
         @Override

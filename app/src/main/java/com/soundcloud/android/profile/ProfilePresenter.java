@@ -75,7 +75,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         pager = (ViewPager) activity.findViewById(R.id.pager);
 
         pager.setAdapter(new ProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
-                (SearchQuerySourceInfo) activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
+                                                 (SearchQuerySourceInfo) activity.getIntent()
+                                                                                 .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
         pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
 
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
@@ -87,8 +88,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         refreshUser();
 
         userUpdatedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(isProfileUser)
-                .subscribe(new RefreshUserSubscriber());
+                                          .filter(isProfileUser)
+                                          .subscribe(new RefreshUserSubscriber());
     }
 
     private Urn getUserUrnFromIntent(Intent intent) {

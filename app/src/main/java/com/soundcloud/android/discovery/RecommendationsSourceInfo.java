@@ -14,6 +14,7 @@ public abstract class RecommendationsSourceInfo {
     private static final String RECOMMENDATIONS_SOURCE = "personal-recommended";
 
     public abstract int getQueryPosition();
+
     public abstract Urn getQueryUrn();
 
     public static RecommendationsSourceInfo create(int queryPosition, Urn queryUrn) {

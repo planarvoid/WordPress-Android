@@ -23,7 +23,7 @@ public class EmptyViewElement extends Element {
         return messageView().getText();
     }
 
-    private ViewElement emptyView(){
+    private ViewElement emptyView() {
         return testDriver.findOnScreenElement(With.className(EmptyView.class.getName()));
     }
 

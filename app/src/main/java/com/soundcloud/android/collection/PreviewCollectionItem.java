@@ -14,12 +14,14 @@ abstract class PreviewCollectionItem extends CollectionItem {
 
     static CollectionItem forLikesAndPlaylists(LikesItem likes, List<PlaylistItem> playlistItems) {
         return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
-                likes, Optional.<List<StationRecord>>absent(), Optional.of(playlistItems));
+                                                   likes,
+                                                   Optional.<List<StationRecord>>absent(),
+                                                   Optional.of(playlistItems));
     }
 
     static PreviewCollectionItem forLikesAndStations(LikesItem likes, List<StationRecord> stations) {
         return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
-                likes, Optional.of(stations), Optional.<List<PlaylistItem>>absent());
+                                                   likes, Optional.of(stations), Optional.<List<PlaylistItem>>absent());
     }
 
     abstract LikesItem getLikes();

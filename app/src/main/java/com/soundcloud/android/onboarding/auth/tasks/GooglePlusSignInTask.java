@@ -33,7 +33,13 @@ public class GooglePlusSignInTask extends LoginTask {
                                 TokenInformationGenerator tokenInformationGenerator, StoreUsersCommand userStorage,
                                 AccountOperations accountOperations, ConfigurationOperations configurationOperations,
                                 EventBus eventBus, ApiClient apiClient) {
-        super(application, tokenInformationGenerator, userStorage, configurationOperations, eventBus, accountOperations, apiClient);
+        super(application,
+              tokenInformationGenerator,
+              userStorage,
+              configurationOperations,
+              eventBus,
+              accountOperations,
+              apiClient);
         this.accountName = accountName;
         this.scope = scope;
         extras = new Bundle();

@@ -22,7 +22,9 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
     }
 
     @Override
-    protected void logInHelper() { TestUser.profileTestUser.logIn(getInstrumentation().getTargetContext()); }
+    protected void logInHelper() {
+        TestUser.profileTestUser.logIn(getInstrumentation().getTargetContext());
+    }
 
     @Override
     protected void setUp() throws Exception {
@@ -40,7 +42,7 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         // TRACKS
         assertTrue(profileScreen.tracksHeader().hasVisibility());
         assertEquals(profileScreen.clickViewAllTracks().getActionBarTitle(),
-                ressourceString(R.string.user_profile_sounds_header_tracks));
+                     ressourceString(R.string.user_profile_sounds_header_tracks));
 
         profileScreen.goBack();
 
@@ -54,14 +56,14 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         // REPOSTS
         assertTrue(profileScreen.repostHeader().hasVisibility());
         assertEquals(profileScreen.clickViewAllReposts().getActionBarTitle(),
-                ressourceString(R.string.user_profile_sounds_header_reposts));
+                     ressourceString(R.string.user_profile_sounds_header_reposts));
 
         profileScreen.goBack();
 
         // LIKES
         assertTrue(profileScreen.likesHeader().hasVisibility());
         assertEquals(profileScreen.clickViewAllLikes().getActionBarTitle(),
-                ressourceString(R.string.user_profile_sounds_header_likes));
+                     ressourceString(R.string.user_profile_sounds_header_likes));
     }
 
     public void testPlaylistClickOpensPlaylistPage() {

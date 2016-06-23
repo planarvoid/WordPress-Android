@@ -86,11 +86,11 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
     private LegacySyncResult refresh() throws Exception {
         final ApiRequest.Builder requestBuilder =
                 ApiRequest.get(endpoint.path())
-                        .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, LIMIT)
-                        .forPrivateApi();
+                          .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, LIMIT)
+                          .forPrivateApi();
 
         ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
-                collectionTypeToken);
+                                                                             collectionTypeToken);
         log("New items: " + items.getCollection().size());
         replaceItemsCommand.call(items.getCollection());
         timelineSyncStorage.storeNextPageUrl(items.getNextLink());
@@ -111,7 +111,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
             final ApiRequest.Builder requestBuilder = ApiRequest.get(nextPageUrl).forPrivateApi();
 
             ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
-                    collectionTypeToken);
+                                                                                 collectionTypeToken);
             log("New items: " + items.getCollection().size());
             timelineSyncStorage.storeNextPageUrl(items.getNextLink());
 
@@ -134,7 +134,7 @@ public class TimelineSyncer<TimelineModel> implements SyncStrategy {
         final ApiRequest.Builder requestBuilder = ApiRequest.get(futurePageUrl).forPrivateApi();
 
         ModelCollection<TimelineModel> items = apiClient.fetchMappedResponse(requestBuilder.build(),
-                collectionTypeToken);
+                                                                             collectionTypeToken);
         log("New items: " + items.getCollection().size());
         final Map<String, Link> links = items.getLinks();
         if (links.containsKey(FUTURE_LINK_REL)) {

@@ -63,7 +63,8 @@ public class PlaybackCompletionListenerTest extends AndroidUnitTest {
         when(mediaPlayer.getCurrentPosition()).thenReturn(resumeTime);
         playbackCompletionListener.onCompletion(mediaPlayer);
 
-        verify(mediaPlayerAdapter).setResumeTimeAndInvokeErrorListener(same(mediaPlayer), Matchers.eq((long) resumeTime));
+        verify(mediaPlayerAdapter).setResumeTimeAndInvokeErrorListener(same(mediaPlayer),
+                                                                       Matchers.eq((long) resumeTime));
         verify(mediaPlayerAdapter, never()).onPlaybackEnded();
     }
 

@@ -48,7 +48,9 @@ public final class OfflineStoragePreference extends Preference {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             if (onStorageLimitChangeListener != null) {
-                final long newValue = offlineUsage.isUnlimited() ? OfflineSettingsStorage.UNLIMITED : offlineUsage.getActualOfflineLimit();
+                final long newValue = offlineUsage.isUnlimited() ?
+                                      OfflineSettingsStorage.UNLIMITED :
+                                      offlineUsage.getActualOfflineLimit();
                 onStorageLimitChangeListener.onStorageLimitChanged(newValue, showLimitToast);
                 showLimitToast = false;
             }
@@ -93,7 +95,7 @@ public final class OfflineStoragePreference extends Preference {
     }
 
     private void updateView() {
-        if (usageBarView != null){
+        if (usageBarView != null) {
             updateUsageBarView();
             updateLabels();
         }
@@ -115,8 +117,8 @@ public final class OfflineStoragePreference extends Preference {
 
     private String formatFreeGigabytes() {
         return String.format(resources.getString(R.string.pref_offline_storage_free_gb),
-                bytesToGB(offlineUsage.getDeviceAvailable()),
-                bytesToGB(offlineUsage.getDeviceTotal()));
+                             bytesToGB(offlineUsage.getDeviceAvailable()),
+                             bytesToGB(offlineUsage.getDeviceTotal()));
     }
 
     private String formatLimitGigabytes() {
@@ -133,10 +135,10 @@ public final class OfflineStoragePreference extends Preference {
 
     private void updateUsageBarView() {
         usageBarView.reset()
-                .addBar(R.color.usage_bar_other, offlineUsage.getUsedOthers())
-                .addBar(R.color.usage_bar_used, offlineUsage.getOfflineUsed())
-                .addBar(R.color.usage_bar_limit, offlineUsage.getOfflineAvailable())
-                .addBar(R.color.usage_bar_free, offlineUsage.getUnused());
+                    .addBar(R.color.usage_bar_other, offlineUsage.getUsedOthers())
+                    .addBar(R.color.usage_bar_used, offlineUsage.getOfflineUsed())
+                    .addBar(R.color.usage_bar_limit, offlineUsage.getOfflineAvailable())
+                    .addBar(R.color.usage_bar_free, offlineUsage.getUnused());
     }
 
     interface OnStorageLimitChangedListener {

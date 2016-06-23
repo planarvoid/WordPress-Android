@@ -64,14 +64,16 @@ public class SearchQuerySourceInfo implements Parcelable {
         return clickUrn.isTrack() && queryResults != null ? queryResults.indexOf(currentTrack) : clickPosition;
     }
 
-    public int getClickPosition() { return clickPosition; }
+    public int getClickPosition() {
+        return clickPosition;
+    }
 
     @Override
     public String toString() {
         final MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(SearchQuerySourceInfo.class)
-                .add("queryUrn", queryUrn)
-                .add("clickPosition", clickPosition)
-                .add("clickUrn", clickUrn);
+                                                                     .add("queryUrn", queryUrn)
+                                                                     .add("clickPosition", clickPosition)
+                                                                     .add("clickUrn", clickUrn);
 
         return toStringHelper.toString();
     }

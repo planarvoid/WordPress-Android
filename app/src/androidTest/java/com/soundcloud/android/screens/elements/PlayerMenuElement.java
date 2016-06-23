@@ -49,7 +49,8 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     public ViewElement repostItem() {
-        return findOnScreenElement(With.text(testDriver.getString(R.string.repost), testDriver.getString(R.string.unpost)))
+        return findOnScreenElement(With.text(testDriver.getString(R.string.repost),
+                                             testDriver.getString(R.string.unpost)))
                 .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 

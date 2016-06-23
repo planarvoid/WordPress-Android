@@ -18,7 +18,7 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "RecordWidget";
     static final ComponentName THIS_APPWIDGET =
             new ComponentName(BuildConfig.APPLICATION_ID,
-                    BuildConfig.APPLICATION_ID + ".service.record.RecordAppWidgetProvider");
+                              BuildConfig.APPLICATION_ID + ".service.record.RecordAppWidgetProvider");
 
     private static RecordAppWidgetProvider instance;
 
@@ -73,10 +73,16 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
         // Connect up various buttons and touch events
         if (isRecording) {
             views.setOnClickPendingIntent(R.id.btn_action,
-                    PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
+                                          PendingIntent.getActivity(context,
+                                                                    0,
+                                                                    new Intent(Actions.RECORD_STOP),
+                                                                    PendingIntent.FLAG_CANCEL_CURRENT));
         } else {
             views.setOnClickPendingIntent(R.id.btn_action,
-                    PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_START), PendingIntent.FLAG_CANCEL_CURRENT));
+                                          PendingIntent.getActivity(context,
+                                                                    0,
+                                                                    new Intent(Actions.RECORD_START),
+                                                                    PendingIntent.FLAG_CANCEL_CURRENT));
         }
 
         pushUpdate(context, appWidgetIds, views);

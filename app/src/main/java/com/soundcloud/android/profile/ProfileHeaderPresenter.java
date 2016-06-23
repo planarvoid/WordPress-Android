@@ -93,8 +93,8 @@ class ProfileHeaderPresenter {
         if (!user.getUrn().equals(lastUser)) {
             lastUser = user.getUrn();
             imageOperations.displayCircularWithPlaceholder(user,
-                    ApiImageSize.getFullImageSize(image.getResources()),
-                    image);
+                                                           ApiImageSize.getFullImageSize(image.getResources()),
+                                                           image);
         }
     }
 
@@ -161,8 +161,8 @@ class ProfileHeaderPresenter {
 
         ProfileHeaderPresenter create(AppCompatActivity profileActivity, Urn user) {
             return new ProfileHeaderPresenter(imageOperations, numberFormatter, accountOperations,
-                    featureFlags, user, profileActivity,
-                    followingOperations, engagementsTracking, startStationPresenter);
+                                              featureFlags, user, profileActivity,
+                                              followingOperations, engagementsTracking, startStationPresenter);
         }
     }
 

@@ -118,7 +118,7 @@ public class ApiResponse {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("statusCode", statusCode)
-                .add("failure", failure).toString();
+                          .add("statusCode", statusCode)
+                          .add("failure", failure).toString();
     }
 }

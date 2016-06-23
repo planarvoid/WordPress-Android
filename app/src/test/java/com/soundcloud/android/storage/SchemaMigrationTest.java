@@ -80,9 +80,9 @@ public class SchemaMigrationTest extends AndroidUnitTest {
                     String columnNullable = columns.getString("IS_NULLABLE");
                     String columnDefault = columns.getString("COLUMN_DEF");
                     schema.add("TABLE " + tableName +
-                            " COLUMN " + columnName + " " + columnType +
-                            " NULLABLE=" + columnNullable +
-                            " DEFAULT=" + columnDefault);
+                                       " COLUMN " + columnName + " " + columnType +
+                                       " NULLABLE=" + columnNullable +
+                                       " DEFAULT=" + columnDefault);
                 }
             }
             return schema;

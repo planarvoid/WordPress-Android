@@ -159,7 +159,7 @@ public class OAuth {
         final String decoded;
         try {
             decoded = new String(encoded,
-                    new String(new char[]{'\u0055', '\u0054', '\u0046', '\u0038'}) /* UTF8 */);
+                                 new String(new char[]{'\u0055', '\u0054', '\u0046', '\u0038'}) /* UTF8 */);
         } catch (UnsupportedEncodingException ex) {
             throw new AssertionError(ex); // UTF-8 is always supported
         }

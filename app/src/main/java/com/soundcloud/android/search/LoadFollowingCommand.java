@@ -36,10 +36,11 @@ class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, Prope
 
     private Query forFollowings(Iterable<PropertySet> input) {
         return Query.from(Table.UserAssociations.name())
-                .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING)
-                .whereIn(TableColumns.UserAssociations.TARGET_ID, getUserIds(input))
-                .whereNull(TableColumns.UserAssociations.REMOVED_AT)
-                .order(POSITION, ASC);
+                    .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE,
+                             TableColumns.UserAssociations.TYPE_FOLLOWING)
+                    .whereIn(TableColumns.UserAssociations.TARGET_ID, getUserIds(input))
+                    .whereNull(TableColumns.UserAssociations.REMOVED_AT)
+                    .order(POSITION, ASC);
     }
 
     private List<Long> getUserIds(Iterable<PropertySet> propertySets) {

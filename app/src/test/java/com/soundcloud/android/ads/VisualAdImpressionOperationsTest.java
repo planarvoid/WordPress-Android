@@ -24,8 +24,12 @@ import rx.subjects.Subject;
 import android.app.Activity;
 
 public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
-    private final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)));
-    private final CurrentPlayQueueItemEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueItemEvent.fromPositionChanged(PLAY_QUEUE_ITEM, Urn.NOT_SET, 0);
+    private final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(Urn.forTrack(123L),
+                                                                                AdFixtures.getAudioAd(Urn.forTrack(123L)));
+    private final CurrentPlayQueueItemEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueItemEvent.fromPositionChanged(
+            PLAY_QUEUE_ITEM,
+            Urn.NOT_SET,
+            0);
     private final PlayerUIEvent PLAYER_EXPANDED_EVENT = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED_EVENT = PlayerUIEvent.fromPlayerCollapsed();
 
@@ -45,13 +49,16 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         TestEventBus eventBus = new TestEventBus();
-        VisualAdImpressionOperations controller = new VisualAdImpressionOperations(eventBus, playQueueManager, accountOperations, adsOperations);
+        VisualAdImpressionOperations controller = new VisualAdImpressionOperations(eventBus,
+                                                                                   playQueueManager,
+                                                                                   accountOperations,
+                                                                                   adsOperations);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         currentTrackQueue = eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);
         subscriber = new TestSubscriber<>();
-        activityResumeEvent  = ActivityLifeCycleEvent.forOnResume(activity);
-        activityPauseEvent  = ActivityLifeCycleEvent.forOnPause(activity);
+        activityResumeEvent = ActivityLifeCycleEvent.forOnResume(activity);
+        activityPauseEvent = ActivityLifeCycleEvent.forOnPause(activity);
 
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);

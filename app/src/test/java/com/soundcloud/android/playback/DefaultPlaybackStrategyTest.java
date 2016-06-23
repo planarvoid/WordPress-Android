@@ -62,8 +62,13 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        defaultPlaybackStrategy = new DefaultPlaybackStrategy(playQueueManager, serviceInitiator,
-                trackRepository, adsOperations, offlinePlaybackOperations, playSessionStateProvider, eventBus);
+        defaultPlaybackStrategy = new DefaultPlaybackStrategy(playQueueManager,
+                                                              serviceInitiator,
+                                                              trackRepository,
+                                                              adsOperations,
+                                                              offlinePlaybackOperations,
+                                                              playSessionStateProvider,
+                                                              eventBus);
     }
 
     @Test
@@ -118,7 +123,8 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createVideo(videoAd));
-        when(playSessionStateProvider.getLastProgressForItem(videoAd.getAdUrn())).thenReturn(new PlaybackProgress(123L, 456L));
+        when(playSessionStateProvider.getLastProgressForItem(videoAd.getAdUrn())).thenReturn(new PlaybackProgress(123L,
+                                                                                                                  456L));
 
         defaultPlaybackStrategy.resume();
 
@@ -250,7 +256,10 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void setNewQueueOpensReturnsPlaybackResult() {
         final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
 
-        defaultPlaybackStrategy.setNewQueue(getPlayQueue(playSessionSource, asList(TRACK1)), TRACK1, 0, playSessionSource).subscribe(playNewQueueSubscriber);
+        defaultPlaybackStrategy.setNewQueue(getPlayQueue(playSessionSource, asList(TRACK1)),
+                                            TRACK1,
+                                            0,
+                                            playSessionSource).subscribe(playNewQueueSubscriber);
 
         assertThat(playNewQueueSubscriber.getOnNextEvents().get(0).isSuccess()).isTrue();
         playNewQueueSubscriber.assertTerminalEvent();
@@ -260,7 +269,8 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
     public void playNewQueueShouldFallBackToPositionZeroIfInitialTrackNotFound() {
         PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
         defaultPlaybackStrategy.setNewQueue(
-                getPlayQueue(playSessionSource, asList(TRACK1, TRACK2)), TRACK1, 2, playSessionSource).subscribe(playNewQueueSubscriber);
+                getPlayQueue(playSessionSource, asList(TRACK1, TRACK2)), TRACK1, 2, playSessionSource)
+                               .subscribe(playNewQueueSubscriber);
 
         PlayQueue expectedPlayQueue = getPlayQueue(playSessionSource, asList(TRACK1, TRACK2));
         assertPlayQueueSet(playQueueManager, expectedPlayQueue, PlaySessionSource.EMPTY, 0);

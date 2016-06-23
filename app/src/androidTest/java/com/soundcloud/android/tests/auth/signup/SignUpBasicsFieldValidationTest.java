@@ -62,7 +62,8 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
         assertThat("Done button should be enabled", signUpBasicsScreen.isDoneButtonEnabled());
 
         signUpBasicsScreen.signup();
-        assertTrue(waiter.expectToastWithText(toastObserver, solo.getString(R.string.authentication_error_age_not_valid)));
+        assertTrue(waiter.expectToastWithText(toastObserver,
+                                              solo.getString(R.string.authentication_error_age_not_valid)));
     }
 
     private void startWithValidSignupInput() {

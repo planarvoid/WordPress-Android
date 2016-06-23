@@ -7,20 +7,29 @@ package com.soundcloud.android.creators.record.jni;
  * @see <a href="http://xiph.org/vorbis/doc/libvorbis/vorbis_info.html">vorbis_info</a>
  */
 public class VorbisInfo {
-    /** number of pcm samples */
+    /**
+     * number of pcm samples
+     */
     public long numSamples;
 
-    /** number of audio channels */
-    public int  channels;
+    /**
+     * number of audio channels
+     */
+    public int channels;
 
-    /** usually 44100 */
-    public int  sampleRate;
+    /**
+     * usually 44100
+     */
+    public int sampleRate;
 
-    /** average bitrate */
+    /**
+     * average bitrate
+     */
     public long bitrate;
 
     /**
      * duration in secs
+     *
      * @see <a href="http://xiph.org/vorbis/doc/vorbisfile/ov_time_total.html">ov_time_total</a>
      */
     public double duration;

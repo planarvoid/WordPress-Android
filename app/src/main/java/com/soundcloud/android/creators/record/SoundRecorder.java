@@ -109,9 +109,9 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
                 if (state == State.RECORDING) {
                     remainingTime = remainingTimeCalculator.timeRemaining();
                     broadcastManager.sendBroadcast(new Intent(RECORD_PROGRESS)
-                            .putExtra(EXTRA_ELAPSEDTIME, getRecordingElapsedTime())
-                            .putExtra(EXTRA_DURATION, getPlaybackDuration())
-                            .putExtra(EXTRA_TIME_REMAINING, remainingTime));
+                                                           .putExtra(EXTRA_ELAPSEDTIME, getRecordingElapsedTime())
+                                                           .putExtra(EXTRA_DURATION, getPlaybackDuration())
+                                                           .putExtra(EXTRA_TIME_REMAINING, remainingTime));
                 }
             }
         });
@@ -181,7 +181,9 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         }
     }
 
-    public @NotNull RecordStream getRecordStream() {
+    public
+    @NotNull
+    RecordStream getRecordStream() {
         return recordStream;
     }
 
@@ -201,7 +203,8 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
     }
 
     // Sets output file path, call directly after construction/reset.
-    @NotNull @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @NotNull
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public Recording startRecording() throws IOException {
         if (!IOUtils.isSDCardAvailable()) {
             throw new IOException(context.getString(R.string.record_insert_sd_card));
@@ -215,7 +218,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
                 recording = Recording.create();
 
                 recordStream.setWriters(recording.getRawFile(),
-                        shouldEncodeWhileRecording() ? recording.getEncodedFile() : null);
+                                        shouldEncodeWhileRecording() ? recording.getEncodedFile() : null);
             } else {
                 // truncate if we are appending
                 if (playbackStream != null) {
@@ -262,9 +265,9 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
             }
             this.recording = recording;
             recordStream = new RecordStream(audioConfig,
-                    recording.getRawFile(),
-                    shouldEncodeWhileRecording() ? recording.getEncodedFile() : null,
-                    this.recording.getAmplitudeFile());
+                                            recording.getRawFile(),
+                                            shouldEncodeWhileRecording() ? recording.getEncodedFile() : null,
+                                            this.recording.getAmplitudeFile());
 
             playbackStream = recording.getPlaybackStream();
         }
@@ -311,7 +314,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
     public long getCurrentPlaybackPosition() {
         return seekToPos != -1 ? seekToPos :
-                playbackStream != null ? playbackStream.getPosition() : -1;
+               playbackStream != null ? playbackStream.getPosition() : -1;
     }
 
     public void revertFile() {
@@ -376,7 +379,9 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
     }
 
-    public @Nullable Recording saveState() {
+    public
+    @Nullable
+    Recording saveState() {
 
         if (recording != null) {
 
@@ -428,7 +433,8 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
     public boolean shouldEncodeWhileRecording() {
         return hasFPUSupport() &&
                 !SettingKey.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(context)
-                        .getString(SettingKey.DEV_RECORDING_TYPE, null));
+                                                                           .getString(SettingKey.DEV_RECORDING_TYPE,
+                                                                                      null));
     }
 
     public static boolean hasFPUSupport() {
@@ -445,8 +451,8 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
     private void sendPlaybackProgress() {
         broadcastManager.sendBroadcast(new Intent(PLAYBACK_PROGRESS)
-                .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
-                .putExtra(EXTRA_DURATION, getPlaybackDuration()));
+                                               .putExtra(EXTRA_POSITION, getCurrentPlaybackPosition())
+                                               .putExtra(EXTRA_DURATION, getPlaybackDuration()));
     }
 
     private State startReadingInternal(State newState) {
@@ -646,7 +652,9 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
                 int lastRead;
                 byte[] readBuff = new byte[byteRange];
                 // read in the whole preview
-                while (read < byteRange && (lastRead = playbackStream.read(playBuffer, Math.min(playBufferReadSize, byteRange - read))) > 0) {
+                while (read < byteRange && (lastRead = playbackStream.read(playBuffer,
+                                                                           Math.min(playBufferReadSize,
+                                                                                    byteRange - read))) > 0) {
                     final int size = Math.min(lastRead, byteRange - read);
                     fadeFilter.apply(playBuffer, read, byteRange); // fade out to avoid distortion when chaining samples
                     playBuffer.get(readBuff, read, size);
@@ -678,7 +686,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         private void onWriteError(int written) {
             Log.e(TAG, "AudioTrack#write() returned " +
                     (written == AudioTrack.ERROR_INVALID_OPERATION ? "ERROR_INVALID_OPERATION" :
-                            written == AudioTrack.ERROR_BAD_VALUE ? "ERROR_BAD_VALUE" : "error " + written));
+                     written == AudioTrack.ERROR_BAD_VALUE ? "ERROR_BAD_VALUE" : "error " + written));
 
             state = SoundRecorder.State.ERROR;
         }
@@ -690,7 +698,8 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
             setPriority(Thread.MAX_PRIORITY);
         }
 
-        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+        @Override
+        @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void run() {
             synchronized (audioRecord) {
                 Log.d(TAG, "starting reader thread: state=" + state);
@@ -715,7 +724,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
                     } else if (state == SoundRecorder.State.RECORDING &&
                             remainingTime <= 0) {
                         Log.w(TAG,
-                                "No more recording time, stopping");
+                              "No more recording time, stopping");
                         state = SoundRecorder.State.STOPPING;
                     } else {
                         try {
@@ -783,7 +792,9 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
     }
 
     private boolean requestFocus(AudioManager audioManager) {
-        int status = audioManager.requestAudioFocus(SoundRecorder.this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        int status = audioManager.requestAudioFocus(SoundRecorder.this,
+                                                    AudioManager.STREAM_MUSIC,
+                                                    AudioManager.AUDIOFOCUS_GAIN);
         if (status != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             Log.e(TAG, "could not obtain audio focus");
             broadcast(PLAYBACK_ERROR);

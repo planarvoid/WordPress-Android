@@ -29,9 +29,14 @@ import java.util.Map;
 
 public class PlayQueueTest extends AndroidUnitTest {
 
-    private static final TrackQueueItem TRACK_QUEUE_ITEM_1 = TestPlayQueueItem.createTrack(Urn.forTrack(1L), "source1", "version1");
-    private static final TrackQueueItem TRACK_QUEUE_ITEM_2 = TestPlayQueueItem.createTrack(Urn.forTrack(2L), "source2", "version2");
-    private static final VideoQueueItem VIDEO_QUEUE_ITEM = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(722L)));
+    private static final TrackQueueItem TRACK_QUEUE_ITEM_1 = TestPlayQueueItem.createTrack(Urn.forTrack(1L),
+                                                                                           "source1",
+                                                                                           "version1");
+    private static final TrackQueueItem TRACK_QUEUE_ITEM_2 = TestPlayQueueItem.createTrack(Urn.forTrack(2L),
+                                                                                           "source2",
+                                                                                           "version2");
+    private static final VideoQueueItem VIDEO_QUEUE_ITEM = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(
+            722L)));
 
     private static final int PLAY_QUEUE_ITEM_COUNT = 3;
 
@@ -40,7 +45,10 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        playSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS, Urn.forPlaylist(123), Urn.forUser(456), PLAY_QUEUE_ITEM_COUNT);
+        playSessionSource = PlaySessionSource.forPlaylist(Screen.PLAYLIST_DETAILS,
+                                                          Urn.forPlaylist(123),
+                                                          Urn.forUser(456),
+                                                          PLAY_QUEUE_ITEM_COUNT);
         playQueue = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
     }
 
@@ -71,13 +79,13 @@ public class PlayQueueTest extends AndroidUnitTest {
 
         assertThat(playQueue.size()).isEqualTo(6);
         assertTrackQueueItem(playQueue.getPlayQueueItem(3),
-                TRACK_QUEUE_ITEM_1.getUrn(),
-                TRACK_QUEUE_ITEM_1.getSource(),
-                TRACK_QUEUE_ITEM_1.getSourceVersion());
+                             TRACK_QUEUE_ITEM_1.getUrn(),
+                             TRACK_QUEUE_ITEM_1.getSource(),
+                             TRACK_QUEUE_ITEM_1.getSourceVersion());
         assertTrackQueueItem(playQueue.getPlayQueueItem(4),
-                TRACK_QUEUE_ITEM_2.getUrn(),
-                TRACK_QUEUE_ITEM_2.getSource(),
-                TRACK_QUEUE_ITEM_2.getSourceVersion());
+                             TRACK_QUEUE_ITEM_2.getUrn(),
+                             TRACK_QUEUE_ITEM_2.getSource(),
+                             TRACK_QUEUE_ITEM_2.getSourceVersion());
         assertVideoQueueItem(playQueue.getPlayQueueItem(5), VIDEO_QUEUE_ITEM.getAdData());
     }
 
@@ -194,7 +202,8 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void getTrackItemUrnsReturnsListOfUrnsForTrackItems() throws Exception {
-        assertThat(playQueue.getTrackItemUrns()).containsExactly(TRACK_QUEUE_ITEM_1.getUrn(), TRACK_QUEUE_ITEM_2.getUrn());
+        assertThat(playQueue.getTrackItemUrns()).containsExactly(TRACK_QUEUE_ITEM_1.getUrn(),
+                                                                 TRACK_QUEUE_ITEM_2.getUrn());
     }
 
     @Test
@@ -215,13 +224,17 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void hasSameTracksTrueWithSameTracksInSameOrder() {
-        final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
+        final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_1,
+                                                                TRACK_QUEUE_ITEM_2,
+                                                                VIDEO_QUEUE_ITEM));
         assertThat(this.playQueue.hasSameTracks(playQueue2)).isTrue();
     }
 
     @Test
     public void hasSameTracksFalseWithSameTracksInDifferentOrder() {
-        final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_2, TRACK_QUEUE_ITEM_1, VIDEO_QUEUE_ITEM));
+        final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_2,
+                                                                TRACK_QUEUE_ITEM_1,
+                                                                VIDEO_QUEUE_ITEM));
         assertThat(this.playQueue.hasSameTracks(playQueue2)).isFalse();
     }
 

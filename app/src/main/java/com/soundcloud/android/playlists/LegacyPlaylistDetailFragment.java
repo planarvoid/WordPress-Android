@@ -249,10 +249,12 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     public void onRefresh() {
         playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations.updatedPlaylistInfo(getPlaylistUrn())
-                // Experiment: track pull to refresh counts
-                .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(PLAYLIST_DETAILS)))
-                .observeOn(mainThread())
-                .subscribe(new RefreshSubscriber());
+                                                 // Experiment: track pull to refresh counts
+                                                 .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING,
+                                                                                        new PullToRefreshEvent(
+                                                                                                PLAYLIST_DETAILS)))
+                                                 .observeOn(mainThread())
+                                                 .subscribe(new RefreshSubscriber());
     }
 
     @Override
@@ -265,14 +267,14 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
                         .subscribe(trackAddedToPlaylist));
 
         eventSubscription.add(eventBus
-                .queue(ENTITY_STATE_CHANGED)
-                .filter(IS_CURRENT_PLAYLIST_DELETED)
-                .subscribe(new GoBackSubscriber()));
+                                      .queue(ENTITY_STATE_CHANGED)
+                                      .filter(IS_CURRENT_PLAYLIST_DELETED)
+                                      .subscribe(new GoBackSubscriber()));
 
         eventSubscription.add(eventBus
-                .queue(ENTITY_STATE_CHANGED)
-                .filter(IS_PLAYLIST_PUSHED_FILTER)
-                .subscribe(new PlaylistPushedSubscriber()));
+                                      .queue(ENTITY_STATE_CHANGED)
+                                      .filter(IS_PLAYLIST_PUSHED_FILTER)
+                                      .subscribe(new PlaylistPushedSubscriber()));
     }
 
     @Override
@@ -358,14 +360,16 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         }
 
         playbackInitiator.playTracks(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn()),
-                initialTrack.getUrn(), trackPosition, playSessionSource)
-                .subscribe(playbackSubscriber);
+                                     initialTrack.getUrn(), trackPosition, playSessionSource)
+                         .subscribe(playbackSubscriber);
     }
 
     private PlaySessionSource getPlaySessionSource() {
         final String originScreen = Screen.fromBundle(getArguments()).get();
         final PlaySessionSource playlistSessionSource = PlaySessionSource.forPlaylist(originScreen,
-                playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn(), playlistWithTracks.getTrackCount());
+                                                                                      playlistWithTracks.getUrn(),
+                                                                                      playlistWithTracks.getCreatorUrn(),
+                                                                                      playlistWithTracks.getTrackCount());
         playlistSessionSource.setPromotedSourceInfo(getPromotedSourceInfo());
         return playlistSessionSource;
     }

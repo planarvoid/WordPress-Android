@@ -37,7 +37,8 @@ public class ScTextUtils {
 
     public static final String SPACE_SEPARATOR = " ";
 
-    private ScTextUtils() {}
+    private ScTextUtils() {
+    }
 
     /**
      * Prefer this method over Guava's Longs.tryParse and Java's parseLong, since the former will fail on 2.2 devices
@@ -57,8 +58,8 @@ public class ScTextUtils {
 
     public static String toResourceKey(String prefix, String string) {
         return prefix + string.toLowerCase(Locale.US)
-                .replaceAll("&", "and")
-                .replaceAll("[\\t-(\\-|\\+)?]", "_");
+                              .replaceAll("&", "and")
+                              .replaceAll("[\\t-(\\-|\\+)?]", "_");
     }
 
     /**
@@ -98,7 +99,11 @@ public class ScTextUtils {
      * @param highlight highlight the clickable text on state change
      * @return true if the link was added
      */
-    public static boolean clickify(TextView view, final String link, final ClickSpan.OnClickListener listener, boolean underline, boolean highlight) {
+    public static boolean clickify(TextView view,
+                                   final String link,
+                                   final ClickSpan.OnClickListener listener,
+                                   boolean underline,
+                                   boolean highlight) {
         CharSequence text = view.getText();
         String string = text.toString();
         ClickSpan span = new ClickSpan(listener, underline);
@@ -187,17 +192,29 @@ public class ScTextUtils {
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public static String formatTimeElapsed(Resources r, double elapsedSeconds, boolean longerText) {
         if (elapsedSeconds < 60) {
-            return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds, (int) elapsedSeconds, (int) elapsedSeconds);
+            return r.getQuantityString(longerText ? R.plurals.elapsed_seconds_ago : R.plurals.elapsed_seconds,
+                                       (int) elapsedSeconds,
+                                       (int) elapsedSeconds);
         } else if (elapsedSeconds < 3600) {
-            return r.getQuantityString(longerText ? R.plurals.elapsed_minutes_ago : R.plurals.elapsed_minutes, (int) (elapsedSeconds / 60), (int) (elapsedSeconds / 60));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_minutes_ago : R.plurals.elapsed_minutes,
+                                       (int) (elapsedSeconds / 60),
+                                       (int) (elapsedSeconds / 60));
         } else if (elapsedSeconds < 86400) {
-            return r.getQuantityString(longerText ? R.plurals.elapsed_hours_ago : R.plurals.elapsed_hours, (int) (elapsedSeconds / 3600), (int) (elapsedSeconds / 3600));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_hours_ago : R.plurals.elapsed_hours,
+                                       (int) (elapsedSeconds / 3600),
+                                       (int) (elapsedSeconds / 3600));
         } else if (elapsedSeconds < 2592000) {
-            return r.getQuantityString(longerText ? R.plurals.elapsed_days_ago : R.plurals.elapsed_days, (int) (elapsedSeconds / 86400), (int) (elapsedSeconds / 86400));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_days_ago : R.plurals.elapsed_days,
+                                       (int) (elapsedSeconds / 86400),
+                                       (int) (elapsedSeconds / 86400));
         } else if (elapsedSeconds < 31536000) {
-            return r.getQuantityString(longerText ? R.plurals.elapsed_months_ago : R.plurals.elapsed_months, (int) (elapsedSeconds / 2592000), (int) (elapsedSeconds / 2592000));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_months_ago : R.plurals.elapsed_months,
+                                       (int) (elapsedSeconds / 2592000),
+                                       (int) (elapsedSeconds / 2592000));
         } else {
-            return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years, (int) (elapsedSeconds / 31536000), (int) (elapsedSeconds / 31536000));
+            return r.getQuantityString(longerText ? R.plurals.elapsed_years_ago : R.plurals.elapsed_years,
+                                       (int) (elapsedSeconds / 31536000),
+                                       (int) (elapsedSeconds / 31536000));
         }
     }
 
@@ -211,7 +228,7 @@ public class ScTextUtils {
 
     public static boolean isEmail(CharSequence string) {
         return !TextUtils.isEmpty(string) && EMAIL_ADDRESS_PATTERN.matcher(string.toString()
-                .toLowerCase(Locale.US)).matches();
+                                                                                 .toLowerCase(Locale.US)).matches();
     }
 
     public static String getLocation(String city, String country) {

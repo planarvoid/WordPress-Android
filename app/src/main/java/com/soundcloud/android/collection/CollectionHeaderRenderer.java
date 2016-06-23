@@ -39,7 +39,7 @@ class CollectionHeaderRenderer implements CellRenderer<CollectionItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         final View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.collection_playlist_header, parent, false);
+                                        .inflate(R.layout.collection_playlist_header, parent, false);
         View optionsButton = view.findViewById(R.id.btn_collections_playlist_options);
         optionsButton.setOnClickListener(onSettingsClicked);
         ViewUtils.extendTouchArea(optionsButton, EXTEND_OPTIONS_HIT_DP);

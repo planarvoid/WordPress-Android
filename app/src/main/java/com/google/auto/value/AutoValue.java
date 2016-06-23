@@ -37,11 +37,9 @@ import java.lang.annotation.Target;
  *     abstract int id();
  *   }</pre>
  *
- * @see <a href="https://github.com/google/auto/tree/master/value">AutoValue User's Guide</a>
- *
- *
  * @author Éamonn McManus
  * @author Kevin Bourrillion
+ * @see <a href="https://github.com/google/auto/tree/master/value">AutoValue User's Guide</a>
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
@@ -74,5 +72,6 @@ public @interface AutoValue {
      */
     @Retention(RetentionPolicy.SOURCE)
     @Target(ElementType.TYPE)
-    public @interface Builder {}
+    public @interface Builder {
+    }
 }

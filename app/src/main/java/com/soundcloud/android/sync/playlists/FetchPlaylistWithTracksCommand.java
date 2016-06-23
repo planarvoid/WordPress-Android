@@ -9,7 +9,8 @@ import com.soundcloud.java.reflect.TypeToken;
 
 import javax.inject.Inject;
 
-public class FetchPlaylistWithTracksCommand extends LegacyCommand<Urn, ApiPlaylistWithTracks, FetchPlaylistWithTracksCommand> {
+public class FetchPlaylistWithTracksCommand
+        extends LegacyCommand<Urn, ApiPlaylistWithTracks, FetchPlaylistWithTracksCommand> {
 
     private final ApiClient apiClient;
 
@@ -21,8 +22,8 @@ public class FetchPlaylistWithTracksCommand extends LegacyCommand<Urn, ApiPlayli
     public ApiPlaylistWithTracks call() throws Exception {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.PLAYLIST_WITH_TRACKS.path(input))
-                        .forPrivateApi()
-                        .build();
+                          .forPrivateApi()
+                          .build();
 
         return apiClient.fetchMappedResponse(request, new TypeToken<ApiPlaylistWithTracks>() {
         });

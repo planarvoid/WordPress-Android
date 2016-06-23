@@ -63,7 +63,11 @@ public class PlaylistDetailFragment extends ScrollableProfileFragment implements
     }
 
     @VisibleForTesting
-    static Bundle createBundle(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchInfo, PromotedSourceInfo promotedInfo, boolean autoplay) {
+    static Bundle createBundle(Urn playlistUrn,
+                               Screen screen,
+                               SearchQuerySourceInfo searchInfo,
+                               PromotedSourceInfo promotedInfo,
+                               boolean autoplay) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, playlistUrn);
         bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchInfo);

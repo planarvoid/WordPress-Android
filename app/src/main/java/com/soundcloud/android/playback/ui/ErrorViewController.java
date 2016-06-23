@@ -74,7 +74,7 @@ class ErrorViewController {
 
     private void setupStartStationButton(ErrorState error) {
         final Button stationButton = (Button) errorLayout.findViewById(R.id.playback_error_station_button);
-        if (error == ErrorState.BLOCKED){
+        if (error == ErrorState.BLOCKED) {
             setupStartStationButton(stationButton);
         } else {
             stationButton.setVisibility(View.GONE);

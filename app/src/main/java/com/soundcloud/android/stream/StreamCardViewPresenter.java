@@ -96,7 +96,9 @@ class StreamCardViewPresenter {
     private void setHeaderText(StreamItemViewHolder itemView, PlayableItem playableItem) {
         boolean isRepost = playableItem.getReposter().isPresent();
         final String userName = playableItem.getReposter().or(playableItem.getCreatorName());
-        final String action = resources.getString(isRepost ? R.string.stream_reposted_action : R.string.stream_posted_action);
+        final String action = resources.getString(isRepost ?
+                                                  R.string.stream_reposted_action :
+                                                  R.string.stream_posted_action);
 
         if (isRepost) {
             headerSpannableBuilder.actionSpannedString(action, isTrack(playableItem));

@@ -76,8 +76,9 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
 
         when(adOverlayController.isNotVisible()).thenReturn(true);
 
-        waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory,
-                featureFlags).create(waveformView);
+        waveformViewController = new WaveformViewController.Factory(scrubControllerFactory,
+                                                                    progressAnimationControllerFactory,
+                                                                    featureFlags).create(waveformView);
     }
 
     @Test

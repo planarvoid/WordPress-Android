@@ -33,7 +33,9 @@ public final class UriUtils {
     }
 
     public static MultiMap<String, String> getQueryParameters(String uriString) {
-        return TextUtils.isEmpty(uriString) ? new ListMultiMap<String, String>() : getQueryParameters(Uri.parse(uriString));
+        return TextUtils.isEmpty(uriString) ?
+               new ListMultiMap<String, String>() :
+               getQueryParameters(Uri.parse(uriString));
     }
 
     public static MultiMap<String, String> getQueryParameters(Uri uri) {

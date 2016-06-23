@@ -50,7 +50,7 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
 
     @Test
     public void scrollDownWithinThresholdDoesNotHide() {
-        scrollListener.onScrolled(null, 0, threshold-1);
+        scrollListener.onScrolled(null, 0, threshold - 1);
 
         verify(listener, never()).onScrollHideIndicator();
     }
@@ -59,14 +59,14 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
     public void scrollUpWithinThresholdDoesNotShow() {
         scrollListener.resetVisibility(false);
 
-        scrollListener.onScrolled(null, 0, -threshold+1);
+        scrollListener.onScrolled(null, 0, -threshold + 1);
 
         verify(listener, never()).onScrollShowIndicator();
     }
 
     @Test
     public void scrollAccumulatesBetweenThresholdEmits() {
-        scrollListener.onScrolled(null, 0, threshold-2);
+        scrollListener.onScrolled(null, 0, threshold - 2);
         scrollListener.onScrolled(null, 0, 1);
         scrollListener.onScrolled(null, 0, 1);
 
@@ -75,9 +75,9 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
 
     @Test
     public void scrollingThOtherDirectionResetsDistance() {
-        scrollListener.onScrolled(null, 0, threshold-1);
+        scrollListener.onScrolled(null, 0, threshold - 1);
         scrollListener.onScrolled(null, 0, -1);
-        scrollListener.onScrolled(null, 0, threshold-1);
+        scrollListener.onScrolled(null, 0, threshold - 1);
 
         verify(listener, never()).onScrollHideIndicator();
     }
@@ -85,7 +85,7 @@ public class NewItemsIndicatorScrollListenerTest extends AndroidUnitTest {
     @Test
     public void scrollDownAndThenUpWithinThresholdDoesNotShowAgain() {
         scrollListener.onScrolled(null, 0, threshold);
-        scrollListener.onScrolled(null, 0, -threshold+1);
+        scrollListener.onScrolled(null, 0, -threshold + 1);
 
         verify(listener).onScrollHideIndicator();
         verify(listener, never()).onScrollShowIndicator();

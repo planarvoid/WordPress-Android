@@ -30,7 +30,8 @@ public class ShareOperationsTest extends AndroidUnitTest {
     private static final PropertySet PRIVATE_TRACK = TestPropertySets.expectedPrivateTrackForPlayer();
     private static final PropertySet PLAYLIST = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
     private static final PropertySet PROMOTED_TRACK = TestPropertySets.expectedPromotedTrack();
-    private static final PromotedSourceInfo PROMOTED_SOURCE_INFO = PromotedSourceInfo.fromItem(PromotedTrackItem.from(PROMOTED_TRACK));
+    private static final PromotedSourceInfo PROMOTED_SOURCE_INFO = PromotedSourceInfo.fromItem(PromotedTrackItem.from(
+            PROMOTED_TRACK));
 
     private ShareOperations operations;
     private Activity activityContext;
@@ -47,12 +48,13 @@ public class ShareOperationsTest extends AndroidUnitTest {
         operations.share(activityContext, PLAYLIST, eventContext(), PROMOTED_SOURCE_INFO);
 
         Assertions.assertThat(activityContext)
-                .nextStartedIntent()
-                .containsAction(Intent.ACTION_CHOOSER)
-                .wrappedIntent()
-                .containsAction(Intent.ACTION_SEND)
-                .containsExtra(Intent.EXTRA_SUBJECT, "squirlex galore - SoundCloud")
-                .containsExtra(Intent.EXTRA_TEXT, "Listen to squirlex galore by avieciie #np on #SoundCloud\\nhttp://permalink.url");
+                  .nextStartedIntent()
+                  .containsAction(Intent.ACTION_CHOOSER)
+                  .wrappedIntent()
+                  .containsAction(Intent.ACTION_SEND)
+                  .containsExtra(Intent.EXTRA_SUBJECT, "squirlex galore - SoundCloud")
+                  .containsExtra(Intent.EXTRA_TEXT,
+                                 "Listen to squirlex galore by avieciie #np on #SoundCloud\\nhttp://permalink.url");
     }
 
     @Test
@@ -95,9 +97,9 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
     private EventContextMetadata eventContext() {
         return EventContextMetadata.builder()
-                .contextScreen(SCREEN_TAG)
-                .pageName(PAGE_NAME)
-                .pageUrn(PAGE_URN).build();
+                                   .contextScreen(SCREEN_TAG)
+                                   .pageName(PAGE_NAME)
+                                   .pageUrn(PAGE_URN).build();
     }
 
 }

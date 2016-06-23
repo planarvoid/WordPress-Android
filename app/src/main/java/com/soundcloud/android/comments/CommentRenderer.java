@@ -50,7 +50,8 @@ public class CommentRenderer implements CellRenderer<Comment> {
         final TextView userName = textView(itemView, R.id.username);
         userName.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         userName.setText(resources.getString(R.string.user_commented_at_timestamp, comment.getUsername(),
-                ScTextUtils.formatTimestamp(comment.getTimeStamp(), TimeUnit.MILLISECONDS)));
+                                             ScTextUtils.formatTimestamp(comment.getTimeStamp(),
+                                                                         TimeUnit.MILLISECONDS)));
     }
 
     private void setUserAvatar(View itemView, Urn userUrn) {

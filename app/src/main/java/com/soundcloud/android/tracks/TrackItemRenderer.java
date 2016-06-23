@@ -75,7 +75,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
         trackItemView.setTitle(track.getTitle(),
-                track.isBlocked() ? R.color.list_disabled : R.color.list_primary);
+                               track.isBlocked() ? R.color.list_disabled : R.color.list_primary);
 
         if (track.isBlocked()) {
             itemView.setClickable(false);
@@ -140,7 +140,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private void showPromoted(TrackItemView itemView, final PromotedTrackItem track) {
         final Context context = itemView.getContext();
         if (track.hasPromoter()) {
-            itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname, track.getPromoterName().get()));
+            itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname,
+                                                         track.getPromoterName().get()));
             itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigator));
         } else {
             itemView.showPromotedTrack(context.getString(R.string.promoted));

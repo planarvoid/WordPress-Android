@@ -77,7 +77,7 @@ public class Request implements Iterable<NameValuePair> {
 
         if (resource.contains("?")) {
             String query = resource.substring(Math.min(resource.length(), resource.indexOf('?') + 1),
-                    resource.length());
+                                              resource.length());
             for (String s : query.split("&")) {
                 String[] kv = s.split("=", 2);
                 if (kv != null) {

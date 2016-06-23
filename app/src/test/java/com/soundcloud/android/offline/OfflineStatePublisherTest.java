@@ -39,13 +39,19 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         eventBus = new TestEventBus();
         publisher = new OfflineStatePublisher(eventBus, offlineStateOperations);
 
-        final Map<OfflineState, TrackCollections> collectionsMap = singletonMap(REQUESTED, TrackCollections.create(singletonList(PLAYLIST), false));
-        when(offlineStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class))).thenReturn(collectionsMap);
+        final Map<OfflineState, TrackCollections> collectionsMap = singletonMap(REQUESTED,
+                                                                                TrackCollections.create(singletonList(
+                                                                                        PLAYLIST), false));
+        when(offlineStateOperations.loadTracksCollectionsState(eq(TRACK), any(OfflineState.class))).thenReturn(
+                collectionsMap);
     }
 
     @Test
     public void publishEmptyCollections() {
-        publisher.publishEmptyCollections(new ExpectedOfflineContent(Collections.<DownloadRequest>emptyList(), singletonList(PLAYLIST), true, Collections.<Urn>emptyList()));
+        publisher.publishEmptyCollections(new ExpectedOfflineContent(Collections.<DownloadRequest>emptyList(),
+                                                                     singletonList(PLAYLIST),
+                                                                     true,
+                                                                     Collections.<Urn>emptyList()));
 
         assertEvent(event(0), REQUESTED, true, PLAYLIST);
     }
@@ -105,7 +111,10 @@ public class OfflineStatePublisherTest extends AndroidUnitTest {
         return eventBus.eventsOn(EventQueue.OFFLINE_CONTENT_CHANGED).get(location);
     }
 
-    private void assertEvent(OfflineContentChangedEvent event, OfflineState state, boolean isLikedTrack, Urn... entities) {
+    private void assertEvent(OfflineContentChangedEvent event,
+                             OfflineState state,
+                             boolean isLikedTrack,
+                             Urn... entities) {
         assertThat(event.state).isEqualTo(state);
         assertThat(event.entities).containsOnly(entities);
         assertThat(event.isLikedTrackCollection).isEqualTo(isLikedTrack);

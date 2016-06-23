@@ -14,7 +14,11 @@ public class ProgressLineDrawable extends Drawable {
     private final int thickness;
     private final float playableProportion;
 
-    public ProgressLineDrawable(int color, Paint unPlayablePaint, int baseline, int thickness, float playableProportion) {
+    public ProgressLineDrawable(int color,
+                                Paint unPlayablePaint,
+                                int baseline,
+                                int thickness,
+                                float playableProportion) {
         this.baseline = baseline;
         this.thickness = thickness;
         this.playableProportion = playableProportion;
@@ -26,9 +30,17 @@ public class ProgressLineDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawRect(getBounds().left, baseline, getBounds().right * playableProportion, baseline + thickness, paint);
+        canvas.drawRect(getBounds().left,
+                        baseline,
+                        getBounds().right * playableProportion,
+                        baseline + thickness,
+                        paint);
         if (playableProportion < 1) {
-            canvas.drawRect(getBounds().right * playableProportion, baseline, getBounds().right, baseline + thickness, unPlayablePaint);
+            canvas.drawRect(getBounds().right * playableProportion,
+                            baseline,
+                            getBounds().right,
+                            baseline + thickness,
+                            unPlayablePaint);
         }
     }
 

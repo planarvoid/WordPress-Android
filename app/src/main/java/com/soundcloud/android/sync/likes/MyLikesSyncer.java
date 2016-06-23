@@ -31,6 +31,6 @@ public class MyLikesSyncer implements SyncStrategy {
         Boolean tracksChanged = trackLikesSyncer.get().call();
         Boolean playlistsChanged = playlistLikesSyncer.get().call();
         return tracksChanged || playlistsChanged
-                ? LegacySyncResult.fromSuccessfulChange(uri) : LegacySyncResult.fromSuccessWithoutChange(uri);
+               ? LegacySyncResult.fromSuccessfulChange(uri) : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 }

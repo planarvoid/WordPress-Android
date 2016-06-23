@@ -64,11 +64,23 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldSendUninterruptedPlaytimeEventForVideoWithFormatAndBitrate() {
-        createAndProcessStateTransition(Urn.forAd("dfp", "123"), PlayerType.MEDIA_PLAYER, PlaybackState.PLAYING, "video/mp4", 1001000, new Date(100L), false);
+        createAndProcessStateTransition(Urn.forAd("dfp", "123"),
+                                        PlayerType.MEDIA_PLAYER,
+                                        PlaybackState.PLAYING,
+                                        "video/mp4",
+                                        1001000,
+                                        new Date(100L),
+                                        false);
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
 
-        createAndProcessStateTransition(Urn.forAd("dfp", "123"), PlayerType.MEDIA_PLAYER, PlaybackState.BUFFERING, "video/mp4", 1001000, new Date(1000L), true);
+        createAndProcessStateTransition(Urn.forAd("dfp", "123"),
+                                        PlayerType.MEDIA_PLAYER,
+                                        PlaybackState.BUFFERING,
+                                        "video/mp4",
+                                        1001000,
+                                        new Date(1000L),
+                                        true);
         playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).hasSize(1);
 
@@ -162,13 +174,34 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         assertThat(event.getMetricValue()).isEqualTo(4900L);
     }
 
-    private void createAndProcessStateTransition(PlayerType player, PlaybackState newState, Date transitionTime, boolean isBufferUnderrun) {
-        createAndProcessStateTransition(track, player, newState, Skippy.SkippyMediaType.UNKNOWN.name(), 0, transitionTime, isBufferUnderrun);
+    private void createAndProcessStateTransition(PlayerType player,
+                                                 PlaybackState newState,
+                                                 Date transitionTime,
+                                                 boolean isBufferUnderrun) {
+        createAndProcessStateTransition(track,
+                                        player,
+                                        newState,
+                                        Skippy.SkippyMediaType.UNKNOWN.name(),
+                                        0,
+                                        transitionTime,
+                                        isBufferUnderrun);
     }
 
-    private void createAndProcessStateTransition(Urn itemUrn, PlayerType player, PlaybackState newState,
-                                                 String format, int bitrate, Date transitionTime, boolean isBufferUnderrun) {
-        PlaybackStateTransition stateTransition = new PlaybackStateTransition(newState, PlayStateReason.NONE, itemUrn, 0, 0, format, bitrate, dateProvider);
+    private void createAndProcessStateTransition(Urn itemUrn,
+                                                 PlayerType player,
+                                                 PlaybackState newState,
+                                                 String format,
+                                                 int bitrate,
+                                                 Date transitionTime,
+                                                 boolean isBufferUnderrun) {
+        PlaybackStateTransition stateTransition = new PlaybackStateTransition(newState,
+                                                                              PlayStateReason.NONE,
+                                                                              itemUrn,
+                                                                              0,
+                                                                              0,
+                                                                              format,
+                                                                              bitrate,
+                                                                              dateProvider);
         stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, player.getValue());
         when(detector.onStateTransitionEvent(stateTransition)).thenReturn(isBufferUnderrun);
         when(dateProvider.getCurrentDate()).thenReturn(transitionTime);

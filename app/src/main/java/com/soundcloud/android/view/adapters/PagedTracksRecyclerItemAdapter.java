@@ -11,7 +11,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PagedTracksRecyclerItemAdapter extends PagingRecyclerItemAdapter<TrackItem, PagedTracksRecyclerItemAdapter.TrackViewHolder>
+public class PagedTracksRecyclerItemAdapter
+        extends PagingRecyclerItemAdapter<TrackItem, PagedTracksRecyclerItemAdapter.TrackViewHolder>
         implements PlayingTrackAware {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;

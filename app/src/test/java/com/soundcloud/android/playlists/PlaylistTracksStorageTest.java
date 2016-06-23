@@ -31,7 +31,10 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         dateProvider = new TestDateProvider(ADDED_AT);
-        playlistTracksStorage = new PlaylistTracksStorage(propellerRx(), loadPlaylistTracks, dateProvider, accountOperations);
+        playlistTracksStorage = new PlaylistTracksStorage(propellerRx(),
+                                                          loadPlaylistTracks,
+                                                          dateProvider,
+                                                          accountOperations);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(321L));
     }
 
@@ -42,7 +45,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final ApiPlaylist apiPlaylist2 = testFixtures().insertPostedPlaylist(new Date(ADDED_AT.getTime() - 1000));
 
         playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123L))
-                .subscribe(testSubscriber);
+                             .subscribe(testSubscriber);
 
         testSubscriber.assertValues(Arrays.asList(
                 createAddTrackToPlaylistItem(apiPlaylist1, false),
@@ -57,7 +60,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(apiPlaylist2.getUrn(), 0);
 
         playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn())
-                .subscribe(testSubscriber);
+                             .subscribe(testSubscriber);
 
         testSubscriber.assertValues(Arrays.asList(
                 createAddTrackToPlaylistItem(apiPlaylist1, false),
@@ -71,7 +74,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final ApiTrack apiTrack = testFixtures().insertPlaylistTrackPendingRemoval(apiPlaylist, 0, new Date());
 
         playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn())
-                .subscribe(testSubscriber);
+                             .subscribe(testSubscriber);
 
         testSubscriber.assertValues(
                 Collections.singletonList(createAddTrackToPlaylistItem(apiPlaylist, false)));
@@ -114,7 +117,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final TestSubscriber<Urn> testSubscriber = new TestSubscriber<>();
 
         playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))
-                .subscribe(testSubscriber);
+                             .subscribe(testSubscriber);
 
         final Urn urn = testSubscriber.getOnNextEvents().get(0);
         assertThat(urn.isPlaylist()).isTrue();
@@ -127,7 +130,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final TestSubscriber<Urn> testSubscriber = new TestSubscriber<>();
 
         playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))
-                .subscribe(testSubscriber);
+                             .subscribe(testSubscriber);
 
         Urn playlistUrn = testSubscriber.getOnNextEvents().get(0);
         databaseAssertions().assertPlaylistPostInsertedFor(playlistUrn);
@@ -138,7 +141,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final TestSubscriber<Urn> testSubscriber = new TestSubscriber<>();
 
         playlistTracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))
-                .subscribe(testSubscriber);
+                             .subscribe(testSubscriber);
 
         long playlistId = testSubscriber.getOnNextEvents().get(0).getNumericId();
         databaseAssertions().assertPlaylistTracklist(playlistId, Collections.singletonList(Urn.forTrack(123)));
@@ -152,7 +155,9 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         return createAddTrackToPlaylistItem(playlist, isTrackAdded, false);
     }
 
-    private AddTrackToPlaylistItem createAddTrackToPlaylistItem(ApiPlaylist playlist, boolean isTrackAdded, boolean isOffline) {
+    private AddTrackToPlaylistItem createAddTrackToPlaylistItem(ApiPlaylist playlist,
+                                                                boolean isTrackAdded,
+                                                                boolean isOffline) {
         return new AddTrackToPlaylistItem(
                 playlist.getUrn(),
                 playlist.getTitle(),

@@ -47,13 +47,14 @@ public class AdPageListenerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         listener = new AdPageListener(context(), navigator,
-                 playSessionController, playQueueManager,
-                 eventBus, adsOperations, accountOperations, whyAdsPresenter);
+                                      playSessionController, playQueueManager,
+                                      eventBus, adsOperations, accountOperations, whyAdsPresenter);
 
         adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
+                                                                                                  adData));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(adData));
     }

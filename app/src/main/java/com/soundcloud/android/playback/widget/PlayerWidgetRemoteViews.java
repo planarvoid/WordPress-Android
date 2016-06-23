@@ -41,7 +41,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
 
     public PlayerWidgetRemoteViews(Context context) {
         super(context.getPackageName(), R.layout.appwidget_player,
-                R.drawable.ic_play_arrow_black_36dp, R.drawable.ic_pause_black_36dp);
+              R.drawable.ic_play_arrow_black_36dp, R.drawable.ic_pause_black_36dp);
     }
 
     void setEmptyState(Context context) {
@@ -57,26 +57,35 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
 
     void linkPlayControls(Context context, boolean isPlayableFromWidget) {
         setOnClickPendingIntent(R.id.toggle_playback, isPlayableFromWidget
-                ? createPlaybackPendingIntent(context, PlaybackAction.TOGGLE_PLAYBACK)
-                : createLaunchPendingIntent(context));
+                                                      ?
+                                                      createPlaybackPendingIntent(context,
+                                                                                  PlaybackAction.TOGGLE_PLAYBACK)
+                                                      :
+                                                      createLaunchPendingIntent(context));
         setOnClickPendingIntent(R.id.prev, createPlaybackPendingIntent(context, PlaybackAction.PREVIOUS));
         setOnClickPendingIntent(R.id.next, createPlaybackPendingIntent(context, PlaybackAction.NEXT));
     }
 
     private PendingIntent createLaunchPendingIntent(Context context) {
         return PendingIntent.getActivity(context,
-                R.id.player_widget_request_id,
-                new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                PendingIntent.FLAG_CANCEL_CURRENT);
+                                         R.id.player_widget_request_id,
+                                         new Intent(context,
+                                                    MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                                         PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     void linkTitles(Context context, Urn trackUrn, Optional<Urn> userUrn) {
         setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context,
-                PENDING_INTENT_REQUEST_CODE, createLaunchIntent(context, trackUrn), PendingIntent.FLAG_CANCEL_CURRENT));
+                                                                          PENDING_INTENT_REQUEST_CODE,
+                                                                          createLaunchIntent(context, trackUrn),
+                                                                          PendingIntent.FLAG_CANCEL_CURRENT));
 
         if (userUrn.isPresent()) {
             Navigator navigator = new Navigator(); // Can't inject here :(
-            setOnClickPendingIntent(R.id.user_txt, navigator.openProfileFromWidget(context, userUrn.get(), PENDING_INTENT_REQUEST_CODE));
+            setOnClickPendingIntent(R.id.user_txt,
+                                    navigator.openProfileFromWidget(context,
+                                                                    userUrn.get(),
+                                                                    PENDING_INTENT_REQUEST_CODE));
         }
     }
 
@@ -85,7 +94,9 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
             final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);
             toggleLike.putExtra(PlayerWidgetController.EXTRA_ADD_LIKE, !isLiked.get());
             setOnClickPendingIntent(R.id.btn_like, PendingIntent.getBroadcast(context,
-                    PENDING_INTENT_REQUEST_CODE, toggleLike, PendingIntent.FLAG_CANCEL_CURRENT));
+                                                                              PENDING_INTENT_REQUEST_CODE,
+                                                                              toggleLike,
+                                                                              PendingIntent.FLAG_CANCEL_CURRENT));
         }
     }
 

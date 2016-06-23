@@ -16,7 +16,9 @@ public class AdDeliveryEventTest extends AndroidUnitTest {
     private static final Urn VIDEO_AD_URN = Urn.forAd("dfp", "video");
     private static final Urn AUDIO_AD_URN = Urn.forAd("dfp", "audio");
     private static final Urn INTERSTITIAL_AD_URN = Urn.forAd("dfp", "interstitial");
-    private static final AdsReceived ALL_ADS_RECEIVED = new AdsReceived(VIDEO_AD_URN, AUDIO_AD_URN, INTERSTITIAL_AD_URN);
+    private static final AdsReceived ALL_ADS_RECEIVED = new AdsReceived(VIDEO_AD_URN,
+                                                                        AUDIO_AD_URN,
+                                                                        INTERSTITIAL_AD_URN);
     private static final String ADS_ENDPOINT = "endpoint/ads";
 
     @Test
@@ -32,7 +34,13 @@ public class AdDeliveryEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventForAdDelivery() {
-        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN, VIDEO_AD_URN, ADS_ENDPOINT, ALL_ADS_RECEIVED, false, true, true);
+        AdDeliveryEvent event = AdDeliveryEvent.adDelivered(TRACK_URN,
+                                                            VIDEO_AD_URN,
+                                                            ADS_ENDPOINT,
+                                                            ALL_ADS_RECEIVED,
+                                                            false,
+                                                            true,
+                                                            true);
 
         assertThat(event.getKind()).isEqualTo(AdDeliveryEvent.AD_DELIVERED_KIND);
         assertThat(event.get("monetizable_track_urn")).isEqualTo(TRACK_URN.toString());
@@ -80,7 +88,7 @@ public class AdDeliveryEventTest extends AndroidUnitTest {
         assertAdData(adsReceived.ads, "interstitial", INTERSTITIAL_AD_URN);
     }
 
-    private void assertAdData(Map<String, Object> data,  String key, Urn adUrn)  {
+    private void assertAdData(Map<String, Object> data, String key, Urn adUrn) {
         assertThat(data.containsKey(key)).isTrue();
         final Map<String, String> adData = (Map<String, String>) data.get(key);
         assertThat(adData.containsKey("urn")).isTrue();

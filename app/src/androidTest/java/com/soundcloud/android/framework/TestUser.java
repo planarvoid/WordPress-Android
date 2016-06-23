@@ -32,7 +32,12 @@ public class TestUser {
         return "someemail-" + System.currentTimeMillis() + "@tests.soundcloud";
     }
 
-    public TestUser(String permalink, String email, String password, String accessToken, int id, boolean subgenieExempt) {
+    public TestUser(String permalink,
+                    String email,
+                    String password,
+                    String accessToken,
+                    int id,
+                    boolean subgenieExempt) {
         this.permalink = permalink;
         this.email = email;
         this.password = password;
@@ -63,7 +68,7 @@ public class TestUser {
             try {
                 tryCount++;
                 result = AccountAssistant.addAccountAndEnableSync(context, getToken(context, apiWrapper),
-                        getUser(apiWrapper).toApiMobileUser());
+                                                                  getUser(apiWrapper).toApiMobileUser());
             } catch (IOException e) {
 
                 if (tryCount > maxRetries) {

@@ -33,13 +33,17 @@ public class PushLikesCommandTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        pushLikesCommand = new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_TRACK_LIKES, new TypeToken<ModelCollection<ApiLike>>() {});
+        pushLikesCommand = new PushLikesCommand<>(apiClient,
+                                                  ApiEndpoints.CREATE_TRACK_LIKES,
+                                                  new TypeToken<ModelCollection<ApiLike>>() {
+                                                  });
     }
 
     @Test
     public void shouldPushGivenLikesAndReturnSuccessCollection() throws Exception {
         Map expectedBody = Collections.singletonMap(
-                "likes", Collections.singletonList(Collections.singletonMap("target_urn", apiLike.getTargetUrn().toString()))
+                "likes",
+                Collections.singletonList(Collections.singletonMap("target_urn", apiLike.getTargetUrn().toString()))
         );
         ModelCollection<ApiLike> addedLikes = new ModelCollection<>(Collections.singletonList(apiLike));
 

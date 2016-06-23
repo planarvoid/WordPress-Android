@@ -51,8 +51,14 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                streamUrlBuilder, Schedulers.immediate(), assetDownloader, downloadConnectionHelper);
+        operations = new DownloadOperations(httpClient,
+                                            fileStorage,
+                                            deleteOfflineContent,
+                                            playQueueManager,
+                                            streamUrlBuilder,
+                                            Schedulers.immediate(),
+                                            assetDownloader,
+                                            downloadConnectionHelper);
         when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
@@ -72,7 +78,8 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, assetDownloader, response);
         inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.getUrn());
-        inOrder.verify(fileStorage).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+        inOrder.verify(fileStorage)
+               .storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
         inOrder.verify(assetDownloader).fetchTrackArtwork(downloadRequest);
         inOrder.verify(assetDownloader).fetchTrackWaveform(downloadRequest.getUrn(), downloadRequest.getWaveformUrl());
         inOrder.verify(response).close();
@@ -104,7 +111,7 @@ public class DownloadOperationsTest extends AndroidUnitTest {
         final EncryptionException encryptionException = new EncryptionException("Test EncryptionException", null);
         when(httpClient.getFileStream(streamUrl)).thenReturn(response);
         doThrow(encryptionException).when(fileStorage).storeTrack(eq(trackUrn), same(downloadStream),
-                any(Encryptor.EncryptionProgressListener.class));
+                                                                  any(Encryptor.EncryptionProgressListener.class));
 
         assertThat(operations.download(downloadRequest, listener).isSuccess()).isFalse();
     }
@@ -149,7 +156,9 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Test
     public void canceledDownloadReturnsDownloadCancelledResult() throws IOException, EncryptionException {
         doThrow(new EncryptionInterruptedException("boom!")).when(fileStorage)
-                .storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+                                                            .storeTrack(eq(trackUrn),
+                                                                        same(downloadStream),
+                                                                        any(Encryptor.EncryptionProgressListener.class));
 
         DownloadState result = operations.download(downloadRequest, listener);
 
@@ -159,7 +168,9 @@ public class DownloadOperationsTest extends AndroidUnitTest {
     @Test
     public void doesNotPrefetchArtworkWhenDownloadFailedOrWasCanceled() throws IOException, EncryptionException {
         doThrow(new EncryptionInterruptedException("boom!")).when(fileStorage)
-                .storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+                                                            .storeTrack(eq(trackUrn),
+                                                                        same(downloadStream),
+                                                                        any(Encryptor.EncryptionProgressListener.class));
 
         operations.download(downloadRequest, listener);
 
@@ -181,7 +192,9 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         operations.download(downloadRequest, listener);
 
-        verify(fileStorage, never()).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+        verify(fileStorage, never()).storeTrack(eq(trackUrn),
+                                                same(downloadStream),
+                                                any(Encryptor.EncryptionProgressListener.class));
     }
 
     @Test
@@ -206,7 +219,9 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         operations.download(downloadRequest, listener);
 
-        verify(fileStorage, never()).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+        verify(fileStorage, never()).storeTrack(eq(trackUrn),
+                                                same(downloadStream),
+                                                any(Encryptor.EncryptionProgressListener.class));
     }
 
     @Test
@@ -223,7 +238,9 @@ public class DownloadOperationsTest extends AndroidUnitTest {
 
         operations.download(downloadRequest, listener);
 
-        verify(fileStorage, never()).storeTrack(eq(trackUrn), same(downloadStream), any(Encryptor.EncryptionProgressListener.class));
+        verify(fileStorage, never()).storeTrack(eq(trackUrn),
+                                                same(downloadStream),
+                                                any(Encryptor.EncryptionProgressListener.class));
     }
 
 }

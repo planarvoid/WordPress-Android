@@ -33,7 +33,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> implements YouView.Listener, ScrollContent {
+public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment>
+        implements YouView.Listener, ScrollContent {
 
     private final YouViewFactory youViewFactory;
     private final UserRepository userRepository;
@@ -82,8 +83,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     public void onCreate(YouFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         userRepository.userInfo(accountOperations.getLoggedInUserUrn())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new YouSubscriber());
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .subscribe(new YouSubscriber());
     }
 
     @Override
@@ -140,8 +141,8 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment> 
     private void bindUser(YouView headerView, You you) {
         headerView.setUsername(you.getUsername());
         imageOperations.displayCircularWithPlaceholder(you,
-                ApiImageSize.getFullImageSize(resources),
-                headerView.getProfileImageView());
+                                                       ApiImageSize.getFullImageSize(resources),
+                                                       headerView.getProfileImageView());
     }
 
     private class YouSubscriber extends DefaultSubscriber<PropertySet> {

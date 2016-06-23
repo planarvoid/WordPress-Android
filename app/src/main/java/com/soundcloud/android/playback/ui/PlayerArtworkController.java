@@ -87,7 +87,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
     private void showIdleState(PlaybackProgress progress) {
         latestProgress = progress;
         showIdleState();
-        if (!progress.isEmpty()){
+        if (!progress.isEmpty()) {
             setProgress(progress);
         }
     }
@@ -127,13 +127,19 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         }
     }
 
-    public void clear(){
+    public void clear() {
         artworkView.getWrappedImageView().setImageDrawable(null);
         artworkView.getImageOverlay().setImageDrawable(null);
     }
 
-    public void loadArtwork(ImageResource imageResource, boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
-        playerArtworkLoader.loadArtwork(imageResource, artworkView.getWrappedImageView(), artworkView.getImageOverlay(), isHighPriority, viewVisibilityProvider);
+    public void loadArtwork(ImageResource imageResource,
+                            boolean isHighPriority,
+                            ViewVisibilityProvider viewVisibilityProvider) {
+        playerArtworkLoader.loadArtwork(imageResource,
+                                        artworkView.getWrappedImageView(),
+                                        artworkView.getImageOverlay(),
+                                        isHighPriority,
+                                        viewVisibilityProvider);
     }
 
     public void reset() {
@@ -151,14 +157,15 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         private final Provider<PlayerArtworkLoader> playerArtworkLoaderProvider;
 
         @Inject
-        Factory(ProgressController.Factory animationControllerFactory, Provider<PlayerArtworkLoader> playerArtworkLoaderProvider) {
+        Factory(ProgressController.Factory animationControllerFactory,
+                Provider<PlayerArtworkLoader> playerArtworkLoaderProvider) {
             this.animationControllerFactory = animationControllerFactory;
             this.playerArtworkLoaderProvider = playerArtworkLoaderProvider;
         }
 
         public PlayerArtworkController create(PlayerTrackArtworkView artworkView) {
             return new PlayerArtworkController(artworkView, animationControllerFactory,
-                    playerArtworkLoaderProvider.get());
+                                               playerArtworkLoaderProvider.get());
         }
     }
 

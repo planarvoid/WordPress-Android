@@ -48,8 +48,8 @@ class StationsStorage {
                     Collections.<StationTrack>emptyList(),
                     cursorReader.getString(Stations.PERMALINK),
                     cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION)
-                            ? com.soundcloud.android.stations.Stations.NEVER_PLAYED
-                            : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
+                    ? com.soundcloud.android.stations.Stations.NEVER_PLAYED
+                    : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
                     Optional.fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
         }
     };
@@ -100,10 +100,10 @@ class StationsStorage {
     public Observable<StationTrack> loadPlayQueue(Urn station, int startPosition) {
         return propellerRx
                 .query(Query
-                        .from(StationsPlayQueues.TABLE)
-                        .whereEq(StationsPlayQueues.STATION_URN, station.toString())
-                        .whereGe(StationsPlayQueues.POSITION, startPosition)
-                        .order(StationsPlayQueues.POSITION, Query.Order.ASC))
+                               .from(StationsPlayQueues.TABLE)
+                               .whereEq(StationsPlayQueues.STATION_URN, station.toString())
+                               .whereGe(StationsPlayQueues.POSITION, startPosition)
+                               .order(StationsPlayQueues.POSITION, Query.Order.ASC))
                 .map(TO_STATION_TRACK);
     }
 
@@ -112,14 +112,16 @@ class StationsStorage {
             @Override
             public void steps(PropellerDatabase propeller) {
                 final Query isPlayQueueExpired = apply(exists(Query
-                        .from(Stations.TABLE)
-                        .whereEq(Stations.STATION_URN, stationUrn.toString())
-                        .whereLe(Stations.PLAY_QUEUE_UPDATED_AT, dateProvider.getCurrentTime() - EXPIRE_DELAY)));
+                                                                      .from(Stations.TABLE)
+                                                                      .whereEq(Stations.STATION_URN,
+                                                                               stationUrn.toString())
+                                                                      .whereLe(Stations.PLAY_QUEUE_UPDATED_AT,
+                                                                               dateProvider.getCurrentTime() - EXPIRE_DELAY)));
 
                 if (propeller.query(isPlayQueueExpired).first(Boolean.class)) {
                     step(propeller
-                            .delete(StationsPlayQueues.TABLE, filter()
-                                    .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())));
+                                 .delete(StationsPlayQueues.TABLE, filter()
+                                         .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())));
                     step(resetLastPlayedTrackPosition(stationUrn));
                 }
             }
@@ -150,9 +152,9 @@ class StationsStorage {
     Observable<StationRecord> station(Urn stationUrn) {
         return Observable.zip(
                 propellerRx.query(Query
-                        .from(Stations.TABLE)
-                        .whereEq(Stations.STATION_URN, stationUrn))
-                        .map(TO_STATION_WITHOUT_TRACKS),
+                                          .from(Stations.TABLE)
+                                          .whereEq(Stations.STATION_URN, stationUrn))
+                           .map(TO_STATION_WITHOUT_TRACKS),
 
                 propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_STATION_TRACK).toList(),
                 new Func2<Station, List<StationTrack>, StationRecord>() {
@@ -209,9 +211,9 @@ class StationsStorage {
     List<PropertySet> getRecentStationsToSync() {
         return propellerDatabase
                 .query(Query
-                        .from(StationsCollections.TABLE)
-                        .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
-                        .whereNotNull(StationsCollections.UPDATED_LOCALLY_AT))
+                               .from(StationsCollections.TABLE)
+                               .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
+                               .whereNotNull(StationsCollections.UPDATED_LOCALLY_AT))
                 .toList(TO_RECENT_STATION);
     }
 

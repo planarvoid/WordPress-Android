@@ -75,8 +75,15 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         playbackService = new PlaybackService(eventBus,
-                accountOperations, streamPlayer,playbackReceiverFactory, analyticsDispatcher, adsOperations,
-                adsController, volumeControllerFactory, mediaSessionControllerFactory, playSessionStateProvider);
+                                              accountOperations,
+                                              streamPlayer,
+                                              playbackReceiverFactory,
+                                              analyticsDispatcher,
+                                              adsOperations,
+                                              adsController,
+                                              volumeControllerFactory,
+                                              mediaSessionControllerFactory,
+                                              playSessionStateProvider);
 
         when(playbackReceiverFactory.create(playbackService, accountOperations)).thenReturn(playbackReceiver);
         when(volumeControllerFactory.create(streamPlayer, playbackService)).thenReturn(volumeController);
@@ -92,7 +99,8 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForToggleplaybackAction() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.TOGGLE_PLAYBACK);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver,
+                                                                    PlaybackService.Action.TOGGLE_PLAYBACK);
     }
 
     @Test
@@ -122,13 +130,15 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Test
     public void onCreateRegistersNoisyListenerToListenForAudioBecomingNoisyBroadcast() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver,
+                                                                    AudioManager.ACTION_AUDIO_BECOMING_NOISY);
     }
 
     @Test
     public void onCreateRegistersPlaybackReceiverToListenForFadeAndPause() throws Exception {
         playbackService.onCreate();
-        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver, PlaybackService.Action.FADE_AND_PAUSE);
+        assertThat(playbackService).hasRegisteredReceiverWithAction(playbackReceiver,
+                                                                    PlaybackService.Action.FADE_AND_PAUSE);
     }
 
     @Test
@@ -193,7 +203,12 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, videoAd.getAdUrn(), 0, 123, dateProvider);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    videoAd.getAdUrn(),
+                                                                                    0,
+                                                                                    123,
+                                                                                    dateProvider);
         playbackService.onPlaystateChanged(stateTransition);
 
         PlaybackStateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
@@ -205,7 +220,11 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 123);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    track,
+                                                                                    0,
+                                                                                    123);
         playbackService.onPlaystateChanged(stateTransition);
 
         PlaybackStateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
@@ -217,11 +236,21 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 0, dateProvider);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    track,
+                                                                                    0,
+                                                                                    0,
+                                                                                    dateProvider);
         playbackService.onPlaystateChanged(stateTransition);
 
         PlaybackStateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
-        assertThat(broadcasted).isEqualTo(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, playbackItem.getDuration(), dateProvider));
+        assertThat(broadcasted).isEqualTo(new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                      PlayStateReason.NONE,
+                                                                      track,
+                                                                      0,
+                                                                      playbackItem.getDuration(),
+                                                                      dateProvider));
     }
 
     @Test
@@ -238,7 +267,12 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 123L, 0, dateProvider);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    track,
+                                                                                    123L,
+                                                                                    0,
+                                                                                    dateProvider);
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(mediaSessionController).onBuffering(123L);
@@ -249,7 +283,12 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track, 123L, 0, dateProvider);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    track,
+                                                                                    123L,
+                                                                                    0,
+                                                                                    dateProvider);
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(mediaSessionController).onPlaying(123L);
@@ -261,7 +300,11 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 123);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    track,
+                                                                                    0,
+                                                                                    123);
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(adsController).onPlayStateTransition(stateTransition);
@@ -274,7 +317,12 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, videoAd.getAdUrn(), 0, 123, dateProvider);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    videoAd.getAdUrn(),
+                                                                                    0,
+                                                                                    123,
+                                                                                    dateProvider);
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(analyticsDispatcher).onStateTransition(playbackItem, stateTransition);
@@ -285,7 +333,11 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 123);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    track,
+                                                                                    0,
+                                                                                    123);
         playbackService.onPlaystateChanged(stateTransition);
 
         final InOrder inOrder = Mockito.inOrder(playSessionStateProvider, analyticsDispatcher);
@@ -299,12 +351,14 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
         playbackService.onPlaystateChanged(stateTransition);
 
-        verify(analyticsDispatcher, never()).onStateTransition(any(PlaybackItem.class), any(PlaybackStateTransition.class));
+        verify(analyticsDispatcher, never()).onStateTransition(any(PlaybackItem.class),
+                                                               any(PlaybackStateTransition.class));
     }
 
     @Test
     public void onProgressForwardsAudioAdProgressEventToAnalyticsDispatcher() {
-        playbackItem = AudioAdPlaybackItem.create(TestPropertySets.fromApiTrack(), AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        playbackItem = AudioAdPlaybackItem.create(TestPropertySets.fromApiTrack(),
+                                                  AdFixtures.getAudioAd(Urn.forTrack(123L)));
         playbackService.onCreate();
         playbackService.play(playbackItem);
         playbackService.onProgressEvent(25, 50);
@@ -404,7 +458,9 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.play(playbackItem);
 
         playbackService.stop();
-        playbackService.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, track));
+        playbackService.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                       PlayStateReason.NONE,
+                                                                       track));
 
         assertThat(playbackService).doesNotHaveLastForegroundNotification();
     }
@@ -414,7 +470,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onCreate();
         playbackService.play(playbackItem);
 
-        playbackService.onProgressEvent(playbackItem.getDuration()-PREVIEW_FADE_DURATION, playbackItem.getDuration());
+        playbackService.onProgressEvent(playbackItem.getDuration() - PREVIEW_FADE_DURATION, playbackItem.getDuration());
 
         verify(volumeController, never()).fadeOut(2000, 0);
     }

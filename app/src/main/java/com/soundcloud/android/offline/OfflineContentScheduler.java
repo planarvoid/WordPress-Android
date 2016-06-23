@@ -58,7 +58,8 @@ public class OfflineContentScheduler {
         return new Action1<Object>() {
             @Override
             public void call(Object ignored) {
-                scheduleStartAt(dateProvider.getCurrentTime() + OfflineConstants.PENDING_REMOVAL_DELAY, CLEANUP_REQUEST_ID);
+                scheduleStartAt(dateProvider.getCurrentTime() + OfflineConstants.PENDING_REMOVAL_DELAY,
+                                CLEANUP_REQUEST_ID);
             }
         };
     }

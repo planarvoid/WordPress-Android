@@ -40,13 +40,15 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         paymentOperations = new NativePaymentOperations(Schedulers.immediate(), api, billingService, tokenStorage);
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.NATIVE_PRODUCTS.path())), eq(AvailableProducts.class)))
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.NATIVE_PRODUCTS.path())),
+                                eq(AvailableProducts.class)))
                 .thenReturn(availableProductsObservable());
         when(api.mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
-                .withContent(new StartCheckout("product_id"))), eq(CheckoutStarted.class)))
+                                                .withContent(new StartCheckout("product_id"))),
+                                eq(CheckoutStarted.class)))
                 .thenReturn(checkoutResultObservable());
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(UpdateCheckout.fromFailure("user cancelled")))))
+                                          .withContent(UpdateCheckout.fromFailure("user cancelled")))))
                 .thenReturn(Observable.<ApiResponse>empty());
     }
 
@@ -78,7 +80,8 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
 
         paymentOperations.queryProduct().subscribe();
 
-        verify(api).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.NATIVE_PRODUCTS.path())), eq(AvailableProducts.class));
+        verify(api).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.NATIVE_PRODUCTS.path())),
+                                   eq(AvailableProducts.class));
     }
 
     @Test
@@ -102,7 +105,7 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsProductDetailsFromBillingService()  {
+    public void returnsProductDetailsFromBillingService() {
         ProductDetails details = new ProductDetails("id", "Subscription", "Blah", "$100");
         when(billingService.getDetails(anyString())).thenReturn(Observable.just(details));
         TestObserver<ProductStatus> observer = new TestObserver<>();
@@ -119,7 +122,8 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
         paymentOperations.purchase("product_id").subscribe();
 
         verify(api).mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
-                .withContent(new StartCheckout("product_id"))), eq(CheckoutStarted.class));
+                                                   .withContent(new StartCheckout("product_id"))),
+                                   eq(CheckoutStarted.class));
     }
 
     @Test
@@ -143,7 +147,7 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
         paymentOperations.cancel("user cancelled").subscribe();
 
         verify(api).response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
-                .withContent(UpdateCheckout.fromFailure("user cancelled"))));
+                                             .withContent(UpdateCheckout.fromFailure("user cancelled"))));
     }
 
     @Test
@@ -156,7 +160,8 @@ public class NativePaymentOperationsTest extends AndroidUnitTest {
     }
 
     private Observable<AvailableProducts> availableProductsObservable() {
-        AvailableProducts products = new AvailableProducts(asList(new AvailableProducts.Product("product_id", "high_tier")));
+        AvailableProducts products = new AvailableProducts(asList(new AvailableProducts.Product("product_id",
+                                                                                                "high_tier")));
         return Observable.just(products);
     }
 

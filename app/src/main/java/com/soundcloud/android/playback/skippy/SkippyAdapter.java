@@ -91,10 +91,17 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private long lastStateChangeProgress;
 
     @Inject
-    SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
-                  StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
-                  LockUtil lockUtil, BufferUnderrunListener bufferUnderrunListener,
-                  SharedPreferences sharedPreferences, SecureFileStorage secureFileStorage, CryptoOperations cryptoOperations,
+    SkippyAdapter(SkippyFactory skippyFactory,
+                  AccountOperations accountOperations,
+                  ApiUrlBuilder urlBuilder,
+                  StateChangeHandler stateChangeHandler,
+                  EventBus eventBus,
+                  NetworkConnectionHelper connectionHelper,
+                  LockUtil lockUtil,
+                  BufferUnderrunListener bufferUnderrunListener,
+                  SharedPreferences sharedPreferences,
+                  SecureFileStorage secureFileStorage,
+                  CryptoOperations cryptoOperations,
                   CurrentDateProvider dateProvider) {
         this.skippyFactory = skippyFactory;
         this.lockUtil = lockUtil;
@@ -129,7 +136,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     public void preload(PreloadItem preloadItem) {
         try {
             skippyPreloader.fetch(buildRemoteUrl(preloadItem.getUrn(), preloadItem.getPlaybackType()),
-                    PRELOAD_START_POSITION, PRELOAD_DURATION);
+                                  PRELOAD_START_POSITION, PRELOAD_DURATION);
         } catch (UnsatisfiedLinkError e) {
             // #4454. Remove in upcoming release as instances drop
             ErrorUtils.handleSilentException(e);
@@ -191,8 +198,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private String buildAudioAdUrl(AudioAdPlaybackItem adPlaybackItem) {
         return adPlaybackItem.isThirdParty()
-                ? buildThirdPartyAdHlsUrl(adPlaybackItem)
-                : buildRemoteUrl(adPlaybackItem.getUrn(), PlaybackType.AUDIO_AD);
+               ? buildThirdPartyAdHlsUrl(adPlaybackItem)
+               : buildRemoteUrl(adPlaybackItem.getUrn(), PlaybackType.AUDIO_AD);
     }
 
     private String buildThirdPartyAdHlsUrl(AudioAdPlaybackItem adPlaybackItem) {
@@ -202,8 +209,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
         }
         return builder.withQueryParam(PARAM_URL, adPlaybackItem.getThirdPartyStreamUrl())
-                .withQueryParam(PARAM_DURATION, String.valueOf(adPlaybackItem.getDuration()))
-                .build();
+                      .withQueryParam(PARAM_DURATION, String.valueOf(adPlaybackItem.getDuration()))
+                      .build();
     }
 
     private String buildRemoteUrl(Urn trackUrn, PlaybackType playType) {
@@ -302,7 +309,14 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public void onStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorCode, long position, long duration, String uri, Skippy.SkippyMediaType format, int bitrate) {
+    public void onStateChanged(Skippy.State state,
+                               Skippy.Reason reason,
+                               Skippy.Error errorCode,
+                               long position,
+                               long duration,
+                               String uri,
+                               Skippy.SkippyMediaType format,
+                               int bitrate) {
         try {
             handleStateChanged(state, reason, errorCode, position, duration, uri, format, bitrate);
         } catch (Throwable t) {
@@ -310,7 +324,14 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         }
     }
 
-    private void handleStateChanged(Skippy.State state, Skippy.Reason reason, Skippy.Error errorCode, long position, long duration, String uri, Skippy.SkippyMediaType format, int bitrate) {
+    private void handleStateChanged(Skippy.State state,
+                                    Skippy.Reason reason,
+                                    Skippy.Error errorCode,
+                                    long position,
+                                    long duration,
+                                    String uri,
+                                    Skippy.SkippyMediaType format,
+                                    int bitrate) {
         final long adjustedPosition = fixPosition(position, duration);
 
         Log.i(TAG, "State = " + state + " : " + reason + " : " + errorCode);
@@ -319,11 +340,21 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
             final PlaybackState translatedState = getTranslatedState(state, reason);
             final PlayStateReason translatedReason = getTranslatedReason(reason, errorCode);
-            final PlaybackStateTransition transition = new PlaybackStateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration, format.name(), bitrate, dateProvider);
-            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
+            final PlaybackStateTransition transition = new PlaybackStateTransition(translatedState,
+                                                                                   translatedReason,
+                                                                                   currentTrackUrn,
+                                                                                   adjustedPosition,
+                                                                                   duration,
+                                                                                   format.name(),
+                                                                                   bitrate,
+                                                                                   dateProvider);
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL,
+                                         getPlaybackProtocol().getValue());
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
-            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());
-            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, String.valueOf(true));
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE,
+                                         connectionHelper.getCurrentConnectionType().getValue());
+            transition.addExtraAttribute(PlaybackStateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE,
+                                         String.valueOf(true));
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, uri);
 
             if (transition.playbackHasStopped()) {
@@ -345,23 +376,36 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Override
-    public void onPerformanceMeasured(PlaybackMetric metric, long value, String uri, String cdnHost, Skippy.SkippyMediaType format, int bitRate) {
+    public void onPerformanceMeasured(PlaybackMetric metric,
+                                      long value,
+                                      String uri,
+                                      String cdnHost,
+                                      Skippy.SkippyMediaType format,
+                                      int bitRate) {
         if (!accountOperations.isUserLoggedIn() || metric.equals(PlaybackMetric.TIME_TO_BUFFER)) {
             return;
         }
 
         if (allowPerformanceMeasureEvent(metric)) {
-            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, createPerformanceEvent(metric, value, cdnHost, format, bitRate));
+            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE,
+                             createPerformanceEvent(metric, value, cdnHost, format, bitRate));
         }
     }
 
     private boolean allowPerformanceMeasureEvent(PlaybackMetric metric) {
         // Time to load library & cache usage events are not specific to the current playing track
-        return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY || metric == PlaybackMetric.CACHE_USAGE_PERCENT || !AdUtils.isThirdPartyAudioAd(currentTrackUrn);
+        return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY || metric == PlaybackMetric.CACHE_USAGE_PERCENT || !AdUtils
+                .isThirdPartyAudioAd(currentTrackUrn);
     }
 
     @Override
-    public void onDownloadPerformed(long startPosition, long endPosition, int bytesLoaded, int bytesTotal, String uri, Skippy.SkippyMediaType format, int bitRate) {
+    public void onDownloadPerformed(long startPosition,
+                                    long endPosition,
+                                    int bytesLoaded,
+                                    int bytesTotal,
+                                    String uri,
+                                    Skippy.SkippyMediaType format,
+                                    int bitRate) {
         //Not implemented yet!
     }
 
@@ -401,35 +445,87 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     @Nullable
-    private PlaybackPerformanceEvent createPerformanceEvent(PlaybackMetric metric, long value, String cdnHost, Skippy.SkippyMediaType format, int bitRate) {
+    private PlaybackPerformanceEvent createPerformanceEvent(PlaybackMetric metric,
+                                                            long value,
+                                                            String cdnHost,
+                                                            Skippy.SkippyMediaType format,
+                                                            int bitRate) {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
         Urn userUrn = accountOperations.getLoggedInUserUrn();
         PlaybackProtocol playbackProtocol = getPlaybackProtocol();
         switch (metric) {
             case TIME_TO_PLAY:
-                return PlaybackPerformanceEvent.timeToPlay(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate, userUrn, false);
+                return PlaybackPerformanceEvent.timeToPlay(value,
+                                                           playbackProtocol,
+                                                           PlayerType.SKIPPY,
+                                                           currentConnectionType,
+                                                           cdnHost,
+                                                           format.name(),
+                                                           bitRate,
+                                                           userUrn,
+                                                           false);
             case TIME_TO_BUFFER:
-                return PlaybackPerformanceEvent.timeToBuffer(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate, userUrn);
+                return PlaybackPerformanceEvent.timeToBuffer(value,
+                                                             playbackProtocol,
+                                                             PlayerType.SKIPPY,
+                                                             currentConnectionType,
+                                                             cdnHost,
+                                                             format.name(),
+                                                             bitRate,
+                                                             userUrn);
             case TIME_TO_GET_PLAYLIST:
-                return PlaybackPerformanceEvent.timeToPlaylist(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate, userUrn);
+                return PlaybackPerformanceEvent.timeToPlaylist(value,
+                                                               playbackProtocol,
+                                                               PlayerType.SKIPPY,
+                                                               currentConnectionType,
+                                                               cdnHost,
+                                                               format.name(),
+                                                               bitRate,
+                                                               userUrn);
             case TIME_TO_SEEK:
-                return PlaybackPerformanceEvent.timeToSeek(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate, userUrn);
+                return PlaybackPerformanceEvent.timeToSeek(value,
+                                                           playbackProtocol,
+                                                           PlayerType.SKIPPY,
+                                                           currentConnectionType,
+                                                           cdnHost,
+                                                           format.name(),
+                                                           bitRate,
+                                                           userUrn);
             case FRAGMENT_DOWNLOAD_RATE:
-                return PlaybackPerformanceEvent.fragmentDownloadRate(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate, userUrn);
+                return PlaybackPerformanceEvent.fragmentDownloadRate(value,
+                                                                     playbackProtocol,
+                                                                     PlayerType.SKIPPY,
+                                                                     currentConnectionType,
+                                                                     cdnHost,
+                                                                     format.name(),
+                                                                     bitRate,
+                                                                     userUrn);
             case TIME_TO_LOAD_LIBRARY:
-                return PlaybackPerformanceEvent.timeToLoad(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate, userUrn);
+                return PlaybackPerformanceEvent.timeToLoad(value,
+                                                           playbackProtocol,
+                                                           PlayerType.SKIPPY,
+                                                           currentConnectionType,
+                                                           cdnHost,
+                                                           format.name(),
+                                                           bitRate,
+                                                           userUrn);
             case CACHE_USAGE_PERCENT:
-                return PlaybackPerformanceEvent.cacheUsagePercent(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate);
+                return PlaybackPerformanceEvent.cacheUsagePercent(value,
+                                                                  playbackProtocol,
+                                                                  PlayerType.SKIPPY,
+                                                                  currentConnectionType,
+                                                                  cdnHost,
+                                                                  format.name(),
+                                                                  bitRate);
             case UNINTERRUPTED_PLAYTIME:
-                return PlaybackPerformanceEvent.uninterruptedPlaytimeMs(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
-                        format.name(), bitRate, false);
+                return PlaybackPerformanceEvent.uninterruptedPlaytimeMs(value,
+                                                                        playbackProtocol,
+                                                                        PlayerType.SKIPPY,
+                                                                        currentConnectionType,
+                                                                        cdnHost,
+                                                                        format.name(),
+                                                                        bitRate,
+                                                                        false);
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }
@@ -446,14 +542,21 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private long fixPosition(long position, long duration) {
         if (position > duration) {
             ErrorUtils.handleSilentException("track [" + currentTrackUrn + "] : position [" + position + "] > duration [" + duration + "].",
-                    new IllegalStateException("Skippy inconsistent state : position > duration"));
+                                             new IllegalStateException("Skippy inconsistent state : position > duration"));
             return duration;
         }
         return position;
     }
 
     @Override
-    public void onErrorMessage(String category, String sourceFile, int line, String errorMsg, String uri, String cdn, Skippy.SkippyMediaType format, int bitRate) {
+    public void onErrorMessage(String category,
+                               String sourceFile,
+                               int line,
+                               String errorMsg,
+                               String uri,
+                               String cdn,
+                               Skippy.SkippyMediaType format,
+                               int bitRate) {
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
         // TODO : remove this check, as Skippy should filter out timeouts. Leaving it for this release as a precaution - JS
         if (!ConnectionType.OFFLINE.equals(currentConnectionType)) {
@@ -462,15 +565,17 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         }
 
         final PlaybackErrorEvent event = new PlaybackErrorEvent(category, getPlaybackProtocol(),
-                cdn, format.name(), bitRate, currentConnectionType);
+                                                                cdn, format.name(), bitRate, currentConnectionType);
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
     }
 
     @Override
     public void onInitializationError(Throwable throwable, String message) {
         ErrorUtils.handleSilentExceptionWithLog(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
-        eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable, message,
-                getAndIncrementInitilizationErrors(), getInitializationSuccessCount()));
+        eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable,
+                                                                                 message,
+                                                                                 getAndIncrementInitilizationErrors(),
+                                                                                 getInitializationSuccessCount()));
     }
 
     private int getAndIncrementInitilizationErrors() {
@@ -500,7 +605,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         private final NetworkConnectionHelper connectionHelper;
 
         @Inject
-        StateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper, NetworkConnectionHelper connectionHelper) {
+        StateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper,
+                           NetworkConnectionHelper connectionHelper) {
             super(looper);
             this.connectionHelper = connectionHelper;
         }
@@ -520,7 +626,10 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                 playerListener.onPlaystateChanged(stateTransition);
             }
             if (bufferUnderrunListener != null) {
-                bufferUnderrunListener.onPlaystateChanged(stateTransition, PlaybackProtocol.HLS, PlayerType.SKIPPY, connectionHelper.getCurrentConnectionType());
+                bufferUnderrunListener.onPlaystateChanged(stateTransition,
+                                                          PlaybackProtocol.HLS,
+                                                          PlayerType.SKIPPY,
+                                                          connectionHelper.getCurrentConnectionType());
             }
         }
     }

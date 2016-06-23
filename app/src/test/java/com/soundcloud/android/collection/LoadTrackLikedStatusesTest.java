@@ -46,7 +46,7 @@ public class LoadTrackLikedStatusesTest extends StorageIntegrationTest {
     public void shouldOnlyReturnLikedStatusForTracks() {
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         final List<PropertySet> input = Arrays.asList(likedTrack.toPropertySet(),
-                this.track.toPropertySet(), playlist.toPropertySet());
+                                                      this.track.toPropertySet(), playlist.toPropertySet());
 
         final Map<Urn, PropertySet> likedStatuses = command.call(input);
 

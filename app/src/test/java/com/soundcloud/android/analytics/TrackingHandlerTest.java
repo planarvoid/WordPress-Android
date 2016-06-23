@@ -84,7 +84,7 @@ public class TrackingHandlerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotTryToDeleteEventsIfNoEventsPushed(){
+    public void shouldNotTryToDeleteEventsIfNoEventsPushed() {
         final List<TrackingRecord> events = buildEvents();
         when(storage.getPendingEvents()).thenReturn(events);
         when(api.pushToRemote(events)).thenReturn(Collections.<TrackingRecord>emptyList());

@@ -49,7 +49,9 @@ public class LegacySyncInitiator {
     };
 
     @Inject
-    public LegacySyncInitiator(Context context, AccountOperations accountOperations, SyncStateManager syncStateManager) {
+    public LegacySyncInitiator(Context context,
+                               AccountOperations accountOperations,
+                               SyncStateManager syncStateManager) {
         this.syncStateManager = syncStateManager;
         this.context = context.getApplicationContext();
         this.accountOperations = accountOperations;
@@ -100,11 +102,11 @@ public class LegacySyncInitiator {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 context.startService(new Intent(context, ApiSyncService.class)
-                        .setAction(syncAction)
-                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                                new LegacyResultReceiverAdapter(subscriber, contentUri))
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                        .setData(contentUri));
+                                             .setAction(syncAction)
+                                             .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                                                       new LegacyResultReceiverAdapter(subscriber, contentUri))
+                                             .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                             .setData(contentUri));
             }
         }).doOnNext(resetSyncMissesLegacy(contentUri));
     }
@@ -121,11 +123,11 @@ public class LegacySyncInitiator {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 context.startService(new Intent(context, ApiSyncService.class)
-                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                                new LegacyResultReceiverAdapter(subscriber, contentUri))
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                        .setData(contentUri)
-                        .setAction(ApiSyncService.ACTION_APPEND));
+                                             .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                                                       new LegacyResultReceiverAdapter(subscriber, contentUri))
+                                             .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                             .setData(contentUri)
+                                             .setAction(ApiSyncService.ACTION_APPEND));
             }
         });
     }
@@ -136,10 +138,10 @@ public class LegacySyncInitiator {
             public void call(Subscriber<? super SyncJobResult> subscriber) {
                 ResultReceiverAdapter resultReceiver = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
                 context.startService(new Intent(context, ApiSyncService.class)
-                        .setAction(SyncActions.SYNC_USERS)
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                        .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrn)));
+                                             .setAction(SyncActions.SYNC_USERS)
+                                             .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                             .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                                             .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrn)));
             }
         });
     }
@@ -207,45 +209,45 @@ public class LegacySyncInitiator {
 
     private void requestFollowingsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(action)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(Content.ME_FOLLOWING.uri));
+                                     .setAction(action)
+                                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                     .setData(Content.ME_FOLLOWING.uri));
     }
 
     private void requestPostsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(action)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(Content.ME_SOUNDS.uri));
+                                     .setAction(action)
+                                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                     .setData(Content.ME_SOUNDS.uri));
     }
 
     private void requestLikesSync(String action, LegacyResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(action)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(Content.ME_LIKES.uri));
+                                     .setAction(action)
+                                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                     .setData(Content.ME_LIKES.uri));
     }
 
     private void requestCollectionsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
         ArrayList<Uri> urisToSync = new ArrayList<>(Arrays.asList(LegacySyncContent.MyLikes.content.uri,
-                LegacySyncContent.MyPlaylists.content.uri));
+                                                                  LegacySyncContent.MyPlaylists.content.uri));
 
         context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(action)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync));
+                                     .setAction(action)
+                                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                     .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS, urisToSync));
     }
 
     private void requestPostedPlaylistsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(action)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(Content.ME_PLAYLISTS.uri));
+                                     .setAction(action)
+                                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                     .setData(Content.ME_PLAYLISTS.uri));
     }
 
     public Observable<SyncJobResult> syncTrackLikes() {
@@ -260,20 +262,22 @@ public class LegacySyncInitiator {
 
     public void requestTracksSync(List<PropertySet> tracks) {
         context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(SyncActions.SYNC_TRACKS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, PropertySets.extractUrns(tracks)));
+                                     .setAction(SyncActions.SYNC_TRACKS)
+                                     .putParcelableArrayListExtra(SyncExtras.URNS, PropertySets.extractUrns(tracks)));
     }
 
     public void requestPlaylistSync(List<PropertySet> playlists) {
         context.startService(new Intent(context, ApiSyncService.class)
-                .setAction(SyncActions.SYNC_PLAYLISTS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, PropertySets.extractUrns(playlists)));
+                                     .setAction(SyncActions.SYNC_PLAYLISTS)
+                                     .putParcelableArrayListExtra(SyncExtras.URNS,
+                                                                  PropertySets.extractUrns(playlists)));
     }
 
     public Observable<SyncJobResult> syncUsers(final List<Urn> userUrns) {
         return requestSyncResultObservable(new Intent(context, ApiSyncService.class)
-                .setAction(SyncActions.SYNC_USERS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(userUrns)));
+                                                   .setAction(SyncActions.SYNC_USERS)
+                                                   .putParcelableArrayListExtra(SyncExtras.URNS,
+                                                                                newArrayList(userUrns)));
     }
 
     private Observable<SyncJobResult> requestSyncResultObservable(final Intent intent) {
@@ -281,7 +285,8 @@ public class LegacySyncInitiator {
                 .create(new Observable.OnSubscribe<SyncJobResult>() {
                     @Override
                     public void call(Subscriber<? super SyncJobResult> subscriber) {
-                        final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
+                        final ResultReceiverAdapter receiverAdapter = new ResultReceiverAdapter(subscriber,
+                                                                                                Looper.getMainLooper());
                         context.startService(intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, receiverAdapter));
                     }
                 });
@@ -332,7 +337,9 @@ public class LegacySyncInitiator {
                 @Override
                 public void call(Subscriber<? super Boolean> subscriber) {
                     final Intent intent = getSyncLocalPlaylistsIntent().putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                            new LegacyResultReceiverAdapter(subscriber, Content.ME_PLAYLISTS.uri));
+                                                                                 new LegacyResultReceiverAdapter(
+                                                                                         subscriber,
+                                                                                         Content.ME_PLAYLISTS.uri));
                     context.startService(intent);
                 }
             }).map(LEGACY_RESULT_TO_SYNC_RESULT);
@@ -348,9 +355,9 @@ public class LegacySyncInitiator {
                 final Uri contentUri = Content.TRACKS.forId(trackUrn.getNumericId());
                 LegacyResultReceiverAdapter resultReceiver = new LegacyResultReceiverAdapter(subscriber, contentUri);
                 context.startService(new Intent(context, ApiSyncService.class)
-                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                        .setData(contentUri));
+                                             .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                             .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                                             .setData(contentUri));
             }
         });
     }

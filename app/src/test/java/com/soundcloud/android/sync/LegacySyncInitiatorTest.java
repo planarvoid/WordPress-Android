@@ -58,7 +58,8 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
         ShadowContentResolver.Status syncStatus = ShadowContentResolver.getStatus(account, SyncConfig.AUTHORITY);
         assertThat(syncStatus.syncRequests).isEqualTo(1);
         assertThat(syncStatus.syncExtras.getBoolean(SyncAdapterService.EXTRA_SYNC_PUSH)).isTrue();
-        assertThat(syncStatus.syncExtras.getString(SyncAdapterService.EXTRA_SYNC_PUSH_URI)).isEqualTo(Content.ME_FOLLOWINGS.uri.toString());
+        assertThat(syncStatus.syncExtras.getString(SyncAdapterService.EXTRA_SYNC_PUSH_URI)).isEqualTo(Content.ME_FOLLOWINGS.uri
+                                                                                                              .toString());
     }
 
     @Test
@@ -155,7 +156,8 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
         resultData.putBoolean(Content.ME_PLAYLISTS.uri.toString(), true);
         resultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
 
-        assertThat(syncSubscriber.getOnNextEvents()).containsExactly(SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true));
+        assertThat(syncSubscriber.getOnNextEvents()).containsExactly(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
+                                                                                           true));
     }
 
     @Test
@@ -235,7 +237,8 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
         assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_HARD_REFRESH);
-        assertThat(intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS)).isEqualTo(Arrays.asList(LegacySyncContent.MyLikes.content.uri,
+        assertThat(intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS)).isEqualTo(Arrays.asList(
+                LegacySyncContent.MyLikes.content.uri,
                 LegacySyncContent.MyPlaylists.content.uri));
     }
 
@@ -243,7 +246,7 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
     public void refreshCollectionsResetsSyncMissesOnAllCollections() {
         when(syncStateManager.resetSyncMissesAsync(any(Uri.class))).thenReturn(Observable.just(true));
         initiator.refreshCollections().subscribe(legacySyncSubscriber);
-        final Uri[] uris = new Uri[] {Content.ME_PLAYLISTS.uri, Content.ME_LIKES.uri};
+        final Uri[] uris = new Uri[]{Content.ME_PLAYLISTS.uri, Content.ME_LIKES.uri};
 
         sendSyncChangedLegacyToUri(uris);
 

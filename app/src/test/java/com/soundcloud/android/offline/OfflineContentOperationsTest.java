@@ -130,7 +130,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
-        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
+        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(
+                offlineContentUpdates));
 
         operations.loadOfflineContentUpdates().subscribe();
 
@@ -146,7 +147,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(loadTracksWithStalePolicies.toObservable(null)).thenReturn(Observable.<Collection<Urn>>just(Collections.<Urn>emptyList()));
         when(offlineContentStorage.isOfflineLikesEnabled()).thenReturn(Observable.just(true));
         when(loadExpectedContentCommand.toObservable(null)).thenReturn(Observable.just(downloadRequests));
-        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(offlineContentUpdates));
+        when(loadOfflineContentUpdatesCommand.toObservable(downloadRequests)).thenReturn(Observable.just(
+                offlineContentUpdates));
 
         operations.loadOfflineContentUpdates().subscribe(subscriber);
 
@@ -159,7 +161,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         final Urn playlist2 = Urn.forPlaylist(456L);
         final List<Urn> expectedOfflinePlaylists = newArrayList(playlist1, playlist2);
         when(offlineContentStorage.addLikedTrackCollection()).thenReturn(Observable.just(new ChangeResult(1)));
-        when(collectionOperations.myPlaylists()).thenReturn(Observable.just(Arrays.asList(createPlaylistItem(playlist1), createPlaylistItem(playlist2))));
+        when(collectionOperations.myPlaylists()).thenReturn(Observable.just(Arrays.asList(createPlaylistItem(playlist1),
+                                                                                          createPlaylistItem(playlist2))));
         when(offlineContentStorage.resetOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
         final PublishSubject<Boolean> refreshSubject = PublishSubject.create();
         when(syncInitiator.refreshMyPlaylists()).thenReturn(refreshSubject);
@@ -186,7 +189,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void makePlaylistUnavailableOfflineRemovesOfflineContentPlaylist() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(changeResult));
+        when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(
+                changeResult));
 
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(subscriber);
 
@@ -221,7 +225,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void makePlaylistAvailableOfflineStartsService() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(offlineContentStorage.storeAsOfflinePlaylists(singletonList(playlistUrn))).thenReturn(Observable.just(txnResult));
+        when(offlineContentStorage.storeAsOfflinePlaylists(singletonList(playlistUrn))).thenReturn(Observable.just(
+                txnResult));
 
         operations.makePlaylistAvailableOffline(playlistUrn).subscribe();
 
@@ -231,7 +236,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void makePlaylistUnavailableOfflineStartsService() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(changeResult));
+        when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(
+                changeResult));
 
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
 
@@ -241,7 +247,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Test
     public void makePlaylistUnavailableOfflineScheduleFilesCleaUp() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(changeResult));
+        when(offlineContentStorage.removePlaylistsFromOffline(singletonList(playlistUrn))).thenReturn(Observable.just(
+                changeResult));
 
         operations.makePlaylistUnavailableOffline(playlistUrn).subscribe();
 

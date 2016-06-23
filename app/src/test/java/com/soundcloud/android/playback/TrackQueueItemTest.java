@@ -15,8 +15,9 @@ public class TrackQueueItemTest extends AndroidUnitTest {
                 .relatedEntity(Urn.forPlaylist(678))
                 .persist(false)
                 .blocked(true)
-                .fromSource("source","source-version")
+                .fromSource("source", "source-version")
                 .build();
-        PlayQueueAssertions.assertPlayQueueItemsEqual(trackQueueItem, new TrackQueueItem.Builder(trackQueueItem).build());
+        PlayQueueAssertions.assertPlayQueueItemsEqual(trackQueueItem,
+                                                      new TrackQueueItem.Builder(trackQueueItem).build());
     }
 }

@@ -137,8 +137,8 @@ public class IntentResolver {
 
     private void resolve(Context context, Uri uri, String referrer) {
         resolveOperations.resolve(uri)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(fetchSubscriber(context, uri, referrer));
+                         .observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(fetchSubscriber(context, uri, referrer));
     }
 
     private DefaultSubscriber<Urn> fetchSubscriber(final Context context, final Uri uri, final String referrer) {
@@ -254,8 +254,8 @@ public class IntentResolver {
     private void navigateToResource(final Context context, final Urn urn) {
         if (urn.isTrack()) {
             playbackInitiator.startPlayback(urn, Screen.DEEPLINK)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new PlaybackSubscriber(context));
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .subscribe(new PlaybackSubscriber(context));
         } else if (urn.isUser()) {
             navigator.openProfile(context, urn, Screen.DEEPLINK);
         } else if (urn.isPlaylist()) {

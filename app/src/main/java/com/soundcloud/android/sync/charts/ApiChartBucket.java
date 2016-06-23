@@ -13,7 +13,7 @@ public class ApiChartBucket {
     public ApiChartBucket(@JsonProperty("global") ModelCollection<ApiChart> global,
                           @JsonProperty("featuredGenres") ModelCollection<ApiChart> featuredGenres) {
         this.global = global.getCollection();
-        this.featuredGenres =  featuredGenres.getCollection();
+        this.featuredGenres = featuredGenres.getCollection();
     }
 
     public List<ApiChart> getGlobal() {

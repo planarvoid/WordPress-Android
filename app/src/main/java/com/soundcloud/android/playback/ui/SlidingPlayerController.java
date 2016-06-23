@@ -32,7 +32,8 @@ import android.view.WindowManager;
 
 import javax.inject.Inject;
 
-public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompatActivity> implements PanelSlideListener {
+public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompatActivity>
+        implements PanelSlideListener {
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
 
@@ -60,7 +61,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     @Nullable
-    public View getSnackbarHolder(){
+    public View getSnackbarHolder() {
         final View view = playerFragment.getView();
         return view != null ? view.findViewById(R.id.player_pager_holder) : null;
     }
@@ -78,7 +79,8 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
         playerFragment = getPlayerFragmentFromActivity(activity);
         if (playerFragment == null) {
-            throw new IllegalArgumentException("Player fragment not found. Make sure it is present with the expected id.");
+            throw new IllegalArgumentException(
+                    "Player fragment not found. Make sure it is present with the expected id.");
         }
     }
 

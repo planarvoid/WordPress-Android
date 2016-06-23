@@ -82,7 +82,7 @@ public class WebProductTest extends AndroidUnitTest {
 
         assertThat(product.getDiscountPrice().get()).isEqualTo("4,99€");
     }
-    
+
     @After
     public void tearDown() {
         Locale.setDefault(defaultLocale);

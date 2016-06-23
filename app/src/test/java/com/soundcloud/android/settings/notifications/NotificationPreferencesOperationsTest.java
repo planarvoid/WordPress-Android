@@ -43,7 +43,7 @@ public class NotificationPreferencesOperationsTest extends AndroidUnitTest {
     public void setUp() {
         content = buildContent();
         operations = new NotificationPreferencesOperations(apiClientRx,
-                Schedulers.immediate(), storage, connectionHelper);
+                                                           Schedulers.immediate(), storage, connectionHelper);
     }
 
     @Test

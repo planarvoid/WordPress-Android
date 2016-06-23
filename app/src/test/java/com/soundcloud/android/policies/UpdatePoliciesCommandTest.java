@@ -49,7 +49,10 @@ public class UpdatePoliciesCommandTest extends AndroidUnitTest {
     public void setUp() {
         final TryWithBackOff.Factory factory = new TryWithBackOff.Factory(sleeper);
         this.command = new UpdatePoliciesCommand(apiClient, storePoliciesCommand,
-                factory.<ModelCollection<ApiPolicyInfo>>create(0, TimeUnit.SECONDS, 0, 1));
+                                                 factory.<ModelCollection<ApiPolicyInfo>>create(0,
+                                                                                                TimeUnit.SECONDS,
+                                                                                                0,
+                                                                                                1));
     }
 
     @Test

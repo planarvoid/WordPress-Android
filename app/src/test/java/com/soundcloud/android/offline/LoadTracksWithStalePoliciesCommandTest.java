@@ -67,7 +67,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void ignoresOrphanLikes(){
+    public void ignoresOrphanLikes() {
         testFixtures().insertLikesMarkedForOfflineSync();
         ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         // insert a track like with the same ID as the playlist to test that we are joining on tracks only

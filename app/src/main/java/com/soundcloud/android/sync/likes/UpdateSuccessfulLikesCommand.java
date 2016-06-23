@@ -37,8 +37,8 @@ class UpdateSuccessfulLikesCommand extends StoreCommand<Collection<PropertySet>>
         final Urn targetUrn = like.get(LikeProperty.TARGET_URN);
         cv.put(TableColumns.Likes._ID, targetUrn.getNumericId());
         cv.put(TableColumns.Likes._TYPE, targetUrn.isTrack()
-                ? TableColumns.Sounds.TYPE_TRACK
-                : TableColumns.Sounds.TYPE_PLAYLIST);
+                                         ? TableColumns.Sounds.TYPE_TRACK
+                                         : TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.Likes.CREATED_AT, like.get(LikeProperty.CREATED_AT).getTime());
         return cv;
     }

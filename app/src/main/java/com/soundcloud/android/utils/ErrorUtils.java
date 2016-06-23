@@ -131,7 +131,9 @@ public final class ErrorUtils {
         }
     }
 
-    public static synchronized void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+    public static synchronized void handleSilentException(Throwable e,
+                                                          @Nullable String contextKey,
+                                                          @Nullable String contextValue) {
         e.printStackTrace();
         if (Fabric.isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
@@ -201,7 +203,9 @@ public final class ErrorUtils {
 
     public static EmptyView.Status emptyViewStatusFromError(Throwable error) {
         if (error instanceof ApiRequestException) {
-            return (((ApiRequestException) error).isNetworkError() ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
+            return (((ApiRequestException) error).isNetworkError() ?
+                    EmptyView.Status.CONNECTION_ERROR :
+                    EmptyView.Status.SERVER_ERROR);
         } else if (error instanceof SyncFailedException) {
             // default Sync Failures to connection for now as we can't tell the diff
             return EmptyView.Status.CONNECTION_ERROR;

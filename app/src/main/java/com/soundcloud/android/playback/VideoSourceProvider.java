@@ -58,9 +58,12 @@ public class VideoSourceProvider {
         final List<VideoSource> sources = new ArrayList<>(videoPlaybackItem.getSources());
         Collections.sort(sources, VideoSource.BITRATE_COMPARATOR);
 
-        final Collection<VideoSource> supportedFormatSources = MoreCollections.filter(sources, SUPPORTED_FORMAT_PREDICATE);
+        final Collection<VideoSource> supportedFormatSources = MoreCollections.filter(sources,
+                                                                                      SUPPORTED_FORMAT_PREDICATE);
         if (!supportedFormatSources.isEmpty()) {
-            final Collection<VideoSource> supportedResolutionSources = MoreCollections.filter(supportedFormatSources, new SupportedResolutionPredicate(maxResolutionForDevice()));
+            final Collection<VideoSource> supportedResolutionSources = MoreCollections.filter(supportedFormatSources,
+                                                                                              new SupportedResolutionPredicate(
+                                                                                                      maxResolutionForDevice()));
             if (supportedResolutionSources.isEmpty()) {
                 return Iterables.getFirst(supportedFormatSources, null);
             } else {
@@ -73,7 +76,9 @@ public class VideoSourceProvider {
 
     private VideoSource selectSuitableBitrate(Collection<VideoSource> sources) {
         final int maxNetworkBitrate = maxBitrateForConnection(networkConnectionHelper.getCurrentConnectionType());
-        final Collection<VideoSource> suitableBitrateSources = MoreCollections.filter(sources, new SuitableBitratePredicate(maxNetworkBitrate));
+        final Collection<VideoSource> suitableBitrateSources = MoreCollections.filter(sources,
+                                                                                      new SuitableBitratePredicate(
+                                                                                              maxNetworkBitrate));
 
         if (suitableBitrateSources.isEmpty()) { // Fallback to lowest of available bit rates
             return Iterables.getFirst(sources, null);
@@ -99,19 +104,19 @@ public class VideoSourceProvider {
     }
 
     private int maxBitrateForConnection(ConnectionType connectionType) {
-            switch (connectionType) {
-                case WIFI:
-                    return MAX_BITRATE_KBPS_WIFI;
-                case FOUR_G:
-                    return MAX_BITRATE_KBPS_4G;
-                case THREE_G:
-                    return MAX_BITRATE_KPBS_3G;
-                case TWO_G:
-                case OFFLINE:
-                case UNKNOWN:
-                default:
-                    return MAX_BITRATE_KBPS_2G;
-            }
+        switch (connectionType) {
+            case WIFI:
+                return MAX_BITRATE_KBPS_WIFI;
+            case FOUR_G:
+                return MAX_BITRATE_KBPS_4G;
+            case THREE_G:
+                return MAX_BITRATE_KPBS_3G;
+            case TWO_G:
+            case OFFLINE:
+            case UNKNOWN:
+            default:
+                return MAX_BITRATE_KBPS_2G;
+        }
     }
 
     private static class SupportedResolutionPredicate implements Predicate<VideoSource> {

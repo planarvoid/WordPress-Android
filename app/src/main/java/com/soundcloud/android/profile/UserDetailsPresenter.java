@@ -52,8 +52,8 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
         userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
 
         userDetailsObservable = profileOperations.getLocalAndSyncedProfileUser(userUrn)
-                .filter(hasDetails)
-                .cache();
+                                                 .filter(hasDetails)
+                                                 .cache();
     }
 
     @Override
@@ -71,7 +71,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
         configureEmptyView();
         configureRefreshLayout(view);
 
-        if (profileUser != null){
+        if (profileUser != null) {
             updateViews(profileUser);
         }
 
@@ -104,14 +104,14 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<ScrollablePr
     @Override
     public void onRefresh() {
         userDetailsObservable = profileOperations.getSyncedProfileUser(userUrn)
-                .filter(hasDetails)
-                .cache();
+                                                 .filter(hasDetails)
+                                                 .cache();
 
         loadUser();
     }
 
     private void configureEmptyView() {
-        if (!isNotEmpty){
+        if (!isNotEmpty) {
             userDetailsView.showEmptyView(emptyViewStatus);
         } else {
             userDetailsView.hideEmptyView();

@@ -69,7 +69,8 @@ public class UserPostsPresenterTest extends AndroidUnitTest {
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(fragment.getArguments()).thenReturn(arguments);
         when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(itemClickListener);
-        when(profileOperations.pagedPostItems(user)).thenReturn(Observable.just(new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), "next-href")));
+        when(profileOperations.pagedPostItems(user)).thenReturn(Observable.just(new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                                                          "next-href")));
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(playableListUpdaterFactory.create(adapter, trackRenderer)).thenReturn(playableListUpdater);
         when(fragmentView.getResources()).thenReturn(context().getResources());
@@ -78,8 +79,12 @@ public class UserPostsPresenterTest extends AndroidUnitTest {
         arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);
         arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
-        presenter = new UserPostsPresenter(swipeRefreshAttacher, imagePauseOnScrollListener,
-                adapter, mixedClickListenerFactory, playableListUpdaterFactory, profileOperations);
+        presenter = new UserPostsPresenter(swipeRefreshAttacher,
+                                           imagePauseOnScrollListener,
+                                           adapter,
+                                           mixedClickListenerFactory,
+                                           playableListUpdaterFactory,
+                                           profileOperations);
         presenter.onCreate(fragment, null);
     }
 

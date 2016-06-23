@@ -99,9 +99,9 @@ public class PlayerWidgetPresenterTest extends AndroidUnitTest {
 
     private void setupArtworkLoad(PropertySet trackProperties, Observable<Bitmap> bitmapObservable) {
         when(imageOperations.artwork(argThat(isImageResourceFor(trackProperties)),
-                same(ApiImageSize.getNotificationLargeIconImageSize(resources())),
-                eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_width)),
-                eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))))
+                                     same(ApiImageSize.getNotificationLargeIconImageSize(resources())),
+                                     eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_width)),
+                                     eq(resources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))))
                 .thenReturn(bitmapObservable);
     }
 

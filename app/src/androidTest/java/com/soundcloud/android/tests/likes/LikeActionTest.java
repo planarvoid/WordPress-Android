@@ -42,12 +42,12 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         assertThat("Stream should be visible", streamScreen, is(visible()));
 
         final String actualTitle = mainNavHelper.goToTrackLikes()
-                .getTracks()
-                .get(0)
-                .getTitle();
+                                                .getTracks()
+                                                .get(0)
+                                                .getTitle();
 
         assertThat("The track we liked from the search page should be the same as the top track in your likes",
-                expectedTitle, is(actualTitle));
+                   expectedTitle, is(actualTitle));
     }
 
     // *** Ignore until we come up with a good way to prevent like actions from getting synced ***
@@ -76,6 +76,6 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         final String actualTitle = mainNavHelper.goToCollections().scrollToFirstPlaylist().getTitle();
 
         assertThat("The playlist we liked from the playlist detail screen should be the same as the top playlist in " +
-                "your liked playlists", expectedTitle, is(actualTitle));
+                           "your liked playlists", expectedTitle, is(actualTitle));
     }
 }

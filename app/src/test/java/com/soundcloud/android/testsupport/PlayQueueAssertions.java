@@ -17,15 +17,25 @@ import java.util.List;
 
 public class PlayQueueAssertions {
 
-    public static void assertPlayNewQueue(PlaySessionController playSessionControllerMock, PlayQueue playQueue, Urn initialTrack, int startIndex, PlaySessionSource playSessionSource) {
+    public static void assertPlayNewQueue(PlaySessionController playSessionControllerMock,
+                                          PlayQueue playQueue,
+                                          Urn initialTrack,
+                                          int startIndex,
+                                          PlaySessionSource playSessionSource) {
 
         final ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
-        verify(playSessionControllerMock).playNewQueue(playQueueCaptor.capture(), eq(initialTrack), eq(startIndex), eq(playSessionSource));
+        verify(playSessionControllerMock).playNewQueue(playQueueCaptor.capture(),
+                                                       eq(initialTrack),
+                                                       eq(startIndex),
+                                                       eq(playSessionSource));
 
         assertPlayQueuesEqual(playQueue, playQueueCaptor.getValue());
     }
 
-    public static void assertPlayQueueSet(PlayQueueManager playQueueManagerMock, PlayQueue playQueue, PlaySessionSource playSessionSource, int startIndex) {
+    public static void assertPlayQueueSet(PlayQueueManager playQueueManagerMock,
+                                          PlayQueue playQueue,
+                                          PlaySessionSource playSessionSource,
+                                          int startIndex) {
         final ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
         verify(playQueueManagerMock).setNewPlayQueue(playQueueCaptor.capture(), eq(playSessionSource), eq(startIndex));
 
@@ -39,7 +49,8 @@ public class PlayQueueAssertions {
         }
     }
 
-    public static void assertPlayQueueItemsEqual(List<? extends PlayQueueItem> playQueueItems1, List<? extends PlayQueueItem> playQueueItems2) {
+    public static void assertPlayQueueItemsEqual(List<? extends PlayQueueItem> playQueueItems1,
+                                                 List<? extends PlayQueueItem> playQueueItems2) {
         assertThat(playQueueItems1.size()).isEqualTo(playQueueItems2.size());
         for (int i = 0; i < playQueueItems1.size(); i++) {
             assertPlayQueueItemsEqual(playQueueItems1.get(i), playQueueItems2.get(i));

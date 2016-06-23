@@ -147,8 +147,8 @@ public class Recording implements Comparable<Recording>, Parcelable {
     @Nullable
     File getUploadFile() {
         return getProcessedFile().exists() ? getProcessedFile() :
-                (getEncodedFile().exists() ? getEncodedFile() :
-                        (getFile().exists() ? getFile() : null));
+               (getEncodedFile().exists() ? getEncodedFile() :
+                (getFile().exists() ? getFile() : null));
     }
 
     public
@@ -334,7 +334,7 @@ public class Recording implements Comparable<Recording>, Parcelable {
             try {
                 return Long.valueOf(
                         path.substring(path.indexOf('_') + 1,
-                                path.contains(".") ? path.indexOf('.') : path.length()));
+                                       path.contains(".") ? path.indexOf('.') : path.length()));
             } catch (NumberFormatException ignored) {
                 return -1;
             }
@@ -356,8 +356,8 @@ public class Recording implements Comparable<Recording>, Parcelable {
 
     public static Recording create() {
         File file = new File(SoundRecorder.RECORD_DIR,
-                System.currentTimeMillis()
-                        + "." + WavReader.EXTENSION);
+                             System.currentTimeMillis()
+                                     + "." + WavReader.EXTENSION);
         return new Recording(file);
     }
 

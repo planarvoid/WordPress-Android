@@ -33,8 +33,8 @@ public class WrongUserDialog extends UnrecoverableErrorDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = new CustomFontViewBuilder(getActivity())
                 .setContent(R.drawable.dialog_payment_error,
-                        R.string.payments_error_title_wrong_user,
-                        R.string.payments_error_wrong_user).get();
+                            R.string.payments_error_title_wrong_user,
+                            R.string.payments_error_wrong_user).get();
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)

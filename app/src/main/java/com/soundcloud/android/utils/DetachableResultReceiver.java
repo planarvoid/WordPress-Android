@@ -19,10 +19,12 @@ public class DetachableResultReceiver extends ResultReceiver {
 
     private Receiver receiver;
     private final List<PendingResult> pendingResults;
+
     private class PendingResult {
         int resultCode;
         Bundle resultData;
-        public PendingResult(int resultCode, Bundle resultData){
+
+        public PendingResult(int resultCode, Bundle resultData) {
             this.resultCode = resultCode;
             this.resultData = resultData;
         }
@@ -35,8 +37,8 @@ public class DetachableResultReceiver extends ResultReceiver {
 
     public void setReceiver(Receiver receiver) {
         this.receiver = receiver;
-        if (pendingResults.size() > 0){
-            for (PendingResult pr : pendingResults){
+        if (pendingResults.size() > 0) {
+            for (PendingResult pr : pendingResults) {
                 this.receiver.onReceiveResult(pr.resultCode, pr.resultData);
             }
             pendingResults.clear();
@@ -56,7 +58,7 @@ public class DetachableResultReceiver extends ResultReceiver {
         if (receiver != null) {
             receiver.onReceiveResult(resultCode, resultData);
         } else {
-            addPendingResult(resultCode,resultData);
+            addPendingResult(resultCode, resultData);
         }
     }
 }

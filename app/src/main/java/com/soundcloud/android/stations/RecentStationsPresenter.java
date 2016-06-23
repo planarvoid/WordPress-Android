@@ -105,7 +105,8 @@ class RecentStationsPresenter extends RecyclerViewPresenter<List<StationViewMode
         RecyclerView recyclerView = getRecyclerView();
 
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), resources.getInteger(R.integer.stations_grid_span_count)));
+        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(),
+                                                            resources.getInteger(R.integer.stations_grid_span_count)));
 
         final EmptyView emptyView = getEmptyView();
         emptyView.setMessageText(R.string.recent_stations_empty_view_heading);

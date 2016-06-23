@@ -9,9 +9,10 @@ import java.util.List;
 
 class ApiSearchSuggestions extends SearchSuggestions<ApiSearchSuggestion> {
 
-    private static final ApiSearchSuggestions EMPTY = new ApiSearchSuggestions(Collections.<ApiSearchSuggestion>emptyList(), Urn.NOT_SET);
+    private static final ApiSearchSuggestions EMPTY = new ApiSearchSuggestions(Collections.<ApiSearchSuggestion>emptyList(),
+                                                                               Urn.NOT_SET);
 
-    public static ApiSearchSuggestions empty(){
+    public static ApiSearchSuggestions empty() {
         return EMPTY;
     }
 

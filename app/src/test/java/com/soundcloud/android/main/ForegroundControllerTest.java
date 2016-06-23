@@ -16,7 +16,8 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
 public class ForegroundControllerTest extends AndroidUnitTest {
-    private static final ForegroundEvent EXPECTED = ForegroundEvent.open(Screen.NOTIFICATION, Referrer.PLAYBACK_NOTIFICATION);
+    private static final ForegroundEvent EXPECTED = ForegroundEvent.open(Screen.NOTIFICATION,
+                                                                         Referrer.PLAYBACK_NOTIFICATION);
 
     @Mock private AppCompatActivity activity;
 

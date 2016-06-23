@@ -32,7 +32,9 @@ public class UploadMonitorFragment extends LightCycleSupportFragment<UploadMonit
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.upload_monitor, container, false);
     }
 }

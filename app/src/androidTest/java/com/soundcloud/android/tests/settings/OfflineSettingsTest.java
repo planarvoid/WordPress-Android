@@ -70,8 +70,8 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
 
         getSolo().goBack();
         final DownloadImageViewElement downloadElement = mainNavHelper.goToCollections()
-                .scrollToFirstPlaylist()
-                .downloadElement();
+                                                                      .scrollToFirstPlaylist()
+                                                                      .downloadElement();
 
         assertThat(downloadElement.isVisible(), is(true));
     }
@@ -82,8 +82,8 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         assertTrue(offlineSettingsScreen.isVisible());
 
         offlineSettingsScreen.toggleSyncCollectionOn()
-                .clickRemoveOfflineContent()
-                .clickConfirm();
+                             .clickRemoveOfflineContent()
+                             .clickConfirm();
 
         assertThat(offlineSettingsScreen.isOfflineCollectionChecked(), is(false));
     }
@@ -116,7 +116,8 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
         offlineSettingsScreen = youScreen.clickOfflineSettingsLink();
         offlineSettingsScreen.tapOnSlider(0);
 
-        assertTrue(waiter.expectToastWithText(toastObserver, solo.getString(R.string.offline_cannot_set_limit_below_usage)));
+        assertTrue(waiter.expectToastWithText(toastObserver,
+                                              solo.getString(R.string.offline_cannot_set_limit_below_usage)));
         assertEquals("0.8 GB", offlineSettingsScreen.getSliderLimitText());
         assertEquals("0.8 GB", offlineSettingsScreen.getLegendLimitText());
     }

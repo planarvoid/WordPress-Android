@@ -53,7 +53,9 @@ public class FollowingOperationsTest extends AndroidUnitTest {
     public void toggleFollowingEmitsEntityChangeSet() {
         operations.toggleFollowing(targetUrn, true).subscribe(subscriber);
 
-        assertThat(subscriber.getOnNextEvents()).containsExactly(TestPropertySets.followingEntityChangeSet(targetUrn, 5, true));
+        assertThat(subscriber.getOnNextEvents()).containsExactly(TestPropertySets.followingEntityChangeSet(targetUrn,
+                                                                                                           5,
+                                                                                                           true));
     }
 
     @Test

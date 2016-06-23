@@ -20,7 +20,7 @@ public class PlaybackServiceInitiator {
         this.context = context;
     }
 
-    public void startGcmService(Context context){
+    public void startGcmService(Context context) {
         context.startService(new Intent(context, GcmRegistrationService.class));
     }
 

@@ -77,24 +77,32 @@ public class ImageOperations {
     private ImageProcessor imageProcessor;
 
     @Inject
-    public ImageOperations(PlaceholderGenerator placeholderGenerator, CircularPlaceholderGenerator circularPlaceholderGenerator,
-                           FallbackBitmapLoadingAdapter.Factory adapterFactory, BitmapLoadingAdapter.Factory bitmapAdapterFactory,
-                           ImageProcessor imageProcessor, ImageUrlBuilder imageUrlBuilder) {
+    public ImageOperations(PlaceholderGenerator placeholderGenerator,
+                           CircularPlaceholderGenerator circularPlaceholderGenerator,
+                           FallbackBitmapLoadingAdapter.Factory adapterFactory,
+                           BitmapLoadingAdapter.Factory bitmapAdapterFactory,
+                           ImageProcessor imageProcessor,
+                           ImageUrlBuilder imageUrlBuilder) {
         this(ImageLoader.getInstance(), imageUrlBuilder, placeholderGenerator, circularPlaceholderGenerator,
-                adapterFactory, bitmapAdapterFactory, imageProcessor,
-                Cache.<String, TransitionDrawable>withSoftValues(50),
-                Cache.<Urn, Bitmap>withSoftValues(10),
-                new HashCodeFileNameGenerator());
+             adapterFactory, bitmapAdapterFactory, imageProcessor,
+             Cache.<String, TransitionDrawable>withSoftValues(50),
+             Cache.<Urn, Bitmap>withSoftValues(10),
+             new HashCodeFileNameGenerator());
     }
 
     private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
 
     @VisibleForTesting
-    ImageOperations(ImageLoader imageLoader, ImageUrlBuilder imageUrlBuilder, PlaceholderGenerator placeholderGenerator,
+    ImageOperations(ImageLoader imageLoader,
+                    ImageUrlBuilder imageUrlBuilder,
+                    PlaceholderGenerator placeholderGenerator,
                     CircularPlaceholderGenerator circularPlaceholderGenerator,
-                    FallbackBitmapLoadingAdapter.Factory adapterFactory, BitmapLoadingAdapter.Factory bitmapAdapterFactory,
-                    ImageProcessor imageProcessor, Cache<String, TransitionDrawable> placeholderCache,
-                    Cache<Urn, Bitmap> blurredImageCache, FileNameGenerator fileNameGenerator) {
+                    FallbackBitmapLoadingAdapter.Factory adapterFactory,
+                    BitmapLoadingAdapter.Factory bitmapAdapterFactory,
+                    ImageProcessor imageProcessor,
+                    Cache<String, TransitionDrawable> placeholderCache,
+                    Cache<Urn, Bitmap> blurredImageCache,
+                    FileNameGenerator fileNameGenerator) {
         this.imageLoader = imageLoader;
         this.imageUrlBuilder = imageUrlBuilder;
         this.placeholderGenerator = placeholderGenerator;
@@ -139,7 +147,7 @@ public class ImageOperations {
      */
     public void displayInAdapterView(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
         displayInAdapterView(imageResource.getUrn(), apiImageSize, imageView,
-                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
+                             buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
     }
 
     /**
@@ -166,7 +174,9 @@ public class ImageOperations {
     /**
      * @see {@link #displayInAdapterView(ImageResource, ApiImageSize, ImageView)}
      */
-    public void displayCircularInAdapterView(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
+    public void displayCircularInAdapterView(ImageResource imageResource,
+                                             ApiImageSize apiImageSize,
+                                             ImageView imageView) {
         final String imageUrl = buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize);
         displayCircularInAdapterView(imageResource.getUrn(), apiImageSize, imageView, imageUrl);
     }
@@ -180,10 +190,14 @@ public class ImageOperations {
         displayCircularInAdapterView(urn, apiImageSize, imageView, imageUrl);
     }
 
-    private void displayCircularInAdapterView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, String imageUrl) {
+    private void displayCircularInAdapterView(Urn urn,
+                                              ApiImageSize apiImageSize,
+                                              ImageView imageView,
+                                              String imageUrl) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final TransitionDrawable placeholderDrawable = getCircularPlaceholderDrawable(urn,
-                imageAware.getWidth(), imageAware.getHeight());
+                                                                                      imageAware.getWidth(),
+                                                                                      imageAware.getHeight());
         imageLoader.displayImage(
                 imageUrl,
                 imageAware,
@@ -193,7 +207,7 @@ public class ImageOperations {
 
     public void displayWithPlaceholder(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView) {
         displayWithPlaceholder(imageResource.getUrn(), imageView,
-                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
+                               buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
     }
 
     @Deprecated // use the ImageResource variant instead
@@ -210,9 +224,11 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayCircularWithPlaceholder(ImageResource imageResource,  ApiImageSize apiImageSize, ImageView imageView) {
+    public void displayCircularWithPlaceholder(ImageResource imageResource,
+                                               ApiImageSize apiImageSize,
+                                               ImageView imageView) {
         displayCircularWithPlaceholder(imageResource.getUrn(), imageView,
-                buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
+                                       buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize));
     }
 
     private void displayCircularWithPlaceholder(Urn urn, ImageView imageView, String imageUrl) {
@@ -226,10 +242,14 @@ public class ImageOperations {
                 notFoundListener);
     }
 
-    public void displayInPlayer(ImageResource imageResource, ApiImageSize apiImageSize, ImageView imageView, Bitmap placeholder, boolean isHighPriority) {
+    public void displayInPlayer(ImageResource imageResource,
+                                ApiImageSize apiImageSize,
+                                ImageView imageView,
+                                Bitmap placeholder,
+                                boolean isHighPriority) {
         final ImageViewAware imageAware = new ImageViewAware(imageView, false);
         final Drawable placeholderDrawable = placeholder != null ? new BitmapDrawable(placeholder) :
-                getPlaceholderDrawable(imageResource.getUrn(), imageAware);
+                                             getPlaceholderDrawable(imageResource.getUrn(), imageAware);
 
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
@@ -248,7 +268,10 @@ public class ImageOperations {
     }
 
     @Deprecated // use the ImageResource variant instead
-    public void displayInFullDialogView(Urn urn, ApiImageSize apiImageSize, ImageView imageView, ImageListener imageListener) {
+    public void displayInFullDialogView(Urn urn,
+                                        ApiImageSize apiImageSize,
+                                        ImageView imageView,
+                                        ImageListener imageListener) {
         imageLoader.displayImage(
                 buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
                 new ImageViewAware(imageView, false),
@@ -261,15 +284,22 @@ public class ImageOperations {
         imageLoader.loadImage(url, ImageOptionsFactory.prefetch(), null);
     }
 
-    private void load(ImageResource imageResource, ApiImageSize apiImageSize, int targetWidth, int targetHeight, ImageListener imageListener) {
+    private void load(ImageResource imageResource,
+                      ApiImageSize apiImageSize,
+                      int targetWidth,
+                      int targetHeight,
+                      ImageListener imageListener) {
         ImageSize targetSize = new ImageSize(targetWidth, targetHeight);
         ImageAware imageAware = new NonViewAware(targetSize, ViewScaleType.CROP);
-        imageLoader.displayImage(buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize), imageAware, new ImageListenerUILAdapter(imageListener));
+        imageLoader.displayImage(buildUrlIfNotPreviouslyMissing(imageResource, apiImageSize),
+                                 imageAware,
+                                 new ImageListenerUILAdapter(imageListener));
     }
 
     public void displayCircular(String imageUrl, ImageView imageView) {
         imageLoader.displayImage(imageUrl, new ImageViewAware(imageView, false),
-                ImageOptionsFactory.placeholderCircular(imageView.getResources().getDrawable(R.drawable.circular_placeholder)));
+                                 ImageOptionsFactory.placeholderCircular(imageView.getResources()
+                                                                                  .getDrawable(R.drawable.circular_placeholder)));
     }
 
     public Observable<Bitmap> adImage(final Uri uri) {
@@ -277,8 +307,10 @@ public class ImageOperations {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
                 // We pass NonViewAware to circumvent ImageLoader cancelling requests (https://github.com/nostra13/Android-Universal-Image-Loader/issues/681)
-                imageLoader.displayImage(uri.toString(), new NonViewAware(new ImageSize(0, 0), ViewScaleType.CROP), ImageOptionsFactory.adImage(),
-                        new ImageListenerUILAdapter(bitmapAdapterFactory.create(subscriber)));
+                imageLoader.displayImage(uri.toString(),
+                                         new NonViewAware(new ImageSize(0, 0), ViewScaleType.CROP),
+                                         ImageOptionsFactory.adImage(),
+                                         new ImageListenerUILAdapter(bitmapAdapterFactory.create(subscriber)));
             }
         });
     }
@@ -295,14 +327,21 @@ public class ImageOperations {
         });
     }
 
-    public Observable<Bitmap> artwork(final ImageResource imageResource, final ApiImageSize apiImageSize, final int targetWidth,
+    public Observable<Bitmap> artwork(final ImageResource imageResource,
+                                      final ApiImageSize apiImageSize,
+                                      final int targetWidth,
                                       final int targetHeight) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                final GradientDrawable fallbackDrawable = placeholderGenerator.generateDrawable(imageResource.getUrn().toString());
+                final GradientDrawable fallbackDrawable = placeholderGenerator.generateDrawable(imageResource.getUrn()
+                                                                                                             .toString());
                 final Bitmap fallback = ImageUtils.toBitmap(fallbackDrawable, targetWidth, targetHeight);
-                load(imageResource, apiImageSize, targetWidth, targetHeight, adapterFactory.create(subscriber, fallback));
+                load(imageResource,
+                     apiImageSize,
+                     targetWidth,
+                     targetHeight,
+                     adapterFactory.create(subscriber, fallback));
             }
         });
     }
@@ -352,8 +391,8 @@ public class ImageOperations {
     @Nullable
     public Bitmap getCachedListItemBitmap(Resources resources, ImageResource imageResource) {
         return getCachedBitmap(imageResource, ApiImageSize.getListItemImageSize(resources),
-                resources.getDimensionPixelSize(R.dimen.list_item_image_dimension),
-                resources.getDimensionPixelSize(R.dimen.list_item_image_dimension));
+                               resources.getDimensionPixelSize(R.dimen.list_item_image_dimension),
+                               resources.getDimensionPixelSize(R.dimen.list_item_image_dimension));
     }
 
     private Bitmap createFallbackBitmap(Urn resourceUrn, ApiImageSize apiImageSize) {
@@ -375,7 +414,10 @@ public class ImageOperations {
     }
 
     @Nullable
-    public Bitmap getCachedBitmap(ImageResource imageResource, ApiImageSize apiImageSize, int targetWidth, int targetHeight) {
+    public Bitmap getCachedBitmap(ImageResource imageResource,
+                                  ApiImageSize apiImageSize,
+                                  int targetWidth,
+                                  int targetHeight) {
         final String imageUrl = imageUrlBuilder.buildUrl(imageResource, apiImageSize);
         final String key = MemoryCacheUtils.generateKey(imageUrl, new ImageSize(targetWidth, targetHeight));
         return imageLoader.getMemoryCache().get(key);

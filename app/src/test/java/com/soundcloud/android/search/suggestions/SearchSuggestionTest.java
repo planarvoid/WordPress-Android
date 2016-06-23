@@ -17,13 +17,18 @@ public class SearchSuggestionTest {
     public void shortcutsAndApiSuggestionsShouldAlwaysBeEqualWithSameUrns() {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
 
-        SearchSuggestion searchSuggestion1 = new AutoValue_Shortcut(track.getUrn(), "blah",
-                Arrays.asList(Collections.singletonMap("asdf", 1)), true);
+        SearchSuggestion searchSuggestion1 = new AutoValue_Shortcut(track.getUrn(),
+                                                                    "blah",
+                                                                    Arrays.asList(Collections.singletonMap("asdf", 1)),
+                                                                    true);
 
         SearchSuggestion searchSuggestion2 = new AutoValue_ApiSearchSuggestion("halb",
-                Arrays.asList(Collections.singletonMap("fdsa", 2)),
-                Optional.of(track), Optional.<ApiUser>absent(),
-                false);
+                                                                               Arrays.asList(Collections.singletonMap(
+                                                                                       "fdsa",
+                                                                                       2)),
+                                                                               Optional.of(track),
+                                                                               Optional.<ApiUser>absent(),
+                                                                               false);
 
         assertThat(searchSuggestion1).isEqualTo(searchSuggestion2);
     }

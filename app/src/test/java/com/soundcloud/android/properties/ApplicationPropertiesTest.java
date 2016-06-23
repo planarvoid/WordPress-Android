@@ -17,30 +17,30 @@ public class ApplicationPropertiesTest {
     @Mock private Resources resources;
 
     @Test(expected = NullPointerException.class)
-    public void shouldThrowExceptionIfNullResourcesProvided(){
+    public void shouldThrowExceptionIfNullResourcesProvided() {
         new ApplicationProperties(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfBuildTypeIsEmpty(){
+    public void shouldThrowExceptionIfBuildTypeIsEmpty() {
         when(resources.getString(string.build_type)).thenReturn("  ");
         new ApplicationProperties(resources);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfBuildTypeIsNull(){
+    public void shouldThrowExceptionIfBuildTypeIsNull() {
         when(resources.getString(string.build_type)).thenReturn(null);
         new ApplicationProperties(resources);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfBuildTypeIsUnrecognised(){
+    public void shouldThrowExceptionIfBuildTypeIsUnrecognised() {
         when(resources.getString(string.build_type)).thenReturn("omgbuild");
         new ApplicationProperties(resources);
     }
 
     @Test
-    public void shouldSpecifyThatBuildIsDebug(){
+    public void shouldSpecifyThatBuildIsDebug() {
         when(resources.getString(string.build_type)).thenReturn("debug");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
         assertThat(applicationProperties.isDebugBuild()).isTrue();
@@ -48,7 +48,7 @@ public class ApplicationPropertiesTest {
     }
 
     @Test
-    public void shouldSpecifyThatBuildIsAlpha(){
+    public void shouldSpecifyThatBuildIsAlpha() {
         when(resources.getString(string.build_type)).thenReturn("alpha");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
         assertThat(applicationProperties.isAlphaBuild()).isTrue();
@@ -56,7 +56,7 @@ public class ApplicationPropertiesTest {
     }
 
     @Test
-    public void shouldSpecifyThatBuildIsRelease(){
+    public void shouldSpecifyThatBuildIsRelease() {
         when(resources.getString(string.build_type)).thenReturn("RELEASE");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);
         assertThat(applicationProperties.isDebugBuild()).isFalse();
@@ -64,17 +64,17 @@ public class ApplicationPropertiesTest {
     }
 
     @Test
-    public void shouldDetectThatItsNotRunningOnDevice(){
+    public void shouldDetectThatItsNotRunningOnDevice() {
         assertThat(ApplicationProperties.IS_RUNNING_ON_DEVICE).isFalse();
     }
 
     @Test
-    public void shouldDetectThatItsNotRunningOnEmulator(){
+    public void shouldDetectThatItsNotRunningOnEmulator() {
         assertThat(ApplicationProperties.IS_RUNNING_ON_EMULATOR).isFalse();
     }
 
     @Test
-    public void shouldReturnCastReceiverAppId(){
+    public void shouldReturnCastReceiverAppId() {
         when(resources.getString(string.build_type)).thenReturn("debug");
         when(resources.getString(string.cast_receiver_app_id)).thenReturn("123");
         assertThat(new ApplicationProperties(resources).getCastReceiverAppId()).isEqualTo("123");

@@ -25,12 +25,13 @@ public class BasicSettingsFragment extends PreferenceFragment {
     }
 
     private void setupClearCachePreference() {
-        getPreferenceScreen().findPreference(CLEAR_CACHE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                ClearCacheDialog.show(getFragmentManager());
-                return true;
-            }
-        });
+        getPreferenceScreen().findPreference(CLEAR_CACHE)
+                             .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                                 @Override
+                                 public boolean onPreferenceClick(Preference preference) {
+                                     ClearCacheDialog.show(getFragmentManager());
+                                     return true;
+                                 }
+                             });
     }
 }

@@ -48,10 +48,10 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         enableOfflineContent(context);
 
         mainNavHelper.goToCollections()
-                .scrollToFirstPlaylist()
-                .click()
-                .clickDownloadToggle()
-                .goBackToCollections();
+                     .scrollToFirstPlaylist()
+                     .click()
+                     .clickDownloadToggle()
+                     .goBackToCollections();
 
         final BasicSettingsScreen basicSettingsScreen = mainNavHelper.goToBasicSettings();
 
@@ -64,8 +64,8 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         goBackOnlineDialog.clickContinue();
 
         DownloadImageViewElement downloadElement = mainNavHelper.goToCollections()
-                .scrollToFirstPlaylist()
-                .downloadElement();
+                                                                .scrollToFirstPlaylist()
+                                                                .downloadElement();
 
         assertThat("Save offline menu element should be visible", !downloadElement.isVisible());
     }

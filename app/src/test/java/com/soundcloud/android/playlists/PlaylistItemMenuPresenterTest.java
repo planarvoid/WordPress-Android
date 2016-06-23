@@ -81,9 +81,18 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                 .thenReturn(Observable.<PropertySet>empty());
 
         when(screenProvider.getLastScreenTag()).thenReturn("some tag");
-        presenter = new PlaylistItemMenuPresenter(context, eventBus, popupMenuWrapperFactory, accountOperations,
-                playlistOperations, likeOperations, repostOperations, shareOperations, screenProvider, featureOperations,
-                offlineOperations, navigator);
+        presenter = new PlaylistItemMenuPresenter(context,
+                                                  eventBus,
+                                                  popupMenuWrapperFactory,
+                                                  accountOperations,
+                                                  playlistOperations,
+                                                  likeOperations,
+                                                  repostOperations,
+                                                  shareOperations,
+                                                  screenProvider,
+                                                  featureOperations,
+                                                  offlineOperations,
+                                                  navigator);
 
         button = new View(new FragmentActivity());
     }
@@ -144,10 +153,11 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.onMenuItemClick(menuItem, context);
 
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
-                .contextScreen(screenProvider.getLastScreenTag())
-                .pageName(screenProvider.getLastScreenTag())
-                .isFromOverflow(true)
-                .invokerScreen(ScreenElement.LIST.get()).build();
+                                                                        .contextScreen(screenProvider.getLastScreenTag())
+                                                                        .pageName(screenProvider.getLastScreenTag())
+                                                                        .isFromOverflow(true)
+                                                                        .invokerScreen(ScreenElement.LIST.get())
+                                                                        .build();
 
         verify(shareOperations).share(context, playlist.getSource(), eventContextMetadata, null);
     }
@@ -183,10 +193,11 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
-        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
+                                                                     OfflineInteractionEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_ADD);
         assertThat(trackingEvent.getAttributes()
-                .containsValue(String.valueOf(playlist.getUrn()))).isTrue();
+                                .containsValue(String.valueOf(playlist.getUrn()))).isTrue();
     }
 
     @Test
@@ -208,10 +219,11 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, activity);
 
-        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, OfflineInteractionEvent.class);
+        OfflineInteractionEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING,
+                                                                     OfflineInteractionEvent.class);
         assertThat(trackingEvent.getKind()).isEqualTo(OfflineInteractionEvent.KIND_OFFLINE_PLAYLIST_REMOVE);
         assertThat(trackingEvent.getAttributes()
-                .containsValue(String.valueOf(playlist.getUrn()))).isTrue();
+                                .containsValue(String.valueOf(playlist.getUrn()))).isTrue();
     }
 
     @Test

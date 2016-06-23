@@ -129,13 +129,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
-                        + resources.getResourceName(view.getId()));
+                                                           + resources.getResourceName(view.getId()));
         }
     }
 
     @Override
     public View createItemView(ViewGroup container, SkipListener skipListener) {
-        final View trackView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_track_page, container, false);
+        final View trackView = LayoutInflater.from(container.getContext())
+                                             .inflate(R.layout.player_track_page, container, false);
         setupHolder(trackView);
         setupSkipListener(trackView, skipListener);
         return trackView;
@@ -151,18 +152,19 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         bindStationsContext(trackState, holder);
 
         holder.artworkController.loadArtwork(trackState, trackState.isCurrentTrack(),
-                trackState.getViewVisibilityProvider());
+                                             trackState.getViewVisibilityProvider());
 
         holder.timestamp.setInitialProgress(trackState.getPlayableDuration(), trackState.getFullDuration());
         holder.menuController.setTrack(trackState);
         holder.waveformController.setWaveform(waveformOperations.waveformDataFor(trackState.getUrn(),
-                trackState.getWaveformUrl()), trackState.isForeground());
+                                                                                 trackState.getWaveformUrl()),
+                                              trackState.isForeground());
 
         holder.artworkController.setFullDuration(trackState.getFullDuration());
         holder.waveformController.setDurations(trackState.getPlayableDuration(), trackState.getFullDuration());
 
         likeButtonPresenter.setLikeCount(holder.likeToggle, trackState.getLikeCount(),
-                R.drawable.player_like_active, R.drawable.player_like);
+                                         R.drawable.player_like_active, R.drawable.player_like);
 
         holder.likeToggle.setChecked(trackState.isUserLike());
         holder.likeToggle.setTag(trackState.getUrn());
@@ -284,7 +286,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     }
 
     @Override
-    public void setPlayState(View trackPage, PlaybackStateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
+    public void setPlayState(View trackPage,
+                             PlaybackStateTransition stateTransition,
+                             boolean isCurrentTrack,
+                             boolean isForeground) {
         final TrackPageHolder holder = getViewHolder(trackPage);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
@@ -302,7 +307,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         configureAdOverlay(stateTransition, isCurrentTrack, isForeground, holder);
     }
 
-    private void configureAdOverlay(PlaybackStateTransition stateTransition, boolean isCurrentTrack, boolean isForeground, TrackPageHolder holder) {
+    private void configureAdOverlay(PlaybackStateTransition stateTransition,
+                                    boolean isCurrentTrack,
+                                    boolean isForeground,
+                                    TrackPageHolder holder) {
         if (isCurrentTrack) {
             if (stateTransition.isPlayerPlaying() && isForeground) {
                 holder.adOverlayController.show(true);
@@ -322,7 +330,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
         if (changeSet.contains(PlayableProperty.LIKES_COUNT)) {
             likeButtonPresenter.setLikeCount(holder.likeToggle, changeSet.get(PlayableProperty.LIKES_COUNT),
-                    R.drawable.player_like_active, R.drawable.player_like);
+                                             R.drawable.player_like_active, R.drawable.player_like);
         }
         if (changeSet.contains(PlayableProperty.IS_USER_REPOST)) {
             final boolean isReposted = changeSet.get(PlayableProperty.IS_USER_REPOST);
@@ -367,8 +375,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private void showRepostToast(final Context context, final boolean isReposted) {
         Toast.makeText(context, isReposted
-                ? R.string.reposted_to_followers
-                : R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
+                                ? R.string.reposted_to_followers
+                                : R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
     }
 
     private void updateLikeStatus(View likeToggle) {
@@ -538,7 +546,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             public void scrubStateChanged(int newScrubState) {
                 for (View v : holder.hideOnScrubViews) {
                     ObjectAnimator animator = ObjectAnimator.ofFloat(v, "alpha", v.getAlpha(),
-                            newScrubState == ScrubController.SCRUB_STATE_SCRUBBING ? 0 : 1);
+                                                                     newScrubState == ScrubController.SCRUB_STATE_SCRUBBING ?
+                                                                     0 :
+                                                                     1);
                     animator.setDuration(SCRUB_TRANSITION_ALPHA_DURATION);
                     animator.start();
                 }
@@ -747,9 +757,25 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         };
 
         public void populateViewSets() {
-            List<View> hideOnScrub = Arrays.asList(title, user, trackContext, closeIndicator, nextButton, previousButton, playButton, bottomClose, highTierLabel, upsellButton);
+            List<View> hideOnScrub = Arrays.asList(title,
+                                                   user,
+                                                   trackContext,
+                                                   closeIndicator,
+                                                   nextButton,
+                                                   previousButton,
+                                                   playButton,
+                                                   bottomClose,
+                                                   highTierLabel,
+                                                   upsellButton);
             List<View> hideOnError = Arrays.asList(playButton, timestamp);
-            List<View> clickViews = Arrays.asList(artworkView, closeIndicator, bottomClose, playButton, footer, footerPlayToggle, profileLink, upsellButton);
+            List<View> clickViews = Arrays.asList(artworkView,
+                                                  closeIndicator,
+                                                  bottomClose,
+                                                  playButton,
+                                                  footer,
+                                                  footerPlayToggle,
+                                                  profileLink,
+                                                  upsellButton);
 
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder);
             fullScreenAdViews = Arrays.asList(interstitialHolder);
@@ -759,7 +785,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
             hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp, castDeviceName);
-            progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
+            progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController,
+                                                                   artworkController,
+                                                                   timestamp,
+                                                                   menuController);
         }
 
         private boolean hasNextButton() {

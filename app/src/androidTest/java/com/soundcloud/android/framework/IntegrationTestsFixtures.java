@@ -37,12 +37,12 @@ public class IntegrationTestsFixtures {
 
     private ContentValues buildTrackPoliciesValues(Urn track, long date) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.TrackPolicies.TRACK_ID, track.getNumericId())
-                .put(TableColumns.TrackPolicies.POLICY, "POLICY TEST")
-                .put(TableColumns.TrackPolicies.MONETIZABLE, true)
-                .put(TableColumns.TrackPolicies.SYNCABLE, true)
-                .put(TableColumns.TrackPolicies.LAST_UPDATED, date)
-                .get();
+                                   .put(TableColumns.TrackPolicies.TRACK_ID, track.getNumericId())
+                                   .put(TableColumns.TrackPolicies.POLICY, "POLICY TEST")
+                                   .put(TableColumns.TrackPolicies.MONETIZABLE, true)
+                                   .put(TableColumns.TrackPolicies.SYNCABLE, true)
+                                   .put(TableColumns.TrackPolicies.LAST_UPDATED, date)
+                                   .get();
     }
 
     public void updateLastPolicyUpdateTime(Context context, long time) {
@@ -61,31 +61,31 @@ public class IntegrationTestsFixtures {
 
     private static ContentValues buildOfflineContentValues(Urn urn) {
         return ContentValuesBuilder.values(2)
-                .put(_ID, urn.getNumericId())
-                .put(_TYPE, OfflineContent.TYPE_PLAYLIST)
-                .get();
+                                   .put(_ID, urn.getNumericId())
+                                   .put(_TYPE, OfflineContent.TYPE_PLAYLIST)
+                                   .get();
     }
 
     private static ContentValues buildPlaylistTrackValues(Urn playlist, Urn trackUrn, long date) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getNumericId())
-                .put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
-                .put(TableColumns.PlaylistTracks.POSITION, 0)
-                .put(TableColumns.PlaylistTracks.ADDED_AT, date)
-                .get();
+                                   .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlist.getNumericId())
+                                   .put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
+                                   .put(TableColumns.PlaylistTracks.POSITION, 0)
+                                   .put(TableColumns.PlaylistTracks.ADDED_AT, date)
+                                   .get();
     }
 
     private static ContentValues buildTrackDownloadValues(Urn track, long date) {
         return ContentValuesBuilder.values(2)
-                .put(_ID, track.getNumericId())
-                .put(TrackDownloads.REQUESTED_AT, date)
-                .put(TrackDownloads.DOWNLOADED_AT, date)
-                .get();
+                                   .put(_ID, track.getNumericId())
+                                   .put(TrackDownloads.REQUESTED_AT, date)
+                                   .put(TrackDownloads.DOWNLOADED_AT, date)
+                                   .get();
     }
 
     private static ContentValues buildTrackPoliciesValues(long date) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.TrackPolicies.LAST_UPDATED, date)
-                .get();
+                                   .put(TableColumns.TrackPolicies.LAST_UPDATED, date)
+                                   .get();
     }
 }

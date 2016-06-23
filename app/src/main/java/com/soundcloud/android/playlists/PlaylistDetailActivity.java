@@ -38,7 +38,10 @@ public class PlaylistDetailActivity extends PlayerActivity {
     }
 
     @Deprecated // Use Navigator
-    public static void start(Context context, @NotNull Urn playlist, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static void start(Context context,
+                             @NotNull Urn playlist,
+                             Screen screen,
+                             SearchQuerySourceInfo searchQuerySourceInfo) {
         start(context, playlist, screen, false, searchQuerySourceInfo);
     }
 
@@ -48,7 +51,11 @@ public class PlaylistDetailActivity extends PlayerActivity {
     }
 
     @Deprecated // Use Navigator
-    public static void start(Context context, Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static void start(Context context,
+                             Urn playlistUrn,
+                             Screen screen,
+                             boolean autoPlay,
+                             SearchQuerySourceInfo searchQuerySourceInfo) {
         context.startActivity(getIntent(playlistUrn, screen, autoPlay, searchQuerySourceInfo, null));
     }
 
@@ -60,7 +67,11 @@ public class PlaylistDetailActivity extends PlayerActivity {
         return getIntent(playlistUrn, screen, autoPlay, null, null);
     }
 
-    public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay, SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
+    public static Intent getIntent(@NotNull Urn playlistUrn,
+                                   Screen screen,
+                                   boolean autoPlay,
+                                   SearchQuerySourceInfo queryInfo,
+                                   PromotedSourceInfo promotedInfo) {
         Intent intent = new Intent(Actions.PLAYLIST);
         screen.addToIntent(intent);
         return intent
@@ -92,7 +103,11 @@ public class PlaylistDetailActivity extends PlayerActivity {
         if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST)) {
             fragment = PlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
         } else {
-            fragment = LegacyPlaylistDetailFragment.create(urn, screen, searchQuerySourceInfo, promotedSourceInfo, autoplay);
+            fragment = LegacyPlaylistDetailFragment.create(urn,
+                                                           screen,
+                                                           searchQuerySourceInfo,
+                                                           promotedSourceInfo,
+                                                           autoplay);
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
     }

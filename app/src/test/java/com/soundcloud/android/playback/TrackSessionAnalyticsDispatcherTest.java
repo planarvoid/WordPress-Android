@@ -49,7 +49,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
-    public void setUp()  {
+    public void setUp() {
         PropertySet track = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
@@ -107,10 +107,12 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         assertThat(playbackSessionEvent.isStopEvent()).isFalse();
     }
 
-    private void expectCommonAudioEventData(PlaybackStateTransition stateTransition, PlaybackSessionEvent playbackSessionEvent) {
+    private void expectCommonAudioEventData(PlaybackStateTransition stateTransition,
+                                            PlaybackSessionEvent playbackSessionEvent) {
         assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
         assertThat(playbackSessionEvent.getCreatorUrn()).isEqualTo(CREATOR_URN);
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
+        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(
+                PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
         assertThat(playbackSessionEvent.getUUID()).isEqualTo(UUID);
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
@@ -121,7 +123,10 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void stateChangeToPlayEventForPlayingPromotedTrackIncludesPromotedInfo() {
         Urn promoter = Urn.forUser(83L);
         PlaySessionSource source = new PlaySessionSource("stream");
-        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", TRACK_URN, Optional.of(promoter), Arrays.asList("url")));
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123",
+                                                            TRACK_URN,
+                                                            Optional.of(promoter),
+                                                            Arrays.asList("url")));
 
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
@@ -138,7 +143,10 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void stateChangeToPlayEventForPlayingNonPromotedTrackAlongWithPromotedContentDoesntIncludePromotedInfo() {
         Urn promoter = Urn.forUser(83L);
         PlaySessionSource source = new PlaySessionSource("stream");
-        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", Urn.forPlaylist(421L), Optional.of(promoter), Arrays.asList("url")));
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123",
+                                                            Urn.forPlaylist(421L),
+                                                            Optional.of(promoter),
+                                                            Arrays.asList("url")));
 
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
 
@@ -153,7 +161,10 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     @Test
     public void promotedInfoSetsHasPlayedOnPlayEvent() {
         PlaySessionSource source = new PlaySessionSource("stream");
-        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", TRACK_URN, Optional.<Urn>absent(), Arrays.asList("url")));
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123",
+                                                            TRACK_URN,
+                                                            Optional.<Urn>absent(),
+                                                            Arrays.asList("url")));
 
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(true);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
@@ -165,7 +176,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stateChangeEventInNonPlayingStatePublishesStopReasonFromProvider()  {
+    public void stateChangeEventInNonPlayingStatePublishesStopReasonFromProvider() {
         playTransition();
         stopTransition(PlaybackState.IDLE, PlayStateReason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
@@ -189,7 +200,9 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void shouldPublishCheckpointEvent() {
         final PlaybackStateTransition transition = playTransition();
 
-        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L), transition.getUrn()));
+        dispatcher.onProgressCheckpoint(transition,
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
+                                                                     transition.getUrn()));
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
@@ -203,7 +216,9 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition transition = playTransition();
         stopTransition(PlaybackState.IDLE, PlayStateReason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
-        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L), transition.getUrn()));
+        dispatcher.onProgressCheckpoint(transition,
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
+                                                                     transition.getUrn()));
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
@@ -215,7 +230,9 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void shouldNotPublishCheckpointEventIfProgressEventIsNotForPlayingItem() {
         final PlaybackStateTransition transition = playTransition();
 
-        dispatcher.onProgressCheckpoint(transition, PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L), Urn.forTrack(101L)));
+        dispatcher.onProgressCheckpoint(transition,
+                                        PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
+                                                                     Urn.forTrack(101L)));
 
         assertThat(((PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING)).isPlayEvent()).isTrue();
     }
@@ -263,8 +280,8 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     private PlaybackStateTransition addStateExtras(PlaybackStateTransition startEvent) {
         return startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls")
-                .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, "skippy")
-                .addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, "3g");
+                         .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, "skippy")
+                         .addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, "3g");
     }
 
 }

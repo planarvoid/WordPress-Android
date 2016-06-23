@@ -15,7 +15,8 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class SearchPremiumResultsFragment extends LightCycleSupportFragment<SearchPremiumResultsFragment> implements RefreshableScreen {
+public class SearchPremiumResultsFragment extends LightCycleSupportFragment<SearchPremiumResultsFragment>
+        implements RefreshableScreen {
 
     public static final String TAG = "search_premium_results";
 
@@ -33,7 +34,9 @@ public class SearchPremiumResultsFragment extends LightCycleSupportFragment<Sear
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 

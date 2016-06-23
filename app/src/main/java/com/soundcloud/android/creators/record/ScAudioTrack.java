@@ -10,11 +10,11 @@ public class ScAudioTrack extends AudioTrack {
 
     public ScAudioTrack(AudioConfig config, int bufferSize) {
         super(AudioManager.STREAM_MUSIC,
-                config.sampleRate,
-                config.getChannelConfig(false),
-                config.getFormat(),
-                bufferSize,
-                AudioTrack.MODE_STREAM);
+              config.sampleRate,
+              config.getChannelConfig(false),
+              config.getFormat(),
+              bufferSize,
+              AudioTrack.MODE_STREAM);
 
         // performance: pre-allocate buffer
         audioData = new byte[bufferSize];

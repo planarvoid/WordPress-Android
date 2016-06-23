@@ -31,7 +31,7 @@ public class PlaylistDetailsTest extends ActivityTest<ResolveActivity> {
 
     @Override
     public void setUp() throws Exception {
-        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData( Uri.parse("soundcloud:playlists:116114846")));
+        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("soundcloud:playlists:116114846")));
         super.setUp();
 
         //FIXME: This is a workaround for #1487

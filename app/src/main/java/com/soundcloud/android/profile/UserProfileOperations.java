@@ -142,11 +142,11 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userPosts(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .map(mergePlayableInfo)
-                        .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .map(mergePlayableInfo)
+                                 .zipWith(userRepository.userInfo(user), MERGE_REPOSTER)
+                                 .subscribeOn(scheduler);
             }
         });
     }
@@ -189,10 +189,10 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.legacyUserLikes(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .map(mergePlayableInfo)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .map(mergePlayableInfo)
+                                 .subscribeOn(scheduler);
             }
         });
     }
@@ -211,20 +211,20 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userLegacyPlaylists(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .map(mergePlayableInfo)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .map(mergePlayableInfo)
+                                 .subscribeOn(scheduler);
             }
         });
     }
 
     public Observable<PagedRemoteCollection> userPlaylists(Urn user) {
         return profileApi.userPlaylists(user)
-                .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
-                .map(mergePlayableInfo)
-                .subscribeOn(scheduler);
+                         .doOnNext(writeMixedRecordsCommand.toAction1())
+                         .map(TO_PAGED_REMOTE_COLLECTION)
+                         .map(mergePlayableInfo)
+                         .subscribeOn(scheduler);
     }
 
     public PagingFunction<PagedRemoteCollection> userPlaylistsPagingFunction() {
@@ -232,10 +232,10 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userPlaylists(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .map(mergePlayableInfo)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .map(mergePlayableInfo)
+                                 .subscribeOn(scheduler);
             }
         });
     }
@@ -253,28 +253,28 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userFollowings(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .subscribeOn(scheduler);
             }
         });
     }
 
     public Observable<UserProfile> userProfile(Urn user) {
         return profileApi.userProfile(user)
-                .cast(UserProfileRecord.class)
-                .doOnNext(storeProfileCommand.toAction1())
-                .map(TO_USER_PROFILE)
-                .doOnNext(spotlightItemStatusLoader.toAction1())
-                .subscribeOn(scheduler);
+                         .cast(UserProfileRecord.class)
+                         .doOnNext(storeProfileCommand.toAction1())
+                         .map(TO_USER_PROFILE)
+                         .doOnNext(spotlightItemStatusLoader.toAction1())
+                         .subscribeOn(scheduler);
     }
 
     public Observable<PagedRemoteCollection> userReposts(Urn user) {
         return profileApi.userReposts(user)
-                .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
-                .map(mergePlayableInfo)
-                .subscribeOn(scheduler);
+                         .doOnNext(writeMixedRecordsCommand.toAction1())
+                         .map(TO_PAGED_REMOTE_COLLECTION)
+                         .map(mergePlayableInfo)
+                         .subscribeOn(scheduler);
     }
 
     public PagingFunction<PagedRemoteCollection> repostsPagingFunction() {
@@ -282,19 +282,19 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userReposts(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .map(mergePlayableInfo)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .map(mergePlayableInfo)
+                                 .subscribeOn(scheduler);
             }
         });
     }
 
     public Observable<PagedRemoteCollection> userTracks(Urn user) {
         return profileApi.userTracks(user)
-                .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
-                .subscribeOn(scheduler);
+                         .doOnNext(writeMixedRecordsCommand.toAction1())
+                         .map(TO_PAGED_REMOTE_COLLECTION)
+                         .subscribeOn(scheduler);
     }
 
     public PagingFunction<PagedRemoteCollection> userTracksPagingFunction() {
@@ -302,19 +302,19 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userTracks(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .subscribeOn(scheduler);
             }
         });
     }
 
     public Observable<PagedRemoteCollection> userAlbums(Urn user) {
         return profileApi.userAlbums(user)
-                .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
-                .map(mergePlayableInfo)
-                .subscribeOn(scheduler);
+                         .doOnNext(writeMixedRecordsCommand.toAction1())
+                         .map(TO_PAGED_REMOTE_COLLECTION)
+                         .map(mergePlayableInfo)
+                         .subscribeOn(scheduler);
     }
 
     public PagingFunction<PagedRemoteCollection> userAlbumsPagingFunction() {
@@ -322,20 +322,20 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userAlbums(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .map(mergePlayableInfo)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .map(mergePlayableInfo)
+                                 .subscribeOn(scheduler);
             }
         });
     }
 
     public Observable<PagedRemoteCollection> userLikes(Urn user) {
         return profileApi.userLikes(user)
-                .doOnNext(writeMixedRecordsCommand.toAction1())
-                .map(TO_PAGED_REMOTE_COLLECTION)
-                .map(mergePlayableInfo)
-                .subscribeOn(scheduler);
+                         .doOnNext(writeMixedRecordsCommand.toAction1())
+                         .map(TO_PAGED_REMOTE_COLLECTION)
+                         .map(mergePlayableInfo)
+                         .subscribeOn(scheduler);
     }
 
     public PagingFunction<PagedRemoteCollection> likesPagingFunction() {
@@ -343,10 +343,10 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userLikes(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .map(mergePlayableInfo)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .map(mergePlayableInfo)
+                                 .subscribeOn(scheduler);
             }
         });
     }
@@ -364,9 +364,9 @@ class UserProfileOperations {
             @Override
             public Observable<PagedRemoteCollection> call(String nextPageLink) {
                 return profileApi.userFollowers(nextPageLink)
-                        .doOnNext(writeMixedRecordsCommand.toAction1())
-                        .map(TO_PAGED_REMOTE_COLLECTION)
-                        .subscribeOn(scheduler);
+                                 .doOnNext(writeMixedRecordsCommand.toAction1())
+                                 .map(TO_PAGED_REMOTE_COLLECTION)
+                                 .subscribeOn(scheduler);
             }
         });
     }

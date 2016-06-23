@@ -13,7 +13,8 @@ public class KeyGeneratorWrapper {
     static final int GENERATED_KEY_SIZE = 16;
 
     @Inject
-    public KeyGeneratorWrapper() {}
+    public KeyGeneratorWrapper() {
+    }
 
     public byte[] generateKey(SecureRandom secureRandom) throws NoSuchAlgorithmException {
         KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);

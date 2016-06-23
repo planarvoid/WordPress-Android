@@ -26,8 +26,8 @@ public class UserRepositoryTest extends AndroidUnitTest {
     private final Urn userUrn = Urn.forUser(123L);
     private final PropertySet user = PropertySet.from(UserProperty.URN.bind(Urn.forUser(123L)));
     private final PropertySet updatedUser = PropertySet.create()
-            .put(UserProperty.URN, Urn.forUser(123L))
-            .put(UserProperty.USERNAME, "name");
+                                                       .put(UserProperty.URN, Urn.forUser(123L))
+                                                       .put(UserProperty.USERNAME, "name");
 
 
     private TestObserver<PropertySet> observer = new TestObserver<>();
@@ -64,7 +64,8 @@ public class UserRepositoryTest extends AndroidUnitTest {
     @Test
     public void userInfoReturnsUserInfoFromSyncerIfStorageEmpty() {
         final PublishSubject<SyncJobResult> subject = PublishSubject.create();
-        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(PropertySet.create()), Observable.just(updatedUser));
+        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(PropertySet.create()),
+                                                       Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
         userRepository.userInfo(userUrn).subscribe(observer);
@@ -119,7 +120,8 @@ public class UserRepositoryTest extends AndroidUnitTest {
     @Test
     public void localAndSyncedUserInfoReturnsDoesNotEmitMissingUser() {
         final PublishSubject<SyncJobResult> subject = PublishSubject.create();
-        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(PropertySet.create()), Observable.just(updatedUser));
+        when(userStorage.loadUser(userUrn)).thenReturn(Observable.just(PropertySet.create()),
+                                                       Observable.just(updatedUser));
         when(syncInitiator.syncUser(userUrn)).thenReturn(subject);
 
         userRepository.localAndSyncedUserInfo(userUrn).subscribe(observer);

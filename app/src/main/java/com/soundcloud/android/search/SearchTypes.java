@@ -17,12 +17,14 @@ class SearchTypes {
 
     @Inject
     SearchTypes(final FeatureFlags featureFlags) {
-        this.available = Lists.newArrayList(Iterables.filter(Arrays.asList(SearchType.values()), new Predicate<SearchType>() {
-            @Override
-            public boolean apply(@Nullable SearchType input) {
-                return input != SearchType.ALBUMS || featureFlags.isEnabled(Flag.ALBUMS);
-            }
-        }));
+        this.available = Lists.newArrayList(Iterables.filter(Arrays.asList(SearchType.values()),
+                                                             new Predicate<SearchType>() {
+                                                                 @Override
+                                                                 public boolean apply(@Nullable SearchType input) {
+                                                                     return input != SearchType.ALBUMS || featureFlags.isEnabled(
+                                                                             Flag.ALBUMS);
+                                                                 }
+                                                             }));
     }
 
     List<SearchType> available() {

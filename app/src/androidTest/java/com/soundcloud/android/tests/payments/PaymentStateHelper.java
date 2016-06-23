@@ -26,7 +26,8 @@ class PaymentStateHelper {
     private static final String KEY_FILE = "payment_test_secrets.txt";
 
 
-    private PaymentStateHelper() {}
+    private PaymentStateHelper() {
+    }
 
     public static void resetTestAccount() {
         try {

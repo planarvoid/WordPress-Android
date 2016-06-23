@@ -39,7 +39,7 @@ public class PlanChangeOperationsTest {
     public void setUp() throws Exception {
         when(offlineContentOperations.resetOfflineFeature()).thenReturn(Observable.<Void>just(null));
         operations = new PlanChangeOperations(configurationOperations,
-                policyOperations, playSessionController, offlineContentOperations);
+                                              policyOperations, playSessionController, offlineContentOperations);
     }
 
     @Test
@@ -200,7 +200,8 @@ public class PlanChangeOperationsTest {
     @Test
     public void downgradeResetsOfflineFeature() {
         final PublishSubject<Void> clearObservable = PublishSubject.create();
-        when(configurationOperations.awaitConfigurationFromPendingPlanChange()).thenReturn(Observable.just(ModelFixtures.create(Configuration.class)));
+        when(configurationOperations.awaitConfigurationFromPendingPlanChange()).thenReturn(Observable.just(ModelFixtures
+                                                                                                                   .create(Configuration.class)));
         when(offlineContentOperations.resetOfflineFeature()).thenReturn(clearObservable);
         when(policyOperations.refreshedTrackPolicies()).thenReturn(Observable.just(singletonList(Urn.forTrack(123))));
 

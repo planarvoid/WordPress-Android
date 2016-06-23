@@ -21,7 +21,7 @@ public class ViewPagerElement extends Element {
      * @deprecated Please use testDriver fo find your elements
      */
     @Deprecated
-    public  <T extends View> View getCurrentPage(Class<T> viewClass) {
+    public <T extends View> View getCurrentPage(Class<T> viewClass) {
         return testDriver.getSolo().getCurrentViews(viewClass, getVisiblePage()).get(0);
     }
 
@@ -34,11 +34,11 @@ public class ViewPagerElement extends Element {
         View childView;
         int[] locationOnScreen = new int[2];
 
-        for (int i = 0; i < viewPager.getChildCount(); i += 1 ) {
+        for (int i = 0; i < viewPager.getChildCount(); i += 1) {
             childView = viewPager.getChildAt(i);
             childView.getLocationOnScreen(locationOnScreen);
 
-            if( isVisible(childView) ) {
+            if (isVisible(childView)) {
                 return childView;
             }
         }
@@ -66,7 +66,7 @@ public class ViewPagerElement extends Element {
     }
 
     private int[] getLocationOnScreen() {
-        int[] locationOnScreen = new int [2];
+        int[] locationOnScreen = new int[2];
         viewPager.getLocationOnScreen(locationOnScreen);
         return locationOnScreen;
     }

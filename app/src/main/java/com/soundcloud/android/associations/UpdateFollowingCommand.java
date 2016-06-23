@@ -19,7 +19,8 @@ import android.content.ContentValues;
 import javax.inject.Inject;
 import java.util.Date;
 
-class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.UpdateFollowingParams, WriteResult, Integer> {
+class UpdateFollowingCommand
+        extends WriteStorageCommand<UpdateFollowingCommand.UpdateFollowingParams, WriteResult, Integer> {
 
     private int updatedFollowersCount;
 
@@ -36,8 +37,8 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.update(Table.Users,
-                        buildContentValuesForFollowersCount(),
-                        buildWhereClauseForFollowersCount(params)));
+                                      buildContentValuesForFollowersCount(),
+                                      buildWhereClauseForFollowersCount(params)));
                 step(propeller.upsert(Table.UserAssociations, buildContentValuesForFollowing(params)));
             }
         });
@@ -50,9 +51,9 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
 
     private int obtainNewFollowersCount(PropellerDatabase propeller, UpdateFollowingParams params) {
         int count = propeller.query(from(Table.Users.name())
-                .select(TableColumns.Users.FOLLOWERS_COUNT)
-                .whereEq(TableColumns.Users._ID, params.targetUrn.getNumericId()))
-                .first(Integer.class);
+                                            .select(TableColumns.Users.FOLLOWERS_COUNT)
+                                            .whereEq(TableColumns.Users._ID, params.targetUrn.getNumericId()))
+                             .first(Integer.class);
 
         if (isFollowing(propeller, params.targetUrn) == params.following || count == Consts.NOT_SET) {
             return count;
@@ -63,11 +64,14 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
 
     private boolean isFollowing(PropellerDatabase propeller, Urn targetUrn) {
         final QueryResult queryResult = propeller.query(from(Table.UserAssociations.name())
-                .select(TableColumns.UserAssociations.TARGET_ID)
-                .whereEq(TableColumns.UserAssociations.TARGET_ID, targetUrn.getNumericId())
-                .whereEq(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER)
-                .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING)
-                .whereNull(TableColumns.UserAssociations.REMOVED_AT));
+                                                                .select(TableColumns.UserAssociations.TARGET_ID)
+                                                                .whereEq(TableColumns.UserAssociations.TARGET_ID,
+                                                                         targetUrn.getNumericId())
+                                                                .whereEq(TableColumns.UserAssociations.RESOURCE_TYPE,
+                                                                         TableColumns.UserAssociations.TYPE_RESOURCE_USER)
+                                                                .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE,
+                                                                         TableColumns.UserAssociations.TYPE_FOLLOWING)
+                                                                .whereNull(TableColumns.UserAssociations.REMOVED_AT));
 
         final int followingCount = queryResult.getResultCount();
         queryResult.release();

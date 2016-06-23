@@ -32,7 +32,7 @@ public class AppboyWrapper {
             @Override
             public Uri getApiEndpoint(Uri appboyEndpoint) {
                 return appboyEndpoint.buildUpon()
-                        .authority(authority).build();
+                                     .authority(authority).build();
             }
 
             @Override

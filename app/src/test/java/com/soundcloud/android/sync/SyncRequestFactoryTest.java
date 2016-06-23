@@ -51,8 +51,8 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     @Test
     public void returnsSingleRequestJobWithTrackLikesJob() throws Exception {
         SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                        resultReceiverAdapter));
+                                                                    .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
+                                                                              resultReceiverAdapter));
         assertThat(syncRequest.getPendingJobs()).hasSize(1);
         assertThat(syncRequest.getPendingJobs().contains(syncTrackLikesJob)).isTrue();
     }
@@ -99,13 +99,14 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     @Test
     public void createsSingleRequestJobForSyncable() throws Exception {
         final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.CHARTS)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
+                                          .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter)
+                                          .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
 
         final SingleJobRequest request = mock(SingleJobRequest.class);
         final SyncerRegistry.SyncProvider syncProvider = TestSyncData.get(Syncable.CHARTS);
         when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(syncProvider);
-        when(singleJobRequestFactory.create(Syncable.CHARTS, syncProvider, resultReceiverAdapter, true)).thenReturn(request);
+        when(singleJobRequestFactory.create(Syncable.CHARTS, syncProvider, resultReceiverAdapter, true)).thenReturn(
+                request);
 
         assertThat(syncRequestFactory.create(intent)).isSameAs(request);
     }

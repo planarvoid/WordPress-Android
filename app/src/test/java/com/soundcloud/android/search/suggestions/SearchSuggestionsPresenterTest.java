@@ -105,7 +105,7 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.just(SuggestionsResult.emptyLocal()));
 
         presenter.showSuggestionsFor(SEARCH_QUERY);
-        presenter.getCollectionBinding().items().subscribe((Subscriber)testSubscriber);
+        presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);
 
         final SuggestionItem firstSuggestionItem = testSubscriber.getOnNextEvents().get(0).get(0);
         assertThat(firstSuggestionItem.getKind()).isEqualTo(SuggestionItem.Kind.SearchItem);
@@ -125,10 +125,11 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         final List<PropertySetSource> remoteItems = Collections.singletonList(propertySetSource);
         final SuggestionsResult remoteSuggestionsResult = SuggestionsResult.remoteFromPropertySetSource(remoteItems);
 
-        when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.just(localSuggestionsResult, remoteSuggestionsResult));
+        when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.just(localSuggestionsResult,
+                                                                                 remoteSuggestionsResult));
 
         presenter.showSuggestionsFor(SEARCH_QUERY);
-        presenter.getCollectionBinding().items().subscribe((Subscriber)testSubscriber);
+        presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);
 
         final SuggestionItem firstItem = testSubscriber.getOnNextEvents().get(0).get(0);
         final SuggestionItem secondItem = testSubscriber.getOnNextEvents().get(0).get(1);

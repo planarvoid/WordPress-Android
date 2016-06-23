@@ -23,10 +23,10 @@ public class ReplaceActivitiesCommandTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         command = new ReplaceActivitiesCommand(propeller(),
-                new StoreUsersCommand(propeller()),
-                new StoreTracksCommand(propeller()),
-                new StorePlaylistsCommand(propeller()),
-                new StoreCommentCommand(propeller()));
+                                               new StoreUsersCommand(propeller()),
+                                               new StoreTracksCommand(propeller()),
+                                               new StorePlaylistsCommand(propeller()),
+                                               new StoreCommentCommand(propeller()));
     }
 
     @Test

@@ -63,7 +63,7 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void addMediaRouterButton(Menu menu, int itemId){
+    public void addMediaRouterButton(Menu menu, int itemId) {
         videoCastManager.addMediaRouterButton(menu, itemId);
     }
 
@@ -97,7 +97,7 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void reconnectSessionIfPossible(){
+    public void reconnectSessionIfPossible() {
         videoCastManager.reconnectSessionIfPossible();
     }
 
@@ -123,7 +123,7 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     private void updateMediaRouteButtons() {
-        for (MediaRouteButton mediaRouteButton : mediaRouteButtons){
+        for (MediaRouteButton mediaRouteButton : mediaRouteButtons) {
             updateMediaRouteButtonVisibility(mediaRouteButton);
         }
     }

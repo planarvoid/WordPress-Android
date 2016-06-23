@@ -35,7 +35,14 @@ public class WaveformCanvas extends TextureView implements TextureView.SurfaceTe
         setOpaque(false);
     }
 
-    public void initialize(WaveformData waveformData, Paint abovePaint, Paint belowPaint, Paint unplayableAbovePaint, Paint unplayableBelowPaint, int barWidth, int spaceWidth, int baseline) {
+    public void initialize(WaveformData waveformData,
+                           Paint abovePaint,
+                           Paint belowPaint,
+                           Paint unplayableAbovePaint,
+                           Paint unplayableBelowPaint,
+                           int barWidth,
+                           int spaceWidth,
+                           int baseline) {
         this.waveformData = waveformData;
         this.abovePaint = abovePaint;
         this.belowPaint = belowPaint;

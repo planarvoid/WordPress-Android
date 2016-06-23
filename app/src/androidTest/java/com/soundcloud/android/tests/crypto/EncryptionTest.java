@@ -54,7 +54,7 @@ public class EncryptionTest extends InstrumentationTestCase {
         boolean exceptionThrown = false;
         try {
             encryptor.encrypt(plainTextInput, encryptedOutput, secret, null);
-        } catch (EncryptionException | IOException ex){
+        } catch (EncryptionException | IOException ex) {
             assertTrue(ex instanceof EncryptionInterruptedException);
             exceptionThrown = true;
         } finally {
@@ -80,7 +80,10 @@ public class EncryptionTest extends InstrumentationTestCase {
         assertThat(decryptedOutput.toByteArray(), is(hexStringToBytes(PLAIN_TEXT_1)));
     }
 
-    private void encryptAndVerifyEncryption(String key, String iv, String plainText, String cipherText) throws EncryptionException, IOException {
+    private void encryptAndVerifyEncryption(String key,
+                                            String iv,
+                                            String plainText,
+                                            String cipherText) throws EncryptionException, IOException {
         final DeviceSecret secret = new DeviceSecret("KEY", hexStringToBytes(key), hexStringToBytes(iv));
         final InputStream plainTextInput = new ByteArrayInputStream(hexStringToBytes(plainText));
         final ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();

@@ -17,7 +17,7 @@ public class PostProperty {
         @Override
         public int compare(PropertySet lhs, PropertySet rhs) {
             int result = lhs.get(TARGET_URN).compareTo(rhs.get(TARGET_URN));
-            if (result == 0){
+            if (result == 0) {
                 result = lhs.get(IS_REPOST).compareTo(rhs.get(IS_REPOST));
             }
             return result == 0 ? lhs.get(CREATED_AT).compareTo(rhs.get(CREATED_AT)) : result;

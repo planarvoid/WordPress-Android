@@ -10,13 +10,13 @@ import java.util.EnumSet;
 @Deprecated
 public enum LegacySyncContent {
 
-    MySoundStream (Content.ME_SOUND_STREAM, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
-    MyActivities  (Content.ME_ACTIVITIES, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MySoundStream(Content.ME_SOUND_STREAM, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MyActivities(Content.ME_ACTIVITIES, SyncConfig.ACTIVITY_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
 
-    MySounds    (Content.ME_SOUNDS,     SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
-    MyPlaylists (Content.ME_PLAYLISTS,  SyncConfig.PLAYLIST_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
-    MyLikes     (Content.ME_LIKES,      SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
-    MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME,  SyncConfig.USER_BACKOFF_MULTIPLIERS);
+    MySounds(Content.ME_SOUNDS, SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MyPlaylists(Content.ME_PLAYLISTS, SyncConfig.PLAYLIST_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MyLikes(Content.ME_LIKES, SyncConfig.TRACK_STALE_TIME, SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS),
+    MyFollowings(Content.ME_FOLLOWINGS, SyncConfig.USER_STALE_TIME, SyncConfig.USER_BACKOFF_MULTIPLIERS);
 
     LegacySyncContent(Content content, long syncDelay, int[] backoffMultipliers) {
         this.content = content;
@@ -24,14 +24,15 @@ public enum LegacySyncContent {
         this.backoffMultipliers = backoffMultipliers;
     }
 
-    public static EnumSet<LegacySyncContent> NON_ACTIVITIES = EnumSet.complementOf(EnumSet.of(MySoundStream, MyActivities));
+    public static EnumSet<LegacySyncContent> NON_ACTIVITIES = EnumSet.complementOf(EnumSet.of(MySoundStream,
+                                                                                              MyActivities));
 
     public final Content content;
     public final long syncDelay;
     public final int[] backoffMultipliers;
 
     public boolean shouldSync(int misses, long lastSync) {
-        if (backoffMultipliers == null){
+        if (backoffMultipliers == null) {
             return true;
         } else {
             final int backoffIndex = Math.min(backoffMultipliers.length - 1, misses);

@@ -77,6 +77,7 @@ class StationsSyncPostBody {
             return collection;
         }
 
-        class SavedStation {}
+        class SavedStation {
+        }
     }
 }

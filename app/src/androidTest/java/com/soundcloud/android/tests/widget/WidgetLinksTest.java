@@ -30,8 +30,8 @@ public class WidgetLinksTest extends ActivityTest<MainActivity> {
 
     public void testOpenAppFromWidgetWithUserShowsStreamScreen() {
         setActivityIntent(new Intent(getInstrumentation().getContext(), MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false));
+                                  .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                  .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false));
 
         assertThat(new StreamScreen(solo), is(visible()));
     }

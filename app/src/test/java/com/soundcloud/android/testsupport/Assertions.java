@@ -15,7 +15,8 @@ import android.content.Intent;
  */
 public class Assertions {
 
-    private Assertions() {}
+    private Assertions() {
+    }
 
     public static ServiceAssert assertThat(Service service) {
         return new ServiceAssert(service);

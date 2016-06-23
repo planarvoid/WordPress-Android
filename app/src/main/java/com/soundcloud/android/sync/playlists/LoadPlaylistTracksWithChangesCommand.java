@@ -17,7 +17,8 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadPlaylistTracksWithChangesCommand extends LegacyCommand<Urn, List<PropertySet>, LoadPlaylistTracksWithChangesCommand> {
+class LoadPlaylistTracksWithChangesCommand
+        extends LegacyCommand<Urn, List<PropertySet>, LoadPlaylistTracksWithChangesCommand> {
 
     private final PropellerDatabase database;
 
@@ -29,12 +30,12 @@ class LoadPlaylistTracksWithChangesCommand extends LegacyCommand<Urn, List<Prope
     @Override
     public List<PropertySet> call() throws Exception {
         return database.query(Query.from(Table.PlaylistTracks.name())
-                .select(TableColumns.PlaylistTracks.TRACK_ID,
-                        TableColumns.PlaylistTracks.ADDED_AT,
-                        TableColumns.PlaylistTracks.REMOVED_AT)
-                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, input.getNumericId())
-                .order(POSITION, ASC))
-                .toList(new PlaylistTrackUrnMapper());
+                                   .select(TableColumns.PlaylistTracks.TRACK_ID,
+                                           TableColumns.PlaylistTracks.ADDED_AT,
+                                           TableColumns.PlaylistTracks.REMOVED_AT)
+                                   .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, input.getNumericId())
+                                   .order(POSITION, ASC))
+                       .toList(new PlaylistTrackUrnMapper());
     }
 
     private class PlaylistTrackUrnMapper extends RxResultMapper<PropertySet> {
@@ -45,10 +46,12 @@ class LoadPlaylistTracksWithChangesCommand extends LegacyCommand<Urn, List<Prope
                     PlaylistTrackProperty.TRACK_URN.bind(urn)
             );
             if (cursorReader.isNotNull(TableColumns.Likes.ADDED_AT)) {
-                playlistTrack.put(PlaylistTrackProperty.ADDED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.ADDED_AT));
+                playlistTrack.put(PlaylistTrackProperty.ADDED_AT,
+                                  cursorReader.getDateFromTimestamp(TableColumns.Likes.ADDED_AT));
             }
             if (cursorReader.isNotNull(TableColumns.Likes.REMOVED_AT)) {
-                playlistTrack.put(PlaylistTrackProperty.REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.REMOVED_AT));
+                playlistTrack.put(PlaylistTrackProperty.REMOVED_AT,
+                                  cursorReader.getDateFromTimestamp(TableColumns.Likes.REMOVED_AT));
             }
             return playlistTrack;
         }

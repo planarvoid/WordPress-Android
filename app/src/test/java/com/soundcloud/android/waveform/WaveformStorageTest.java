@@ -51,8 +51,8 @@ public class WaveformStorageTest extends StorageIntegrationTest {
         WaveformData waveformData = new WaveformData(12, new int[]{23, 123, 123});
 
         storage.load(track)
-                .switchIfEmpty(Observable.just(waveformData))
-                .subscribe(testObserver);
+               .switchIfEmpty(Observable.just(waveformData))
+               .subscribe(testObserver);
 
         testObserver.assertReceivedOnNext(Collections.singletonList(waveformData));
     }

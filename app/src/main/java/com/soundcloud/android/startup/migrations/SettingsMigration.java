@@ -15,14 +15,15 @@ class SettingsMigration implements Migration {
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    SettingsMigration(SharedPreferences sharedPreferences){
+    SettingsMigration(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 
     @Override
     public void applyMigration() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(SettingKey.ANALYTICS_ENABLED, sharedPreferences.getBoolean(SettingKey.CRASH_REPORTING_ENABLED, true));
+        editor.putBoolean(SettingKey.ANALYTICS_ENABLED,
+                          sharedPreferences.getBoolean(SettingKey.CRASH_REPORTING_ENABLED, true));
         editor.putBoolean(SettingKey.CRASH_REPORTING_ENABLED, sharedPreferences.getBoolean(CRASHLOGS_OLD_KEY, true));
         editor.apply();
     }

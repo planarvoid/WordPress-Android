@@ -44,7 +44,8 @@ public class TrackRecommendationPlaybackInitiator {
 
         final List<Urn> backQueue = discoveryItemsToRecommendedTrackUrns(items.subList(0, bucketPosition));
         final List<Urn> seed = singletonList(seedUrn);
-        final List<Urn> forwardQueue = discoveryItemsToRecommendedTrackUrns(items.subList(bucketPosition, items.size()));
+        final List<Urn> forwardQueue = discoveryItemsToRecommendedTrackUrns(items.subList(bucketPosition,
+                                                                                          items.size()));
         final List<Urn> playQueue = newArrayList(concat(backQueue, seed, forwardQueue));
         final int playPosition = playQueue.indexOf(bucket.getSeedTrackUrn());
 
@@ -76,7 +77,7 @@ public class TrackRecommendationPlaybackInitiator {
         return new Predicate<DiscoveryItem>() {
             @Override
             public boolean apply(DiscoveryItem input) {
-                return input.getKind() == Kind.RecommendedTracksItem && ((RecommendedTracksBucketItem)input).getSeedTrackUrn() == seedUrn;
+                return input.getKind() == Kind.RecommendedTracksItem && ((RecommendedTracksBucketItem) input).getSeedTrackUrn() == seedUrn;
             }
         };
     }

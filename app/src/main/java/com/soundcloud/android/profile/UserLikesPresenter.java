@@ -36,9 +36,9 @@ class UserLikesPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
         return CollectionBinding.from(operations.userLikes(userUrn), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(operations.likesPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(operations.likesPagingFunction())
+                                .build();
     }
 
     @Override

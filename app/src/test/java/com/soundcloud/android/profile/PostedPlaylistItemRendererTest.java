@@ -54,9 +54,9 @@ public class PostedPlaylistItemRendererTest extends AndroidUnitTest {
         final LayoutInflater layoutInflater = LayoutInflater.from(context());
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context()), false);
         renderer = new PostedPlaylistItemRenderer(resources(),
-                mock(ImageOperations.class), numberFormatter,
-                mock(PlaylistItemMenuPresenter.class), mock(EventBus.class),
-                mock(ScreenProvider.class), mock(Navigator.class));
+                                                  mock(ImageOperations.class), numberFormatter,
+                                                  mock(PlaylistItemMenuPresenter.class), mock(EventBus.class),
+                                                  mock(ScreenProvider.class), mock(Navigator.class));
     }
 
     @Test

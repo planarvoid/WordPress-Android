@@ -71,7 +71,11 @@ public class TabbedSearchFragment extends Fragment {
         boolean firstTime = savedInstanceState == null;
 
         SearchPagerAdapter searchPagerAdapter =
-                new SearchPagerAdapter(resources, this.getChildFragmentManager(), query, firstTime, searchTypes.available());
+                new SearchPagerAdapter(resources,
+                                       this.getChildFragmentManager(),
+                                       query,
+                                       firstTime,
+                                       searchTypes.available());
 
         pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setAdapter(searchPagerAdapter);

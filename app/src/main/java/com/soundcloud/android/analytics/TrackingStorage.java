@@ -36,7 +36,8 @@ class TrackingStorage {
     private final NetworkConnectionHelper networkConnectionHelper;
 
     @Inject
-    TrackingStorage(@Named(AnalyticsModule.TRACKING_DB) PropellerDatabase propeller, NetworkConnectionHelper networkConnectionHelper) {
+    TrackingStorage(@Named(AnalyticsModule.TRACKING_DB) PropellerDatabase propeller,
+                    NetworkConnectionHelper networkConnectionHelper) {
         this.propeller = propeller;
         this.networkConnectionHelper = networkConnectionHelper;
     }
@@ -77,6 +78,7 @@ class TrackingStorage {
     /**
      * Delete these events from the database.
      * Will perform delete in batches, and abort if one batch delete fails
+     *
      * @param submittedEvents The events to be deleted
      * @return the last {@link com.soundcloud.propeller.ChangeResult}
      */

@@ -21,7 +21,7 @@ public class NotificationTrackTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(AdProperty.IS_AUDIO_AD, false);
+                                          .put(AdProperty.IS_AUDIO_AD, false);
     }
 
     @Test

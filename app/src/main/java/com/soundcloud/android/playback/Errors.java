@@ -1,6 +1,8 @@
 package com.soundcloud.android.playback;
 
-/** @noinspection UnusedDeclaration*/
+/**
+ * @noinspection UnusedDeclaration
+ */
 public interface Errors {
     // include/media/stagefright/MediaErrors.h
     int STAGEFRIGHT_ERROR_IO = -1004;

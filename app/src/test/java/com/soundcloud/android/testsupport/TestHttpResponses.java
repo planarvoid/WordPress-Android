@@ -11,7 +11,7 @@ public final class TestHttpResponses {
 
     public static Response.Builder response(int code) throws IOException {
         return response(code,
-                ResponseBody.create(MediaType.parse("text"), "<test response body>"));
+                        ResponseBody.create(MediaType.parse("text"), "<test response body>"));
     }
 
     public static Response.Builder response(int code, ResponseBody responseBody) {

@@ -32,9 +32,13 @@ public abstract class PlaylistsOptions {
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder showLikes(boolean enabled);
+
         public abstract Builder showPosts(boolean enabled);
+
         public abstract Builder showOfflineOnly(boolean enabled);
+
         public abstract Builder sortByTitle(boolean enabled);
+
         public abstract PlaylistsOptions build();
     }
 

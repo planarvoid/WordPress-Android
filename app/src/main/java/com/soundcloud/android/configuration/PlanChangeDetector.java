@@ -33,7 +33,8 @@ public class PlanChangeDetector {
             } else if (remotePlan.isDowngradeFrom(currentPlan)) {
                 Log.d(TAG, "Plan downgrade detected from " + currentPlan + " to " + remotePlan);
                 configurationSettingsStorage.storePendingPlanDowngrade(remotePlan);
-                eventBus.publish(EventQueue.USER_PLAN_CHANGE, UserPlanChangedEvent.forDowngrade(currentPlan, remotePlan));
+                eventBus.publish(EventQueue.USER_PLAN_CHANGE,
+                                 UserPlanChangedEvent.forDowngrade(currentPlan, remotePlan));
             }
         }
     }

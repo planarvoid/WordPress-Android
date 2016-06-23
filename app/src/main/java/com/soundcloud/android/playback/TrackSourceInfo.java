@@ -143,13 +143,15 @@ public class TrackSourceInfo {
         return reposter;
     }
 
-    public boolean isFromPromoted() { return promotedSourceInfo != null; }
+    public boolean isFromPromoted() {
+        return promotedSourceInfo != null;
+    }
 
     @Override
     public String toString() {
         final MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(TrackSourceInfo.class)
-                .add("originScreen", originScreen)
-                .add("userTriggered", userTriggered);
+                                                                     .add("originScreen", originScreen)
+                                                                     .add("userTriggered", userTriggered);
 
         if (hasSource()) {
             toStringHelper.add("source", source).add("sourceVersion", sourceVersion);

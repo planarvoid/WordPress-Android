@@ -9,6 +9,7 @@ import com.soundcloud.android.screens.Screen;
 
 public class SignUpMethodScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
+
     public SignUpMethodScreen(Han testDriver) {
         super(testDriver);
     }

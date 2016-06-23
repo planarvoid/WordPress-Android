@@ -55,10 +55,10 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
         engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, promotedSourceInfo);
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                TRACK_URN,
-                eventContextMetadata,
-                promotedSourceInfo,
-                entityMetadata);
+                                                       TRACK_URN,
+                                                       eventContextMetadata,
+                                                       promotedSourceInfo,
+                                                       entityMetadata);
 
         assertExpectedEvent(expectedEvent);
     }
@@ -73,10 +73,10 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
         engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, null);
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                TRACK_URN,
-                eventContextMetadata,
-                null,
-                entityMetadata);
+                                                       TRACK_URN,
+                                                       eventContextMetadata,
+                                                       null,
+                                                       entityMetadata);
 
         assertExpectedEvent(expectedEvent);
     }
@@ -85,17 +85,17 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
     public void testLikeTrackUrnForWidgetTrack() {
         final EntityMetadata entityMetadata = EntityMetadata.from(WIDGET_TRACK);
         final EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
-                .invokerScreen("widget")
-                .contextScreen("context_screen")
-                .pageName("widget").build();
+                                                                              .invokerScreen("widget")
+                                                                              .contextScreen("context_screen")
+                                                                              .pageName("widget").build();
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(WIDGET_TRACK));
         engagementsTracking.likeTrackUrn(TRACK_URN, true, eventContextMetadata, null);
 
         UIEvent expectedEvent = UIEvent.fromToggleLike(true,
-                TRACK_URN,
-                eventContextMetadata,
-                null,
-                entityMetadata);
+                                                       TRACK_URN,
+                                                       eventContextMetadata,
+                                                       null,
+                                                       entityMetadata);
 
         assertExpectedEvent(expectedEvent);
     }
@@ -119,9 +119,9 @@ public class EngagementsTrackingTest extends AndroidUnitTest {
 
     private EventContextMetadata getTrackContextMetadata() {
         return EventContextMetadata.builder()
-                .invokerScreen("invoker")
-                .contextScreen("context_screen")
-                .pageName("page").build();
+                                   .invokerScreen("invoker")
+                                   .contextScreen("context_screen")
+                                   .pageName("page").build();
     }
 
 }

@@ -80,7 +80,8 @@ class OfflineContentStorage {
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.delete(OfflineContent.TABLE, offlinePlaylistsFilter()));
-                step(propeller.bulkInsert(OfflineContent.TABLE, buildContentValuesForPlaylist(expectedOfflinePlaylists)));
+                step(propeller.bulkInsert(OfflineContent.TABLE,
+                                          buildContentValuesForPlaylist(expectedOfflinePlaylists)));
             }
         });
     }
@@ -103,8 +104,8 @@ class OfflineContentStorage {
 
     private Query isMarkedForOfflineQuery(Urn playlistUrn) {
         return Query.apply(exists(Query.from(OfflineContent.TABLE)
-                .where(playlistFilter(playlistUrn)))
-                .as(IS_OFFLINE_PLAYLIST));
+                                       .where(playlistFilter(playlistUrn)))
+                                   .as(IS_OFFLINE_PLAYLIST));
     }
 
     private ContentValues buildContentValuesForPlaylist(Urn playlist) {

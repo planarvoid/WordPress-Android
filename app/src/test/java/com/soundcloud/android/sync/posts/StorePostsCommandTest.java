@@ -55,9 +55,9 @@ public class StorePostsCommandTest extends StorageIntegrationTest {
 
     private void assertPlaylistPostInserted(PropertySet playlistPost) {
         assertThat(select(from(Table.Posts.name())
-                .whereEq(TARGET_ID, playlistPost.get(TARGET_URN).getNumericId())
-                .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
-                .whereEq(TYPE, playlistPost.get(IS_REPOST) ? TYPE_REPOST : TYPE_POST)
-                .whereEq(CREATED_AT, playlistPost.get(PostProperty.CREATED_AT).getTime()))).counts(1);
+                                  .whereEq(TARGET_ID, playlistPost.get(TARGET_URN).getNumericId())
+                                  .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
+                                  .whereEq(TYPE, playlistPost.get(IS_REPOST) ? TYPE_REPOST : TYPE_POST)
+                                  .whereEq(CREATED_AT, playlistPost.get(PostProperty.CREATED_AT).getTime()))).counts(1);
     }
 }

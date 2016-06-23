@@ -17,8 +17,8 @@ public class CollectionEventTest {
     @Test
     public void createsSetEventWithSort() {
         PlaylistsOptions options = PlaylistsOptions.builder()
-                .sortByTitle(true)
-                .build();
+                                                   .sortByTitle(true)
+                                                   .build();
 
         final CollectionEvent event = CollectionEvent.forFilter(options);
 
@@ -29,7 +29,7 @@ public class CollectionEventTest {
     @Test
     public void createsSetEventWithAllFilter() {
         PlaylistsOptions options = PlaylistsOptions.builder()
-                .build();
+                                                   .build();
 
         final CollectionEvent event = CollectionEvent.forFilter(options);
 
@@ -40,8 +40,8 @@ public class CollectionEventTest {
     @Test
     public void createsSetEventWithFilter() {
         PlaylistsOptions options = PlaylistsOptions.builder()
-                .showLikes(true)
-                .build();
+                                                   .showLikes(true)
+                                                   .build();
 
         final CollectionEvent event = CollectionEvent.forFilter(options);
 

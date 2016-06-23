@@ -50,6 +50,7 @@ public class ScrollHelperTest extends AndroidUnitTest {
 
         assertThat(screen.isSwipeToRefreshEnabled).isFalse();
     }
+
     @Test
     public void enablesSwipeToRefreshWhenOffsetEqualToZeroAfterOnStart() {
         scrollHelper.attach();

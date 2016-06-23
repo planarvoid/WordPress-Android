@@ -78,11 +78,13 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
 
     private Collection<Urn> getPlaylistsWithoutTracks() {
         return database.query(Query
-                .from(OfflineContent.TABLE)
-                .leftJoin(PlaylistTracks, filter().whereEq(OfflineContent._ID, TableColumns.PlaylistTracks.PLAYLIST_ID))
-                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)
-                .whereNull(PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID)))
-                .toList(new PlaylistUrnMapper());
+                                      .from(OfflineContent.TABLE)
+                                      .leftJoin(PlaylistTracks,
+                                                filter().whereEq(OfflineContent._ID,
+                                                                 TableColumns.PlaylistTracks.PLAYLIST_ID))
+                                      .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)
+                                      .whereNull(PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID)))
+                       .toList(new PlaylistUrnMapper());
     }
 
     private List<OfflineRequestData> tracksFromLikes() {
@@ -92,7 +94,8 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
         return Collections.emptyList();
     }
 
-    private Collection<DownloadRequest> getAggregatedRequestData(List<OfflineRequestData> likesRequests, List<OfflineRequestData> playlistTracks) {
+    private Collection<DownloadRequest> getAggregatedRequestData(List<OfflineRequestData> likesRequests,
+                                                                 List<OfflineRequestData> playlistTracks) {
         final HashMap<Urn, DownloadRequest> requestsMap = new LinkedHashMap<>(likesRequests.size() + playlistTracks.size());
 
         final List<OfflineRequestData> allRequests = new ArrayList<>(likesRequests.size() + playlistTracks.size());
@@ -102,30 +105,36 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
         for (OfflineRequestData data : allRequests) {
             if (!requestsMap.containsKey(data.track)) {
                 requestsMap.put(data.track,
-                        DownloadRequest.create(data.track, data.getImageUrlTemplate(), data.duration, data.waveformUrl, data.syncable, data.trackingMetadata));
+                                DownloadRequest.create(data.track,
+                                                       data.getImageUrlTemplate(),
+                                                       data.duration,
+                                                       data.waveformUrl,
+                                                       data.syncable,
+                                                       data.trackingMetadata));
             } else {
                 requestsMap.get(data.track).getTrackingData().update(data.trackingMetadata);
             }
         }
         return requestsMap.values();
-    }   
+    }
 
     private List<OfflineRequestData> requestTracksFromLikes() {
         final Query likesToDownload = Query.from(Sounds.name())
-                .select(
-                        Sounds.field(_ID),
-                        Sounds.field(FULL_DURATION),
-                        Sounds.field(WAVEFORM_URL),
-                        Sounds.field(ARTWORK_URL),
-                        Sounds.field(USER_ID),
-                        TrackPolicies.field(SYNCABLE))
-                .innerJoin(Likes.name(), LIKES_SOUNDS_FILTER)
-                .innerJoin(TrackPolicies.name(),
-                        Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
-                .where(isDownloadable(TrackPolicies.field(LAST_UPDATED)))
-                .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
-                .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
-                .order(Likes.field(TableColumns.Likes.CREATED_AT), DESC);
+                                           .select(
+                                                   Sounds.field(_ID),
+                                                   Sounds.field(FULL_DURATION),
+                                                   Sounds.field(WAVEFORM_URL),
+                                                   Sounds.field(ARTWORK_URL),
+                                                   Sounds.field(USER_ID),
+                                                   TrackPolicies.field(SYNCABLE))
+                                           .innerJoin(Likes.name(), LIKES_SOUNDS_FILTER)
+                                           .innerJoin(TrackPolicies.name(),
+                                                      Likes.field(TableColumns.Likes._ID),
+                                                      TableColumns.TrackPolicies.TRACK_ID)
+                                           .where(isDownloadable(TrackPolicies.field(LAST_UPDATED)))
+                                           .whereEq(Sounds.field(_TYPE), TYPE_TRACK)
+                                           .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
+                                           .order(Likes.field(TableColumns.Likes.CREATED_AT), DESC);
 
         return database.query(likesToDownload).toList(new LikedTrackMapper());
     }
@@ -143,9 +152,9 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
 
     private List<OfflineRequestData> tracksFromOfflinePlaylists() {
         return database.query(Query.from(OfflinePlaylistTracks.TABLE)
-                        .where(isDownloadable(OfflinePlaylistTracks.LAST_POLICY_UPDATE.name()))
-                        .order(OfflinePlaylistTracks.CREATED_AT, DESC)
-                        .order(OfflinePlaylistTracks.POSITION, ASC)
+                                   .where(isDownloadable(OfflinePlaylistTracks.LAST_POLICY_UPDATE.name()))
+                                   .order(OfflinePlaylistTracks.CREATED_AT, DESC)
+                                   .order(OfflinePlaylistTracks.POSITION, ASC)
         ).toList(new OfflinePlaylistTrackMapper());
     }
 
@@ -167,20 +176,34 @@ class LoadExpectedContentCommand extends Command<Object, ExpectedOfflineContent>
             return imageUrlTemplate;
         }
 
-        static OfflineRequestData fromLikes(long trackId, Optional<String> imageUrlTemplate, long creatorId, long duration,
-                                            String waveformUrl, boolean syncable) {
+        static OfflineRequestData fromLikes(long trackId,
+                                            Optional<String> imageUrlTemplate,
+                                            long creatorId,
+                                            long duration,
+                                            String waveformUrl,
+                                            boolean syncable) {
             return new OfflineRequestData(trackId, imageUrlTemplate, creatorId, duration,
-                    waveformUrl, syncable, true, false);
+                                          waveformUrl, syncable, true, false);
         }
 
-        static OfflineRequestData fromPlaylist(long trackId, Optional<String> imageUrlTemplate, long creatorId, long duration,
-                                               String waveformUrl, boolean syncable) {
+        static OfflineRequestData fromPlaylist(long trackId,
+                                               Optional<String> imageUrlTemplate,
+                                               long creatorId,
+                                               long duration,
+                                               String waveformUrl,
+                                               boolean syncable) {
             return new OfflineRequestData(trackId, imageUrlTemplate, creatorId, duration,
-                    waveformUrl, syncable, false, true);
+                                          waveformUrl, syncable, false, true);
         }
 
-        private OfflineRequestData(long trackId, Optional<String> imageUrlTemplate, long creatorId, long duration, String waveformUrl,
-                                   boolean syncable, boolean fromLikes, boolean fromPlaylists) {
+        private OfflineRequestData(long trackId,
+                                   Optional<String> imageUrlTemplate,
+                                   long creatorId,
+                                   long duration,
+                                   String waveformUrl,
+                                   boolean syncable,
+                                   boolean fromLikes,
+                                   boolean fromPlaylists) {
             this.imageUrlTemplate = imageUrlTemplate;
             this.track = Urn.forTrack(trackId);
             this.duration = duration;

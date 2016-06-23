@@ -15,7 +15,8 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class RecentlyPlayedFragment extends LightCycleSupportFragment<PlaylistsCollectionFragment> implements RefreshableScreen {
+public class RecentlyPlayedFragment extends LightCycleSupportFragment<PlaylistsCollectionFragment>
+        implements RefreshableScreen {
 
     @Inject @LightCycle RecentlyPlayedPresenter presenter;
 

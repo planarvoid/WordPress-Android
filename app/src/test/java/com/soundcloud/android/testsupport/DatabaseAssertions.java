@@ -187,28 +187,28 @@ public class DatabaseAssertions {
 
     public void assertTrackIsUnavailable(Urn trackUrn, long time) {
         assertThat(select(from(TABLE)
-                .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
-                .whereEq(UNAVAILABLE_AT, time))).counts(1);
+                                  .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
+                                  .whereEq(UNAVAILABLE_AT, time))).counts(1);
     }
 
     public void assertDownloadIsAvailable(Urn track) {
         assertThat(select(from(TABLE)
-                .whereEq(TrackDownloads._ID, track.getNumericId())
-                .whereNull(UNAVAILABLE_AT))).counts(1);
+                                  .whereEq(TrackDownloads._ID, track.getNumericId())
+                                  .whereNull(UNAVAILABLE_AT))).counts(1);
     }
 
     public void assertPlaylistTrackForAddition(Urn playlist, Urn track) {
         assertThat(select(from(PlaylistTracks.name())
-                .whereEq(PLAYLIST_ID, playlist.getNumericId())
-                .whereEq(TRACK_ID, track.getNumericId())
-                .whereNotNull(ADDED_AT))).counts(1);
+                                  .whereEq(PLAYLIST_ID, playlist.getNumericId())
+                                  .whereEq(TRACK_ID, track.getNumericId())
+                                  .whereNotNull(ADDED_AT))).counts(1);
     }
 
     public void assertPlaylistTrackForRemoval(Urn playlist, Urn track) {
         assertThat(select(from(PlaylistTracks.name())
-                .whereEq(PLAYLIST_ID, playlist.getNumericId())
-                .whereEq(TRACK_ID, track.getNumericId())
-                .whereNotNull(REMOVED_AT))).counts(1);
+                                  .whereEq(PLAYLIST_ID, playlist.getNumericId())
+                                  .whereEq(TRACK_ID, track.getNumericId())
+                                  .whereNotNull(REMOVED_AT))).counts(1);
     }
 
     public void assertUserFollowingsPending(Urn targetUrn, boolean following) {
@@ -220,10 +220,10 @@ public class DatabaseAssertions {
 
         if (following) {
             query.whereNotNull(ADDED_AT)
-                    .whereNull(TableColumns.UserAssociations.REMOVED_AT);
+                 .whereNull(TableColumns.UserAssociations.REMOVED_AT);
         } else {
             query.whereNull(ADDED_AT)
-                    .whereNotNull(TableColumns.UserAssociations.REMOVED_AT);
+                 .whereNotNull(TableColumns.UserAssociations.REMOVED_AT);
         }
 
         assertThat(select(query)).counts(1);
@@ -231,8 +231,8 @@ public class DatabaseAssertions {
 
     public void assertUserFollowersCount(Urn targetUrn, int numberOfFollowers) {
         assertThat(select(from(Users.name())
-                .whereEq(_ID, targetUrn.getNumericId())
-                .whereEq(FOLLOWERS_COUNT, numberOfFollowers))).counts(1);
+                                  .whereEq(_ID, targetUrn.getNumericId())
+                                  .whereEq(FOLLOWERS_COUNT, numberOfFollowers))).counts(1);
     }
 
 
@@ -261,8 +261,8 @@ public class DatabaseAssertions {
 
     public void assertStationPlayQueueInserted(StationRecord station) {
         assertThat(select(from(StationsPlayQueues.TABLE)
-                        .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())
-                        .whereIn(TRACK_URN, Lists.transform(station.getTracks(), StationTrack.TO_URN))
+                                  .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())
+                                  .whereIn(TRACK_URN, Lists.transform(station.getTracks(), StationTrack.TO_URN))
         )).counts(station.getTracks().size());
     }
 
@@ -277,8 +277,8 @@ public class DatabaseAssertions {
 
     public void assertStationUpdateTime(Urn station, long lastUpdateTime) {
         assertThat(select(from(Stations.TABLE)
-                .whereEq(STATION_URN, station)
-                .whereEq(Stations.PLAY_QUEUE_UPDATED_AT, lastUpdateTime))).counts(1);
+                                  .whereEq(STATION_URN, station)
+                                  .whereEq(Stations.PLAY_QUEUE_UPDATED_AT, lastUpdateTime))).counts(1);
     }
 
     public void assertStationPlayQueuePosition(Urn station, int position) {
@@ -307,25 +307,25 @@ public class DatabaseAssertions {
             StationTrack stationTrack = stationTracks.get(position);
             assertThat(
                     select(from(StationsPlayQueues.TABLE)
-                            .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
-                            .whereEq(StationsPlayQueues.POSITION, position)
-                            .whereEq(StationsPlayQueues.TRACK_URN, stationTrack.getTrackUrn().toString())
-                            .whereEq(StationsPlayQueues.QUERY_URN, stationTrack.getQueryUrn().toString())))
+                                   .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
+                                   .whereEq(StationsPlayQueues.POSITION, position)
+                                   .whereEq(StationsPlayQueues.TRACK_URN, stationTrack.getTrackUrn().toString())
+                                   .whereEq(StationsPlayQueues.QUERY_URN, stationTrack.getQueryUrn().toString())))
                     .counts(1);
         }
     }
 
     public void assertRecentStationsContains(Urn stationUrn, long currentTime, int expectedCount) {
         assertThat(select(from(StationsCollections.TABLE)
-                .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
-                .whereEq(COLLECTION_TYPE, RECENT)
-                .whereEq(UPDATED_LOCALLY_AT, currentTime))).counts(expectedCount);
+                                  .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
+                                  .whereEq(COLLECTION_TYPE, RECENT)
+                                  .whereEq(UPDATED_LOCALLY_AT, currentTime))).counts(expectedCount);
     }
 
     public void assertRecentStationsAtPosition(Urn stationUrn, long position) {
         assertThat(select(from(StationsCollections.TABLE)
-                .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
-                .whereEq(StationsCollections.POSITION, position))).counts(1);
+                                  .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
+                                  .whereEq(StationsCollections.POSITION, position))).counts(1);
     }
 
     public void assertNoRecentStations() {
@@ -334,22 +334,22 @@ public class DatabaseAssertions {
 
     public void assertLocalStationDeleted(Urn urn) {
         assertThat(select(from(StationsCollections.TABLE)
-                .whereEq(StationsCollections.STATION_URN, urn.toString())
-                .whereNull(UPDATED_LOCALLY_AT))).counts(1);
+                                  .whereEq(StationsCollections.STATION_URN, urn.toString())
+                                  .whereNull(UPDATED_LOCALLY_AT))).counts(1);
     }
 
     public void assertRecommendedStationsEquals(List<Urn> stations) {
         assertThat(select(from(StationsCollections.TABLE)
-                .whereIn(StationsCollections.STATION_URN, stations)
-                .whereEq(COLLECTION_TYPE, RECOMMENDATIONS))).counts(stations.size());
+                                  .whereIn(StationsCollections.STATION_URN, stations)
+                                  .whereEq(COLLECTION_TYPE, RECOMMENDATIONS))).counts(stations.size());
     }
 
     public void assertPlayHistory(PlayHistoryRecord record, int count) {
         assertThat(select(from(PlayHistory.TABLE)
-                .whereEq(PlayHistory.TRACK_ID, record.trackUrn().getNumericId())
-                .whereEq(PlayHistory.TIMESTAMP, record.timestamp())
-                .whereEq(PlayHistory.CONTEXT_ID, record.contextUrn().getNumericId())
-                .whereEq(PlayHistory.CONTEXT_TYPE, record.getContextType()))).counts(count);
+                                  .whereEq(PlayHistory.TRACK_ID, record.trackUrn().getNumericId())
+                                  .whereEq(PlayHistory.TIMESTAMP, record.timestamp())
+                                  .whereEq(PlayHistory.CONTEXT_ID, record.contextUrn().getNumericId())
+                                  .whereEq(PlayHistory.CONTEXT_TYPE, record.getContextType()))).counts(count);
     }
 
 
@@ -407,21 +407,22 @@ public class DatabaseAssertions {
 
     public void assertLikeInserted(Urn targetUrn, Date createdAt) {
         assertThat(select(from(Likes.name())
-                .whereEq(_ID, targetUrn.getNumericId())
-                .whereEq(TableColumns.Likes._TYPE, targetUrn.isTrack()
-                        ? TYPE_TRACK : TYPE_PLAYLIST)
-                .whereEq(TableColumns.Likes.CREATED_AT, createdAt.getTime()))).counts(1);
+                                  .whereEq(_ID, targetUrn.getNumericId())
+                                  .whereEq(TableColumns.Likes._TYPE, targetUrn.isTrack()
+                                                                     ? TYPE_TRACK : TYPE_PLAYLIST)
+                                  .whereEq(TableColumns.Likes.CREATED_AT, createdAt.getTime()))).counts(1);
     }
 
     public void assertLikeActivityInserted(Urn targetUrn, Urn userUrn, Date createdAt) {
         assertThat(select(from(Activities.name())
-                .whereEq(TableColumns.Activities.TYPE, targetUrn.isTrack() ?
-                        TRACK_LIKE.identifier() : PLAYLIST_LIKE.identifier())
-                .whereEq(SOUND_ID, targetUrn.getNumericId())
-                .whereEq(SOUND_TYPE, targetUrn.isTrack()
-                        ? TYPE_TRACK : TYPE_PLAYLIST)
-                .whereEq(TableColumns.Activities.USER_ID, userUrn.getNumericId())
-                .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime()))).counts(1);
+                                  .whereEq(TableColumns.Activities.TYPE, targetUrn.isTrack() ?
+                                                                         TRACK_LIKE.identifier() :
+                                                                         PLAYLIST_LIKE.identifier())
+                                  .whereEq(SOUND_ID, targetUrn.getNumericId())
+                                  .whereEq(SOUND_TYPE, targetUrn.isTrack()
+                                                       ? TYPE_TRACK : TYPE_PLAYLIST)
+                                  .whereEq(TableColumns.Activities.USER_ID, userUrn.getNumericId())
+                                  .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime()))).counts(1);
     }
 
     public void assertLikedTrackPendingAddition(Urn targetUrn) {
@@ -434,26 +435,26 @@ public class DatabaseAssertions {
 
     public void assertLikesCount(Urn urn, int newLikesCount) {
         assertThat(select(from(SoundView.name())
-                .whereEq(_ID, urn.getNumericId())
-                .whereEq(_TYPE, urn.isTrack()
-                        ? TYPE_TRACK : TYPE_PLAYLIST)
-                .whereEq(TableColumns.SoundView.LIKES_COUNT, newLikesCount))).counts(1);
+                                  .whereEq(_ID, urn.getNumericId())
+                                  .whereEq(_TYPE, urn.isTrack()
+                                                  ? TYPE_TRACK : TYPE_PLAYLIST)
+                                  .whereEq(TableColumns.SoundView.LIKES_COUNT, newLikesCount))).counts(1);
     }
 
     public void assertRepostCount(Urn urn, int newRepostCount) {
         assertThat(select(from(SoundView.name())
-                .whereEq(_ID, urn.getNumericId())
-                .whereEq(_TYPE, urn.isTrack()
-                        ? TYPE_TRACK : TYPE_PLAYLIST)
-                .whereEq(TableColumns.SoundView.REPOSTS_COUNT, newRepostCount))).counts(1);
+                                  .whereEq(_ID, urn.getNumericId())
+                                  .whereEq(_TYPE, urn.isTrack()
+                                                  ? TYPE_TRACK : TYPE_PLAYLIST)
+                                  .whereEq(TableColumns.SoundView.REPOSTS_COUNT, newRepostCount))).counts(1);
     }
 
     private void assertLikedPendingAddition(Urn targetUrn, int type) {
         assertThat(select(from(Likes.name())
-                .whereEq(_ID, targetUrn.getNumericId())
-                .whereEq(TableColumns.Likes._TYPE, type)
-                .whereNotNull(TableColumns.Likes.ADDED_AT)
-                .whereNull(TableColumns.Likes.REMOVED_AT))).counts(1);
+                                  .whereEq(_ID, targetUrn.getNumericId())
+                                  .whereEq(TableColumns.Likes._TYPE, type)
+                                  .whereNotNull(TableColumns.Likes.ADDED_AT)
+                                  .whereNull(TableColumns.Likes.REMOVED_AT))).counts(1);
     }
 
     public void assertLikedTrackPendingRemoval(Urn targetUrn) {
@@ -466,16 +467,16 @@ public class DatabaseAssertions {
 
     private void assertLikedPendingRemoval(Urn targetUrn, int type) {
         assertThat(select(from(Likes.name())
-                .whereEq(_ID, targetUrn.getNumericId())
-                .whereEq(TableColumns.Likes._TYPE, type)
-                .whereNull(TableColumns.Likes.ADDED_AT)
-                .whereNotNull(TableColumns.Likes.REMOVED_AT))).counts(1);
+                                  .whereEq(_ID, targetUrn.getNumericId())
+                                  .whereEq(TableColumns.Likes._TYPE, type)
+                                  .whereNull(TableColumns.Likes.ADDED_AT)
+                                  .whereNotNull(TableColumns.Likes.REMOVED_AT))).counts(1);
     }
 
     public void assertPlayableUserInserted(UserRecord user) {
         assertThat(select(from(SoundView.name())
-                        .whereEq(TableColumns.SoundView.USER_ID, user.getUrn().getNumericId())
-                        .whereEq(USERNAME, user.getUsername())
+                                  .whereEq(TableColumns.SoundView.USER_ID, user.getUrn().getNumericId())
+                                  .whereEq(USERNAME, user.getUsername())
         )).counts(1);
     }
 
@@ -485,13 +486,14 @@ public class DatabaseAssertions {
 
     public void assertPlaylistNotStored(long playlistId) {
         assertThat(select(from(Sounds.name())
-                .whereEq(_ID, playlistId)
-                .whereEq(_TYPE, TYPE_PLAYLIST))).counts(0);
+                                  .whereEq(_ID, playlistId)
+                                  .whereEq(_TYPE, TYPE_PLAYLIST))).counts(0);
     }
 
     public void assertPlaylistTracksNotStored(Urn playlistUrn) {
         assertThat(select(from(PlaylistTracks.name())
-                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId()))).counts(0);
+                                  .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID,
+                                           playlistUrn.getNumericId()))).counts(0);
     }
 
     public void assertPlaylistInserted(Urn playlist) {
@@ -500,62 +502,62 @@ public class DatabaseAssertions {
 
     public void assertPlaylistInserted(long playlistId) {
         assertThat(select(from(Sounds.name())
-                .whereEq(_ID, playlistId)
-                .whereEq(_TYPE, TYPE_PLAYLIST))).counts(1);
+                                  .whereEq(_ID, playlistId)
+                                  .whereEq(_TYPE, TYPE_PLAYLIST))).counts(1);
     }
 
     public void assertPlaylistInserted(ApiPlaylist playlist) {
         assertThat(select(from(Sounds.name())
-                .whereEq(_ID, playlist.getId())
-                .whereEq(_TYPE, TYPE_PLAYLIST)
-                .whereEq(TITLE, playlist.getTitle())
-                .whereEq(DURATION, playlist.getDuration())
-                .whereEq(CREATED_AT, playlist.getCreatedAt().getTime())
-                .whereEq(PERMALINK_URL, playlist.getPermalinkUrl())
-                .whereEq(ARTWORK_URL, playlist.getImageUrlTemplate().orNull())
-                .whereEq(SHARING, playlist.getSharing().value())
-                .whereEq(USER_ID, playlist.getUser().getId())
-                .whereEq(LIKES_COUNT, playlist.getStats().getLikesCount())
-                .whereEq(REPOSTS_COUNT, playlist.getStats().getRepostsCount())
-                .whereEq(TRACK_COUNT, playlist.getTrackCount())
-                .whereEq(TAG_LIST, join(" ", playlist.getTags())))).counts(1);
+                                  .whereEq(_ID, playlist.getId())
+                                  .whereEq(_TYPE, TYPE_PLAYLIST)
+                                  .whereEq(TITLE, playlist.getTitle())
+                                  .whereEq(DURATION, playlist.getDuration())
+                                  .whereEq(CREATED_AT, playlist.getCreatedAt().getTime())
+                                  .whereEq(PERMALINK_URL, playlist.getPermalinkUrl())
+                                  .whereEq(ARTWORK_URL, playlist.getImageUrlTemplate().orNull())
+                                  .whereEq(SHARING, playlist.getSharing().value())
+                                  .whereEq(USER_ID, playlist.getUser().getId())
+                                  .whereEq(LIKES_COUNT, playlist.getStats().getLikesCount())
+                                  .whereEq(REPOSTS_COUNT, playlist.getStats().getRepostsCount())
+                                  .whereEq(TRACK_COUNT, playlist.getTrackCount())
+                                  .whereEq(TAG_LIST, join(" ", playlist.getTags())))).counts(1);
     }
 
     public void assertPlaylistInserted(long playlistId, String title, boolean isPrivate) {
         assertThat(select(from(Sounds.name())
-                .whereEq(_ID, playlistId)
-                .whereEq(_TYPE, TYPE_PLAYLIST)
-                .whereEq(USER_ID, 321L)
-                .whereNotNull(CREATED_AT)
-                .whereEq(SHARING, Sharing.from(!isPrivate).value())
-                .whereEq(TITLE, title)
-                .whereEq(SET_TYPE, Strings.EMPTY)
-                .whereEq(RELEASE_DATE, Strings.EMPTY))).counts(1);
+                                  .whereEq(_ID, playlistId)
+                                  .whereEq(_TYPE, TYPE_PLAYLIST)
+                                  .whereEq(USER_ID, 321L)
+                                  .whereNotNull(CREATED_AT)
+                                  .whereEq(SHARING, Sharing.from(!isPrivate).value())
+                                  .whereEq(TITLE, title)
+                                  .whereEq(SET_TYPE, Strings.EMPTY)
+                                  .whereEq(RELEASE_DATE, Strings.EMPTY))).counts(1);
     }
 
     public void assertModifiedPlaylistInserted(Urn playlistUrn, String title, boolean isPrivate) {
         assertThat(select(from(Sounds.name())
-                .whereEq(_ID, playlistUrn.getNumericId())
-                .whereEq(_TYPE, TYPE_PLAYLIST)
-                .whereNotNull(CREATED_AT)
-                .whereEq(SHARING, Sharing.from(!isPrivate).value())
-                .whereEq(TITLE, title)
-                .whereNotNull(TableColumns.Sounds.MODIFIED_AT))).counts(1);
+                                  .whereEq(_ID, playlistUrn.getNumericId())
+                                  .whereEq(_TYPE, TYPE_PLAYLIST)
+                                  .whereNotNull(CREATED_AT)
+                                  .whereEq(SHARING, Sharing.from(!isPrivate).value())
+                                  .whereEq(TITLE, title)
+                                  .whereNotNull(TableColumns.Sounds.MODIFIED_AT))).counts(1);
     }
 
     public void assertPlaylistTracklist(long playlistId, List<Urn> tracklist) {
         for (int i = 0; i < tracklist.size(); i++) {
             assertThat(select(from(PlaylistTracks.name())
-                    .whereEq(PLAYLIST_ID, playlistId)
-                    .whereEq(TRACK_ID, tracklist.get(i).getNumericId())
-                    .whereEq(TableColumns.PlaylistTracks.POSITION, i))).counts(1);
+                                      .whereEq(PLAYLIST_ID, playlistId)
+                                      .whereEq(TRACK_ID, tracklist.get(i).getNumericId())
+                                      .whereEq(TableColumns.PlaylistTracks.POSITION, i))).counts(1);
         }
 
         // assert no additional tracks
         assertThat(select(from(PlaylistTracks.name())
-                .whereEq(PLAYLIST_ID, playlistId)
-                .whereNull(REMOVED_AT)
-                .whereGe(TableColumns.PlaylistTracks.POSITION, tracklist.size()))).counts(0);
+                                  .whereEq(PLAYLIST_ID, playlistId)
+                                  .whereNull(REMOVED_AT)
+                                  .whereGe(TableColumns.PlaylistTracks.POSITION, tracklist.size()))).counts(0);
     }
 
     public void assertPlaylistPostInsertedFor(ApiPlaylist playlist) {
@@ -564,8 +566,8 @@ public class DatabaseAssertions {
 
     public void assertPlaylistPostInsertedFor(Urn playlistUrn) {
         assertThat(select(from(Posts.name())
-                .whereEq(TableColumns.Posts.TARGET_ID, playlistUrn.getNumericId())
-                .whereEq(TARGET_TYPE, TYPE_PLAYLIST))).counts(1);
+                                  .whereEq(TableColumns.Posts.TARGET_ID, playlistUrn.getNumericId())
+                                  .whereEq(TARGET_TYPE, TYPE_PLAYLIST))).counts(1);
     }
 
     public void assertPlaylistLikeInsertedFor(ApiPlaylist playlist) {
@@ -574,122 +576,133 @@ public class DatabaseAssertions {
 
     private void assertPlaylistLikeInsertedFor(Urn playlistUrn) {
         assertThat(select(from(Likes.name())
-                .whereEq(TableColumns.Likes._ID, playlistUrn.getNumericId())
-                .whereEq(TableColumns.Likes._TYPE, TYPE_PLAYLIST))).counts(1);
+                                  .whereEq(TableColumns.Likes._ID, playlistUrn.getNumericId())
+                                  .whereEq(TableColumns.Likes._TYPE, TYPE_PLAYLIST))).counts(1);
     }
 
     public void assertTrackRepostInserted(Urn urn, Date createdAt) {
         assertThat(select(from(Posts.name())
-                .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
-                .whereEq(TARGET_TYPE, TYPE_TRACK)
-                .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
-                .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(1);
+                                  .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                                  .whereEq(TARGET_TYPE, TYPE_TRACK)
+                                  .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
+                                  .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(1);
     }
 
     public void assertTrackRepostNotExistent(Urn urn) {
         assertThat(select(from(Posts.name())
-                .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
-                .whereEq(TARGET_TYPE, TYPE_TRACK)
-                .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(0);
+                                  .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                                  .whereEq(TARGET_TYPE, TYPE_TRACK)
+                                  .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(0);
     }
 
     public void assertPlaylistRepostInserted(Urn urn, Date createdAt) {
         assertThat(select(from(Posts.name())
-                .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
-                .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
-                .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
-                .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(1);
+                                  .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                                  .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
+                                  .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
+                                  .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(1);
     }
 
     public void assertPlaylistRepostNotExistent(Urn urn) {
         assertThat(select(from(Posts.name())
-                .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
-                .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
-                .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(0);
+                                  .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                                  .whereEq(TARGET_TYPE, TYPE_PLAYLIST)
+                                  .whereEq(TableColumns.Posts.TYPE, TYPE_REPOST))).counts(0);
     }
 
     public void assertRepostActivityInserted(Urn targetUrn, Urn userUrn, Date createdAt) {
         assertThat(select(from(Activities.name())
-                .whereEq(TableColumns.Activities.TYPE, targetUrn.isTrack() ?
-                        TRACK_REPOST.identifier() : PLAYLIST_REPOST.identifier())
-                .whereEq(SOUND_ID, targetUrn.getNumericId())
-                .whereEq(SOUND_TYPE, targetUrn.isTrack()
-                        ? TYPE_TRACK : TYPE_PLAYLIST)
-                .whereEq(TableColumns.Activities.USER_ID, userUrn.getNumericId())
-                .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime()))).counts(1);
+                                  .whereEq(TableColumns.Activities.TYPE, targetUrn.isTrack() ?
+                                                                         TRACK_REPOST.identifier() :
+                                                                         PLAYLIST_REPOST.identifier())
+                                  .whereEq(SOUND_ID, targetUrn.getNumericId())
+                                  .whereEq(SOUND_TYPE, targetUrn.isTrack()
+                                                       ? TYPE_TRACK : TYPE_PLAYLIST)
+                                  .whereEq(TableColumns.Activities.USER_ID, userUrn.getNumericId())
+                                  .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime()))).counts(1);
     }
 
     public void assertCommentActivityInserted(long commentId, Urn trackUrn, Urn commenterUrn, Date createdAt) {
         assertThat(select(from(Activities.name())
-                .whereEq(TableColumns.Activities.TYPE, TRACK_COMMENT.identifier())
-                .whereEq(SOUND_ID, trackUrn.getNumericId())
-                .whereEq(SOUND_TYPE, TYPE_TRACK)
-                .whereEq(TableColumns.Activities.USER_ID, commenterUrn.getNumericId())
-                .whereEq(COMMENT_ID, commentId)
-                .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime()))).counts(1);
+                                  .whereEq(TableColumns.Activities.TYPE, TRACK_COMMENT.identifier())
+                                  .whereEq(SOUND_ID, trackUrn.getNumericId())
+                                  .whereEq(SOUND_TYPE, TYPE_TRACK)
+                                  .whereEq(TableColumns.Activities.USER_ID, commenterUrn.getNumericId())
+                                  .whereEq(COMMENT_ID, commentId)
+                                  .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime()))).counts(1);
     }
 
     public void assertFollowActivityInserted(Urn followerUrn, Date createdAt) {
         assertThat(select(from(Activities.name())
-                .whereEq(TableColumns.Activities.TYPE, USER_FOLLOW.identifier())
-                .whereEq(TableColumns.Activities.USER_ID, followerUrn.getNumericId())
-                .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime()))).counts(1);
+                                  .whereEq(TableColumns.Activities.TYPE, USER_FOLLOW.identifier())
+                                  .whereEq(TableColumns.Activities.USER_ID, followerUrn.getNumericId())
+                                  .whereEq(TableColumns.Activities.CREATED_AT, createdAt.getTime()))).counts(1);
     }
 
     public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {
         assertThat(select(attachPromotedTrackingQueries(
-                        from(PromotedTracks.name())
-                                .whereEq(AD_URN, promotedTrack.getAdUrn())
-                                .whereEq(PROMOTER_ID, promotedTrack.getPromoter().getId())
-                                .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
-                        promotedTrack)
+                from(PromotedTracks.name())
+                        .whereEq(AD_URN, promotedTrack.getAdUrn())
+                        .whereEq(PROMOTER_ID, promotedTrack.getPromoter().getId())
+                        .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
+                promotedTrack)
         )).counts(1);
     }
 
     public void assertPromotionInserted(ApiPromotedPlaylist promotedPlaylist) {
         assertThat(select(attachPromotedTrackingQueries(
-                        from(PromotedTracks.name())
-                                .whereEq(AD_URN, promotedPlaylist.getAdUrn())
-                                .whereEq(PROMOTER_ID, promotedPlaylist.getPromoter().getId())
-                                .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
-                        promotedPlaylist)
+                from(PromotedTracks.name())
+                        .whereEq(AD_URN, promotedPlaylist.getAdUrn())
+                        .whereEq(PROMOTER_ID, promotedPlaylist.getPromoter().getId())
+                        .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
+                promotedPlaylist)
         )).counts(1);
     }
 
     public void assertPromotionWithoutPromoterInserted(ApiPromotedTrack promotedTrack) {
         assertThat(select(attachPromotedTrackingQueries(
-                        from(PromotedTracks.name())
-                                .whereEq(AD_URN, promotedTrack.getAdUrn())
-                                .whereNull(PROMOTER_ID)
-                                .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
-                        promotedTrack)
+                from(PromotedTracks.name())
+                        .whereEq(AD_URN, promotedTrack.getAdUrn())
+                        .whereNull(PROMOTER_ID)
+                        .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
+                promotedTrack)
         )).counts(1);
     }
 
     public void assertPromotionWithoutPromoterInserted(ApiPromotedPlaylist promotedPlaylist) {
         assertThat(select(attachPromotedTrackingQueries(
-                        from(PromotedTracks.name())
-                                .whereEq(AD_URN, promotedPlaylist.getAdUrn())
-                                .whereNull(PROMOTER_ID)
-                                .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
-                        promotedPlaylist)
+                from(PromotedTracks.name())
+                        .whereEq(AD_URN, promotedPlaylist.getAdUrn())
+                        .whereNull(PROMOTER_ID)
+                        .whereNotNull(TableColumns.PromotedTracks.CREATED_AT),
+                promotedPlaylist)
         )).counts(1);
     }
 
     private Query attachPromotedTrackingQueries(Query query, ApiPromotedTrack promotedTrack) {
-        return query.whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackPlayedUrls()))
-                .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackClickedUrls()))
-                .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, TextUtils.join(" ", promotedTrack.getTrackingTrackImpressionUrls()))
-                .whereEq(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingProfileClickedUrls()))
-                .whereEq(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingPromoterClickedUrls()));
+        return query.whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS,
+                             TextUtils.join(" ", promotedTrack.getTrackingTrackPlayedUrls()))
+                    .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS,
+                             TextUtils.join(" ", promotedTrack.getTrackingTrackClickedUrls()))
+                    .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS,
+                             TextUtils.join(" ", promotedTrack.getTrackingTrackImpressionUrls()))
+                    .whereEq(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS,
+                             TextUtils.join(" ", promotedTrack.getTrackingProfileClickedUrls()))
+                    .whereEq(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS,
+                             TextUtils.join(" ", promotedTrack.getTrackingPromoterClickedUrls()));
     }
 
     private Query attachPromotedTrackingQueries(Query query, ApiPromotedPlaylist promotedPlaylist) {
-        return query.whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingTrackPlayedUrls()))
-                .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingPlaylistClickedUrls()))
-                .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingPlaylistImpressionUrls()))
-                .whereEq(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingProfileClickedUrls()))
-                .whereEq(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, TextUtils.join(" ", promotedPlaylist.getTrackingPromoterClickedUrls()));
+        return query.whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS,
+                             TextUtils.join(" ", promotedPlaylist.getTrackingTrackPlayedUrls()))
+                    .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS,
+                             TextUtils.join(" ", promotedPlaylist.getTrackingPlaylistClickedUrls()))
+                    .whereEq(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS,
+                             TextUtils.join(" ", promotedPlaylist.getTrackingPlaylistImpressionUrls()))
+                    .whereEq(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS,
+                             TextUtils.join(" ", promotedPlaylist.getTrackingProfileClickedUrls()))
+                    .whereEq(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS,
+                             TextUtils.join(" ", promotedPlaylist.getTrackingPromoterClickedUrls()));
     }
 
     public void assertUserInserted(UserRecord user) {
@@ -721,34 +734,34 @@ public class DatabaseAssertions {
     public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {
         for (Urn urn : tracksToDownload) {
             assertThat(select(from(TABLE)
-                    .whereEq(TrackDownloads._ID, urn.getNumericId()))).counts(1);
+                                      .whereEq(TrackDownloads._ID, urn.getNumericId()))).counts(1);
         }
     }
 
     public void assertDownloadPendingRemoval(Urn trackUrn) {
         assertThat(select(from(TABLE)
-                .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
-                .whereNotNull(DOWNLOADED_AT)
-                .whereNotNull(TrackDownloads.REMOVED_AT))).counts(1);
+                                  .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
+                                  .whereNotNull(DOWNLOADED_AT)
+                                  .whereNotNull(TrackDownloads.REMOVED_AT))).counts(1);
     }
 
     public void assertDownloadResultsInserted(DownloadState result) {
         assertThat(select(from(TABLE)
-                .whereNull(UNAVAILABLE_AT)
-                .whereEq(TrackDownloads._ID, result.getTrack().getNumericId())
-                .whereEq(DOWNLOADED_AT, result.getTimestamp()))).counts(1);
+                                  .whereNull(UNAVAILABLE_AT)
+                                  .whereEq(TrackDownloads._ID, result.getTrack().getNumericId())
+                                  .whereEq(DOWNLOADED_AT, result.getTimestamp()))).counts(1);
     }
 
     public void assertNotDownloaded(Urn trackUrn) {
         assertThat(select(from(TABLE)
-                .whereEq(TrackDownloads._ID, trackUrn.getNumericId()))).counts(0);
+                                  .whereEq(TrackDownloads._ID, trackUrn.getNumericId()))).counts(0);
     }
 
     public void assertDownloadedAndNotMarkedForRemoval(Urn trackUrn) {
         assertThat(select(from(TABLE)
-                .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
-                .whereNotNull(DOWNLOADED_AT)
-                .whereNull(TrackDownloads.REMOVED_AT))).counts(1);
+                                  .whereEq(TrackDownloads._ID, trackUrn.getNumericId())
+                                  .whereNotNull(DOWNLOADED_AT)
+                                  .whereNull(TrackDownloads.REMOVED_AT))).counts(1);
     }
 
     protected QueryBinding select(Query query) {
@@ -757,43 +770,43 @@ public class DatabaseAssertions {
 
     public void assertIsOfflinePlaylist(Urn playlistUrn) {
         assertThat(select(from(OfflineContent.TABLE)
-                .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
-                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST))).counts(1);
+                                  .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
+                                  .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST))).counts(1);
     }
 
     public void assertIsNotOfflinePlaylist(Urn playlistUrn) {
         assertThat(select(from(OfflineContent.TABLE)
-                .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
-                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST))).counts(0);
+                                  .whereEq(OfflineContent._ID, playlistUrn.getNumericId())
+                                  .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST))).counts(0);
     }
 
     public void assertLikedTracksIsNotOffline() {
         assertThat(select(from(OfflineContent.TABLE)
-                .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
-                .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(0);
+                                  .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
+                                  .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(0);
     }
 
     public void assertLikedTracksIsOffline() {
         assertThat(select(from(OfflineContent.TABLE)
-                .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
-                .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(1);
+                                  .whereEq(OfflineContent._ID, ID_OFFLINE_LIKES)
+                                  .whereEq(OfflineContent._TYPE, TYPE_COLLECTION))).counts(1);
     }
 
     public void assertWaveformForTrack(Urn track, WaveformData waveformData) {
         WaveformSerializer serializer = new WaveformSerializer();
         assertThat(select(from(Waveforms.name())
-                .whereEq(TableColumns.Waveforms.TRACK_ID, track.getNumericId())
-                .whereEq(MAX_AMPLITUDE, waveformData.maxAmplitude)
-                .whereEq(SAMPLES, serializer.serialize(waveformData.samples)))).counts(1);
+                                  .whereEq(TableColumns.Waveforms.TRACK_ID, track.getNumericId())
+                                  .whereEq(MAX_AMPLITUDE, waveformData.maxAmplitude)
+                                  .whereEq(SAMPLES, serializer.serialize(waveformData.samples)))).counts(1);
     }
 
     public void assertCommentInserted(CommentRecord comment) {
         assertThat(select(from(Comments.TABLE)
-                .whereEq(URN, comment.getUrn().toString())
-                .whereEq(Comments.TRACK_ID, comment.getTrackUrn().getNumericId())
-                .whereEq(Comments.USER_ID, comment.getUser().getUrn().getNumericId())
-                .whereEq(TIMESTAMP, comment.getTrackTime())
-                .whereEq(Comments.CREATED_AT, comment.getCreatedAt().getTime())
-                .whereEq(BODY, comment.getBody()))).counts(1);
+                                  .whereEq(URN, comment.getUrn().toString())
+                                  .whereEq(Comments.TRACK_ID, comment.getTrackUrn().getNumericId())
+                                  .whereEq(Comments.USER_ID, comment.getUser().getUrn().getNumericId())
+                                  .whereEq(TIMESTAMP, comment.getTrackTime())
+                                  .whereEq(Comments.CREATED_AT, comment.getCreatedAt().getTime())
+                                  .whereEq(BODY, comment.getBody()))).counts(1);
     }
 }

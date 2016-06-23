@@ -51,7 +51,8 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragment> implements PlaylistEngagementsView.OnEngagementListener {
+class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragment>
+        implements PlaylistEngagementsView.OnEngagementListener {
 
     private final EventBus eventBus;
     private final PlaylistHeaderViewFactory playlistDetailsViewFactory;
@@ -230,10 +231,10 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private void subscribeForOfflineContentUpdates() {
         offlineStateSubscription.unsubscribe();
         offlineStateSubscription = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                .filter(isCurrentPlaylist(headerItem))
-                .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OfflineStateSubscriber());
+                                           .filter(isCurrentPlaylist(headerItem))
+                                           .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
+                                           .observeOn(AndroidSchedulers.mainThread())
+                                           .subscribe(new OfflineStateSubscriber());
     }
 
     private void showShuffleOption() {
@@ -296,7 +297,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         } else if (offlineOperations.isOfflineCollectionEnabled()) {
             playlistEngagementsView.setOfflineAvailability(true);
             ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, headerItem.getUrn(),
-                    headerItem.getPlaySessionSource().getPromotedSourceInfo());
+                                                               headerItem.getPlaySessionSource()
+                                                                         .getPromotedSourceInfo());
         } else {
             fireAndForget(offlineOperations.makePlaylistUnavailableOffline(headerItem.getUrn()));
             eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(false));
@@ -305,14 +307,14 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private TrackingEvent getOfflinePlaylistTrackingEvent(boolean isMarkedForOffline) {
         return isMarkedForOffline ?
-                OfflineInteractionEvent.fromAddOfflinePlaylist(
-                        Screen.PLAYLIST_DETAILS.get(),
-                        headerItem.getUrn(),
-                        headerItem.getPlaySessionSource().getPromotedSourceInfo()) :
-                OfflineInteractionEvent.fromRemoveOfflinePlaylist(
-                        Screen.PLAYLIST_DETAILS.get(),
-                        headerItem.getUrn(),
-                        headerItem.getPlaySessionSource().getPromotedSourceInfo());
+               OfflineInteractionEvent.fromAddOfflinePlaylist(
+                       Screen.PLAYLIST_DETAILS.get(),
+                       headerItem.getUrn(),
+                       headerItem.getPlaySessionSource().getPromotedSourceInfo()) :
+               OfflineInteractionEvent.fromRemoveOfflinePlaylist(
+                       Screen.PLAYLIST_DETAILS.get(),
+                       headerItem.getUrn(),
+                       headerItem.getPlaySessionSource().getPromotedSourceInfo());
     }
 
     @Override
@@ -326,7 +328,9 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         if (headerItem != null) {
             final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(headerItem.getUrn());
             playbackInitiator
-                    .playTracksShuffled(tracks, headerItem.getPlaySessionSource(), featureOperations.isOfflineContentEnabled())
+                    .playTracksShuffled(tracks,
+                                        headerItem.getPlaySessionSource(),
+                                        featureOperations.isOfflineContentEnabled())
                     .doOnCompleted(publishAnalyticsEventForShuffle())
                     .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }
@@ -351,11 +355,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     public void onToggleLike(boolean addLike) {
         if (headerItem != null) {
             eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromToggleLike(addLike,
-                            headerItem.getUrn(),
-                            getEventContext(),
-                            headerItem.getPlaySessionSource().getPromotedSourceInfo(),
-                            EntityMetadata.from(headerItem)));
+                             UIEvent.fromToggleLike(addLike,
+                                                    headerItem.getUrn(),
+                                                    getEventContext(),
+                                                    headerItem.getPlaySessionSource().getPromotedSourceInfo(),
+                                                    EntityMetadata.from(headerItem)));
 
             fireAndForget(likeOperations.toggleLike(headerItem.getUrn(), addLike));
         }
@@ -365,16 +369,16 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     public void onToggleRepost(boolean isReposted, boolean showResultToast) {
         if (headerItem != null) {
             eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromToggleRepost(isReposted,
-                            headerItem.getUrn(),
-                            getEventContext(),
-                            headerItem.getPlaySessionSource().getPromotedSourceInfo(),
-                            EntityMetadata.from(headerItem)));
+                             UIEvent.fromToggleRepost(isReposted,
+                                                      headerItem.getUrn(),
+                                                      getEventContext(),
+                                                      headerItem.getPlaySessionSource().getPromotedSourceInfo(),
+                                                      EntityMetadata.from(headerItem)));
 
             if (showResultToast) {
                 repostOperations.toggleRepost(headerItem.getUrn(), isReposted)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RepostResultSubscriber(context, isReposted));
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new RepostResultSubscriber(context, isReposted));
             } else {
                 fireAndForget(repostOperations.toggleRepost(headerItem.getUrn(), isReposted));
             }
@@ -383,20 +387,20 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     private EventContextMetadata getEventContext() {
         return EventContextMetadata.builder()
-                .contextScreen(screen)
-                .pageName(Screen.PLAYLIST_DETAILS.get())
-                .invokerScreen(Screen.PLAYLIST_DETAILS.get())
-                .pageUrn(headerItem.getUrn())
-                .build();
+                                   .contextScreen(screen)
+                                   .pageName(Screen.PLAYLIST_DETAILS.get())
+                                   .invokerScreen(Screen.PLAYLIST_DETAILS.get())
+                                   .pageUrn(headerItem.getUrn())
+                                   .build();
     }
 
     @Override
     public void onShare() {
         if (headerItem != null) {
             shareOperations.share(context,
-                    headerItem.getSource(),
-                    getEventContext(),
-                    headerItem.getPlaySessionSource().getPromotedSourceInfo());
+                                  headerItem.getSource(),
+                                  getEventContext(),
+                                  headerItem.getPlaySessionSource().getPromotedSourceInfo());
         }
     }
 

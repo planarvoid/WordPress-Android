@@ -83,7 +83,9 @@ public class ExploreTracksFragment extends LightCycleSupportFragment<ExploreTrac
     }
 
     private void init() {
-        this.listViewController.setAdapter(this.adapter, this.operations.pager(), TrackItem.<SuggestedTracksCollection>fromApiTracks());
+        this.listViewController.setAdapter(this.adapter,
+                                           this.operations.pager(),
+                                           TrackItem.<SuggestedTracksCollection>fromApiTracks());
         this.listViewController.setScrollListener(new AbsListViewParallaxer(null));
         this.pullToRefreshController.setRefreshListener(this, this.adapter);
     }
@@ -100,14 +102,14 @@ public class ExploreTracksFragment extends LightCycleSupportFragment<ExploreTrac
         final ExploreGenre category = getArguments().getParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA);
         final ConnectableObservable<List<TrackItem>> observable =
                 operations.pager().page(operations.getSuggestedTracks(category))
-                        .doOnNext(new Action1<SuggestedTracksCollection>() {
-                            @Override
-                            public void call(SuggestedTracksCollection page) {
-                                trackingTag = page.getTrackingTag();
-                            }
-                        })
-                        .map(TrackItem.<SuggestedTracksCollection>fromApiTracks())
-                        .observeOn(mainThread()).replay();
+                          .doOnNext(new Action1<SuggestedTracksCollection>() {
+                              @Override
+                              public void call(SuggestedTracksCollection page) {
+                                  trackingTag = page.getTrackingTag();
+                              }
+                          })
+                          .map(TrackItem.<SuggestedTracksCollection>fromApiTracks())
+                          .observeOn(mainThread()).replay();
 
         observable.subscribe(adapter);
         return observable;
@@ -143,7 +145,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment<ExploreTrac
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
         final PlaySessionSource playSessionSource = PlaySessionSource.forExplore(screenTagExtra, trackingTag);
         playbackInitiator.playTracks(Lists.transform(adapter.getItems(), TrackItem.TO_URN), position, playSessionSource)
-                .subscribe(subscriberProvider.get());
+                         .subscribe(subscriberProvider.get());
     }
 
     @Override

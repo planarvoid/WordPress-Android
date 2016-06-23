@@ -54,7 +54,9 @@ public class ProfileScreen extends Screen {
             this.headerTitle = title;
         }
 
-        public String getHeaderTitle() { return this.headerTitle; }
+        public String getHeaderTitle() {
+            return this.headerTitle;
+        }
     }
 
     public ProfileScreen(Han solo) {
@@ -365,7 +367,8 @@ public class ProfileScreen extends Screen {
     }
 
     public UserPlaylistsScreen scrollToAndClickViewAllPlaylists() {
-        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_playlists))).click();
+        testDriver.scrollToItem(With.text(testDriver.getString(R.string.user_profile_sounds_view_all_playlists)))
+                  .click();
 
         return new UserPlaylistsScreen(testDriver);
     }
@@ -423,7 +426,7 @@ public class ProfileScreen extends Screen {
     }
 
     private List<ViewElement> scrollToElementsBelow(int elementsId, final int globalTop) {
-        List <ViewElement> elementsBelow = getElementsBelow(elementsId, globalTop);
+        List<ViewElement> elementsBelow = getElementsBelow(elementsId, globalTop);
         // if we did not find matching elements, scroll down a bit and select again
         if (elementsBelow.size() == 0) {
             testDriver.scrollDown();

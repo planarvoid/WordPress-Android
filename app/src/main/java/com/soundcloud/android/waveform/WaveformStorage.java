@@ -42,19 +42,19 @@ class WaveformStorage {
 
     private ContentValues buildContentValues(Urn trackUrn, WaveformData data) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId())
-                .put(TableColumns.Waveforms.MAX_AMPLITUDE, data.maxAmplitude)
-                .put(TableColumns.Waveforms.SAMPLES, serializer.serialize(data.samples))
-                .put(TableColumns.Waveforms.CREATED_AT, dateProvider.getCurrentTime())
-                .get();
+                                   .put(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId())
+                                   .put(TableColumns.Waveforms.MAX_AMPLITUDE, data.maxAmplitude)
+                                   .put(TableColumns.Waveforms.SAMPLES, serializer.serialize(data.samples))
+                                   .put(TableColumns.Waveforms.CREATED_AT, dateProvider.getCurrentTime())
+                                   .get();
     }
 
     private Query waveformQuery(Urn trackUrn) {
         return Query.from(Table.Waveforms.name())
-                .select(
-                        TableColumns.Waveforms.MAX_AMPLITUDE,
-                        TableColumns.Waveforms.SAMPLES
-                ).whereEq(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId());
+                    .select(
+                            TableColumns.Waveforms.MAX_AMPLITUDE,
+                            TableColumns.Waveforms.SAMPLES
+                    ).whereEq(TableColumns.Waveforms.TRACK_ID, trackUrn.getNumericId());
     }
 
     private static class WaveformMapper extends RxResultMapper<WaveformData> {

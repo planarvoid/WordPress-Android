@@ -48,7 +48,8 @@ import android.widget.ViewFlipper;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements SearchIntentResolver.DeepLinkListener {
+class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
+        implements SearchIntentResolver.DeepLinkListener {
 
     private static final int SUGGESTIONS_VIEW_INDEX = 0;
     private static final int RESULTS_VIEW_INDEX = 1;
@@ -135,7 +136,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     void playTrack(Urn trackUrn) {
         deactivateSearchView();
         playbackInitiator.startPlaybackWithRecommendations(trackUrn, Screen.SEARCH_SUGGESTIONS, null)
-                .subscribe(expandPlayerSubscriberProvider.get());
+                         .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     void showUserProfile(Urn userUrn) {
@@ -144,8 +145,12 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     }
 
     private void setupTransitionAnimation(Window window) {
-        TransitionUtils.setChangeBoundsEnterTransition(window, TransitionUtils.ENTER_DURATION, new DecelerateInterpolator());
-        TransitionUtils.setChangeBoundsExitTransition(window, TransitionUtils.EXIT_DURATION, new DecelerateInterpolator());
+        TransitionUtils.setChangeBoundsEnterTransition(window,
+                                                       TransitionUtils.ENTER_DURATION,
+                                                       new DecelerateInterpolator());
+        TransitionUtils.setChangeBoundsExitTransition(window,
+                                                      TransitionUtils.EXIT_DURATION,
+                                                      new DecelerateInterpolator());
     }
 
     private void setupViews(AppCompatActivity activity) {
@@ -296,15 +301,15 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity> imple
     public void dismiss(final AppCompatActivity activity) {
         if (TransitionUtils.transitionsSupported()) {
             ((ViewGroup) activity.findViewById(R.id.toolbar_id)).getChildAt(1)
-                    .animate()
-                    .alpha(0)
-                    .setDuration(300)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            activity.supportFinishAfterTransition();
-                        }
-                    }).start();
+                                                                .animate()
+                                                                .alpha(0)
+                                                                .setDuration(300)
+                                                                .setListener(new AnimatorListenerAdapter() {
+                                                                    @Override
+                                                                    public void onAnimationEnd(Animator animation) {
+                                                                        activity.supportFinishAfterTransition();
+                                                                    }
+                                                                }).start();
         } else {
             activity.supportFinishAfterTransition();
         }

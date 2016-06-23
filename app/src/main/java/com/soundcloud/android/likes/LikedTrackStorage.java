@@ -30,8 +30,8 @@ public class LikedTrackStorage {
 
     public Observable<List<PropertySet>> loadTrackLikes(int limit, long before) {
         return propellerRx.query(buildTrackLikesQuery(limit, before))
-                .map(new LikedTrackMapper())
-                .toList();
+                          .map(new LikedTrackMapper())
+                          .toList();
     }
 
     private Query buildTrackLikesQuery(int limit, long before) {

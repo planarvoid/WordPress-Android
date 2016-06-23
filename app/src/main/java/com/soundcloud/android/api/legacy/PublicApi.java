@@ -185,8 +185,8 @@ public class PublicApi {
     @Deprecated
     public PublicApi(Context context) {
         this(context,
-                SoundCloudApplication.fromContext(context).getAccountOperations(),
-                new ApplicationProperties(context.getResources()), new BuildHelper());
+             SoundCloudApplication.fromContext(context).getAccountOperations(),
+             new ApplicationProperties(context.getResources()), new BuildHelper());
 
     }
 
@@ -194,8 +194,8 @@ public class PublicApi {
     public PublicApi(Context context, AccountOperations accountOperations,
                      ApplicationProperties applicationProperties, BuildHelper buildHelper) {
         this(context, buildObjectMapper(), new OAuth(accountOperations),
-                accountOperations, applicationProperties,
-                UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context, buildHelper));
+             accountOperations, applicationProperties,
+             UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context, buildHelper));
     }
 
     @VisibleForTesting
@@ -217,7 +217,8 @@ public class PublicApi {
         if (applicationProperties.shouldEnableNetworkProxy()) {
             //The only place this const is used us here? Do we even set this at all?
             final String proxy =
-                    PreferenceManager.getDefaultSharedPreferences(context).getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
+                    PreferenceManager.getDefaultSharedPreferences(context)
+                                     .getString(Consts.PrefKeys.DEV_HTTP_PROXY, null);
             setProxy(TextUtils.isEmpty(proxy) ? null : URI.create(proxy));
         }
 
@@ -238,22 +239,24 @@ public class PublicApi {
                 .setDateFormat(new ApiDateFormat());
     }
 
-    public static String generateRequestResponseLog(HttpHost target, HttpUriRequest request, @Nullable HttpResponse response) {
+    public static String generateRequestResponseLog(HttpHost target,
+                                                    HttpUriRequest request,
+                                                    @Nullable HttpResponse response) {
         StringBuilder sb = new StringBuilder(2000);
         sb.append(request.getMethod())
-                .append(' ')
-                .append(target.getSchemeName())
-                .append(':')
-                .append(target.toHostString())
-                .append(' ')
-                .append(request.getURI())
-                .append(";headers=");
+          .append(' ')
+          .append(target.getSchemeName())
+          .append(':')
+          .append(target.toHostString())
+          .append(' ')
+          .append(request.getURI())
+          .append(";headers=");
         final Header[] headers = request.getAllHeaders();
         for (Header header : headers) {
             if (HIDDEN_HEADERS.contains(header.getName())) {
                 sb.append(header.getName())
-                        .append(": ")
-                        .append("[hidden]");
+                  .append(": ")
+                  .append("[hidden]");
             } else {
                 sb.append(header.toString());
             }
@@ -290,12 +293,14 @@ public class PublicApi {
                 {
                     context.init(null, new TrustManager[]{new X509TrustManager() {
                         @Override
-                        public void checkClientTrusted(X509Certificate[] chain, String type) throws CertificateException {
+                        public void checkClientTrusted(X509Certificate[] chain,
+                                                       String type) throws CertificateException {
                             Log.w(TAG, "trusting " + Arrays.asList(chain));
                         }
 
                         @Override
-                        public void checkServerTrusted(X509Certificate[] chain, String type) throws CertificateException {
+                        public void checkServerTrusted(X509Certificate[] chain,
+                                                       String type) throws CertificateException {
                             Log.w(TAG, "trusting " + Arrays.asList(chain));
                         }
 
@@ -355,8 +360,8 @@ public class PublicApi {
 
         if (applicationProperties.shouldEnableNetworkProxy()) {
             getHttpClient().getConnectionManager().getSchemeRegistry()
-                    .register(new Scheme("https",
-                            proxy != null ? unsafeSocketFactory() : getSSLSocketFactory(), 443));
+                           .register(new Scheme("https",
+                                                proxy != null ? unsafeSocketFactory() : getSSLSocketFactory(), 443));
         }
 
     }
@@ -449,7 +454,10 @@ public class PublicApi {
 
 
             if (t == JsonToken.START_ARRAY) {
-                result = getMapper().readValue(parser, getMapper().getTypeFactory().constructCollectionType(List.class, PublicApiResource.class));
+                result = getMapper().readValue(parser,
+                                               getMapper().getTypeFactory()
+                                                          .constructCollectionType(List.class,
+                                                                                   PublicApiResource.class));
             } else if (t == JsonToken.START_OBJECT) {
                 result = getMapper().readValue(parser, PublicApiResource.ResourceHolder.class).collection;
             } else {
@@ -468,7 +476,9 @@ public class PublicApi {
         return result;
     }
 
-    public @NotNull <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request,
+    public
+    @NotNull
+    <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request,
                                                                   Class<C> ch) throws IOException {
         List<T> objects = new ArrayList<>();
         C holder = null;
@@ -553,8 +563,8 @@ public class PublicApi {
             error = ignored.getMessage();
         }
         throw status == HttpStatus.SC_UNAUTHORIZED ?
-                new InvalidTokenException(status, error) :
-                new ApiResponseException(response, error);
+              new InvalidTokenException(status, error) :
+              new ApiResponseException(response, error);
     }
 
     public Token clientCredentials(String... scopes) throws IOException {
@@ -659,7 +669,7 @@ public class PublicApi {
                 protected HttpContext createHttpContext() {
                     HttpContext ctxt = super.createHttpContext();
                     ctxt.setAttribute(ClientContext.AUTH_SCHEME_PREF,
-                            Arrays.asList(PublicApi.OAUTH_SCHEME, "digest", "basic"));
+                                      Arrays.asList(PublicApi.OAUTH_SCHEME, "digest", "basic"));
                     return ctxt;
                 }
 
@@ -684,8 +694,18 @@ public class PublicApi {
                                                                       AuthenticationHandler proxyAuthHandler,
                                                                       UserTokenHandler stateHandler,
                                                                       HttpParams params) {
-                    return getRequestDirector(requestExec, conman, reustrat, kastrat, rouplan, httpProcessor, retryHandler,
-                            redirectHandler, targetAuthHandler, proxyAuthHandler, stateHandler, params);
+                    return getRequestDirector(requestExec,
+                                              conman,
+                                              reustrat,
+                                              kastrat,
+                                              rouplan,
+                                              httpProcessor,
+                                              retryHandler,
+                                              redirectHandler,
+                                              targetAuthHandler,
+                                              proxyAuthHandler,
+                                              stateHandler,
+                                              params);
                 }
             };
         }
@@ -766,7 +786,8 @@ public class PublicApi {
             }
             log(INFO, TAG, String.format("automatically determine target to be %s", hostString));
             if (target == null) {
-                throw new NullPointerException("Api wrapper was passed a 'null' target, and could not determine a default");
+                throw new NullPointerException(
+                        "Api wrapper was passed a 'null' target, and could not determine a default");
             }
         }
 
@@ -945,9 +966,18 @@ public class PublicApi {
                                                  UserTokenHandler stateHandler,
                                                  HttpParams params
     ) {
-        return new DefaultRequestDirector(requestExec, conman, reustrat, kastrat, rouplan,
-                httpProcessor, retryHandler, redirectHandler, targetAuthHandler, proxyAuthHandler,
-                stateHandler, params);
+        return new DefaultRequestDirector(requestExec,
+                                          conman,
+                                          reustrat,
+                                          kastrat,
+                                          rouplan,
+                                          httpProcessor,
+                                          retryHandler,
+                                          redirectHandler,
+                                          targetAuthHandler,
+                                          proxyAuthHandler,
+                                          stateHandler,
+                                          params);
     }
 
 }

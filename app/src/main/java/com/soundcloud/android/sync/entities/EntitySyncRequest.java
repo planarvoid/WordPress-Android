@@ -31,7 +31,11 @@ class EntitySyncRequest implements SyncRequest {
     private SyncJobResult resultEvent;
     @Nullable private final ResultReceiver resultReceiver;
 
-    EntitySyncRequest(EntitySyncJob entitySyncJob, Intent intent, EventBus eventBus, String action, @Nullable ResultReceiver resultReceiver) {
+    EntitySyncRequest(EntitySyncJob entitySyncJob,
+                      Intent intent,
+                      EventBus eventBus,
+                      String action,
+                      @Nullable ResultReceiver resultReceiver) {
         this.entitySyncJob = entitySyncJob;
         this.eventBus = eventBus;
         this.action = action;
@@ -42,7 +46,7 @@ class EntitySyncRequest implements SyncRequest {
     private void setUrnsFromIntent(Intent intent) {
         final List<Urn> urnsToSync = intent.getParcelableArrayListExtra(SyncExtras.URNS);
         checkArgument(urnsToSync != null,
-                "Requested a resource sync without providing urns...");
+                      "Requested a resource sync without providing urns...");
         entitySyncJob.setUrns(urnsToSync);
     }
 
@@ -68,8 +72,8 @@ class EntitySyncRequest implements SyncRequest {
         if (syncJob.equals(entitySyncJob)) {
             Exception exception = syncJob.getException();
             resultEvent = exception == null ?
-                    SyncJobResult.success(action, syncJob.resultedInAChange())
-                    : SyncJobResult.failure(action, syncJob.getException());
+                          SyncJobResult.success(action, syncJob.resultedInAChange())
+                                            : SyncJobResult.failure(action, syncJob.getException());
         }
     }
 

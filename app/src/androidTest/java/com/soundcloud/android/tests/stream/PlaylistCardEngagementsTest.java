@@ -36,7 +36,7 @@ public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
 
         final String repostToastMessage = getRepostToastMessage(reposted);
         assertTrue("Did not observe a toast with a message: " + repostToastMessage,
-                waiter.expectToastWithText(toastObserver, repostToastMessage));
+                   waiter.expectToastWithText(toastObserver, repostToastMessage));
     }
 
     public void testClickingToggleLikePlaylistFromOverflowMenu() {
@@ -50,7 +50,7 @@ public class PlaylistCardEngagementsTest extends ActivityTest<MainActivity> {
 
         final String likeToastMessage = getLikeToastMessage(liked);
         assertTrue("Did not observe a toast with a message: " + likeToastMessage,
-                waiter.expectToastWithText(toastObserver, likeToastMessage));
+                   waiter.expectToastWithText(toastObserver, likeToastMessage));
     }
 
     @Override

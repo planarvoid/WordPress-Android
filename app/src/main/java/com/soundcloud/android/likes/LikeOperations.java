@@ -31,7 +31,7 @@ public class LikeOperations {
         @Override
         public void call(PropertySet changeSet) {
             eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                    EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet)));
+                             EntityStateChangedEvent.fromLike(Collections.singletonList(changeSet)));
         }
     };
 

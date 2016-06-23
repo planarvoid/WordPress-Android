@@ -21,7 +21,7 @@ import android.support.annotation.NonNull;
 import java.util.Date;
 import java.util.List;
 
-public class SearchSuggestionStorageTest  extends StorageIntegrationTest {
+public class SearchSuggestionStorageTest extends StorageIntegrationTest {
 
     private SearchSuggestionStorage suggestionStorage;
     private TestSubscriber<List<PropertySet>> subscriber;
@@ -50,7 +50,8 @@ public class SearchSuggestionStorageTest  extends StorageIntegrationTest {
 
     @Test
     public void returnsTrackLikeFromStorageMatchedOnFirstWord() {
-        final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions(apiTrack.getTitle().substring(0, 3), 1);
+        final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions(apiTrack.getTitle()
+                                                                                                   .substring(0, 3), 1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(toList(trackPropertySet));
@@ -60,7 +61,9 @@ public class SearchSuggestionStorageTest  extends StorageIntegrationTest {
     public void returnsMatchedTrackLikeFromStorageMatchedOnSecondWord() {
         final String title = apiTrack.getTitle();
         final int startIndex = title.indexOf(" ");
-        final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions(title.substring(startIndex + 1, startIndex + 3), 1);
+        final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions(title.substring(startIndex + 1,
+                                                                                                           startIndex + 3),
+                                                                                           1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(toList(trackPropertySet));
@@ -68,7 +71,9 @@ public class SearchSuggestionStorageTest  extends StorageIntegrationTest {
 
     @Test
     public void returnsMatchedPlaylistLikeFromStorage() {
-        final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions(apiPlaylist.getTitle().substring(0, 3), 1);
+        final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions(apiPlaylist.getTitle()
+                                                                                                      .substring(0, 3),
+                                                                                           1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(toList(playlistPropertySet));
@@ -76,7 +81,8 @@ public class SearchSuggestionStorageTest  extends StorageIntegrationTest {
 
     @Test
     public void returnsMatchedFollowingFromStorage() {
-        final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions(apiUser.getUsername().substring(0, 3), 1);
+        final Observable<List<PropertySet>> suggestions = suggestionStorage.getSuggestions(apiUser.getUsername()
+                                                                                                  .substring(0, 3), 1);
         suggestions.subscribe(subscriber);
 
         subscriber.assertValue(toList(userPropertySet));

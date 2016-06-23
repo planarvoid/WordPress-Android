@@ -60,13 +60,13 @@ public class Encoder implements Runnable, ProgressListener {
             }
 
             final File out = stream.isFiltered() ?
-                    recording.getProcessedFile() : recording.getEncodedFile();
+                             recording.getProcessedFile() : recording.getEncodedFile();
 
             EncoderOptions options = new EncoderOptions(EncoderOptions.DEFAULT.quality,
-                    stream.getStartPos(),
-                    stream.getEndPos(),
-                    this,
-                    stream.getPlaybackFilter());
+                                                        stream.getStartPos(),
+                                                        stream.getEndPos(),
+                                                        this,
+                                                        stream.getPlaybackFilter());
 
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "encoding from source " + in.getAbsolutePath());

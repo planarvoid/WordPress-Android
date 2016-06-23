@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class SearchSuggestionsFragment extends LightCycleSupportFragment<SearchSuggestionsFragment>
-    implements SuggestionListener {
+        implements SuggestionListener {
 
     public static final String TAG = "suggestions_search";
 

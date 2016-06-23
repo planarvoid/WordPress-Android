@@ -81,7 +81,12 @@ class EventLoggerEventData {
     @JsonProperty("version") final String version;
     @JsonProperty("payload") final HashMap<String, Object> payload;
 
-    public EventLoggerEventData(String event, String version, int clientId, String anonymousId, String loggedInUserUrn, long timestamp) {
+    public EventLoggerEventData(String event,
+                                String version,
+                                int clientId,
+                                String anonymousId,
+                                String loggedInUserUrn,
+                                long timestamp) {
         this.event = event;
         this.version = version;
         this.payload = new HashMap<>();
@@ -472,9 +477,9 @@ class EventLoggerEventData {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("event", event)
-                .add("version", version)
-                .add("payload", payload).toString();
+                          .add("event", event)
+                          .add("version", version)
+                          .add("payload", payload).toString();
     }
 
 

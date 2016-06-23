@@ -15,7 +15,7 @@ public class LockUtil {
     public void lock() {
         Log.d(this, "WakeLockUtil.lock()");
 
-        if (!wakeLock.isHeld()){
+        if (!wakeLock.isHeld()) {
             try {
                 wakeLock.acquire();
             } catch (Exception e) {
@@ -26,7 +26,7 @@ public class LockUtil {
 
     public void unlock() {
         Log.d(this, "WakeLockUtil.unlock()");
-        if (wakeLock.isHeld()){
+        if (wakeLock.isHeld()) {
             wakeLock.release();
         }
     }

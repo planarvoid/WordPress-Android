@@ -23,7 +23,7 @@ public class GooglePlayServicesWrapper {
         return GooglePlayServicesUtil.isUserRecoverableError(resultCode);
     }
 
-    public void showUnrecoverableErrorDialog(Activity activity, int resultCode){
+    public void showUnrecoverableErrorDialog(Activity activity, int resultCode) {
         GooglePlayServicesUtil.getErrorDialog(resultCode, activity, PLAY_SERVICES_RESOLUTION_REQUEST).show();
     }
 }

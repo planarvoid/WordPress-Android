@@ -84,7 +84,7 @@ public class RecordScreen extends Screen {
     }
 
     public RecordScreen deleteRecordingIfPresent() {
-        if(hasRecording()) {
+        if (hasRecording()) {
             deleteRecording();
         }
         return this;

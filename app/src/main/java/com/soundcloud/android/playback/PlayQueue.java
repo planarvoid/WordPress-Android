@@ -199,7 +199,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         } else {
             // debugging #5168
             ErrorUtils.handleSilentException(new IllegalStateException("Error getting item urns. size = ["
-                    + size() + "], from = [" + from + "], count = [" + count + "]"));
+                                                                               + size() + "], from = [" + from + "], count = [" + count + "]"));
             return Collections.emptyList();
         }
     }
@@ -257,13 +257,15 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
         for (ApiTrack relatedTrack : relatedTracks) {
             final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(relatedTrack.getUrn())
                     .relatedEntity(seedTrack)
-                    .fromSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value(), relatedTracks.getSourceVersion());
+                    .fromSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
+                                relatedTracks.getSourceVersion());
             playQueueItems.add(builder.build());
         }
         return new PlayQueue(playQueueItems);
     }
 
-    public static PlayQueue fromRecommendationsWithPrependedSeed(Urn seedTrack, RecommendedTracksCollection relatedTracks) {
+    public static PlayQueue fromRecommendationsWithPrependedSeed(Urn seedTrack,
+                                                                 RecommendedTracksCollection relatedTracks) {
         PlayQueue playQueue = fromRecommendations(seedTrack, relatedTracks);
         playQueue.playQueueItems.add(0, new TrackQueueItem.Builder(seedTrack).build());
         return playQueue;
@@ -271,13 +273,19 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
     void insertPlayQueueItem(int position, PlayQueueItem playQueueItem) {
         checkArgument(position >= 0 && position <= size(),
-                String.format(Locale.getDefault(), "Cannot insert item at position:%d, size:%d", position, playQueueItems.size()));
+                      String.format(Locale.getDefault(),
+                                    "Cannot insert item at position:%d, size:%d",
+                                    position,
+                                    playQueueItems.size()));
         playQueueItems.add(position, playQueueItem);
     }
 
     void replaceItem(int position, List<PlayQueueItem> newItems) {
         checkArgument(position >= 0 && position < size(),
-                String.format(Locale.getDefault(), "Cannot replace item at position:%d, size:%d", position, newItems.size()));
+                      String.format(Locale.getDefault(),
+                                    "Cannot replace item at position:%d, size:%d",
+                                    position,
+                                    newItems.size()));
         playQueueItems.remove(position);
         playQueueItems.addAll(position, newItems);
     }
@@ -302,13 +310,15 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
             public PlayQueueItem apply(Urn playable) {
                 if (playable.isTrack()) {
                     return new TrackQueueItem.Builder(playable)
-                            .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                            .fromSource(playSessionSource.getInitialSource(),
+                                        playSessionSource.getInitialSourceVersion())
                             .blocked(Boolean.TRUE.equals(blockedTracks.get(playable)))
                             .build();
 
                 } else if (playable.isPlaylist()) {
                     return new PlaylistQueueItem.Builder(playable)
-                            .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                            .fromSource(playSessionSource.getInitialSource(),
+                                        playSessionSource.getInitialSourceVersion())
                             .build();
                 } else {
                     throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);
@@ -326,13 +336,15 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
 
                 if (playable.get(EntityProperty.URN).isTrack()) {
                     return new TrackQueueItem.Builder(playable)
-                            .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                            .fromSource(playSessionSource.getInitialSource(),
+                                        playSessionSource.getInitialSourceVersion())
                             .blocked(Boolean.TRUE.equals(blockedTracks.get(playable.get(TrackProperty.URN))))
                             .build();
 
                 } else if (playable.get(EntityProperty.URN).isPlaylist()) {
                     return new PlaylistQueueItem.Builder(playable)
-                            .fromSource(playSessionSource.getInitialSource(), playSessionSource.getInitialSourceVersion())
+                            .fromSource(playSessionSource.getInitialSource(),
+                                        playSessionSource.getInitialSourceVersion())
                             .build();
                 } else {
                     throw new IllegalArgumentException("Unrecognized playable sent for playback " + playable);

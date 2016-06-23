@@ -44,7 +44,11 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new FacebookInvitesOperations(storage, facebookApiHelper, networkConnectionHelper, dateProvider, myProfileOperations);
+        operations = new FacebookInvitesOperations(storage,
+                                                   facebookApiHelper,
+                                                   networkConnectionHelper,
+                                                   dateProvider,
+                                                   myProfileOperations);
         dateProvider.setTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 
         when(storage.getMillisSinceLastClick()).thenReturn(CLICK_INTERVAL_MS);

@@ -36,7 +36,8 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
 
         final Context context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context,
-                new DeviceHelper(context, new BuildHelper()), new OkHttpClient());
+                                                                 new DeviceHelper(context, new BuildHelper()),
+                                                                 new OkHttpClient());
 
         verifier = new MrLoggaVerifier(client, waiter);
         recorder = new MrLoggaRecorder(client);
@@ -60,17 +61,17 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
         }
     }
 
-    protected void startEventTracking(){
+    protected void startEventTracking() {
         verifier.start();
     }
 
     @SuppressWarnings("unused")
-    protected void startEventRecording(String scenario){
+    protected void startEventRecording(String scenario) {
         recordMode = true;
         recorder.startRecording(scenario);
     }
 
-    protected void finishEventTracking(String scenario){
+    protected void finishEventTracking(String scenario) {
         verifier.assertScenario(scenario);
     }
 

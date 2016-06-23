@@ -57,7 +57,8 @@ public class IntentResolverTest extends AndroidUnitTest {
         context = context();
         setupReferrer(Referrer.OTHER);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
-        when(playbackInitiator.startPlayback(any(Urn.class), any(Screen.class))).thenReturn(Observable.<PlaybackResult>empty());
+        when(playbackInitiator.startPlayback(any(Urn.class),
+                                             any(Screen.class))).thenReturn(Observable.<PlaybackResult>empty());
     }
 
     @Test
@@ -482,7 +483,8 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     private void setupReferrer(Referrer referrer) {
-        when(referrerResolver.getReferrerFromIntent(any(Intent.class), any(Resources.class))).thenReturn(referrer.value());
+        when(referrerResolver.getReferrerFromIntent(any(Intent.class),
+                                                    any(Resources.class))).thenReturn(referrer.value());
     }
 
     private ForegroundEvent captureForegroundEvent() {

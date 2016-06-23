@@ -41,7 +41,9 @@ public class DefaultControllerTest extends AndroidUnitTest {
     @Test
     public void shouldListenForTrackPositionChangeEventsAndUpdateTrackPresenter() {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }
@@ -49,7 +51,9 @@ public class DefaultControllerTest extends AndroidUnitTest {
     @Test
     public void shouldListenForNewPlayQueueEventsAndUpdateTrackPresenter() {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
+                                                                Urn.NOT_SET,
+                                                                0));
 
         verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }

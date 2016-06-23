@@ -89,8 +89,8 @@ public class MyPlaylistsSyncer implements SyncStrategy {
         final boolean changed = postedPlaylistsChanged || offlinePlaylistsChanged;
 
         return changed
-                ? LegacySyncResult.fromSuccessfulChange(uri)
-                : LegacySyncResult.fromSuccessWithoutChange(uri);
+               ? LegacySyncResult.fromSuccessfulChange(uri)
+               : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 
     private boolean syncOfflinePlaylists() {
@@ -108,7 +108,8 @@ public class MyPlaylistsSyncer implements SyncStrategy {
 
         final boolean hasUpdatedPlaylists = !updatedOfflinePlaylists.isEmpty();
         if (hasUpdatedPlaylists) {
-            eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true, updatedOfflinePlaylists));
+            eventBus.publish(EventQueue.SYNC_RESULT,
+                             SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true, updatedOfflinePlaylists));
         }
         return hasUpdatedPlaylists;
     }
@@ -116,9 +117,10 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     private void syncPendingRemovals() {
         final List<Urn> removeUrns = loadPlaylistPendingRemovalCommand.call(null);
         for (Urn urn : removeUrns) {
-            final ApiResponse response = apiClient.fetchResponse(ApiRequest.delete(ApiEndpoints.PLAYLISTS_DELETE.path(urn))
-                    .forPrivateApi()
-                    .build());
+            final ApiResponse response = apiClient.fetchResponse(ApiRequest.delete(ApiEndpoints.PLAYLISTS_DELETE.path(
+                    urn))
+                                                                           .forPrivateApi()
+                                                                           .build());
             if (response.isSuccess() || isErrorIgnored(response)) {
                 removePlaylistCommand.call(urn);
             }
@@ -140,11 +142,12 @@ public class MyPlaylistsSyncer implements SyncStrategy {
             final List<Urn> trackUrns = loadPlaylistTrackUrnsCommand.with(playlistUrn).call();
 
             final ApiRequest request = ApiRequest.post(ApiEndpoints.PLAYLISTS_CREATE.path())
-                    .forPrivateApi()
-                    .withContent(createPlaylistBody(localPlaylist, trackUrns))
-                    .build();
+                                                 .forPrivateApi()
+                                                 .withContent(createPlaylistBody(localPlaylist, trackUrns))
+                                                 .build();
 
-            final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class).getApiPlaylist();
+            final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class)
+                                                     .getApiPlaylist();
             replacePlaylist.with(Pair.create(playlistUrn, newPlaylist)).call();
             publishPlaylistCreated(playlistUrn, newPlaylist);
             postedPlaylistUrns.add(newPlaylist.getUrn());

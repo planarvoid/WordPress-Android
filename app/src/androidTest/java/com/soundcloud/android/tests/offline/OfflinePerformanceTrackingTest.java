@@ -62,7 +62,7 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
         assertThat(downloadElement, is(downloading()));
 
         assertThat(playlistDetailsScreen.clickDownloadToggle()
-                .headerDownloadElement().isVisible(), is(false));
+                                        .headerDownloadElement().isVisible(), is(false));
 
         finishEventTracking(OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING);
     }

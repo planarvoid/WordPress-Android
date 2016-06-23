@@ -55,7 +55,11 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setup() {
-        adapter = new SearchResultsAdapter(trackRenderer, playlistRenderer, userRenderer, premiumContentRenderer, searchUpsellRenderer);
+        adapter = new SearchResultsAdapter(trackRenderer,
+                                           playlistRenderer,
+                                           userRenderer,
+                                           premiumContentRenderer,
+                                           searchUpsellRenderer);
     }
 
     @Test
@@ -117,20 +121,28 @@ public class SearchResultsAdapterTest extends AndroidUnitTest {
     }
 
     private UserItem dummyUserItem() {
-        return UserItem.from(new ApiUniversalSearchItem(ModelFixtures.create(ApiUser.class), null, null).toPropertySet());
+        return UserItem.from(new ApiUniversalSearchItem(ModelFixtures.create(ApiUser.class),
+                                                        null,
+                                                        null).toPropertySet());
     }
 
     private TrackItem dummyTrackItem() {
-        return TrackItem.from(new ApiUniversalSearchItem(null, null, ModelFixtures.create(ApiTrack.class)).toPropertySet());
+        return TrackItem.from(new ApiUniversalSearchItem(null,
+                                                         null,
+                                                         ModelFixtures.create(ApiTrack.class)).toPropertySet());
     }
 
     private PlaylistItem dummyPlaylistItem() {
-        return PlaylistItem.from(new ApiUniversalSearchItem(null, ModelFixtures.create(ApiPlaylist.class), null).toPropertySet());
+        return PlaylistItem.from(new ApiUniversalSearchItem(null,
+                                                            ModelFixtures.create(ApiPlaylist.class),
+                                                            null).toPropertySet());
     }
 
     private SearchPremiumItem dummySearchPremiumItem() {
         final PropertySet propertySet = PropertySet.create().put(EntityProperty.URN, Urn.forTrack(123L));
-        return new SearchPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), SEARCH_RESULTS_COUNT);
+        return new SearchPremiumItem(Collections.singletonList(propertySet),
+                                     Optional.<Link>absent(),
+                                     SEARCH_RESULTS_COUNT);
     }
 
     private SearchUpsellItem dummySearchUpsellItem() {

@@ -82,7 +82,8 @@ public class LoginTask extends AuthTask {
 
             accountOperations.updateToken(token);
 
-            final Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {});
+            final Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {
+            });
             if (me == null) {
                 return AuthTaskResult.failure(getString(R.string.authentication_error_no_connection_message));
             }
@@ -106,7 +107,7 @@ public class LoginTask extends AuthTask {
 
     protected ApiRequest buildRequest() {
         return ApiRequest.get(ApiEndpoints.ME.path())
-                .forPrivateApi()
-                .build();
+                         .forPrivateApi()
+                         .build();
     }
 }

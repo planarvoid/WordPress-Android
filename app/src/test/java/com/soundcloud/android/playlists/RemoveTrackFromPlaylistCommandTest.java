@@ -26,7 +26,8 @@ public class RemoveTrackFromPlaylistCommandTest extends StorageIntegrationTest {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         final ApiTrack track1 = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
 
-        final Integer updatedCount = command.call(new RemoveTrackFromPlaylistParams(apiPlaylist.getUrn(), track1.getUrn()));
+        final Integer updatedCount = command.call(new RemoveTrackFromPlaylistParams(apiPlaylist.getUrn(),
+                                                                                    track1.getUrn()));
 
         assertThat(updatedCount).isEqualTo(0);
     }
@@ -64,7 +65,8 @@ public class RemoveTrackFromPlaylistCommandTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrack(apiPlaylist, 1);
         testFixtures().insertPlaylistTrackPendingRemoval(apiPlaylist, 2, new Date());
 
-        final Integer updatedCount = command.call(new RemoveTrackFromPlaylistParams(apiPlaylist.getUrn(), track1.getUrn()));
+        final Integer updatedCount = command.call(new RemoveTrackFromPlaylistParams(apiPlaylist.getUrn(),
+                                                                                    track1.getUrn()));
 
         assertThat(updatedCount).isEqualTo(1);
     }

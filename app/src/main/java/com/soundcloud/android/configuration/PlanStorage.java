@@ -60,8 +60,8 @@ public class PlanStorage {
 
     public Observable<List<Plan>> getUpsellUpdates() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
-                .filter(UPSELLS_PREFERENCE)
-                .map(toUpsells);
+                         .filter(UPSELLS_PREFERENCE)
+                         .map(toUpsells);
     }
 
     public void clear() {

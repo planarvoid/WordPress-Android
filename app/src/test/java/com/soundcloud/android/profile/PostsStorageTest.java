@@ -193,7 +193,7 @@ public class PostsStorageTest extends StorageIntegrationTest {
         ApiTrack track = createTrackAt(createdAt);
         createTrackRepostWithId(track.getUrn().getNumericId(), postedAt);
         return createTrackPostPropertySet(track).put(TrackProperty.IS_USER_REPOST, true)
-                .put(PostProperty.REPOSTER, user.getUsername());
+                                                .put(PostProperty.REPOSTER, user.getUsername());
     }
 
     private PropertySet createPlaylistPostAt(Date postedAt) {
@@ -224,8 +224,8 @@ public class PostsStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.LIKES_COUNT,
                 PlaylistProperty.IS_PRIVATE
         ).put(PostProperty.CREATED_AT, playlist.getCreatedAt())
-                .put(PlayableProperty.IS_USER_LIKE, false)
-                .put(PlayableProperty.IS_USER_REPOST, false);
+                       .put(PlayableProperty.IS_USER_LIKE, false)
+                       .put(PlayableProperty.IS_USER_REPOST, false);
     }
 
     private PropertySet createTrackPostPropertySet(ApiTrack track) {
@@ -244,8 +244,8 @@ public class PostsStorageTest extends StorageIntegrationTest {
                 TrackProperty.SUB_MID_TIER,
                 TrackProperty.SUB_HIGH_TIER
         ).put(PostProperty.CREATED_AT, track.getCreatedAt())
-                .put(PlayableProperty.IS_USER_LIKE, false)
-                .put(PlayableProperty.IS_USER_REPOST, false);
+                    .put(PlayableProperty.IS_USER_LIKE, false)
+                    .put(PlayableProperty.IS_USER_REPOST, false);
     }
 
     private ApiPlaylist createPlaylistAt(Date creationDate) {

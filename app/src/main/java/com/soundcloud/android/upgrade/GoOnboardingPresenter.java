@@ -35,7 +35,10 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private StrategyContext context;
 
     @Inject
-    GoOnboardingPresenter(Navigator navigator, PlanChangeOperations planChangeOperations, GoOnboardingView view, EventBus eventBus) {
+    GoOnboardingPresenter(Navigator navigator,
+                          PlanChangeOperations planChangeOperations,
+                          GoOnboardingView view,
+                          EventBus eventBus) {
         this.navigator = navigator;
         this.planChangeOperations = planChangeOperations;
         this.view = view;
@@ -116,8 +119,8 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         public Strategy proceed() {
             strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
             subscription = planChangeOperations.awaitAccountUpgrade()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new UpgradeCompleteSubscriber());
+                                               .observeOn(AndroidSchedulers.mainThread())
+                                               .subscribe(new UpgradeCompleteSubscriber());
             return strategy;
         }
     }
@@ -138,7 +141,7 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
             if (context == StrategyContext.USER_CLICKED_START) {
                 navigator.openCollectionAsRootScreen(activity);
                 eventBus.publish(EventQueue.TRACKING,
-                        OfflineInteractionEvent.fromOnboardingStart());
+                                 OfflineInteractionEvent.fromOnboardingStart());
                 view.reset();
             }
             return this;

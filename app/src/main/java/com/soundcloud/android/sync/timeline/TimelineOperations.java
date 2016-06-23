@@ -58,14 +58,14 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
 
     protected Observable<List<ItemT>> initialTimelineItems(boolean syncCompleted) {
         return storage.timelineItems(PAGE_SIZE)
-                .toList()
-                .map(toViewModels())
-                .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
+                      .toList()
+                      .map(toViewModels())
+                      .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
     }
 
     protected Observable<List<ItemT>> updatedTimelineItems() {
         return syncInitiator.refreshTimelineItems(syncContent)
-                .flatMap(handleSyncResult(INITIAL_TIMESTAMP));
+                            .flatMap(handleSyncResult(INITIAL_TIMESTAMP));
     }
 
     protected abstract Func1<List<PropertySet>, List<ItemT>> toViewModels();
@@ -198,7 +198,7 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
 
     public Observable<Integer> newItemsSince(long time) {
         return storage.timelineItemCountSince(time)
-                .subscribeOn(scheduler);
+                      .subscribeOn(scheduler);
     }
 
 }

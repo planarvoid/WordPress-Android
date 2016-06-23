@@ -18,7 +18,8 @@ class PlaybackAnalyticsController {
 
     @Inject
     public PlaybackAnalyticsController(TrackSessionAnalyticsDispatcher trackAnalyticsDispatcher,
-                                       AdSessionAnalyticsDispatcher adAnalyticsController, PlayQueueManager playQueueManager) {
+                                       AdSessionAnalyticsDispatcher adAnalyticsController,
+                                       PlayQueueManager playQueueManager) {
         this.trackAnalyticsDispatcher = trackAnalyticsDispatcher;
         this.adAnalyticsDispatcher = adAnalyticsController;
         this.playQueueManager = playQueueManager;
@@ -48,7 +49,8 @@ class PlaybackAnalyticsController {
     public void onProgressEvent(PlaybackItem currentItem, PlaybackProgressEvent playbackProgress) {
         final PlaybackProgress currentProgress = playbackProgress.getPlaybackProgress();
 
-        if (currentProgress.getPosition() >= lastProgressCheckpoint.getPosition() + checkpointIntervalForItem(currentItem)) {
+        if (currentProgress.getPosition() >= lastProgressCheckpoint.getPosition() + checkpointIntervalForItem(
+                currentItem)) {
             dispatcherForItem(currentItem).onProgressCheckpoint(previousTransition, playbackProgress);
             lastProgressCheckpoint = currentProgress;
         }
@@ -57,7 +59,8 @@ class PlaybackAnalyticsController {
 
     private void onPlaybackItemChange() {
         // Reset shared promoted source info so that individual plays send correct start events
-        final PromotedSourceInfo promotedSource = playQueueManager.getCurrentPlaySessionSource().getPromotedSourceInfo();
+        final PromotedSourceInfo promotedSource = playQueueManager.getCurrentPlaySessionSource()
+                                                                  .getPromotedSourceInfo();
         if (promotedSource != null) {
             promotedSource.resetPlaybackStarted();
         }
@@ -74,8 +77,8 @@ class PlaybackAnalyticsController {
 
     private long checkpointIntervalForItem(PlaybackItem currentItem) {
         return isAd(currentItem)
-                ? AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL
-                : TrackSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
+               ? AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL
+               : TrackSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
     }
 
     private boolean isAd(PlaybackItem item) {

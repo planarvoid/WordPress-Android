@@ -22,7 +22,9 @@ public class SuggestionsAdapterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new SuggestionsAdapter(searchSuggestionItemRenderer, trackSuggestionItemRenderer, userSuggestionItemRenderer);
+        adapter = new SuggestionsAdapter(searchSuggestionItemRenderer,
+                                         trackSuggestionItemRenderer,
+                                         userSuggestionItemRenderer);
     }
 
     @Test

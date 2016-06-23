@@ -181,7 +181,7 @@ public class LikesStorageTest extends StorageIntegrationTest {
                 TrackProperty.SUB_MID_TIER,
                 TrackProperty.SUB_HIGH_TIER
         ).put(LikeProperty.CREATED_AT, likedAt)
-                .put(PlayableProperty.IS_USER_LIKE, true);
+                       .put(PlayableProperty.IS_USER_LIKE, true);
     }
 
     private PropertySet createPlaylistLikeAt(Date likedAt) {
@@ -209,6 +209,6 @@ public class LikesStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.TRACK_COUNT,
                 PlaylistProperty.IS_PRIVATE
         ).put(LikeProperty.CREATED_AT, likedAt)
-                .put(PlayableProperty.IS_USER_LIKE, true);
+                          .put(PlayableProperty.IS_USER_LIKE, true);
     }
 }

@@ -44,8 +44,8 @@ public class VerifyIssueDialog extends UnrecoverableErrorDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = new CustomFontViewBuilder(getActivity())
                 .setContent(R.drawable.dialog_payment_error,
-                        getArguments().getInt(TITLE_ID),
-                        R.string.payments_error_verification_issue).get();
+                            getArguments().getInt(TITLE_ID),
+                            R.string.payments_error_verification_issue).get();
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)

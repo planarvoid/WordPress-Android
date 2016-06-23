@@ -121,7 +121,8 @@ public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
 
     @Test
     public void shouldIsolateProvidersExceptions() throws CreateModelException {
-        doThrow(new RuntimeException()).when(analyticsProviderOne).handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
+        doThrow(new RuntimeException()).when(analyticsProviderOne)
+                                       .handleActivityLifeCycleEvent(any(ActivityLifeCycleEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleTrackingEvent(any(TrackingEvent.class));
         doThrow(new RuntimeException()).when(analyticsProviderOne).handleOnboardingEvent(any(OnboardingEvent.class));
 

@@ -60,7 +60,11 @@ public class DownloadHandlerTest extends AndroidUnitTest {
         notEnoughSpaceMessage = createMessage(downloadRequest);
         cancelMessage = createMessage(downloadRequest);
 
-        handler = new DownloadHandler(listener, downloadOperations, secureFileStorage, tracksStorage, performanceTracker);
+        handler = new DownloadHandler(listener,
+                                      downloadOperations,
+                                      secureFileStorage,
+                                      tracksStorage,
+                                      performanceTracker);
 
         when(writeResult.success()).thenReturn(true);
         when(tracksStorage.storeCompletedDownload(any(DownloadState.class))).thenReturn(writeResult);
@@ -69,7 +73,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void sendsProgressOfZeroWhenStarting() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                successResult);
         ArgumentCaptor<DownloadState> stateArgumentCaptor = ArgumentCaptor.forClass(DownloadState.class);
 
         handler.handleMessage(successMessage);
@@ -80,9 +85,11 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void reportsProgressFromListener() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                successResult);
         ArgumentCaptor<DownloadState> stateArgumentCaptor = ArgumentCaptor.forClass(DownloadState.class);
-        ArgumentCaptor<DownloadOperations.DownloadProgressListener> listenerArgumentCaptor = ArgumentCaptor.forClass(DownloadOperations.DownloadProgressListener.class);
+        ArgumentCaptor<DownloadOperations.DownloadProgressListener> listenerArgumentCaptor = ArgumentCaptor.forClass(
+                DownloadOperations.DownloadProgressListener.class);
 
         handler.handleMessage(successMessage);
         verify(downloadOperations).download(same(downloadRequest), listenerArgumentCaptor.capture());
@@ -96,7 +103,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void storesCompletedDownloadResult() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                successResult);
 
         handler.handleMessage(successMessage);
 
@@ -105,7 +113,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void doesNotStoreCompletedDownloadResultWhenDownloadFailed() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(failedResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                failedResult);
 
         handler.handleMessage(failureMessage);
 
@@ -114,7 +123,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void sendsSuccessMessageWithDownloadResult() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                successResult);
 
         handler.handleMessage(successMessage);
 
@@ -123,7 +133,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void sendsCancelMessageWhenDownloadWasCancelled() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(cancelledResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                cancelledResult);
 
         handler.handleMessage(cancelMessage);
 
@@ -132,7 +143,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void sendsNotEnoughSpaceMessageWhenThereIsNotEnoughSpaceForTrack() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(notEnoughSpaceResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                notEnoughSpaceResult);
 
         handler.handleMessage(notEnoughSpaceMessage);
 
@@ -141,7 +153,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void sendsFailureMessageWhenDownloadFailed() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(failedResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                failedResult);
 
         handler.handleMessage(failureMessage);
 
@@ -152,7 +165,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
     public void deletesFileAndReportsDownloadFailedWhenFailToStoreSuccessStatus() throws PropellerWriteException {
         ArgumentCaptor<DownloadState> downloadStateCaptor = ArgumentCaptor.forClass(DownloadState.class);
 
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                successResult);
         when(writeResult.success()).thenReturn(false);
         when(tracksStorage.storeCompletedDownload(successResult)).thenReturn(writeResult);
 
@@ -168,7 +182,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void markTrackAsUnavailable() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(unavailableResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                unavailableResult);
 
         handler.handleMessage(successMessage);
 
@@ -177,7 +192,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void tracksDownloadStartedAndCompleted() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(successResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                successResult);
 
         handler.handleMessage(successMessage);
 
@@ -188,7 +204,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void tracksDownloadStartedAndCancelled() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(cancelledResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                cancelledResult);
 
         handler.handleMessage(cancelMessage);
 
@@ -199,7 +216,8 @@ public class DownloadHandlerTest extends AndroidUnitTest {
 
     @Test
     public void tracksDownloadStartedAndFailed() {
-        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(failedResult);
+        when(downloadOperations.download(same(downloadRequest), any(DownloadProgressListener.class))).thenReturn(
+                failedResult);
 
         handler.handleMessage(failureMessage);
 

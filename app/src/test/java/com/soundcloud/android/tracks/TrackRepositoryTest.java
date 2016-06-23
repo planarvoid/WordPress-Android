@@ -45,8 +45,8 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
         track = PropertySet.from(TrackProperty.URN.bind(trackUrn),
-                PlayableProperty.TITLE.bind(TITLE),
-                PlayableProperty.CREATOR_NAME.bind(CREATOR));
+                                 PlayableProperty.TITLE.bind(TITLE),
+                                 PlayableProperty.CREATOR_NAME.bind(CREATOR));
 
         trackDescription = PropertySet.from(TrackProperty.DESCRIPTION.bind(DESCRIPTION));
     }
@@ -65,7 +65,8 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void trackUsesSyncerToBackfillMissingTrack() {
         final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(PropertySet.create()), Observable.just(syncedTrack));
+        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(PropertySet.create()),
+                                                          Observable.just(syncedTrack));
 
         trackRepository.track(trackUrn).subscribe(observer);
 
@@ -77,7 +78,8 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     public void trackUsesSyncerToBackfillErrorOnLoad() {
         final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
-        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.<PropertySet>error(new NullPointerException()), Observable.just(syncedTrack));
+        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.<PropertySet>error(new NullPointerException()),
+                                                          Observable.just(syncedTrack));
 
         trackRepository.track(trackUrn).subscribe(observer);
 

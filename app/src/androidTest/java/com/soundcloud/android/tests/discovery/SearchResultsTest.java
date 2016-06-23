@@ -77,7 +77,9 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
     }
 
     public void testTappingTrackOnTracksTabOpensPlayer() {
-        VisualPlayerElement playerScreen = searchScreen.doSearch("clownstep").goToTracksTab().findAndClickFirstTrackItem();
+        VisualPlayerElement playerScreen = searchScreen.doSearch("clownstep")
+                                                       .goToTracksTab()
+                                                       .findAndClickFirstTrackItem();
 
         assertThat("Player screen should be visible", playerScreen.isVisible());
     }
@@ -89,7 +91,9 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
                 .findAndClickFirstPlaylistItem();
 
         assertThat("Playlist screen should be visible", playlistDetailsScreen, is(visible()));
-        assertThat("Playlist screen title should be 'Playlist'", playlistDetailsScreen.getActionBarTitle(), equalTo("Playlist"));
+        assertThat("Playlist screen title should be 'Playlist'",
+                   playlistDetailsScreen.getActionBarTitle(),
+                   equalTo("Playlist"));
     }
 
     @AlbumsTest

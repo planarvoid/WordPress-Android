@@ -20,7 +20,8 @@ class PlaylistHeaderScrollHelper extends DefaultSupportFragmentLightCycle<Fragme
     private Optional<ScrollHelper> scrollHelper;
 
     @Inject
-    public PlaylistHeaderScrollHelper() { }
+    public PlaylistHeaderScrollHelper() {
+    }
 
     @Override
     public void onViewCreated(final Fragment fragment, View view, Bundle savedInstanceState) {

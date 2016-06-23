@@ -44,7 +44,7 @@ public class LikesStorage {
         this.propellerRx = propellerRx;
     }
 
-    Observable<List<PropertySet>> loadLikes(int limit, long beforeTimestamp){
+    Observable<List<PropertySet>> loadLikes(int limit, long beforeTimestamp) {
         return propellerRx.query(buildLikesQuery(limit, beforeTimestamp)).map(new LikesMapper()).toList();
     }
 
@@ -54,33 +54,34 @@ public class LikesStorage {
 
     private Query buildLikesQuery(int limit, long beforeTimestamp) {
         return Query.from(Likes)
-                .select(
-                        field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
-                        field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID),
-                        field(SoundView.field(TableColumns.SoundView.TITLE)).as(TableColumns.SoundView.TITLE),
-                        field(SoundView.field(TableColumns.SoundView.USERNAME)).as(TableColumns.SoundView.USERNAME),
-                        field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(TableColumns.SoundView.ARTWORK_URL),
-                        field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
-                        field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
-                        field(SoundView.field(TableColumns.SoundView.PLAYBACK_COUNT)).as(TableColumns.SoundView.PLAYBACK_COUNT),
-                        field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
-                        field(SoundView.field(TableColumns.SoundView.SNIPPET_DURATION)).as(TableColumns.SoundView.SNIPPET_DURATION),
-                        field(SoundView.field(TableColumns.SoundView.FULL_DURATION)).as(TableColumns.SoundView.FULL_DURATION),
-                        field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(TableColumns.SoundView.POLICIES_BLOCKED),
-                        field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(TableColumns.SoundView.POLICIES_SNIPPED),
-                        field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(TableColumns.SoundView.POLICIES_SUB_MID_TIER),
-                        field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER),
-                        field(Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
-                        count(PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
-                .innerJoin(SoundView.name(),
-                        on(SoundView.field(TableColumns.SoundView._ID), Likes.field(TableColumns.Likes._ID))
-                                .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Likes.field(TableColumns.Likes._TYPE)))
-                .leftJoin(Table.PlaylistTracks.name(), playlistTracksFilter())
-                .whereLt(Likes.field(TableColumns.Likes.CREATED_AT), beforeTimestamp)
-                .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
-                .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
-                .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), DESC)
-                .limit(limit);
+                    .select(
+                            field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
+                            field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID),
+                            field(SoundView.field(TableColumns.SoundView.TITLE)).as(TableColumns.SoundView.TITLE),
+                            field(SoundView.field(TableColumns.SoundView.USERNAME)).as(TableColumns.SoundView.USERNAME),
+                            field(SoundView.field(TableColumns.SoundView.ARTWORK_URL)).as(TableColumns.SoundView.ARTWORK_URL),
+                            field(SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
+                            field(SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
+                            field(SoundView.field(TableColumns.SoundView.PLAYBACK_COUNT)).as(TableColumns.SoundView.PLAYBACK_COUNT),
+                            field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
+                            field(SoundView.field(TableColumns.SoundView.SNIPPET_DURATION)).as(TableColumns.SoundView.SNIPPET_DURATION),
+                            field(SoundView.field(TableColumns.SoundView.FULL_DURATION)).as(TableColumns.SoundView.FULL_DURATION),
+                            field(SoundView.field(TableColumns.SoundView.POLICIES_BLOCKED)).as(TableColumns.SoundView.POLICIES_BLOCKED),
+                            field(SoundView.field(TableColumns.SoundView.POLICIES_SNIPPED)).as(TableColumns.SoundView.POLICIES_SNIPPED),
+                            field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_MID_TIER)).as(TableColumns.SoundView.POLICIES_SUB_MID_TIER),
+                            field(SoundView.field(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER)).as(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER),
+                            field(Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
+                            count(PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
+                    .innerJoin(SoundView.name(),
+                               on(SoundView.field(TableColumns.SoundView._ID), Likes.field(TableColumns.Likes._ID))
+                                       .whereEq(SoundView.field(TableColumns.SoundView._TYPE),
+                                                Likes.field(TableColumns.Likes._TYPE)))
+                    .leftJoin(Table.PlaylistTracks.name(), playlistTracksFilter())
+                    .whereLt(Likes.field(TableColumns.Likes.CREATED_AT), beforeTimestamp)
+                    .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
+                    .groupBy(SoundView.field(TableColumns.SoundView._ID) + "," + SoundView.field(TableColumns.SoundView._TYPE))
+                    .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), DESC)
+                    .limit(limit);
     }
 
     @NonNull
@@ -92,20 +93,21 @@ public class LikesStorage {
 
     private Query buildQueryForPlayback() {
         return Query.from(Likes)
-                .select(field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
-                        field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID))
-                .innerJoin(SoundView.name(),
-                        on(SoundView.field(TableColumns.SoundView._ID), Likes.field(TableColumns.Likes._ID))
-                                .whereEq(SoundView.field(TableColumns.SoundView._TYPE), Likes.field(TableColumns.Likes._TYPE)))
-                .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
-                .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), DESC);
+                    .select(field(SoundView.field(TableColumns.SoundView._TYPE)).as(TableColumns.SoundView._TYPE),
+                            field(SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID))
+                    .innerJoin(SoundView.name(),
+                               on(SoundView.field(TableColumns.SoundView._ID), Likes.field(TableColumns.Likes._ID))
+                                       .whereEq(SoundView.field(TableColumns.SoundView._TYPE),
+                                                Likes.field(TableColumns.Likes._TYPE)))
+                    .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
+                    .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), DESC);
     }
 
     private static class LikesForPlaybackMapper extends RxResultMapper<Urn> {
 
         @Override
         public Urn map(CursorReader reader) {
-            if (reader.getInt(TableColumns.SoundView._TYPE) == TableColumns.Sounds.TYPE_TRACK){
+            if (reader.getInt(TableColumns.SoundView._TYPE) == TableColumns.Sounds.TYPE_TRACK) {
                 return Urn.forTrack(reader.getLong(_ID));
             } else {
                 return Urn.forPlaylist(reader.getLong(_ID));
@@ -120,7 +122,7 @@ public class LikesStorage {
 
         @Override
         public PropertySet map(CursorReader reader) {
-            if (reader.getInt(TableColumns.SoundView._TYPE) == TableColumns.Sounds.TYPE_TRACK){
+            if (reader.getInt(TableColumns.SoundView._TYPE) == TableColumns.Sounds.TYPE_TRACK) {
                 return likedTrackMapper.map(reader);
             } else {
                 return playlistMapper.map(reader);
@@ -140,7 +142,9 @@ public class LikesStorage {
                     cursorReader.getString(TableColumns.SoundView.ARTWORK_URL)));
             propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
             propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
-            propertySet.put(PlaylistProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+            propertySet.put(PlaylistProperty.IS_PRIVATE,
+                            Sharing.PRIVATE.name()
+                                           .equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
             propertySet.put(PlayableProperty.IS_USER_LIKE, true);
             propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
             return propertySet;
@@ -148,7 +152,7 @@ public class LikesStorage {
 
         int readTrackCount(CursorReader cursorReader) {
             return Math.max(cursorReader.getInt(PlaylistMapper.LOCAL_TRACK_COUNT),
-                    cursorReader.getInt(TableColumns.SoundView.TRACK_COUNT));
+                            cursorReader.getInt(TableColumns.SoundView.TRACK_COUNT));
         }
     }
 
@@ -163,16 +167,21 @@ public class LikesStorage {
             propertySet.put(EntityProperty.IMAGE_URL_TEMPLATE, Optional.fromNullable(
                     cursorReader.getString(TableColumns.SoundView.ARTWORK_URL)));
             propertySet.put(TrackProperty.FULL_DURATION, cursorReader.getLong(TableColumns.SoundView.FULL_DURATION));
-            propertySet.put(TrackProperty.SNIPPET_DURATION, cursorReader.getLong(TableColumns.SoundView.SNIPPET_DURATION));
+            propertySet.put(TrackProperty.SNIPPET_DURATION,
+                            cursorReader.getLong(TableColumns.SoundView.SNIPPET_DURATION));
             propertySet.put(TrackProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
             propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
-            propertySet.put(TrackProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+            propertySet.put(TrackProperty.IS_PRIVATE,
+                            Sharing.PRIVATE.name()
+                                           .equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
             propertySet.put(PlayableProperty.IS_USER_LIKE, true);
             propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
             propertySet.put(TrackProperty.BLOCKED, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_BLOCKED));
             propertySet.put(TrackProperty.SNIPPED, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SNIPPED));
-            propertySet.put(TrackProperty.SUB_MID_TIER, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SUB_MID_TIER));
-            propertySet.put(TrackProperty.SUB_HIGH_TIER, cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER));
+            propertySet.put(TrackProperty.SUB_MID_TIER,
+                            cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SUB_MID_TIER));
+            propertySet.put(TrackProperty.SUB_HIGH_TIER,
+                            cursorReader.getBoolean(TableColumns.SoundView.POLICIES_SUB_HIGH_TIER));
             return propertySet;
         }
     }

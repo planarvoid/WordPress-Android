@@ -22,7 +22,7 @@ class SearchResult implements Iterable<PropertySet> {
     private final Optional<SearchResult> premiumContent;
 
     private SearchResult(List<PropertySet> items, Optional<Link> nextHref, Optional<Urn> queryUrn,
-                 Optional<SearchResult> premiumContent, int resultsCount) {
+                         Optional<SearchResult> premiumContent, int resultsCount) {
         this.items = items;
         this.resultsCount = resultsCount;
         this.nextHref = nextHref;
@@ -34,7 +34,9 @@ class SearchResult implements Iterable<PropertySet> {
         return new SearchResult(items, nextHref, Optional.of(queryUrn), Optional.<SearchResult>absent(), 0);
     }
 
-    static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn) {
+    static SearchResult fromPropertySetSource(List<? extends PropertySetSource> items,
+                                              Optional<Link> nextHref,
+                                              Optional<Urn> queryUrn) {
         return fromPropertySetSource(items, nextHref, queryUrn, 0);
     }
 

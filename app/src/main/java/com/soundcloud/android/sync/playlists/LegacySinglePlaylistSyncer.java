@@ -22,7 +22,7 @@ public class LegacySinglePlaylistSyncer implements SyncStrategy {
     @Override
     public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         return singlePlaylistSyncerFactory.create(playlistUrn).call()
-                ? LegacySyncResult.fromSuccessfulChange(uri)
-                : LegacySyncResult.fromSuccessWithoutChange(uri);
+               ? LegacySyncResult.fromSuccessfulChange(uri)
+               : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 }

@@ -19,8 +19,12 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
         assertCommonProperties(click);
         assertThat(click.getKind()).isEqualTo("click");
         assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getUrn().toString());
-        assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
-        assertThat(click.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getPromoterUrn()
+                                                                                                .get()
+                                                                                                .toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn()
+                                                                                            .get()
+                                                                                            .toString());
     }
 
     @Test
@@ -31,7 +35,9 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
         assertThat(click.getKind()).isEqualTo("click");
         assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN)).isEqualTo(promotedTrack.getUrn().toString());
         assertThat(click.get(PlayableTrackingKeys.KEY_CLICK_TARGET_URN)).isEqualTo(promotedTrack.getUrn().toString());
-        assertThat(click.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
+        assertThat(click.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn()
+                                                                                            .get()
+                                                                                            .toString());
     }
 
     @Test
@@ -40,7 +46,9 @@ public class PromotedTrackingEventTest extends AndroidUnitTest {
 
         assertCommonProperties(impression);
         assertThat(impression.getKind()).isEqualTo("impression");
-        assertThat(impression.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn().get().toString());
+        assertThat(impression.get(PlayableTrackingKeys.KEY_PROMOTER_URN)).isEqualTo(promotedTrack.getPromoterUrn()
+                                                                                                 .get()
+                                                                                                 .toString());
     }
 
     @Test

@@ -53,7 +53,11 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate(), eventBus);
+        adsOperations = new AdsOperations(storeTracksCommand,
+                                          playQueueManager,
+                                          apiClientRx,
+                                          Schedulers.immediate(),
+                                          eventBus);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
     }
@@ -80,7 +84,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void isCurrentItemAdShouldReturnTrueIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
+                                                          AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAd()).isTrue();
     }
@@ -108,10 +113,11 @@ public class AdsOperationsTest extends AndroidUnitTest {
         assertThat(adsOperations.isCurrentItemAd()).isFalse();
     }
 
-   @Test
+    @Test
     public void isNextItemAdShouldReturnTrueIfNextItemIsAudioAd() {
         when(playQueueManager.getNextPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
+                                                          AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isNextItemAd()).isTrue();
     }
@@ -142,7 +148,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void isCurrentItemAudioAdShouldReturnTrueIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
+                                                          AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAudioAd()).isTrue();
     }
@@ -174,7 +181,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void isCurrentItemVideoAdShouldReturnFalseIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
+                                                          AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemVideoAd()).isFalse();
     }
@@ -190,7 +198,9 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void isCurrentItemLetterboxVideoAdShouldReturnTrueIfCurrentItemIsLetterbox() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L), AdFixtures.getApiVideoSource(600, 300))));
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L),
+                                                                                AdFixtures.getApiVideoSource(600,
+                                                                                                             300))));
 
         assertThat(adsOperations.isCurrentItemLetterboxVideoAd()).isTrue();
     }
@@ -198,11 +208,13 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void isCurrentItemLetterboxVideoAdShouldReturnTrueIfCurrentItemIsVertical() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L), AdFixtures.getApiVideoSource(300, 600))));
+                .thenReturn(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L),
+                                                                                AdFixtures.getApiVideoSource(300,
+                                                                                                             600))));
 
         assertThat(adsOperations.isCurrentItemLetterboxVideoAd()).isFalse();
     }
-    
+
     @Test
     public void applyAdMergesInterstitialWhenNoAudioAdIsAvailable() throws Exception {
         final ApiAdsForTrack adsWithOnlyInterstitial = AdFixtures.interstitialAdsForTrack();
@@ -224,8 +236,13 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void applyAdInsertsAudioAdWhenOnlyAudioAdIsAvailable() throws Exception {
         ApiAdsForTrack adsWithOnlyAudioAd = AdFixtures.audioAdsForTrack();
-        final LeaveBehindAd expectedLeavebehding = LeaveBehindAd.create(adsWithOnlyAudioAd.audioAd().get().getLeaveBehind(),
-                adsWithOnlyAudioAd.audioAd().get().getApiTrack().getUrn());
+        final LeaveBehindAd expectedLeavebehding = LeaveBehindAd.create(adsWithOnlyAudioAd.audioAd()
+                                                                                          .get()
+                                                                                          .getLeaveBehind(),
+                                                                        adsWithOnlyAudioAd.audioAd()
+                                                                                          .get()
+                                                                                          .getApiTrack()
+                                                                                          .getUrn());
 
         adsOperations.applyAdToUpcomingTrack(adsWithOnlyAudioAd);
 
@@ -261,7 +278,10 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void insertAudioAdShouldInsertAudioAdAndLeaveBehind() throws Exception {
         final ApiAdsForTrack noInterstitial = AdFixtures.audioAdsForTrack();
-        final LeaveBehindAd expectedLeaveBehind = AdFixtures.getLeaveBehindAd(noInterstitial.audioAd().get().getApiTrack().getUrn()) ;
+        final LeaveBehindAd expectedLeaveBehind = AdFixtures.getLeaveBehindAd(noInterstitial.audioAd()
+                                                                                            .get()
+                                                                                            .getApiTrack()
+                                                                                            .getUrn());
 
         adsOperations.applyAdToUpcomingTrack(noInterstitial);
 
@@ -281,7 +301,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void replaceVideoAdReplacesVideoAdWithAudioAdIfAllAdsAvailable() {
         final ApiAdsForTrack allAds = AdFixtures.fullAdsForTrack();
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))) ;
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
 
         adsOperations.replaceUpcomingVideoAd(allAds, videoItem);
 
@@ -303,7 +323,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void replaceVideoAdReplacesVideoAdWithInterstitialIfNoAudioAdAvailable() {
         final ApiAdsForTrack interstitialAdForTrack = AdFixtures.interstitialAdsForTrack();
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))) ;
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
 
         adsOperations.replaceUpcomingVideoAd(interstitialAdForTrack, videoItem);
 
@@ -312,7 +332,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         final List actualItems = listArgumentCaptor.getValue();
         final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(trackQueueItem)
-                .withAdData(InterstitialAd.create(interstitialAdForTrack.interstitialAd().get(), trackQueueItem.getUrn()))
+                .withAdData(InterstitialAd.create(interstitialAdForTrack.interstitialAd().get(),
+                                                  trackQueueItem.getUrn()))
                 .build();
 
         assertPlayQueueItemsEqual(actualItems, Arrays.asList(interstitialItem));
@@ -321,7 +342,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void replaceVideoAdReplacesVideoAdWithNothingIfNoOtherAdTypesExist() {
         final ApiAdsForTrack emptyAds = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L))) ;
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
 
         adsOperations.replaceUpcomingVideoAd(emptyAds, videoItem);
         verify(playQueueManager).removeUpcomingItem(videoItem, true);
@@ -337,7 +358,9 @@ public class AdsOperationsTest extends AndroidUnitTest {
         final ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
         verify(playQueueManager).replace(same(trackQueueItem), listCaptor.capture());
         final List value = listCaptor.getValue();
-        assertPlayQueueItemsEqual(value, Arrays.asList(new VideoQueueItem(VideoAd.create(videoAd, TRACK_URN)), TestPlayQueueItem.createTrack(TRACK_URN)));
+        assertPlayQueueItemsEqual(value,
+                                  Arrays.asList(new VideoQueueItem(VideoAd.create(videoAd, TRACK_URN)),
+                                                TestPlayQueueItem.createTrack(TRACK_URN)));
     }
 
     private void verifyAudioAdInserted(ApiAdsForTrack adsForTrack, Optional<LeaveBehindAd> leaveBehindAdOptional) {
@@ -351,8 +374,9 @@ public class AdsOperationsTest extends AndroidUnitTest {
                 .build();
 
         TrackQueueItem.Builder builder = new TrackQueueItem.Builder(trackQueueItem);
-        if (adsForTrack.audioAd().get().getLeaveBehind() != null){
-            builder = builder.withAdData(LeaveBehindAd.create(adsForTrack.audioAd().get().getLeaveBehind(), audioAdTrackUrn));
+        if (adsForTrack.audioAd().get().getLeaveBehind() != null) {
+            builder = builder.withAdData(LeaveBehindAd.create(adsForTrack.audioAd().get().getLeaveBehind(),
+                                                              audioAdTrackUrn));
         }
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, builder.build()));
     }
@@ -361,13 +385,15 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
         final VideoAd videoAd = VideoAd.create(apiVideoAd, TRACK_URN);
         final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(videoAd);
-        assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(videoItem, TestPlayQueueItem.createTrack(TRACK_URN)));
+        assertPlayQueueItemsEqual(listArgumentCaptor.getValue(),
+                                  Arrays.asList(videoItem, TestPlayQueueItem.createTrack(TRACK_URN)));
     }
 
     private void verifyInterstitialInserted(ApiInterstitial apiInterstitial) {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
         final InterstitialAd interstitialAd = InterstitialAd.create(apiInterstitial, TRACK_URN);
-        final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(trackQueueItem).withAdData(interstitialAd).build();
+        final TrackQueueItem interstitialItem = new TrackQueueItem.Builder(trackQueueItem).withAdData(interstitialAd)
+                                                                                          .build();
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(interstitialItem));
     }
 }

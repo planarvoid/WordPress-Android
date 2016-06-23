@@ -156,7 +156,8 @@ public class Token implements Serializable {
                 '}';
     }
 
-    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @Override
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean equals(Object o) {
         if (this == o) {
             return true;

@@ -158,7 +158,10 @@ class StreamPlayer implements PlayerListener {
             case VIDEO_AD:
                 return lastItemPlayed;
             default:
-                return AudioPlaybackItem.create(lastItemPlayed.getUrn(), currentProgress, lastItemPlayed.getDuration(), lastItemPlayed.getPlaybackType());
+                return AudioPlaybackItem.create(lastItemPlayed.getUrn(),
+                                                currentProgress,
+                                                lastItemPlayed.getDuration(),
+                                                lastItemPlayed.getPlaybackType());
         }
     }
 
@@ -209,7 +212,7 @@ class StreamPlayer implements PlayerListener {
     @NonNull
     private PlaybackErrorEvent getOfflinePlayUnavailableErrorEvent() {
         return new PlaybackErrorEvent(PlaybackErrorEvent.CATEGORY_OFFLINE_PLAY_UNAVAILABLE, PlaybackProtocol.HLS,
-                    Strings.EMPTY, ConnectionType.UNKNOWN);
+                                      Strings.EMPTY, ConnectionType.UNKNOWN);
     }
 
     private static class OfflinePlayUnavailableException extends Exception {

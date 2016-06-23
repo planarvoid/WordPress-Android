@@ -36,7 +36,7 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
         // TODO: fix selector here.
         // It currently fails to select the overflow menu even though it's there
         screen.clickFirstTrackOverflowButton()
-                .clickAddToPlaylist();
+              .clickAddToPlaylist();
 
         final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         assertThat(addToPlaylistScreen, is(visible()));

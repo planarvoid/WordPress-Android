@@ -84,11 +84,12 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
         Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         final PlaybackProgress lastProgressForTrack = currentPlayQueueItem.isEmpty() ? PlaybackProgress.empty() :
-                playSessionStateProvider.getLastProgressForItem(currentPlayQueueItem.getUrn());
+                                                      playSessionStateProvider.getLastProgressForItem(
+                                                              currentPlayQueueItem.getUrn());
 
         castPlayer.reloadCurrentQueue()
-                .doOnNext(playCurrent(lastProgressForTrack))
-                .subscribe(expandPlayerSubscriber.get());
+                  .doOnNext(playCurrent(lastProgressForTrack))
+                  .subscribe(expandPlayerSubscriber.get());
     }
 
     @NonNull
@@ -103,7 +104,10 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     @Override
     public void onRemoteMediaPlayerStatusUpdated() {
-        Log.d(CastOperations.TAG, "On Status updated, status: " + videoCastManager.getRemoteMediaPlayer().getMediaStatus().getPlayerState());
+        Log.d(CastOperations.TAG,
+              "On Status updated, status: " + videoCastManager.getRemoteMediaPlayer()
+                                                              .getMediaStatus()
+                                                              .getPlayerState());
         super.onRemoteMediaPlayerStatusUpdated();
     }
 
@@ -122,8 +126,8 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
         final int remotePosition = remotePlayQueue.getCurrentPosition();
 
         Log.d(CastOperations.TAG, String.format(Locale.US,
-                "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
-                remoteCurrentUrn, remoteTrackList.size()));
+                                                "Loading Remote Queue, CurrentUrn: %s, RemoteTrackListSize: %d",
+                                                remoteCurrentUrn, remoteTrackList.size()));
         if (playQueueManager.hasSameTrackList(remoteTrackList)) {
             Log.d(CastOperations.TAG, "Has the same tracklist, setting remotePosition");
             playQueueManager.setPosition(remotePosition, true);
@@ -133,7 +137,9 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
         } else {
             Log.d(CastOperations.TAG, "Does not have the same tracklist, updating locally");
             List<Urn> trackUrns = remoteTrackList.isEmpty() ? singletonList(remoteCurrentUrn) : remoteTrackList;
-            final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, PlaySessionSource.EMPTY, Collections.<Urn, Boolean>emptyMap());
+            final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns,
+                                                                   PlaySessionSource.EMPTY,
+                                                                   Collections.<Urn, Boolean>emptyMap());
             playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.EMPTY, remotePosition);
             castPlayer.playCurrent();
         }

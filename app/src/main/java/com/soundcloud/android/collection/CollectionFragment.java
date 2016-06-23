@@ -16,7 +16,8 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class CollectionFragment extends LightCycleSupportFragment<CollectionFragment> implements RefreshableScreen, ScrollContent {
+public class CollectionFragment extends LightCycleSupportFragment<CollectionFragment>
+        implements RefreshableScreen, ScrollContent {
 
     @Inject @LightCycle BaseCollectionPresenter presenter;
 
@@ -26,7 +27,9 @@ public class CollectionFragment extends LightCycleSupportFragment<CollectionFrag
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 

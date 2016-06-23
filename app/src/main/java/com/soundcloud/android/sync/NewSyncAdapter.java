@@ -24,7 +24,9 @@ public class NewSyncAdapter extends AbstractThreadedSyncAdapter {
     private BackgroundSyncResultReceiverFactory receiverFactory;
 
     @Inject
-    public NewSyncAdapter(Context context, BackgroundSyncerFactory backgroundSyncerFactory,BackgroundSyncResultReceiverFactory receiverFactory) {
+    public NewSyncAdapter(Context context,
+                          BackgroundSyncerFactory backgroundSyncerFactory,
+                          BackgroundSyncResultReceiverFactory receiverFactory) {
         super(context, false);
         this.backgroundSyncerFactory = backgroundSyncerFactory;
         this.receiverFactory = receiverFactory;
@@ -34,14 +36,19 @@ public class NewSyncAdapter extends AbstractThreadedSyncAdapter {
      * Called by the framework to indicate a sync request.
      */
     @Override
-    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+    public void onPerformSync(Account account,
+                              Bundle extras,
+                              String authority,
+                              ContentProviderClient provider,
+                              SyncResult syncResult) {
 
         final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         // delegate to the ApiSyncService, use a looper + ResultReceiver to wait for the result
         Looper.prepare();
         looper = Looper.myLooper();
 
-        final BackgroundSyncResultReceiver resultReceiver = receiverFactory.create(new SyncCleanupRunnable(looper), syncResult);
+        final BackgroundSyncResultReceiver resultReceiver = receiverFactory.create(new SyncCleanupRunnable(looper),
+                                                                                   syncResult);
         final BackgroundSyncer backgroundSyncer = backgroundSyncerFactory.create(getContext(), resultReceiver);
 
         switch (backgroundSyncer.sync(manual)) {

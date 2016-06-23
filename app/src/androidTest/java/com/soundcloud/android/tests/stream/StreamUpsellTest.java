@@ -46,8 +46,8 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         assertThat(streamScreen
-                .scrollToUpsell()
-                .clickUpgrade(), is(visible()));
+                           .scrollToUpsell()
+                           .clickUpgrade(), is(visible()));
 
         finishEventTracking(STREAM_UPSELL_TRACKING_TEST);
     }

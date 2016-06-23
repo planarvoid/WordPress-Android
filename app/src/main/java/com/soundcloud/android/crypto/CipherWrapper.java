@@ -56,7 +56,7 @@ public class CipherWrapper {
     public void init(String cipherAlgorithm, int cipherMode, DeviceSecret secret, String keyAlgorithm)
             throws EncryptionException {
         init(cipherAlgorithm, cipherMode, new IvParameterSpec(secret.getInitVector()),
-                new SecretKeySpec(secret.getKey(), 0, secret.getKey().length, keyAlgorithm));
+             new SecretKeySpec(secret.getKey(), 0, secret.getKey().length, keyAlgorithm));
     }
 
     public void init(String cipherAlgorithm, int cipherMode, IvParameterSpec ivParam, SecretKey key)

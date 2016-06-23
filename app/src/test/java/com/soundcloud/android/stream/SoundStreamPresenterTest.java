@@ -175,7 +175,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
         final Observable<List<PropertySet>> streamTracks = Observable.just(
                 Arrays.asList(playlistItem.getUrn().toPropertySet(),
-                        Urn.forTrack(634L).toPropertySet()));
+                              Urn.forTrack(634L).toPropertySet()));
 
         when(adapter.getItem(0)).thenReturn(playlistItem);
         when(streamOperations.urnsForPlayback()).thenReturn(streamTracks);
@@ -202,7 +202,9 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(playingTrack),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adapter).updateNowPlaying(playingTrack);
     }
@@ -214,7 +216,9 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(playingTrack),
+                                                                Urn.NOT_SET,
+                                                                0));
 
         verify(adapter).updateNowPlaying(playingTrack);
     }

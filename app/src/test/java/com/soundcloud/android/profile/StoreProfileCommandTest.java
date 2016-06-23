@@ -26,7 +26,9 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
         final StoreTracksCommand storeTracksCommand = new StoreTracksCommand(propeller());
         final StorePlaylistsCommand storePlaylistsCommand = new StorePlaylistsCommand(propeller());
         final StoreUsersCommand storeUsersCommand = new StoreUsersCommand(propeller());
-        final WriteMixedRecordsCommand writeMixedRecordsCommand = new WriteMixedRecordsCommand(storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+        final WriteMixedRecordsCommand writeMixedRecordsCommand = new WriteMixedRecordsCommand(storeTracksCommand,
+                                                                                               storePlaylistsCommand,
+                                                                                               storeUsersCommand);
 
         storeProfileCommand = new StoreProfileCommand(writeMixedRecordsCommand);
     }
@@ -43,7 +45,8 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreTheTracksFromTheUsersSpotlight() {
         final ApiPlayableSource spotlightTrack = ModelFixtures.apiTrackHolder();
-        final ModelCollection<ApiPlayableSource> spotlight = new ModelCollection<>(Collections.singletonList(spotlightTrack));
+        final ModelCollection<ApiPlayableSource> spotlight = new ModelCollection<>(Collections.singletonList(
+                spotlightTrack));
         final ApiUserProfile profile = new UserProfileRecordFixtures.Builder().spotlight(spotlight).build();
 
         storeProfileCommand.call(profile);
@@ -54,12 +57,14 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreThePlaylistsFromTheUsersSpotlight() {
         final ApiPlayableSource spotlightPlaylist = ModelFixtures.apiPlaylistHolder();
-        final ModelCollection<ApiPlayableSource> spotlight = new ModelCollection<>(Collections.singletonList(spotlightPlaylist));
+        final ModelCollection<ApiPlayableSource> spotlight = new ModelCollection<>(Collections.singletonList(
+                spotlightPlaylist));
         final ApiUserProfile profile = new UserProfileRecordFixtures.Builder().spotlight(spotlight).build();
 
         storeProfileCommand.call(profile);
 
-        databaseAssertions().assertPlaylistInserted(((PlaylistRecord) spotlightPlaylist.getEntityHolder().get()).getUrn());
+        databaseAssertions().assertPlaylistInserted(((PlaylistRecord) spotlightPlaylist.getEntityHolder()
+                                                                                       .get()).getUrn());
     }
 
     @Test
@@ -109,7 +114,8 @@ public class StoreProfileCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldStoreThePlaylistsFromTheUsersReposts() {
         final ApiPlayableSource playlistRepost = ModelFixtures.apiPlaylistHolder();
-        final ModelCollection<ApiPlayableSource> reposts = new ModelCollection<>(Collections.singletonList(playlistRepost));
+        final ModelCollection<ApiPlayableSource> reposts = new ModelCollection<>(Collections.singletonList(
+                playlistRepost));
         final ApiUserProfile profile = new UserProfileRecordFixtures.Builder().reposts(reposts).build();
 
         storeProfileCommand.call(profile);

@@ -30,7 +30,12 @@ class UserSoundsItemClickListener {
         this.mixedItemClickListener = mixedItemClickListener;
     }
 
-    public void onItemClick(Observable<List<PropertySet>> playables, View view, int position, UserSoundsItem item, Urn userUrn, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public void onItemClick(Observable<List<PropertySet>> playables,
+                            View view,
+                            int position,
+                            UserSoundsItem item,
+                            Urn userUrn,
+                            SearchQuerySourceInfo searchQuerySourceInfo) {
         final int itemType = item.getItemType();
 
         switch (itemType) {
@@ -41,7 +46,11 @@ class UserSoundsItemClickListener {
                 this.mixedItemClickListener.onPostClick(playables, view, position, userSoundsItemToPlayableItem(item));
                 break;
             case UserSoundsItem.TYPE_TRACK:
-                this.mixedItemClickListener.onProfilePostClick(playables, view, position, userSoundsItemToPlayableItem(item), userUrn);
+                this.mixedItemClickListener.onProfilePostClick(playables,
+                                                               view,
+                                                               position,
+                                                               userSoundsItemToPlayableItem(item),
+                                                               userUrn);
                 break;
             case UserSoundsItem.TYPE_HEADER:
             case UserSoundsItem.TYPE_DIVIDER:
@@ -68,7 +77,10 @@ class UserSoundsItemClickListener {
                 navigator.openProfileLikes(view.getContext(), userUrn, Screen.USER_LIKES, searchQuerySourceInfo);
                 break;
             case UserSoundsTypes.PLAYLISTS:
-                navigator.openProfilePlaylists(view.getContext(), userUrn, Screen.USER_PLAYLISTS, searchQuerySourceInfo);
+                navigator.openProfilePlaylists(view.getContext(),
+                                               userUrn,
+                                               Screen.USER_PLAYLISTS,
+                                               searchQuerySourceInfo);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown collection type : " + collectionType);
@@ -86,7 +98,8 @@ class UserSoundsItemClickListener {
         }
 
         public UserSoundsItemClickListener create(SearchQuerySourceInfo searchQuerySourceInfo) {
-            final MixedItemClickListener clickListener = this.mixedItemClickListenerFactory.create(Screen.USER_MAIN, searchQuerySourceInfo);
+            final MixedItemClickListener clickListener = this.mixedItemClickListenerFactory.create(Screen.USER_MAIN,
+                                                                                                   searchQuerySourceInfo);
             return new UserSoundsItemClickListener(navigator, clickListener);
         }
     }

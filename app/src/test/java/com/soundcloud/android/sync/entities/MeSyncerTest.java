@@ -70,7 +70,8 @@ public class MeSyncerTest extends AndroidUnitTest {
 
         meSyncer.syncContent(null, null);
 
-        assertThat(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED)).isEqualTo(EntityStateChangedEvent.forUpdate(me.getUser().toPropertySet()));
+        assertThat(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED)).isEqualTo(EntityStateChangedEvent.forUpdate(me.getUser()
+                                                                                                                        .toPropertySet()));
     }
 
     private void setupSuccessfulFetch() throws ApiRequestException, IOException, ApiMapperException {

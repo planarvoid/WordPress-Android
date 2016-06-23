@@ -36,9 +36,13 @@ public class PlayerArtworkLoaderTest extends AndroidUnitTest {
         final Bitmap cachedBitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565);
         when(imageOperations.getCachedListItemBitmap(resources(), imageResource)).thenReturn(cachedBitmap);
 
-        playerArtworkLoader.loadArtwork(imageResource, wrappedImageView, imageOverlayView, true, viewVisibilityProvider);
+        playerArtworkLoader.loadArtwork(imageResource,
+                                        wrappedImageView,
+                                        imageOverlayView,
+                                        true,
+                                        viewVisibilityProvider);
 
         verify(imageOperations).displayInPlayer(imageResource, ApiImageSize.getFullImageSize(resources()),
-                wrappedImageView, cachedBitmap, true);
+                                                wrappedImageView, cachedBitmap, true);
     }
 }

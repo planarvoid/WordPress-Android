@@ -36,11 +36,11 @@ public class PlaylistWithTracks implements ImageResource {
         this.tracks = tracks;
     }
 
-    public PlaylistItem getPlaylistItem(){
+    public PlaylistItem getPlaylistItem() {
         return PlaylistItem.from(sourceSet);
     }
 
-    public boolean isLocalPlaylist(){
+    public boolean isLocalPlaylist() {
         return sourceSet.contains(PlaylistProperty.URN) && sourceSet.get(PlaylistProperty.URN).getNumericId() < 0;
     }
 
@@ -109,7 +109,9 @@ public class PlaylistWithTracks implements ImageResource {
     }
 
     public String getDuration() {
-        final long duration = tracks.isEmpty() ? sourceSet.get(PlaylistProperty.PLAYLIST_DURATION) : getCombinedTrackDurations();
+        final long duration = tracks.isEmpty() ?
+                              sourceSet.get(PlaylistProperty.PLAYLIST_DURATION) :
+                              getCombinedTrackDurations();
         return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
     }
 
@@ -119,7 +121,7 @@ public class PlaylistWithTracks implements ImageResource {
 
     private long getCombinedTrackDurations() {
         long duration = 0;
-        for (TrackItem track : tracks){
+        for (TrackItem track : tracks) {
             duration += track.getDuration();
         }
         return duration;
@@ -127,8 +129,8 @@ public class PlaylistWithTracks implements ImageResource {
 
     public int getTrackCount() {
         return tracks.isEmpty()
-                ? sourceSet.get(PlaylistProperty.TRACK_COUNT)
-                : tracks.size();
+               ? sourceSet.get(PlaylistProperty.TRACK_COUNT)
+               : tracks.size();
     }
 
     public boolean isPrivate() {

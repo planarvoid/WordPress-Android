@@ -90,5 +90,6 @@ public final class SignupLog {
         return null;
     }
 
-    private SignupLog() {}
+    private SignupLog() {
+    }
 }

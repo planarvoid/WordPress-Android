@@ -55,11 +55,11 @@ public class CastOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         castOperations = new CastOperations(videoCastManager,
-                trackRepository,
-                policyOperations,
-                imageOperations,
-                resources,
-                Schedulers.immediate());
+                                            trackRepository,
+                                            policyOperations,
+                                            imageOperations,
+                                            resources,
+                                            Schedulers.immediate());
         observer = new TestObserver<>();
         when(imageOperations.getUrlForLargestImage(resources, TRACK1)).thenReturn(IMAGE_URL);
     }
@@ -81,9 +81,11 @@ public class CastOperationsTest extends AndroidUnitTest {
         PropertySet currentTrack = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
         List<Urn> filteredPlayQueueTracks = Arrays.asList(TRACK1);
-        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(filteredPlayQueueTracks));
+        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
+                filteredPlayQueueTracks));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks)
+                      .subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrack, filteredPlayQueueTracks);
@@ -94,9 +96,11 @@ public class CastOperationsTest extends AndroidUnitTest {
         createAndSetupPrivateTrack(TRACK2);
         PropertySet currentTrack = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
-        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(unfilteredPlayQueueTracks));
+        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
+                unfilteredPlayQueueTracks));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks)
+                      .subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         List<Urn> expectedFilteredPlayQueueTracks = Arrays.asList(TRACK1);
@@ -110,9 +114,11 @@ public class CastOperationsTest extends AndroidUnitTest {
         PropertySet currentTrackAfterFiltering = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2, TRACK3);
         List<Urn> filteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
-        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(filteredPlayQueueTracks));
+        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
+                filteredPlayQueueTracks));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.get(TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.get(
+                TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrackAfterFiltering, filteredPlayQueueTracks);
@@ -124,22 +130,28 @@ public class CastOperationsTest extends AndroidUnitTest {
         createAndSetupPublicTrack(TRACK2);
         PropertySet currentTrackAfterFiltering = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2, TRACK3);
-        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(unfilteredPlayQueueTracks));
+        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
+                unfilteredPlayQueueTracks));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.get(TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.get(
+                TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         List<Urn> expectedFilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
-        expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrackAfterFiltering, expectedFilteredPlayQueueTracks);
+        expectLocalPlayQueue(observer.getOnNextEvents().get(0),
+                             currentTrackAfterFiltering,
+                             expectedFilteredPlayQueueTracks);
     }
 
     @Test
     public void loadFilteredLocalPlayQueueEmitsEmptyLocalQueueWhenAllTracksAreFilteredOut() {
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1);
         List<Urn> filteredPlayQueueTracks = Collections.emptyList();
-        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(filteredPlayQueueTracks));
+        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(
+                filteredPlayQueueTracks));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks)
+                      .subscribe(observer);
 
         assertThat(observer.getOnNextEvents()).hasSize(1);
         assertThat(observer.getOnNextEvents().get(0).isEmpty()).isTrue();
@@ -147,7 +159,9 @@ public class CastOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadRemotePlayQueueReturnsEmptyQueueOnNetworkError() throws TransientNetworkDisconnectionException, NoConnectionException {
-        Mockito.doThrow(new TransientNetworkDisconnectionException()).when(videoCastManager).getRemoteMediaInformation();
+        Mockito.doThrow(new TransientNetworkDisconnectionException())
+               .when(videoCastManager)
+               .getRemoteMediaInformation();
 
         RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
 

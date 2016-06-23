@@ -19,8 +19,8 @@ import android.view.View;
 import java.util.concurrent.TimeUnit;
 
 public class VisualPlayerElement extends Element {
-    private static final int MILISECONDS_UNTIL_AUDIO_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
-    private static final int MILISECONDS_UNTIL_VIDEO_AD_DONE =  (int) TimeUnit.SECONDS.toMillis(70L); // 67 secs + 3 buffering
+    private static final int MILISECONDS_UNTIL_AUDIO_AD_DONE = (int) TimeUnit.SECONDS.toMillis(33L); // 30 secs + 3 buffering
+    private static final int MILISECONDS_UNTIL_VIDEO_AD_DONE = (int) TimeUnit.SECONDS.toMillis(70L); // 67 secs + 3 buffering
 
 
     private final With footerPlayerPredicate = With.id(R.id.footer_controls);
@@ -46,7 +46,8 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isPreviousButtonClickable() {
-        return testDriver.isElementDisplayed(With.id(R.id.player_previous)) && previousButton().isOnScreen() && previousButton().isEnabled();
+        return testDriver.isElementDisplayed(With.id(R.id.player_previous)) && previousButton().isOnScreen() && previousButton()
+                .isEnabled();
     }
 
     public boolean isLeaveBehindVisible() {
@@ -179,7 +180,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isExpanded() {
-        return  getPlayerHeight() - getFullScreenHeight() == 0;
+        return getPlayerHeight() - getFullScreenHeight() == 0;
     }
 
     public boolean isCollapsed() {
@@ -428,7 +429,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public boolean isCenteredAd() {
-       return centeredAdArtwork().isOnScreen();
+        return centeredAdArtwork().isOnScreen();
     }
 
     public String error() {
@@ -448,7 +449,7 @@ public class VisualPlayerElement extends Element {
     }
 
     public void clickCenteredAdArtwork() {
-       centeredAdArtwork().click();
+        centeredAdArtwork().click();
     }
 
     public boolean isFullbleedAd() {

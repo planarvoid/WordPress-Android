@@ -21,7 +21,7 @@ public class ActivitiesSyncer extends TimelineSyncer<ApiActivityItem> {
                             ReplaceActivitiesCommand replaceItemsCommand,
                             @Named(ACTIVITIES_SYNC_STORAGE) TimelineSyncStorage timelineSyncStorage) {
         super(ApiEndpoints.ACTIVITIES, Content.ME_ACTIVITIES.uri, apiClient, storeItemsCommand, replaceItemsCommand,
-                timelineSyncStorage, new TypeToken<ModelCollection<ApiActivityItem>>() {
+              timelineSyncStorage, new TypeToken<ModelCollection<ApiActivityItem>>() {
                 });
     }
 }

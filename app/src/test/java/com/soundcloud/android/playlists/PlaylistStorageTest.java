@@ -67,7 +67,8 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistTrackPendingAddition(playlistWithAddition, 0, new Date());
         testFixtures().insertPlaylistTrackPendingRemoval(playlistWithRemoval, 1, new Date());
 
-        assertThat(storage.getPlaylistsDueForSync()).contains(playlistWithAddition.getUrn(), playlistWithRemoval.getUrn());
+        assertThat(storage.getPlaylistsDueForSync()).contains(playlistWithAddition.getUrn(),
+                                                              playlistWithRemoval.getUrn());
     }
 
     @Test
@@ -129,26 +130,26 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
         assertThat(playlist.slice(
-                        EntityProperty.URN,
-                        PlayableProperty.TITLE,
-                        PlaylistProperty.PLAYLIST_DURATION,
-                        PlayableProperty.CREATOR_NAME,
-                        PlayableProperty.CREATOR_URN,
-                        PlayableProperty.LIKES_COUNT,
-                        PlayableProperty.REPOSTS_COUNT,
-                        PlayableProperty.PERMALINK_URL,
-                        EntityProperty.IMAGE_URL_TEMPLATE,
-                        PlayableProperty.CREATED_AT,
-                        PlayableProperty.IS_PRIVATE,
-                        PlayableProperty.IS_USER_LIKE,
-                        PlayableProperty.IS_USER_REPOST,
-                        PlaylistProperty.IS_POSTED,
-                        OfflineProperty.IS_MARKED_FOR_OFFLINE,
-                        PlaylistProperty.TRACK_COUNT,
-                        PlaylistProperty.IS_ALBUM,
-                        PlaylistProperty.SET_TYPE,
-                        PlaylistProperty.RELEASE_DATE
-                )
+                EntityProperty.URN,
+                PlayableProperty.TITLE,
+                PlaylistProperty.PLAYLIST_DURATION,
+                PlayableProperty.CREATOR_NAME,
+                PlayableProperty.CREATOR_URN,
+                PlayableProperty.LIKES_COUNT,
+                PlayableProperty.REPOSTS_COUNT,
+                PlayableProperty.PERMALINK_URL,
+                EntityProperty.IMAGE_URL_TEMPLATE,
+                PlayableProperty.CREATED_AT,
+                PlayableProperty.IS_PRIVATE,
+                PlayableProperty.IS_USER_LIKE,
+                PlayableProperty.IS_USER_REPOST,
+                PlaylistProperty.IS_POSTED,
+                OfflineProperty.IS_MARKED_FOR_OFFLINE,
+                PlaylistProperty.TRACK_COUNT,
+                PlaylistProperty.IS_ALBUM,
+                PlaylistProperty.SET_TYPE,
+                PlaylistProperty.RELEASE_DATE
+                   )
         ).isEqualTo(
                 TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, true, false)
         );
@@ -193,7 +194,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets
-                .fromApiPlaylist(apiPlaylist, false,  false, true, false)
+                .fromApiPlaylist(apiPlaylist, false, false, true, false)
                 .put(OfflineProperty.OFFLINE_STATE, OfflineState.UNAVAILABLE);
 
         assertThat(playlist).isEqualTo(expected);

@@ -9,26 +9,26 @@ import java.util.EnumSet;
 
 enum NotificationPreferenceType {
     //-------------------[SETTING KEY]------[MOBILE KEY]-----------------[MAIL KEY]------------
-    MESSAGES(           "messages",         null,                       "messages_mail"),
-    GROUPS(             "groups",           null,                       "groups_mail"),
-    NEWSLETTERS(        "newsletters",      null,                       "newsletters_mail"),
-    COMMENTS(           "comments",         "comments_mobile",          "comments_mail"),
-    FOLLOWS(            "follows",          "follows_mobile",           "follows_mail"),
-    NEW_CONTENT(        "newContent",       "newContent_mobile",        "newContent_mail"),
-    LIKES(              "likes",            "likes_mobile",             "likes_mail"),
-    REPOSTS(            "reposts",          "reposts_mobile",           "reposts_mail"),
-    PRODUCT_UPDATES(    "productUpdates",   "productUpdates_mobile",    "productUpdates_mail"),
-    SURVEYS(            "surveys",          "surveys_mobile",           "surveys_mail"),
-    TIPS(               "tips",             "tips_mobile",              "tips_mail"),
-    RECOMMENDATIONS(    "recommendations",  "recommendations_mobile",   "recommendations_mail");
+    MESSAGES("messages", null, "messages_mail"),
+    GROUPS("groups", null, "groups_mail"),
+    NEWSLETTERS("newsletters", null, "newsletters_mail"),
+    COMMENTS("comments", "comments_mobile", "comments_mail"),
+    FOLLOWS("follows", "follows_mobile", "follows_mail"),
+    NEW_CONTENT("newContent", "newContent_mobile", "newContent_mail"),
+    LIKES("likes", "likes_mobile", "likes_mail"),
+    REPOSTS("reposts", "reposts_mobile", "reposts_mail"),
+    PRODUCT_UPDATES("productUpdates", "productUpdates_mobile", "productUpdates_mail"),
+    SURVEYS("surveys", "surveys_mobile", "surveys_mail"),
+    TIPS("tips", "tips_mobile", "tips_mail"),
+    RECOMMENDATIONS("recommendations", "recommendations_mobile", "recommendations_mail");
 
     private static EnumSet<NotificationPreferenceType> MOBILE_PREFERENCES =
             EnumSet.of(COMMENTS, FOLLOWS, NEW_CONTENT, LIKES, REPOSTS, PRODUCT_UPDATES, SURVEYS,
-                    TIPS, RECOMMENDATIONS);
+                       TIPS, RECOMMENDATIONS);
 
     private static EnumSet<NotificationPreferenceType> MAIL_PREFERENCES =
             EnumSet.of(MESSAGES, GROUPS, NEWSLETTERS, COMMENTS, FOLLOWS, NEW_CONTENT, LIKES,
-                    REPOSTS, PRODUCT_UPDATES, SURVEYS, TIPS, RECOMMENDATIONS);
+                       REPOSTS, PRODUCT_UPDATES, SURVEYS, TIPS, RECOMMENDATIONS);
 
     private static final Function<NotificationPreferenceType, String> TO_MOBILE_KEY = new Function<NotificationPreferenceType, String>() {
         public String apply(NotificationPreferenceType type) {

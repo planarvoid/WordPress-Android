@@ -24,7 +24,9 @@ class StationsApi {
     private final StationsRecoAlgorithmExperiment stationsExperiment;
 
     @Inject
-    public StationsApi(ApiClientRx apiClientRx, ApiClient apiClient, StationsRecoAlgorithmExperiment stationsExperiment) {
+    public StationsApi(ApiClientRx apiClientRx,
+                       ApiClient apiClient,
+                       StationsRecoAlgorithmExperiment stationsExperiment) {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
         this.stationsExperiment = stationsExperiment;

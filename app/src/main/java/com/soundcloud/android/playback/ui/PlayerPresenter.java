@@ -87,7 +87,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         public void call(CurrentPlayQueueItemEvent currentItemEvent) {
             final PlayerAdData adData = (PlayerAdData) adsOperations.getCurrentTrackAdData().get();
             if (adData.isSkippable()) {
-                unblockPagerSubscription = checkAdProgress.observeOn(AndroidSchedulers.mainThread()).subscribe(getRestoreQueueSubscriber());
+                unblockPagerSubscription = checkAdProgress.observeOn(AndroidSchedulers.mainThread())
+                                                          .subscribe(getRestoreQueueSubscriber());
             }
         }
     };
@@ -145,7 +146,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(IS_PAST_UNSKIPPABLE_TIME);
     }
 
-    private void setPositionToDisplayedTrack(){
+    private void setPositionToDisplayedTrack() {
         playSessionController.setCurrentPlayQueueItem(getDisplayedItem());
     }
 
@@ -180,15 +181,15 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
         // setup player ad
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                .doOnNext(onTrackChanged)
-                .filter(isCurrentTrackAd)
-                .doOnNext(allowScrollAfterAdSkipTimeout)
-                .subscribe(new ShowAudioAdSubscriber()));
+                                 .doOnNext(onTrackChanged)
+                                 .filter(isCurrentTrackAd)
+                                 .doOnNext(allowScrollAfterAdSkipTimeout)
+                                 .subscribe(new ShowAudioAdSubscriber()));
 
         // set position from track change
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                .filter(notWaitingForScroll)
-                .subscribe(setPagerPositionFromPlayQueueManager));
+                                 .filter(notWaitingForScroll)
+                                 .subscribe(setPagerPositionFromPlayQueueManager));
     }
 
     private void setupScrollingSubscribers() {
@@ -196,12 +197,12 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
                 .getPageChangedObservable();
 
         subscription.add(pageChangedObservable
-                .subscribe(new SetQueueOnScrollSubscriber()));
+                                 .subscribe(new SetQueueOnScrollSubscriber()));
 
         subscription.add(pageChangedObservable
-                .doOnNext(updateAdapter)
-                .filter(isInForeground)
-                .subscribe(new ChangeTracksSubscriber()));
+                                 .doOnNext(updateAdapter)
+                                 .filter(isInForeground)
+                                 .subscribe(new ChangeTracksSubscriber()));
     }
 
     @Override
@@ -246,7 +247,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void showAd() {
-        if (isShowingCurrentAd() || !isResumed){
+        if (isShowingCurrentAd() || !isResumed) {
             setAdPlayQueue();
         } else {
             setPlayQueueAfterScroll = true;
@@ -293,7 +294,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final class SetQueueOnScrollSubscriber extends DefaultSubscriber<Integer> {
         @Override
         public void onNext(Integer ignored) {
-            if(setPlayQueueAfterScroll){
+            if (setPlayQueueAfterScroll) {
                 if (adsOperations.isCurrentItemAd()) {
                     setAdPlayQueue();
                 } else {
@@ -303,7 +304,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     }
 
-    private final class ChangeTracksSubscriber extends DefaultSubscriber<Integer>  {
+    private final class ChangeTracksSubscriber extends DefaultSubscriber<Integer> {
         @Override
         public void onNext(Integer ignored) {
             changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
@@ -311,7 +312,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     }
 
-    private final class ShowAudioAdSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent>  {
+    private final class ShowAudioAdSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
         @Override
         public void onNext(CurrentPlayQueueItemEvent ignored) {
             showAd();
@@ -319,7 +320,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private DefaultSubscriber<PlaybackProgressEvent> getRestoreQueueSubscriber() {
-        return new DefaultSubscriber<PlaybackProgressEvent>(){
+        return new DefaultSubscriber<PlaybackProgressEvent>() {
             @Override
             public void onNext(PlaybackProgressEvent ignored) {
                 setFullQueue();

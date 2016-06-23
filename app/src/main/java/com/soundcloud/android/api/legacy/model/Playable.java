@@ -30,7 +30,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Deprecated
-public abstract class Playable extends PublicApiResource implements PlayableHolder, RelatesToUser, Refreshable, Parcelable, PropertySetSource, ImageResource {
+public abstract class Playable extends PublicApiResource
+        implements PlayableHolder, RelatesToUser, Refreshable, Parcelable, PropertySetSource, ImageResource {
     public static final int DB_TYPE_TRACK = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
 
@@ -247,7 +248,8 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     @Override
     public PropertySet toPropertySet() {
         if (title == null) {
-            ErrorUtils.handleSilentException(new IllegalStateException("Attempting to create PropertySet with a null title; urn=" + getUrn()));
+            ErrorUtils.handleSilentException(new IllegalStateException(
+                    "Attempting to create PropertySet with a null title; urn=" + getUrn()));
         }
         return PropertySet.from(
                 // titles are sometimes null from public api (unfortunately) playlist endpoint.
@@ -262,7 +264,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
                 PlayableProperty.CREATED_AT.bind(created_at == null ? new Date() : created_at),
                 // we may have null usernames if it is my like/sound that hasn't been lazily updated
                 PlayableProperty.CREATOR_NAME.bind(user != null && user.getUsername() != null ? user.getUsername()
-                        : Strings.EMPTY),
+                                                                                              : Strings.EMPTY),
                 PlayableProperty.IMAGE_URL_TEMPLATE.bind(getImageUrlTemplate())
         );
     }

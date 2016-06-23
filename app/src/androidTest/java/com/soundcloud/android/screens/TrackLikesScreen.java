@@ -124,7 +124,7 @@ public class TrackLikesScreen extends Screen {
 
     public DownloadImageViewElement headerDownloadElement() {
         return new DownloadImageViewElement(testDriver,
-                header().findOnScreenElement(With.id(R.id.header_download_state)));
+                                            header().findOnScreenElement(With.id(R.id.header_download_state)));
     }
 
     public CollectionScreen goBack() {

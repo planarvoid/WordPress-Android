@@ -44,7 +44,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
             TrackProperty.FULL_DURATION.bind(456L)
     );
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
-    private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(track, AdFixtures.getThirdPartyAudioAd(trackUrn));
+    private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(track,
+                                                                                 AdFixtures.getThirdPartyAudioAd(
+                                                                                         trackUrn));
     private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);
     private VideoAdPlaybackItem videoPlaybackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(trackUrn), 0L);
 
@@ -404,7 +406,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, trackUrn));
+        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                           PlayStateReason.ERROR_FAILED,
+                                                                           trackUrn));
         verify(mediaPlayerAdapter).play(audioPlaybackItem);
     }
 
@@ -417,7 +421,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FORBIDDEN, trackUrn));
+        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                           PlayStateReason.ERROR_FORBIDDEN,
+                                                                           trackUrn));
         verify(mediaPlayerAdapter, never()).play(any(PlaybackItem.class));
     }
 
@@ -430,7 +436,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
-        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_NOT_FOUND, trackUrn));
+        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                           PlayStateReason.ERROR_NOT_FOUND,
+                                                                           trackUrn));
         verify(mediaPlayerAdapter, never()).play(any(PlaybackItem.class));
     }
 
@@ -440,7 +448,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
         startPlaybackOnSkippy();
         when(skippyAdapter.getProgress()).thenReturn(1L);
 
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_NOT_FOUND, Urn.forTrack(123L));
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                                    PlayStateReason.ERROR_NOT_FOUND,
+                                                                                    Urn.forTrack(123L));
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
         verify(playerListener).onPlaystateChanged(stateTransition);
     }
@@ -507,7 +517,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
 
         streamPlayerWrapper.play(audioAdPlaybackItem);
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
-        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, trackUrn));
+        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                           PlayStateReason.ERROR_FAILED,
+                                                                           trackUrn));
 
         verify(mediaPlayerAdapter).play(audioAdPlaybackItem);
     }
@@ -515,7 +527,9 @@ public class StreamPlayerTest extends AndroidUnitTest {
     private void fallBackToMediaPlayer() {
         startPlaybackOnSkippy();
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
-        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, trackUrn));
+        streamPlayerWrapper.onPlaystateChanged(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                           PlayStateReason.ERROR_FAILED,
+                                                                           trackUrn));
     }
 
     private void startPlaybackOnSkippy() {

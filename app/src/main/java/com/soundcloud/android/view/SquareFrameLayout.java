@@ -24,7 +24,7 @@ public class SquareFrameLayout extends FrameLayout {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SquareFrameLayout);
         dominantMeasurement = a.getInt(R.styleable.SquareFrameLayout_sfl_dominantMeasurement,
-                DEFAULT_DOMINANT_MEASUREMENT);
+                                       DEFAULT_DOMINANT_MEASUREMENT);
         a.recycle();
     }
 

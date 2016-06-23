@@ -96,7 +96,9 @@ public class CollectionOperations {
                 }
 
                 private Date getAssociationDate(PropertySet propertySet) {
-                    return propertySet.contains(LikeProperty.CREATED_AT) ? propertySet.get(LikeProperty.CREATED_AT) : propertySet.get(PostProperty.CREATED_AT);
+                    return propertySet.contains(LikeProperty.CREATED_AT) ?
+                           propertySet.get(LikeProperty.CREATED_AT) :
+                           propertySet.get(PostProperty.CREATED_AT);
                 }
             });
             return propertySets;
@@ -129,15 +131,24 @@ public class CollectionOperations {
 
     private static final Func3<List<PlaylistItem>, LikesItem, List<StationRecord>, MyCollection> TO_MY_COLLECTIONS = new Func3<List<PlaylistItem>, LikesItem, List<StationRecord>, MyCollection>() {
         @Override
-        public MyCollection call(List<PlaylistItem> playlistItems, LikesItem likes, List<StationRecord> recentStations) {
+        public MyCollection call(List<PlaylistItem> playlistItems,
+                                 LikesItem likes,
+                                 List<StationRecord> recentStations) {
             return MyCollection.forCollectionWithPlaylists(likes, playlistItems, recentStations, false);
         }
     };
 
     private static final Func4<List<PlaylistItem>, LikesItem, List<TrackItem>, List<RecentlyPlayedItem>, MyCollection> TO_MY_COLLECTIONS_FOR_PLAY_HISTORY = new Func4<List<PlaylistItem>, LikesItem, List<TrackItem>, List<RecentlyPlayedItem>, MyCollection>() {
         @Override
-        public MyCollection call(List<PlaylistItem> playlistItems, LikesItem likes, List<TrackItem> playHistoryTrackItems, List<RecentlyPlayedItem> recentlyPlayedItems) {
-            return MyCollection.forCollectionWithPlayHistory(likes, playlistItems, playHistoryTrackItems, recentlyPlayedItems, false);
+        public MyCollection call(List<PlaylistItem> playlistItems,
+                                 LikesItem likes,
+                                 List<TrackItem> playHistoryTrackItems,
+                                 List<RecentlyPlayedItem> recentlyPlayedItems) {
+            return MyCollection.forCollectionWithPlayHistory(likes,
+                                                             playlistItems,
+                                                             playHistoryTrackItems,
+                                                             recentlyPlayedItems,
+                                                             false);
         }
     };
 
@@ -158,9 +169,13 @@ public class CollectionOperations {
                         return Notification.createOnCompleted();
                     }
                     return Notification.createOnNext(MyCollection.forCollectionWithPlaylists(
-                            likes.isOnError() ? LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()) : likes.getValue(),
+                            likes.isOnError() ?
+                            LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()) :
+                            likes.getValue(),
                             playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue(),
-                            recentStations.isOnError() ? Collections.<StationRecord>emptyList() : recentStations.getValue(),
+                            recentStations.isOnError() ?
+                            Collections.<StationRecord>emptyList() :
+                            recentStations.getValue(),
                             likes.isOnError() || playlists.isOnError() || recentStations.isOnError()
                     ));
                 }
@@ -173,15 +188,23 @@ public class CollectionOperations {
                                                        Notification<LikesItem> likes,
                                                        Notification<List<TrackItem>> playHistoryTrackItems,
                                                        Notification<List<RecentlyPlayedItem>> recentlyPlayedItems) {
-                    if (playlists.isOnCompleted() && likes.isOnCompleted() && playHistoryTrackItems.isOnCompleted() && recentlyPlayedItems.isOnCompleted()) {
+                    if (playlists.isOnCompleted() && likes.isOnCompleted() && playHistoryTrackItems.isOnCompleted() && recentlyPlayedItems
+                            .isOnCompleted()) {
                         return Notification.createOnCompleted();
                     }
                     return Notification.createOnNext(MyCollection.forCollectionWithPlayHistory(
-                            likes.isOnError() ? LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()) : likes.getValue(),
+                            likes.isOnError() ?
+                            LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()) :
+                            likes.getValue(),
                             playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue(),
-                            playHistoryTrackItems.isOnError() ? Collections.<TrackItem>emptyList() : playHistoryTrackItems.getValue(),
-                            recentlyPlayedItems.isOnError() ? Collections.<RecentlyPlayedItem>emptyList() : recentlyPlayedItems.getValue(),
-                            likes.isOnError() || playlists.isOnError() || playHistoryTrackItems.isOnError() || recentlyPlayedItems.isOnError()
+                            playHistoryTrackItems.isOnError() ?
+                            Collections.<TrackItem>emptyList() :
+                            playHistoryTrackItems.getValue(),
+                            recentlyPlayedItems.isOnError() ?
+                            Collections.<RecentlyPlayedItem>emptyList() :
+                            recentlyPlayedItems.getValue(),
+                            likes.isOnError() || playlists.isOnError() || playHistoryTrackItems.isOnError() || recentlyPlayedItems
+                                    .isOnError()
                     ));
                 }
             };
@@ -304,8 +327,8 @@ public class CollectionOperations {
 
     private Observable<LikesItem> likesItem() {
         return Observable.zip(tracksLiked(),
-                likedTracksOfflineState(),
-                TO_LIKES_ITEM);
+                              likedTracksOfflineState(),
+                              TO_LIKES_ITEM);
     }
 
     private Observable<List<TrackItem>> playHistoryItems() {
@@ -337,8 +360,8 @@ public class CollectionOperations {
         return Observable.zip(
                 refreshAndLoadPlaylists(options),
                 Observable.zip(refreshLikesAndLoadPreviews(),
-                        likedTracksOfflineState(),
-                        TO_LIKES_ITEM),
+                               likedTracksOfflineState(),
+                               TO_LIKES_ITEM),
                 refreshRecentStationsAndLoad(),
                 TO_MY_COLLECTIONS
         );
@@ -348,8 +371,8 @@ public class CollectionOperations {
         return Observable.zip(
                 refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL),
                 Observable.zip(refreshLikesAndLoadPreviews(),
-                        likedTracksOfflineState(),
-                        TO_LIKES_ITEM),
+                               likedTracksOfflineState(),
+                               TO_LIKES_ITEM),
                 playHistoryItems(),
                 recentlyPlayed(RECENTLY_PLAYED_LIMIT),
                 TO_MY_COLLECTIONS_FOR_PLAY_HISTORY
@@ -387,7 +410,8 @@ public class CollectionOperations {
             public List<PropertySet> call(List<PropertySet> propertySets) {
                 if (offlineOnly) {
                     for (Iterator<PropertySet> iterator = propertySets.iterator(); iterator.hasNext(); ) {
-                        OfflineState offlineState = iterator.next().getOrElse(OfflineProperty.OFFLINE_STATE, NOT_OFFLINE);
+                        OfflineState offlineState = iterator.next()
+                                                            .getOrElse(OfflineProperty.OFFLINE_STATE, NOT_OFFLINE);
 
                         if (offlineState.equals(NOT_OFFLINE)) {
                             iterator.remove();
@@ -400,8 +424,10 @@ public class CollectionOperations {
     }
 
     private Observable<List<PropertySet>> unsortedPlaylists(PlaylistsOptions options) {
-        final Observable<List<PropertySet>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
-        final Observable<List<PropertySet>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE);
+        final Observable<List<PropertySet>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT,
+                                                                                                         Long.MAX_VALUE);
+        final Observable<List<PropertySet>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT,
+                                                                                                          Long.MAX_VALUE);
 
         if (options.showLikes() && !options.showPosts()) {
             return loadLikedPlaylists;

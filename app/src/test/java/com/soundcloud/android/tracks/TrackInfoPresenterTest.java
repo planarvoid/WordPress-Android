@@ -26,7 +26,7 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
 
     @Mock TrackInfoPresenter.CommentClickListener commentClickListener;
 
-    private final CondensedNumberFormatter numberFormatter =  CondensedNumberFormatter.create(Locale.US, resources());
+    private final CondensedNumberFormatter numberFormatter = CondensedNumberFormatter.create(Locale.US, resources());
 
     @Before
     public void setUp() throws Exception {
@@ -37,9 +37,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     @Test
     public void bindViewsShowsAllStatsWhenAllStatsAreGreaterZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(PlayableProperty.LIKES_COUNT, 10)
-                .put(PlayableProperty.REPOSTS_COUNT, 10)
-                .put(TrackProperty.PLAY_COUNT, 10);
+                                                      .put(PlayableProperty.LIKES_COUNT, 10)
+                                                      .put(PlayableProperty.REPOSTS_COUNT, 10)
+                                                      .put(TrackProperty.PLAY_COUNT, 10);
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -53,9 +53,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     @Test
     public void bindViewsHideAllStatsWhenStatsAreZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(PlayableProperty.LIKES_COUNT, 0)
-                .put(PlayableProperty.REPOSTS_COUNT, 0)
-                .put(TrackProperty.PLAY_COUNT, 0);
+                                                      .put(PlayableProperty.LIKES_COUNT, 0)
+                                                      .put(PlayableProperty.REPOSTS_COUNT, 0)
+                                                      .put(TrackProperty.PLAY_COUNT, 0);
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -69,9 +69,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     @Test
     public void bindViewsHidePlaysIfPlaysCountIsZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(PlayableProperty.LIKES_COUNT, 10)
-                .put(PlayableProperty.REPOSTS_COUNT, 10)
-                .put(TrackProperty.PLAY_COUNT, 0);
+                                                      .put(PlayableProperty.LIKES_COUNT, 10)
+                                                      .put(PlayableProperty.REPOSTS_COUNT, 10)
+                                                      .put(TrackProperty.PLAY_COUNT, 0);
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -85,9 +85,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     @Test
     public void bindViewsHideLikesIfLikesCountIsZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(PlayableProperty.LIKES_COUNT, 0)
-                .put(PlayableProperty.REPOSTS_COUNT, 10)
-                .put(TrackProperty.PLAY_COUNT, 10);
+                                                      .put(PlayableProperty.LIKES_COUNT, 0)
+                                                      .put(PlayableProperty.REPOSTS_COUNT, 10)
+                                                      .put(TrackProperty.PLAY_COUNT, 10);
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -101,9 +101,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     @Test
     public void bindViewsHideRepostsIfRepostsCountIsZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(PlayableProperty.LIKES_COUNT, 10)
-                .put(PlayableProperty.REPOSTS_COUNT, 0)
-                .put(TrackProperty.PLAY_COUNT, 10);
+                                                      .put(PlayableProperty.LIKES_COUNT, 10)
+                                                      .put(PlayableProperty.REPOSTS_COUNT, 0)
+                                                      .put(TrackProperty.PLAY_COUNT, 10);
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -117,9 +117,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     @Test
     public void bindViewsOnlyShowsPlaysWhenLikesAndRepostsAreZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(PlayableProperty.LIKES_COUNT, 0)
-                .put(PlayableProperty.REPOSTS_COUNT, 0)
-                .put(TrackProperty.PLAY_COUNT, 10);
+                                                      .put(PlayableProperty.LIKES_COUNT, 0)
+                                                      .put(PlayableProperty.REPOSTS_COUNT, 0)
+                                                      .put(TrackProperty.PLAY_COUNT, 10);
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -133,9 +133,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     @Test
     public void bindViewsOnlyShowsLikesWhenPlaysAndRepostsAreZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(PlayableProperty.LIKES_COUNT, 10)
-                .put(PlayableProperty.REPOSTS_COUNT, 0)
-                .put(TrackProperty.PLAY_COUNT, 0);
+                                                      .put(PlayableProperty.LIKES_COUNT, 10)
+                                                      .put(PlayableProperty.REPOSTS_COUNT, 0)
+                                                      .put(TrackProperty.PLAY_COUNT, 0);
 
         presenter.bind(view, trackProperties, commentClickListener);
 
@@ -149,9 +149,9 @@ public class TrackInfoPresenterTest extends AndroidUnitTest {
     @Test
     public void bindViewsOnlyShowsRepostsWhenPlaysAndLikesAreZero() throws Exception {
         PropertySet trackProperties = TestPropertySets.expectedTrackForPlayer()
-                .put(PlayableProperty.LIKES_COUNT, 0)
-                .put(PlayableProperty.REPOSTS_COUNT, 10)
-                .put(TrackProperty.PLAY_COUNT, 0);
+                                                      .put(PlayableProperty.LIKES_COUNT, 0)
+                                                      .put(PlayableProperty.REPOSTS_COUNT, 10)
+                                                      .put(TrackProperty.PLAY_COUNT, 0);
 
         presenter.bind(view, trackProperties, commentClickListener);
 

@@ -62,8 +62,8 @@ class PlaylistPostOperations {
         @Override
         public Observable<List<PropertySet>> call(Boolean aBoolean) {
             return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)
-                    .doOnNext(requestPlaylistsSyncAction)
-                    .subscribeOn(scheduler);
+                                      .doOnNext(requestPlaylistsSyncAction)
+                                      .subscribeOn(scheduler);
         }
     };
 
@@ -105,8 +105,8 @@ class PlaylistPostOperations {
 
     Observable<Void> remove(final Urn urn) {
         final Observable<? extends WriteResult> remove = urn.isLocal()
-                ? playlistPostStorage.remove(urn)
-                : playlistPostStorage.markPendingRemoval(urn);
+                                                         ? playlistPostStorage.remove(urn)
+                                                         : playlistPostStorage.markPendingRemoval(urn);
         return remove
                 .doOnNext(publishPlaylistDeletedEvent(urn))
                 .doOnNext(requestSystemSync)
@@ -120,9 +120,9 @@ class PlaylistPostOperations {
 
     private Observable<List<PropertySet>> postedPlaylists(long beforeTime) {
         return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, beforeTime)
-                .doOnNext(requestPlaylistsSyncAction)
-                .subscribeOn(scheduler)
-                .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                .switchIfEmpty(updatedPostedPlaylists());
+                                  .doOnNext(requestPlaylistsSyncAction)
+                                  .subscribeOn(scheduler)
+                                  .filter(RxUtils.IS_NOT_EMPTY_LIST)
+                                  .switchIfEmpty(updatedPostedPlaylists());
     }
 }

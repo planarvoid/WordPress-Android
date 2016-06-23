@@ -77,15 +77,15 @@ public class RecoverActivity extends RootActivity {
         });
 
         ScTextUtils.clickify(((TextView) findViewById(R.id.txt_msg)),
-                getResources().getString(R.string.authentication_recover_password_visit_our_Help_Center),
-                new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        startActivity(
-                                new Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(getString(R.string.url_forgot_email_help))));
-                    }
-                }, true, false);
+                             getResources().getString(R.string.authentication_recover_password_visit_our_Help_Center),
+                             new ScTextUtils.ClickSpan.OnClickListener() {
+                                 @Override
+                                 public void onClick() {
+                                     startActivity(
+                                             new Intent(Intent.ACTION_VIEW,
+                                                        Uri.parse(getString(R.string.url_forgot_email_help))));
+                                 }
+                             }, true, false);
 
         if (getIntent().hasExtra("email")) {
             emailField.setText(getIntent().getStringExtra("email"));
@@ -95,11 +95,12 @@ public class RecoverActivity extends RootActivity {
     private void recoverPassword(final String email) {
         new RecoverPasswordTask(publicApi) {
             private ProgressDialog progressDialog;
+
             @Override
             protected void onPreExecute() {
                 if (!isFinishing()) {
                     progressDialog = AndroidUtils.showProgress(RecoverActivity.this,
-                            R.string.authentication_recover_progress_message);
+                                                               R.string.authentication_recover_progress_message);
                 }
             }
 

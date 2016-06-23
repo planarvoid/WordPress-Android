@@ -74,22 +74,22 @@ public class AcceptTermsLayout extends RelativeLayout {
         });
 
         ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
-                getResources().getString(R.string.terms_of_use),
-                new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        getAcceptTermsHandler().onShowTermsOfUse();
-                    }
-                }, false, false);
+                             getResources().getString(R.string.terms_of_use),
+                             new ScTextUtils.ClickSpan.OnClickListener() {
+                                 @Override
+                                 public void onClick() {
+                                     getAcceptTermsHandler().onShowTermsOfUse();
+                                 }
+                             }, false, false);
 
         ScTextUtils.clickify(((TextView) findViewById(android.R.id.message)),
-                getResources().getString(R.string.privacy_policy),
-                new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        getAcceptTermsHandler().onShowPrivacyPolicy();
-                    }
-                }, false, false);
+                             getResources().getString(R.string.privacy_policy),
+                             new ScTextUtils.ClickSpan.OnClickListener() {
+                                 @Override
+                                 public void onClick() {
+                                     getAcceptTermsHandler().onShowPrivacyPolicy();
+                                 }
+                             }, false, false);
 
     }
 

@@ -67,7 +67,8 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
 
     @Override
     public void onDisconnected() {
-        reportStateChange(getStateTransition(PlaybackState.IDLE, PlayStateReason.NONE)); // possibly show disconnect error here instead?
+        reportStateChange(getStateTransition(PlaybackState.IDLE,
+                                             PlayStateReason.NONE)); // possibly show disconnect error here instead?
     }
 
     @Override
@@ -119,15 +120,21 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     @Override
     public void pullProgress() {
         try {
-            final PlaybackProgress playbackProgress = new PlaybackProgress(castManager.getCurrentMediaPosition(), castManager.getMediaDuration());
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, PlaybackProgressEvent.create(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
+            final PlaybackProgress playbackProgress = new PlaybackProgress(castManager.getCurrentMediaPosition(),
+                                                                           castManager.getMediaDuration());
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
+                             PlaybackProgressEvent.create(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             Log.e(CastOperations.TAG, "Unable to report progress", e);
         }
     }
 
     private PlaybackStateTransition getStateTransition(PlaybackState state, PlayStateReason reason) {
-        return new PlaybackStateTransition(state, reason, castOperations.getRemoteCurrentTrackUrn(), getProgress(), getDuration());
+        return new PlaybackStateTransition(state,
+                                           reason,
+                                           castOperations.getRemoteCurrentTrackUrn(),
+                                           getProgress(),
+                                           getDuration());
     }
 
     @Nullable
@@ -160,10 +167,11 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public Observable<PlaybackResult> setNewQueue(List<Urn> unfilteredLocalPlayQueueTracks,
                                                   final Urn initialTrackUrnCandidate,
                                                   final PlaySessionSource playSessionSource) {
-        return castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(initialTrackUrnCandidate, unfilteredLocalPlayQueueTracks)
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(playNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource))
-                .doOnError(reportPlaybackError(initialTrackUrnCandidate));
+        return castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(initialTrackUrnCandidate,
+                                                                                   unfilteredLocalPlayQueueTracks)
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .flatMap(playNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource))
+                             .doOnError(reportPlaybackError(initialTrackUrnCandidate));
     }
 
     private Func1<LocalPlayQueue, Observable<PlaybackResult>> playNewLocalQueueOnRemote(final Urn initialTrackUrnCandidate,
@@ -174,7 +182,9 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                 if (localPlayQueue.isEmpty() || isInitialTrackDifferent(localPlayQueue)) {
                     return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_CAST));
                 } else {
-                    reportStateChange(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, localPlayQueue.currentTrackUrn));
+                    reportStateChange(new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                  PlayStateReason.NONE,
+                                                                  localPlayQueue.currentTrackUrn));
                     setNewPlayQueue(localPlayQueue, playSessionSource);
                     return Observable.just(PlaybackResult.success());
                 }
@@ -197,10 +207,14 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
             reconnectToExistingSession();
         } else {
-            reportStateChange(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, currentTrackUrn));
+            reportStateChange(new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                          PlayStateReason.NONE,
+                                                          currentTrackUrn));
             playCurrentSubscription.unsubscribe();
-            playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueTrackUrns())
-                    .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn, position));
+            playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn,
+                                                                        playQueueManager.getCurrentQueueTrackUrns())
+                                                    .subscribe(new PlayCurrentLocalQueueOnRemote(currentTrackUrn,
+                                                                                                 position));
         }
     }
 
@@ -220,20 +234,28 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
 
         @Override
         public void onError(Throwable e) {
-            reportStateChange(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, currentTrackUrn));
+            reportStateChange(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                          PlayStateReason.ERROR_FAILED,
+                                                          currentTrackUrn));
         }
     }
 
     private void setNewPlayQueue(LocalPlayQueue localPlayQueue, PlaySessionSource playSessionSource) {
         playQueueManager.setNewPlayQueue(
-                PlayQueue.fromTrackUrnList(localPlayQueue.playQueueTrackUrns, playSessionSource, Collections.<Urn, Boolean>emptyMap()),
-                playSessionSource, correctInitialPositionLegacy(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn)
+                PlayQueue.fromTrackUrnList(localPlayQueue.playQueueTrackUrns,
+                                           playSessionSource,
+                                           Collections.<Urn, Boolean>emptyMap()),
+                playSessionSource,
+                correctInitialPositionLegacy(localPlayQueue.playQueueTrackUrns, 0, localPlayQueue.currentTrackUrn)
         );
     }
 
     private void playLocalQueueOnRemote(LocalPlayQueue localPlayQueue, long progressPosition) {
         try {
-            castManager.loadMedia(localPlayQueue.mediaInfo, true, (int) progressPosition, localPlayQueue.playQueueTracksJSON);
+            castManager.loadMedia(localPlayQueue.mediaInfo,
+                                  true,
+                                  (int) progressPosition,
+                                  localPlayQueue.playQueueTracksJSON);
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             Log.e(CastOperations.TAG, "Unable to load track", e);
         }
@@ -243,7 +265,9 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         return new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                reportStateChange(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.ERROR_FAILED, initialTrackUrnCandidate));
+                reportStateChange(new PlaybackStateTransition(PlaybackState.IDLE,
+                                                              PlayStateReason.ERROR_FAILED,
+                                                              initialTrackUrnCandidate));
             }
         };
     }

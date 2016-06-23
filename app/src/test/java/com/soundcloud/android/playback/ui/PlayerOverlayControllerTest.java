@@ -207,6 +207,7 @@ public class PlayerOverlayControllerTest {
 
         verify(overlayAnimator).hideOverlay(overlay);
     }
+
     @Test
     public void shouldNotHideOverlayOnShowPlayingStateWhileExpandedAfterCancellingScrubbing() {
         controller.setBlocked(true);

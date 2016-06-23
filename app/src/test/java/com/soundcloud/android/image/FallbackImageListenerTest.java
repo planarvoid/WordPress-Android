@@ -24,7 +24,8 @@ import java.util.Set;
 public class FallbackImageListenerTest extends AndroidUnitTest {
 
     private final String IMAGE_URI = "http://image.com";
-    private final FailReason FAIL_FILE_NOT_FOUND = new FailReason(FailReason.FailType.UNKNOWN, new FileNotFoundException());
+    private final FailReason FAIL_FILE_NOT_FOUND = new FailReason(FailReason.FailType.UNKNOWN,
+                                                                  new FileNotFoundException());
     private final FailReason FAIL_ANY_ERROR = new FailReason(FailReason.FailType.UNKNOWN, new RuntimeException());
 
     private Set<String> notFoundsUri;

@@ -255,6 +255,6 @@ public class PlaybackStream implements Parcelable {
 
     private long getValidPosition(long currentPosition) {
         return (currentPosition < startPos) ? startPos :
-                (currentPosition > endPos) ? endPos : currentPosition;
+               (currentPosition > endPos) ? endPos : currentPosition;
     }
 }

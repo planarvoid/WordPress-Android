@@ -47,7 +47,11 @@ public class BaseCollectionPresenterTest extends AndroidUnitTest {
         when(collectionOperations.collections(null)).thenReturn(Observable.<MyCollection>empty());
         when(collectionOperations.updatedCollections(null)).thenReturn(Observable.<MyCollection>empty());
         when(collectionOperations.onCollectionChanged()).thenReturn(Observable.empty());
-        presenter = new TestCollectionPresenter(swipeRefreshAttacher, eventBus, adapter, resources(), collectionOptionsStorage);
+        presenter = new TestCollectionPresenter(swipeRefreshAttacher,
+                                                eventBus,
+                                                adapter,
+                                                resources(),
+                                                collectionOptionsStorage);
     }
 
     @Test
@@ -118,7 +122,11 @@ public class BaseCollectionPresenterTest extends AndroidUnitTest {
 
     /* A test CollectionPresenter that does nothing by itself */
     private class TestCollectionPresenter extends BaseCollectionPresenter {
-        TestCollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher, EventBus eventBus, CollectionAdapter adapter, Resources resources, CollectionOptionsStorage collectionOptionsStorage) {
+        TestCollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                                EventBus eventBus,
+                                CollectionAdapter adapter,
+                                Resources resources,
+                                CollectionOptionsStorage collectionOptionsStorage) {
             super(swipeRefreshAttacher, eventBus, adapter, resources, collectionOptionsStorage);
         }
 

@@ -37,7 +37,9 @@ public class TrackOfflineStateProviderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        trackOfflineStateProvider = new TrackOfflineStateProvider(trackDownloadsStorage, eventBus, Schedulers.immediate());
+        trackOfflineStateProvider = new TrackOfflineStateProvider(trackDownloadsStorage,
+                                                                  eventBus,
+                                                                  Schedulers.immediate());
         when(trackDownloadsStorage.getOfflineStates()).thenReturn(Observable.<Map<Urn, OfflineState>>just(getInitialMap()));
     }
 
@@ -54,8 +56,10 @@ public class TrackOfflineStateProviderTest extends AndroidUnitTest {
     public void providesStatesFromEventBus() {
         trackOfflineStateProvider.subscribe();
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloaded(Collections.singletonList(REQUESTED_TRACK), true));
-        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, requested(Collections.singletonList(UNAVAILABLE_TRACK), true));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                         downloaded(Collections.singletonList(REQUESTED_TRACK), true));
+        eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED,
+                         requested(Collections.singletonList(UNAVAILABLE_TRACK), true));
         eventBus.publish(EventQueue.OFFLINE_CONTENT_CHANGED, downloaded(Collections.singletonList(TRACK_3), false));
 
         assertThat(trackOfflineStateProvider.getOfflineState(REQUESTED_TRACK)).isSameAs(OfflineState.DOWNLOADED);

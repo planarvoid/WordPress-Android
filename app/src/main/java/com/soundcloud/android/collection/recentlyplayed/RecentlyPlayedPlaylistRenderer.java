@@ -30,8 +30,8 @@ public class RecentlyPlayedPlaylistRenderer implements CellRenderer<CollectionIt
 
     @Inject
     public RecentlyPlayedPlaylistRenderer(ImageOperations imageOperations,
-                                                    Resources resources,
-                                                    Navigator navigator) {
+                                          Resources resources,
+                                          Navigator navigator) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.navigator = navigator;
@@ -39,7 +39,8 @@ public class RecentlyPlayedPlaylistRenderer implements CellRenderer<CollectionIt
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.collection_recently_played_playlist_item, parent, false);
+        return LayoutInflater.from(parent.getContext())
+                             .inflate(R.layout.collection_recently_played_playlist_item, parent, false);
     }
 
     @Override
@@ -51,8 +52,8 @@ public class RecentlyPlayedPlaylistRenderer implements CellRenderer<CollectionIt
         setTitle(view, playlist.getTitle());
         setTrackCount(view, playlist);
         setType(view, playlist.isAlbum()
-                ? R.string.collections_recently_played_album
-                : R.string.collections_recently_played_playlist);
+                      ? R.string.collections_recently_played_album
+                      : R.string.collections_recently_played_playlist);
 
         view.setOnClickListener(goToPlaylist(playlist));
     }
@@ -83,7 +84,7 @@ public class RecentlyPlayedPlaylistRenderer implements CellRenderer<CollectionIt
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    navigator.openPlaylist(view.getContext(), playlist.getUrn(), Screen.COLLECTIONS);
+                navigator.openPlaylist(view.getContext(), playlist.getUrn(), Screen.COLLECTIONS);
             }
         };
     }

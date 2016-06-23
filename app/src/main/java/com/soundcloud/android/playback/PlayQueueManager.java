@@ -148,7 +148,7 @@ public class PlayQueueManager implements OriginProvider {
     private void logEmptyPlayQueues(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         if (playQueue.isEmpty()) {
             ErrorUtils.handleSilentException(new IllegalStateException("Setting empty play queue"),
-                    "PlaySessionSource", playSessionSource.toString());
+                                             "PlaySessionSource", playSessionSource.toString());
         }
     }
 
@@ -218,7 +218,8 @@ public class PlayQueueManager implements OriginProvider {
         return playableCount;
     }
 
-    @Deprecated // this should not be used outside of casting, which uses it as an optimisation. Use setCurrentPlayQueueItem instead
+    @Deprecated
+    // this should not be used outside of casting, which uses it as an optimisation. Use setCurrentPlayQueueItem instead
     public void setPosition(int position, boolean isUserTriggered) {
         setPositionInternal(position, isUserTriggered);
     }
@@ -259,8 +260,8 @@ public class PlayQueueManager implements OriginProvider {
         if (hasNextItem()) {
             final int nextPlayableItem = getNextPlayableItem();
             final int newPosition = nextPlayableItem == Consts.NOT_SET
-                    ? currentPosition + 1 // next track
-                    : nextPlayableItem; // next playable track
+                                    ? currentPosition + 1 // next track
+                                    : nextPlayableItem; // next playable track
             setPositionInternal(newPosition, userTriggered);
             return true;
         } else {
@@ -295,8 +296,8 @@ public class PlayQueueManager implements OriginProvider {
         if (hasPreviousItem()) {
             final int previousPlayable = getPreviousPlayableItem();
             final int newPosition = previousPlayable == Consts.NOT_SET
-                    ? 0 // first track
-                    : previousPlayable; // next playable track
+                                    ? 0 // first track
+                                    : previousPlayable; // next playable track
             setPositionInternal(newPosition, true);
             return true;
         } else {
@@ -340,18 +341,22 @@ public class PlayQueueManager implements OriginProvider {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
 
         return playQueueOperations.getLastStoredPlayQueue()
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(new Action1<PlayQueue>() {
-                    @Override
-                    public void call(PlayQueue savedQueue) {
-                        currentPosition = playQueueOperations.getLastStoredPlayPosition();
-                        setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-                    }
-                });
+                                  .observeOn(AndroidSchedulers.mainThread())
+                                  .doOnNext(new Action1<PlayQueue>() {
+                                      @Override
+                                      public void call(PlayQueue savedQueue) {
+                                          currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                                          setNewPlayQueueInternal(savedQueue,
+                                                                  playQueueOperations.getLastStoredPlaySessionSource());
+                                      }
+                                  });
     }
 
     private void publishPositionUpdate() {
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(getCurrentPlayQueueItem(), getCollectionUrn(), getCurrentPosition()));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(getCurrentPlayQueueItem(),
+                                                                       getCollectionUrn(),
+                                                                       getCurrentPosition()));
     }
 
     public boolean isTrackFromCurrentPromotedItem(Urn trackUrn) {
@@ -379,7 +384,8 @@ public class PlayQueueManager implements OriginProvider {
             return null;
         }
 
-        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentItemIsUserTriggered);
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(),
+                                                                    currentItemIsUserTriggered);
 
         PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
@@ -397,7 +403,9 @@ public class PlayQueueManager implements OriginProvider {
         }
 
         if (playSessionSource.isFromStations()) {
-            Urn queryUrn = currentPlayQueueItem.isTrack() ? ((TrackQueueItem) currentPlayQueueItem).getQueryUrn() : Urn.NOT_SET;
+            Urn queryUrn = currentPlayQueueItem.isTrack() ?
+                           ((TrackQueueItem) currentPlayQueueItem).getQueryUrn() :
+                           Urn.NOT_SET;
             trackSourceInfo.setStationSourceInfo(
                     playSessionSource.getCollectionUrn(),
                     StationsSourceInfo.create(queryUrn)
@@ -414,7 +422,9 @@ public class PlayQueueManager implements OriginProvider {
 
         final Urn collectionUrn = playSessionSource.getCollectionUrn();
         if (collectionUrn.isPlaylist()) {
-            trackSourceInfo.setOriginPlaylist(collectionUrn, getCurrentPosition(), playSessionSource.getCollectionOwnerUrn());
+            trackSourceInfo.setOriginPlaylist(collectionUrn,
+                                              getCurrentPosition(),
+                                              playSessionSource.getCollectionOwnerUrn());
         }
 
         return trackSourceInfo;
@@ -514,7 +524,10 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     private void publishCurrentQueueItemChanged() {
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(getCurrentPlayQueueItem(), getCollectionUrn(), getCurrentPosition()));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromNewQueue(getCurrentPlayQueueItem(),
+                                                                getCollectionUrn(),
+                                                                getCurrentPosition()));
     }
 
     public void removeUpcomingItem(PlayQueueItem item, boolean shouldPublishQueueChange) {

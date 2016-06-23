@@ -57,12 +57,12 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         final String trackAddedTitle = trackLikesScreen.getTrackTitle(0);
 
         trackLikesScreen.clickTrack(0)
-                .clickMenu()
-                .clickAddToPlaylist()
-                .clickCreateNewPlaylist()
-                .enterTitle(playlist)
-                .clickDoneAndReturnToPlayer()
-                .pressBackToCollapse();
+                        .clickMenu()
+                        .clickAddToPlaylist()
+                        .clickCreateNewPlaylist()
+                        .enterTitle(playlist)
+                        .clickDoneAndReturnToPlayer()
+                        .pressBackToCollapse();
 
         trackLikesScreen.goBack();
 

@@ -84,8 +84,8 @@ public class PlayerWidgetController {
             presenter.updateForVideoAd(context);
         } else if (item.isTrack()) {
             trackRepository.track(item.getUrn())
-                    .map(PropertySetFunctions.mergeWith(extraInfo))
-                    .subscribe(new CurrentTrackSubscriber());
+                           .map(PropertySetFunctions.mergeWith(extraInfo))
+                           .subscribe(new CurrentTrackSubscriber());
         } else {
             presenter.reset(context);
         }
@@ -98,21 +98,22 @@ public class PlayerWidgetController {
             fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
 
             engagementsTracking.likeTrackUrn(currentTrackUrn,
-                    addLike,
-                    getEventMetadata(),
-                    playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn));
+                                             addLike,
+                                             getEventMetadata(),
+                                             playQueueManager.getCurrentPromotedSourceInfo(currentTrackUrn));
         } else {
-            ErrorUtils.handleSilentException(new IllegalStateException("Tried to like a track from widget with invalid playQueue item"));
+            ErrorUtils.handleSilentException(new IllegalStateException(
+                    "Tried to like a track from widget with invalid playQueue item"));
         }
     }
 
     private EventContextMetadata getEventMetadata() {
         return EventContextMetadata.builder()
-                .invokerScreen(Screen.WIDGET.get())
-                .contextScreen(playQueueManager.getScreenTag())
-                .pageName(Screen.WIDGET.get())
-                .pageUrn(Urn.NOT_SET)
-                .build();
+                                   .invokerScreen(Screen.WIDGET.get())
+                                   .contextScreen(playQueueManager.getScreenTag())
+                                   .pageName(Screen.WIDGET.get())
+                                   .pageUrn(Urn.NOT_SET)
+                                   .build();
     }
 
     /**

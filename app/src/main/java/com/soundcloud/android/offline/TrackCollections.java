@@ -17,5 +17,6 @@ abstract class TrackCollections {
     }
 
     abstract Collection<Urn> playlists();
+
     abstract boolean likesCollection();
 }

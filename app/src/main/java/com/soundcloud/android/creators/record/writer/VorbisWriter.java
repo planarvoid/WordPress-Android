@@ -48,14 +48,14 @@ public class VorbisWriter implements AudioWriter {
     public boolean setNewPosition(long pos) throws IOException {
         initializeEncoder();
         encoder.pause();
-        return encoder.startNewStream(pos  / 1000d);
+        return encoder.startNewStream(pos / 1000d);
     }
 
     @Override
     public boolean isClosed() {
         return encoder == null ||
-               encoder.getState() == VorbisEncoder.STATE_PAUSED ||
-               encoder.getState() == VorbisEncoder.STATE_CLOSED;
+                encoder.getState() == VorbisEncoder.STATE_PAUSED ||
+                encoder.getState() == VorbisEncoder.STATE_CLOSED;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class VorbisWriter implements AudioWriter {
 
     @Override
     public void close() throws IOException {
-        if (encoder != null){
+        if (encoder != null) {
             encoder.release();
             encoder = null;
         }

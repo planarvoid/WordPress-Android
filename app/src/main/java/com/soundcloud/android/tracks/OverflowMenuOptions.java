@@ -16,6 +16,7 @@ public abstract class OverflowMenuOptions {
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder showOffline(boolean enabled);
+
         public abstract OverflowMenuOptions build();
     }
 }

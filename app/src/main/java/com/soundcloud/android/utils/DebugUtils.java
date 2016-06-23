@@ -52,7 +52,7 @@ public final class DebugUtils {
 
     @SuppressWarnings("UnusedDeclaration")
     public static void dumpIntent(Intent intent) {
-        Log.d(TAG, "dumpIntent("+intent+")");
+        Log.d(TAG, "dumpIntent(" + intent + ")");
 
         Bundle extras = intent.getExtras();
         if (extras != null) {
@@ -61,7 +61,7 @@ public final class DebugUtils {
                 Object value = extras.get(k);
                 map.put(k, value);
             }
-            Log.d(TAG, "extras: "+map);
+            Log.d(TAG, "extras: " + map);
         }
     }
 
@@ -106,7 +106,8 @@ public final class DebugUtils {
                 IOUtils.mkdirs(debugDir);
                 File logFile = new File(debugDir, "log-" + System.currentTimeMillis());
                 Process process = Runtime.getRuntime().exec("logcat -d");
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream(), UTF_8_ENC));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream(),
+                                                                                         UTF_8_ENC));
                 String line;
                 PrintStream ps = new PrintStream(new FileOutputStream(logFile), true, UTF_8_ENC);
                 while ((line = bufferedReader.readLine()) != null) {
@@ -125,5 +126,6 @@ public final class DebugUtils {
         }
     }
 
-    private DebugUtils() {}
+    private DebugUtils() {
+    }
 }

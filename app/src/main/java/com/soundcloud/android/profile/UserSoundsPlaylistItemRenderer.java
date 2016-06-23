@@ -24,7 +24,7 @@ class UserSoundsPlaylistItemRenderer implements CellRenderer<UserSoundsItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext()).inflate(R.layout.profile_user_sounds_playlist_row,
-                parent, false);
+                                                                parent, false);
     }
 
     @Override

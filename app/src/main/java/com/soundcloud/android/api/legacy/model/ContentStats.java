@@ -20,7 +20,7 @@ public class ContentStats {
         this.context = context;
     }
 
-    public long getLastSeen(Content content){
+    public long getLastSeen(Content content) {
         return getLastSeen(context, content);
     }
 
@@ -32,7 +32,7 @@ public class ContentStats {
         return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, NOTIFIED), 0);
     }
 
-    public long getLastNotifiedItem(Content content){
+    public long getLastNotifiedItem(Content content) {
         return PreferenceManager.getDefaultSharedPreferences(context).getLong(prefKey(content, NOTIFIED_ITEM), 0);
     }
 

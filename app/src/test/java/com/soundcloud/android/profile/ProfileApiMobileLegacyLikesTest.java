@@ -48,9 +48,11 @@ public class ProfileApiMobileLegacyLikesTest extends AndroidUnitTest {
     @Test
     public void returnsUserPostsByUrnFromApi() {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiLikeHolder);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/liked_tracks_and_playlists")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET",
+                                                               "/users/soundcloud%3Ausers%3A123/liked_tracks_and_playlists")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.legacyUserLikes(Urn.forUser(123L)).subscribe(subscriber);
         assertAllLikesEmitted();
@@ -60,8 +62,9 @@ public class ProfileApiMobileLegacyLikesTest extends AndroidUnitTest {
     public void returnsUserPostsByNextPageLinkFromApi() {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiLikeHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.legacyUserLikes(NEXT_HREF).subscribe(subscriber);
         assertAllLikesEmitted();

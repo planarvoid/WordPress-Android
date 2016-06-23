@@ -26,7 +26,7 @@ public final class ServiceAssert extends AbstractAssert<ServiceAssert, Service> 
         isNotNull();
 
         final String assertErrorMessage = String.format("Service <%s> was not stop by self.",
-                actual.getClass().getSimpleName());
+                                                        actual.getClass().getSimpleName());
 
         ShadowService shadowService = Shadows.shadowOf(actual);
         assertThat(shadowService.isStoppedBySelf())
@@ -40,7 +40,7 @@ public final class ServiceAssert extends AbstractAssert<ServiceAssert, Service> 
         isNotNull();
 
         final String assertErrorMessage = String.format("Service <%s> has last foreground notification.",
-                actual.getClass().getSimpleName());
+                                                        actual.getClass().getSimpleName());
 
         ShadowService shadowService = Shadows.shadowOf(actual);
         assertThat(shadowService.getLastForegroundNotification())
@@ -57,7 +57,7 @@ public final class ServiceAssert extends AbstractAssert<ServiceAssert, Service> 
         }
 
         final String assertErrorMessage = String.format("<%s> does not contain broadcast receiver with action <%s>",
-                actual.getClass().getSimpleName(), action);
+                                                        actual.getClass().getSimpleName(), action);
 
         assertThat(getServiceReceiversForAction(action))
                 .overridingErrorMessage(assertErrorMessage)

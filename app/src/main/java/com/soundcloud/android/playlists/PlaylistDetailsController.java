@@ -100,7 +100,8 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
 
     private void subscribeToContentUpdate() {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new LegacyUpdatePlayingTrackSubscriber(adapter, trackRenderer)),
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                                   new LegacyUpdatePlayingTrackSubscriber(adapter, trackRenderer)),
                 eventBus.subscribe(OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );

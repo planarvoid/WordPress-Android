@@ -30,8 +30,8 @@ public class ApiTrackRepost implements ApiEntityHolder, TrackRecordHolder {
     @Override
     public PropertySet toPropertySet() {
         return apiTrack.toPropertySet()
-                .put(PostProperty.IS_REPOST, true)
-                .put(PostProperty.CREATED_AT, createdAt);
+                       .put(PostProperty.IS_REPOST, true)
+                       .put(PostProperty.CREATED_AT, createdAt);
     }
 
     @Override

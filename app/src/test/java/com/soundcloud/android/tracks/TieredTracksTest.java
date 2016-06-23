@@ -50,7 +50,7 @@ public class TieredTracksTest {
 
         assertThat(TieredTracks.isFullHighTierTrack(tieredTrack)).isFalse();
     }
-    
+
     @Test
     public void shouldNotIndicateHighTierUnlockedTrackIfNotSnippedAndNotHighTier() {
         when(tieredTrack.isSnipped()).thenReturn(false);

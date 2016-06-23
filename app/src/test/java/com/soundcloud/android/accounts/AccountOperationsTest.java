@@ -69,12 +69,12 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws CreateModelException {
         accountOperations = new AccountOperations(context(), accountManager, tokenOperations,
-                eventBus,
-                InjectionSupport.lazyOf(configurationOperations),
-                InjectionSupport.lazyOf(accountCleanupAction),
-                InjectionSupport.lazyOf(clearTrackDownloadsCommand),
-                InjectionSupport.lazyOf(facebookLoginManager),
-                Schedulers.immediate());
+                                                  eventBus,
+                                                  InjectionSupport.lazyOf(configurationOperations),
+                                                  InjectionSupport.lazyOf(accountCleanupAction),
+                                                  InjectionSupport.lazyOf(clearTrackDownloadsCommand),
+                                                  InjectionSupport.lazyOf(facebookLoginManager),
+                                                  Schedulers.immediate());
 
         user = ModelFixtures.create(ApiUser.class);
     }
@@ -87,7 +87,8 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldReturnTrueIfAccountDoesExist() {
         when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
-        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn("123");
+        when(accountManager.getUserData(scAccount,
+                                        AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn("123");
         assertThat(accountOperations.isUserLoggedIn()).isTrue();
     }
 
@@ -157,8 +158,12 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
         final Account actual = accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API);
         assertThat(actual).isInstanceOf(Account.class);
-        verify(accountManager, Mockito.never()).removeAccount(any(Account.class), any(AccountManagerCallback.class), any(Handler.class));
-        verify(accountManager, Mockito.never()).addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class));
+        verify(accountManager, Mockito.never()).removeAccount(any(Account.class),
+                                                              any(AccountManagerCallback.class),
+                                                              any(Handler.class));
+        verify(accountManager, Mockito.never()).addAccountExplicitly(any(Account.class),
+                                                                     anyString(),
+                                                                     any(Bundle.class));
         verify(accountManager).setUserData(actual, "currentUsername", user.getUsername());
     }
 
@@ -365,9 +370,13 @@ public class AccountOperationsTest extends AndroidUnitTest {
 
     private void mockSoundCloudAccount() {
         when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
-        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn("123");
-        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USERNAME.getKey())).thenReturn("username");
-        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_PERMALINK.getKey())).thenReturn("permalink");
+        when(accountManager.getUserData(scAccount,
+                                        AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn("123");
+        when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USERNAME.getKey())).thenReturn(
+                "username");
+        when(accountManager.getUserData(scAccount,
+                                        AccountOperations.AccountInfoKeys.USER_PERMALINK.getKey())).thenReturn(
+                "permalink");
     }
 
     private void mockValidToken() {

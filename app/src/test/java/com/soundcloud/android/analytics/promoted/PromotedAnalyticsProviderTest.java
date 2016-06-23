@@ -79,7 +79,11 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksAdClickthroughs() throws Exception {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        UIEvent event = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(777), userUrn, trackSourceInfo, 10000);
+        UIEvent event = UIEvent.fromAudioAdCompanionDisplayClick(audioAd,
+                                                                 Urn.forTrack(777),
+                                                                 userUrn,
+                                                                 trackSourceInfo,
+                                                                 10000);
 
         analyticsProvider.handleTrackingEvent(event);
 
@@ -194,7 +198,11 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksLeaveBehindImpressions() {
         final LeaveBehindAd leaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        AdOverlayTrackingEvent impressionEvent = AdOverlayTrackingEvent.forImpression(333, leaveBehindAd, Urn.forTrack(888), Urn.forUser(777), sourceInfo);
+        AdOverlayTrackingEvent impressionEvent = AdOverlayTrackingEvent.forImpression(333,
+                                                                                      leaveBehindAd,
+                                                                                      Urn.forTrack(888),
+                                                                                      Urn.forUser(777),
+                                                                                      sourceInfo);
 
         analyticsProvider.handleTrackingEvent(impressionEvent);
 
@@ -246,7 +254,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksFirstQuartileAdProgressEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forFirstQuartile(videoAd, sourceInfo);
+        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forFirstQuartile(videoAd,
+                                                                                                     sourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
@@ -263,7 +272,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksSecondQuartileAdProgressEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forSecondQuartile(videoAd, sourceInfo);
+        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forSecondQuartile(videoAd,
+                                                                                                      sourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
@@ -280,7 +290,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksThirdQuartileAdProgressEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forThirdQuartile(videoAd, sourceInfo);
+        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forThirdQuartile(videoAd,
+                                                                                                     sourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
@@ -297,7 +308,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksFirstQuartileAdProgressEventsForAudio() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forFirstQuartile(audioAd, sourceInfo);
+        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forFirstQuartile(audioAd,
+                                                                                                     sourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
@@ -314,7 +326,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksSecondQuartileAdProgressEventsForAudio() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forSecondQuartile(audioAd, sourceInfo);
+        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forSecondQuartile(audioAd,
+                                                                                                      sourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
@@ -331,7 +344,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     public void tracksThirdQuartileAdProgressEventsForAudio() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final TrackSourceInfo sourceInfo = new TrackSourceInfo("page source", true);
-        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forThirdQuartile(audioAd, sourceInfo);
+        final AdPlaybackSessionEvent playbackProgressEvent = AdPlaybackSessionEvent.forThirdQuartile(audioAd,
+                                                                                                     sourceInfo);
 
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
@@ -418,7 +432,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksPauseAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, PlaybackSessionEvent.STOP_REASON_PAUSE);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd,
+                                                                                           trackSourceInfo,
+                                                                                           PlaybackSessionEvent.STOP_REASON_PAUSE);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
@@ -434,7 +450,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void tracksStopAdEventsForVideo() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd, trackSourceInfo, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forStop(videoAd,
+                                                                                           trackSourceInfo,
+                                                                                           PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 

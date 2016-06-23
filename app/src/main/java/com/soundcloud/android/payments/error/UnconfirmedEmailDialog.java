@@ -29,8 +29,8 @@ public class UnconfirmedEmailDialog extends UnrecoverableErrorDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View view = new CustomFontViewBuilder(getActivity())
                 .setContent(R.drawable.dialog_payment_error,
-                        R.string.payments_error_title_unconfirmed_email,
-                        R.string.payments_error_unconfirmed_email).get();
+                            R.string.payments_error_title_unconfirmed_email,
+                            R.string.payments_error_unconfirmed_email).get();
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)

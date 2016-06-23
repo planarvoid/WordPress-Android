@@ -92,7 +92,8 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
     @Override
     public View createItemView(ViewGroup container, SkipListener skipListener) {
-        final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_video_page, container, false);
+        final View adView = LayoutInflater.from(container.getContext())
+                                          .inflate(R.layout.player_ad_video_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);
         holder.videoOverlay.setTag(holder);
@@ -119,7 +120,9 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
     private void adjustLayoutForVideo(View adView, VideoPlayerAd playerAd, Holder holder) {
         final LayoutParams layoutParams = adjustedVideoViewLayoutParams(playerAd, holder);
-        final int backgroundColor = resources.getColor(isOrientationLandscape() ? R.color.ad_landscape_video_background : R.color.ad_default_background);
+        final int backgroundColor = resources.getColor(isOrientationLandscape() ?
+                                                       R.color.ad_landscape_video_background :
+                                                       R.color.ad_default_background);
 
         adView.setBackgroundColor(backgroundColor);
         holder.videoSurfaceView.setLayoutParams(layoutParams);
@@ -127,8 +130,12 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         if (isOrientationPortrait()) {
             holder.videoOverlayContainer.setLayoutParams(layoutParams);
         }
-        holder.fullscreenButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationPortrait() ? View.VISIBLE : View.GONE);
-        holder.shrinkButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationLandscape() ? View.VISIBLE : View.GONE);
+        holder.fullscreenButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationPortrait() ?
+                                              View.VISIBLE :
+                                              View.GONE);
+        holder.shrinkButton.setVisibility(playerAd.isLetterboxVideo() && isOrientationLandscape() ?
+                                          View.VISIBLE :
+                                          View.GONE);
         holder.setupFadingInterface(playerAd.isVerticalVideo() || !isOrientationPortrait());
 
         if (!holder.isUIState(UIState.INITIAL)) {
@@ -191,7 +198,10 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     @Override
-    public void setPlayState(View adPage, PlaybackStateTransition stateTransition, boolean isCurrentItem, boolean isForeground) {
+    public void setPlayState(View adPage,
+                             PlaybackStateTransition stateTransition,
+                             boolean isCurrentItem,
+                             boolean isForeground) {
         final Holder holder = getViewHolder(adPage);
         holder.playControlsHolder.setVisibility(stateTransition.playSessionIsActive() ? View.GONE : View.VISIBLE);
         holder.playerOverlayController.setPlayState(stateTransition);
@@ -210,7 +220,9 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
     private void setLoadingState(Holder holder, PlaybackStateTransition stateTransition, boolean isCurrentItem) {
         if (isCurrentItem) {
-            holder.videoProgress.setVisibility(stateTransition.isBuffering() && stateTransition.playSessionIsActive() ? View.VISIBLE : View.GONE);
+            holder.videoProgress.setVisibility(stateTransition.isBuffering() && stateTransition.playSessionIsActive() ?
+                                               View.VISIBLE :
+                                               View.GONE);
             if (stateTransition.isPlayerPlaying() && !isVideoSurfaceVisible(holder)) {
                 holder.videoSurfaceView.setVisibility(View.VISIBLE);
             }
@@ -220,7 +232,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     private boolean isVideoSurfaceVisible(Holder holder) {
-       return holder.videoSurfaceView.getVisibility() == View.VISIBLE;
+        return holder.videoSurfaceView.getVisibility() == View.VISIBLE;
     }
 
     private void setupLoadingStateViews(Holder holder, boolean isLetterboxVideo, boolean videoAlreadyStarted) {
@@ -307,8 +319,16 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
             playerOverlayController = playerOverlayControllerFactory.create(videoOverlay);
 
-            List<View> clickViews = Arrays.asList(playButton, nextButton, previousButton, shrinkButton,
-                    fullscreenButton, videoOverlay, videoSurfaceView, ctaButton, whyAds, skipAd);
+            List<View> clickViews = Arrays.asList(playButton,
+                                                  nextButton,
+                                                  previousButton,
+                                                  shrinkButton,
+                                                  fullscreenButton,
+                                                  videoOverlay,
+                                                  videoSurfaceView,
+                                                  ctaButton,
+                                                  whyAds,
+                                                  skipAd);
 
             onClickViews = Iterables.filter(clickViews, presentInConfig);
         }
@@ -322,7 +342,9 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         }
 
         void setupFadingInterface(boolean enableAllFadeableElements) {
-            final List<View> fadeViews = enableAllFadeableElements ? getAllFadeableElementViews() : Collections.singletonList(videoOverlayContainer);
+            final List<View> fadeViews = enableAllFadeableElements ?
+                                         getAllFadeableElementViews() :
+                                         Collections.singletonList(videoOverlayContainer);
             fadingViews = Iterables.filter(fadeViews, presentInConfig);
         }
 

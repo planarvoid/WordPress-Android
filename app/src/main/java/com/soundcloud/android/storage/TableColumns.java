@@ -102,7 +102,7 @@ public final class TableColumns {
         public static final String SET_TYPE = "set_type";
         public static final String RELEASE_DATE = "release_date";
 
-        public static final int TYPE_TRACK    = 0;
+        public static final int TYPE_TRACK = 0;
         public static final int TYPE_PLAYLIST = 1;
         public static final int TYPE_COLLECTION = 2;
 
@@ -130,7 +130,7 @@ public final class TableColumns {
         public static final String SYNCABLE = "syncable";
         public static final String LAST_UPDATED = "last_updated";
 
-        public static final String[] ALL_FIELDS = new String[] {
+        public static final String[] ALL_FIELDS = new String[]{
                 TRACK_ID, MONETIZABLE, BLOCKED, SNIPPED, SUB_MID_TIER, SUB_HIGH_TIER, POLICY, MONETIZATION_MODEL, SYNCABLE, LAST_UPDATED
         };
     }
@@ -335,7 +335,11 @@ public final class TableColumns {
             ALL_FIELDS = new String[Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length + SoundView.ALL_FIELDS.length];
             System.arraycopy(Activities.ALL_FIELDS, 0, ALL_FIELDS, 0, Activities.ALL_FIELDS.length);
             System.arraycopy(ALL_VIEW_FIELDS, 0, ALL_FIELDS, Activities.ALL_FIELDS.length, ALL_VIEW_FIELDS.length);
-            System.arraycopy(SoundView.ALL_FIELDS, 0, ALL_FIELDS, Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length, SoundView.ALL_FIELDS.length);
+            System.arraycopy(SoundView.ALL_FIELDS,
+                             0,
+                             ALL_FIELDS,
+                             Activities.ALL_FIELDS.length + ALL_VIEW_FIELDS.length,
+                             SoundView.ALL_FIELDS.length);
         }
     }
 

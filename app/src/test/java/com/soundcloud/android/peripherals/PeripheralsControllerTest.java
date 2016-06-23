@@ -82,7 +82,10 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         final Urn trackUrn = track.get(TrackProperty.URN);
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn), Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn),
+                                                                Urn.NOT_SET,
+                                                                0));
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         assertThat(secondBroadcast.getAction()).isEqualTo("com.android.music.metachanged");
@@ -111,7 +114,10 @@ public class PeripheralsControllerTest extends AndroidUnitTest {
         final Urn trackUrn = track.get(TrackProperty.URN);
         when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn), Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(trackUrn),
+                                                                Urn.NOT_SET,
+                                                                0));
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         assertThat(secondBroadcast.getExtras().get("artist")).isEqualTo("");

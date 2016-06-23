@@ -45,8 +45,12 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
         super.loadArtwork(imageResource, wrappedImageView, imageOverlay, isHighPriority, viewVisibilityProvider);
 
         blurSubscription.unsubscribe();
-        blurSubscription = imageOperations.blurredPlayerArtwork(resources, imageResource, graphicsScheduler, observeOnScheduler)
-                .subscribe(new BlurredOverlaySubscriber(imageOverlay, viewVisibilityProvider));
+        blurSubscription = imageOperations.blurredPlayerArtwork(resources,
+                                                                imageResource,
+                                                                graphicsScheduler,
+                                                                observeOnScheduler)
+                                          .subscribe(new BlurredOverlaySubscriber(imageOverlay,
+                                                                                  viewVisibilityProvider));
     }
 
     private class BlurredOverlaySubscriber extends DefaultSubscriber<Bitmap> {
@@ -64,13 +68,16 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
 
             if (imageView != null) {
                 if (viewVisibilityProvider != null && viewVisibilityProvider.isCurrentlyVisible(imageView)) {
-                    final TransitionDrawable transitionDrawable = ImageUtils.createTransitionDrawable(null, new BitmapDrawable(bitmap));
+                    final TransitionDrawable transitionDrawable = ImageUtils.createTransitionDrawable(null,
+                                                                                                      new BitmapDrawable(
+                                                                                                              bitmap));
                     imageView.setImageDrawable(transitionDrawable);
                     transitionDrawable.startTransition(ImageUtils.DEFAULT_TRANSITION_DURATION);
                 } else {
                     // we are being extremely defensive around a release bug. Remove this and null check if it does not appear
                     if (viewVisibilityProvider == null) {
-                        ErrorUtils.handleSilentException(new IllegalStateException("View Visibility Provider null in Blurring artwork loader"));
+                        ErrorUtils.handleSilentException(new IllegalStateException(
+                                "View Visibility Provider null in Blurring artwork loader"));
                     }
                     imageView.setImageBitmap(bitmap);
                 }

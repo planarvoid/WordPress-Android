@@ -33,7 +33,8 @@ class CollectionPlaylistRemoveFilterRenderer implements CellRenderer<CollectionI
 
     @Override
     public View createItemView(ViewGroup parent) {
-        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.collection_kill_filters, parent, false);
+        final View view = LayoutInflater.from(parent.getContext())
+                                        .inflate(R.layout.collection_kill_filters, parent, false);
         view.findViewById(R.id.btn_remove_filters).setOnClickListener(onRemoveFilterClicked);
         return view;
     }

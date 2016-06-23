@@ -10,4 +10,5 @@ import dagger.Module;
                 RecentStationsFragment.class
         }
 )
-public class StationsModule {}
+public class StationsModule {
+}

@@ -50,7 +50,7 @@ public class PolicyOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         operations = new PolicyOperations(clearTableCommand, updatePoliciesCommand,
-                policyUpdateTimeCommand, Schedulers.immediate(), policyStorage, eventBus);
+                                          policyUpdateTimeCommand, Schedulers.immediate(), policyStorage, eventBus);
     }
 
     @Test

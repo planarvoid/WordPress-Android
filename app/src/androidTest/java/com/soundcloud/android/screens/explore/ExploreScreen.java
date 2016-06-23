@@ -93,7 +93,8 @@ public class ExploreScreen extends Screen {
 
     public String currentTabTitle() {
         int currentPage = getViewPager().getCurrentItem();
-        return new TextElement(tabs().getTabAt(currentPage).findOnScreenElement(With.className(AppCompatTextView.class))).getText();
+        return new TextElement(tabs().getTabAt(currentPage)
+                                     .findOnScreenElement(With.className(AppCompatTextView.class))).getText();
     }
 
     private ViewPager getViewPager() {
@@ -105,7 +106,7 @@ public class ExploreScreen extends Screen {
         return musicPage().getAdapter().getCount();
     }
 
-    public int getItemsOnTrendingAudioList(){
+    public int getItemsOnTrendingAudioList() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return audioPage().getAdapter().getCount();
     }

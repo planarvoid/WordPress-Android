@@ -79,12 +79,14 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     }
 
     @Override
-    protected TimelineOperations<StreamItem> buildOperations(SoundStreamStorage storage, LegacySyncInitiator syncInitiator,
-                                                             ContentStats contentStats, Scheduler scheduler,
+    protected TimelineOperations<StreamItem> buildOperations(SoundStreamStorage storage,
+                                                             LegacySyncInitiator syncInitiator,
+                                                             ContentStats contentStats,
+                                                             Scheduler scheduler,
                                                              SyncStateStorage syncStateStorage) {
         return new SoundStreamOperations(storage, syncInitiator, contentStats, removeStalePromotedItemsCommand,
-                markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
-                stationsOperations, upsellOperations, syncStateStorage);
+                                         markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
+                                         stationsOperations, upsellOperations, syncStateStorage);
     }
 
     @Override
@@ -340,7 +342,8 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         streamItems.add(firstUpsellableTrackIndex, upsellableTrackProperties);
         streamItems.add(secondUpsellableTrackIndex, upsellableTrackProperties);
 
-        final Urn trackUrnAfterSecondUpsellable = streamItems.get(secondUpsellableTrackIndex + 1).get(TrackProperty.URN);
+        final Urn trackUrnAfterSecondUpsellable = streamItems.get(secondUpsellableTrackIndex + 1)
+                                                             .get(TrackProperty.URN);
         when(upsellOperations.canDisplayUpsellInStream()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 

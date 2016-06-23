@@ -24,16 +24,17 @@ public class NetworkConnectionHelper {
     }
 
     @Deprecated
-    public NetworkConnectionHelper(){
-        this((ConnectivityManager)SoundCloudApplication.instance.getSystemService(Context.CONNECTIVITY_SERVICE),
-                (TelephonyManager)SoundCloudApplication.instance.getSystemService(Context.TELEPHONY_SERVICE));
+    public NetworkConnectionHelper() {
+        this((ConnectivityManager) SoundCloudApplication.instance.getSystemService(Context.CONNECTIVITY_SERVICE),
+             (TelephonyManager) SoundCloudApplication.instance.getSystemService(Context.TELEPHONY_SERVICE));
     }
 
-    public ConnectionType getCurrentConnectionType(){
-        return ConnectionType.fromNetworkInfo(connectivityManager.getActiveNetworkInfo(), telephonyManager.getNetworkType());
+    public ConnectionType getCurrentConnectionType() {
+        return ConnectionType.fromNetworkInfo(connectivityManager.getActiveNetworkInfo(),
+                                              telephonyManager.getNetworkType());
     }
 
-    public boolean isNetworkConnected(){
+    public boolean isNetworkConnected() {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }

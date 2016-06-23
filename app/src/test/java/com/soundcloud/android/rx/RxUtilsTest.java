@@ -54,7 +54,8 @@ public class RxUtilsTest {
     public void concatEagerIgnorePartialErrorsOnFail() {
         final TestSubscriber<Integer> subscriber = new TestSubscriber<>();
         Observable
-                .just(asList(Observable.<Integer>error(new RuntimeException()), Observable.<Integer>error(new RuntimeException())))
+                .just(asList(Observable.<Integer>error(new RuntimeException()),
+                             Observable.<Integer>error(new RuntimeException())))
                 .compose(RxUtils.<Integer>concatEagerIgnorePartialErrors())
                 .subscribe(subscriber);
         subscriber.assertNoValues();

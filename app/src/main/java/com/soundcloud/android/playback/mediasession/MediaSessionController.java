@@ -75,7 +75,9 @@ public class MediaSessionController {
         audioFocusListener = new AudioFocusListener(listener);
         audioManager = mediaSessionWrapper.getAudioManager(context);
         mediaSession = mediaSessionWrapper.getMediaSession(context, TAG);
-        mediaSession.setCallback(new MediaSessionListener(this, playbackActionController, context.getApplicationContext()));
+        mediaSession.setCallback(new MediaSessionListener(this,
+                                                          playbackActionController,
+                                                          context.getApplicationContext()));
         mediaSession.setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         updatePlaybackState();
     }
@@ -187,7 +189,7 @@ public class MediaSessionController {
 
     private boolean requestAudioFocus() {
         int status = audioManager.requestAudioFocus(audioFocusListener,
-                AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+                                                    AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         boolean focusAcquired = status == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
         if (focusAcquired) {

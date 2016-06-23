@@ -166,7 +166,8 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadRequestedDownloadStateWhenPlaylistIsMarkedForOfflineAndHasDownloadRequests() {
-        final ApiPlaylist postedPlaylist = insertPlaylistWithRequestedDownload(POSTED_DATE_1, System.currentTimeMillis());
+        final ApiPlaylist postedPlaylist = insertPlaylistWithRequestedDownload(POSTED_DATE_1,
+                                                                               System.currentTimeMillis());
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -176,7 +177,9 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadDownloadedStateWhenPlaylistIsMarkedForOfflineAndNoDownloadRequest() {
-        final ApiPlaylist postedPlaylist = insertPlaylistWithDownloadedTrack(POSTED_DATE_1, 123L, System.currentTimeMillis());
+        final ApiPlaylist postedPlaylist = insertPlaylistWithDownloadedTrack(POSTED_DATE_1,
+                                                                             123L,
+                                                                             System.currentTimeMillis());
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -197,7 +200,9 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadDownloadStateOfAPlaylistWithSomeCreatorOptOutTracks() {
-        final ApiPlaylist postedPlaylist = insertPlaylistWithDownloadedTrack(POSTED_DATE_1, 123L, System.currentTimeMillis());
+        final ApiPlaylist postedPlaylist = insertPlaylistWithDownloadedTrack(POSTED_DATE_1,
+                                                                             123L,
+                                                                             System.currentTimeMillis());
         addCreatorOptOutTrackToPlaylist(postedPlaylist);
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
@@ -208,11 +213,16 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadDownloadedStateOfTwoDifferentPlaylistsDoesNotInfluenceEachOther() {
-        final ApiPlaylist postedPlaylistDownloaded = insertPlaylistWithDownloadedTrack(POSTED_DATE_1, 123L, System.currentTimeMillis());
-        final PropertySet downloadedPlaylist = createPostedPlaylistPropertySet(postedPlaylistDownloaded, OfflineState.DOWNLOADED);
+        final ApiPlaylist postedPlaylistDownloaded = insertPlaylistWithDownloadedTrack(POSTED_DATE_1,
+                                                                                       123L,
+                                                                                       System.currentTimeMillis());
+        final PropertySet downloadedPlaylist = createPostedPlaylistPropertySet(postedPlaylistDownloaded,
+                                                                               OfflineState.DOWNLOADED);
 
-        final ApiPlaylist postedPlaylistRequested = insertPlaylistWithRequestedDownload(POSTED_DATE_2, System.currentTimeMillis());
-        final PropertySet requestedPlaylist = createPostedPlaylistPropertySet(postedPlaylistRequested, OfflineState.REQUESTED);
+        final ApiPlaylist postedPlaylistRequested = insertPlaylistWithRequestedDownload(POSTED_DATE_2,
+                                                                                        System.currentTimeMillis());
+        final PropertySet requestedPlaylist = createPostedPlaylistPropertySet(postedPlaylistRequested,
+                                                                              OfflineState.REQUESTED);
 
         storage.loadPostedPlaylists(10, Long.MAX_VALUE).subscribe(subscriber);
 
@@ -306,7 +316,7 @@ public class PlaylistPostStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.LIKES_COUNT,
                 PlaylistProperty.IS_PRIVATE
         ).put(PostProperty.CREATED_AT, playlist.getCreatedAt())
-                .put(PlayableProperty.IS_USER_LIKE, false);
+                       .put(PlayableProperty.IS_USER_LIKE, false);
     }
 
     private ApiPlaylist createPlaylistAt(Date creationDate) {

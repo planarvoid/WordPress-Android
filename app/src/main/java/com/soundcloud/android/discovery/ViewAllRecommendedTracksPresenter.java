@@ -22,7 +22,8 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem> implements TrackRecommendationListener {
+class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
+        implements TrackRecommendationListener {
     private final RecommendedTracksOperations operations;
     private final DiscoveryAdapter adapter;
     private final EventBus eventBus;
@@ -69,7 +70,10 @@ class ViewAllRecommendedTracksPresenter extends RecyclerViewPresenter<List<Disco
 
     @Override
     public void onTrackClicked(Urn seedUrn, Urn trackUrn) {
-        trackRecommendationPlaybackInitiator.playFromRecommendation(seedUrn, trackUrn, Screen.RECOMMENDATIONS_MAIN, adapter.getItems());
+        trackRecommendationPlaybackInitiator.playFromRecommendation(seedUrn,
+                                                                    trackUrn,
+                                                                    Screen.RECOMMENDATIONS_MAIN,
+                                                                    adapter.getItems());
     }
 
     @Override

@@ -36,7 +36,7 @@ class TrackPageRecycler {
         return null;
     }
 
-    boolean hasExistingPage(Urn urn){
+    boolean hasExistingPage(Urn urn) {
         return containsView(urn);
     }
 
@@ -63,7 +63,7 @@ class TrackPageRecycler {
     }
 
     View getRecycledPage() {
-        if (scrapViews.isEmpty()){
+        if (scrapViews.isEmpty()) {
             return recycledViews.remove(0).view;
         } else {
             return scrapViews.pop();

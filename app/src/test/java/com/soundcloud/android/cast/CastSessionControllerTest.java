@@ -40,7 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CastSessionControllerTest extends AndroidUnitTest  {
+public class CastSessionControllerTest extends AndroidUnitTest {
 
     private static final Urn URN = Urn.forTrack(123L);
     private static final Urn URN2 = Urn.forTrack(456L);
@@ -63,14 +63,15 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
     @Before
     public void setUp() throws Exception {
         castSessionController = new CastSessionController(castOperations,
-                serviceInitiator,
-                castPlayer,
-                playQueueManager,
-                videoCastManager,
-                eventBus,
-                playSessionStateProvider,
-                expandPlayerSubscriberProvider);
-        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(Collections.<Urn>emptyList(), Urn.NOT_SET));
+                                                          serviceInitiator,
+                                                          castPlayer,
+                                                          playQueueManager,
+                                                          videoCastManager,
+                                                          eventBus,
+                                                          playSessionStateProvider,
+                                                          expandPlayerSubscriberProvider);
+        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(Collections.<Urn>emptyList(),
+                                                                                  Urn.NOT_SET));
     }
 
     @Test
@@ -178,10 +179,10 @@ public class CastSessionControllerTest extends AndroidUnitTest  {
         castSessionController.onMediaRouteDialogCellClick(activityContext);
 
         Assertions.assertThat(activityContext).nextStartedIntent()
-                .containsAction(Actions.STREAM)
-                .containsExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true)
-                .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                  .containsAction(Actions.STREAM)
+                  .containsExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true)
+                  .containsFlag(Intent.FLAG_ACTIVITY_NEW_TASK)
+                  .containsFlag(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
     private void callOnMetadatUpdated() {

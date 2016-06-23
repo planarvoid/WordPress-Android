@@ -55,8 +55,10 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
                     step(propeller.upsert(Table.Users, buildUserContentValues(promoter.get())));
                 }
 
-                InsertResult insertResult = step(propeller.insert(Table.PromotedTracks, buildPromotedContentValues(streamItem)));
-                step(propeller.insert(Table.SoundStream, buildSoundStreamContentValues(streamItem, insertResult.getRowId()).get()));
+                InsertResult insertResult = step(propeller.insert(Table.PromotedTracks,
+                                                                  buildPromotedContentValues(streamItem)));
+                step(propeller.insert(Table.SoundStream,
+                                      buildSoundStreamContentValues(streamItem, insertResult.getRowId()).get()));
             } else {
                 step(propeller.insert(Table.SoundStream, buildSoundStreamContentValues(streamItem).get()));
             }
@@ -65,11 +67,12 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
     protected void beforeInserts(PropellerDatabase propeller) {
         List<Long> promotedStreamIds = propeller.query(Query.from(Table.SoundStream.name())
-                .select(TableColumns.SoundStream.PROMOTED_ID)
-                .whereNotNull(TableColumns.SoundStream.PROMOTED_ID))
-                .toList(ScalarMapper.create(Long.class));
+                                                            .select(TableColumns.SoundStream.PROMOTED_ID)
+                                                            .whereNotNull(TableColumns.SoundStream.PROMOTED_ID))
+                                                .toList(ScalarMapper.create(Long.class));
         step(propeller.delete(Table.SoundStream, filter().whereNotNull(TableColumns.SoundStream.PROMOTED_ID)));
-        step(propeller.delete(Table.PromotedTracks, filter().whereIn(TableColumns.PromotedTracks._ID, promotedStreamIds)));
+        step(propeller.delete(Table.PromotedTracks,
+                              filter().whereIn(TableColumns.PromotedTracks._ID, promotedStreamIds)));
     }
 
     private boolean isTrack(ApiStreamItem streamItem) {
@@ -97,9 +100,12 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
     private ContentValuesBuilder buildSoundStreamContentValues(ApiStreamItem streamItem) {
         final ContentValuesBuilder builder = ContentValuesBuilder.values()
-                .put(TableColumns.SoundStream.SOUND_ID, getSoundId(streamItem))
-                .put(TableColumns.SoundStream.SOUND_TYPE, getSoundType(streamItem))
-                .put(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime());
+                                                                 .put(TableColumns.SoundStream.SOUND_ID,
+                                                                      getSoundId(streamItem))
+                                                                 .put(TableColumns.SoundStream.SOUND_TYPE,
+                                                                      getSoundType(streamItem))
+                                                                 .put(TableColumns.SoundStream.CREATED_AT,
+                                                                      streamItem.getCreatedAtTime());
 
         final Optional<ApiUser> reposter = streamItem.getReposter();
         if (reposter.isPresent()) {
@@ -118,13 +124,20 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
         final Joiner urlJoiner = Strings.joinOn(" ");
 
         final ContentValuesBuilder builder = ContentValuesBuilder.values()
-                .put(TableColumns.PromotedTracks.AD_URN, streamItem.getAdUrn().get())
-                .put(TableColumns.PromotedTracks.CREATED_AT, System.currentTimeMillis())
-                .put(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingProfileClickedUrls()))
-                .put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingPromoterClickedUrls()))
-                .put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingItemClickedUrls()))
-                .put(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, urlJoiner.join(streamItem.getTrackingItemImpressionUrls()))
-                .put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, urlJoiner.join(streamItem.getTrackingTrackPlayedUrls()));
+                                                                 .put(TableColumns.PromotedTracks.AD_URN,
+                                                                      streamItem.getAdUrn().get())
+                                                                 .put(TableColumns.PromotedTracks.CREATED_AT,
+                                                                      System.currentTimeMillis())
+                                                                 .put(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS,
+                                                                      urlJoiner.join(streamItem.getTrackingProfileClickedUrls()))
+                                                                 .put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS,
+                                                                      urlJoiner.join(streamItem.getTrackingPromoterClickedUrls()))
+                                                                 .put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS,
+                                                                      urlJoiner.join(streamItem.getTrackingItemClickedUrls()))
+                                                                 .put(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS,
+                                                                      urlJoiner.join(streamItem.getTrackingItemImpressionUrls()))
+                                                                 .put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS,
+                                                                      urlJoiner.join(streamItem.getTrackingTrackPlayedUrls()));
 
         final Optional<ApiUser> promoter = streamItem.getPromoter();
         if (promoter.isPresent()) {

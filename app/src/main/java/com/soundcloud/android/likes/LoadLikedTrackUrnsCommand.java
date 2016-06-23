@@ -35,11 +35,11 @@ public class LoadLikedTrackUrnsCommand extends Command<Void, List<Urn>> {
                 .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), Table.Sounds.field(TableColumns.Sounds._TYPE));
 
         return database.query(Query.from(Table.Likes.name())
-                .select(field("Likes._id").as(BaseColumns._ID))
-                .innerJoin(Table.Sounds.name(), whereTrackDataExists)
-                .whereEq("Likes." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .order("Likes." + CREATED_AT, DESC)
-                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
-                .toList(new TrackUrnMapper());
+                                   .select(field("Likes._id").as(BaseColumns._ID))
+                                   .innerJoin(Table.Sounds.name(), whereTrackDataExists)
+                                   .whereEq("Likes." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                                   .order("Likes." + CREATED_AT, DESC)
+                                   .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
+                       .toList(new TrackUrnMapper());
     }
 }

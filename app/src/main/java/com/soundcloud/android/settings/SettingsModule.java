@@ -17,4 +17,5 @@ import dagger.Module;
                 LegalFragment.class,
                 LicensesActivity.class
         })
-public class SettingsModule {}
+public class SettingsModule {
+}

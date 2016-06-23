@@ -32,8 +32,12 @@ public class UploadNotificationController {
     private final AccountOperations accountOperations;
 
     @Inject
-    public UploadNotificationController(Context context, Resources resources, NotificationManager notificationManager,
-                                        Provider<NotificationCompat.Builder> notificationBuilderProvider, Navigator navigator, AccountOperations accountOperations) {
+    public UploadNotificationController(Context context,
+                                        Resources resources,
+                                        NotificationManager notificationManager,
+                                        Provider<NotificationCompat.Builder> notificationBuilderProvider,
+                                        Navigator navigator,
+                                        AccountOperations accountOperations) {
         this.context = context;
         this.resources = resources;
         this.notificationManager = notificationManager;
@@ -56,7 +60,8 @@ public class UploadNotificationController {
     }
 
     private PendingIntent getPendingProcessingIntent(Recording recording) {
-        final Intent monitorIntentWithProgress = getMonitorIntent(recording).putExtra(UploadService.EXTRA_STAGE, UploadService.UPLOAD_STAGE_PROCESSING);
+        final Intent monitorIntentWithProgress = getMonitorIntent(recording).putExtra(UploadService.EXTRA_STAGE,
+                                                                                      UploadService.UPLOAD_STAGE_PROCESSING);
         return PendingIntent.getActivity(context, 0, monitorIntentWithProgress, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
@@ -91,18 +96,26 @@ public class UploadNotificationController {
         final Intent profileIntent = navigator.createProfileIntent(context, accountOperations.getLoggedInUserUrn());
         setDoneOptions(recording);
         finishedNotification.setContentTitle(resources.getString(R.string.cloud_uploader_notification_finished_title));
-        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_tracktitle_has_been_uploaded, recording.title));
+        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_tracktitle_has_been_uploaded,
+                                                                recording.title));
         finishedNotification.setTicker(resources.getString(R.string.cloud_uploader_notification_finished_ticker));
-        finishedNotification.setContentIntent(PendingIntent.getActivity(context, 0, profileIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+        finishedNotification.setContentIntent(PendingIntent.getActivity(context,
+                                                                        0,
+                                                                        profileIntent,
+                                                                        PendingIntent.FLAG_UPDATE_CURRENT));
         return finishedNotification.build();
     }
 
     private Notification createUploadErrorNotification(Recording recording) {
         setDoneOptions(recording);
         finishedNotification.setContentTitle(resources.getString(R.string.cloud_uploader_notification_error_title));
-        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_error_message_tracktitle, recording.title));
+        finishedNotification.setContentText(resources.getString(R.string.cloud_uploader_notification_error_message_tracktitle,
+                                                                recording.title));
         finishedNotification.setTicker(resources.getString(R.string.cloud_uploader_notification_error_ticker));
-        finishedNotification.setContentIntent(PendingIntent.getActivity(context, 0, getMonitorIntent(recording), PendingIntent.FLAG_UPDATE_CURRENT));
+        finishedNotification.setContentIntent(PendingIntent.getActivity(context,
+                                                                        0,
+                                                                        getMonitorIntent(recording),
+                                                                        PendingIntent.FLAG_UPDATE_CURRENT));
         return finishedNotification.build();
     }
 
@@ -128,7 +141,9 @@ public class UploadNotificationController {
     }
 
     private void setDefaultOptions(NotificationCompat.Builder notificationBuilder, Recording recording) {
-        notificationBuilder.setContentTitle(TextUtils.isEmpty(recording.title) ? recording.sharingNote(resources) : recording.title);
+        notificationBuilder.setContentTitle(TextUtils.isEmpty(recording.title) ?
+                                            recording.sharingNote(resources) :
+                                            recording.title);
         notificationBuilder.setSmallIcon(R.drawable.ic_notification_cloud);
         notificationBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         configureIcon(notificationBuilder, recording);
@@ -137,8 +152,8 @@ public class UploadNotificationController {
     private void configureIcon(NotificationCompat.Builder notificationBuilder, Recording recording) {
         if (recording.hasArtwork()) {
             Bitmap bitmap = ImageUtils.getConfiguredBitmap(recording.getArtwork(),
-                    (int) resources.getDimension(R.dimen.notification_image_width),
-                    (int) resources.getDimension(R.dimen.notification_image_height));
+                                                           (int) resources.getDimension(R.dimen.notification_image_width),
+                                                           (int) resources.getDimension(R.dimen.notification_image_height));
             if (bitmap != null) {
                 notificationBuilder.setLargeIcon(bitmap);
             }

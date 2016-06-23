@@ -59,7 +59,11 @@ public class AuthenticatorService extends Service {
         }
 
         @Override
-        public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
+        public Bundle addAccount(AccountAuthenticatorResponse response,
+                                 String accountType,
+                                 String authTokenType,
+                                 String[] requiredFeatures,
+                                 Bundle options) throws NetworkErrorException {
             final Bundle reply = new Bundle();
             AccountManager mgr = AccountManager.get(context);
             Account[] accounts = mgr.getAccountsByType(accountType);
@@ -88,7 +92,8 @@ public class AuthenticatorService extends Service {
          * and subsequently trigger a user data wipe.
          */
         @Override
-        public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response, Account account) throws NetworkErrorException {
+        public Bundle getAccountRemovalAllowed(AccountAuthenticatorResponse response,
+                                               Account account) throws NetworkErrorException {
             Bundle result = super.getAccountRemovalAllowed(response, account);
 
             if (result != null && result.containsKey(AccountManager.KEY_BOOLEAN_RESULT)
@@ -104,12 +109,17 @@ public class AuthenticatorService extends Service {
         }
 
         @Override
-        public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options) throws NetworkErrorException {
+        public Bundle confirmCredentials(AccountAuthenticatorResponse response,
+                                         Account account,
+                                         Bundle options) throws NetworkErrorException {
             return null;
         }
 
         @Override
-        public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
+        public Bundle getAuthToken(AccountAuthenticatorResponse response,
+                                   Account account,
+                                   String authTokenType,
+                                   Bundle options) throws NetworkErrorException {
             return null;
         }
 
@@ -119,12 +129,17 @@ public class AuthenticatorService extends Service {
         }
 
         @Override
-        public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
+        public Bundle updateCredentials(AccountAuthenticatorResponse response,
+                                        Account account,
+                                        String authTokenType,
+                                        Bundle options) throws NetworkErrorException {
             return null;
         }
 
         @Override
-        public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
+        public Bundle hasFeatures(AccountAuthenticatorResponse response,
+                                  Account account,
+                                  String[] features) throws NetworkErrorException {
             return null;
         }
     }

@@ -26,8 +26,8 @@ class IsOfflineLikedTracksEnabledCommand extends Command<Void, Boolean> {
 
     static Query isOfflineLikesEnabledQuery() {
         return Query.apply(exists(Query.from(Tables.OfflineContent.TABLE)
-                .where(OfflineContentStorage.offlineLikesFilter()))
-                .as(IS_OFFLINE_LIKES));
+                                       .where(OfflineContentStorage.offlineLikesFilter()))
+                                   .as(IS_OFFLINE_LIKES));
     }
 }
 

@@ -66,7 +66,9 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
             }
         };
 
-        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory, playerArtworkLoaderProvider).create(playerTrackArtworkView);
+        playerArtworkController = new PlayerArtworkController.Factory(animationControllerFactory,
+                                                                      playerArtworkLoaderProvider).create(
+                playerTrackArtworkView);
     }
 
     @Test
@@ -148,7 +150,7 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
     }
 
     @Test
-     public void setProgressSetsProgressOnControllerIfDurationSet() {
+    public void setProgressSetsProgressOnControllerIfDurationSet() {
         playerArtworkController.setFullDuration(FULL_DURATION);
         playerArtworkController.setProgress(playbackProgress);
         verify(progressController).setPlaybackProgress(playbackProgress, FULL_DURATION);
@@ -205,6 +207,10 @@ public class PlayerArtworkControllerTest extends AndroidUnitTest {
         when(wrappedImageView.getContext()).thenReturn(context());
 
         playerArtworkController.loadArtwork(imageResource, true, viewVisibilityProvider);
-        verify(playerArtworkLoader).loadArtwork(same(imageResource), same(wrappedImageView), same(artworkOverlayImage), eq(true), same(viewVisibilityProvider));
+        verify(playerArtworkLoader).loadArtwork(same(imageResource),
+                                                same(wrappedImageView),
+                                                same(artworkOverlayImage),
+                                                eq(true),
+                                                same(viewVisibilityProvider));
     }
 }

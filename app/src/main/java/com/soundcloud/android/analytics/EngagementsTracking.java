@@ -31,14 +31,14 @@ public class EngagementsTracking {
                              PromotedSourceInfo promotedSourceInfo) {
 
         trackRepository.track(trackUrn)
-                .map(likeEventFromTrack(trackUrn, addLike, eventMetadata, promotedSourceInfo))
-                .subscribe(eventBus.queue(EventQueue.TRACKING));
+                       .map(likeEventFromTrack(trackUrn, addLike, eventMetadata, promotedSourceInfo))
+                       .subscribe(eventBus.queue(EventQueue.TRACKING));
     }
 
     public void followUserUrn(Urn userUrn, boolean isFollow) {
         userRepository.userInfo(userUrn)
-                .map(followEventFromUser(isFollow))
-                .subscribe(eventBus.queue(EventQueue.TRACKING));
+                      .map(followEventFromUser(isFollow))
+                      .subscribe(eventBus.queue(EventQueue.TRACKING));
     }
 
     private Func1<PropertySet, UIEvent> likeEventFromTrack(final Urn trackUrn, final boolean addLike,
@@ -47,7 +47,11 @@ public class EngagementsTracking {
         return new Func1<PropertySet, UIEvent>() {
             @Override
             public UIEvent call(PropertySet track) {
-                return UIEvent.fromToggleLike(addLike, trackUrn, eventMetadata, promotedSourceInfo, EntityMetadata.from(track));
+                return UIEvent.fromToggleLike(addLike,
+                                              trackUrn,
+                                              eventMetadata,
+                                              promotedSourceInfo,
+                                              EntityMetadata.from(track));
             }
         };
     }

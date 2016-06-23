@@ -18,11 +18,14 @@ import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import javax.inject.Inject;
 
-public class UserPlaylistsFragment extends LightCycleSupportFragment<UserPlaylistsFragment> implements RefreshableScreen {
+public class UserPlaylistsFragment extends LightCycleSupportFragment<UserPlaylistsFragment>
+        implements RefreshableScreen {
 
     @Inject @LightCycle UserPlaylistsPresenter presenter;
 
-    public static UserPlaylistsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static UserPlaylistsFragment create(Urn userUrn,
+                                               Screen screen,
+                                               SearchQuerySourceInfo searchQuerySourceInfo) {
         UserPlaylistsFragment fragment = new UserPlaylistsFragment();
         fragment.setArguments(ProfileArguments.from(userUrn, screen, searchQuerySourceInfo));
         return fragment;
@@ -33,7 +36,8 @@ public class UserPlaylistsFragment extends LightCycleSupportFragment<UserPlaylis
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {

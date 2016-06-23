@@ -74,8 +74,8 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
         command.call(singletonList(track));
 
         assertThat(select(from(Sounds.name())
-                .whereEq(_ID, track.getId())
-                .whereEq(DESCRIPTION, "description"))).counts(1);
+                                  .whereEq(_ID, track.getId())
+                                  .whereEq(DESCRIPTION, "description"))).counts(1);
 
     }
 }

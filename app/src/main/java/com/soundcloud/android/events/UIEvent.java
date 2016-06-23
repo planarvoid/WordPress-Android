@@ -44,7 +44,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_PLAYER_OPEN = "player_open";
     public static final String KIND_PLAYER_CLOSE = "player_close";
     public static final String KIND_VIDEO_AD_CLICKTHROUGH = "video_ad_click_through";
-    public static final String KIND_VIDEO_AD_FULLSCREEN= "video_ad_fullscreen";
+    public static final String KIND_VIDEO_AD_FULLSCREEN = "video_ad_fullscreen";
     public static final String KIND_VIDEO_AD_SHRINK = "video_ad_shrink";
     public static final String KIND_AUDIO_AD_CLICK = "audio_ad_click";
     public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
@@ -162,7 +162,9 @@ public final class UIEvent extends TrackingEvent {
                 .put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, videoAd.getClickThroughUrl());
     }
 
-    private static UIEvent withBasicVideoAdAttributes(UIEvent adEvent, VideoAd videoAd, TrackSourceInfo trackSourceInfo) {
+    private static UIEvent withBasicVideoAdAttributes(UIEvent adEvent,
+                                                      VideoAd videoAd,
+                                                      TrackSourceInfo trackSourceInfo) {
         return adEvent
                 .put(PlayableTrackingKeys.KEY_AD_URN, videoAd.getAdUrn().toString())
                 .put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, videoAd.getMonetizableTrackUrn().toString())
@@ -170,26 +172,53 @@ public final class UIEvent extends TrackingEvent {
                 .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
     }
 
-    public static UIEvent fromAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
-        return fromAudioAdCompanionDisplayClick(audioAd, audioAdTrack, user, trackSourceInfo, System.currentTimeMillis());
+    public static UIEvent fromAudioAdClick(AudioAd audioAd,
+                                           Urn audioAdTrack,
+                                           Urn user,
+                                           @Nullable TrackSourceInfo trackSourceInfo) {
+        return fromAudioAdCompanionDisplayClick(audioAd,
+                                                audioAdTrack,
+                                                user,
+                                                trackSourceInfo,
+                                                System.currentTimeMillis());
     }
 
-    public static UIEvent fromSkipAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
+    public static UIEvent fromSkipAudioAdClick(AudioAd audioAd,
+                                               Urn audioAdTrack,
+                                               Urn user,
+                                               @Nullable TrackSourceInfo trackSourceInfo) {
         return fromSkipAudioAdClick(audioAd, audioAdTrack, user, trackSourceInfo, System.currentTimeMillis());
     }
 
     @VisibleForTesting
-    public static UIEvent fromAudioAdCompanionDisplayClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
-        return withBasicAudioAdAttributes(new UIEvent(KIND_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
+    public static UIEvent fromAudioAdCompanionDisplayClick(AudioAd audioAd,
+                                                           Urn audioAdTrack,
+                                                           Urn user,
+                                                           @Nullable TrackSourceInfo trackSourceInfo,
+                                                           long timestamp) {
+        return withBasicAudioAdAttributes(new UIEvent(KIND_AUDIO_AD_CLICK, timestamp),
+                                          audioAd,
+                                          audioAdTrack,
+                                          user,
+                                          trackSourceInfo)
                 .<UIEvent>put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getVisualAd().getAdUrn().toString())
                 .<UIEvent>put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
-                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.getVisualAd().getClickThroughUrl().toString())
+                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL,
+                              audioAd.getVisualAd().getClickThroughUrl().toString())
                 .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.getVisualAd().getClickUrls());
     }
 
     @VisibleForTesting
-    public static UIEvent fromSkipAudioAdClick(AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo, long timestamp) {
-        return withBasicAudioAdAttributes(new UIEvent(KIND_SKIP_AUDIO_AD_CLICK, timestamp), audioAd, audioAdTrack, user, trackSourceInfo)
+    public static UIEvent fromSkipAudioAdClick(AudioAd audioAd,
+                                               Urn audioAdTrack,
+                                               Urn user,
+                                               @Nullable TrackSourceInfo trackSourceInfo,
+                                               long timestamp) {
+        return withBasicAudioAdAttributes(new UIEvent(KIND_SKIP_AUDIO_AD_CLICK, timestamp),
+                                          audioAd,
+                                          audioAdTrack,
+                                          user,
+                                          trackSourceInfo)
                 .<UIEvent>put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getAdUrn().toString())
                 .addPromotedTrackingUrls(SKIPS, audioAd.getSkipUrls());
     }
@@ -199,7 +228,11 @@ public final class UIEvent extends TrackingEvent {
                 .putPlayableMetadata(metadata);
     }
 
-    private static UIEvent withBasicAudioAdAttributes(UIEvent event, AudioAd audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
+    private static UIEvent withBasicAudioAdAttributes(UIEvent event,
+                                                      AudioAd audioAd,
+                                                      Urn audioAdTrack,
+                                                      Urn user,
+                                                      @Nullable TrackSourceInfo trackSourceInfo) {
         return event
                 .put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, audioAdTrack.toString())
                 .put(PlayableTrackingKeys.KEY_USER_URN, user.toString())

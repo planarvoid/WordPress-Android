@@ -24,7 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * com/android/camera/gallery/LruCache.java
  * </a>
  */
-@Deprecated // use our own Cache class
+@Deprecated
+        // use our own Cache class
 class ModelCache<V extends ScModel> {
 
     private final Map<Long, V> lruMap;
@@ -92,7 +93,7 @@ class ModelCache<V extends ScModel> {
     public String toString() {
         return "LruCache{lru: " + lruMap.size() +
                 " lru ratio: " + String.format(Locale.getDefault(), "%.2f",
-                lruHits.doubleValue() / requests.doubleValue()) + "}";
+                                               lruHits.doubleValue() / requests.doubleValue()) + "}";
     }
 
 }

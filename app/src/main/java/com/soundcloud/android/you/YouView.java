@@ -148,15 +148,25 @@ public class YouView implements ScrollContent {
 
     interface Listener {
         void onProfileClicked(View view);
+
         void onExploreClicked(View view);
+
         void onActivitiesClicked(View view);
+
         void onRecordClicked(View view);
+
         void onOfflineSettingsClicked(View view);
+
         void onNotificationPreferencesClicked(View view);
+
         void onBasicSettingsClicked(View view);
+
         void onReportBugClicked(View view);
+
         void onHelpCenterClicked(View view);
+
         void onLegalClicked(View view);
+
         void onSignOutClicked(View view);
     }
 

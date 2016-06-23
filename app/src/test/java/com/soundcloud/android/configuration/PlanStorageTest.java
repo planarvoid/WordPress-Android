@@ -19,7 +19,8 @@ public class PlanStorageTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        SharedPreferences prefs = new ObfuscatedPreferences(sharedPreferences("test", Context.MODE_PRIVATE), new Obfuscator());
+        SharedPreferences prefs = new ObfuscatedPreferences(sharedPreferences("test", Context.MODE_PRIVATE),
+                                                            new Obfuscator());
         storage = new PlanStorage(prefs);
     }
 

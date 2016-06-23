@@ -54,7 +54,13 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         when(collectionOperations.onCollectionChanged()).thenReturn(Observable.empty());
         options = PlaylistsOptions.builder().build();
         when(collectionOptionsStorage.getLastOrDefault()).thenReturn(options);
-        presenter = new CollectionPresenter(swipeRefreshAttacher, collectionOperations, collectionOptionsStorage, adapter, optionsPresenter, resources(), eventBus);
+        presenter = new CollectionPresenter(swipeRefreshAttacher,
+                                            collectionOperations,
+                                            collectionOptionsStorage,
+                                            adapter,
+                                            optionsPresenter,
+                                            resources(),
+                                            eventBus);
     }
 
     @Test
@@ -188,8 +194,8 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     public void collectionsItemsShouldContainPreviewCollectionItemWhenThereAreNoLikesOrStations() {
         final List<PlaylistItem> playlistItems = Collections.emptyList();
         final MyCollection myCollection = getMyCollection(playlistItems,
-                LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()),
-                Collections.<StationRecord>emptyList(), false);
+                                                          LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList()),
+                                                          Collections.<StationRecord>emptyList(), false);
 
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
@@ -215,7 +221,10 @@ public class CollectionPresenterTest extends AndroidUnitTest {
     }
 
     @NonNull
-    private MyCollection getMyCollection(List<PlaylistItem> playlistItems, LikesItem likes, List<StationRecord> recentStations, boolean atLeastOneError) {
+    private MyCollection getMyCollection(List<PlaylistItem> playlistItems,
+                                         LikesItem likes,
+                                         List<StationRecord> recentStations,
+                                         boolean atLeastOneError) {
         return MyCollection.forCollectionWithPlaylists(likes, playlistItems, recentStations, atLeastOneError);
     }
 }

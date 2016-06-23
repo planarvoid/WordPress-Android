@@ -29,21 +29,21 @@ class TrackStorage {
 
     Observable<PropertySet> loadTrack(Urn urn) {
         return propeller.query(buildTrackQuery(urn))
-                .map(trackMapper)
-                .firstOrDefault(PropertySet.create());
+                        .map(trackMapper)
+                        .firstOrDefault(PropertySet.create());
     }
 
     Observable<PropertySet> loadTrackDescription(Urn urn) {
         return propeller.query(buildTrackDescriptionQuery(urn))
-                .map(new TrackDescriptionMapper())
-                .firstOrDefault(PropertySet.create());
+                        .map(new TrackDescriptionMapper())
+                        .firstOrDefault(PropertySet.create());
     }
 
     private Query buildTrackDescriptionQuery(Urn trackUrn) {
         return Query.from(Table.SoundView.name())
-                .select(TableColumns.SoundView.DESCRIPTION)
-                .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .select(TableColumns.SoundView.DESCRIPTION)
+                    .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
+                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 
     private Query buildTrackQuery(Urn trackUrn) {
@@ -53,33 +53,35 @@ class TrackStorage {
         fields.add(exists(repostQuery(trackUrn)).as(TableColumns.SoundView.USER_REPOST));
 
         return Query.from(Table.SoundView.name())
-                .select(fields.toArray())
-                .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .select(fields.toArray())
+                    .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
+                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 
     private Query likeQuery(Urn trackUrn) {
         final Where joinConditions = Filter.filter()
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
+                                           .whereEq(Table.Sounds.field(TableColumns.Sounds._ID),
+                                                    Table.Likes.field(TableColumns.Likes._ID))
+                                           .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE),
+                                                    Table.Likes.field(TableColumns.Likes._TYPE));
 
         return Query.from(Table.Likes.name())
-                .innerJoin(Table.Sounds.name(), joinConditions)
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), trackUrn.getNumericId())
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+                    .innerJoin(Table.Sounds.name(), joinConditions)
+                    .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), trackUrn.getNumericId())
+                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private Query repostQuery(Urn trackUrn) {
         final Where joinConditions = Filter.filter()
-                .whereEq(TableColumns.Sounds._ID, TableColumns.Posts.TARGET_ID)
-                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Posts.TARGET_TYPE);
+                                           .whereEq(TableColumns.Sounds._ID, TableColumns.Posts.TARGET_ID)
+                                           .whereEq(TableColumns.Sounds._TYPE, TableColumns.Posts.TARGET_TYPE);
 
         return Query.from(Table.Posts.name())
-                .innerJoin(Table.Sounds.name(), joinConditions)
-                .whereEq(TableColumns.Sounds._ID, trackUrn.getNumericId())
-                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
+                    .innerJoin(Table.Sounds.name(), joinConditions)
+                    .whereEq(TableColumns.Sounds._ID, trackUrn.getNumericId())
+                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                    .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
     }
 
 }

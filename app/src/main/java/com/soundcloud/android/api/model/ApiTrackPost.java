@@ -20,12 +20,12 @@ public class ApiTrackPost implements ApiEntityHolder, TrackRecordHolder {
     @Override
     public PropertySet toPropertySet() {
         return apiTrack.toPropertySet()
-                .put(PostProperty.IS_REPOST, false)
-                .put(PostProperty.CREATED_AT, apiTrack.getCreatedAt());
+                       .put(PostProperty.IS_REPOST, false)
+                       .put(PostProperty.CREATED_AT, apiTrack.getCreatedAt());
     }
 
     @Override
-    public TrackRecord getTrackRecord(){
+    public TrackRecord getTrackRecord() {
         return apiTrack;
     }
 

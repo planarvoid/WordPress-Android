@@ -51,8 +51,8 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     public void testPlayerAddTrackToPlaylist() {
         final AddToPlaylistScreen addToPlaylistScreen = streamScreen.clickFirstTrackCard()
-                .clickMenu()
-                .clickAddToPlaylist();
+                                                                    .clickMenu()
+                                                                    .clickAddToPlaylist();
 
         assertThat(addToPlaylistScreen, is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()));
     }

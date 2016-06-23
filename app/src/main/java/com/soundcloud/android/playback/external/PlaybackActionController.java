@@ -39,7 +39,7 @@ public class PlaybackActionController {
     }
 
     private void reconfigureAdIfBackgroundSkip(String source) {
-        switch(source) {
+        switch (source) {
             case PlaybackActionReceiver.SOURCE_REMOTE:
             case PlaybackActionReceiver.SOURCE_WIDGET:
                 adsController.reconfigureAdForNextTrack();

@@ -207,9 +207,9 @@ public final class UploadEvent {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("kind", kind)
-                .add("progress", progress)
-                .add("track", track)
-                .toString();
+                          .add("kind", kind)
+                          .add("progress", progress)
+                          .add("track", track)
+                          .toString();
     }
 }

@@ -189,7 +189,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             playHistoryController.subscribe();
         }
 
-        if (featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)){
+        if (featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)) {
             playlistExploder.subscribe();
         }
 
@@ -322,14 +322,14 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private static void setupStrictMode() {
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
+                                           .detectAll()
+                                           .penaltyLog()
+                                           .build());
 
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
+                                       .detectAll()
+                                       .penaltyLog()
+                                       .build());
     }
 
     @Override

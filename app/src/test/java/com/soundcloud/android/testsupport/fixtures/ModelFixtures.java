@@ -155,32 +155,65 @@ public class ModelFixtures {
     }
 
     public static ApiPolicyInfo apiPolicyInfo(Urn trackUrn, boolean monetizable, String policy, boolean syncable) {
-        return ApiPolicyInfo.create(trackUrn.toString(), monetizable, policy, syncable, "model", true, true, true, true);
+        return ApiPolicyInfo.create(trackUrn.toString(),
+                                    monetizable,
+                                    policy,
+                                    syncable,
+                                    "model",
+                                    true,
+                                    true,
+                                    true,
+                                    true);
     }
 
     public static DownloadRequest downloadRequestFromLikes(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), true, false);
-        return DownloadRequest.create(track.getUrn(), track.getImageUrlTemplate(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(),
+                                      track.getImageUrlTemplate(),
+                                      track.getFullDuration(),
+                                      track.getWaveformUrl(),
+                                      true,
+                                      trackContext);
     }
 
     public static DownloadRequest downloadRequestFromLikes(Urn track) {
         TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), true, false);
-        return DownloadRequest.create(track, Optional.of("http://artwork.url"), 1234, "http://waveform.url", true, trackContext);
+        return DownloadRequest.create(track,
+                                      Optional.of("http://artwork.url"),
+                                      1234,
+                                      "http://waveform.url",
+                                      true,
+                                      trackContext);
     }
 
     public static DownloadRequest downloadRequestFromPlaylists(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), false, true);
-        return DownloadRequest.create(track.getUrn(), track.getImageUrlTemplate(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(),
+                                      track.getImageUrlTemplate(),
+                                      track.getFullDuration(),
+                                      track.getWaveformUrl(),
+                                      true,
+                                      trackContext);
     }
 
     public static DownloadRequest downloadRequestFromLikesAndPlaylists(ApiTrack track) {
         TrackingMetadata trackContext = new TrackingMetadata(track.getUser().getUrn(), true, true);
-        return DownloadRequest.create(track.getUrn(), track.getImageUrlTemplate(), track.getFullDuration(), track.getWaveformUrl(), true, trackContext);
+        return DownloadRequest.create(track.getUrn(),
+                                      track.getImageUrlTemplate(),
+                                      track.getFullDuration(),
+                                      track.getWaveformUrl(),
+                                      true,
+                                      trackContext);
     }
 
     public static DownloadRequest creatorOptOutRequest(Urn track) {
         TrackingMetadata trackContext = new TrackingMetadata(Urn.forUser(123L), false, true);
-        return DownloadRequest.create(track, Optional.of("http://artwork.url"), 1234, "http://waveform.url", false, trackContext);
+        return DownloadRequest.create(track,
+                                      Optional.of("http://artwork.url"),
+                                      1234,
+                                      "http://waveform.url",
+                                      false,
+                                      trackContext);
     }
 
     public static ApiActivityItem apiActivityWithLikedTrack(ApiTrack track) {
@@ -246,12 +279,12 @@ public class ModelFixtures {
 
     public static ApiComment apiComment(Urn commentUrn, Urn trackUrn, ApiUser byUser) {
         return ApiComment.builder()
-                .urn(commentUrn)
-                .trackUrn(trackUrn)
-                .body("Great stuff!")
-                .createdAt(new Date())
-                .trackTime(1234)
-                .user(byUser)
-                .build();
+                         .urn(commentUrn)
+                         .trackUrn(trackUrn)
+                         .body("Great stuff!")
+                         .createdAt(new Date())
+                         .trackTime(1234)
+                         .user(byUser)
+                         .build();
     }
 }

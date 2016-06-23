@@ -26,7 +26,7 @@ public class StationsOnboardingStreamItemRenderer implements CellRenderer<Statio
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.stations_onboarding_stream_notification_card, parent, false);
+                             .inflate(R.layout.stations_onboarding_stream_notification_card, parent, false);
     }
 
     public void setListener(Listener listener) {

@@ -85,9 +85,9 @@ public class WebConversionPresenterTest extends AndroidUnitTest {
         presenter.startPurchase();
 
         Assertions.assertThat(activity)
-                .nextStartedIntent()
-                .containsExtra(WebConversionPresenter.PRODUCT_INFO, product)
-                .opensActivity(WebCheckoutActivity.class);
+                  .nextStartedIntent()
+                  .containsExtra(WebConversionPresenter.PRODUCT_INFO, product)
+                  .opensActivity(WebCheckoutActivity.class);
     }
 
     @Test

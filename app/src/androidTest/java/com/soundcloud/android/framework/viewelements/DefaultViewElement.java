@@ -106,10 +106,10 @@ public class DefaultViewElement extends ViewElement {
     public void dragHorizontally(int n, int steps) {
         int[] xy = getLocation();
         testDriver.drag(Math.max(xy[0], 0),
-                Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
-                xy[1],
-                xy[1],
-                steps);
+                        Math.max(Math.min(getScreenWidth(), xy[0] + n), 0),
+                        xy[1],
+                        xy[1],
+                        steps);
     }
 
     @Override
@@ -236,7 +236,10 @@ public class DefaultViewElement extends ViewElement {
     }
 
     private Rect getRect() {
-        return new Rect(getLocation()[0], getLocation()[1], getLocation()[0] + view.getWidth(), getLocation()[1] + view.getHeight());
+        return new Rect(getLocation()[0],
+                        getLocation()[1],
+                        getLocation()[0] + view.getWidth(),
+                        getLocation()[1] + view.getHeight());
     }
 
     @Override

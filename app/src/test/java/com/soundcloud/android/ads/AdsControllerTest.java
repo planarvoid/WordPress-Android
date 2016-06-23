@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlayStateReason;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -61,9 +62,12 @@ public class AdsControllerTest extends AndroidUnitTest {
     private final Urn nextTrackUrn = Urn.forTrack(456L);
     private final TrackQueueItem nextPlayQueueItem = TestPlayQueueItem.createTrack(nextTrackUrn);
 
-    private final PropertySet currentMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(currentTrackUrn), TrackProperty.MONETIZABLE.bind(true));
-    private final PropertySet nextMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn), TrackProperty.MONETIZABLE.bind(true));
-    private final PropertySet nextNonMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn), TrackProperty.MONETIZABLE.bind(false));
+    private final PropertySet currentMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(currentTrackUrn),
+                                                                               TrackProperty.MONETIZABLE.bind(true));
+    private final PropertySet nextMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
+                                                                            TrackProperty.MONETIZABLE.bind(true));
+    private final PropertySet nextNonMonetizablePropertySet = PropertySet.from(TrackProperty.URN.bind(nextTrackUrn),
+                                                                               TrackProperty.MONETIZABLE.bind(false));
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
@@ -88,8 +92,13 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(playQueueManager.isCurrentItem(currentPlayQueueItem)).thenReturn(true);
         when(playQueueManager.isNextItem(nextPlayQueueItem)).thenReturn(true);
 
-        adsController = new AdsController(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-                playQueueManager, trackRepository, scheduler);
+        adsController = new AdsController(eventBus,
+                                          adsOperations,
+                                          visualAdImpressionOperations,
+                                          adOverlayImpressionOperations,
+                                          playQueueManager,
+                                          trackRepository,
+                                          scheduler);
         apiAdsForTrack = AdFixtures.fullAdsForTrack();
     }
 
@@ -103,10 +112,15 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void trackChangeEventInsertsInterstitialForCurrentTrackIntoPlayQueue() throws CreateModelException {
         when(trackRepository.track(currentTrackUrn)).thenReturn(Observable.just(currentMonetizablePropertySet));
-        when(adsOperations.ads(eq(currentTrackUrn), anyBoolean(), anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
+        when(adsOperations.ads(eq(currentTrackUrn), anyBoolean(), anyBoolean())).thenReturn(Observable.just(
+                apiAdsForTrack));
         adsController.subscribe();
-        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(currentTrackUrn, InterstitialAd.create(apiAdsForTrack.interstitialAd().get(), currentTrackUrn));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
+        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(currentTrackUrn,
+                                                                       InterstitialAd.create(apiAdsForTrack.interstitialAd()
+                                                                                                           .get(),
+                                                                                             currentTrackUrn));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
 
         verify(adsOperations).applyInterstitialToTrack(currentPlayQueueItem, apiAdsForTrack);
     }
@@ -118,7 +132,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.<PropertySet>empty());
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
         verify(adsOperations, never()).ads(any(Urn.class), anyBoolean(), anyBoolean());
     }
 
@@ -128,7 +143,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.<PropertySet>empty());
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
         verify(trackRepository).track(nextTrackUrn);
     }
@@ -138,7 +154,9 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void playQueueUpdateEventInsertsAudioAdIntoPlayQueue() throws CreateModelException {
         when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.ads(eq(nextTrackUrn), anyBoolean(), anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
+        when(adsOperations.ads(eq(nextTrackUrn),
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET));
@@ -167,7 +185,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         when(playQueueManager.hasNextItem()).thenReturn(true);
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(videoItem, nextPlayQueueItem);
 
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE,
+                         ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
         adsController.reconfigureAdForNextTrack();
 
         verify(adsOperations).replaceUpcomingVideoAd(any(ApiAdsForTrack.class), any(VideoQueueItem.class));
@@ -179,7 +198,8 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         when(adsOperations.isNextItemAd()).thenReturn(false);
         when(playQueueManager.hasNextItem()).thenReturn(true);
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE,
+                         ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();
 
@@ -191,7 +211,8 @@ public class AdsControllerTest extends AndroidUnitTest {
         insertFullAdsForNextTrack();
 
         when(adsOperations.isNextItemAd()).thenReturn(false);
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(mock(AppCompatActivity.class)));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE,
+                         ActivityLifeCycleEvent.forOnResume(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();
 
@@ -212,11 +233,13 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void configureAdForNextTrackDoesNotReplaceAnExistingAudioAd() {
-        final PlayQueueItem audioAd = TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        final PlayQueueItem audioAd = TestPlayQueueItem.createTrack(Urn.forTrack(123L),
+                                                                    AdFixtures.getAudioAd(Urn.forTrack(123L)));
         insertFullAdsForNextTrack();
 
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(audioAd);
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE,
+                         ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();
 
@@ -226,7 +249,8 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void configureAdForNextTrackDoesNothingWithNoAdsForNextTrack() {
         when(adsOperations.isNextItemAd()).thenReturn(false);
-        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE,
+                         ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
 
         adsController.reconfigureAdForNextTrack();
 
@@ -239,7 +263,9 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adsOperations, never()).applyAdToUpcomingTrack(any(ApiAdsForTrack.class));
     }
@@ -247,13 +273,17 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void trackChangeEventDoesNothingIfNextTrackIsAudioAd() {
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.ads(eq(nextTrackUrn), anyBoolean(), anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
+        when(adsOperations.ads(eq(nextTrackUrn),
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
         when(playQueueManager.hasNextItem()).thenReturn(true);
         when(adsOperations.isNextItemAd()).thenReturn(true);
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adsOperations, never()).applyAdToUpcomingTrack(any(ApiAdsForTrack.class));
     }
@@ -261,13 +291,17 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void trackChangeEventDoesNotApplyAdIfAlreadyPlayingAd() {
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.ads(eq(nextTrackUrn), anyBoolean(), anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
+        when(adsOperations.ads(eq(nextTrackUrn),
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
         when(playQueueManager.hasNextItem()).thenReturn(true);
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adsOperations, never()).applyAdToUpcomingTrack(any(ApiAdsForTrack.class));
     }
@@ -279,7 +313,9 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adsOperations, never()).applyAdToUpcomingTrack(any(ApiAdsForTrack.class));
     }
@@ -288,11 +324,16 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void trackChangeEventDoesNothingIfAudioAdFetchEmitsError() {
         when(playQueueManager.hasNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.ads(eq(nextTrackUrn), anyBoolean(), anyBoolean())).thenReturn(Observable.<ApiAdsForTrack>error(new IOException("Ad fetch error")));
+        when(adsOperations.ads(eq(nextTrackUrn),
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(Observable.<ApiAdsForTrack>error(new IOException(
+                "Ad fetch error")));
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adsOperations, never()).applyAdToUpcomingTrack(any(ApiAdsForTrack.class));
     }
@@ -302,7 +343,9 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adsOperations).clearAllAdsFromQueue();
     }
@@ -313,7 +356,9 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(adsOperations, never()).clearAllAdsFromQueue();
     }
@@ -330,12 +375,14 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void trackChangeClearsAllAdsWhenAddingNewAd() {
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.ads(eq(nextTrackUrn), anyBoolean(), anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
+        when(adsOperations.ads(eq(nextTrackUrn),
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
         when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
 
         InOrder inOrder = inOrder(adsOperations);
         inOrder.verify(adsOperations).clearAllAdsFromQueue();
@@ -351,13 +398,15 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(currentPlayQueueItem, Urn.NOT_SET, 0));
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(999L))); // url must be different
         when(playQueueManager.isCurrentItem(currentPlayQueueItem)).thenReturn(false);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         assertThat(adsObservable.hasObservers()).isFalse();
     }
@@ -371,13 +420,17 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         when(playQueueManager.isNextItem(nextPlayQueueItem)).thenReturn(false);
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(999L))); // urn must be different
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         assertThat(adsObservable.hasObservers()).isFalse();
     }
@@ -391,13 +444,17 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(nextTrackUrn));
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(999L)));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         assertThat(adsObservable.hasObservers()).isTrue();
     }
@@ -408,22 +465,33 @@ public class AdsControllerTest extends AndroidUnitTest {
         final PublishSubject<ApiAdsForTrack> adsObservable2 = PublishSubject.create();
         when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.ads(eq(nextTrackUrn), anyBoolean(), anyBoolean())).thenReturn(adsObservable1, adsObservable2);
+        when(adsOperations.ads(eq(nextTrackUrn), anyBoolean(), anyBoolean())).thenReturn(adsObservable1,
+                                                                                         adsObservable2);
 
         // cheap override of stale time to avoid a horrible sequence of exposing internal implementation
-        adsController = new AdsController(eventBus, adsOperations, visualAdImpressionOperations,
-                adOverlayImpressionOperations, playQueueManager, trackRepository, scheduler, -1L);
+        adsController = new AdsController(eventBus,
+                                          adsOperations,
+                                          visualAdImpressionOperations,
+                                          adOverlayImpressionOperations,
+                                          playQueueManager,
+                                          trackRepository,
+                                          scheduler,
+                                          -1L);
 
         adsController.subscribe();
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(nextTrackUrn));
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(999L)));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(nextTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         assertThat(adsObservable1.hasObservers()).isFalse();
         assertThat(adsObservable2.hasObservers()).isTrue();
@@ -447,7 +515,11 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         final Urn trackUrn = Urn.forTrack(123L);
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, trackUrn, 12, 1200);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    trackUrn,
+                                                                                    12,
+                                                                                    1200);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
@@ -465,7 +537,11 @@ public class AdsControllerTest extends AndroidUnitTest {
         adsController.subscribe();
 
         final Urn videoAdUrn = Urn.forAd("dfp", "video-ad");
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, videoAdUrn, 12, 1200);
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                                    PlayStateReason.NONE,
+                                                                                    videoAdUrn,
+                                                                                    12,
+                                                                                    1200);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
@@ -519,7 +595,9 @@ public class AdsControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(currentTrackUrn),
+                                                                       Urn.NOT_SET,
+                                                                       0));
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         verify(playQueueManager, never()).autoMoveToNextPlayableItem();
@@ -580,7 +658,9 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void publishAdDeliveryEventShouldPublishEventIfAdForNextTrackExists() {
         insertFullAdsForNextTrack();
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Arrays.asList(nextTrackUrn));
-        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(AudioAd.create(apiAdsForTrack.audioAd().get(), currentTrackUrn)));
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(AudioAd.create(apiAdsForTrack.audioAd()
+                                                                                                             .get(),
+                                                                                               currentTrackUrn)));
 
         adsController.publishAdDeliveryEventIfUpcoming();
 
@@ -590,7 +670,9 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void publishAdDeliveryEventShouldNotPublishEventIfNoAdForNextTrackExists() {
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Arrays.asList(nextTrackUrn));
-        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(AudioAd.create(apiAdsForTrack.audioAd().get(), currentTrackUrn)));
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(AudioAd.create(apiAdsForTrack.audioAd()
+                                                                                                             .get(),
+                                                                                               currentTrackUrn)));
 
         adsController.publishAdDeliveryEventIfUpcoming();
 
@@ -601,7 +683,9 @@ public class AdsControllerTest extends AndroidUnitTest {
     public void publishAdDeliveryEventShouldNotPublishEventIfAdsMonetizableTrackCantBeFound() {
         insertFullAdsForNextTrack();
         when(playQueueManager.getUpcomingPlayQueueItems(anyInt())).thenReturn(Collections.<Urn>emptyList());
-        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(AudioAd.create(apiAdsForTrack.audioAd().get(), currentTrackUrn)));
+        when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(AudioAd.create(apiAdsForTrack.audioAd()
+                                                                                                             .get(),
+                                                                                               currentTrackUrn)));
 
         adsController.publishAdDeliveryEventIfUpcoming();
 
@@ -611,10 +695,15 @@ public class AdsControllerTest extends AndroidUnitTest {
     private void insertFullAdsForNextTrack() {
         when(playQueueManager.hasTrackAsNextItem()).thenReturn(true);
         when(trackRepository.track(nextTrackUrn)).thenReturn(Observable.just(nextMonetizablePropertySet));
-        when(adsOperations.ads(eq(nextTrackUrn), anyBoolean(), anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
+        when(adsOperations.ads(eq(nextTrackUrn),
+                               anyBoolean(),
+                               anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
-        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(currentTrackUrn, AudioAd.create(apiAdsForTrack.audioAd().get(), currentTrackUrn));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
+        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(currentTrackUrn,
+                                                                       AudioAd.create(apiAdsForTrack.audioAd().get(),
+                                                                                      currentTrackUrn));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
     }
 
 }

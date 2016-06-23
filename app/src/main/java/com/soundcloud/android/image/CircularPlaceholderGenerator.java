@@ -8,7 +8,7 @@ import android.graphics.drawable.GradientDrawable;
 
 import javax.inject.Inject;
 
-public class CircularPlaceholderGenerator extends PlaceholderGenerator{
+public class CircularPlaceholderGenerator extends PlaceholderGenerator {
 
     @Inject
     CircularPlaceholderGenerator(Resources resources) {

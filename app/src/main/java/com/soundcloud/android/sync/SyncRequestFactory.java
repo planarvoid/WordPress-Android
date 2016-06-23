@@ -68,7 +68,10 @@ class SyncRequestFactory {
         final Syncable syncable = getSyncable(intent);
         final SyncerRegistry.SyncProvider syncProvider = syncerRegistry.get(syncable);
 
-        return singleJobRequestFactory.create(syncable, syncProvider, getReceiverFromIntent(intent), getIsHighPriorityFromIntent(intent));
+        return singleJobRequestFactory.create(syncable,
+                                              syncProvider,
+                                              getReceiverFromIntent(intent),
+                                              getIsHighPriorityFromIntent(intent));
     }
 
     private SyncRequest createMultiJobRequest(Intent intent) {
@@ -91,11 +94,11 @@ class SyncRequestFactory {
     private SyncRequest createLegacyRequest(Intent intent) {
         if (SyncActions.SYNC_TRACK_LIKES.equals(intent.getAction())) {
             return new SingleJobRequest(lazySyncTrackLikesJob.get(), intent.getAction(),
-                    true, getReceiverFromIntent(intent), eventBus);
+                                        true, getReceiverFromIntent(intent), eventBus);
 
         } else if (SyncActions.SYNC_PLAYLIST_LIKES.equals(intent.getAction())) {
             return new SingleJobRequest(lazySyncPlaylistLikesJob.get(), intent.getAction(), true,
-                    getReceiverFromIntent(intent), eventBus);
+                                        getReceiverFromIntent(intent), eventBus);
 
         } else if (SyncActions.SYNC_TRACKS.equals(intent.getAction())
                 || SyncActions.SYNC_PLAYLISTS.equals(intent.getAction())
@@ -105,7 +108,11 @@ class SyncRequestFactory {
         } else if (SyncActions.SYNC_PLAYLIST.equals(intent.getAction())) {
             final Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);
             return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
-                    intent.getAction(), true, getReceiverFromIntent(intent), eventBus, playlistUrn);
+                                                intent.getAction(),
+                                                true,
+                                                getReceiverFromIntent(intent),
+                                                eventBus,
+                                                playlistUrn);
         }
         return syncIntentFactory.create(intent);
     }

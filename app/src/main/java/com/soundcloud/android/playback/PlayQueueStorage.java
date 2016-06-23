@@ -45,7 +45,8 @@ class PlayQueueStorage {
                 if (item.isTrack() || item.isPlaylist()) {
                     newItems.add(entityItemContentValues((PlayableQueueItem) item));
                 } else {
-                    ErrorUtils.handleSilentException(new IllegalStateException("Tried to persist an unsupported play queue item"));
+                    ErrorUtils.handleSilentException(new IllegalStateException(
+                            "Tried to persist an unsupported play queue item"));
                 }
             }
         }
@@ -62,12 +63,20 @@ class PlayQueueStorage {
         return propellerRx.query(Query.from(TABLE.name())).map(new RxResultMapper<PlayQueueItem>() {
             @Override
             public PlayQueueItem map(CursorReader reader) {
-                final Urn relatedEntity = hasRelatedEntity(reader) ? new Urn(reader.getString(Tables.PlayQueue.RELATED_ENTITY)) : Urn.NOT_SET;
-                final Urn reposter = hasReposter(reader) ? Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)) : Urn.NOT_SET;
+                final Urn relatedEntity = hasRelatedEntity(reader) ?
+                                          new Urn(reader.getString(Tables.PlayQueue.RELATED_ENTITY)) :
+                                          Urn.NOT_SET;
+                final Urn reposter = hasReposter(reader) ?
+                                     Urn.forUser(reader.getLong(Tables.PlayQueue.REPOSTER_ID)) :
+                                     Urn.NOT_SET;
                 final String source = reader.getString(Tables.PlayQueue.SOURCE);
                 final String sourceVersion = reader.getString(Tables.PlayQueue.SOURCE_VERSION);
-                final Urn sourceUrn = hasSourceUrn(reader) ? new Urn(reader.getString(Tables.PlayQueue.SOURCE_URN)) : Urn.NOT_SET;
-                final Urn queryUrn = hasQueryUrn(reader) ? new Urn(reader.getString(Tables.PlayQueue.QUERY_URN)) : Urn.NOT_SET;
+                final Urn sourceUrn = hasSourceUrn(reader) ?
+                                      new Urn(reader.getString(Tables.PlayQueue.SOURCE_URN)) :
+                                      Urn.NOT_SET;
+                final Urn queryUrn = hasQueryUrn(reader) ?
+                                     new Urn(reader.getString(Tables.PlayQueue.QUERY_URN)) :
+                                     Urn.NOT_SET;
                 final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.ENTITY_ID));
 
                 return new TrackQueueItem.Builder(track, reposter)
@@ -80,16 +89,22 @@ class PlayQueueStorage {
 
     private ContentValues entityItemContentValues(PlayableQueueItem playableQueueItem) {
         final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values()
-                .put(Tables.PlayQueue.ENTITY_ID, playableQueueItem.getUrn().getNumericId())
-                .put(Tables.PlayQueue.ENTITY_TYPE.name(), playableQueueItem.getUrn().isTrack() ? ENTITY_TYPE_TRACK : ENTITY_TYPE_PLAYLIST)
-                .put(Tables.PlayQueue.SOURCE, playableQueueItem.getSource())
-                .put(Tables.PlayQueue.SOURCE_VERSION, playableQueueItem.getSourceVersion());
+                                                                       .put(Tables.PlayQueue.ENTITY_ID,
+                                                                            playableQueueItem.getUrn().getNumericId())
+                                                                       .put(Tables.PlayQueue.ENTITY_TYPE.name(),
+                                                                            playableQueueItem.getUrn().isTrack() ?
+                                                                            ENTITY_TYPE_TRACK :
+                                                                            ENTITY_TYPE_PLAYLIST)
+                                                                       .put(Tables.PlayQueue.SOURCE,
+                                                                            playableQueueItem.getSource())
+                                                                       .put(Tables.PlayQueue.SOURCE_VERSION,
+                                                                            playableQueueItem.getSourceVersion());
 
-        if (!playableQueueItem.getRelatedEntity().equals(Urn.NOT_SET)){
+        if (!playableQueueItem.getRelatedEntity().equals(Urn.NOT_SET)) {
             valuesBuilder.put(Tables.PlayQueue.RELATED_ENTITY, playableQueueItem.getRelatedEntity().toString());
         }
 
-        if (playableQueueItem.getReposter().isUser()){
+        if (playableQueueItem.getReposter().isUser()) {
             valuesBuilder.put(Tables.PlayQueue.REPOSTER_ID, playableQueueItem.getReposter().getNumericId());
         }
 

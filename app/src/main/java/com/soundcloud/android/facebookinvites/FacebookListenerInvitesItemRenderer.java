@@ -43,7 +43,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.facebook_invites_notification_card, parent, false);
+                             .inflate(R.layout.facebook_invites_notification_card, parent, false);
     }
 
     @Override
@@ -57,8 +57,8 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
         } else {
             setLoading(itemView);
             facebookApi.friendPictureUrls()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new PictureLoadedSubscriber(itemView, item));
+                       .observeOn(AndroidSchedulers.mainThread())
+                       .subscribe(new PictureLoadedSubscriber(itemView, item));
         }
     }
 

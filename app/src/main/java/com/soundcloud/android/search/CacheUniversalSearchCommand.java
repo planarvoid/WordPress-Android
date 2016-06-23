@@ -14,14 +14,16 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class CacheUniversalSearchCommand extends LegacyCommand<Iterable<ApiUniversalSearchItem>, Void, CacheUniversalSearchCommand> {
+class CacheUniversalSearchCommand
+        extends LegacyCommand<Iterable<ApiUniversalSearchItem>, Void, CacheUniversalSearchCommand> {
 
     private final StoreTracksCommand storeTracksCommand;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreUsersCommand storeUsersCommand;
 
     @Inject
-    public CacheUniversalSearchCommand(StoreTracksCommand storeTracksCommand, StorePlaylistsCommand storePlaylistsCommand,
+    public CacheUniversalSearchCommand(StoreTracksCommand storeTracksCommand,
+                                       StorePlaylistsCommand storePlaylistsCommand,
                                        StoreUsersCommand storeUsersCommand) {
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;

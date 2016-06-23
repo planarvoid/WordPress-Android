@@ -28,8 +28,12 @@ public class StartStationPresenter {
         @Override
         public Observable<PlaybackResult> call(StationRecord station) {
             checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
-            final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screenProvider.getLastScreenTag(), station.getUrn());
-            return playbackInitiator.playStation(station.getUrn(), station.getTracks(), playSessionSource, station.getPreviousPosition());
+            final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screenProvider.getLastScreenTag(),
+                                                                                     station.getUrn());
+            return playbackInitiator.playStation(station.getUrn(),
+                                                 station.getTracks(),
+                                                 playSessionSource,
+                                                 station.getPreviousPosition());
         }
     };
 
@@ -86,7 +90,10 @@ public class StartStationPresenter {
 
         subscription = station
                 .flatMap(toPlaybackResult)
-                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper, delayedLoadingDialogPresenter));
+                .subscribe(new ExpandAndDismissDialogSubscriber(context,
+                                                                eventBus,
+                                                                playbackToastHelper,
+                                                                delayedLoadingDialogPresenter));
     }
 
     private static class ExpandAndDismissDialogSubscriber extends ExpandPlayerSubscriber {

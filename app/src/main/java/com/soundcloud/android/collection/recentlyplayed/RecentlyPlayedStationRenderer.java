@@ -39,7 +39,8 @@ public class RecentlyPlayedStationRenderer implements CellRenderer<CollectionIte
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.collection_recently_played_station_item, parent, false);
+        return LayoutInflater.from(parent.getContext())
+                             .inflate(R.layout.collection_recently_played_station_item, parent, false);
     }
 
     @Override

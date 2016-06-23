@@ -155,7 +155,8 @@ public class UserDetailsPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onViewCreatedHidesUserDetailsOnEmptyUser() throws Exception {
-        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(userWithBlankDescription()));
+        when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.just(
+                userWithBlankDescription()));
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 

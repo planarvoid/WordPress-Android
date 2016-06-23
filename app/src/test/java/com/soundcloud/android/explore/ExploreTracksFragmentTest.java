@@ -54,12 +54,19 @@ public class ExploreTracksFragmentTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(exploreTracksOperations.pager()).thenReturn(TestPager.<SuggestedTracksCollection>pagerWithSinglePage());
-        Observable<SuggestedTracksCollection> observable = Observable.just(new SuggestedTracksCollection(Collections.<ApiTrack>emptyList(), null, null, "1.0"));
+        Observable<SuggestedTracksCollection> observable = Observable.just(new SuggestedTracksCollection(Collections.<ApiTrack>emptyList(),
+                                                                                                         null,
+                                                                                                         null,
+                                                                                                         "1.0"));
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class))).thenReturn(observable);
         when(playbackInitiator.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
-        fragment = new ExploreTracksFragment(adapter, playbackInitiator, exploreTracksOperations,
-                pullToRefreshController, listViewController, TestSubscribers.expandPlayerSubscriber());
+        fragment = new ExploreTracksFragment(adapter,
+                                             playbackInitiator,
+                                             exploreTracksOperations,
+                                             pullToRefreshController,
+                                             listViewController,
+                                             TestSubscribers.expandPlayerSubscriber());
         fragmentArgs.putParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA, ExploreGenre.POPULAR_AUDIO_CATEGORY);
         fragmentArgs.putString(ExploreTracksFragment.SCREEN_TAG_EXTRA, "screen");
         fragment.setArguments(fragmentArgs);

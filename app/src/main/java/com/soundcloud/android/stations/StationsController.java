@@ -36,7 +36,7 @@ public class StationsController {
             );
         }
     };
-    
+
     private static final Func1<CurrentUserChangedEvent, Boolean> IS_LOGGED_IN = new Func1<CurrentUserChangedEvent, Boolean>() {
         @Override
         public Boolean call(CurrentUserChangedEvent currentUserChangedEvent) {
@@ -54,9 +54,11 @@ public class StationsController {
     private final Action1<CollectionPlaybackState> saveRecentStation = new Action1<CollectionPlaybackState>() {
         @Override
         public void call(CollectionPlaybackState collectionPlaybackState) {
-            operations.saveLastPlayedTrackPosition(collectionPlaybackState.collectionUrn, collectionPlaybackState.position);
+            operations.saveLastPlayedTrackPosition(collectionPlaybackState.collectionUrn,
+                                                   collectionPlaybackState.position);
             operations.saveRecentlyPlayedStation(collectionPlaybackState.collectionUrn);
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, fromStationsUpdated(collectionPlaybackState.collectionUrn));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                             fromStationsUpdated(collectionPlaybackState.collectionUrn));
         }
     };
 

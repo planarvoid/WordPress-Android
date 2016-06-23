@@ -23,12 +23,14 @@ public class CollectionsPlaylistOptionsDialogElement extends Element {
     }
 
     public CollectionsPlaylistOptionsDialogElement clickSortByTitle() {
-        testDriver.findOnScreenElement(text(testDriver.getString(R.string.collections_options_dialog_sort_by_title))).click();
+        testDriver.findOnScreenElement(text(testDriver.getString(R.string.collections_options_dialog_sort_by_title)))
+                  .click();
         return this;
     }
 
     public CollectionsPlaylistOptionsDialogElement clickSortByCreatedAt() {
-        testDriver.findOnScreenElement(text(testDriver.getString(R.string.collections_options_dialog_sort_by_creation))).click();
+        testDriver.findOnScreenElement(text(testDriver.getString(R.string.collections_options_dialog_sort_by_creation)))
+                  .click();
         return this;
     }
 

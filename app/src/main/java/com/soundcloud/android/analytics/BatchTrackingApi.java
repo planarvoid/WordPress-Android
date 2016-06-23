@@ -59,7 +59,8 @@ public class BatchTrackingApi implements TrackingApi {
         return successes;
     }
 
-    private void sendBatch(List<TrackingRecord> events, List<TrackingRecord> successes) throws IOException, JSONException {
+    private void sendBatch(List<TrackingRecord> events,
+                           List<TrackingRecord> successes) throws IOException, JSONException {
         Request request = buildRequest(events);
 
         final Response response = httpClient.newCall(request).execute();
@@ -71,8 +72,9 @@ public class BatchTrackingApi implements TrackingApi {
                 successes.addAll(events);
             } else {
                 ErrorUtils.handleSilentException(EventTracker.TAG,
-                        new Exception("Tracking request failed with unexpected status code: "
-                                + response.toString() + "; recordCount = " + events.size()));
+                                                 new Exception("Tracking request failed with unexpected status code: "
+                                                                       + response.toString() + "; recordCount = " + events
+                                                         .size()));
             }
         } finally {
             response.body().close();
@@ -95,7 +97,7 @@ public class BatchTrackingApi implements TrackingApi {
 
     private List<JSONObject> getEventJsonObjects(List<TrackingRecord> events) throws JSONException {
         final List<JSONObject> eventObjects = new ArrayList<>(events.size());
-        for (TrackingRecord event : events){
+        for (TrackingRecord event : events) {
             eventObjects.add(new JSONObject(event.getData()));
         }
         return eventObjects;

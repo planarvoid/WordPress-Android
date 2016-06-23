@@ -107,7 +107,8 @@ class TrackEditItemRenderer implements CellRenderer<TrackItem> {
     private void showPromoted(TrackEditItemView itemView, final PromotedTrackItem track) {
         final Context context = itemView.getContext();
         if (track.hasPromoter()) {
-            itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname, track.getPromoterName().get()));
+            itemView.showPromotedTrack(context.getString(R.string.promoted_by_promotorname,
+                                                         track.getPromoterName().get()));
             itemView.setPromotedClickable(new PromoterClickViewListener(track, eventBus, screenProvider, navigator));
         } else {
             itemView.showPromotedTrack(context.getString(R.string.promoted));

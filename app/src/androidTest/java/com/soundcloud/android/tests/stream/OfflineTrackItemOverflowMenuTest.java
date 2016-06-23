@@ -49,7 +49,7 @@ public class OfflineTrackItemOverflowMenuTest extends ActivityTest<MainActivity>
 
         final CreatePlaylistScreen createPlaylistScreen = streamScreen.clickFirstTrackCardOverflowButton().
                 clickAddToPlaylist().
-                clickCreateNewPlaylist();
+                                                                              clickCreateNewPlaylist();
 
         assertThat(createPlaylistScreen, is(visible()));
         assertThat(createPlaylistScreen.offlineCheck().isOnScreen(), is(true));

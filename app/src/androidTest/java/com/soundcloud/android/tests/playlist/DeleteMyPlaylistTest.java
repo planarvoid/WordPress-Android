@@ -51,11 +51,11 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
     private String createNewPlaylist() {
         final String title = String.valueOf(System.currentTimeMillis());
         final CreatePlaylistScreen createPlaylistScreen = mainNavHelper.goToStream()
-                .clickFirstNotPromotedTrackCard()
-                .clickMenu()
-                .clickAddToPlaylist()
-                .clickCreateNewPlaylist()
-                .enterTitle(title);
+                                                                       .clickFirstNotPromotedTrackCard()
+                                                                       .clickMenu()
+                                                                       .clickAddToPlaylist()
+                                                                       .clickCreateNewPlaylist()
+                                                                       .enterTitle(title);
 
         // Fix : test can find a track in the stream because the
         // user fill up with playlists.

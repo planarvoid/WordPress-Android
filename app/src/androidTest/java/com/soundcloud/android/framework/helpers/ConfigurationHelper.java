@@ -44,14 +44,14 @@ public class ConfigurationHelper {
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
         planStorage.getUpsellUpdates()
-                .doOnNext(new Action1<List<Plan>>() {
-                    @Override
-                    public void call(List<Plan> plans) {
-                        if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
-                            planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
-                        }
-                    }
-                }).subscribe();
+                   .doOnNext(new Action1<List<Plan>>() {
+                       @Override
+                       public void call(List<Plan> plans) {
+                           if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
+                               planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
+                           }
+                       }
+                   }).subscribe();
     }
 
     public static void disableOfflineContent(Context context) {
@@ -89,15 +89,15 @@ public class ConfigurationHelper {
         featureStorage.update(feature);
 
         featureStorage.getUpdates(name)
-                .filter(RxUtils.IS_FALSE)
-                .doOnNext(new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean enabled) {
-                        Log.d(TAG, "updating feature after change: " + feature.name);
-                        featureStorage.update(feature);
-                    }
-                })
-                .subscribe();
+                      .filter(RxUtils.IS_FALSE)
+                      .doOnNext(new Action1<Boolean>() {
+                          @Override
+                          public void call(Boolean enabled) {
+                              Log.d(TAG, "updating feature after change: " + feature.name);
+                              featureStorage.update(feature);
+                          }
+                      })
+                      .subscribe();
     }
 
     private static void disableFeature(Context context, final String name) {
@@ -107,14 +107,14 @@ public class ConfigurationHelper {
         featureStorage.update(feature);
 
         featureStorage.getUpdates(name)
-                .filter(RxUtils.IS_TRUE)
-                .doOnNext(new Action1<Boolean>() {
-                    @Override
-                    public void call(Boolean enabled) {
-                        featureStorage.update(feature);
-                    }
-                })
-                .subscribe();
+                      .filter(RxUtils.IS_TRUE)
+                      .doOnNext(new Action1<Boolean>() {
+                          @Override
+                          public void call(Boolean enabled) {
+                              featureStorage.update(feature);
+                          }
+                      })
+                      .subscribe();
     }
 
     private static FeatureStorage getFeatureStorage(Context context) {
@@ -131,7 +131,8 @@ public class ConfigurationHelper {
     }
 
     private static PlanStorage getPlanStorage(Context context) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_FEATURES_SETTINGS, Context.MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_FEATURES_SETTINGS,
+                                                                                 Context.MODE_PRIVATE);
         return new PlanStorage(new ObfuscatedPreferences(sharedPreferences, new Obfuscator()));
     }
 
@@ -169,7 +170,8 @@ public class ConfigurationHelper {
     public static void disablePromotedAnalytics(Context context) {
         getAnalyticsSettingsPreferences(context)
                 .edit()
-                .putStringSet(AnalyticsProviderFactory.DISABLED_PROVIDERS, Sets.newHashSet(PromotedAnalyticsProvider.class.getName()))
+                .putStringSet(AnalyticsProviderFactory.DISABLED_PROVIDERS,
+                              Sets.newHashSet(PromotedAnalyticsProvider.class.getName()))
                 .apply();
     }
 

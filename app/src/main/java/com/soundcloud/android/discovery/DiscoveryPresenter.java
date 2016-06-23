@@ -108,7 +108,10 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
 
     @Override
     public void onTrackClicked(Urn seedUrn, Urn trackUrn) {
-        trackRecommendationPlaybackInitiator.playFromRecommendation(seedUrn, trackUrn, Screen.SEARCH_MAIN, adapter.getItems());
+        trackRecommendationPlaybackInitiator.playFromRecommendation(seedUrn,
+                                                                    trackUrn,
+                                                                    Screen.SEARCH_MAIN,
+                                                                    adapter.getItems());
     }
 
     @Override

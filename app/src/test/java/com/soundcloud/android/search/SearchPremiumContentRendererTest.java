@@ -61,7 +61,11 @@ public class SearchPremiumContentRendererTest extends AndroidUnitTest {
         when(playlistRenderer.createItemView(any(ViewGroup.class))).thenReturn(playListItemView);
         when(userRenderer.createItemView(any(ViewGroup.class))).thenReturn(userItemView);
 
-        renderer = new SearchPremiumContentRenderer(trackRenderer, playlistRenderer, userRenderer, resources(), featureOperations);
+        renderer = new SearchPremiumContentRenderer(trackRenderer,
+                                                    playlistRenderer,
+                                                    userRenderer,
+                                                    resources(),
+                                                    featureOperations);
     }
 
     @Test

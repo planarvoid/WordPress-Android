@@ -19,7 +19,8 @@ public class CollapsingScrollHelper extends DefaultSupportFragmentLightCycle<Fra
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Inject
-    public CollapsingScrollHelper() {}
+    public CollapsingScrollHelper() {
+    }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {

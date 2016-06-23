@@ -125,7 +125,8 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
 
         if (!newEntities.isEmpty()) {
             eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, isAddition ?
-                    EntityStateChangedEvent.fromEntityCreated(newEntities) : EntityStateChangedEvent.fromEntityDeleted(newEntities));
+                                                              EntityStateChangedEvent.fromEntityCreated(newEntities) :
+                                                              EntityStateChangedEvent.fromEntityDeleted(newEntities));
         }
     }
 

@@ -17,7 +17,7 @@ public class AnalyticsPropertiesTest {
     @Mock private Resources resources;
 
     @Test
-    public void shouldSpecifyAnalyticsAvailable(){
+    public void shouldSpecifyAnalyticsAvailable() {
         when(resources.getBoolean(R.bool.analytics_enabled)).thenReturn(true);
         assertThat(new AnalyticsProperties(resources).isAnalyticsAvailable()).isTrue();
     }

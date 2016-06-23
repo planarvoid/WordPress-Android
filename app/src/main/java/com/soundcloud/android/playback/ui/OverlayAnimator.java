@@ -19,7 +19,7 @@ public class OverlayAnimator {
         // Required by Dagger
     }
 
-    public void setAlpha(View artworkIdleOverlay, float alpha){
+    public void setAlpha(View artworkIdleOverlay, float alpha) {
         stopOverlayAnimation();
         artworkIdleOverlay.setAlpha(alpha);
     }

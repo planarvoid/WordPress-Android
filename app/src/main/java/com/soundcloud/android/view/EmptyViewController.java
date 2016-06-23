@@ -73,10 +73,11 @@ public class EmptyViewController extends DefaultSupportFragmentLightCycle {
             if (error instanceof ApiRequestException) {
                 boolean networkError = ((ApiRequestException) error).isNetworkError();
                 updateEmptyViewStatus(networkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
-            } if (error instanceof SyncFailedException) {
+            }
+            if (error instanceof SyncFailedException) {
                 // default Sync Failures to connection for now as we can't tell the diff
                 updateEmptyViewStatus(networkConnectionHelper.isNetworkConnected()
-                        ? EmptyView.Status.SERVER_ERROR : EmptyView.Status.CONNECTION_ERROR);
+                                      ? EmptyView.Status.SERVER_ERROR : EmptyView.Status.CONNECTION_ERROR);
             } else {
                 super.onError(error);
             }

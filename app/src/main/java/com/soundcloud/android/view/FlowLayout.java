@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 /**
  * @see <a href="http://nishantvnair.wordpress.com/2010/09/28/flowlayout-in-android/">
- *     FlowLayout in Android</a>
+ * FlowLayout in Android</a>
  */
 public class FlowLayout extends ViewGroup {
 
@@ -20,7 +20,7 @@ public class FlowLayout extends ViewGroup {
 
         /**
          * @param horizontalSpacing Pixels between items, horizontally
-         * @param verticalSpacing Pixels between items, vertically
+         * @param verticalSpacing   Pixels between items, vertically
          */
         public LayoutParams(int horizontalSpacing, int verticalSpacing) {
             super(0, 0);

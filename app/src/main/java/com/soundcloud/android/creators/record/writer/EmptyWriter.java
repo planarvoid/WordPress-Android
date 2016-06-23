@@ -11,7 +11,7 @@ public class EmptyWriter implements AudioWriter {
     private final AudioConfig config;
 
     public EmptyWriter(AudioConfig cfg) {
-        this.config =  cfg;
+        this.config = cfg;
     }
 
     @Override

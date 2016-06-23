@@ -152,8 +152,8 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
     void updateSkipStatus(AdHolder holder, PlaybackProgress progress, Resources resources) {
         final int fullDuration = (int) TimeUnit.MILLISECONDS.toSeconds(progress.getDuration());
         final int skipDuration = holder.isSkippable
-                ? Math.min(AdConstants.UNSKIPPABLE_TIME_SECS, fullDuration)
-                : fullDuration;
+                                 ? Math.min(AdConstants.UNSKIPPABLE_TIME_SECS, fullDuration)
+                                 : fullDuration;
         final int secondsUntilSkip = skipDuration - ((int) TimeUnit.MILLISECONDS.toSeconds(progress.getPosition()));
         final boolean canSkip = secondsUntilSkip <= 0;
 
@@ -173,8 +173,8 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
     private void updateSkipCountDown(AdHolder viewHolder, int secondsUntilSkip, int fullDuration, Resources resources) {
         String formattedTime = ScTextUtils.formatSecondsOrMinutes(resources, secondsUntilSkip, TimeUnit.SECONDS);
         String timerText = viewHolder.isSkippable && fullDuration > AdConstants.UNSKIPPABLE_TIME_SECS
-                ? resources.getString(R.string.ads_skip_in_time, formattedTime)
-                : formattedTime;
+                           ? resources.getString(R.string.ads_skip_in_time, formattedTime)
+                           : formattedTime;
 
         viewHolder.timeUntilSkip.setText(timerText);
     }

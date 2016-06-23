@@ -58,8 +58,14 @@ public class PostedTrackItemRendererTest extends AndroidUnitTest {
         when(itemView.getContext()).thenReturn(context());
         when(itemView.getTag()).thenReturn(trackItemView);
 
-        renderer = new PostedTrackItemRenderer(mock(ImageOperations.class), numberFormatter, null, mock(EventBus.class),
-                mock(ScreenProvider.class), mock(Navigator.class), mock(FeatureOperations.class), mock(TrackItemView.Factory.class));
+        renderer = new PostedTrackItemRenderer(mock(ImageOperations.class),
+                                               numberFormatter,
+                                               null,
+                                               mock(EventBus.class),
+                                               mock(ScreenProvider.class),
+                                               mock(Navigator.class),
+                                               mock(FeatureOperations.class),
+                                               mock(TrackItemView.Factory.class));
     }
 
     @Test

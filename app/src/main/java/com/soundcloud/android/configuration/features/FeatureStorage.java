@@ -61,8 +61,8 @@ public class FeatureStorage {
 
     public Observable<Boolean> getUpdates(final String name) {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
-                .filter(isFeature(name))
-                .map(toValue);
+                         .filter(isFeature(name))
+                         .map(toValue);
     }
 
     private Func1<String, Boolean> isFeature(final String name) {

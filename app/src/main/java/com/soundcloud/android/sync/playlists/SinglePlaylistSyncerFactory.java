@@ -40,7 +40,7 @@ public class SinglePlaylistSyncerFactory {
         this.replacePlaylistTracks = replacePlaylistTracks;
     }
 
-    public SinglePlaylistSyncer create(Urn playlistUrn){
+    public SinglePlaylistSyncer create(Urn playlistUrn) {
         return new SinglePlaylistSyncer(
                 fetchPlaylistWithTracks.get().with(playlistUrn),
                 removePlaylist,

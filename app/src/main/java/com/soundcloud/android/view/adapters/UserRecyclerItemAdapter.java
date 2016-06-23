@@ -9,7 +9,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class UserRecyclerItemAdapter extends PagingRecyclerItemAdapter<UserItem, UserRecyclerItemAdapter.UserViewHolder> {
+public class UserRecyclerItemAdapter
+        extends PagingRecyclerItemAdapter<UserItem, UserRecyclerItemAdapter.UserViewHolder> {
 
     @Inject
     public UserRecyclerItemAdapter(UserItemRenderer userItemRenderer) {

@@ -36,8 +36,8 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
 
     private void enableSyncEntireCollection() {
         mainNavHelper.goToYou()
-                .clickOfflineSettingsLink()
-                .toggleSyncCollectionOn();
+                     .clickOfflineSettingsLink()
+                     .toggleSyncCollectionOn();
         solo.goBack();
     }
 
@@ -115,8 +115,8 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
 
     private boolean checkSyncEntireCollectionStatus() {
         return mainNavHelper.goToYou()
-                .clickOfflineSettingsLink()
-                .isOfflineCollectionChecked();
+                            .clickOfflineSettingsLink()
+                            .isOfflineCollectionChecked();
     }
 
 }

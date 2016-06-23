@@ -11,6 +11,7 @@ public abstract class AuthLayout extends RelativeLayout {
 
     public interface AuthHandler {
         void onGooglePlusAuth();
+
         void onFacebookAuth();
     }
 

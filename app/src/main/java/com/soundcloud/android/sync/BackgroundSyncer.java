@@ -81,7 +81,8 @@ class BackgroundSyncer {
     }
 
     private boolean shouldSync(Syncable syncable, SyncerRegistry.SyncProvider syncProvider) {
-        return syncProvider.isOutOfSync() || syncProvider.usePeriodicSync() && isStale(syncable, syncProvider.staleTime());
+        return syncProvider.isOutOfSync() || syncProvider.usePeriodicSync() && isStale(syncable,
+                                                                                       syncProvider.staleTime());
     }
 
     private boolean isStale(Syncable syncable, long staleTime) {

@@ -91,7 +91,7 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
                          Navigator navigator,
                          NewItemsIndicator newItemsIndicator) {
         super(swipeRefreshAttacher, Options.staggeredGrid(R.integer.grids_num_columns).build(),
-                newItemsIndicator, streamOperations, adapter);
+              newItemsIndicator, streamOperations, adapter);
         this.streamOperations = streamOperations;
         this.adapter = adapter;
         this.stationsOperations = stationsOperations;
@@ -119,9 +119,9 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
     @Override
     protected CollectionBinding<List<StreamItem>, StreamItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(streamOperations.initialStreamItems())
-                .withAdapter(adapter)
-                .withPager(streamOperations.pagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(streamOperations.pagingFunction())
+                                .build();
     }
 
     @Override
@@ -129,10 +129,11 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
         newItemsIndicator.hideAndReset();
         return CollectionBinding.from(
                 streamOperations.updatedStreamItems()
-                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING, new PullToRefreshEvent(Screen.STREAM))))
-                .withAdapter(adapter)
-                .withPager(streamOperations.pagingFunction())
-                .build();
+                                .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING,
+                                                                       new PullToRefreshEvent(Screen.STREAM))))
+                                .withAdapter(adapter)
+                                .withPager(streamOperations.pagingFunction())
+                                .build();
     }
 
     @Override

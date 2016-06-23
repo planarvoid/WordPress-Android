@@ -43,6 +43,7 @@ public class ScrubController {
 
     public interface OnScrubListener {
         void scrubStateChanged(int newScrubState);
+
         void displayScrubPosition(float scrubPosition, float boundedScrubPosition);
     }
 
@@ -85,7 +86,8 @@ public class ScrubController {
                 final float actualPosition = progressHelper.getProgressFromPosition(left);
                 final float boundedPosition = Math.max(0, Math.min(1, actualPosition));
                 seekHandler.removeMessages(MSG_PERFORM_SEEK);
-                seekHandler.sendMessageDelayed(seekHandler.obtainMessage(MSG_PERFORM_SEEK, boundedPosition), SEEK_DELAY);
+                seekHandler.sendMessageDelayed(seekHandler.obtainMessage(MSG_PERFORM_SEEK, boundedPosition),
+                                               SEEK_DELAY);
 
                 for (OnScrubListener listener : listeners) {
                     listener.displayScrubPosition(actualPosition, boundedPosition);

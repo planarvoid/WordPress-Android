@@ -139,16 +139,22 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
         when(adsOperations.isCurrentItemAd()).thenReturn(isAd);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(isAd);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
+                                                                       Urn.NOT_SET,
+                                                                       0));
     }
 
     private void setVideoAdIsPlaying(boolean verticalVideo) {
-        final ApiVideoSource videoSource = verticalVideo ? AdFixtures.getApiVideoSource(300, 600) : AdFixtures.getApiVideoSource(600, 300);
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L), videoSource));
+        final ApiVideoSource videoSource = verticalVideo ?
+                                           AdFixtures.getApiVideoSource(300, 600) :
+                                           AdFixtures.getApiVideoSource(600, 300);
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L),
+                                                                                             videoSource));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(videoItem.getAdData());
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(videoItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(videoItem, Urn.NOT_SET, 0));
     }
 
     private void resumeFromBackground() {

@@ -56,7 +56,10 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreatePlaySessionSourceFromOriginPageAndSetId() throws Exception {
-        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
+        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE,
+                                                                            PLAYLIST_URN,
+                                                                            USER_URN,
+                                                                            TRACK_COUNT);
 
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
@@ -79,7 +82,10 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreatePlaySessionSourceFromOriginPageTrackSourceInfoAndSetId() throws Exception {
-        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
+        PlaySessionSource playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE,
+                                                                            PLAYLIST_URN,
+                                                                            USER_URN,
+                                                                            TRACK_COUNT);
 
         assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(PLAYLIST_URN);
@@ -106,13 +112,17 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void isFromStationsShouldReturnsTrueWhenTheCollectionUrnIsAStation() {
-        assertThat(PlaySessionSource.forStation(Screen.SEARCH_MAIN, Urn.forTrackStation(123L)).isFromStations()).isTrue();
+        assertThat(PlaySessionSource.forStation(Screen.SEARCH_MAIN, Urn.forTrackStation(123L))
+                                    .isFromStations()).isTrue();
     }
 
     @Test
     public void playlistSessionSourceShouldBeParcelable() {
         SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
-        PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
+        PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123",
+                                                                       Urn.forTrack(123L),
+                                                                       Optional.<Urn>absent(),
+                                                                       Arrays.asList("url"));
         PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
         original.setSearchQuerySourceInfo(searchQuerySourceInfo);
         original.setPromotedSourceInfo(promotedSourceInfo);
@@ -165,9 +175,12 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
     @Test
     public void createsPlaySessionSourceFromPreferences() {
-        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn("screen");
-        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN), anyString())).thenReturn("soundcloud:tracks:123");
-        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_OWNER_URN), anyString())).thenReturn("soundcloud:users:123");
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn(
+                "screen");
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN), anyString())).thenReturn(
+                "soundcloud:tracks:123");
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_OWNER_URN), anyString())).thenReturn(
+                "soundcloud:users:123");
         when(sharedPreferences.getInt(eq(PlaySessionSource.PREF_KEY_COLLECTION_SIZE), anyInt())).thenReturn(2);
 
         PlaySessionSource playSessionSource = new PlaySessionSource(sharedPreferences);

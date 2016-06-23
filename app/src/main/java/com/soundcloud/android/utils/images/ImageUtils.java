@@ -153,7 +153,9 @@ public final class ImageUtils {
                 m.postRotate(exifRotation, minWidth / 2, minHeight / 2);
             }
 
-            return (m.isIdentity()) ? bitmap : Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
+            return (m.isIdentity()) ?
+                   bitmap :
+                   Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
 
         } catch (IOException | OutOfMemoryError e) {
             Log.e(TAG, ERROR, e);
@@ -238,7 +240,7 @@ public final class ImageUtils {
                 Matrix mat = new Matrix();
                 mat.postRotate(degree);
                 bitmap = Bitmap.createBitmap(preRotate, 0, 0, preRotate.getWidth(),
-                        preRotate.getHeight(), mat, true);
+                                             preRotate.getHeight(), mat, true);
                 preRotate.recycle();
             }
 
@@ -286,7 +288,9 @@ public final class ImageUtils {
                 .setPositiveButton(R.string.take_new_picture, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ImageUtils.startTakeNewPictureIntent(activity, newImageLocation, Consts.RequestCodes.GALLERY_IMAGE_TAKE);
+                        ImageUtils.startTakeNewPictureIntent(activity,
+                                                             newImageLocation,
+                                                             Consts.RequestCodes.GALLERY_IMAGE_TAKE);
                     }
                 })
                 .setNegativeButton(R.string.use_existing_image, new DialogInterface.OnClickListener() {

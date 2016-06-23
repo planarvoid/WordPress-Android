@@ -56,7 +56,12 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
         when(activity.findViewById(R.id.progress)).thenReturn(new View(context()));
-        presenter = new PlayFromVoiceSearchPresenter(searchOperations, playbackInitiator, random, playbackToastHelper, navigator, eventBus);
+        presenter = new PlayFromVoiceSearchPresenter(searchOperations,
+                                                     playbackInitiator,
+                                                     random,
+                                                     playbackToastHelper,
+                                                     navigator,
+                                                     eventBus);
     }
 
     @Test
@@ -83,7 +88,9 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
 
     @Test
     public void trackSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
-        searchResult = SearchResult.fromPropertySetSource(new ArrayList(), Optional.<Link>absent(), Optional.<Urn>absent());
+        searchResult = SearchResult.fromPropertySetSource(new ArrayList(),
+                                                          Optional.<Link>absent(),
+                                                          Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY, SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
         when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
@@ -97,14 +104,15 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
     public void callsPlayTrackWithSearchResult() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         searchResult = SearchResult.fromPropertySetSource(Collections.singletonList(apiTrack), Optional.<Link>absent(),
-                Optional.<Urn>absent());
+                                                          Optional.<Urn>absent());
         when(searchOperations.searchResult(QUERY, SearchType.TRACKS)).thenReturn(Observable.just(searchResult));
         when(activity.getIntent()).thenReturn(getPlayFromSearchIntent(QUERY));
 
         presenter.onCreate(activity, null);
         presenter.onResume(activity);
 
-        verify(playbackInitiator).playTrackWithRecommendationsLegacy(eq(apiTrack.getUrn()), any(PlaySessionSource.class));
+        verify(playbackInitiator).playTrackWithRecommendationsLegacy(eq(apiTrack.getUrn()),
+                                                                     any(PlaySessionSource.class));
     }
 
     @Test
@@ -136,8 +144,10 @@ public class PlayFromVoiceSearchPresenterTest extends AndroidUnitTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
         List<ApiPlaylist> playlistResults = Arrays.asList(ModelFixtures.create(ApiPlaylist.class), apiPlaylist);
-        Observable<SearchResult> searchResultObservable = Observable.just(SearchResult.fromPropertySetSource(playlistResults,
-                Optional.<Link>absent(), Optional.<Urn>absent()));
+        Observable<SearchResult> searchResultObservable = Observable.just(SearchResult.fromPropertySetSource(
+                playlistResults,
+                Optional.<Link>absent(),
+                Optional.<Urn>absent()));
 
         when(searchOperations.searchResult(GENRE, SearchType.PLAYLISTS)).thenReturn(searchResultObservable);
         when(random.nextInt(2)).thenReturn(1);

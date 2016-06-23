@@ -93,9 +93,9 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         final WebProduct product = getProductFromIntent();
         if (product == null) {
             subscription = paymentOperations.get()
-                    .product()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new WebProductSubscriber());
+                                            .product()
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(new WebProductSubscriber());
         } else {
             launchWebForm(product);
         }
@@ -140,7 +140,7 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         final WebProduct product = getProductFromIntent();
         if (product != null && Plan.fromId(product.getPlanId()) == Plan.HIGH_TIER) {
             eventBus.publish(EventQueue.TRACKING,
-                    PurchaseEvent.forHighTierSub(product.getRawPrice(), product.getRawCurrency()));
+                             PurchaseEvent.forHighTierSub(product.getRawPrice(), product.getRawCurrency()));
         }
     }
 
@@ -181,13 +181,13 @@ class WebCheckoutPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     @VisibleForTesting
     String buildPaymentFormUrl(String token, WebProduct product, String environment) {
         final Uri.Builder builder = Uri.parse(PAYMENT_FORM_BASE_URL)
-                .buildUpon()
-                .appendQueryParameter(OAUTH_TOKEN_KEY, token)
-                .appendQueryParameter(PRICE_KEY, product.getPrice())
-                .appendQueryParameter(TRIAL_DAYS_KEY, Integer.toString(product.getTrialDays()))
-                .appendQueryParameter(EXPIRY_DATE_KEY, product.getExpiryDate())
-                .appendQueryParameter(PACKAGE_URN_KEY, product.getPackageUrn())
-                .appendQueryParameter(ENVIRONMENT_KEY, environment);
+                                       .buildUpon()
+                                       .appendQueryParameter(OAUTH_TOKEN_KEY, token)
+                                       .appendQueryParameter(PRICE_KEY, product.getPrice())
+                                       .appendQueryParameter(TRIAL_DAYS_KEY, Integer.toString(product.getTrialDays()))
+                                       .appendQueryParameter(EXPIRY_DATE_KEY, product.getExpiryDate())
+                                       .appendQueryParameter(PACKAGE_URN_KEY, product.getPackageUrn())
+                                       .appendQueryParameter(ENVIRONMENT_KEY, environment);
 
         appendDiscount(product, builder);
         appendLocale(builder);

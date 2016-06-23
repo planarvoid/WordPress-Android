@@ -20,8 +20,8 @@ import android.os.Bundle;
 
 public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
 
-    public static final String ARG_ACCT_NAME    = "account_name";
-    public static final String ARG_REQ_CODE     = "request_code";
+    public static final String ARG_ACCT_NAME = "account_name";
+    public static final String ARG_REQ_CODE = "request_code";
 
     private static final String GOOGLE_PLUS_SCOPE = "oauth2:https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email";
 

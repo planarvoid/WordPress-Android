@@ -21,8 +21,8 @@ public class SoundStreamSyncer extends TimelineSyncer<ApiStreamItem> {
                              ReplaceSoundStreamCommand replaceSoundStreamCommand,
                              @Named(SOUND_STREAM_SYNC_STORAGE) TimelineSyncStorage timelineSyncStorage) {
         super(ApiEndpoints.STREAM, Content.ME_SOUND_STREAM.uri, apiClient, storeSoundStreamCommand,
-                replaceSoundStreamCommand, timelineSyncStorage,
-                new TypeToken<ModelCollection<ApiStreamItem>>() {
-                });
+              replaceSoundStreamCommand, timelineSyncStorage,
+              new TypeToken<ModelCollection<ApiStreamItem>>() {
+              });
     }
 }

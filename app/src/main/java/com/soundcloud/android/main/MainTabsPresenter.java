@@ -153,7 +153,8 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         TabLayout tabBar = new CustomFontTabLayout(activity);
         tabBar.setTabGravity(TabLayout.GRAVITY_FILL);
         tabBar.setTabMode(TabLayout.MODE_FIXED);
-        tabBar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        tabBar.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                          ViewGroup.LayoutParams.MATCH_PARENT));
         addToToolbar(tabBar);
         return tabBar;
     }

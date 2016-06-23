@@ -41,11 +41,11 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     private static final String UUID = "uuid";
     private static final PlaybackSessionEvent MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
             PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https",
-                    "player", false, true, UUID));
+                                            "player", false, true, UUID));
 
     private static final PlaybackSessionEvent NON_MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
             PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https",
-                    "player", false, false, UUID));
+                                            "player", false, false, UUID));
 
     private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = new AppboyProperties()
             .addProperty("creator_display_name", TRACK.getCreatorName())
@@ -125,8 +125,17 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotTrackPauseEvents() {
-        final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https", "player", false, false, UUID);
-        PlaybackSessionEvent event = PlaybackSessionEvent.forStop(NON_MARKETABLE_PLAY_EVENT, PlaybackSessionEvent.STOP_REASON_PAUSE, args);
+        final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET,
+                                                                              TRACK_SOURCE_INFO,
+                                                                              0l,
+                                                                              "https",
+                                                                              "player",
+                                                                              false,
+                                                                              false,
+                                                                              UUID);
+        PlaybackSessionEvent event = PlaybackSessionEvent.forStop(NON_MARKETABLE_PLAY_EVENT,
+                                                                  PlaybackSessionEvent.STOP_REASON_PAUSE,
+                                                                  args);
 
         eventHandler.handleEvent(event);
 
@@ -196,7 +205,11 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTrackRepostEvents() {
-        UIEvent event = UIEvent.fromToggleRepost(true, Urn.forTrack(123), eventContextBuilder().build(), null, METADATA);
+        UIEvent event = UIEvent.fromToggleRepost(true,
+                                                 Urn.forTrack(123),
+                                                 eventContextBuilder().build(),
+                                                 null,
+                                                 METADATA);
 
         eventHandler.handleEvent(event);
 
@@ -239,8 +252,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
 
     private EventContextMetadata.Builder eventContextBuilder() {
         return EventContextMetadata.builder()
-                .contextScreen("context_screen")
-                .pageName("page_name")
-                .pageUrn(Urn.NOT_SET);
+                                   .contextScreen("context_screen")
+                                   .pageName("page_name")
+                                   .pageUrn(Urn.NOT_SET);
     }
 }

@@ -129,8 +129,8 @@ class GoOffboardingPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
             strategy = isRetrying ? new PendingStrategy().proceed() : new PendingStrategy();
             subscription.unsubscribe();
             subscription = operations.awaitAccountDowngrade()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DowngradeCompleteSubscriber());
+                                     .observeOn(AndroidSchedulers.mainThread())
+                                     .subscribe(new DowngradeCompleteSubscriber());
             return strategy;
         }
     }

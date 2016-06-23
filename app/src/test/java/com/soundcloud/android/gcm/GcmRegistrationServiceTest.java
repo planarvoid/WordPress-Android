@@ -29,7 +29,9 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
 
     @Test
     public void storesSuccessfullyFetchedToken() throws IOException {
-        when(instanceId.getToken(service, resources().getString(R.string.gcm_defaultSenderId), GoogleCloudMessaging.INSTANCE_ID_SCOPE))
+        when(instanceId.getToken(service,
+                                 resources().getString(R.string.gcm_defaultSenderId),
+                                 GoogleCloudMessaging.INSTANCE_ID_SCOPE))
                 .thenReturn("token");
 
         service.onHandleIntent(null);
@@ -39,7 +41,9 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
 
     @Test
     public void sendsTokenToAppboyOnSuccessfullyFetchedToken() throws IOException {
-        when(instanceId.getToken(service, resources().getString(R.string.gcm_defaultSenderId), GoogleCloudMessaging.INSTANCE_ID_SCOPE))
+        when(instanceId.getToken(service,
+                                 resources().getString(R.string.gcm_defaultSenderId),
+                                 GoogleCloudMessaging.INSTANCE_ID_SCOPE))
                 .thenReturn("token");
 
         service.onHandleIntent(null);
@@ -49,7 +53,9 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
 
     @Test
     public void clearsTokenOnUnsuccessfullyFetchedToken() throws IOException {
-        when(instanceId.getToken(service, resources().getString(R.string.gcm_defaultSenderId), GoogleCloudMessaging.INSTANCE_ID_SCOPE))
+        when(instanceId.getToken(service,
+                                 resources().getString(R.string.gcm_defaultSenderId),
+                                 GoogleCloudMessaging.INSTANCE_ID_SCOPE))
                 .thenThrow(new IOException());
 
         service.onHandleIntent(null);

@@ -72,11 +72,15 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadAllRecommendationsForSeedTrack() {
         final List<ApiTrack> recommendedTracks = ModelFixtures.create(ApiTrack.class, 1);
-        final PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class), RecommendationReason.LIKED, recommendedTracks);
+        final PropertySet recommendation = insertRecommendation(ModelFixtures.create(ApiTrack.class),
+                                                                RecommendationReason.LIKED,
+                                                                recommendedTracks);
         final TestSubscriber<List<PropertySet>> recommendedTracksSubscriber = new TestSubscriber<>();
         final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
         final Urn seedUrn = Urn.forTrack(localSeedId);
-        final List<PropertySet> recommendedTracksForSeed = Collections.singletonList(recommendedTrack(seedUrn, recommendedTracks.get(0)));
+        final List<PropertySet> recommendedTracksForSeed = Collections.singletonList(recommendedTrack(seedUrn,
+                                                                                                      recommendedTracks.get(
+                                                                                                              0)));
 
         storage.recommendedTracksForSeed(localSeedId).subscribe(recommendedTracksSubscriber);
 
@@ -84,7 +88,9 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         recommendedTracksSubscriber.assertCompleted();
     }
 
-    private PropertySet insertRecommendation(ApiTrack seedTrack, RecommendationReason reason, List<ApiTrack> recommendedTracks) {
+    private PropertySet insertRecommendation(ApiTrack seedTrack,
+                                             RecommendationReason reason,
+                                             List<ApiTrack> recommendedTracks) {
         ApiUser user = testFixtures().insertUser();
         long seedId = insertSeedTrack(seedTrack, user, reason).get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
         for (ApiTrack track : recommendedTracks) {

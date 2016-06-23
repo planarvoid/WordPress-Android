@@ -17,7 +17,8 @@ import android.content.ContentValues;
 import javax.inject.Inject;
 import java.util.List;
 
-class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams, WriteResult, Integer> {
+class RemoveTrackFromPlaylistCommand
+        extends WriteStorageCommand<RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams, WriteResult, Integer> {
 
     private int updatedTrackCount;
 
@@ -28,7 +29,8 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
 
     @Override
     protected WriteResult write(PropellerDatabase propeller, final RemoveTrackFromPlaylistParams params) {
-        final List<Urn> playlistTracks = propeller.query(getPlaylistTracks(params.playlistUrn)).toList(new GetPlaylistTrackUrnsMapper());
+        final List<Urn> playlistTracks = propeller.query(getPlaylistTracks(params.playlistUrn))
+                                                  .toList(new GetPlaylistTrackUrnsMapper());
         playlistTracks.remove(params.trackUrn);
 
         updatedTrackCount = playlistTracks.size();
@@ -37,18 +39,23 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.delete(Table.PlaylistTracks, Filter.filter()
-                        .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), params.playlistUrn.getNumericId())
-                        .whereNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))));
+                                                                  .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID),
+                                                                           params.playlistUrn.getNumericId())
+                                                                  .whereNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))));
 
                 for (int i = 0; i < playlistTracks.size(); i++) {
-                    step(propeller.upsert(Table.PlaylistTracks, buildPlaylistTrackContentValues(params.playlistUrn, playlistTracks.get(i), i)));
+                    step(propeller.upsert(Table.PlaylistTracks,
+                                          buildPlaylistTrackContentValues(params.playlistUrn,
+                                                                          playlistTracks.get(i),
+                                                                          i)));
                 }
-                step(propeller.insert(Table.PlaylistTracks, getInsertTrackPendingRemovalParams(params.playlistUrn, params.trackUrn)));
+                step(propeller.insert(Table.PlaylistTracks,
+                                      getInsertTrackPendingRemovalParams(params.playlistUrn, params.trackUrn)));
             }
         });
     }
 
-    private ContentValues buildPlaylistTrackContentValues(Urn playlistUrn, Urn trackUrn, int position){
+    private ContentValues buildPlaylistTrackContentValues(Urn playlistUrn, Urn trackUrn, int position) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId());
         contentValues.put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId());
@@ -58,18 +65,19 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
 
     private ContentValues getInsertTrackPendingRemovalParams(Urn playlistUrn, Urn trackForRemoval) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
-                .put(TableColumns.PlaylistTracks.TRACK_ID, trackForRemoval.getNumericId())
-                .put(TableColumns.PlaylistTracks.REMOVED_AT, System.currentTimeMillis())
-                .get();
+                                   .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
+                                   .put(TableColumns.PlaylistTracks.TRACK_ID, trackForRemoval.getNumericId())
+                                   .put(TableColumns.PlaylistTracks.REMOVED_AT, System.currentTimeMillis())
+                                   .get();
     }
 
     private Query getPlaylistTracks(Urn playlistUrn) {
         return Query.from(Table.PlaylistTracks.name())
-                .select(TableColumns.PlaylistTracks.TRACK_ID)
-                .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), playlistUrn.getNumericId())
-                .whereNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))
-                .order(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.POSITION), Query.Order.ASC);
+                    .select(TableColumns.PlaylistTracks.TRACK_ID)
+                    .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID),
+                             playlistUrn.getNumericId())
+                    .whereNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))
+                    .order(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.POSITION), Query.Order.ASC);
     }
 
     @Override

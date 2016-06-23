@@ -125,7 +125,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
         if (automaticSyncEnabled) {
             fireAndForget(offlineContentOperations.enableOfflineCollection());
             eventBus.publish(EventQueue.TRACKING,
-                    OfflineInteractionEvent.fromEnableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
+                             OfflineInteractionEvent.fromEnableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
         } else {
             confirmDisableOfflineCollection();
         }
@@ -143,8 +143,8 @@ public class OfflineSettingsFragment extends PreferenceFragment
     private void confirmDisableOfflineCollection() {
         final View view = new CustomFontViewBuilder(getActivity())
                 .setContent(R.drawable.dialog_download,
-                        R.string.disable_offline_collection_title,
-                        R.string.disable_offline_collection_body).get();
+                            R.string.disable_offline_collection_title,
+                            R.string.disable_offline_collection_body).get();
 
         new AlertDialog.Builder(getActivity())
                 .setView(view)
@@ -183,7 +183,7 @@ public class OfflineSettingsFragment extends PreferenceFragment
     private void showUsageBelowLimitWarning(boolean belowLimitWarning) {
         if (belowLimitWarning) {
             Toast.makeText(getActivity(),
-                    R.string.offline_cannot_set_limit_below_usage, Toast.LENGTH_SHORT).show();
+                           R.string.offline_cannot_set_limit_below_usage, Toast.LENGTH_SHORT).show();
             eventBus.publish(EventQueue.TRACKING, OfflineInteractionEvent.forStorageBelowLimitImpression());
         }
     }
@@ -234,18 +234,18 @@ public class OfflineSettingsFragment extends PreferenceFragment
 
     private int getRemoveAllOfflineContentDialogBody() {
         return offlineContentOperations.isOfflineCollectionEnabled()
-                ? R.string.remove_offline_content_body_sync_collection
-                : R.string.remove_offline_content_body_default;
+               ? R.string.remove_offline_content_body_sync_collection
+               : R.string.remove_offline_content_body_default;
     }
 
     private void resetOfflineFeature() {
         eventBus.publish(EventQueue.TRACKING,
-                OfflineInteractionEvent.fromDisableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
+                         OfflineInteractionEvent.fromDisableCollectionSync(Screen.SETTINGS_OFFLINE.get()));
 
         subscription.add(offlineContentOperations
-                .resetOfflineFeature()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ClearOfflineContentSubscriber()));
+                                 .resetOfflineFeature()
+                                 .observeOn(AndroidSchedulers.mainThread())
+                                 .subscribe(new ClearOfflineContentSubscriber()));
     }
 
     private final class ClearOfflineContentSubscriber extends DefaultSubscriber<Void> {

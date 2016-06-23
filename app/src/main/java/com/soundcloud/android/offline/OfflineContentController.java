@@ -100,10 +100,10 @@ public class OfflineContentController {
     public void subscribe() {
         subscription = offlineContentEvents()
                 .doOnSubscribe(serviceInitiator.start())
-                        // TODO : when shutting down the feature, some entities
-                        // states change. It means, we should start the service, let it
-                        // publish entities updates and then let it stop itself.
-                        // https://github.com/soundcloud/SoundCloud-Android/issues/4742
+                // TODO : when shutting down the feature, some entities
+                // states change. It means, we should start the service, let it
+                // publish entities updates and then let it stop itself.
+                // https://github.com/soundcloud/SoundCloud-Android/issues/4742
                 .doOnUnsubscribe(serviceInitiator.stop())
                 .subscribe(serviceInitiator.startSubscriber());
     }
@@ -115,10 +115,10 @@ public class OfflineContentController {
     private Observable<Void> offlineContentEvents() {
         return Observable
                 .merge(offlinePlaylistChanged(),
-                        offlineTrackLikedChanged(),
-                        networkOrWifiOnlySettingChanged(),
-                        policyUpdates(),
-                        offlineCollectionChanged()
+                       offlineTrackLikedChanged(),
+                       networkOrWifiOnlySettingChanged(),
+                       policyUpdates(),
+                       offlineCollectionChanged()
                 )
                 .map(RxUtils.TO_VOID);
     }
@@ -132,29 +132,29 @@ public class OfflineContentController {
 
     private Observable<Object> playlistSynced() {
         return eventBus.queue(EventQueue.SYNC_RESULT)
-                .filter(SyncJobResult.IS_SINGLE_PLAYLIST_SYNCED_FILTER)
-                .map(SyncJobResult.TO_URN)
-                .flatMap(isOfflinePlaylist)
-                .filter(RxUtils.IS_TRUE)
-                .cast(Object.class);
+                       .filter(SyncJobResult.IS_SINGLE_PLAYLIST_SYNCED_FILTER)
+                       .map(SyncJobResult.TO_URN)
+                       .flatMap(isOfflinePlaylist)
+                       .filter(RxUtils.IS_TRUE)
+                       .cast(Object.class);
     }
 
     private Observable<Object> offlinePlaylistContentChanged() {
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                // NOTE : this event is not sent from the Syncer.
-                // This case is handled in MyPlaylistsSyncer.syncOfflinePlaylists.
-                .filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER)
-                .map(EntityStateChangedEvent.TO_URN)
-                .flatMap(isOfflinePlaylist)
-                .filter(RxUtils.IS_TRUE)
-                .cast(Object.class);
+                       // NOTE : this event is not sent from the Syncer.
+                       // This case is handled in MyPlaylistsSyncer.syncOfflinePlaylists.
+                       .filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER)
+                       .map(EntityStateChangedEvent.TO_URN)
+                       .flatMap(isOfflinePlaylist)
+                       .filter(RxUtils.IS_TRUE)
+                       .cast(Object.class);
     }
 
     private Observable<Boolean> offlineTrackLikedChanged() {
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(IS_TRACK_LIKE_EVENT_FILTER)
-                .flatMap(isOfflineLikedTracksEnabled)
-                .filter(RxUtils.IS_TRUE);
+                       .filter(IS_TRACK_LIKE_EVENT_FILTER)
+                       .flatMap(isOfflineLikedTracksEnabled)
+                       .filter(RxUtils.IS_TRUE);
     }
 
     private Observable<Object> networkOrWifiOnlySettingChanged() {
@@ -180,20 +180,20 @@ public class OfflineContentController {
     private Observable<Object> playlistAddedToOfflineCollection() {
         // Note : fired by user interactions and the syncer
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(isOfflineCollectionEnabled)
-                .filter(IS_PLAYLIST_LIKED_OR_CREATED)
-                .map(EntityStateChangedEvent.TO_URNS)
-                .flatMap(addOfflinePlaylist)
-                .cast(Object.class);
+                       .filter(isOfflineCollectionEnabled)
+                       .filter(IS_PLAYLIST_LIKED_OR_CREATED)
+                       .map(EntityStateChangedEvent.TO_URNS)
+                       .flatMap(addOfflinePlaylist)
+                       .cast(Object.class);
     }
 
     private Observable<Object> playlistRemovedFromOfflineCollection() {
         // Note : fired by user interactions and the syncer
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(IS_PLAYLIST_UNLIKED_OR_DELETED)
-                .map(EntityStateChangedEvent.TO_URNS)
-                .flatMap(removeOfflinePlaylist)
-                .cast(Object.class);
+                       .filter(IS_PLAYLIST_UNLIKED_OR_DELETED)
+                       .map(EntityStateChangedEvent.TO_URNS)
+                       .flatMap(removeOfflinePlaylist)
+                       .cast(Object.class);
     }
 
 }

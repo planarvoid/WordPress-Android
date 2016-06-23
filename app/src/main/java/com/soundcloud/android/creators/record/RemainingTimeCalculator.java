@@ -15,7 +15,7 @@ import java.io.File;
  * Based on com.android.soundrecorder.SoundRecorder
  *
  * @see <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android-apps/2.0_r1/com/android/soundrecorder/SoundRecorder.java?av=h">
- *  com.android.soundrecorder.SoundRecorder
+ * com.android.soundrecorder.SoundRecorder
  * </a>
  */
 
@@ -60,6 +60,7 @@ public class RemainingTimeCalculator {
     /**
      * If called, the calculator take an additional encoded file into account when giving the remaining
      * time estimate, based on file growth of the encoded file.
+     *
      * @param file the file to watch
      */
     public void setEncodedFile(File file) {

@@ -56,8 +56,8 @@ class WebConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity
     private void loadProduct() {
         conversionView.setBuyButtonLoading();
         subscription = operations.product()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new WebProductSubscriber());
+                                 .observeOn(AndroidSchedulers.mainThread())
+                                 .subscribe(new WebProductSubscriber());
     }
 
     @Override

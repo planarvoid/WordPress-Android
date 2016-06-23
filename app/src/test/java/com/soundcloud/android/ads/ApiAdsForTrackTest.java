@@ -5,6 +5,7 @@ import com.soundcloud.java.optional.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.Collections;
 

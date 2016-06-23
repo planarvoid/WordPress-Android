@@ -117,7 +117,8 @@ public class ErrorUtilsTest extends AndroidUnitTest {
 
     @Test
     public void shouldIncludeMappingErrors() {
-        final ApiRequestException apiRequestException = ApiRequestException.malformedInput(null, new ApiMapperException("foo"));
+        final ApiRequestException apiRequestException = ApiRequestException.malformedInput(null,
+                                                                                           new ApiMapperException("foo"));
 
         assertThat(ErrorUtils.includeInReports(apiRequestException)).isTrue();
     }

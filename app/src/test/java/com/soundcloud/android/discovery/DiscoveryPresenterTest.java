@@ -64,7 +64,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(discoveryItems);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
         when(dataSource.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
-        when(recommendationBucketRendererFactory.create(eq(true), any(DiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
+        when(recommendationBucketRendererFactory.create(eq(true), any(DiscoveryPresenter.class))).thenReturn(
+                recommendationBucketRenderer);
         this.presenter = new DiscoveryPresenter(
                 dataSource,
                 swipeRefreshAttacher,
@@ -135,6 +136,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Test
     public void propagatesOnTrackClickedToRecommendationPlaybackInitiator() {
         presenter.onTrackClicked(SEED_URN, TRACK_URN);
-        verify(trackRecommendationPlaybackInitiator).playFromRecommendation(SEED_URN, TRACK_URN, Screen.SEARCH_MAIN, discoveryItems);
+        verify(trackRecommendationPlaybackInitiator).playFromRecommendation(SEED_URN,
+                                                                            TRACK_URN,
+                                                                            Screen.SEARCH_MAIN,
+                                                                            discoveryItems);
     }
 }

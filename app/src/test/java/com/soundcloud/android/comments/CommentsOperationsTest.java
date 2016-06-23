@@ -54,7 +54,8 @@ public class CommentsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldPageCommentsIfMorePagesAvailable() {
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo(nextPageUrl)), eq(CommentsCollection.class))).thenReturn(apiComments);
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo(nextPageUrl)), eq(CommentsCollection.class))).thenReturn(
+                apiComments);
         operations.pager().page(apiComments).subscribe(observer);
 
         operations.pager().next();

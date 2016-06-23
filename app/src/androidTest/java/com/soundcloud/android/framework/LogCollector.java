@@ -31,7 +31,7 @@ public class LogCollector {
     }
 
     public static void stopCollecting() throws Exception {
-        if(instance == null) {
+        if (instance == null) {
             throw new Exception("Please start collecting first");
         }
         instance.stopCollectingLogs();
@@ -51,7 +51,7 @@ public class LogCollector {
     }
 
     private void deleteLogFile() {
-        if(deleteFile) {
+        if (deleteFile) {
             pathToFile().delete();
             deleteFile = false;
         }

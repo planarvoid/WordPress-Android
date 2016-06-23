@@ -26,13 +26,13 @@ class ShortcutsStorage {
 
     public List<Shortcut> getShortcuts(String query, int limit) {
         final QueryResult queryResult = propeller.query(from(Shortcuts.TABLE)
-                .select(Shortcuts.KIND,
-                        Shortcuts._ID,
-                        Shortcuts._TYPE,
-                        Shortcuts.DISPLAY_TEXT)
-                .where(Shortcuts.DISPLAY_TEXT + " LIKE '" + query + "%' or "
-                        + Shortcuts.DISPLAY_TEXT + " LIKE '% " + query + "%'")
-                .limit(limit));
+                                                                .select(Shortcuts.KIND,
+                                                                        Shortcuts._ID,
+                                                                        Shortcuts._TYPE,
+                                                                        Shortcuts.DISPLAY_TEXT)
+                                                                .where(Shortcuts.DISPLAY_TEXT + " LIKE '" + query + "%' or "
+                                                                               + Shortcuts.DISPLAY_TEXT + " LIKE '% " + query + "%'")
+                                                                .limit(limit));
 
         List<Shortcut> results = new ArrayList<>(limit);
         for (CursorReader reader : queryResult) {
@@ -44,9 +44,9 @@ class ShortcutsStorage {
     @NonNull
     private Urn getUrn(CursorReader reader) {
         final long id = reader.getLong(Shortcuts._ID);
-        if (Shortcuts.KIND_FOLLOWING.equals(reader.getString(Shortcuts.KIND))){
+        if (Shortcuts.KIND_FOLLOWING.equals(reader.getString(Shortcuts.KIND))) {
             return Urn.forUser(id);
-        } else if (reader.getInt(Shortcuts._TYPE) == TableColumns.Sounds.TYPE_TRACK){
+        } else if (reader.getInt(Shortcuts._TYPE) == TableColumns.Sounds.TYPE_TRACK) {
             return Urn.forTrack(id);
         } else {
             return Urn.forPlaylist(id);

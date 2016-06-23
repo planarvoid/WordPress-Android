@@ -54,8 +54,9 @@ class SimpleTrackingApi implements TrackingApi {
                         successes.add(event);
                     } else {
                         ErrorUtils.handleSilentException(EventTracker.TAG,
-                                new Exception("Tracking request failed with unexpected status code: "
-                                        + response.toString() + "; record = " + event));
+                                                         new Exception(
+                                                                 "Tracking request failed with unexpected status code: "
+                                                                         + response.toString() + "; record = " + event));
                     }
                 } finally {
                     response.body().close();

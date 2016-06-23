@@ -51,7 +51,9 @@ public class SplitScreenControllerTest extends AndroidUnitTest {
     @Test
     public void shouldListenForPositionChangeEventsAndUpdateTrackPresenter() {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
+                                                                       Urn.NOT_SET,
+                                                                       0));
 
         verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }
@@ -59,7 +61,9 @@ public class SplitScreenControllerTest extends AndroidUnitTest {
     @Test
     public void shouldListenForNewQueueEventsAndUpdateTrackPresenter() {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(Urn.forTrack(123L)), Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromNewQueue(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
+                                                                Urn.NOT_SET,
+                                                                0));
 
         verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }

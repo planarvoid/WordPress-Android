@@ -39,10 +39,10 @@ class SearchResultsAdapter
                          SearchPremiumContentRenderer searchPremiumContentRenderer,
                          SearchUpsellRenderer searchUpsellRenderer) {
         super(new CellRendererBinding<>(TYPE_TRACK, trackItemRenderer),
-                new CellRendererBinding<>(TYPE_PLAYLIST, playlistItemRenderer),
-                new CellRendererBinding<>(TYPE_USER, userItemRenderer),
-                new CellRendererBinding<>(TYPE_PREMIUM_CONTENT, searchPremiumContentRenderer),
-                new CellRendererBinding<>(TYPE_UPSELL, searchUpsellRenderer));
+              new CellRendererBinding<>(TYPE_PLAYLIST, playlistItemRenderer),
+              new CellRendererBinding<>(TYPE_USER, userItemRenderer),
+              new CellRendererBinding<>(TYPE_PREMIUM_CONTENT, searchPremiumContentRenderer),
+              new CellRendererBinding<>(TYPE_UPSELL, searchUpsellRenderer));
         this.searchPremiumContentRenderer = searchPremiumContentRenderer;
         this.searchUpsellRenderer = searchUpsellRenderer;
     }

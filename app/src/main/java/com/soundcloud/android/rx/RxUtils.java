@@ -96,7 +96,8 @@ public final class RxUtils {
         return new ConcatEagerIgnorePartialErrors<>();
     }
 
-    private static class ConcatEagerIgnorePartialErrors<ItemT> implements Observable.Transformer<List<Observable<ItemT>>, ItemT> {
+    private static class ConcatEagerIgnorePartialErrors<ItemT>
+            implements Observable.Transformer<List<Observable<ItemT>>, ItemT> {
 
         private final Function<Observable<ItemT>, Observable<Notification<ItemT>>> toMaterializedObservable = new Function<Observable<ItemT>, Observable<Notification<ItemT>>>() {
             @Override

@@ -138,7 +138,7 @@ public class LoginFlowTest extends LoginTest {
         loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
 
         assertThat(mainNavHelper.goToYou()
-                .clickLogoutAndConfirm(), is(visible()));
+                                .clickLogoutAndConfirm(), is(visible()));
     }
 
     /*
@@ -152,7 +152,8 @@ public class LoginFlowTest extends LoginTest {
         recoveryScreen.typeEmail(generateEmail());
         recoveryScreen.clickOkButton();
 
-        String message = solo.getString(R.string.authentication_recover_password_failure_reason, "Unknown Email Address");
+        String message = solo.getString(R.string.authentication_recover_password_failure_reason,
+                                        "Unknown Email Address");
         assertTrue(waiter.expectToastWithText(toastObserver, message));
     }
 

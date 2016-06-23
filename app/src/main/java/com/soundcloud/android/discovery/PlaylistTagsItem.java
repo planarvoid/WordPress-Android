@@ -12,7 +12,7 @@ public abstract class PlaylistTagsItem extends DiscoveryItem {
     }
 
     public static PlaylistTagsItem create(List<String> popularTags,
-                                   List<String> recentTags) {
+                                          List<String> recentTags) {
         return new AutoValue_PlaylistTagsItem(popularTags,
                                               recentTags);
     }

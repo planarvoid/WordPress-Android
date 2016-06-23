@@ -53,7 +53,9 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
      * apply an optional transformation of items before adding them to the adapter, e.g. when mapping to a view model.
      */
     public <T, R extends ListItem, CollT extends Iterable<T>>
-    void setAdapter(final PagingListItemAdapter<R> adapter, final LegacyPager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
+    void setAdapter(final PagingListItemAdapter<R> adapter,
+                    final LegacyPager<CollT> pager,
+                    final Func1<CollT, ? extends Iterable<R>> itemMapper) {
         this.adapter = adapter;
         this.pager = pager;
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
@@ -69,7 +71,8 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
      * Like {@link #setAdapter(PagingListItemAdapter, LegacyPager)}, but does
      * not perform any item mapping.
      */
-    public <T extends ListItem, CollT extends Iterable<T>> void setAdapter(final PagingListItemAdapter<T> adapter, final LegacyPager<CollT> pager) {
+    public <T extends ListItem, CollT extends Iterable<T>> void setAdapter(final PagingListItemAdapter<T> adapter,
+                                                                           final LegacyPager<CollT> pager) {
         setAdapter(adapter, pager, UtilityFunctions.<CollT>identity());
     }
 
@@ -125,7 +128,9 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
         private final PagingListItemAdapter<?> adapter;
         private final OnScrollListener listenerDelegate;
 
-        PagingScrollListener(LegacyPager<?> pager, PagingListItemAdapter<?> adapter, OnScrollListener listenerDelegate) {
+        PagingScrollListener(LegacyPager<?> pager,
+                             PagingListItemAdapter<?> adapter,
+                             OnScrollListener listenerDelegate) {
             this.pager = pager;
             this.adapter = adapter;
             this.listenerDelegate = listenerDelegate;

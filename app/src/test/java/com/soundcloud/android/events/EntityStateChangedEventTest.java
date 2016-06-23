@@ -16,7 +16,8 @@ public class EntityStateChangedEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldIndicateSingularChangeEvents() {
-        EntityStateChangedEvent multiChangeEvent = forUpdate(Arrays.asList(TestPropertySets.fromApiTrack(), TestPropertySets.fromApiTrack()));
+        EntityStateChangedEvent multiChangeEvent = forUpdate(Arrays.asList(TestPropertySets.fromApiTrack(),
+                                                                           TestPropertySets.fromApiTrack()));
         assertThat(multiChangeEvent.isSingularChange()).isFalse();
 
         EntityStateChangedEvent singleChangeEvent = forUpdate(TestPropertySets.fromApiTrack());

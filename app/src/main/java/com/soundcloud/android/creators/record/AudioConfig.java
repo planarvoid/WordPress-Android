@@ -90,7 +90,8 @@ public enum AudioConfig {
                 if (record.getState() == AudioRecord.STATE_INITIALIZED) {
                     return record;
                 } else {
-                    Log.w(AudioConfig.class.getSimpleName(), "audiorecord " + record + " in state " + record.getState());
+                    Log.w(AudioConfig.class.getSimpleName(),
+                          "audiorecord " + record + " in state " + record.getState());
                 }
             } catch (Exception e) {
                 Log.w(AudioConfig.class.getSimpleName(), e);

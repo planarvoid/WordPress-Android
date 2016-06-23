@@ -37,7 +37,8 @@ final class BillingUtil {
 
     private static final String IN_PARENTHESES = "\\(.*?\\)";
 
-    private BillingUtil() {}
+    private BillingUtil() {
+    }
 
     /*
      * The InAppBillingService reference implementation states that response codes should be Integers,
@@ -48,14 +49,14 @@ final class BillingUtil {
 
     public static int getResponseCodeFromBundle(Bundle bundle) {
         return bundle == null
-                ? ERROR_INVALID_DATA
-                : responseCodeFromObject(bundle.get(RESPONSE_CODE));
+               ? ERROR_INVALID_DATA
+               : responseCodeFromObject(bundle.get(RESPONSE_CODE));
     }
 
     public static int getResponseCodeFromIntent(Intent intent) {
         return intent == null
-                ? ERROR_INVALID_DATA
-                : responseCodeFromObject(intent.getExtras().get(RESPONSE_CODE));
+               ? ERROR_INVALID_DATA
+               : responseCodeFromObject(intent.getExtras().get(RESPONSE_CODE));
     }
 
     private static int responseCodeFromObject(Object code) {

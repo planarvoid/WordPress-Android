@@ -154,7 +154,7 @@ class DownloadHandler extends Handler {
 
         DownloadHandler create(Listener listener) {
             return new DownloadHandler(createLooper(), listener, downloadOperations,
-                    secureFileStorage, tracksStorage, performanceTracker);
+                                       secureFileStorage, tracksStorage, performanceTracker);
         }
 
         private Looper createLooper() {

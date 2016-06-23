@@ -43,13 +43,15 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucket, Writ
             private void storeChartBucket(PropellerDatabase propeller, List<ApiChart> bucket, int bucketType) {
                 for (final ApiChart apiChart : bucket) {
                     //Store the chart
-                    final InsertResult chartInsert = propeller.insert(Charts.TABLE, buildChartContentValues(apiChart, bucketType));
+                    final InsertResult chartInsert = propeller.insert(Charts.TABLE,
+                                                                      buildChartContentValues(apiChart, bucketType));
                     step(chartInsert);
 
                     //Store chart tracks
                     for (ApiTrack track : apiChart.tracks()) {
                         writeTrack(propeller, track);
-                        step(propeller.upsert(ChartTracks.TABLE, buildChartTrackContentValues(track, chartInsert.getRowId())));
+                        step(propeller.upsert(ChartTracks.TABLE,
+                                              buildChartTrackContentValues(track, chartInsert.getRowId())));
                     }
                 }
             }

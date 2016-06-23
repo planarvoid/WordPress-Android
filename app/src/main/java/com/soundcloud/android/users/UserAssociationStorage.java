@@ -129,10 +129,10 @@ public class UserAssociationStorage {
 
     public Set<Long> loadFollowedUserIds() {
         Query followingIds = Query.from(UserAssociations)
-                .select(TARGET_ID)
-                .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
-                .whereNull(ADDED_AT)
-                .whereNull(REMOVED_AT);
+                                  .select(TARGET_ID)
+                                  .whereEq(ASSOCIATION_TYPE, TYPE_FOLLOWING)
+                                  .whereNull(ADDED_AT)
+                                  .whereNull(REMOVED_AT);
         return new HashSet<>(propeller.query(followingIds).toList(ScalarMapper.create(Long.class)));
     }
 
@@ -158,25 +158,25 @@ public class UserAssociationStorage {
 
     public Observable<List<Urn>> followedUserUrns(int limit, long fromPosition) {
         Query query = Query.from(UserAssociations)
-                .select(field(TARGET_ID).as(BaseColumns._ID))
-                .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING)
-                .whereGt(UserAssociations.field(POSITION), fromPosition)
-                .order(UserAssociations.field(POSITION), ASC)
-                .limit(limit);
+                           .select(field(TARGET_ID).as(BaseColumns._ID))
+                           .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING)
+                           .whereGt(UserAssociations.field(POSITION), fromPosition)
+                           .order(UserAssociations.field(POSITION), ASC)
+                           .limit(limit);
 
         return propellerRx.query(query).map(new UserUrnMapper()).toList();
     }
 
     public boolean hasStaleFollowings() {
         return propeller.query(Query.count(UserAssociations)
-                .where(staleFollowingsFilter()))
-                .firstOrDefault(Integer.class, 0) > 0;
+                                    .where(staleFollowingsFilter()))
+                        .firstOrDefault(Integer.class, 0) > 0;
     }
 
     public List<PropertySet> loadStaleFollowings() {
         return propeller.query(buildFollowingsBaseQuery()
-                .where(staleFollowingsFilter()))
-                .toList(new FollowingsMapper());
+                                       .where(staleFollowingsFilter()))
+                        .toList(new FollowingsMapper());
     }
 
     private Where staleFollowingsFilter() {
@@ -188,27 +188,29 @@ public class UserAssociationStorage {
 
     protected Query buildFollowersQuery(int limit, long fromPosition) {
         return Query.from(Table.Users)
-                .select(
-                        field(Users._ID),
-                        field(Users.USERNAME),
-                        field(Users.COUNTRY),
-                        field(Users.FOLLOWERS_COUNT),
-                        field(Users.AVATAR_URL),
-                        UserAssociations.field(POSITION),
-                        UserAssociations.field(ADDED_AT),
-                        UserAssociations.field(REMOVED_AT),
-                        FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE)
-                .innerJoin(UserAssociations.name(),
-                        filter()
-                                .whereEq(UserAssociations.field(TARGET_ID), Table.Users.field(TableColumns.Users._ID))
-                                .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWER))
-                .leftJoin(UserAssociations.name() + " as " + FOLLOWINGS_ALIAS,
-                        filter()
-                                .whereEq(FOLLOWINGS_ALIAS + "." + TARGET_ID, Table.Users.field(TableColumns.Users._ID))
-                                .whereEq(FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE, TYPE_FOLLOWING))
-                .whereGt(UserAssociations.field(POSITION), fromPosition)
-                .order(UserAssociations.field(POSITION), ASC)
-                .limit(limit);
+                    .select(
+                            field(Users._ID),
+                            field(Users.USERNAME),
+                            field(Users.COUNTRY),
+                            field(Users.FOLLOWERS_COUNT),
+                            field(Users.AVATAR_URL),
+                            UserAssociations.field(POSITION),
+                            UserAssociations.field(ADDED_AT),
+                            UserAssociations.field(REMOVED_AT),
+                            FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE)
+                    .innerJoin(UserAssociations.name(),
+                               filter()
+                                       .whereEq(UserAssociations.field(TARGET_ID),
+                                                Table.Users.field(TableColumns.Users._ID))
+                                       .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWER))
+                    .leftJoin(UserAssociations.name() + " as " + FOLLOWINGS_ALIAS,
+                              filter()
+                                      .whereEq(FOLLOWINGS_ALIAS + "." + TARGET_ID,
+                                               Table.Users.field(TableColumns.Users._ID))
+                                      .whereEq(FOLLOWINGS_ALIAS + "." + ASSOCIATION_TYPE, TYPE_FOLLOWING))
+                    .whereGt(UserAssociations.field(POSITION), fromPosition)
+                    .order(UserAssociations.field(POSITION), ASC)
+                    .limit(limit);
     }
 
     protected Query buildFollowingsQuery(int limit, long fromPosition) {
@@ -221,19 +223,19 @@ public class UserAssociationStorage {
     @NonNull
     private Query buildFollowingsBaseQuery() {
         return Query.from(Table.Users)
-                .select(
-                        field(Users._ID),
-                        field(Users.USERNAME),
-                        field(Users.COUNTRY),
-                        field(Users.FOLLOWERS_COUNT),
-                        field(Users.AVATAR_URL),
-                        field(POSITION),
-                        field(ADDED_AT),
-                        field(REMOVED_AT))
-                .innerJoin(UserAssociations.name(),
-                        filter()
-                                .whereEq(UserAssociations.field(TARGET_ID), Table.Users.field(Users._ID))
-                                .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING));
+                    .select(
+                            field(Users._ID),
+                            field(Users.USERNAME),
+                            field(Users.COUNTRY),
+                            field(Users.FOLLOWERS_COUNT),
+                            field(Users.AVATAR_URL),
+                            field(POSITION),
+                            field(ADDED_AT),
+                            field(REMOVED_AT))
+                    .innerJoin(UserAssociations.name(),
+                               filter()
+                                       .whereEq(UserAssociations.field(TARGET_ID), Table.Users.field(Users._ID))
+                                       .whereEq(UserAssociations.field(ASSOCIATION_TYPE), TYPE_FOLLOWING));
     }
 
     private class UserUrnMapper extends RxResultMapper<Urn> {

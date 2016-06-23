@@ -31,14 +31,15 @@ public class FetchUsersCommand extends BulkFetchCommand<PublicApiUser> {
     @Override
     protected ApiRequest buildRequest(List<Urn> urns) {
         return ApiRequest.get(ApiEndpoints.LEGACY_USERS.path())
-                .forPublicApi()
-                .addQueryParam("ids", Urns.toJoinedIds(urns, ","))
-                .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
-                .build();
+                         .forPublicApi()
+                         .addQueryParam("ids", Urns.toJoinedIds(urns, ","))
+                         .addQueryParam(PublicApi.LINKED_PARTITIONING, "1")
+                         .build();
     }
 
     @Override
     protected TypeToken<? extends Iterable<PublicApiUser>> provideResourceType() {
-        return new TypeToken<CollectionHolder<PublicApiUser>>() {};
+        return new TypeToken<CollectionHolder<PublicApiUser>>() {
+        };
     }
 }

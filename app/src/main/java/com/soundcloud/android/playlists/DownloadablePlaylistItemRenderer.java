@@ -31,7 +31,13 @@ public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
                                             ScreenProvider screenProvider,
                                             Navigator navigator) {
 
-        super(resources, imageOperations, numberFormatter, playlistItemMenuPresenter, eventBus, screenProvider, navigator);
+        super(resources,
+              imageOperations,
+              numberFormatter,
+              playlistItemMenuPresenter,
+              eventBus,
+              screenProvider,
+              navigator);
         this.featureOperations = featureOperations;
         allowOfflineOptions();
     }

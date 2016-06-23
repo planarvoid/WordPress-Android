@@ -35,14 +35,14 @@ class OfflineUsage {
 
     public long getUsableOfflineLimit() {
         return isUnlimited
-                ? getUnlimitedSize()
-                : Math.min(offlineLimit, getUnlimitedSize());
+               ? getUnlimitedSize()
+               : Math.min(offlineLimit, getUnlimitedSize());
     }
 
     public long getActualOfflineLimit() {
         return isUnlimited
-                ? getUnlimitedSize()
-                : offlineLimit;
+               ? getUnlimitedSize()
+               : offlineLimit;
     }
 
     private long getUnlimitedSize() {

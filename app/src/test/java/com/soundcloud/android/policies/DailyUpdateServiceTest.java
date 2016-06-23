@@ -38,7 +38,7 @@ public class DailyUpdateServiceTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         dailyUpdateService = new DailyUpdateService(policyOperations, policySettingsStorage,
-                configurationManager, adIdHelper, eventBus);
+                                                    configurationManager, adIdHelper, eventBus);
     }
 
     @Test

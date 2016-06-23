@@ -16,9 +16,18 @@ public abstract class DownloadRequest implements ImageResource {
         }
     };
 
-    public static DownloadRequest create(Urn track, Optional<String> imageUrlTemplate, long duration, String waveformUrl,
-                                         boolean syncable, TrackingMetadata trackingMetadata) {
-        return new AutoValue_DownloadRequest(track, imageUrlTemplate, duration, waveformUrl, syncable, trackingMetadata);
+    public static DownloadRequest create(Urn track,
+                                         Optional<String> imageUrlTemplate,
+                                         long duration,
+                                         String waveformUrl,
+                                         boolean syncable,
+                                         TrackingMetadata trackingMetadata) {
+        return new AutoValue_DownloadRequest(track,
+                                             imageUrlTemplate,
+                                             duration,
+                                             waveformUrl,
+                                             syncable,
+                                             trackingMetadata);
     }
 
     @Override

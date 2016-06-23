@@ -25,8 +25,8 @@ public abstract class CompanionAd {
 
     private static Optional<String> extractClickThrough(ApiCompanionAd apiCompanionAd) {
         return Strings.isBlank(apiCompanionAd.clickthroughUrl)
-                ? Optional.<String>absent()
-                : Optional.of(apiCompanionAd.clickthroughUrl);
+               ? Optional.<String>absent()
+               : Optional.of(apiCompanionAd.clickthroughUrl);
     }
 
     public abstract Urn getAdUrn();

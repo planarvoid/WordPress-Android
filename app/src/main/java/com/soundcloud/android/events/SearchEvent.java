@@ -47,7 +47,9 @@ public final class SearchEvent extends TrackingEvent {
 
     private int clickPosition = Consts.NOT_SET;
 
-    public static SearchEvent searchSuggestion(Urn urn, boolean localResult, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static SearchEvent searchSuggestion(Urn urn,
+                                               boolean localResult,
+                                               SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_SUGGESTION)
                 .<SearchEvent>put(KEY_PAGE_NAME, Screen.SEARCH_SUGGESTIONS.get())
                 .<SearchEvent>put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)

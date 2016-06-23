@@ -121,12 +121,12 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final ChartTrack chartTrack = ChartTrack.create(Urn.forTrack(localId), Optional.<String>absent());
 
         return Chart.create(localId,
-                trending,
-                none,
-                "title",
-                new Urn("soundcloud:chart"),
-                chartBucketType,
-                Collections.singletonList(chartTrack));
+                            trending,
+                            none,
+                            "title",
+                            new Urn("soundcloud:chart"),
+                            chartBucketType,
+                            Collections.singletonList(chartTrack));
     }
 
     private void initChartsWithTracks(ChartBucket charts) {

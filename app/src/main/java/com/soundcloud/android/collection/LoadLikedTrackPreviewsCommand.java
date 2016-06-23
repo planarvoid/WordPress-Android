@@ -37,12 +37,12 @@ class LoadLikedTrackPreviewsCommand extends Command<Void, List<LikedTrackPreview
     @Override
     public List<LikedTrackPreview> call(Void ignore) {
         return database.query(Query.from(Table.Likes)
-                .select(field("Likes._id").as(BaseColumns._ID), Sounds.ARTWORK_URL)
-                .innerJoin(Table.Sounds, WHERE_TRACKS_EXIST)
-                .whereEq("Likes." + TableColumns.Likes._TYPE, Sounds.TYPE_TRACK)
-                .order("Likes." + CREATED_AT, DESC)
-                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
-                .toList(mapper);
+                                   .select(field("Likes._id").as(BaseColumns._ID), Sounds.ARTWORK_URL)
+                                   .innerJoin(Table.Sounds, WHERE_TRACKS_EXIST)
+                                   .whereEq("Likes." + TableColumns.Likes._TYPE, Sounds.TYPE_TRACK)
+                                   .order("Likes." + CREATED_AT, DESC)
+                                   .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
+                       .toList(mapper);
     }
 
     private static class TrackPreviewMapper implements ResultMapper<LikedTrackPreview> {

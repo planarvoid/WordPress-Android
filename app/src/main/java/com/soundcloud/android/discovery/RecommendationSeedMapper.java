@@ -12,12 +12,17 @@ final class RecommendationSeedMapper extends RxResultMapper<PropertySet> {
     @Override
     public PropertySet map(CursorReader cursorReader) {
         PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-        propertySet.put(RecommendationProperty.SEED_TRACK_LOCAL_ID, cursorReader.getLong(Tables.RecommendationSeeds._ID));
-        propertySet.put(RecommendationProperty.SEED_TRACK_URN, Urn.forTrack(cursorReader.getLong(Tables.RecommendationSeeds.SEED_SOUND_ID)));
+        propertySet.put(RecommendationProperty.SEED_TRACK_LOCAL_ID,
+                        cursorReader.getLong(Tables.RecommendationSeeds._ID));
+        propertySet.put(RecommendationProperty.SEED_TRACK_URN,
+                        Urn.forTrack(cursorReader.getLong(Tables.RecommendationSeeds.SEED_SOUND_ID)));
         propertySet.put(RecommendationProperty.SEED_TRACK_TITLE, cursorReader.getString(SEED_TITLE));
-        propertySet.put(RecommendationProperty.REASON, getReason(cursorReader.getInt(Tables.RecommendationSeeds.RECOMMENDATION_REASON)));
-        propertySet.put(RecommendationProperty.QUERY_POSITION, cursorReader.getInt(Tables.RecommendationSeeds.QUERY_POSITION));
-        propertySet.put(RecommendationProperty.QUERY_URN, new Urn(cursorReader.getString(Tables.RecommendationSeeds.QUERY_URN)));
+        propertySet.put(RecommendationProperty.REASON,
+                        getReason(cursorReader.getInt(Tables.RecommendationSeeds.RECOMMENDATION_REASON)));
+        propertySet.put(RecommendationProperty.QUERY_POSITION,
+                        cursorReader.getInt(Tables.RecommendationSeeds.QUERY_POSITION));
+        propertySet.put(RecommendationProperty.QUERY_URN,
+                        new Urn(cursorReader.getString(Tables.RecommendationSeeds.QUERY_URN)));
 
         return propertySet;
     }

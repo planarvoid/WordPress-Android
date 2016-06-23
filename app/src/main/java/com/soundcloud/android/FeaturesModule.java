@@ -50,4 +50,5 @@ import dagger.Module;
         CollectionModule.class,
         YouModule.class
 })
-public class FeaturesModule {}
+public class FeaturesModule {
+}

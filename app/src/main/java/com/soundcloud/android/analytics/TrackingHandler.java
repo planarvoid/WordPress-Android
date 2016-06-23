@@ -27,7 +27,10 @@ class TrackingHandler extends Handler {
     private final TrackingStorage storage;
     private final TrackingApiFactory apiFactory;
 
-    TrackingHandler(Looper looper, NetworkConnectionHelper networkConnectionHelper, TrackingStorage storage, TrackingApiFactory apiFactory) {
+    TrackingHandler(Looper looper,
+                    NetworkConnectionHelper networkConnectionHelper,
+                    TrackingStorage storage,
+                    TrackingApiFactory apiFactory) {
         super(looper);
         this.networkConnectionHelper = networkConnectionHelper;
         this.storage = storage;
@@ -51,7 +54,8 @@ class TrackingHandler extends Handler {
                     final InsertResult insertResult = storage.insertEvent((TrackingRecord) msg.obj);
                     if (!insertResult.success()) {
                         ErrorUtils.handleSilentException(
-                                EventTracker.TAG, new Exception("error inserting tracking event " + msg.obj, insertResult.getFailure()));
+                                EventTracker.TAG,
+                                new Exception("error inserting tracking event " + msg.obj, insertResult.getFailure()));
                     }
                 } catch (UnsupportedEncodingException e) {
                     ErrorUtils.handleSilentException(EventTracker.TAG, e);
@@ -78,7 +82,9 @@ class TrackingHandler extends Handler {
 
         if (networkConnectionHelper.isNetworkConnected()) {
             Log.d(EventTracker.TAG, "flushing tracking events (backend = " + backend + ")");
-            List<TrackingRecord> events = backend == null ? storage.getPendingEvents() : storage.getPendingEventsForBackend(backend);
+            List<TrackingRecord> events = backend == null ?
+                                          storage.getPendingEvents() :
+                                          storage.getPendingEventsForBackend(backend);
 
             if (!events.isEmpty()) {
                 submitEvents(events, backend);
@@ -98,7 +104,8 @@ class TrackingHandler extends Handler {
             } else {
                 ErrorUtils.handleSilentException(
                         EventTracker.TAG, new Exception("Failed to delete some tracking events: failed = "
-                                + (submitted.size() - rowsDeleted), result.getFailure()));
+                                                                + (submitted.size() - rowsDeleted),
+                                                        result.getFailure()));
             }
         }
     }

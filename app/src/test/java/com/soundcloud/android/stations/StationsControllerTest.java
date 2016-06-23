@@ -36,21 +36,31 @@ public class StationsControllerTest extends AndroidUnitTest {
     @Test
     public void shouldIgnorePlaylist() {
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN), Urn.forPlaylist(123L), 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
+                                                                       Urn.forPlaylist(123L),
+                                                                       0));
         verifyZeroInteractions(operations);
     }
 
     @Test
     public void shouldSaveCurrentTrackPositionWhenPlayingAStation() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN), STATION, 0));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
+                                                                       STATION,
+                                                                       0));
         verify(operations).saveLastPlayedTrackPosition(STATION, 0);
     }
 
     @Test
     public void shouldPublisEventWhenPlayingAStation() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN), STATION, 0));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
+                                                                       STATION,
+                                                                       0));
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.RECENT_STATION_UPDATED);
@@ -59,24 +69,36 @@ public class StationsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSaveRecentlyPlayedStationsWhenStationNotPlaying() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN), STATION, 0));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
+                                                                       STATION,
+                                                                       0));
 
         verifyZeroInteractions(operations);
     }
 
     @Test
     public void shouldNotSaveRecentlyPlayedStationsWhenPlayingAPlaylist() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN), Urn.forPlaylist(456L), 1));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
+                                                                       Urn.forPlaylist(456L),
+                                                                       1));
 
         verifyZeroInteractions(operations);
     }
 
     @Test
     public void shouldSaveStationAsRecentlyPlayedStationsWhenPlayingAStation() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN), STATION, 1));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
+                                                                       STATION,
+                                                                       1));
 
         verify(operations).saveRecentlyPlayedStation(STATION);
     }

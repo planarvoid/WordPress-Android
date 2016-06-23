@@ -48,7 +48,15 @@ public class WebPaymentOperationsTest extends AndroidUnitTest {
 
     @Test
     public void productReturnsAbsentIfPlanDoesNotExist() {
-        setupExpectedProductsCall(WebProduct.create("high_tears", "urn:123", "$1", "$0", "0.00", "USD", 2, "now", "later"));
+        setupExpectedProductsCall(WebProduct.create("high_tears",
+                                                    "urn:123",
+                                                    "$1",
+                                                    "$0",
+                                                    "0.00",
+                                                    "USD",
+                                                    2,
+                                                    "now",
+                                                    "later"));
 
         operations.product().subscribe(subscriber);
 

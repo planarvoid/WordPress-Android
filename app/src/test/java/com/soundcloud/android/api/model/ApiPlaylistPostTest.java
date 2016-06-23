@@ -14,8 +14,8 @@ public class ApiPlaylistPostTest {
     @Test
     public void createsPropertySetFromTrackDependency() throws Exception {
         final PropertySet expected = apiPlaylist.toPropertySet()
-                .put(PostProperty.IS_REPOST, false)
-                .put(PostProperty.CREATED_AT, apiPlaylist.getCreatedAt());
+                                                .put(PostProperty.IS_REPOST, false)
+                                                .put(PostProperty.CREATED_AT, apiPlaylist.getCreatedAt());
 
         assertThat(new ApiPlaylistPost(apiPlaylist).toPropertySet()).isEqualTo(expected);
     }

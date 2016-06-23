@@ -28,7 +28,7 @@ class PlaylistsCollectionPresenter extends CollectionPresenter {
                                         Resources resources,
                                         EventBus eventBus) {
         super(swipeRefreshAttacher, collectionOperations, collectionOptionsStorage, adapter, optionsPresenter,
-                resources, eventBus);
+              resources, eventBus);
     }
 
     @Override

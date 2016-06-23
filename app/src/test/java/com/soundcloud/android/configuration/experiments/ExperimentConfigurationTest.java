@@ -27,7 +27,9 @@ public class ExperimentConfigurationTest {
     @Test
     public void experimentFromNameReturnsTrueWhenNameAreIdentical() {
         final Layer layer = new Layer("layer", 1, "experiment-1", 0, "variant-0");
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "experiment-1", Collections.<String>emptyList());
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer",
+                                                                                       "experiment-1",
+                                                                                       Collections.<String>emptyList());
 
         assertThat(configuration.matches(layer)).isTrue();
     }
@@ -35,7 +37,9 @@ public class ExperimentConfigurationTest {
     @Test
     public void experimentFromNameReturnsFalseWhenNameIsDifferent() {
         final Layer layer = new Layer("layer", 1, "experiment-1", 0, "variant-0");
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "experiment-.*", Collections.<String>emptyList());
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer",
+                                                                                       "experiment-.*",
+                                                                                       Collections.<String>emptyList());
 
         assertThat(configuration.matches(layer)).isFalse();
     }
@@ -43,7 +47,9 @@ public class ExperimentConfigurationTest {
     @Test
     public void experimentReturnsFalseWhenLayersAreDifferent() {
         final Layer layer = new Layer("another-layer", 1, "experiment-1", 0, "variant-0");
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "experiment-1", Collections.<String>emptyList());
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer",
+                                                                                       "experiment-1",
+                                                                                       Collections.<String>emptyList());
 
         assertThat(configuration.matches(layer)).isFalse();
     }

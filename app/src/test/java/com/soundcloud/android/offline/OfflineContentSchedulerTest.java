@@ -34,7 +34,11 @@ public class OfflineContentSchedulerTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         dateProvider = new TestDateProvider();
-        scheduler = new OfflineContentScheduler(context, alarmManager, resumeReceiver, downloadConnectionHelper, dateProvider);
+        scheduler = new OfflineContentScheduler(context,
+                                                alarmManager,
+                                                resumeReceiver,
+                                                downloadConnectionHelper,
+                                                dateProvider);
     }
 
     @Test
@@ -47,7 +51,9 @@ public class OfflineContentSchedulerTest extends AndroidUnitTest {
     public void scheduleRetryRegisterShouldRetryWhenValidNetwork() {
         when(downloadConnectionHelper.isDownloadPermitted()).thenReturn(true);
         scheduler.scheduleRetryForConnectivityError();
-        verify(alarmManager).set(eq(OfflineContentScheduler.ALARM_TYPE), eq(dateProvider.getCurrentTime() + OfflineConstants.RETRY_DELAY), intentArgumentCaptor.capture());
+        verify(alarmManager).set(eq(OfflineContentScheduler.ALARM_TYPE),
+                                 eq(dateProvider.getCurrentTime() + OfflineConstants.RETRY_DELAY),
+                                 intentArgumentCaptor.capture());
         verifyPendingIntent();
     }
 
@@ -62,7 +68,9 @@ public class OfflineContentSchedulerTest extends AndroidUnitTest {
     public void scheduleCleanupAction() {
         scheduler.scheduleCleanupAction().call(null);
 
-        verify(alarmManager).set(eq(OfflineContentScheduler.ALARM_TYPE), eq(dateProvider.getCurrentTime() + OfflineConstants.PENDING_REMOVAL_DELAY), intentArgumentCaptor.capture());
+        verify(alarmManager).set(eq(OfflineContentScheduler.ALARM_TYPE),
+                                 eq(dateProvider.getCurrentTime() + OfflineConstants.PENDING_REMOVAL_DELAY),
+                                 intentArgumentCaptor.capture());
     }
 
     @Test
@@ -81,7 +89,9 @@ public class OfflineContentSchedulerTest extends AndroidUnitTest {
     private void verifyPendingIntent() {
         ShadowPendingIntent intent = Shadows.shadowOf(intentArgumentCaptor.getValue());
         assertThat(intent.getRequestCode()).isEqualTo(OfflineContentScheduler.RETRY_REQUEST_ID);
-        assertThat(intent.getSavedIntent().getComponent().getClassName()).isEqualTo(AlarmManagerReceiver.class.getCanonicalName());
+        assertThat(intent.getSavedIntent()
+                         .getComponent()
+                         .getClassName()).isEqualTo(AlarmManagerReceiver.class.getCanonicalName());
         assertThat(intent.getSavedIntent().getAction()).isEqualTo(OfflineContentService.ACTION_START);
     }
 }

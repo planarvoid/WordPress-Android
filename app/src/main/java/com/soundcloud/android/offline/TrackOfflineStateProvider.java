@@ -30,14 +30,14 @@ public class TrackOfflineStateProvider {
         this.scheduler = scheduler;
     }
 
-    public void subscribe(){
+    public void subscribe() {
         trackDownloadsStorage.getOfflineStates()
-                .subscribeOn(scheduler)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new StorageSubscriber());
+                             .subscribeOn(scheduler)
+                             .observeOn(AndroidSchedulers.mainThread())
+                             .subscribe(new StorageSubscriber());
     }
 
-    public void clear(){
+    public void clear() {
         offlineStates.clear();
     }
 

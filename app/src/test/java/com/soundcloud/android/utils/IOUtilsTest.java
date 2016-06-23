@@ -55,7 +55,8 @@ public class IOUtilsTest {
     @Test
     public void shouldAppendToFilename() throws Exception {
         File f = new File("/foo/bar/test.ogg");
-        assertThat(IOUtils.appendToFilename(f, "_processed").getAbsolutePath()).isEqualTo("/foo/bar/test_processed.ogg");
+        assertThat(IOUtils.appendToFilename(f, "_processed")
+                          .getAbsolutePath()).isEqualTo("/foo/bar/test_processed.ogg");
 
         File g = new File("/foo/bar/test");
         assertThat(IOUtils.appendToFilename(g, "_processed").getAbsolutePath()).isEqualTo("/foo/bar/test_processed");

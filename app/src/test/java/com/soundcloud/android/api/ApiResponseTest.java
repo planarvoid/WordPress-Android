@@ -117,7 +117,9 @@ public class ApiResponseTest extends AndroidUnitTest {
     // this is only done temporary until we move this to api-mobile, where we will use keys on the server side
     @Test
     public void shouldWritePublicApiValidationErrorToErrorKey() {
-        final ApiResponse response = new ApiResponse(request, 422, "{\"errors\":[{\"error_message\":\"Username cannot contain 'soundcloud'\"}]}");
+        final ApiResponse response = new ApiResponse(request,
+                                                     422,
+                                                     "{\"errors\":[{\"error_message\":\"Username cannot contain 'soundcloud'\"}]}");
         assertThat(response.getFailure().errorKey()).isEqualTo("Username cannot contain 'soundcloud'");
     }
 }

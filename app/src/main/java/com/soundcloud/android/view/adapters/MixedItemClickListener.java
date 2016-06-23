@@ -59,11 +59,19 @@ public class MixedItemClickListener {
         onPostClick(playables, view, position, clickedItem, new PlaySessionSource(screen));
     }
 
-    public void onProfilePostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem, Urn userUrn) {
+    public void onProfilePostClick(Observable<List<PropertySet>> playables,
+                                   View view,
+                                   int position,
+                                   ListItem clickedItem,
+                                   Urn userUrn) {
         onPostClick(playables, view, position, clickedItem, PlaySessionSource.forArtist(screen, userUrn));
     }
 
-    public void onPostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem, PlaySessionSource playSessionSource) {
+    public void onPostClick(Observable<List<PropertySet>> playables,
+                            View view,
+                            int position,
+                            ListItem clickedItem,
+                            PlaySessionSource playSessionSource) {
         if (clickedItem.getUrn().isTrack()) {
             final TrackItem item = (TrackItem) clickedItem;
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
@@ -90,11 +98,16 @@ public class MixedItemClickListener {
     private void handleNonTrackItemClick(View view, ListItem item) {
         Urn entityUrn = item.getUrn();
         if (entityUrn.isPlaylist()) {
-            navigator.openPlaylist(view.getContext(), entityUrn, screen, searchQuerySourceInfo, promotedPlaylistInfo(item));
+            navigator.openPlaylist(view.getContext(),
+                                   entityUrn,
+                                   screen,
+                                   searchQuerySourceInfo,
+                                   promotedPlaylistInfo(item));
         } else if (entityUrn.isUser()) {
             navigator.openProfile(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
         } else {
-            throw new IllegalArgumentException("Unrecognized urn in " + this.getClass().getSimpleName() + ": " + entityUrn);
+            throw new IllegalArgumentException("Unrecognized urn in " + this.getClass()
+                                                                            .getSimpleName() + ": " + entityUrn);
         }
     }
 
@@ -138,7 +151,11 @@ public class MixedItemClickListener {
         }
 
         public MixedItemClickListener create(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-            return new MixedItemClickListener(playbackInitiator, subscriberProvider, navigator, screen, searchQuerySourceInfo);
+            return new MixedItemClickListener(playbackInitiator,
+                                              subscriberProvider,
+                                              navigator,
+                                              screen,
+                                              searchQuerySourceInfo);
         }
     }
 }

@@ -102,7 +102,7 @@ public abstract class TimelinePresenter<ItemT extends Timestamped>
 
     private void refreshAndUpdateIndicator() {
         operations.updatedTimelineItemsForStart()
-                .flatMap(continueWith(updateIndicatorFromMostRecent()))
-                .subscribe();
+                  .flatMap(continueWith(updateIndicatorFromMostRecent()))
+                  .subscribe();
     }
 }

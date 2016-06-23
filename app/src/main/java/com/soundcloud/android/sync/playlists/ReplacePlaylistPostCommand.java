@@ -23,7 +23,8 @@ import android.util.Pair;
 import javax.inject.Inject;
 
 
-class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, WriteResult, ReplacePlaylistPostCommand> {
+class ReplacePlaylistPostCommand
+        extends LegacyCommand<Pair<Urn, ApiPlaylist>, WriteResult, ReplacePlaylistPostCommand> {
 
     private final PropellerDatabase propeller;
 
@@ -55,8 +56,8 @@ class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, W
 
                 final ChangeResult changeResult = step(
                         propeller.delete(OfflineContent.TABLE,
-                        filter().whereEq(OfflineContent._ID, localPlaylistUrn.getNumericId())
-                                .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)));
+                                         filter().whereEq(OfflineContent._ID, localPlaylistUrn.getNumericId())
+                                                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST)));
 
                 if (changeResult.getNumRowsAffected() > 0) {
                     step(propeller.insert(OfflineContent.TABLE, offlinePlaylistValues));
@@ -94,7 +95,7 @@ class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, W
                 final ContentValues playlistTracksValues = new ContentValues();
                 playlistTracksValues.put(PlaylistTracks.PLAYLIST_ID, newPlaylist.getId());
                 step(propeller.update(Table.PlaylistTracks, playlistTracksValues,
-                        filter().whereEq(PlaylistTracks.PLAYLIST_ID, localPlaylistUrn.getNumericId())));
+                                      filter().whereEq(PlaylistTracks.PLAYLIST_ID, localPlaylistUrn.getNumericId())));
             }
         });
     }

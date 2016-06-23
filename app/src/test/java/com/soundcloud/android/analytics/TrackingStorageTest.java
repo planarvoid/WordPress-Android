@@ -137,7 +137,9 @@ public class TrackingStorageTest extends StorageIntegrationTest {
         final PropellerDatabase propeller = Mockito.mock(PropellerDatabase.class);
         final ChangeResult failResult = Mockito.mock(ChangeResult.class);
         when(failResult.getFailure()).thenReturn(new PropellerWriteException("error", new SQLException()));
-        when(propeller.delete(same(EVENTS_TABLE), any(Where.class))).thenReturn(new ChangeResult(TrackingStorage.FIXED_BATCH_SIZE), failResult);
+        when(propeller.delete(same(EVENTS_TABLE),
+                              any(Where.class))).thenReturn(new ChangeResult(TrackingStorage.FIXED_BATCH_SIZE),
+                                                            failResult);
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
         trackingStorage = new TrackingStorage(propeller, networkConnectionHelper);

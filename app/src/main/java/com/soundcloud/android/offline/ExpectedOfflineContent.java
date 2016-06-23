@@ -7,9 +7,12 @@ import com.soundcloud.android.model.Urn;
 import java.util.Collection;
 import java.util.Collections;
 
-class ExpectedOfflineContent  {
+class ExpectedOfflineContent {
     public static final ExpectedOfflineContent EMPTY = new ExpectedOfflineContent(
-            Collections.<DownloadRequest>emptyList(), Collections.<Urn>emptyList(), false, Collections.<Urn>emptyList());
+            Collections.<DownloadRequest>emptyList(),
+            Collections.<Urn>emptyList(),
+            false,
+            Collections.<Urn>emptyList());
 
     public final Collection<Urn> emptyPlaylists;
     public final Collection<DownloadRequest> requests;

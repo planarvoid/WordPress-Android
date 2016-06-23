@@ -93,7 +93,8 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
     public PublicApiComment() {
     }
 
-    @Override @JsonIgnore
+    @Override
+    @JsonIgnore
     public PublicApiUser getUser() {
         return user;
     }
@@ -102,7 +103,8 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
         this.user = user;
     }
 
-    @Override @JsonIgnore
+    @Override
+    @JsonIgnore
     public PublicApiTrack getPlayable() {
         return track;
     }
@@ -142,11 +144,11 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
     }
 
     public static PublicApiComment build(PublicApiTrack track,
-                                PublicApiUser user,
-                                long timestamp,
-                                String body,
-                                long replyToId,
-                                String replyToUsername){
+                                         PublicApiUser user,
+                                         long timestamp,
+                                         String body,
+                                         long replyToId,
+                                         String replyToUsername) {
         PublicApiComment comment = new PublicApiComment();
         comment.track_id = track.getId();
         comment.track = track;

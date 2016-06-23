@@ -36,7 +36,7 @@ public class ApiUrlBuilder {
         } else {
             // we expand the relative URI to contain the proper scheme and API host
             final String baseUri = request.isPrivate()
-                    ? mobileApiBaseUrl : publicApiBaseUrl;
+                                   ? mobileApiBaseUrl : publicApiBaseUrl;
             uriBuilder = Uri.parse(baseUri + request.getUri()).buildUpon();
         }
         return withOAuthClientIdParam();

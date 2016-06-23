@@ -28,9 +28,9 @@ public class TrackingStartStation extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         final VisualPlayerElement player = mainNavHelper.goToCollections()
-                .scrollToAndClickPlaylistWithTitle("track-stations")
-                .findAndClickFirstTrackOverflowButton()
-                .clickStartStation();
+                                                        .scrollToAndClickPlaylistWithTitle("track-stations")
+                                                        .findAndClickFirstTrackOverflowButton()
+                                                        .clickStartStation();
 
         assertTrue(player.isExpandedPlayerPlaying());
         player.swipeNext();

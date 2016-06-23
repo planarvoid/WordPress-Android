@@ -54,7 +54,11 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     public void setUp() {
         testObserver = new TestObserver();
         when(activity.getSupportFragmentManager()).thenReturn(mock(FragmentManager.class));
-        presenter = new NativeConversionPresenter(paymentOperations, paymentErrorPresenter, conversionView, new TestEventBus(), navigator);
+        presenter = new NativeConversionPresenter(paymentOperations,
+                                                  paymentErrorPresenter,
+                                                  conversionView,
+                                                  new TestEventBus(),
+                                                  navigator);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
@@ -94,7 +98,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onCreateWithPurchaseStateDoesNotShowBuyButton() {
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(), null));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(),
+                                                                                               null));
 
         presenter.onCreate(activity, null);
 
@@ -105,7 +110,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     public void restoringPurchaseStateWithErrorDisplaysError() {
         setupSuccessfulConnection();
         Throwable error = new Throwable();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>error(error), null));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>error(
+                error), null));
 
         presenter.onCreate(activity, null);
 
@@ -115,7 +121,9 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void restoringVerificationObservableTriggersSuccess() {
         setupSuccessfulConnection();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.SUCCESS)));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null,
+                                                                                               Observable.just(
+                                                                                                       PurchaseStatus.SUCCESS)));
 
         presenter.onCreate(activity, null);
 
@@ -125,7 +133,9 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void onCreateWithVerifyTimeoutObservableShowsFailure() {
         setupSuccessfulConnection();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.VERIFY_TIMEOUT)));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null,
+                                                                                               Observable.just(
+                                                                                                       PurchaseStatus.VERIFY_TIMEOUT)));
 
         presenter.onCreate(activity, null);
 
@@ -227,7 +237,8 @@ public class NativeConversionPresenterTest extends AndroidUnitTest {
     @Test
     public void purchaseCancellationWithNoProductSetsUpProduct() {
         setupExpectedProductDetails();
-        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(), null));
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(),
+                                                                                               null));
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
         presenter.onCreate(activity, null);
 

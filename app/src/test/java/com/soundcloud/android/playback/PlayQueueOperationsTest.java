@@ -60,16 +60,24 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Before
     public void before() throws CreateModelException {
-        when(context.getSharedPreferences(PlayQueueOperations.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
+        when(context.getSharedPreferences(PlayQueueOperations.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)).thenReturn(
+                sharedPreferences);
 
-        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, storeTracksCommand, apiClientRx, Schedulers.immediate());
+        playQueueOperations = new PlayQueueOperations(context,
+                                                      playQueueStorage,
+                                                      storeTracksCommand,
+                                                      apiClientRx,
+                                                      Schedulers.immediate());
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueueStorage.storeAsync(any(PlayQueue.class))).thenReturn(Observable.<TxnResult>empty());
-        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn("origin:page");
-        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN), anyString())).thenReturn(Urn.forPlaylist(123L).toString());
-        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_OWNER_URN), anyString())).thenReturn(Urn.forUser(123L).toString());
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG), anyString())).thenReturn(
+                "origin:page");
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_URN),
+                                         anyString())).thenReturn(Urn.forPlaylist(123L).toString());
+        when(sharedPreferences.getString(eq(PlaySessionSource.PREF_KEY_COLLECTION_OWNER_URN), anyString())).thenReturn(
+                Urn.forUser(123L).toString());
         when(sharedPreferences.getInt(eq(PlayQueueOperations.Keys.PLAY_POSITION.name()), anyInt())).thenReturn(1);
 
         playSessionSource = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, Urn.forUser(2), 5);
@@ -181,7 +189,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
         verify(apiClientRx).mappedResponse(argumentCaptor.capture(), eq(RecommendedTracksCollection.class));
         assertThat(argumentCaptor.getValue().getMethod()).isEqualTo("GET");
         assertThat(argumentCaptor.getValue().getQueryParameters().get("continuous_play")).containsExactly("true");
-        assertThat(argumentCaptor.getValue().getEncodedPath()).isEqualTo(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
+        assertThat(argumentCaptor.getValue().getEncodedPath()).isEqualTo(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(
+                123L).toString()));
     }
 
     @Test
@@ -209,7 +218,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksPlayQueueShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "version")));
+                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(),
+                                                                            "version")));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
         playQueueOperations.relatedTracksPlayQueue(Urn.forTrack(123), false).subscribe(testSubscriber);
@@ -220,7 +230,8 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     @Test
     public void getRelatedTracksPlayQueueWithSeedTrackShouldReturnAnEmptyPlayQueueNoRelatedTracksReceivedFromApi() {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
-                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "version")));
+                .thenReturn(Observable.just(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(),
+                                                                            "version")));
 
         TestSubscriber<PlayQueue> testSubscriber = new TestSubscriber<>();
         playQueueOperations.relatedTracksPlayQueueWithSeedTrack(Urn.forTrack(123)).subscribe(testSubscriber);

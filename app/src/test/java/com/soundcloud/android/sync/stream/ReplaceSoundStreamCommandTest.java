@@ -60,10 +60,10 @@ public class ReplaceSoundStreamCommandTest extends StorageIntegrationTest {
 
     private void expectPlaylistRepostItemInserted(ApiStreamItem streamItem) {
         assertThat(select(from(SoundStream.name())
-                        .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
-                        .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
-                        .whereEq(REPOSTER_ID, streamItem.getReposter().get().getId())
-                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+                                  .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
+                                  .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
+                                  .whereEq(REPOSTER_ID, streamItem.getReposter().get().getId())
+                                  .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
         )).counts(1);
     }
 

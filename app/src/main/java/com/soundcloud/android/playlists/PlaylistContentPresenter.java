@@ -71,16 +71,20 @@ class PlaylistContentPresenter extends DefaultSupportFragmentLightCycle<Fragment
 
         PlaylistContentView EMPTY = new PlaylistContentView() {
             @Override
-            public void start() { }
+            public void start() {
+            }
 
             @Override
-            public void stop() { }
+            public void stop() {
+            }
 
             @Override
-            public void onItemClicked(int position) { }
+            public void onItemClicked(int position) {
+            }
 
             @Override
-            public void onHeaderClick() { }
+            public void onHeaderClick() {
+            }
         };
 
         void start();
@@ -107,9 +111,9 @@ class PlaylistContentPresenter extends DefaultSupportFragmentLightCycle<Fragment
         @Override
         public void start() {
             eventSubscription = eventBus.queue(ENTITY_STATE_CHANGED)
-                    .filter(IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new ReloadSubscriber());
+                                        .filter(IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new ReloadSubscriber());
         }
 
         @Override

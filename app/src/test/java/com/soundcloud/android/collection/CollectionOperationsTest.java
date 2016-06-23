@@ -95,20 +95,28 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));
         when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)).thenReturn(Observable.just(true));
-        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(true));
-        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
+        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(
+                true));
+        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(
+                Urn.forTrackStation(123L))));
         when(stationsOperations.sync()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
         when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
         postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
         postedPlaylist2 = getPostedPlaylist(Urn.forPlaylist(2L), new Date(3), "banana");
         likedPlaylist1 = getLikedPlaylist(Urn.forPlaylist(3L), new Date(2), "cherry");
         likedPlaylist2 = getLikedPlaylist(Urn.forPlaylist(4L), new Date(4), "doughnut");
-        likedPlaylist3Offline = getLikedPlaylistOffline(Urn.forPlaylist(5L), new Date(5), "eclair", OfflineState.DOWNLOADED);
+        likedPlaylist3Offline = getLikedPlaylistOffline(Urn.forPlaylist(5L),
+                                                        new Date(5),
+                                                        "eclair",
+                                                        OfflineState.DOWNLOADED);
 
-        final Observable<List<PropertySet>> postedPlaylists = Observable.just(Arrays.asList(postedPlaylist1, postedPlaylist2));
+        final Observable<List<PropertySet>> postedPlaylists = Observable.just(Arrays.asList(postedPlaylist1,
+                                                                                            postedPlaylist2));
         when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(postedPlaylists);
 
-        final Observable<List<PropertySet>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylist1, likedPlaylist2, likedPlaylist3Offline));
+        final Observable<List<PropertySet>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylist1,
+                                                                                           likedPlaylist2,
+                                                                                           likedPlaylist3Offline));
         when(playlistLikeStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(likedPlaylists);
     }
 
@@ -139,7 +147,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenPlaylistLikeEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), true, 1));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
@@ -148,7 +157,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     public void onCollectionChangedWhenPlaylistUnlikeEventFires() {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.fromLike(Urn.forPlaylist(1), false, 1));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
@@ -168,7 +178,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         operations.onCollectionChanged().subscribe(collectionChangedSubscriber);
 
         final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), playlist));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.fromPlaylistPushedToServer(Urn.forPlaylist(4), playlist));
 
         assertThat(collectionChangedSubscriber.getOnNextEvents()).hasSize(1);
     }
@@ -178,9 +189,13 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(false).build();
 
         final RuntimeException exception = new RuntimeException("Test");
-        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.<List<LikedTrackPreview>>error(exception));
-        when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
-        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
+        when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.<List<LikedTrackPreview>>error(
+                exception));
+        when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT,
+                                                     Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(
+                exception));
+        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(
+                exception));
 
         operations.collections(options).subscribe(subscriber);
 
@@ -197,8 +212,11 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(false).build();
 
         final RuntimeException exception = new RuntimeException("Test");
-        when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(exception));
-        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(exception));
+        when(playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT,
+                                                     Long.MAX_VALUE)).thenReturn(Observable.<List<PropertySet>>error(
+                exception));
+        when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.<StationRecord>error(
+                exception));
 
         operations.collections(options).subscribe(subscriber);
 
@@ -255,7 +273,10 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Test
     public void collectionsReturnsUniquePostedAndLikedPlaylists() throws Exception {
         PropertySet likedPlaylist3 = getLikedPlaylist(postedPlaylist1.get(EntityProperty.URN), new Date(6), "pepper");
-        final Observable<List<PropertySet>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylist1, likedPlaylist2, likedPlaylist3, likedPlaylist3Offline));
+        final Observable<List<PropertySet>> likedPlaylists = Observable.just(Arrays.asList(likedPlaylist1,
+                                                                                           likedPlaylist2,
+                                                                                           likedPlaylist3,
+                                                                                           likedPlaylist3Offline));
         when(playlistLikeStorage.loadLikedPlaylists(PLAYLIST_LIMIT, Long.MAX_VALUE)).thenReturn(likedPlaylists);
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
@@ -291,7 +312,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Test
     public void collectionsReturnsPostedAndLikedPlaylistsSortedByTitle() throws Exception {
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true)
-                .sortByTitle(true).build();
+                                                         .sortByTitle(true).build();
         operations.collections(options).subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
@@ -323,7 +344,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(syncInitiator.refreshMyPlaylists()).thenReturn(subject);
 
         when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)).thenReturn(Observable.just(false));
-        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(false));
+        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(
+                false));
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
         operations.collections(options).subscribe(subscriber);
@@ -394,7 +416,9 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         final TestSubscriber<Object> subscriber = new TestSubscriber<>();
         operations.onCollectionChanged().subscribe(subscriber);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromPlaylistsMarkedForDownload(Collections.singletonList(Urn.forPlaylist(123))));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.fromPlaylistsMarkedForDownload(Collections.singletonList(Urn.forPlaylist(
+                                 123))));
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
     }

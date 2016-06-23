@@ -30,30 +30,37 @@ public class NetworkConnectivityListenerTest extends AndroidUnitTest {
 
     @Test
     public void shouldReactToConnectivityBroadcasts() {
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G, ConnectionType.TWO_G);
+        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G,
+                                                                            ConnectionType.TWO_G);
 
         context().sendBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        assertThat(eventBus.eventsOn(EventQueue.NETWORK_CONNECTION_CHANGED)).containsExactly(ConnectionType.UNKNOWN, ConnectionType.FOUR_G);
+        assertThat(eventBus.eventsOn(EventQueue.NETWORK_CONNECTION_CHANGED)).containsExactly(ConnectionType.UNKNOWN,
+                                                                                             ConnectionType.FOUR_G);
 
         context().sendBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        assertThat(eventBus.eventsOn(EventQueue.NETWORK_CONNECTION_CHANGED)).containsExactly(ConnectionType.UNKNOWN, ConnectionType.FOUR_G, ConnectionType.TWO_G);
+        assertThat(eventBus.eventsOn(EventQueue.NETWORK_CONNECTION_CHANGED)).containsExactly(ConnectionType.UNKNOWN,
+                                                                                             ConnectionType.FOUR_G,
+                                                                                             ConnectionType.TWO_G);
 
         listener.stopListening();
     }
 
     @Test
     public void shouldNotReactToConnectivityBroadcastsAfterStopListening() {
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G, ConnectionType.TWO_G);
+        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G,
+                                                                            ConnectionType.TWO_G);
 
         context().sendBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        assertThat(eventBus.eventsOn(EventQueue.NETWORK_CONNECTION_CHANGED)).containsExactly(ConnectionType.UNKNOWN, ConnectionType.FOUR_G);
+        assertThat(eventBus.eventsOn(EventQueue.NETWORK_CONNECTION_CHANGED)).containsExactly(ConnectionType.UNKNOWN,
+                                                                                             ConnectionType.FOUR_G);
 
         listener.stopListening();
         context().sendBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        assertThat(eventBus.eventsOn(EventQueue.NETWORK_CONNECTION_CHANGED)).containsExactly(ConnectionType.UNKNOWN, ConnectionType.FOUR_G);
+        assertThat(eventBus.eventsOn(EventQueue.NETWORK_CONNECTION_CHANGED)).containsExactly(ConnectionType.UNKNOWN,
+                                                                                             ConnectionType.FOUR_G);
     }
 }

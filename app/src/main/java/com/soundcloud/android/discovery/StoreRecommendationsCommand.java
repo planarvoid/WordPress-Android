@@ -18,7 +18,8 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 
-public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<ModelCollection<ApiRecommendation>, WriteResult> {
+public class StoreRecommendationsCommand
+        extends DefaultWriteStorageCommand<ModelCollection<ApiRecommendation>, WriteResult> {
 
     private final PropellerDatabase propeller;
 
@@ -46,14 +47,17 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Mode
 
                         //Store seed track in recommendations
                         final InsertResult seedInsert = propeller.insert(RecommendationSeeds.TABLE,
-                                buildSeedContentValues(apiRecommendation, queryUrn, queryPosition));
+                                                                         buildSeedContentValues(apiRecommendation,
+                                                                                                queryUrn,
+                                                                                                queryPosition));
                         step(seedInsert);
 
                         //Store recommended tracks
                         for (ApiTrack trackRecommendation : apiRecommendation.getRecommendations()) {
                             writeTrack(propeller, trackRecommendation);
                             step(propeller.upsert(Recommendations.TABLE,
-                                    buildRecommendationContentValues(trackRecommendation, seedInsert.getRowId())));
+                                                  buildRecommendationContentValues(trackRecommendation,
+                                                                                   seedInsert.getRowId())));
                         }
                         queryPosition++;
                     }
@@ -81,9 +85,12 @@ public class StoreRecommendationsCommand extends DefaultWriteStorageCommand<Mode
         return contentValues;
     }
 
-    private ContentValues buildSeedContentValues(ApiRecommendation apiRecommendation, Urn queryUrn, long queryPosition) {
+    private ContentValues buildSeedContentValues(ApiRecommendation apiRecommendation,
+                                                 Urn queryUrn,
+                                                 long queryPosition) {
         final ContentValues contentValues = new ContentValues();
-        contentValues.put(RecommendationSeeds.SEED_SOUND_ID.name(), apiRecommendation.getSeedTrack().getUrn().getNumericId());
+        contentValues.put(RecommendationSeeds.SEED_SOUND_ID.name(),
+                          apiRecommendation.getSeedTrack().getUrn().getNumericId());
         contentValues.put(RecommendationSeeds.SEED_SOUND_TYPE.name(), TableColumns.Sounds.TYPE_TRACK);
         contentValues.put(RecommendationSeeds.RECOMMENDATION_REASON.name(), getReason(apiRecommendation));
         contentValues.put(RecommendationSeeds.QUERY_URN.name(), queryUrn.toString());

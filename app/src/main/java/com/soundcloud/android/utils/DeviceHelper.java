@@ -69,9 +69,9 @@ public class DeviceHelper {
 
     public String getUserAgent() {
         return String.format("SoundCloud-Android/%s (Android %s; %s)",
-                BuildConfig.VERSION_NAME,
-                String.valueOf(buildHelper.getAndroidReleaseVersion()),
-                getDeviceName());
+                             BuildConfig.VERSION_NAME,
+                             String.valueOf(buildHelper.getAndroidReleaseVersion()),
+                             getDeviceName());
     }
 
     public String getAppVersionName() {
@@ -101,13 +101,13 @@ public class DeviceHelper {
 
     public static String getBuildInfo() {
         return MoreObjects.toStringHelper("Build")
-                .add("Brand", Build.BRAND)
-                .add("Device", Build.DEVICE)
-                .add("Hardware", Build.HARDWARE)
-                .add("Manufacturer", Build.MANUFACTURER)
-                .add("Model", Build.MODEL)
-                .add("Product", Build.PRODUCT)
-                .add("Type", Build.TYPE)
-                .toString();
+                          .add("Brand", Build.BRAND)
+                          .add("Device", Build.DEVICE)
+                          .add("Hardware", Build.HARDWARE)
+                          .add("Manufacturer", Build.MANUFACTURER)
+                          .add("Model", Build.MODEL)
+                          .add("Product", Build.PRODUCT)
+                          .add("Type", Build.TYPE)
+                          .toString();
     }
 }

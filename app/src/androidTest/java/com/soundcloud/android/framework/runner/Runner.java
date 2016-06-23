@@ -10,7 +10,7 @@ import java.io.File;
 @SuppressWarnings("UnusedDeclaration")
 public class Runner extends RandomizingRunner {
     public static final String TEST_DIR = "sc-tests";
-    private static final long MIN_BYTES_FREE = (1024*1024)* 30;
+    private static final long MIN_BYTES_FREE = (1024 * 1024) * 30;
 
     @Override
     public void onStart() {
@@ -26,7 +26,7 @@ public class Runner extends RandomizingRunner {
         IOUtils.deleteDir(testDir);
 
         if (!IOUtils.mkdirs(testDir)) {
-            throw new AssertionError("Could not create "+testDir);
+            throw new AssertionError("Could not create " + testDir);
         }
     }
 
@@ -35,13 +35,13 @@ public class Runner extends RandomizingRunner {
 
         final long bytesFree = IOUtils.getSpaceLeft(Environment.getExternalStorageDirectory());
         if (bytesFree < MIN_BYTES_FREE) {
-            throw new AssertionError("not enough external storage: ("+bytesFree+"<"+MIN_BYTES_FREE+")");
+            throw new AssertionError("not enough external storage: (" + bytesFree + "<" + MIN_BYTES_FREE + ")");
         }
     }
 
     public static void checkExternalStorage() {
         if (!IOUtils.isSDCardAvailable()) {
-            throw new AssertionError("need writable external storage (state="+Environment.getExternalStorageState()+")");
+            throw new AssertionError("need writable external storage (state=" + Environment.getExternalStorageState() + ")");
         }
     }
 }

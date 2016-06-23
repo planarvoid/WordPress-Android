@@ -33,7 +33,8 @@ public class PlaylistContentPresenterTest extends AndroidUnitTest {
         final PlaylistDefaultView playlistDefaultView = new PlaylistDefaultView(eventBus, playlistPresenter);
         playlistDefaultView.start();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
 
         verify(playlistPresenter).reloadPlaylist();
     }
@@ -45,7 +46,8 @@ public class PlaylistContentPresenterTest extends AndroidUnitTest {
         playlistDefaultView.start();
         playlistDefaultView.stop();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
 
         verify(playlistPresenter, never()).reloadPlaylist();
     }
@@ -55,7 +57,8 @@ public class PlaylistContentPresenterTest extends AndroidUnitTest {
         final PlaylistEditView playlistDefaultView = new PlaylistEditView(eventBus, playlistPresenter);
         playlistDefaultView.start();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST_URN, 3));
 
         verify(playlistPresenter, never()).reloadPlaylist();
     }

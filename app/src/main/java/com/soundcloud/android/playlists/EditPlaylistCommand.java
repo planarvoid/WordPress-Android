@@ -19,7 +19,8 @@ import android.content.ContentValues;
 import javax.inject.Inject;
 import java.util.List;
 
-class EditPlaylistCommand extends WriteStorageCommand<EditPlaylistCommand.EditPlaylistCommandParams, WriteResult, Integer> {
+class EditPlaylistCommand
+        extends WriteStorageCommand<EditPlaylistCommand.EditPlaylistCommandParams, WriteResult, Integer> {
 
     private int updatedTrackCount;
 
@@ -37,11 +38,13 @@ class EditPlaylistCommand extends WriteStorageCommand<EditPlaylistCommand.EditPl
             @Override
             public void steps(PropellerDatabase propeller) {
                 final ChangeResult step = step(propeller.update(Table.Sounds, getContentValuesForPlaylistsTable(input),
-                        Filter.filter()
-                                .whereEq(Table.Sounds.id, input.playlistUrn.getNumericId())
-                                .whereEq(Table.Sounds.type, TableColumns.Sounds.TYPE_PLAYLIST)));
+                                                                Filter.filter()
+                                                                      .whereEq(Table.Sounds.id,
+                                                                               input.playlistUrn.getNumericId())
+                                                                      .whereEq(Table.Sounds.type,
+                                                                               TableColumns.Sounds.TYPE_PLAYLIST)));
 
-                if (step.getNumRowsAffected() > 0){
+                if (step.getNumRowsAffected() > 0) {
                     setMissingTracksAsRemoved(propeller);
                     setNewTrackPositions(propeller);
 
@@ -51,16 +54,26 @@ class EditPlaylistCommand extends WriteStorageCommand<EditPlaylistCommand.EditPl
 
             private void setMissingTracksAsRemoved(PropellerDatabase propeller) {
                 step(propeller.update(Table.PlaylistTracks, getRemovedAtContentValues(), Filter.filter()
-                        .whereEq(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), input.playlistUrn.getNumericId())
-                        .whereNotIn(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID), Urns.toIds(input.trackList))
-                        .whereNull(Table.PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))));
+                                                                                               .whereEq(Table.PlaylistTracks
+                                                                                                                .field(TableColumns.PlaylistTracks.PLAYLIST_ID),
+                                                                                                        input.playlistUrn
+                                                                                                                .getNumericId())
+                                                                                               .whereNotIn(Table.PlaylistTracks
+                                                                                                                   .field(TableColumns.PlaylistTracks.TRACK_ID),
+                                                                                                           Urns.toIds(
+                                                                                                                   input.trackList))
+                                                                                               .whereNull(Table.PlaylistTracks
+                                                                                                                  .field(TableColumns.PlaylistTracks.REMOVED_AT))));
             }
 
             private void setNewTrackPositions(PropellerDatabase propeller) {
                 for (int i = 0; i < input.trackList.size(); i++) {
                     step(propeller.update(Table.PlaylistTracks, buildPlaylistTrackContentValues(i),
-                            Filter.filter().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, input.playlistUrn.getNumericId())
-                            .whereEq(TableColumns.PlaylistTracks.TRACK_ID, input.trackList.get(i).getNumericId())));
+                                          Filter.filter()
+                                                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID,
+                                                         input.playlistUrn.getNumericId())
+                                                .whereEq(TableColumns.PlaylistTracks.TRACK_ID,
+                                                         input.trackList.get(i).getNumericId())));
 
                 }
             }
@@ -69,20 +82,21 @@ class EditPlaylistCommand extends WriteStorageCommand<EditPlaylistCommand.EditPl
 
     private ContentValues getRemovedAtContentValues() {
         return ContentValuesBuilder.values()
-                .put(TableColumns.PlaylistTracks.REMOVED_AT, dateProvider.getCurrentTime())
-                .put(TableColumns.PlaylistTracks.POSITION, Consts.NOT_SET)
-                .get();
+                                   .put(TableColumns.PlaylistTracks.REMOVED_AT, dateProvider.getCurrentTime())
+                                   .put(TableColumns.PlaylistTracks.POSITION, Consts.NOT_SET)
+                                   .get();
     }
 
     private ContentValues getContentValuesForPlaylistsTable(EditPlaylistCommandParams input) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.Sounds.TITLE, input.playlistTitle)
-                .put(TableColumns.Sounds.SHARING, input.isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
-                .put(TableColumns.Sounds.MODIFIED_AT, dateProvider.getCurrentTime())
-                .get();
+                                   .put(TableColumns.Sounds.TITLE, input.playlistTitle)
+                                   .put(TableColumns.Sounds.SHARING,
+                                        input.isPrivate ? Sharing.PRIVATE.value() : Sharing.PUBLIC.value())
+                                   .put(TableColumns.Sounds.MODIFIED_AT, dateProvider.getCurrentTime())
+                                   .get();
     }
 
-    private ContentValues buildPlaylistTrackContentValues(int position){
+    private ContentValues buildPlaylistTrackContentValues(int position) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(TableColumns.PlaylistTracks.POSITION, position);
         return contentValues;

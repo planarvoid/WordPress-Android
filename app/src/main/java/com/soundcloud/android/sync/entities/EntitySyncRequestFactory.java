@@ -19,7 +19,8 @@ public class EntitySyncRequestFactory {
     @Inject
     public EntitySyncRequestFactory(@Named(EntitySyncModule.TRACKS_SYNC) Lazy<EntitySyncJob> trackSyncJob,
                                     @Named(EntitySyncModule.PLAYLISTS_SYNC) Lazy<EntitySyncJob> playlistSyncJob,
-                                    @Named(EntitySyncModule.USERS_SYNC) Lazy<EntitySyncJob> usersSyncJob, EventBus eventBus) {
+                                    @Named(EntitySyncModule.USERS_SYNC) Lazy<EntitySyncJob> usersSyncJob,
+                                    EventBus eventBus) {
         this.tracksSyncJob = trackSyncJob;
         this.playlistSyncJob = playlistSyncJob;
         this.usersSyncJob = usersSyncJob;
@@ -33,7 +34,11 @@ public class EntitySyncRequestFactory {
             case SyncActions.SYNC_USERS:
                 return new EntitySyncRequest(usersSyncJob.get(), intent, eventBus, intent.getAction(), resultReceiver);
             case SyncActions.SYNC_PLAYLISTS:
-                return new EntitySyncRequest(playlistSyncJob.get(), intent, eventBus, intent.getAction(), resultReceiver);
+                return new EntitySyncRequest(playlistSyncJob.get(),
+                                             intent,
+                                             eventBus,
+                                             intent.getAction(),
+                                             resultReceiver);
             default:
                 throw new IllegalArgumentException("Unexpected action : " + intent.getAction());
         }

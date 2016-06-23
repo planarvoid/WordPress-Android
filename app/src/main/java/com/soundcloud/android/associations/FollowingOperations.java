@@ -84,15 +84,15 @@ public class FollowingOperations {
 
     public Observable<PropertySet> onUserFollowed() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
-                .filter(IS_FOLLOWING_EVENT)
-                .map(EntityStateChangedEvent.TO_URN)
-                .flatMap(loadFollowedUser);
+                       .filter(IS_FOLLOWING_EVENT)
+                       .map(EntityStateChangedEvent.TO_URN)
+                       .flatMap(loadFollowedUser);
     }
 
     public Observable<Urn> onUserUnfollowed() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
-                .filter(IS_UNFOLLOW_EVENT)
-                .map(EntityStateChangedEvent.TO_URN);
+                       .filter(IS_UNFOLLOW_EVENT)
+                       .map(EntityStateChangedEvent.TO_URN);
     }
 
     public Observable<PropertySet> toggleFollowing(Urn targetUrn, boolean following) {

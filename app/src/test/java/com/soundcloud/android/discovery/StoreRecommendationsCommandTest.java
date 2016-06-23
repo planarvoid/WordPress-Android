@@ -109,16 +109,16 @@ public class StoreRecommendationsCommandTest extends StorageIntegrationTest {
 
     private void assertSeedInserted(ApiRecommendation recommendation) {
         assertThat(select(from(TABLE)
-                .whereEq(SEED_SOUND_ID, recommendation.getSeedTrack().getUrn().getNumericId())
-                .whereEq(SEED_SOUND_TYPE, TYPE_TRACK)
-                .whereEq(RECOMMENDATION_REASON, getReason(recommendation)))).counts(1);
+                                  .whereEq(SEED_SOUND_ID, recommendation.getSeedTrack().getUrn().getNumericId())
+                                  .whereEq(SEED_SOUND_TYPE, TYPE_TRACK)
+                                  .whereEq(RECOMMENDATION_REASON, getReason(recommendation)))).counts(1);
 
         databaseAssertions().assertTrackInserted(recommendation.getSeedTrack());
         databaseAssertions().assertUserInserted(recommendation.getSeedTrack().getUser());
     }
 
     private int getReason(ApiRecommendation apiRecommendation) {
-        switch (apiRecommendation.getRecommendationReason()){
+        switch (apiRecommendation.getRecommendationReason()) {
             case LIKED:
                 return RecommendationSeeds.REASON_LIKED;
             case LISTENED_TO:

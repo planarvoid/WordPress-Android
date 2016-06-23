@@ -21,9 +21,9 @@ class LoadPolicyUpdateTimeCommand extends Command<Void, Long> {
     @Override
     public Long call(Void input) {
         final Query query = Query.from(Table.TrackPolicies.name())
-                .select(TableColumns.TrackPolicies.LAST_UPDATED)
-                .order(TableColumns.TrackPolicies.LAST_UPDATED, Query.Order.DESC)
-                .limit(1);
+                                 .select(TableColumns.TrackPolicies.LAST_UPDATED)
+                                 .order(TableColumns.TrackPolicies.LAST_UPDATED, Query.Order.DESC)
+                                 .limit(1);
 
         return propeller.query(query).firstOrDefault(Long.class, (long) Consts.NOT_SET);
     }

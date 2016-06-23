@@ -100,7 +100,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(itemView, 1);
 
         verify(itemClickListener).onProfilePostClick(argumentCaptor.capture(), same(itemView), eq(1),
-                same((ListItem) trackItem), same(trackItem.getCreatorUrn()));
+                                                     same((ListItem) trackItem), same(trackItem.getCreatorUrn()));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(itemView, 1);
 
         verify(itemClickListener).onPostClick(argumentCaptor.capture(), same(itemView), eq(1),
-                same((ListItem) playlistItem));
+                                              same((ListItem) playlistItem));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
     private void createPresenter() {
         presenter = new ProfilePlayablePresenter(swipeRefreshAttacher, imagePauseOnScrollListener,
-                adapter, mixedClickListenerFactory, playableListUpdaterFactory) {
+                                                 adapter, mixedClickListenerFactory, playableListUpdaterFactory) {
             @Override
             public void bind(Object o) {
 
@@ -137,7 +137,7 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
             @Override
             protected CollectionBinding onBuildBinding(Bundle bundle) {
                 return CollectionBinding.from(Observable.empty(), pageTransformer)
-                        .withAdapter(adapter).build();
+                                        .withAdapter(adapter).build();
             }
 
             @Override

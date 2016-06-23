@@ -114,7 +114,8 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void returnsEmptyUriWhenUnableToGenerateFileUri() throws Exception {
-        when(operations.generateHashForUrn(TRACK_URN)).thenThrow(new EncryptionException("problems", new IOException()));
+        when(operations.generateHashForUrn(TRACK_URN)).thenThrow(new EncryptionException("problems",
+                                                                                         new IOException()));
         assertThat(storage.getFileUriForOfflineTrack(TRACK_URN)).isEqualTo(Uri.EMPTY);
     }
 
@@ -206,7 +207,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
     public void shouldBeNotEnoughMinimumSpaceWhenBelowLimit() throws Exception {
         storage.OFFLINE_DIR.mkdirs();
         when(settingsStorage.hasStorageLimit()).thenReturn(true);
-        when(settingsStorage.getStorageLimit()).thenReturn(MINIMUM_SPACE-1);
+        when(settingsStorage.getStorageLimit()).thenReturn(MINIMUM_SPACE - 1);
 
         assertThat(storage.isEnoughMinimumSpace()).isFalse();
     }

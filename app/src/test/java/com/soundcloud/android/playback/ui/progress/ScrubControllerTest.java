@@ -59,7 +59,7 @@ public class ScrubControllerTest extends AndroidUnitTest {
     public void onScrollCallsListenerWithNewScrubPositionIfDragging() {
         scrollListener.onPress();
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
-        scrollListener.onScroll(5,10);
+        scrollListener.onScroll(5, 10);
         verify(scrubListener).displayScrubPosition(.5f, .5f);
     }
 
@@ -67,7 +67,7 @@ public class ScrubControllerTest extends AndroidUnitTest {
     public void onScrollUpdatesListenerWithProportionGreaterThanOne() {
         scrollListener.onPress();
         when(progressHelper.getProgressFromPosition(11)).thenReturn(1.1f);
-        scrollListener.onScroll(11,10);
+        scrollListener.onScroll(11, 10);
         verify(scrubListener).displayScrubPosition(1.1f, 1.0f);
     }
 
@@ -75,7 +75,7 @@ public class ScrubControllerTest extends AndroidUnitTest {
     public void onScrollUpdatesListenerWithProportionLessThanZero() {
         scrollListener.onPress();
         when(progressHelper.getProgressFromPosition(-1)).thenReturn(-0.1f);
-        scrollListener.onScroll(-1,10);
+        scrollListener.onScroll(-1, 10);
         verify(scrubListener).displayScrubPosition(-.1f, 0f);
     }
 
@@ -83,7 +83,7 @@ public class ScrubControllerTest extends AndroidUnitTest {
     public void onScrollRemovesExistingSeekMessagesIfDragging() {
         scrollListener.onPress();
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
-        scrollListener.onScroll(5,10);
+        scrollListener.onScroll(5, 10);
         verify(seekHandler).removeMessages(ScrubController.MSG_PERFORM_SEEK);
     }
 
@@ -92,7 +92,7 @@ public class ScrubControllerTest extends AndroidUnitTest {
         scrollListener.onPress();
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
         when(seekHandler.obtainMessage(ScrubController.MSG_PERFORM_SEEK, .5f)).thenReturn(message);
-        scrollListener.onScroll(5,10);
+        scrollListener.onScroll(5, 10);
         verify(seekHandler).sendMessageDelayed(message, ScrubController.SEEK_DELAY);
     }
 
@@ -102,7 +102,7 @@ public class ScrubControllerTest extends AndroidUnitTest {
         when(seekHandler.hasMessages(ScrubController.MSG_PERFORM_SEEK)).thenReturn(true);
 
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
-        scrollListener.onScroll(5,10);
+        scrollListener.onScroll(5, 10);
         verify(scrubListener).displayScrubPosition(.5f, .5f);
     }
 
@@ -113,7 +113,7 @@ public class ScrubControllerTest extends AndroidUnitTest {
 
         when(progressHelper.getProgressFromPosition(5)).thenReturn(.5f);
         when(seekHandler.obtainMessage(ScrubController.MSG_PERFORM_SEEK, .5f)).thenReturn(message);
-        scrollListener.onScroll(5,10);
+        scrollListener.onScroll(5, 10);
         verify(seekHandler).sendMessageDelayed(message, ScrubController.SEEK_DELAY);
     }
 

@@ -46,16 +46,18 @@ public class CollectionHolder<T> implements Iterable<T> {
         this(Collections.<T>emptyList());
     }
 
-    public CollectionHolder(List<T> collection){
+    public CollectionHolder(List<T> collection) {
         this.collection = new ArrayList<>(collection);
     }
 
-    public CollectionHolder(List<T> collection, String nextHref){
+    public CollectionHolder(List<T> collection, String nextHref) {
         this(collection);
         next_href = nextHref;
     }
 
-    /** @noinspection unchecked*/
+    /**
+     * @noinspection unchecked
+     */
     @Override
     public Iterator<T> iterator() {
         return collection.iterator();
@@ -69,7 +71,7 @@ public class CollectionHolder<T> implements Iterable<T> {
         return collection.get(index);
     }
 
-    public List<T> getCollection(){
+    public List<T> getCollection() {
         return Collections.unmodifiableList(collection);
     }
 
@@ -101,12 +103,12 @@ public class CollectionHolder<T> implements Iterable<T> {
         return null;
     }
 
-    public void removeUnknownResources(){
+    public void removeUnknownResources() {
         Collection<T> unknownResources = MoreCollections.filter(collection, UNKNOWN_RESOURCE_PREDICATE);
         collection.removeAll(unknownResources);
     }
 
-    public String getNextHref(){
+    public String getNextHref() {
         return TextUtils.isEmpty(next_href) ? null : next_href;
     }
 

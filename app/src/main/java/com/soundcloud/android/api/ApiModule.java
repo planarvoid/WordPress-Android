@@ -38,7 +38,7 @@ public class ApiModule {
                                       AccountOperations accountOperations,
                                       LocaleFormatter localeFormatter) {
         ApiClient apiClient = new ApiClient(httpClient, urlBuilder, jsonTransformer, deviceHelper, adIdHelper,
-                oAuth, unauthorisedRequestRegistry, accountOperations, localeFormatter);
+                                            oAuth, unauthorisedRequestRegistry, accountOperations, localeFormatter);
         apiClient.setAssertBackgroundThread(true);
         return apiClient;
     }

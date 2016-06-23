@@ -34,9 +34,9 @@ public class FetchPlaylistsCommand extends BulkFetchCommand<ApiPlaylist> {
         body.put("urns", Urns.toString(urns));
 
         return ApiRequest.post(ApiEndpoints.PLAYLISTS_FETCH.path())
-                .forPrivateApi()
-                .withContent(body)
-                .build();
+                         .forPrivateApi()
+                         .withContent(body)
+                         .build();
     }
 
     @Override

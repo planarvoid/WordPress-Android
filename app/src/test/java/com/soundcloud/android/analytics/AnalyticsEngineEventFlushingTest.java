@@ -48,9 +48,12 @@ public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(scheduler.createWorker()).thenReturn(schedulerWorker);
-        when(schedulerWorker.schedule(any(Action0.class), anyLong(), any(TimeUnit.class))).thenReturn(new BooleanSubscription());
+        when(schedulerWorker.schedule(any(Action0.class),
+                                      anyLong(),
+                                      any(TimeUnit.class))).thenReturn(new BooleanSubscription());
 
-        when(analyticsProviderFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderOne, analyticsProviderTwo));
+        when(analyticsProviderFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderOne,
+                                                                               analyticsProviderTwo));
         new AnalyticsEngine(eventBus, sharedPreferences, scheduler, analyticsProviderFactory);
     }
 
@@ -59,7 +62,9 @@ public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
-        verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(schedulerWorker).schedule(any(Action0.class),
+                                         eq(AnalyticsEngine.FLUSH_DELAY_SECONDS),
+                                         eq(TimeUnit.SECONDS));
     }
 
     @Test
@@ -94,27 +99,35 @@ public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
-        verify(schedulerWorker, times(1)).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(schedulerWorker, times(1)).schedule(any(Action0.class),
+                                                   eq(AnalyticsEngine.FLUSH_DELAY_SECONDS),
+                                                   eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromOpenSessionEvents() {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
 
-        verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(schedulerWorker).schedule(any(Action0.class),
+                                         eq(AnalyticsEngine.FLUSH_DELAY_SECONDS),
+                                         eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromCloseSessionEvents() {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity));
 
-        verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(schedulerWorker).schedule(any(Action0.class),
+                                         eq(AnalyticsEngine.FLUSH_DELAY_SECONDS),
+                                         eq(TimeUnit.SECONDS));
     }
 
     @Test
     public void shouldScheduleFlushesFromTrackingEvents() throws CreateModelException {
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
-        verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(schedulerWorker).schedule(any(Action0.class),
+                                         eq(AnalyticsEngine.FLUSH_DELAY_SECONDS),
+                                         eq(TimeUnit.SECONDS));
     }
 
     @Test
@@ -122,6 +135,8 @@ public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder().contextScreen("screen").build();
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(eventContextMetadata, EntityMetadata.EMPTY));
 
-        verify(schedulerWorker).schedule(any(Action0.class), eq(AnalyticsEngine.FLUSH_DELAY_SECONDS), eq(TimeUnit.SECONDS));
+        verify(schedulerWorker).schedule(any(Action0.class),
+                                         eq(AnalyticsEngine.FLUSH_DELAY_SECONDS),
+                                         eq(TimeUnit.SECONDS));
     }
 }

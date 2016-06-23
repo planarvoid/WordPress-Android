@@ -57,8 +57,8 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         @Override
         public PlayerState call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
             return new PlayerState(adsOperations.isCurrentItemAd(),
-                    currentItemEvent.getCurrentPlayQueueItem(),
-                    playerUIEvent.getKind());
+                                   currentItemEvent.getCurrentPlayQueueItem(),
+                                   playerUIEvent.getKind());
         }
     };
 
@@ -95,7 +95,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         final WeakReference<Activity> currentActivityRef;
 
         PlayQueueSubscriber(Activity activity) {
-           currentActivityRef = new WeakReference<>(activity);
+            currentActivityRef = new WeakReference<>(activity);
         }
 
         @Override

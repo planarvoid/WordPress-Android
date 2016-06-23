@@ -88,9 +88,9 @@ class UpdatePoliciesCommand extends Command<Collection<Urn>, Collection<ApiPolic
 
     private ApiRequest buildApiRequest(Collection<Urn> trackUrns) {
         return ApiRequest.post(ApiEndpoints.POLICIES.path())
-                .withContent(MoreCollections.transform(trackUrns, Urns.toStringFunc()))
-                .forPrivateApi()
-                .build();
+                         .withContent(MoreCollections.transform(trackUrns, Urns.toStringFunc()))
+                         .forPrivateApi()
+                         .build();
     }
 
 }

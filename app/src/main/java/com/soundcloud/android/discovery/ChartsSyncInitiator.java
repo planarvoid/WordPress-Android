@@ -69,8 +69,8 @@ public class ChartsSyncInitiator extends LegacySyncInitiator {
     Observable<Boolean> syncCharts() {
         if (isChartsCacheExpired()) {
             return syncInitiator.sync(Syncable.CHARTS)
-                    .doOnNext(setLastSyncTime)
-                    .map(FROM_SYNC_RESULT);
+                                .doOnNext(setLastSyncTime)
+                                .map(FROM_SYNC_RESULT);
         } else {
             return Observable.just(false);
         }

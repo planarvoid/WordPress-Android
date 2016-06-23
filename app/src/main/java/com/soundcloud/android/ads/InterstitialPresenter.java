@@ -28,7 +28,15 @@ public class InterstitialPresenter extends AdOverlayPresenter {
                                  @Provided EventBus eventBus,
                                  @Provided ImageOperations imageOperations,
                                  @Provided Resources resources) {
-        super(trackView, R.id.interstitial, R.id.interstitial_stub, R.id.interstitial_image, R.id.interstitial_image_holder, R.id.interstitial_header, listener, imageOperations, eventBus);
+        super(trackView,
+              R.id.interstitial,
+              R.id.interstitial_stub,
+              R.id.interstitial_image,
+              R.id.interstitial_image_holder,
+              R.id.interstitial_header,
+              listener,
+              imageOperations,
+              eventBus);
         this.previewContainer = trackView.findViewById(R.id.interstitial_preview_container);
         this.previewImage = (ImageView) trackView.findViewById(R.id.interstitial_now_playing_artwork);
         this.nowPlayingTitleView = (TextView) trackView.findViewById(R.id.interstitial_now_playing_title);
@@ -37,7 +45,10 @@ public class InterstitialPresenter extends AdOverlayPresenter {
     }
 
     @Override
-    public boolean shouldDisplayOverlay(OverlayAdData data, boolean isExpanded, boolean isPortrait, boolean isForeground) {
+    public boolean shouldDisplayOverlay(OverlayAdData data,
+                                        boolean isExpanded,
+                                        boolean isPortrait,
+                                        boolean isForeground) {
         return isExpanded && isForeground && !data.isMetaAdDismissed() && resources.getBoolean(R.bool.allow_interstitials);
     }
 
@@ -66,10 +77,12 @@ public class InterstitialPresenter extends AdOverlayPresenter {
         final ApiImageSize listItemImageSize = ApiImageSize.getListItemImageSize(previewImage.getResources());
         imageOperations.displayWithPlaceholder(data.getMonetizableTrackUrn(), listItemImageSize, previewImage);
 
-        if (data.getMonetizableTitle() != null && data.getMonetizableCreator() != null){
+        if (data.getMonetizableTitle() != null && data.getMonetizableCreator() != null) {
             final String nowPlayingTitle = data.getMonetizableTitle();
             final String nowPlayingCreator = data.getMonetizableCreator();
-            nowPlayingTitleView.setText(resources.getString(R.string.ads_now_playing_tracktitle_username, nowPlayingTitle, nowPlayingCreator));
+            nowPlayingTitleView.setText(resources.getString(R.string.ads_now_playing_tracktitle_username,
+                                                            nowPlayingTitle,
+                                                            nowPlayingCreator));
         } else {
             nowPlayingTitleView.setText(R.string.ads_now_playing);
             // we are missing certain track data here, just before launching.

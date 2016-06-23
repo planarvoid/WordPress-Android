@@ -60,7 +60,9 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
     MyFollowingsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                           ImagePauseOnScrollListener imagePauseOnScrollListener,
                           UserRecyclerItemAdapter adapter,
-                          MyProfileOperations profileOperations, FollowingOperations followingOperations, Navigator navigator) {
+                          MyProfileOperations profileOperations,
+                          FollowingOperations followingOperations,
+                          Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.adapter = adapter;
@@ -79,13 +81,13 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
         updateFollowingsSubscription = new CompositeSubscription(
 
                 followingOperations.onUserFollowed()
-                        .map(UserItem.fromPropertySet())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new PrependItemToListSubscriber<>(adapter)),
+                                   .map(UserItem.fromPropertySet())
+                                   .observeOn(AndroidSchedulers.mainThread())
+                                   .subscribe(new PrependItemToListSubscriber<>(adapter)),
 
                 followingOperations.onUserUnfollowed()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RemoveEntityListSubscriber(adapter))
+                                   .observeOn(AndroidSchedulers.mainThread())
+                                   .subscribe(new RemoveEntityListSubscriber(adapter))
         );
 
         getBinding().connect();
@@ -113,17 +115,17 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
     @Override
     protected CollectionBinding<List<PropertySet>, UserItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(profileOperations.pagedFollowings(), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.followingsPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.followingsPagingFunction())
+                                .build();
     }
 
     @Override
     protected CollectionBinding<List<PropertySet>, UserItem> onRefreshBinding() {
         return CollectionBinding.from(profileOperations.updatedFollowings(), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.followingsPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.followingsPagingFunction())
+                                .build();
     }
 
     protected void configureEmptyView(EmptyView emptyView) {

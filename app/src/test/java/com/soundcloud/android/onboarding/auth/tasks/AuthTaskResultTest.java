@@ -43,7 +43,10 @@ public class AuthTaskResultTest {
 
     @Test
     public void shouldCreateEmailTakenResult() {
-        AuthTaskResult result = AuthTaskResult.emailTaken(ApiRequestException.validationError(null, null, "email_taken", 999));
+        AuthTaskResult result = AuthTaskResult.emailTaken(ApiRequestException.validationError(null,
+                                                                                              null,
+                                                                                              "email_taken",
+                                                                                              999));
         assertThat(result.wasEmailTaken()).isTrue();
     }
 
@@ -61,7 +64,10 @@ public class AuthTaskResultTest {
 
     @Test
     public void shouldCreateEmailInvalidResult() {
-        AuthTaskResult result = AuthTaskResult.emailInvalid(ApiRequestException.validationError(null, null, "email_invalid", 999));
+        AuthTaskResult result = AuthTaskResult.emailInvalid(ApiRequestException.validationError(null,
+                                                                                                null,
+                                                                                                "email_invalid",
+                                                                                                999));
         assertThat(result.wasEmailInvalid()).isTrue();
     }
 
@@ -98,7 +104,9 @@ public class AuthTaskResultTest {
 
     @Test
     public void shouldShowExceptionMessageOnUnhandledError() {
-        ApiRequestException error = ApiRequestException.networkError(null, new IOException("somebody forgot to pay the mobile bill"));
+        ApiRequestException error = ApiRequestException.networkError(null,
+                                                                     new IOException(
+                                                                             "somebody forgot to pay the mobile bill"));
         AuthTaskResult result = AuthTaskResult.failure(error);
         assertThat(result.toString()).contains("somebody forgot to pay the mobile bill");
     }

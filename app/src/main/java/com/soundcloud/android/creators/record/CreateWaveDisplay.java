@@ -152,22 +152,27 @@ public class CreateWaveDisplay extends TouchLayout {
         } else {
             final int x = input.actionIndex == 0 ? input.x : input.pointerX;
             if (leftHandleTouchIndex > -1) {
-                if (leftDragOffsetX == Consts.NOT_SET){
+                if (leftDragOffsetX == Consts.NOT_SET) {
                     leftDragOffsetX = x - leftHandle.getLeft();
                 }
                 newTrimActionLeft = new TrimAction(System.currentTimeMillis(),
-                        Math.max(0, Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
-                                (leftHandleTouchIndex == 0 ? input.x : input.pointerX) - leftDragOffsetX)));
+                                                   Math.max(0, Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
+                                                                        (leftHandleTouchIndex == 0 ?
+                                                                         input.x :
+                                                                         input.pointerX) - leftDragOffsetX)));
 
             }
 
             if (rightHandleTouchIndex > -1) {
-                if (rightDragOffsetX == Consts.NOT_SET){
+                if (rightDragOffsetX == Consts.NOT_SET) {
                     rightDragOffsetX = x - rightHandle.getRight();
                 }
                 newTrimActionRight = new TrimAction(System.currentTimeMillis(),
-                        Math.min(getWidth(), Math.max(leftHandle.getRight() + rightHandle.getWidth(),
-                                (rightHandleTouchIndex == 0 ? input.x : input.pointerX) - rightDragOffsetX)));
+                                                    Math.min(getWidth(),
+                                                             Math.max(leftHandle.getRight() + rightHandle.getWidth(),
+                                                                      (rightHandleTouchIndex == 0 ?
+                                                                       input.x :
+                                                                       input.pointerX) - rightDragOffsetX)));
             }
 
             queueTrim(UI_UPDATE_TRIM);
@@ -264,17 +269,17 @@ public class CreateWaveDisplay extends TouchLayout {
             leftHandle.getHitRect(leftHandleRect);
 
             leftHandleRect.set(leftHandleRect.left - touchSlop,
-                    leftHandleRect.top - touchSlop,
-                    leftHandleRect.right, // prevent overlapping
-                    leftHandleRect.bottom + touchSlop);
+                               leftHandleRect.top - touchSlop,
+                               leftHandleRect.right, // prevent overlapping
+                               leftHandleRect.bottom + touchSlop);
         }
         if (rightHandle.getParent() == this) {
             rightHandleRect = new Rect();
             rightHandle.getHitRect(rightHandleRect);
             rightHandleRect.set(rightHandleRect.left, // prevent overlapping
-                    rightHandleRect.top - touchSlop,
-                    rightHandleRect.right + touchSlop,
-                    rightHandleRect.bottom + touchSlop);
+                                rightHandleRect.top - touchSlop,
+                                rightHandleRect.right + touchSlop,
+                                rightHandleRect.bottom + touchSlop);
         }
 
 
@@ -329,7 +334,8 @@ public class CreateWaveDisplay extends TouchLayout {
             this.viewRef = new WeakReference<>(view);
         }
 
-        @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+        @Override
+        @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
         public void handleMessage(Message msg) {
             final CreateWaveDisplay view = viewRef.get();
             if (view == null) {
@@ -355,8 +361,9 @@ public class CreateWaveDisplay extends TouchLayout {
                     if (view.newTrimActionLeft != null && view.newTrimActionLeft.hasMovedFrom(view.lastTrimActionLeft)) {
                         view.leftHandle.update(view.newTrimActionLeft.position);
                         if (view.listener != null) {
-                            view.listener.onAdjustTrimLeft(Math.max(0, ((float) view.newTrimActionLeft.position / view.waveformWidth)),
-                                    view.newTrimActionLeft.timestamp - view.lastTrimActionLeft.timestamp);
+                            view.listener.onAdjustTrimLeft(Math.max(0,
+                                                                    ((float) view.newTrimActionLeft.position / view.waveformWidth)),
+                                                           view.newTrimActionLeft.timestamp - view.lastTrimActionLeft.timestamp);
                         }
                         view.waveformView.invalidate();
                     }
@@ -365,8 +372,9 @@ public class CreateWaveDisplay extends TouchLayout {
                     if (view.newTrimActionRight != null && view.newTrimActionRight.hasMovedFrom(view.lastTrimActionRight)) {
                         view.rightHandle.update(view.waveformWidth - view.newTrimActionRight.position);
                         if (view.listener != null) {
-                            view.listener.onAdjustTrimRight(Math.min(1, ((float) view.newTrimActionRight.position / view.waveformWidth)),
-                                    view.newTrimActionRight.timestamp - view.lastTrimActionRight.timestamp);
+                            view.listener.onAdjustTrimRight(Math.min(1,
+                                                                     ((float) view.newTrimActionRight.position / view.waveformWidth)),
+                                                            view.newTrimActionRight.timestamp - view.lastTrimActionRight.timestamp);
                         }
                         view.waveformView.invalidate();
                     }

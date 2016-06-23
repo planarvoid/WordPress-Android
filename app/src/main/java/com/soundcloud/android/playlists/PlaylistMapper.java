@@ -25,7 +25,9 @@ public abstract class PlaylistMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlaylistProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
         propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
         propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
-        propertySet.put(PlaylistProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
+        propertySet.put(PlaylistProperty.IS_PRIVATE,
+                        Sharing.PRIVATE.name()
+                                       .equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
         return propertySet;
     }
 
@@ -39,6 +41,6 @@ public abstract class PlaylistMapper extends RxResultMapper<PropertySet> {
 
     static int readTrackCount(CursorReader cursorReader) {
         return Math.max(cursorReader.getInt(PlaylistMapper.LOCAL_TRACK_COUNT),
-                cursorReader.getInt(TableColumns.SoundView.TRACK_COUNT));
+                        cursorReader.getInt(TableColumns.SoundView.TRACK_COUNT));
     }
 }

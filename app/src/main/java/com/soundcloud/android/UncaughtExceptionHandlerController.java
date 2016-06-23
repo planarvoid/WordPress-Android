@@ -64,7 +64,8 @@ class UncaughtExceptionHandlerController {
         if (handler != Thread.getDefaultUncaughtExceptionHandler()) {
             final String detailMessage = "Illegal handler: " + Thread.getDefaultUncaughtExceptionHandler();
             setHandler();
-            ErrorUtils.handleSilentException(detailMessage, new IllegalUncaughtExceptionHandlerException(detailMessage));
+            ErrorUtils.handleSilentException(detailMessage,
+                                             new IllegalUncaughtExceptionHandlerException(detailMessage));
         }
     }
 

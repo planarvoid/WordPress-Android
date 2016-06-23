@@ -148,10 +148,10 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
 
     public PropertySet toPropertySet() {
         return super.toPropertySet()
-                .put(PlaylistProperty.PLAYLIST_DURATION, duration)
-                .put(PlaylistProperty.TRACK_COUNT, track_count)
-                .put(PlayableProperty.LIKES_COUNT, likes_count)
-                .put(PlayableProperty.IS_USER_LIKE, user_like);
+                    .put(PlaylistProperty.PLAYLIST_DURATION, duration)
+                    .put(PlaylistProperty.TRACK_COUNT, track_count)
+                    .put(PlayableProperty.LIKES_COUNT, likes_count)
+                    .put(PlayableProperty.IS_USER_LIKE, user_like);
     }
 
     public ApiPlaylist toApiMobilePlaylist() {

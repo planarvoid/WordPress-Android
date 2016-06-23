@@ -55,9 +55,9 @@ public class ChronometerView extends CustomFontTextView {
             progressSec = newProgressSec;
             mode = MODE_PLAYBACK;
             setText(new StringBuilder()
-                    .append(ScTextUtils.formatTimestamp(ms, TimeUnit.MILLISECONDS))
-                    .append(" / ")
-                    .append(durationString));
+                            .append(ScTextUtils.formatTimestamp(ms, TimeUnit.MILLISECONDS))
+                            .append(" / ")
+                            .append(durationString));
 
         }
     }

@@ -6,7 +6,8 @@ import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 import android.view.View;
 
-class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, RecommendationsViewHolder> implements PlayingTrackAware {
+class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, RecommendationsViewHolder>
+        implements PlayingTrackAware {
 
     private static final int RECOMMENDATION_TYPE = 0;
 

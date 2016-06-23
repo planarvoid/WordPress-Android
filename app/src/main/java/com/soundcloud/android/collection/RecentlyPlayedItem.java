@@ -8,7 +8,11 @@ import com.soundcloud.java.optional.Optional;
 @AutoValue
 public abstract class RecentlyPlayedItem implements ImageResource {
 
-    public static RecentlyPlayedItem create(Urn urn, Optional<String> imageUrl, String title, int trackCount, boolean isAlbum) {
+    public static RecentlyPlayedItem create(Urn urn,
+                                            Optional<String> imageUrl,
+                                            String title,
+                                            int trackCount,
+                                            boolean isAlbum) {
         return new AutoValue_RecentlyPlayedItem(urn, imageUrl, title, trackCount, isAlbum);
     }
 

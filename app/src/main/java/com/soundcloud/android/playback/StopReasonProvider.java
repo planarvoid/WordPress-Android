@@ -44,7 +44,7 @@ public class StopReasonProvider {
 
     private int getTrackCompleteReason() {
         return playQueueManager.hasNextItem()
-                ? PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
-                : PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE;
+               ? PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
+               : PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE;
     }
 }

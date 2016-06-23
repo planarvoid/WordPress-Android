@@ -180,17 +180,18 @@ public class CreateWaveView extends View {
     protected void onDraw(Canvas canvas) {
         final SoundRecorder recorder = SoundRecorder.getInstance(getContext());
         final float[] trimWindow = recorder.getTrimWindow();
-        final float normalizedZoomTime = Math.min(1.0f, (((float) (System.currentTimeMillis() - zoomAnimationStartTime)) / ANIMATION_ZOOM_TIME));
+        final float normalizedZoomTime = Math.min(1.0f,
+                                                  (((float) (System.currentTimeMillis() - zoomAnimationStartTime)) / ANIMATION_ZOOM_TIME));
         final float interpolatedZoomTime = SHOW_FULL_INTERPOLATOR.getInterpolation(normalizedZoomTime);
         final boolean animatingZoom = (normalizedZoomTime < 1.0f);
 
         amplitudeData.configure(recorder.getRecordStream(), trimWindow);
         drawData.configure(amplitudeData,
-                interpolatedZoomTime,
-                mode == CreateWaveDisplay.MODE_REC,
-                isEditing,
-                getHeight(),
-                getWidth());
+                           interpolatedZoomTime,
+                           mode == CreateWaveDisplay.MODE_REC,
+                           isEditing,
+                           getHeight(),
+                           getWidth());
 
         if (drawData.size > 0) {
             if (amplitudeAboveBarPoints == null) {
@@ -203,7 +204,7 @@ public class CreateWaveView extends View {
             }
 
             final int length = drawData.getAmplitudePoints(amplitudeAboveBarPoints, amplitudeBelowBarPoints,
-                    amplitudeAboveSpacePoints, amplitudeBelowSpacePoints);
+                                                           amplitudeAboveSpacePoints, amplitudeBelowSpacePoints);
 
             if (animatingZoom) {
                 if (drawData.recIndex == 0) {
@@ -215,27 +216,47 @@ public class CreateWaveView extends View {
                     canvas.drawLines(amplitudeBelowSpacePoints, 0, length, orangeBelowSpacePaint);
                 } else {
                     // mixed recording / prerecord data
-                    final int recordStartIndex = (amplitudeData.writtenSize >= getWidth()) ? drawData.recIndex * 4
-                            : Math.round(drawData.recIndex * ((float) drawData.lastDrawX) / drawData.size) * 4; // incorporate the scaling
+                    final int recordStartIndex = (amplitudeData.writtenSize >= getWidth()) ?
+                                                 drawData.recIndex * 4
+                                                                                           :
+                                                 Math.round(drawData.recIndex * ((float) drawData.lastDrawX) / drawData.size) * 4; // incorporate the scaling
 
                     canvas.drawLines(amplitudeAboveBarPoints, 0, recordStartIndex, grayAbovePaint);
                     canvas.drawLines(amplitudeBelowBarPoints, 0, recordStartIndex, grayBelowPaint);
 
-                    canvas.drawLines(amplitudeAboveBarPoints, recordStartIndex, length - recordStartIndex, orangeAbovePaint);
-                    canvas.drawLines(amplitudeBelowBarPoints, recordStartIndex, length - recordStartIndex, orangeBelowPaint);
+                    canvas.drawLines(amplitudeAboveBarPoints,
+                                     recordStartIndex,
+                                     length - recordStartIndex,
+                                     orangeAbovePaint);
+                    canvas.drawLines(amplitudeBelowBarPoints,
+                                     recordStartIndex,
+                                     length - recordStartIndex,
+                                     orangeBelowPaint);
 
                     canvas.drawLines(amplitudeAboveSpacePoints, 0, recordStartIndex, grayAboveSpacePaint);
                     canvas.drawLines(amplitudeBelowSpacePoints, 0, recordStartIndex, grayBelowSpacePaint);
 
-                    canvas.drawLines(amplitudeAboveSpacePoints, recordStartIndex, length - recordStartIndex, orangeAboveSpacePaint);
-                    canvas.drawLines(amplitudeBelowSpacePoints, recordStartIndex, length - recordStartIndex, orangeBelowSpacePaint);
+                    canvas.drawLines(amplitudeAboveSpacePoints,
+                                     recordStartIndex,
+                                     length - recordStartIndex,
+                                     orangeAboveSpacePaint);
+                    canvas.drawLines(amplitudeBelowSpacePoints,
+                                     recordStartIndex,
+                                     length - recordStartIndex,
+                                     orangeBelowSpacePaint);
                 }
 
             } else {
                 if (mode == CreateWaveDisplay.MODE_REC) {
                     drawZoomView(canvas, drawData);
                 } else {
-                    drawFullView(canvas, amplitudeAboveBarPoints, amplitudeBelowBarPoints, amplitudeAboveSpacePoints, amplitudeBelowSpacePoints, length, trimWindow);
+                    drawFullView(canvas,
+                                 amplitudeAboveBarPoints,
+                                 amplitudeBelowBarPoints,
+                                 amplitudeAboveSpacePoints,
+                                 amplitudeBelowSpacePoints,
+                                 length,
+                                 trimWindow);
                 }
             }
         }
@@ -249,7 +270,13 @@ public class CreateWaveView extends View {
      * Draw the full version of the amplitude data (not currently animating or recording)
      * This will be subject to editing variables and playback progress
      */
-    private void drawFullView(Canvas canvas, float[] aboveBarPoints, float[] belowBarPoints, float[] aboveSpacePoints, float[] belowSpacePoints, int length, float[] trimWindow) {
+    private void drawFullView(Canvas canvas,
+                              float[] aboveBarPoints,
+                              float[] belowBarPoints,
+                              float[] aboveSpacePoints,
+                              float[] belowSpacePoints,
+                              int length,
+                              float[] trimWindow) {
         final int width = getWidth();
 
         if (!isEditing) {
@@ -276,19 +303,39 @@ public class CreateWaveView extends View {
                 drawPointsOnCanvas(canvas, belowSpacePoints, length, orangeBelowSpacePaint, 0, currentProgressIndex);
 
                 // gray bars
-                drawPointsOnCanvas(canvas, aboveBarPoints, length, grayAbovePaint, currentProgressIndex, Consts.NOT_SET);
-                drawPointsOnCanvas(canvas, belowBarPoints, length, grayBelowPaint, currentProgressIndex, Consts.NOT_SET);
+                drawPointsOnCanvas(canvas,
+                                   aboveBarPoints,
+                                   length,
+                                   grayAbovePaint,
+                                   currentProgressIndex,
+                                   Consts.NOT_SET);
+                drawPointsOnCanvas(canvas,
+                                   belowBarPoints,
+                                   length,
+                                   grayBelowPaint,
+                                   currentProgressIndex,
+                                   Consts.NOT_SET);
 
                 // gray spaces
-                drawPointsOnCanvas(canvas, aboveSpacePoints, length, grayAboveSpacePaint, currentProgressIndex, Consts.NOT_SET);
-                drawPointsOnCanvas(canvas, belowSpacePoints, length, grayBelowSpacePaint, currentProgressIndex, Consts.NOT_SET);
+                drawPointsOnCanvas(canvas,
+                                   aboveSpacePoints,
+                                   length,
+                                   grayAboveSpacePaint,
+                                   currentProgressIndex,
+                                   Consts.NOT_SET);
+                drawPointsOnCanvas(canvas,
+                                   belowSpacePoints,
+                                   length,
+                                   grayBelowSpacePaint,
+                                   currentProgressIndex,
+                                   Consts.NOT_SET);
             }
 
         } else {
             final int trimIndexLeft = (int) (trimWindow[0] * width);
             final int trimIndexRight = (int) (trimWindow[1] * width);
             int currentProgressIndex = currentProgress == Consts.NOT_SET ? Consts.NOT_SET :
-                    (int) (trimIndexLeft + ((trimIndexRight - trimIndexLeft) * currentProgress));
+                                       (int) (trimIndexLeft + ((trimIndexRight - trimIndexLeft) * currentProgress));
 
             // left points to cut
             drawPointsOnCanvas(canvas, aboveBarPoints, length, darkAbovePaint, 0, Math.max(trimIndexLeft - 1, 0));
@@ -298,12 +345,32 @@ public class CreateWaveView extends View {
             if (currentProgressIndex < 0) {
 
                 // orange bars
-                drawPointsOnCanvas(canvas, aboveBarPoints, length, orangeAbovePaint, Math.max(trimIndexLeft, 1), trimIndexRight - 1);
-                drawPointsOnCanvas(canvas, belowBarPoints, length, orangeBelowPaint, Math.max(trimIndexLeft, 1), trimIndexRight - 1);
+                drawPointsOnCanvas(canvas,
+                                   aboveBarPoints,
+                                   length,
+                                   orangeAbovePaint,
+                                   Math.max(trimIndexLeft, 1),
+                                   trimIndexRight - 1);
+                drawPointsOnCanvas(canvas,
+                                   belowBarPoints,
+                                   length,
+                                   orangeBelowPaint,
+                                   Math.max(trimIndexLeft, 1),
+                                   trimIndexRight - 1);
 
                 // orange spaces
-                drawPointsOnCanvas(canvas, aboveSpacePoints, length, orangeAboveSpacePaint, Math.max(trimIndexLeft, 1), trimIndexRight - 1);
-                drawPointsOnCanvas(canvas, belowSpacePoints, length, orangeBelowSpacePaint, Math.max(trimIndexLeft, 1), trimIndexRight - 1);
+                drawPointsOnCanvas(canvas,
+                                   aboveSpacePoints,
+                                   length,
+                                   orangeAboveSpacePaint,
+                                   Math.max(trimIndexLeft, 1),
+                                   trimIndexRight - 1);
+                drawPointsOnCanvas(canvas,
+                                   belowSpacePoints,
+                                   length,
+                                   orangeBelowSpacePaint,
+                                   Math.max(trimIndexLeft, 1),
+                                   trimIndexRight - 1);
 
             } else {
 
@@ -318,17 +385,47 @@ public class CreateWaveView extends View {
                 drawPointsOnCanvas(canvas, belowSpacePoints, length, orangeBelowSpacePaint, trimIndexLeft + 1, playMin);
 
                 // gray bars
-                drawPointsOnCanvas(canvas, aboveBarPoints, length, grayAbovePaint, Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)), trimIndexRight - 1);
-                drawPointsOnCanvas(canvas, belowBarPoints, length, grayBelowPaint, Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)), trimIndexRight - 1);
+                drawPointsOnCanvas(canvas,
+                                   aboveBarPoints,
+                                   length,
+                                   grayAbovePaint,
+                                   Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)),
+                                   trimIndexRight - 1);
+                drawPointsOnCanvas(canvas,
+                                   belowBarPoints,
+                                   length,
+                                   grayBelowPaint,
+                                   Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)),
+                                   trimIndexRight - 1);
 
                 // gray spaces
-                drawPointsOnCanvas(canvas, aboveSpacePoints, length, grayAboveSpacePaint, Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)), trimIndexRight - 1);
-                drawPointsOnCanvas(canvas, belowSpacePoints, length, grayBelowSpacePaint, Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)), trimIndexRight - 1);
+                drawPointsOnCanvas(canvas,
+                                   aboveSpacePoints,
+                                   length,
+                                   grayAboveSpacePaint,
+                                   Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)),
+                                   trimIndexRight - 1);
+                drawPointsOnCanvas(canvas,
+                                   belowSpacePoints,
+                                   length,
+                                   grayBelowSpacePaint,
+                                   Math.min(trimIndexRight - 1, Math.max(playMin, currentProgressIndex)),
+                                   trimIndexRight - 1);
             }
 
             // right points to cut
-            drawPointsOnCanvas(canvas, aboveBarPoints, length, darkAbovePaint, Math.min(width - 1, trimIndexRight), Consts.NOT_SET);
-            drawPointsOnCanvas(canvas, belowBarPoints, length, darkBelowPaint, Math.min(width - 1, trimIndexRight), Consts.NOT_SET);
+            drawPointsOnCanvas(canvas,
+                               aboveBarPoints,
+                               length,
+                               darkAbovePaint,
+                               Math.min(width - 1, trimIndexRight),
+                               Consts.NOT_SET);
+            drawPointsOnCanvas(canvas,
+                               belowBarPoints,
+                               length,
+                               darkBelowPaint,
+                               Math.min(width - 1, trimIndexRight),
+                               Consts.NOT_SET);
 
             // left handle
             canvas.drawRect(0, 0, Math.max(trimIndexLeft, 1), getHeight(), trimLinePaint);
@@ -367,7 +464,7 @@ public class CreateWaveView extends View {
                     belowPaint = shouldShowSpace ? orangeBelowSpacePaint : orangeBelowPaint;
                 }
 
-                drawAmplitude(bitmapCanvas, nextBitmapX, currentAmplitudeHelper.currentValue(),abovePaint, belowPaint);
+                drawAmplitude(bitmapCanvas, nextBitmapX, currentAmplitudeHelper.currentValue(), abovePaint, belowPaint);
             }
             nextBitmapX--;
         }
@@ -391,10 +488,10 @@ public class CreateWaveView extends View {
             recreateZoomBitmaps(width, height);
             nextBitmapX = Consts.NOT_SET;
             orangeAbovePaint.setShader(new LinearGradient(0, 0, 0, baselineRatio * height, orangeAboveStart,
-                    orangeAboveEnd, Shader.TileMode.MIRROR));
+                                                          orangeAboveEnd, Shader.TileMode.MIRROR));
 
             orangeAboveSpacePaint.setShader(new LinearGradient(0, 0, 0, baselineRatio * height, orangeAboveStart,
-                    orangeAboveEnd, Shader.TileMode.MIRROR));
+                                                               orangeAboveEnd, Shader.TileMode.MIRROR));
             orangeAboveSpacePaint.setAlpha(SPACE_ALPHA);
         }
     }
@@ -430,7 +527,7 @@ public class CreateWaveView extends View {
             Paint belowPaint;
             final boolean shouldShowSpace = currentAmplitudeHelper.shouldShowSpace();
 
-            if (isRecording){
+            if (isRecording) {
                 abovePaint = shouldShowSpace ? orangeAboveSpacePaint : orangeAbovePaint;
                 belowPaint = shouldShowSpace ? orangeBelowSpacePaint : orangeBelowPaint;
             } else {
@@ -460,7 +557,12 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-    private static void drawPointsOnCanvas(Canvas c, float[] points, int length, Paint paint, int offsetLineIndex, int lastLineIndex) {
+    private static void drawPointsOnCanvas(Canvas c,
+                                           float[] points,
+                                           int length,
+                                           Paint paint,
+                                           int offsetLineIndex,
+                                           int lastLineIndex) {
         final int pointOffset = offsetLineIndex * 4;
         final int pointCount = (lastLineIndex == Consts.NOT_SET ? length : lastLineIndex * 4) - pointOffset;
         c.drawLines(points, pointOffset, pointCount, paint);
@@ -468,8 +570,8 @@ public class CreateWaveView extends View {
 
     private void drawAmplitude(Canvas c, int xIndex, float amplitude, Paint abovePaint, Paint belowPaint) {
         final float topHeight = this.getHeight() * baselineRatio;
-        final float bottomHeight = this.getHeight() * (1-baselineRatio);
-        c.drawLine(xIndex, topHeight - amplitude * topHeight, xIndex,topHeight, abovePaint);
+        final float bottomHeight = this.getHeight() * (1 - baselineRatio);
+        c.drawLine(xIndex, topHeight - amplitude * topHeight, xIndex, topHeight, abovePaint);
         c.drawLine(xIndex, topHeight, xIndex, topHeight + amplitude * bottomHeight, belowPaint);
     }
 
@@ -509,7 +611,7 @@ public class CreateWaveView extends View {
         public float get(int i) {
             if (i < preRecData.size()) {
                 return preRecData.get(i);
-            } else if (i - preRecData.size() < recData.size() ) {
+            } else if (i - preRecData.size() < recData.size()) {
                 return recData.get(i - preRecData.size());
             } else {
                 return 0;
@@ -532,26 +634,26 @@ public class CreateWaveView extends View {
             this.spaceWidth = spaceWidth;
         }
 
-        void reset(){
+        void reset() {
             groupValue = dumpIndex = Consts.NOT_SET;
             groupIndex = accumulated = accumulations = 0;
         }
 
-        boolean shouldShowSpace(){
+        boolean shouldShowSpace() {
             return dumpIndex > 0;
         }
 
-        float currentValue(){
+        float currentValue() {
             return groupValue;
         }
 
-        void updateAmplitude(float lastAmplitude){
+        void updateAmplitude(float lastAmplitude) {
             accumulated += lastAmplitude;
             accumulations++;
 
             if (dumpIndex >= 0) {
                 // the new index can be used to draw
-                if (dumpIndex == 0){
+                if (dumpIndex == 0) {
                     calculateGroupValue();
                 }
 
@@ -563,12 +665,12 @@ public class CreateWaveView extends View {
 
             } else {
                 // only set the new value if its gone up. this is for visual purposes only
-                if (groupIndex == 0 && getCurrentAverage() > groupValue){
+                if (groupIndex == 0 && getCurrentAverage() > groupValue) {
                     calculateGroupValue();
                 }
 
                 groupIndex++;
-                if (groupIndex == barWidth){
+                if (groupIndex == barWidth) {
                     groupIndex = dumpIndex = 0;
                 }
             }
@@ -671,7 +773,10 @@ public class CreateWaveView extends View {
         /**
          * @return number of data points
          */
-        private int getAmplitudePoints(float[] aboveBarPoints, float[] belowBarPoints, float[] aboveSpacePoints, float[] belowSpacePoints) {
+        private int getAmplitudePoints(float[] aboveBarPoints,
+                                       float[] belowBarPoints,
+                                       float[] aboveSpacePoints,
+                                       float[] belowSpacePoints) {
             int ptIndex = 0;
             final float topHeight = height * baselineRatio;
             final float bottomHeight = height - height * baselineRatio;

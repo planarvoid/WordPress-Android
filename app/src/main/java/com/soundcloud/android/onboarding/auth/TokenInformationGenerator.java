@@ -50,7 +50,8 @@ public class TokenInformationGenerator {
         if (scopes != null) {
             for (String scope : scopes) {
                 if (!token.hasScope(scope)) {
-                    throw new TokenRetrievalException(new IllegalArgumentException("Could not obtain requested scope '" + scope + "' (got: '" + token.getScope() + "')"));
+                    throw new TokenRetrievalException(new IllegalArgumentException("Could not obtain requested scope '" + scope + "' (got: '" + token
+                            .getScope() + "')"));
                 }
             }
         }
@@ -59,9 +60,9 @@ public class TokenInformationGenerator {
 
     private Token requestToken(Map<String, String> params) throws ApiRequestException {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.OAUTH2_TOKEN.path())
-                .forPublicApi()
-                .withFormMap(params)
-                .build();
+                                             .forPublicApi()
+                                             .withFormMap(params)
+                                             .build();
 
         final ApiResponse response = apiClient.fetchResponse(request);
 

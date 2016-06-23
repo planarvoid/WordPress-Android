@@ -74,9 +74,9 @@ public class ApiUser implements ApiEntityHolder, UserRecord, UserRecordHolder {
     }
 
     @JsonProperty("station_urns")
-    public void setStationUrns(List<Urn> stations){
-        for(Urn stationUrn : stations){
-            if (stationUrn.isArtistStation()){
+    public void setStationUrns(List<Urn> stations) {
+        for (Urn stationUrn : stations) {
+            if (stationUrn.isArtistStation()) {
                 this.artistStation = stationUrn;
             }
         }

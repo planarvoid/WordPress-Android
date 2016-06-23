@@ -61,7 +61,8 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(Observable.just(trackUrns2));
         when(playlistOperations.trackUrnsForPlayback(playlistUrn3)).thenReturn(Observable.just(trackUrns3));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playQueueManager).insertPlaylistTracks(playlistUrn1, trackUrns1);
         verify(playQueueManager).insertPlaylistTracks(playlistUrn2, trackUrns2);
@@ -77,10 +78,12 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(
                 Observable.<List<Urn>>error(new IOException()), Observable.just(trackUrns1));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(playQueueManager, never()).insertPlaylistTracks(any(Urn.class), anyList());
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
         verify(playQueueManager).insertPlaylistTracks(playlistUrn1, trackUrns1);
     }
 
@@ -95,7 +98,8 @@ public class PlaylistExploderTest extends AndroidUnitTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn1)).thenReturn(playlistLoad1);
         when(playlistOperations.trackUrnsForPlayback(playlistUrn2)).thenReturn(playlistLoad2);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playlistLoad1.hasObservers()).isTrue();
         assertThat(playlistLoad2.hasObservers()).isTrue();

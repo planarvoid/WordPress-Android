@@ -152,9 +152,9 @@ public class DownloadImageViewElement {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(DownloadImageViewElement.class)
-                .add("isVisible", isVisible())
-                .add("state", getStateString())
-                .toString();
+                          .add("isVisible", isVisible())
+                          .add("state", getStateString())
+                          .toString();
     }
 
     private String getStateString() {

@@ -46,7 +46,8 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
         assertThat(result.success()).isTrue();
 
-        databaseAssertions().assertPlaylistTracklist(newPlaylist.getId(), Collections.singletonList(playlistTrack.getUrn()));
+        databaseAssertions().assertPlaylistTracklist(newPlaylist.getId(),
+                                                     Collections.singletonList(playlistTrack.getUrn()));
     }
 
     @Test

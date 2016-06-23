@@ -38,7 +38,7 @@ public class LoadOfflinePlaylistsContainingTrackCommandTest extends StorageInteg
         final Urn track = testFixtures().insertPlaylistTrack(playlist, 0).getUrn();
 
         final List<Urn> actual = command.call(track);
-     
+
         assertThat(actual).isEmpty();
     }
 

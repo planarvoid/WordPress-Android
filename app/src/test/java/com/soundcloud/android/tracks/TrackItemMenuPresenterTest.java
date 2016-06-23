@@ -72,9 +72,17 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
 
-        presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory, trackRepository, eventBus, context,
-                likeOperations, repostOperations, playlistOperations, screenProvider, shareOperations,
-                startStationPresenter, accountOperations);
+        presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory,
+                                               trackRepository,
+                                               eventBus,
+                                               context,
+                                               likeOperations,
+                                               repostOperations,
+                                               playlistOperations,
+                                               screenProvider,
+                                               shareOperations,
+                                               startStationPresenter,
+                                               accountOperations);
     }
 
     @Test
@@ -110,14 +118,14 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
         EventContextMetadata eventContextMetadata =
                 EventContextMetadata.builder()
-                        .invokerScreen(ScreenElement.LIST.get())
-                        .contextScreen(screenProvider.getLastScreenTag())
-                        .pageName(screenProvider.getLastScreenTag())
-                        .isFromOverflow(true)
-                        .build();
+                                    .invokerScreen(ScreenElement.LIST.get())
+                                    .contextScreen(screenProvider.getLastScreenTag())
+                                    .pageName(screenProvider.getLastScreenTag())
+                                    .isFromOverflow(true)
+                                    .build();
         verify(shareOperations).share(context, trackItem.getSource(), eventContextMetadata, null);
     }
-    
+
     private TrackItem createTrackItem() {
         return TrackItem.from(ModelFixtures.create(ApiTrack.class));
     }

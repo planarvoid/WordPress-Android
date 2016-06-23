@@ -15,7 +15,7 @@ public abstract class SimpleImageResource implements ImageResource {
 
     public static SimpleImageResource create(PropertySet trackProperties) {
         return new AutoValue_SimpleImageResource(trackProperties.get(TrackProperty.URN),
-                trackProperties.get(TrackProperty.IMAGE_URL_TEMPLATE));
+                                                 trackProperties.get(TrackProperty.IMAGE_URL_TEMPLATE));
     }
 
     @Override

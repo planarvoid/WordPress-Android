@@ -58,24 +58,36 @@ public class SearchPremiumResultsPresenterTest extends AndroidUnitTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, new Bundle());
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh,
+                                                                    new Bundle());
 
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         final List<PropertySet> propertySets =
                 Collections.singletonList(PropertySet.create()
-                        .put(EntityProperty.URN, PREMIUM_TRACK_URN_ONE)
-                        .put(EntityProperty.URN, PREMIUM_TRACK_URN_TWO));
-        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, Optional.<Link>absent(), QUERY_URN);
+                                                     .put(EntityProperty.URN, PREMIUM_TRACK_URN_ONE)
+                                                     .put(EntityProperty.URN, PREMIUM_TRACK_URN_TWO));
+        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets,
+                                                                        Optional.<Link>absent(),
+                                                                        QUERY_URN);
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
-        presenter = new SearchPremiumResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
-                clickListenerFactory, featureOperations, navigator, eventBus, searchTracker);
+        presenter = new SearchPremiumResultsPresenter(swipeRefreshAttacher,
+                                                      searchOperations,
+                                                      adapter,
+                                                      clickListenerFactory,
+                                                      featureOperations,
+                                                      navigator,
+                                                      eventBus,
+                                                      searchTracker);
 
-        when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
-        when(searchOperations.searchPremiumResultFrom(any(List.class), any(Optional.class), any(Urn.class))).thenReturn(searchResultObservable);
-        when(searchOperations.searchPremiumResult(anyString(), any(SearchType.class))).thenReturn(searchResultObservable);
+        when(clickListenerFactory.create(any(Screen.class),
+                                         any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
+        when(searchOperations.searchPremiumResultFrom(any(List.class), any(Optional.class), any(Urn.class))).thenReturn(
+                searchResultObservable);
+        when(searchOperations.searchPremiumResult(anyString(),
+                                                  any(SearchType.class))).thenReturn(searchResultObservable);
         when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
     }
 

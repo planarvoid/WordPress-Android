@@ -20,7 +20,12 @@ public class TestPlayStates {
     }
 
     public static PlaybackStateTransition playing(long position, long duration, CurrentDateProvider dateProvider) {
-        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, URN, position, duration, dateProvider);
+        return new PlaybackStateTransition(PlaybackState.PLAYING,
+                                           PlayStateReason.NONE,
+                                           URN,
+                                           position,
+                                           duration,
+                                           dateProvider);
     }
 
     public static PlaybackStateTransition idle() {

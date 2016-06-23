@@ -18,7 +18,7 @@ public enum SignupVia {
         this.name = name;
     }
 
-    public String getSignupIdentifier(){
+    public String getSignupIdentifier() {
         return name;
     }
 
@@ -32,13 +32,15 @@ public enum SignupVia {
 
     public static SignupVia fromString(String s) {
         for (SignupVia v : values()) {
-            if (v.name.equals(s)) { return v; }
+            if (v.name.equals(s)) {
+                return v;
+            }
         }
         return NONE;
 
     }
 
-    public boolean isFacebook()  {
+    public boolean isFacebook() {
         return this == FACEBOOK_SSO || this == FACEBOOK_WEBFLOW;
     }
 

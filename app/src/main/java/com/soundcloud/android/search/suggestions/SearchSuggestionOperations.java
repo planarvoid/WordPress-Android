@@ -83,23 +83,23 @@ class SearchSuggestionOperations {
 
     private Observable<SuggestionsResult> localSuggestions(String query) {
         return suggestionStorage.getSuggestions(query, MAX_SUGGESTIONS_NUMBER)
-                .map(LOCAL_TO_SUGGESTION_RESULT)
-                .onErrorResumeNext(ON_ERROR_EMPTY_LOCAL_RESULT)
-                .subscribeOn(scheduler);
+                                .map(LOCAL_TO_SUGGESTION_RESULT)
+                                .onErrorResumeNext(ON_ERROR_EMPTY_LOCAL_RESULT)
+                                .subscribeOn(scheduler);
     }
 
     private Observable<SuggestionsResult> remoteSuggestions(String query) {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.SEARCH_SUGGESTIONS.path())
-                        .addQueryParam("q", query)
-                        .addQueryParam("limit", MAX_SUGGESTIONS_NUMBER)
-                        .forPrivateApi()
-                        .build();
+                          .addQueryParam("q", query)
+                          .addQueryParam("limit", MAX_SUGGESTIONS_NUMBER)
+                          .forPrivateApi()
+                          .build();
 
         return apiClientRx.mappedResponse(request, ApiSearchSuggestions.class)
-                .doOnNext(writeDependencies)
-                .map(REMOTE_TO_SUGGESTION_RESULT)
-                .onErrorResumeNext(ON_ERROR_EMPTY_REMOTE_RESULT)
-                .subscribeOn(scheduler);
+                          .doOnNext(writeDependencies)
+                          .map(REMOTE_TO_SUGGESTION_RESULT)
+                          .onErrorResumeNext(ON_ERROR_EMPTY_REMOTE_RESULT)
+                          .subscribeOn(scheduler);
     }
 }

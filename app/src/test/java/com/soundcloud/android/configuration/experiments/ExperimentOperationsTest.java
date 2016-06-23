@@ -105,7 +105,9 @@ public class ExperimentOperationsTest {
     public void shouldReturnLayerWhenAssigned() {
         final Layer layer = new Layer("layer", 1, "experiment", 1, "variant");
         final Assignment assignment = new Assignment(Collections.singletonList(layer));
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "experiment", Collections.<String>emptyList());
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer",
+                                                                                       "experiment",
+                                                                                       Collections.<String>emptyList());
         when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
 
         operations.loadAssignment().subscribe();
@@ -116,7 +118,9 @@ public class ExperimentOperationsTest {
     public void shouldReturnAbsentWhenNotAssigned() {
         final Layer layer = new Layer("layer", 1, "experiment", 1, "variant");
         final Assignment assignment = new Assignment(Collections.singletonList(layer));
-        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer", "unknown", Collections.<String>emptyList());
+        final ExperimentConfiguration configuration = ExperimentConfiguration.fromName("layer",
+                                                                                       "unknown",
+                                                                                       Collections.<String>emptyList());
         when(experimentStorage.readAssignment()).thenReturn(Observable.just(assignment));
 
         operations.loadAssignment().subscribe();

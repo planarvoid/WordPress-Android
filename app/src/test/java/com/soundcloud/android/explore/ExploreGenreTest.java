@@ -57,7 +57,7 @@ public class ExploreGenreTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldGetSuggestedTracksPath(){
+    public void shouldGetSuggestedTracksPath() {
         category = new ExploreGenre("Title1");
 
         final Map<String, Link> links = new HashMap<>();

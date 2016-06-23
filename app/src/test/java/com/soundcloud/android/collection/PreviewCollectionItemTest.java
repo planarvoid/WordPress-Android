@@ -19,7 +19,8 @@ public class PreviewCollectionItemTest extends AndroidUnitTest {
     public void updatingCollectionPreviewPropertiesUpdatesLikesItem() {
         final LikesItem likesItem = LikesItem.fromTrackPreviews(singletonList(
                 LikedTrackPreview.create(Urn.forTrack(123L), "http://image-url")));
-        final PreviewCollectionItem item = PreviewCollectionItem.forLikesAndStations(likesItem, Collections.<StationRecord>emptyList());
+        final PreviewCollectionItem item = PreviewCollectionItem.forLikesAndStations(likesItem,
+                                                                                     Collections.<StationRecord>emptyList());
         final PropertySet updateProperties = PropertySet.from(
                 OfflineProperty.OFFLINE_STATE.bind(OfflineState.REQUESTED));
 

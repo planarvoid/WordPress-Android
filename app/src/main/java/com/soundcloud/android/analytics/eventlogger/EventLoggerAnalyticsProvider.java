@@ -207,7 +207,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
         final String data = eventData.isVideo() ?
-                dataBuilderV1.get().buildForRichMediaPerformance(eventData) : dataBuilderV0.get().build(eventData);
+                            dataBuilderV1.get().buildForRichMediaPerformance(eventData) :
+                            dataBuilderV0.get().build(eventData);
         trackEvent(eventData.getTimestamp(), data);
     }
 

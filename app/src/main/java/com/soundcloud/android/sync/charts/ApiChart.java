@@ -47,6 +47,6 @@ public class ApiChart {
     }
 
     public List<ApiTrack> tracks() {
-        return  tracks;
+        return tracks;
     }
 }

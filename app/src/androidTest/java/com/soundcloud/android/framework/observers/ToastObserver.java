@@ -29,7 +29,7 @@ public class ToastObserver {
         toastObserverRunnable.setRunning(false);
     }
 
-    private class ToastObserverRunnable implements Runnable{
+    private class ToastObserverRunnable implements Runnable {
         private Han testDriver;
         private boolean running = true;
         private LinkedHashMap<String, TextElement> observedToasts;

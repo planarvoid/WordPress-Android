@@ -83,7 +83,8 @@ public class UserProfileOperationsAlbumsTest extends AndroidUnitTest {
 
     @Test
     public void mergesLikesInfoForUserAlbumsWithPagination() throws Exception {
-        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(),
+                                                                      NEXT_HREF);
         when(profileApi.userAlbums(NEXT_HREF)).thenReturn(Observable.just(page));
         when(loadPlaylistLikedStatuses.call(eq(new PagedRemoteCollection(page))))
                 .thenReturn(addLikeStatusToPlaylist());

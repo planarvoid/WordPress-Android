@@ -9,7 +9,9 @@ class WebCheckoutInterface {
 
     interface Listener {
         void onWebAppReady();
+
         void onPaymentSuccess();
+
         void onPaymentError(String errorType);
     }
 

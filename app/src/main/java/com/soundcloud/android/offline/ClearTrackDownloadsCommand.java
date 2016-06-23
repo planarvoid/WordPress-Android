@@ -76,8 +76,8 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
                 .whereEq(OfflineContent._TYPE, OfflineContent.TYPE_PLAYLIST);
 
         return propeller.query(Query.from(OfflineContent.TABLE)
-                .where(isOfflinePlaylist))
-                .toList(new PlaylistUrnMapper());
+                                    .where(isOfflinePlaylist))
+                        .toList(new PlaylistUrnMapper());
     }
 
 }

@@ -68,7 +68,10 @@ public class AdUtilsTest extends AndroidUnitTest {
 
     @Test
     public void isAdForPlaybackItemReturnsTrueWhenUrnIsAd() {
-        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forAd("totally-an-ad", "yes-it-is"), 0L, 1000L, PlaybackType.AUDIO_DEFAULT);
+        PlaybackItem playbackItem = AudioPlaybackItem.create(Urn.forAd("totally-an-ad", "yes-it-is"),
+                                                             0L,
+                                                             1000L,
+                                                             PlaybackType.AUDIO_DEFAULT);
         assertThat(AdUtils.isAd(playbackItem)).isTrue();
     }
 

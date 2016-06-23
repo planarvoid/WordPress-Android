@@ -50,7 +50,8 @@ public class StreamPreloader {
     private final Func1<CurrentPlayQueueItemEvent, Boolean> hasNextTrackInPlayQueue = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
         public Boolean call(CurrentPlayQueueItemEvent currentPlayQueueItemEvent) {
-            return hasSpaceInCache() && playQueueManager.hasNextItem() && playQueueManager.getNextPlayQueueItem().isTrack();
+            return hasSpaceInCache() && playQueueManager.hasNextItem() && playQueueManager.getNextPlayQueueItem()
+                                                                                          .isTrack();
         }
     };
 
@@ -63,8 +64,12 @@ public class StreamPreloader {
 
     private final Func3<PlaybackStateTransition, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState> toPlaybackNetworkState = new Func3<PlaybackStateTransition, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState>() {
         @Override
-        public PlaybackNetworkState call(PlaybackStateTransition stateTransition, ConnectionType connectionType, PlaybackProgressEvent playbackProgressEvent) {
-            return new PlaybackNetworkState(stateTransition, playbackProgressEvent.getPlaybackProgress(), connectionType);
+        public PlaybackNetworkState call(PlaybackStateTransition stateTransition,
+                                         ConnectionType connectionType,
+                                         PlaybackProgressEvent playbackProgressEvent) {
+            return new PlaybackNetworkState(stateTransition,
+                                            playbackProgressEvent.getPlaybackProgress(),
+                                            connectionType);
         }
     };
 
@@ -95,10 +100,10 @@ public class StreamPreloader {
                     eventBus.queue(EventQueue.NETWORK_CONNECTION_CHANGED),
                     eventBus.queue(EventQueue.PLAYBACK_PROGRESS),
                     toPlaybackNetworkState)
-                    .filter(checkNetworkAndProgressConditions)
-                    .take(1)
-                    .filter(cacheSpaceAvailable)
-                    .map(toPreloadItem(nextItem));
+                             .filter(checkNetworkAndProgressConditions)
+                             .take(1)
+                             .filter(cacheSpaceAvailable)
+                             .map(toPreloadItem(nextItem));
         }
     };
 
@@ -107,7 +112,9 @@ public class StreamPreloader {
         return new Func1<Object, PreloadItem>() {
             @Override
             public PreloadItem call(Object ignored) {
-                final PlaybackType playbackType = propertyBindings.get(TrackProperty.SNIPPED) ? PlaybackType.AUDIO_SNIPPET : PlaybackType.AUDIO_DEFAULT;
+                final PlaybackType playbackType = propertyBindings.get(TrackProperty.SNIPPED) ?
+                                                  PlaybackType.AUDIO_SNIPPET :
+                                                  PlaybackType.AUDIO_DEFAULT;
                 return new AutoParcel_PreloadItem(propertyBindings.get(TrackProperty.URN), playbackType);
             }
         };
@@ -150,9 +157,9 @@ public class StreamPreloader {
         public void onNext(CurrentPlayQueueItemEvent args) {
             final Urn urn = playQueueManager.getNextPlayQueueItem().getUrn();
             preloadSubscription = trackRepository.track(urn)
-                    .filter(isNotOfflineTrack)
-                    .flatMap(waitForValidPreloadConditions)
-                    .subscribe(new PreloadSubscriber());
+                                                 .filter(isNotOfflineTrack)
+                                                 .flatMap(waitForValidPreloadConditions)
+                                                 .subscribe(new PreloadSubscriber());
         }
     }
 
@@ -168,7 +175,9 @@ public class StreamPreloader {
         private final PlaybackStateTransition playerState;
         private final ConnectionType connectionType;
 
-        private PlaybackNetworkState(PlaybackStateTransition playerState, PlaybackProgress playbackProgress, ConnectionType connectionType) {
+        private PlaybackNetworkState(PlaybackStateTransition playerState,
+                                     PlaybackProgress playbackProgress,
+                                     ConnectionType connectionType) {
             this.playbackProgress = playbackProgress;
             this.playerState = playerState;
             this.connectionType = connectionType;

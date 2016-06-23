@@ -26,7 +26,8 @@ class OnboardingItemCellRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.collections_onboarding_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                                  .inflate(R.layout.collections_onboarding_item, parent, false);
         ((TextView) view.findViewById(R.id.title)).setText(R.string.collections_with_stations_onboarding_title);
         return view;
     }

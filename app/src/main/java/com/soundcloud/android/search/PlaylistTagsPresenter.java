@@ -48,7 +48,7 @@ public class PlaylistTagsPresenter {
         @Override
         public void onClick(View v) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.recentTagSearch((String) v.getTag()));
-            if (listener != null){
+            if (listener != null) {
                 listener.onTagSelected(v.getContext(), (String) v.getTag());
             }
         }
@@ -58,7 +58,7 @@ public class PlaylistTagsPresenter {
         @Override
         public void onClick(View v) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.popularTagSearch((String) v.getTag()));
-            if (listener != null){
+            if (listener != null) {
                 listener.onTagSelected(v.getContext(), (String) v.getTag());
             }
         }

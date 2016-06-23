@@ -13,7 +13,9 @@ public abstract class CurrentPlayQueueItemEvent {
         return new AutoValue_CurrentPlayQueueItemEvent(NEW_QUEUE, playQueueItem, collectionUrn, position);
     }
 
-    public static CurrentPlayQueueItemEvent fromPositionChanged(PlayQueueItem playQueueItem, Urn collectionUrn, int position) {
+    public static CurrentPlayQueueItemEvent fromPositionChanged(PlayQueueItem playQueueItem,
+                                                                Urn collectionUrn,
+                                                                int position) {
         return new AutoValue_CurrentPlayQueueItemEvent(POSITION_CHANGED, playQueueItem, collectionUrn, position);
     }
 

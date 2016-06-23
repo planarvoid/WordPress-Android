@@ -84,9 +84,11 @@ public abstract class ViewElement {
 
     public abstract DownloadImageView toDownloadImageView();
 
-    /* package */ abstract View getView();
+    /* package */
+    abstract View getView();
 
-    /* package */ abstract Han getTestDriver();
+    /* package */
+    abstract Han getTestDriver();
 
     abstract public List<ViewElement> getDirectChildren();
 

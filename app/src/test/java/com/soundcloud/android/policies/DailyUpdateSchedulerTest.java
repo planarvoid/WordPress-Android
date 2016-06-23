@@ -30,7 +30,10 @@ public class DailyUpdateSchedulerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        scheduler = new DailyUpdateScheduler(context, alarmManager, new TestDateProvider(currentTime), pendingIntentFactory);
+        scheduler = new DailyUpdateScheduler(context,
+                                             alarmManager,
+                                             new TestDateProvider(currentTime),
+                                             pendingIntentFactory);
     }
 
     @Test
@@ -42,7 +45,9 @@ public class DailyUpdateSchedulerTest extends AndroidUnitTest {
 
         verify(pendingIntentFactory).getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT);
         verify(alarmManager).setInexactRepeating(DailyUpdateScheduler.ALARM_TYPE,
-                currentTime + DailyUpdateScheduler.POLICY_UPDATE_DELAY, AlarmManager.INTERVAL_DAY, intent);
+                                                 currentTime + DailyUpdateScheduler.POLICY_UPDATE_DELAY,
+                                                 AlarmManager.INTERVAL_DAY,
+                                                 intent);
     }
 
     @Test

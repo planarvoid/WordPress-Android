@@ -129,7 +129,7 @@ public class AdsController {
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository) {
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-                playQueueManager, trackRepository, AndroidSchedulers.mainThread());
+             playQueueManager, trackRepository, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
@@ -140,7 +140,7 @@ public class AdsController {
                          Scheduler scheduler) {
 
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-                playQueueManager, trackRepository, scheduler, DEFAULT_OPERATION_STALE_TIME);
+             playQueueManager, trackRepository, scheduler, DEFAULT_OPERATION_STALE_TIME);
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
@@ -214,9 +214,9 @@ public class AdsController {
             final Optional<AdData> nextTrackAdData = adsOperations.getNextTrackAdData();
             final Urn selectedAdUrn = nextTrackAdData.isPresent() ? nextTrackAdData.get().getAdUrn() : Urn.NOT_SET;
             eventBus.publish(EventQueue.TRACKING,
-                    AdDeliveryEvent.adDelivered(monetizableUrn,
-                            selectedAdUrn, endpoint, adsForNextTrack.get().toAdsReceived(),
-                            didReplaceNextAd, isPlayerVisible, isForeground)
+                             AdDeliveryEvent.adDelivered(monetizableUrn,
+                                                         selectedAdUrn, endpoint, adsForNextTrack.get().toAdsReceived(),
+                                                         didReplaceNextAd, isPlayerVisible, isForeground)
             );
         }
     }
@@ -264,9 +264,9 @@ public class AdsController {
 
     private void createAdsFetchObservable(PlayQueueItem playQueueItem, DefaultSubscriber<ApiAdsForTrack> adSubscriber) {
         final Observable<ApiAdsForTrack> apiAdsForTrack = trackRepository.track(playQueueItem.getUrn())
-                .filter(IS_MONETIZABLE)
-                .flatMap(fetchAds)
-                .observeOn(AndroidSchedulers.mainThread());
+                                                                         .filter(IS_MONETIZABLE)
+                                                                         .flatMap(fetchAds)
+                                                                         .observeOn(AndroidSchedulers.mainThread());
 
         currentAdsFetches.put(playQueueItem.getUrn(), new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
     }
@@ -342,16 +342,19 @@ public class AdsController {
         public void onNext(final PlaybackStateTransition state) {
             skipFailedAdSubscription.unsubscribe();
             skipFailedAdSubscription = Observable.timer(FAILED_AD_WAIT_SECS, TimeUnit.SECONDS, scheduler)
-                    .subscribe(new DefaultSubscriber<Long>() {
-                        @Override
-                        public void onNext(Long args) {
-                            Log.i(ADS_TAG, "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
-                            final AdFailedToBufferEvent event =
-                                    new AdFailedToBufferEvent(state.getUrn(), state.getProgress(), FAILED_AD_WAIT_SECS);
-                            eventBus.publish(EventQueue.TRACKING, event);
-                            playQueueManager.autoMoveToNextPlayableItem();
-                        }
-                    });
+                                                 .subscribe(new DefaultSubscriber<Long>() {
+                                                     @Override
+                                                     public void onNext(Long args) {
+                                                         Log.i(ADS_TAG,
+                                                               "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
+                                                         final AdFailedToBufferEvent event =
+                                                                 new AdFailedToBufferEvent(state.getUrn(),
+                                                                                           state.getProgress(),
+                                                                                           FAILED_AD_WAIT_SECS);
+                                                         eventBus.publish(EventQueue.TRACKING, event);
+                                                         playQueueManager.autoMoveToNextPlayableItem();
+                                                     }
+                                                 });
         }
     }
 

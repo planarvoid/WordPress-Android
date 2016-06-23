@@ -379,7 +379,8 @@ public class Han {
     }
 
     public boolean isKeyboardShown() {
-        InputMethodManager inputMethodManager = (InputMethodManager) solo.getCurrentActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) solo.getCurrentActivity()
+                                                                         .getSystemService(Activity.INPUT_METHOD_SERVICE);
         View focusedView = solo.getCurrentActivity().getCurrentFocus();
 
         if (focusedView == null) {
@@ -402,7 +403,8 @@ public class Han {
     }
 
     public Display getDisplay() {
-        return ((WindowManager) instrumentation.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        return ((WindowManager) instrumentation.getContext()
+                                               .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
     }
 
     public Resources.Theme getTheme() {

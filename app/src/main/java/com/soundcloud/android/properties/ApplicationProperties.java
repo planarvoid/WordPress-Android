@@ -94,7 +94,8 @@ public class ApplicationProperties {
     }
 
     public boolean shouldAllowFeedback() {
-        return BuildType.ALPHA.equals(BUILD_TYPE) || BuildType.BETA.equals(BUILD_TYPE) || BuildType.DEBUG.equals(BUILD_TYPE);
+        return BuildType.ALPHA.equals(BUILD_TYPE) || BuildType.BETA.equals(BUILD_TYPE) || BuildType.DEBUG.equals(
+                BUILD_TYPE);
     }
 
     public String getBuildType() {

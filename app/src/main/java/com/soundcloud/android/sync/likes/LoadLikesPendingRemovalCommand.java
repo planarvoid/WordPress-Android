@@ -25,9 +25,9 @@ class LoadLikesPendingRemovalCommand extends LegacyCommand<Integer, List<Propert
     @Override
     public List<PropertySet> call() throws Exception {
         return database.query(Query.from(Table.Likes.name())
-                .whereEq(TableColumns.Likes._TYPE, input)
-                .order(CREATED_AT, DESC)
-                .whereNotNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
-                .toList(new LikeMapper());
+                                   .whereEq(TableColumns.Likes._TYPE, input)
+                                   .order(CREATED_AT, DESC)
+                                   .whereNotNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
+                       .toList(new LikeMapper());
     }
 }

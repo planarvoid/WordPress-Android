@@ -19,7 +19,7 @@ public class ViewAllRenderer implements CellRenderer<UserSoundsItem> {
     @Override
     public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.sounds_view_all, parent, false);
+                             .inflate(R.layout.sounds_view_all, parent, false);
     }
 
     @Override

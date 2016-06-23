@@ -111,7 +111,8 @@ class CollectionPreviewRenderer implements CellRenderer<CollectionItem> {
     }
 
     private void setThumbnails(List<? extends ImageResource> imageResources, CollectionPreviewView previewView) {
-        previewView.refreshThumbnails(imageResources, resources.getInteger(R.integer.collection_preview_thumbnail_count));
+        previewView.refreshThumbnails(imageResources,
+                                      resources.getInteger(R.integer.collection_preview_thumbnail_count));
     }
 
     private void setLikesDownloadProgressIndicator(LikesItem likes, View likesView) {

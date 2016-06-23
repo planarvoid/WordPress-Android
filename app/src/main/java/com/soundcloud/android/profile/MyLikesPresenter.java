@@ -29,24 +29,24 @@ class MyLikesPresenter extends ProfilePlayablePresenter<List<PropertySet>> {
                      PlayableListUpdater.Factory updaterFactory,
                      MyProfileOperations profileOperations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
-                clickListenerFactory, updaterFactory);
+              clickListenerFactory, updaterFactory);
         this.profileOperations = profileOperations;
     }
 
     @Override
     protected CollectionBinding<List<PropertySet>, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(profileOperations.pagedLikes(), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.likesPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.likesPagingFunction())
+                                .build();
     }
 
     @Override
     protected CollectionBinding<List<PropertySet>, PlayableItem> onRefreshBinding() {
         return CollectionBinding.from(profileOperations.updatedLikes(), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.likesPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.likesPagingFunction())
+                                .build();
     }
 
     @Override

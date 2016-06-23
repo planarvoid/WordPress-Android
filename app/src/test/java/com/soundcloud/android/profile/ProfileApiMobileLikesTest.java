@@ -50,8 +50,9 @@ public class ProfileApiMobileLikesTest extends AndroidUnitTest {
     public void shouldReturnUserLikesByUrn() throws Exception {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiLikesHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/likes")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userLikes(Urn.forUser(123L)).subscribe(subscriber);
         assertAllLikesEmitted();
@@ -61,8 +62,9 @@ public class ProfileApiMobileLikesTest extends AndroidUnitTest {
     public void shouldReturnUserLikesByNextPageLink() {
         final Observable<ModelCollection<ApiPlayableSource>> results = Observable.just(apiLikesHolder);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userLikes(NEXT_HREF).subscribe(subscriber);
         assertAllLikesEmitted();

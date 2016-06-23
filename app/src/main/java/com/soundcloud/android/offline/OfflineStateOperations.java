@@ -88,8 +88,8 @@ public class OfflineStateOperations {
 
     public Observable<OfflineState> loadLikedTracksOfflineState() {
         return offlineContentStorage.isOfflineLikesEnabled()
-                .flatMap(TO_OFFLINE_LIKES_STATE)
-                .subscribeOn(scheduler);
+                                    .flatMap(TO_OFFLINE_LIKES_STATE)
+                                    .subscribeOn(scheduler);
     }
 
     private Map<OfflineState, TrackCollections> determineState(Urn track) {
@@ -100,8 +100,8 @@ public class OfflineStateOperations {
         final OfflineState likedTrackState = loadLikedTrackState();
         for (OfflineState state : OfflineState.values()) {
             final Collection<Urn> playlists = playlistsState.containsKey(state)
-                    ? playlistsState.get(state)
-                    : Collections.<Urn>emptyList();
+                                              ? playlistsState.get(state)
+                                              : Collections.<Urn>emptyList();
             final TrackCollections collections = populate(isTrackLiked && state.equals(likedTrackState), playlists);
             if (collections != TrackCollections.EMPTY) {
                 map.put(state, collections);

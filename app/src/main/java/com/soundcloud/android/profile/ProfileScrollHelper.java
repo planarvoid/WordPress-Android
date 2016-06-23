@@ -28,7 +28,8 @@ class ProfileScrollHelper
     private float elevationTarget;
 
     @Inject
-    public ProfileScrollHelper() { }
+    public ProfileScrollHelper() {
+    }
 
     @Override
     public void onCreate(final AppCompatActivity activity, Bundle bundle) {

@@ -17,7 +17,16 @@ public class PlaylistQueueItem extends PlayableQueueItem {
                       Urn sourceUrn,
                       Urn queryUrn,
                       boolean blocked) {
-        super(playlistUrn, reposter, source, sourceVersion, queryUrn, relatedEntity, blocked, shouldPersist, sourceUrn, adData);
+        super(playlistUrn,
+              reposter,
+              source,
+              sourceVersion,
+              queryUrn,
+              relatedEntity,
+              blocked,
+              shouldPersist,
+              sourceUrn,
+              adData);
     }
 
     @Override
@@ -45,8 +54,16 @@ public class PlaylistQueueItem extends PlayableQueueItem {
         }
 
         public PlaylistQueueItem build() {
-            return new PlaylistQueueItem(playable, reposter, relatedEntity, source, sourceVersion, adData, shouldPersist,
-                    sourceUrn, queryUrn, blocked);
+            return new PlaylistQueueItem(playable,
+                                         reposter,
+                                         relatedEntity,
+                                         source,
+                                         sourceVersion,
+                                         adData,
+                                         shouldPersist,
+                                         sourceUrn,
+                                         queryUrn,
+                                         blocked);
         }
     }
 }

@@ -40,8 +40,8 @@ public class AdFixtures {
 
     public static AudioAd getAudioAdWithCustomCTA(String ctaText, Urn monetizableUrn) {
         return AudioAd.create(
-            getApiAudioAdWithCompanion(getApiCompanionAdWithCustomCTA(ctaText), SKIPPABLE),
-            monetizableUrn
+                getApiAudioAdWithCompanion(getApiCompanionAdWithCustomCTA(ctaText), SKIPPABLE),
+                monetizableUrn
         );
     }
 
@@ -69,7 +69,7 @@ public class AdFixtures {
         return VideoAd.create(getApiVideoAd(videoSources, SKIPPABLE), monetizableUrn);
     }
 
-    public static VideoAd getNonskippableVideoAd(Urn monetizableUrn)  {
+    public static VideoAd getNonskippableVideoAd(Urn monetizableUrn) {
         return VideoAd.create(getApiVideoAd(NOT_SKIPPABLE), monetizableUrn);
     }
 
@@ -234,7 +234,7 @@ public class AdFixtures {
     }
 
     public static ApiVideoAd getApiVideoAd(ApiVideoSource apiVideoSource, boolean skippable) {
-        return getApiVideoAd(Collections.singletonList(apiVideoSource), skippable) ;
+        return getApiVideoAd(Collections.singletonList(apiVideoSource), skippable);
     }
 
     public static ApiVideoAd getApiVideoAd(List<ApiVideoSource> apiVideoSources, boolean skippable) {
@@ -248,19 +248,19 @@ public class AdFixtures {
         );
     }
 
-    public static ApiAdsForTrack interstitialAdsForTrack(){
+    public static ApiAdsForTrack interstitialAdsForTrack() {
         return new ApiAdsForTrack(newArrayList(
                 ApiAdWrapper.create(getApiInterstitial()))
         );
     }
 
-    public static ApiAdsForTrack audioAdsForTrack(){
+    public static ApiAdsForTrack audioAdsForTrack() {
         return new ApiAdsForTrack(newArrayList(
                 ApiAdWrapper.create(getApiAudioAd()))
         );
     }
 
-    public static ApiAdsForTrack fullAdsForTrack(){
+    public static ApiAdsForTrack fullAdsForTrack() {
         return new ApiAdsForTrack(newArrayList(
                 ApiAdWrapper.create(getApiAudioAd()),
                 ApiAdWrapper.create(getApiVideoAd()),

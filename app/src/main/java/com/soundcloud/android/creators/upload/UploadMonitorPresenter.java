@@ -121,8 +121,8 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
         if (recording.hasArtwork()) {
             ImageUtils.setImage(recording.getArtwork(), icon,
-                    getDimension(R.dimen.record_progress_icon_width),
-                    getDimension(R.dimen.share_progress_icon_height));
+                                getDimension(R.dimen.record_progress_icon_width),
+                                getDimension(R.dimen.share_progress_icon_height));
         } else {
             icon.setImageDrawable(placeholderGenerator.generateDrawable(String.valueOf(recording.hashCode())));
         }
@@ -150,7 +150,8 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
             setUploadingState();
             uploadProgress.setIndeterminate(false);
             uploadProgress.setProgress(progressWithLimit);
-            uploadStatusText.setText(uploadMonitorFragment.getString(R.string.uploader_event_uploading_percent, progressWithLimit));
+            uploadStatusText.setText(uploadMonitorFragment.getString(R.string.uploader_event_uploading_percent,
+                                                                     progressWithLimit));
         }
     }
 
@@ -225,7 +226,8 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
     private void showCancelDialog() {
         new AlertDialog.Builder(uploadMonitorFragment.getActivity())
-                .setView(new CustomFontViewBuilder(uploadMonitorFragment.getActivity()).setTitle(R.string.dialog_cancel_upload_message).get())
+                .setView(new CustomFontViewBuilder(uploadMonitorFragment.getActivity()).setTitle(R.string.dialog_cancel_upload_message)
+                                                                                       .get())
                 .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

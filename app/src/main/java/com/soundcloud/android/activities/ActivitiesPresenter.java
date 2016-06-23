@@ -40,7 +40,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
                         Navigator navigator,
                         NewItemsIndicator newItemsIndicator) {
         super(swipeRefreshAttacher, RecyclerViewPresenter.Options.list().build(),
-                newItemsIndicator, operations, adapter);
+              newItemsIndicator, operations, adapter);
         this.operations = operations;
         this.adapter = adapter;
         this.trackRepository = trackRepository;
@@ -65,17 +65,17 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
     @Override
     protected CollectionBinding<List<ActivityItem>, ActivityItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(operations.initialActivities())
-                .withAdapter(adapter)
-                .withPager(operations.pagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(operations.pagingFunction())
+                                .build();
     }
 
     @Override
     protected CollectionBinding<List<ActivityItem>, ActivityItem> onRefreshBinding() {
         return CollectionBinding.from(operations.updatedActivities())
-                .withAdapter(adapter)
-                .withPager(operations.pagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(operations.pagingFunction())
+                                .build();
     }
 
     @Override

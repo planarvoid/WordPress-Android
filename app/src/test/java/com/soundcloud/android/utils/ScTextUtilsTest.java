@@ -159,7 +159,7 @@ public class ScTextUtilsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldNotBeValidWithoutAtSymbol(){
+    public void shouldNotBeValidWithoutAtSymbol() {
         expectEmailInvalid("emailaddressexample.com");
     }
 
@@ -186,7 +186,8 @@ public class ScTextUtilsTest extends AndroidUnitTest {
     public void shouldFormatFollowingMessage() {
         assertThat(ScTextUtils.formatFollowingMessage(resources(), 0)).isEqualTo("Followed by you");
         assertThat(ScTextUtils.formatFollowingMessage(resources(), 1)).isEqualTo("Followed by you and 1 other person");
-        assertThat(ScTextUtils.formatFollowingMessage(resources(), 100001)).isEqualTo("Followed by you and 100K other people");
+        assertThat(ScTextUtils.formatFollowingMessage(resources(), 100001)).isEqualTo(
+                "Followed by you and 100K other people");
     }
 
     @Test
@@ -209,11 +210,11 @@ public class ScTextUtilsTest extends AndroidUnitTest {
         assertThat(ScTextUtils.formatSecondsOrMinutes(resources(), 1, TimeUnit.HOURS)).isEqualTo("60 min.");
     }
 
-    private void expectEmailValid(String string){
+    private void expectEmailValid(String string) {
         assertThat(ScTextUtils.isEmail(string)).isTrue();
     }
 
-    private void expectEmailInvalid(String string){
+    private void expectEmailInvalid(String string) {
         assertThat(ScTextUtils.isEmail(string)).isFalse();
     }
 }

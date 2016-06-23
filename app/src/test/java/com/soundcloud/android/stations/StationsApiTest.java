@@ -40,7 +40,9 @@ public class StationsApiTest extends AndroidUnitTest {
     public void shouldReturnAnApiStation() {
         final TestSubscriber<ApiStation> subscriber = new TestSubscriber<>();
         when(stationsExperiment.getVariantName()).thenReturn(Optional.<String>absent());
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STATION.path(stationUrn.toString()))), eq(ApiStation.class)))
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET",
+                                                               ApiEndpoints.STATION.path(stationUrn.toString()))),
+                                        eq(ApiStation.class)))
                 .thenReturn(Observable.just(apiStation));
         api.fetchStation(stationUrn).subscribe(subscriber);
 
@@ -52,7 +54,8 @@ public class StationsApiTest extends AndroidUnitTest {
         final TestSubscriber<ApiStation> subscriber = new TestSubscriber<>();
         when(stationsExperiment.getVariantName()).thenReturn(Optional.of("variant_name"));
         when(apiClientRx.mappedResponse(argThat(
-                isApiRequestTo("GET", ApiEndpoints.STATION.path(stationUrn.toString())).withQueryParam("variant", "variant_name")
+                isApiRequestTo("GET", ApiEndpoints.STATION.path(stationUrn.toString())).withQueryParam("variant",
+                                                                                                       "variant_name")
         ), eq(ApiStation.class))).thenReturn(Observable.just(apiStation));
 
         api.fetchStation(stationUrn).subscribe(subscriber);

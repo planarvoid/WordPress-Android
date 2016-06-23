@@ -67,7 +67,9 @@ public final class OfflineContentChangedEvent {
     }
 
     public static OfflineContentChangedEvent removed(boolean isLikedTrackCollection) {
-        return new OfflineContentChangedEvent(OfflineState.NOT_OFFLINE, Collections.<Urn>emptyList(), isLikedTrackCollection);
+        return new OfflineContentChangedEvent(OfflineState.NOT_OFFLINE,
+                                              Collections.<Urn>emptyList(),
+                                              isLikedTrackCollection);
     }
 
     @Override
@@ -88,10 +90,10 @@ public final class OfflineContentChangedEvent {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("state", state)
-                .add("entities", entities)
-                .add("isLikedTrackCollection", isLikedTrackCollection)
-                .toString();
+                          .add("state", state)
+                          .add("entities", entities)
+                          .add("isLikedTrackCollection", isLikedTrackCollection)
+                          .toString();
     }
 
 }

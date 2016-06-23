@@ -35,12 +35,16 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
 
     public void ignore_testUserBrowser() {
         assertActivityStarted(ProfileActivity.class, Actions.USER_BROWSER);
-        assertActivityStarted(ProfileActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
+        assertActivityStarted(ProfileActivity.class,
+                              Intent.ACTION_VIEW,
+                              Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
     }
 
     public void ignore_testSearch() {
         assertActivityStarted(SearchActivity.class, Actions.SEARCH);
-        assertActivityStarted(SearchActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
+        assertActivityStarted(SearchActivity.class,
+                              Intent.ACTION_VIEW,
+                              Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
     }
 
     public void ignore_testResolve() {
@@ -62,6 +66,6 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         getInstrumentation().waitForIdleSync();
         activity.finish();
         assertTrue("activity " + activity + " is not instance of " + expectedActivity,
-                expectedActivity.isAssignableFrom(activity.getClass()));
+                   expectedActivity.isAssignableFrom(activity.getClass()));
     }
 }

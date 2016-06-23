@@ -88,9 +88,9 @@ class RepostStorage {
 
     private ChangeResult updateRepostCount(PropellerDatabase propeller, Urn urn, int repostCount) {
         return propeller.update(Table.Sounds, ContentValuesBuilder.values()
-                        .put(Sounds.REPOSTS_COUNT, repostCount).get(),
-                filter().whereEq(Sounds._ID, urn.getNumericId())
-                        .whereEq(Sounds._TYPE, getSoundType(urn)));
+                                                                  .put(Sounds.REPOSTS_COUNT, repostCount).get(),
+                                filter().whereEq(Sounds._ID, urn.getNumericId())
+                                        .whereEq(Sounds._TYPE, getSoundType(urn)));
     }
 
     private ContentValues buildContentValuesForRepost(Urn urn) {
@@ -104,10 +104,10 @@ class RepostStorage {
 
     private int obtainNewRepostCount(PropellerDatabase propeller, Urn targetUrn, boolean addRepost) {
         int count = propeller.query(from(Table.SoundView.name())
-                .select(SoundView.REPOSTS_COUNT)
-                .whereEq(SoundView._ID, targetUrn.getNumericId())
-                .whereEq(SoundView._TYPE, getSoundType(targetUrn)))
-                .first(Integer.class);
+                                            .select(SoundView.REPOSTS_COUNT)
+                                            .whereEq(SoundView._ID, targetUrn.getNumericId())
+                                            .whereEq(SoundView._TYPE, getSoundType(targetUrn)))
+                             .first(Integer.class);
         return addRepost ? count + 1 : count - 1;
     }
 

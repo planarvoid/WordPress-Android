@@ -28,7 +28,7 @@ class PlaybackCompletionListener implements MediaPlayer.OnCompletionListener {
             mediaPlayerAdapter.setResumeTimeAndInvokeErrorListener(mediaPlayer, lastPosition);
 
             Log.w(PlaybackService.TAG, "premature end of track [lastPosition = " + lastPosition
-                    + ", duration = " + duration + ", diff = "+ (duration - lastPosition) + "]");
+                    + ", duration = " + duration + ", diff = " + (duration - lastPosition) + "]");
 
         } else if (mediaPlayerAdapter.isInErrorState()) {
             // onComplete must have been called in error state
@@ -44,12 +44,12 @@ class PlaybackCompletionListener implements MediaPlayer.OnCompletionListener {
     }
 
     private long getTargetStopPosition(MediaPlayer mediaPlayer) {
-        if (mediaPlayerAdapter.hasValidSeekPosition()){
+        if (mediaPlayerAdapter.hasValidSeekPosition()) {
             final long seekPos = mediaPlayerAdapter.getSeekPosition();
             Log.d(PlaybackService.TAG, "Calculating end pos from Seek position " + seekPos);
             return seekPos;
 
-        } else if (mediaPlayerAdapter.isTryingToResumePlayback()){
+        } else if (mediaPlayerAdapter.isTryingToResumePlayback()) {
             final long resumeTime = mediaPlayerAdapter.getResumeTime();
             Log.d(PlaybackService.TAG, "Calculating end pos from resume position " + resumeTime);
             return resumeTime;

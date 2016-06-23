@@ -56,38 +56,38 @@ public class DeviceHelperTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getDeviceNameReturnsManufacturerAndModelIfModelDoesNotContainsManufacturer(){
+    public void getDeviceNameReturnsManufacturerAndModelIfModelDoesNotContainsManufacturer() {
         when(buildHelper.getModel()).thenReturn("GT-I9082");
         when(buildHelper.getManufacturer()).thenReturn("Samsung");
         assertThat(deviceHelper.getDeviceName()).isEqualTo("Samsung GT-I9082");
     }
 
     @Test
-    public void getDeviceNameReturnsModelOnlyIfModelContainsManufacturer(){
+    public void getDeviceNameReturnsModelOnlyIfModelContainsManufacturer() {
         when(buildHelper.getModel()).thenReturn("Samsung GT-I9082");
         when(buildHelper.getManufacturer()).thenReturn("Samsung");
         assertThat(deviceHelper.getDeviceName()).isEqualTo("Samsung GT-I9082");
     }
 
     @Test
-    public void getDeviceNameReturnsManufacturerOnlyIfNoModel(){
+    public void getDeviceNameReturnsManufacturerOnlyIfNoModel() {
         when(buildHelper.getManufacturer()).thenReturn("Samsung");
         assertThat(deviceHelper.getDeviceName()).isEqualTo("Samsung");
     }
 
     @Test
-    public void getDeviceNameReturnsModelOnlyIfNoManufacturer(){
+    public void getDeviceNameReturnsModelOnlyIfNoManufacturer() {
         when(buildHelper.getModel()).thenReturn("Samsung GT-I9082");
         assertThat(deviceHelper.getDeviceName()).isEqualTo("Samsung GT-I9082");
     }
 
     @Test
-    public void getDeviceNameReturnsDefaultNameWithNoManufacturerOrModel(){
+    public void getDeviceNameReturnsDefaultNameWithNoManufacturerOrModel() {
         assertThat(deviceHelper.getDeviceName()).isEqualTo("unknown device");
     }
 
     @Test
-    public void getPackageNameReturnsPackageNameFromContext(){
+    public void getPackageNameReturnsPackageNameFromContext() {
         assertThat(deviceHelper.getPackageName()).isEqualTo(PACKAGE_NAME);
     }
 

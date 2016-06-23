@@ -20,7 +20,7 @@ public class ApiRequestExceptionTest extends AndroidUnitTest {
     }
 
     @Test
-    public void errorKeyIsSetFromBadRequest () {
+    public void errorKeyIsSetFromBadRequest() {
         assertThat(ApiRequestException.badRequest(request, response, "some_error").errorKey())
                 .isEqualTo("some_error");
     }

@@ -43,7 +43,9 @@ public class LoginLayout extends AuthLayout {
         super(context, attrs, defStyle);
     }
 
-    public @NotNull LoginHandler getLoginHandler() {
+    public
+    @NotNull
+    LoginHandler getLoginHandler() {
         return loginHandler;
     }
 
@@ -85,25 +87,26 @@ public class LoginLayout extends AuthLayout {
         emailField.setThreshold(0);
 
         ScTextUtils.clickify(((TextView) findViewById(R.id.txt_i_forgot_my_password)),
-                getResources().getString(R.string.authentication_I_forgot_my_password),
-                new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        getLoginHandler().onRecoverPassword(emailField.getText().toString());
-                    }
-                }, true, false);
+                             getResources().getString(R.string.authentication_I_forgot_my_password),
+                             new ScTextUtils.ClickSpan.OnClickListener() {
+                                 @Override
+                                 public void onClick() {
+                                     getLoginHandler().onRecoverPassword(emailField.getText().toString());
+                                 }
+                             }, true, false);
 
         ScTextUtils.clickify(((TextView) findViewById(R.id.tou_reminder)),
-                getResources().getString(R.string.onboarding_tou_reminder_link_highlight),
-                new ScTextUtils.ClickSpan.OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        getLoginHandler().onShowTermsOfUse();
-                    }
-                }, true, false);
+                             getResources().getString(R.string.onboarding_tou_reminder_link_highlight),
+                             new ScTextUtils.ClickSpan.OnClickListener() {
+                                 @Override
+                                 public void onClick() {
+                                     getLoginHandler().onShowTermsOfUse();
+                                 }
+                             }, true, false);
     }
 
-    @OnEditorAction(R.id.txt_password) @SuppressWarnings({"SimplifiableIfStatement"})
+    @OnEditorAction(R.id.txt_password)
+    @SuppressWarnings({"SimplifiableIfStatement"})
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         boolean done = actionId == EditorInfo.IME_ACTION_DONE;
         boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;

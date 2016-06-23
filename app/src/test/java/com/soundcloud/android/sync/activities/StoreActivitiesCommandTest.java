@@ -34,10 +34,10 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         command = new StoreActivitiesCommand(propeller(),
-                new StoreUsersCommand(propeller()),
-                new StoreTracksCommand(propeller()),
-                new StorePlaylistsCommand(propeller()),
-                new StoreCommentCommand(propeller()));
+                                             new StoreUsersCommand(propeller()),
+                                             new StoreTracksCommand(propeller()),
+                                             new StorePlaylistsCommand(propeller()),
+                                             new StoreCommentCommand(propeller()));
     }
 
     @Test
@@ -112,7 +112,9 @@ public class StoreActivitiesCommandTest extends StorageIntegrationTest {
         long commentId = propeller().query(from(Comments.TABLE).select(Comments._ID)).first(Long.class);
         assertThat(commentId).isNotNull();
         databaseAssertions().assertCommentActivityInserted(commentId,
-                track.getUrn(), commenter.getUrn(), commentActivity.getCreatedAt());
+                                                           track.getUrn(),
+                                                           commenter.getUrn(),
+                                                           commentActivity.getCreatedAt());
     }
 
     @Test

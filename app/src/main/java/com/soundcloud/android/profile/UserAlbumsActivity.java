@@ -33,7 +33,9 @@ public class UserAlbumsActivity extends PlayerActivity {
     }
 
     @Override
-    public Screen getScreen() { return Screen.USER_ALBUMS; }
+    public Screen getScreen() {
+        return Screen.USER_ALBUMS;
+    }
 
     private void attachFragment() {
         final Urn userUrn = getIntent().getParcelableExtra(EXTRA_USER_URN);

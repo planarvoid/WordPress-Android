@@ -53,8 +53,13 @@ public class PostsSyncerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        syncer = new PostsSyncer<>(loadPostedPlaylistUrns, fetcyMyPlaylists,
-                storePlaylistPosts, removePlaylistPosts, fetchPostResources, storePostResources, eventBus);
+        syncer = new PostsSyncer<>(loadPostedPlaylistUrns,
+                                   fetcyMyPlaylists,
+                                   storePlaylistPosts,
+                                   removePlaylistPosts,
+                                   fetchPostResources,
+                                   storePostResources,
+                                   eventBus);
 
         post1 = createPost(Urn.forPlaylist(123L), new Date(100L), true);
         post2 = createPost(Urn.forPlaylist(456L), new Date(200L), false);

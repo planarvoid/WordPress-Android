@@ -111,9 +111,9 @@ public abstract class Screen {
     @Override
     public String toString() {
         return String.format("Page: %s, Activity: %s, CurrentActivity: %s",
-                getClass().getSimpleName(),
-                getActivity().getSimpleName(),
-                testDriver.getCurrentActivity().toString()
+                             getClass().getSimpleName(),
+                             getActivity().getSimpleName(),
+                             testDriver.getCurrentActivity().toString()
         );
     }
 }

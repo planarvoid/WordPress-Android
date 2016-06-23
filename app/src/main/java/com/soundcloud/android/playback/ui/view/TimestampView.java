@@ -147,7 +147,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         }
     }
 
-    private void resetBufferingStates(View view){
+    private void resetBufferingStates(View view) {
         ValueAnimator toOpaque = ObjectAnimator.ofFloat(view, "alpha", view.getAlpha(), 1);
         toOpaque.setDuration(BUFFERING_RESET_ANIMATION_DURATION);
         toOpaque.start();
@@ -231,7 +231,10 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private void animateFromScrubMode() {
         timestampAnimator = new AnimatorSet();
 
-        final ObjectAnimator translationY = ObjectAnimator.ofFloat(timestampLayout, "translationY", timestampLayout.getTranslationY(), 0);
+        final ObjectAnimator translationY = ObjectAnimator.ofFloat(timestampLayout,
+                                                                   "translationY",
+                                                                   timestampLayout.getTranslationY(),
+                                                                   0);
         timestampAnimator.playTogether(
                 translationY,
                 ObjectAnimator.ofFloat(timestampLayout, "scaleX", timestampLayout.getScaleX(), 1),

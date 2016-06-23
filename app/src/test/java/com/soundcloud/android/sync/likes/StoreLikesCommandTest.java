@@ -53,20 +53,20 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
         command.call(asList(trackLike));
         // set the removal date
         propeller().update(Likes, values()
-                        .put(REMOVED_AT, 123L)
-                        .put(ADDED_AT, 123L)
-                        .get(),
-                filter().whereEq("_id", trackLike.get(TARGET_URN).getNumericId()));
+                                   .put(REMOVED_AT, 123L)
+                                   .put(ADDED_AT, 123L)
+                                   .get(),
+                           filter().whereEq("_id", trackLike.get(TARGET_URN).getNumericId()));
 
         // replace the like, removal date should disappear
         command.call(asList(trackLike));
 
         assertThat(select(from(Likes.name()))).counts(1);
         assertThat(select(from(Likes.name())
-                .whereEq(_ID, trackLike.get(TARGET_URN).getNumericId())
-                .whereEq(_TYPE, TYPE_TRACK)
-                .whereEq(CREATED_AT, trackLike.get(LikeProperty.CREATED_AT).getTime())
-                .whereNull(ADDED_AT)
-                .whereNull(REMOVED_AT))).counts(1);
+                                  .whereEq(_ID, trackLike.get(TARGET_URN).getNumericId())
+                                  .whereEq(_TYPE, TYPE_TRACK)
+                                  .whereEq(CREATED_AT, trackLike.get(LikeProperty.CREATED_AT).getTime())
+                                  .whereNull(ADDED_AT)
+                                  .whereNull(REMOVED_AT))).counts(1);
     }
 }

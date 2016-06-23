@@ -39,7 +39,8 @@ import android.view.View;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements TrackLikesHeaderView.Listener {
+public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment>
+        implements TrackLikesHeaderView.Listener {
 
     private final TrackLikesHeaderViewFactory headerViewFactory;
     private final OfflineStateOperations offlineStateOperations;
@@ -140,8 +141,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new OfflineLikesStateSubscriber()),
                 offlineContentOperations.getOfflineLikedTracksStatusChanges()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new UpdateDownloadButtonSubscriber())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(new UpdateDownloadButtonSubscriber())
         );
     }
 
@@ -180,9 +181,10 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Override
     public void onShuffle() {
         playbackInitiator.playTracksShuffled(likeOperations.likedTrackUrns(),
-                new PlaySessionSource(Screen.LIKES), featureOperations.isOfflineContentEnabled())
-                .doOnCompleted(sendShuffleLikesAnalytics)
-                .subscribe(expandPlayerSubscriberProvider.get());
+                                             new PlaySessionSource(Screen.LIKES),
+                                             featureOperations.isOfflineContentEnabled())
+                         .doOnCompleted(sendShuffleLikesAnalytics)
+                         .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     @Override
@@ -206,7 +208,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         } else {
             fireAndForget(offlineContentOperations.disableOfflineLikedTracks());
             eventBus.publish(EventQueue.TRACKING,
-                    OfflineInteractionEvent.fromRemoveOfflineLikes(Screen.LIKES.get()));
+                             OfflineInteractionEvent.fromRemoveOfflineLikes(Screen.LIKES.get()));
         }
     }
 

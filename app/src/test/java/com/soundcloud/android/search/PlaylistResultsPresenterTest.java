@@ -73,7 +73,9 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), null);
         presenter.onItemClicked(view, 0);
 
-        verify(navigator).openPlaylist(fragmentRule.getActivity(), clickedPlaylist.getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
+        verify(navigator).openPlaylist(fragmentRule.getActivity(),
+                                       clickedPlaylist.getUrn(),
+                                       Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     @Test
@@ -109,7 +111,7 @@ public class PlaylistResultsPresenterTest extends AndroidUnitTest {
     private void fakePlaylistResultsForTag(String searchTag) {
         ApiPlaylistCollection collection = new ApiPlaylistCollection(singletonList(playlist), null, null);
         SearchResult searchResult = SearchResult.fromPropertySetSource(collection.getCollection(),
-                Optional.<Link>absent(), Optional.<Urn>absent());
+                                                                       Optional.<Link>absent(), Optional.<Urn>absent());
         when(operations.playlistsForTag(searchTag)).thenReturn(Observable.just(searchResult));
 
         Bundle fragmentArgs = new Bundle();

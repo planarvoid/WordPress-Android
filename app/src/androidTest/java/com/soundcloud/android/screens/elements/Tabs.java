@@ -46,6 +46,7 @@ public class Tabs {
         public TabsVisibleCondition(Tabs tabs) {
             this.tabs = tabs;
         }
+
         @Override
         public boolean isSatisfied() {
             return tabs.isVisible();

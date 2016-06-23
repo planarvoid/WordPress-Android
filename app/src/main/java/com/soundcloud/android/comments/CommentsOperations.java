@@ -56,18 +56,19 @@ class CommentsOperations {
     Observable<PublicApiComment> addComment(Urn trackUrn, String commentText, long timestamp) {
 
         final ApiRequest request = ApiRequest.post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
-                .forPublicApi()
-                .withContent(new CommentHolder(commentText, timestamp))
-                .build();
+                                             .forPublicApi()
+                                             .withContent(new CommentHolder(commentText, timestamp))
+                                             .build();
 
         return apiClientRx.mappedResponse(request, PublicApiComment.class).subscribeOn(scheduler);
     }
 
     Observable<CommentsCollection> comments(Urn trackUrn) {
-        final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId())).forPublicApi()
-                .addQueryParam("linked_partitioning", "1")
-                .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
-                .build();
+        final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+                                             .forPublicApi()
+                                             .addQueryParam("linked_partitioning", "1")
+                                             .addQueryParamIfAbsent(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
+                                             .build();
         return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
     }
 

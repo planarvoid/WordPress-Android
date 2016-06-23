@@ -55,7 +55,7 @@ public class SearchTracker {
     void trackSearchSubmission(SearchType searchType, Urn queryUrn) {
         if (queryUrn != Urn.NOT_SET) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.searchStart(searchType.getScreen(),
-                    new SearchQuerySourceInfo(queryUrn)));
+                                                                          new SearchQuerySourceInfo(queryUrn)));
         }
     }
 
@@ -88,23 +88,23 @@ public class SearchTracker {
     void trackPremiumResultsScreenEvent(Urn queryUrn) {
         if (queryUrn != null && queryUrn != Urn.NOT_SET) {
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(getPremiumTrackingScreen().get(),
-                    new SearchQuerySourceInfo(queryUrn)));
+                                                                     new SearchQuerySourceInfo(queryUrn)));
         }
     }
 
     void trackResultsUpsellClick(SearchType searchType) {
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeFunnelEvent.forSearchResultsClick(searchType.getScreen()));
+                         UpgradeFunnelEvent.forSearchResultsClick(searchType.getScreen()));
     }
 
     void trackPremiumResultsUpsellImpression() {
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeFunnelEvent.forSearchPremiumResultsImpression(getPremiumTrackingScreen()));
+                         UpgradeFunnelEvent.forSearchPremiumResultsImpression(getPremiumTrackingScreen()));
     }
 
     void trackPremiumResultsUpsellClick() {
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeFunnelEvent.forSearchPremiumResultsClick(getPremiumTrackingScreen()));
+                         UpgradeFunnelEvent.forSearchPremiumResultsClick(getPremiumTrackingScreen()));
     }
 
     boolean shouldSendResultsScreenEvent(SearchType searchType) {
@@ -132,13 +132,13 @@ public class SearchTracker {
         final SearchResultItem searchResultItem = SearchResultItem.fromUrn(urn);
         if (searchResultItem.isTrack()) {
             eventBus.publish(EventQueue.TRACKING,
-                    SearchEvent.tapTrackOnScreen(screen, searchQuerySourceInfo));
+                             SearchEvent.tapTrackOnScreen(screen, searchQuerySourceInfo));
         } else if (searchResultItem.isPlaylist()) {
             eventBus.publish(EventQueue.TRACKING,
-                    SearchEvent.tapPlaylistOnScreen(screen, searchQuerySourceInfo));
+                             SearchEvent.tapPlaylistOnScreen(screen, searchQuerySourceInfo));
         } else if (searchResultItem.isUser()) {
             eventBus.publish(EventQueue.TRACKING,
-                    SearchEvent.tapUserOnScreen(screen, searchQuerySourceInfo));
+                             SearchEvent.tapUserOnScreen(screen, searchQuerySourceInfo));
         }
     }
 

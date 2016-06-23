@@ -46,7 +46,8 @@ public class OptimisedImageView extends ImageView {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.OptimisedImageView);
         showGradient = a.getBoolean(R.styleable.OptimisedImageView_showGradient, DEFAULT_SHOW_GRADIENT);
         gradientStart = a.getFloat(R.styleable.OptimisedImageView_gradientStart, DEFAULT_GRADIENT_START);
-        gradientStartColor = a.getColor(R.styleable.OptimisedImageView_gradientStartColor, DEFAULT_GRADIENT_START_COLOR);
+        gradientStartColor = a.getColor(R.styleable.OptimisedImageView_gradientStartColor,
+                                        DEFAULT_GRADIENT_START_COLOR);
         gradientEndColor = a.getColor(R.styleable.OptimisedImageView_gradientEndColor, DEFAULT_GRADIENT_END_COLOR);
         a.recycle();
     }
@@ -54,7 +55,7 @@ public class OptimisedImageView extends ImageView {
     private void initGradientDrawAllocations() {
         gradientPaint = new Paint();
         gradientRect = new Rect();
-        gradientColors = new int[] {Color.TRANSPARENT, gradientStartColor, gradientEndColor};
+        gradientColors = new int[]{Color.TRANSPARENT, gradientStartColor, gradientEndColor};
     }
 
     @SuppressLint("DrawAllocation")
@@ -70,7 +71,7 @@ public class OptimisedImageView extends ImageView {
         // We have to allocate the shader in onLayout since it depends on the View height
         final int startY = top + (int) ((bottom - top) * gradientStart);
         final LinearGradient shader = new LinearGradient(0, startY, 0, bottom, gradientColors, GRADIENT_POSITIONS,
-                Shader.TileMode.CLAMP);
+                                                         Shader.TileMode.CLAMP);
         gradientPaint.setShader(shader);
     }
 

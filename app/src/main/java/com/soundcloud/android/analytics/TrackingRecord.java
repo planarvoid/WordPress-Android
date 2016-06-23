@@ -40,9 +40,9 @@ public class TrackingRecord {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(TrackingRecord.class)
-                .add("id", id)
-                .add("timestamp", timestamp)
-                .add("backend", backend)
-                .add("data", data).toString();
+                          .add("id", id)
+                          .add("timestamp", timestamp)
+                          .add("backend", backend)
+                          .add("data", data).toString();
     }
 }

@@ -72,9 +72,15 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
-        operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, tracksStorage,
-                playlistStorage, providerOf(loadPlaylistTrackUrns),
-                addTrackToPlaylistCommand, removeTrackFromPlaylistCommand, editPlaylistCommand, eventBus);
+        operations = new PlaylistOperations(Schedulers.immediate(),
+                                            syncInitiator,
+                                            tracksStorage,
+                                            playlistStorage,
+                                            providerOf(loadPlaylistTrackUrns),
+                                            addTrackToPlaylistCommand,
+                                            removeTrackFromPlaylistCommand,
+                                            editPlaylistCommand,
+                                            eventBus);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
 
     }
@@ -94,7 +100,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistWithTracksFromStorage() {
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(track1, track2)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
+                track1,
+                track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlist.toPropertySet()));
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
@@ -105,8 +113,11 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedPlaylistSyncsThenLoadsFromStorage() {
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true)));
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(track1, track2)));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
+                                                                                                             true)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
+                track1,
+                track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlist.toPropertySet()));
 
         operations.updatedPlaylistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
@@ -119,9 +130,13 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingIfPlaylistMetaDataMissing() {
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true)));
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(track1, track2)));
-        when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(PropertySet.<PropertySet>create()), Observable.just(playlist.toPropertySet()));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
+                                                                                                             true)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
+                track1,
+                track2)));
+        when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(PropertySet.<PropertySet>create()),
+                                                                         Observable.just(playlist.toPropertySet()));
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
@@ -133,9 +148,13 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingAPlaylistMissingExceptionIfPlaylistMetaDataStillMissing() {
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true)));
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(track1, track2)));
-        when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(PropertySet.<PropertySet>create()), Observable.just(PropertySet.create()));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
+                                                                                                             true)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
+                track1,
+                track2)));
+        when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(PropertySet.<PropertySet>create()),
+                                                                         Observable.just(PropertySet.create()));
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
@@ -148,16 +167,21 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     public void loadsPlaylistAndEmitsAgainAfterSyncIfNoTracksAvailable() {
         final List<PropertySet> emptyTrackList = Collections.emptyList();
         final List<PropertySet> trackList = Arrays.asList(track1, track2);
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true)));
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.just(emptyTrackList), Observable.just(trackList));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
+                                                                                                             true)));
+        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.just(emptyTrackList),
+                                                                         Observable.just(trackList));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlist.toPropertySet()));
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlist.toPropertySet(), TrackItem.fromPropertySets().call(emptyTrackList)));
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlist.toPropertySet(), TrackItem.fromPropertySets().call(trackList)));
+        inOrder.verify(playlistInfoObserver)
+               .onNext(new PlaylistWithTracks(playlist.toPropertySet(),
+                                              TrackItem.fromPropertySets().call(emptyTrackList)));
+        inOrder.verify(playlistInfoObserver)
+               .onNext(new PlaylistWithTracks(playlist.toPropertySet(), TrackItem.fromPropertySets().call(trackList)));
         inOrder.verify(playlistInfoObserver).onCompleted();
     }
 
@@ -174,7 +198,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncLocalPlaylists();
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlistProperties, TrackItem.fromPropertySets().call(trackList)));
+        inOrder.verify(playlistInfoObserver)
+               .onNext(new PlaylistWithTracks(playlistProperties, TrackItem.fromPropertySets().call(trackList)));
         inOrder.verify(playlistInfoObserver).onCompleted();
         verify(syncInitiator, never()).syncPlaylist(playlistProperties.get(PlaylistProperty.URN));
     }
@@ -182,7 +207,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldCreateNewPlaylistUsingCommand() {
         TestObserver<Urn> observer = new TestObserver<>();
-        when(tracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(Observable.just(Urn.forPlaylist(1L)));
+        when(tracksStorage.createNewPlaylist("title",
+                                             true,
+                                             Urn.forTrack(123))).thenReturn(Observable.just(Urn.forPlaylist(1L)));
 
         operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
 
@@ -193,7 +220,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     public void shouldPublishEntityChangedEventAfterCreatingPlaylist() {
         TestObserver<Urn> observer = new TestObserver<>();
         final Urn localPlaylist = Urn.newLocalPlaylist();
-        when(tracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(Observable.just(localPlaylist));
+        when(tracksStorage.createNewPlaylist("title",
+                                             true,
+                                             Urn.forTrack(123))).thenReturn(Observable.just(localPlaylist));
 
         operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
 
@@ -205,7 +234,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldRequestSystemSyncAfterCreatingPlaylist() throws Exception {
         TestObserver<Urn> observer = new TestObserver<>();
-        when(tracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(Observable.just(Urn.forPlaylist(123)));
+        when(tracksStorage.createNewPlaylist("title",
+                                             true,
+                                             Urn.forTrack(123))).thenReturn(Observable.just(Urn.forPlaylist(123)));
 
         operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
 
@@ -249,7 +280,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublishEntityChangedEventAfterRemovingTrackFromPlaylist() {
-        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class))).thenReturn(Observable.just(1));
+        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class))).thenReturn(
+                Observable.just(1));
 
         operations.removeTrackFromPlaylist(playlist.getUrn(), trackUrn).subscribe();
 
@@ -264,7 +296,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldRequestSystemSyncAfterRemovingTrackFromPlaylist() {
-        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class))).thenReturn(Observable.just(1));
+        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class))).thenReturn(
+                Observable.just(1));
 
         operations.removeTrackFromPlaylist(playlist.getUrn(), trackUrn).subscribe();
 
@@ -313,7 +346,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                 .thenReturn(Observable.<Integer>error(new Exception()));
 
         operations.editPlaylist(playlist.getUrn(), NEW_TITLE, IS_PRIVATE, Arrays.asList(trackUrn))
-                .subscribe(new TestObserver<PropertySet>());
+                  .subscribe(new TestObserver<PropertySet>());
 
         verifyEditPlaylistCommandParams();
         eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);

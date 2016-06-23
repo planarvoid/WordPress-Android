@@ -20,14 +20,14 @@ public class ImageListenerUILAdapterTest {
 
     @Test
     public void shouldAcceptNullFailReasonOnLoadingFailed() throws Exception {
-        ImageListenerUILAdapter adapter =  new ImageListenerUILAdapter(imageListener);
+        ImageListenerUILAdapter adapter = new ImageListenerUILAdapter(imageListener);
         adapter.onLoadingFailed("http://some-uri", view, null);
         verify(imageListener).onLoadingFailed("http://some-uri", view, null);
     }
 
     @Test
     public void shouldAcceptNullFailReasonCauseOnLoadingFailed() throws Exception {
-        ImageListenerUILAdapter adapter =  new ImageListenerUILAdapter(imageListener);
+        ImageListenerUILAdapter adapter = new ImageListenerUILAdapter(imageListener);
         FailReason failReason = mock(FailReason.class);
         when(failReason.getCause()).thenReturn(null);
 
@@ -37,7 +37,7 @@ public class ImageListenerUILAdapterTest {
 
     @Test
     public void shouldGetMessageForValidReasonCauseOnLoadingFailed() throws Exception {
-        ImageListenerUILAdapter adapter =  new ImageListenerUILAdapter(imageListener);
+        ImageListenerUILAdapter adapter = new ImageListenerUILAdapter(imageListener);
         FailReason failReason = mock(FailReason.class);
         when(failReason.getCause()).thenReturn(mock(java.lang.Throwable.class));
 

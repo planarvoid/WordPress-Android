@@ -61,12 +61,12 @@ public final class PromotedTrackingEvent extends TrackingEvent {
     private static PromotedTrackingEvent basePromotedEvent(String kind, PromotedSourceInfo promotedSource,
                                                            List<String> trackingUrls, String screen) {
         return new PromotedTrackingEvent(kind,
-                System.currentTimeMillis(),
-                promotedSource.getAdUrn(),
-                promotedSource.getPromotedItemUrn().toString(),
-                promotedSource.getPromoterUrn(),
-                trackingUrls,
-                screen
+                                         System.currentTimeMillis(),
+                                         promotedSource.getAdUrn(),
+                                         promotedSource.getPromotedItemUrn().toString(),
+                                         promotedSource.getPromoterUrn(),
+                                         trackingUrls,
+                                         screen
         );
     }
 }

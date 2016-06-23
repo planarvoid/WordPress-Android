@@ -65,7 +65,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences,
                            AnalyticsProviderFactory analyticsProviderFactory) {
         this(eventBus, sharedPreferences, AndroidSchedulers.mainThread(),
-                analyticsProviderFactory);
+             analyticsProviderFactory);
     }
 
     public void onAppCreated(Context context) {
@@ -92,7 +92,8 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         Log.d(this, "Subscribing to events");
         CompositeSubscription eventsSubscription = new CompositeSubscription();
         eventsSubscription.add(eventBus.subscribe(EventQueue.TRACKING, new TrackingEventSubscriber()));
-        eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE, new PlaybackPerformanceEventSubscriber()));
+        eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_PERFORMANCE,
+                                                  new PlaybackPerformanceEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_ERROR, new PlaybackErrorEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ONBOARDING, new OnboardEventSubscriber()));
         eventsSubscription.add(eventBus.subscribe(EventQueue.ACTIVITY_LIFE_CYCLE, new ActivityEventSubscriber()));
@@ -117,7 +118,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     private void handleProviderError(Throwable t, AnalyticsProvider provider, String methodName) {
         final String message = String.format("exception while processing %s for provider %s, with error = %s",
-                methodName, provider.getClass(), t.toString());
+                                             methodName, provider.getClass(), t.toString());
         Log.e(this, message);
         ErrorUtils.handleSilentException(message, t);
     }

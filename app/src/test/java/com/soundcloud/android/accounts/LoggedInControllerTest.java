@@ -23,7 +23,7 @@ public class LoggedInControllerTest {
 
     @Before
     public void setUp() throws Exception {
-       lightCycle = new LoggedInController(accountOperations, serviceInitiator);
+        lightCycle = new LoggedInController(accountOperations, serviceInitiator);
     }
 
     @Test

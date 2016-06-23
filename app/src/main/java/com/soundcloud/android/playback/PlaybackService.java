@@ -31,7 +31,8 @@ import java.lang.ref.WeakReference;
 
 // remove this once we remove PlayQueueManager + TrackOperations by moving url loading out
 @SuppressWarnings({"PMD.ExcessiveParameterList"})
-public class PlaybackService extends Service implements Player.PlayerListener, VolumeController.Listener, MediaSessionController.Listener {
+public class PlaybackService extends Service
+        implements Player.PlayerListener, VolumeController.Listener, MediaSessionController.Listener {
     public static final String TAG = "PlaybackService";
     private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
     private static final int SHORT_FADE_DURATION_MS = 600;
@@ -165,7 +166,8 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
     }
 
     public void onFocusLoss(boolean isTransient, boolean canDuck) {
-        Log.d(TAG, "[FOCUS] focusLost(playing=" + streamPlayer.isPlaying() + ", transient=" + isTransient + ", canDuck=" + canDuck + ")");
+        Log.d(TAG,
+              "[FOCUS] focusLost(playing=" + streamPlayer.isPlaying() + ", transient=" + isTransient + ", canDuck=" + canDuck + ")");
         if (streamPlayer.isPlaying()) {
             if (isTransient) {
                 focusLossState = FocusLossState.TRANSIENT;
@@ -202,7 +204,8 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
                 analyticsDispatcher.onStateTransition(currentPlaybackItem.get(), stateTransition);
                 adsController.onPlayStateTransition(stateTransition);
 
-                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                                 correctUnknownDuration(stateTransition, currentPlaybackItem.get()));
 
                 long position = stateTransition.getProgress().getPosition();
 
@@ -223,7 +226,9 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
     public void onProgressEvent(long position, long duration) {
         if (currentPlaybackItem.isPresent()) {
             final PlaybackItem playbackItem = currentPlaybackItem.get();
-            final PlaybackProgressEvent playbackProgress = PlaybackProgressEvent.create(new PlaybackProgress(position, duration), playbackItem.getUrn());
+            final PlaybackProgressEvent playbackProgress = PlaybackProgressEvent.create(new PlaybackProgress(position,
+                                                                                                             duration),
+                                                                                        playbackItem.getUrn());
 
             if (currentPlaybackItem.isPresent()) {
                 playSessionStateProvider.onProgressEvent(playbackProgress);
@@ -256,7 +261,8 @@ public class PlaybackService extends Service implements Player.PlayerListener, V
         return fadeOffset <= fadeDuration && fadeOffset >= -LONG_FADE_PRELOAD_MS;
     }
 
-    private static PlaybackStateTransition correctUnknownDuration(PlaybackStateTransition stateTransition, PlaybackItem playbackItem) {
+    private static PlaybackStateTransition correctUnknownDuration(PlaybackStateTransition stateTransition,
+                                                                  PlaybackItem playbackItem) {
         final PlaybackProgress progress = stateTransition.getProgress();
         if (!progress.isDurationValid()) {
             progress.setDuration(playbackItem.getDuration());

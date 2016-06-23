@@ -17,17 +17,17 @@ public class ViewHelper {
         // for injection
     }
 
-    public void hideView(View view, int hiddenVisibility, boolean animated){
+    public void hideView(View view, int hiddenVisibility, boolean animated) {
         AnimUtils.hideView(view, hiddenVisibility, animated);
     }
 
-    public void showView(View view, boolean animated){
+    public void showView(View view, boolean animated) {
         AnimUtils.showView(view, animated);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void setCircularButtonOutline(View view, final int dimension) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             view.setOutlineProvider(new ViewOutlineProvider() {
                 @Override
                 public void getOutline(View view, Outline outline) {

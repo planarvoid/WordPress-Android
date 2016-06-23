@@ -19,7 +19,8 @@ public class TransactionStateTest {
 
     @Test
     public void transactionIsInProgressWithPurchaseAndStatusObservable() {
-        assertThat(new TransactionState(Observable.<String>empty(), Observable.<PurchaseStatus>empty()).isTransactionInProgress()).isTrue();
+        assertThat(new TransactionState(Observable.<String>empty(),
+                                        Observable.<PurchaseStatus>empty()).isTransactionInProgress()).isTrue();
     }
 
     @Test
@@ -29,7 +30,8 @@ public class TransactionStateTest {
 
     @Test
     public void retrievingStatusWithStatusObservable() {
-        assertThat(new TransactionState(Observable.<String>empty(), Observable.<PurchaseStatus>empty()).isRetrievingStatus()).isTrue();
+        assertThat(new TransactionState(Observable.<String>empty(),
+                                        Observable.<PurchaseStatus>empty()).isRetrievingStatus()).isTrue();
     }
 
     @Test

@@ -91,8 +91,8 @@ public class ApiRequest {
 
     public String getAcceptMediaType() {
         return isPrivate
-                ? PRIVATE_API_ACCEPT_CONTENT_TYPE
-                : PUBLIC_API_ACCEPT_CONTENT_TYPE;
+               ? PRIVATE_API_ACCEPT_CONTENT_TYPE
+               : PUBLIC_API_ACCEPT_CONTENT_TYPE;
     }
 
     public enum Param {
@@ -139,7 +139,7 @@ public class ApiRequest {
                 return new ApiObjectContentRequest(uri, httpMethod, isPrivate, parameters, headers, content);
             } else if (formParts != null) {
                 return new ApiMultipartRequest(uri, httpMethod, isPrivate, parameters, headers,
-                        formParts, progressListener);
+                                               formParts, progressListener);
             } else {
                 return new ApiRequest(uri, httpMethod, isPrivate, parameters, headers);
             }
@@ -208,8 +208,8 @@ public class ApiRequest {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).omitNullValues()
-                .add("uri", uri.toString())
-                .add("httpMethod", httpMethod)
-                .add("isPrivate", isPrivate).toString();
+                          .add("uri", uri.toString())
+                          .add("httpMethod", httpMethod)
+                          .add("isPrivate", isPrivate).toString();
     }
 }

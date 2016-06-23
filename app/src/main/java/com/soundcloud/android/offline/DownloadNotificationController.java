@@ -57,7 +57,9 @@ class DownloadNotificationController {
 
         final int pendingAndCompleted = pendingQueue.size() + previousDownloads.size();
         totalDownloads = currentDownload == null ? pendingAndCompleted : pendingAndCompleted + 1;
-        totalBytesToDownload = currentDownload == null ? completedBytes : completedBytes + currentDownload.getTotalBytes();
+        totalBytesToDownload = currentDownload == null ?
+                               completedBytes :
+                               completedBytes + currentDownload.getTotalBytes();
 
         for (DownloadRequest request : pendingQueue.getRequests()) {
             totalBytesToDownload += MP3Helper.calculateFileSizeInBytes(request.getDuration());
@@ -72,7 +74,8 @@ class DownloadNotificationController {
         } else {
             return updateProgressNotification(currentDownload.request, new ProgressNotificationData(
                     calculateCurrentDownload(previousDownloads.size(), totalDownloads), totalDownloads,
-                    calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()), totalBytesToDownload)));
+                    calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()),
+                                              totalBytesToDownload)));
         }
     }
 
@@ -115,10 +118,10 @@ class DownloadNotificationController {
     private void showNotificationForDownloads(@Nullable DownloadState lastDownload) {
         if (hasStorageErrors()) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
-                    completedWithStorageErrorsNotification());
+                                       completedWithStorageErrorsNotification());
         } else if (lastDownload != null && totalDownloads != getErrorCount()) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
-                    completedNotification(lastDownload.request));
+                                       completedNotification(lastDownload.request));
         } else {
             notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
         }
@@ -157,7 +160,9 @@ class DownloadNotificationController {
             notification.setContentIntent(getPendingIntent(lastDownload.request));
             notification.setContentTitle(resources.getString(R.string.offline_update_paused));
             notification.setContentText(
-                    resources.getString(lastDownload.isNetworkError ? R.string.no_network_connection : R.string.no_wifi_connection));
+                    resources.getString(lastDownload.isNetworkError ?
+                                        R.string.no_network_connection :
+                                        R.string.no_wifi_connection));
 
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, notification.build());
         } else {
@@ -186,13 +191,15 @@ class DownloadNotificationController {
     private void updateProgressNotificationIfChanged(DownloadState currentDownload) {
         ProgressNotificationData newProgressNotificationData = new ProgressNotificationData(
                 calculateCurrentDownload(previousDownloads.size(), totalDownloads), totalDownloads,
-                calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()), totalBytesToDownload));
+                calculateAdjustedProgress((int) (completedBytes + currentDownload.getProgress()),
+                                          totalBytesToDownload));
 
         // this logic is here to throttle notifications spamming, and only update when the notification changed.
         if (!newProgressNotificationData.equals(lastProgressNotificationData)) {
             lastProgressNotificationData = newProgressNotificationData;
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
-                    updateProgressNotification(currentDownload.request, newProgressNotificationData));
+                                       updateProgressNotification(currentDownload.request,
+                                                                  newProgressNotificationData));
         }
     }
 
@@ -204,11 +211,12 @@ class DownloadNotificationController {
         return Math.min(downloaded + 1, total);
     }
 
-    private Notification updateProgressNotification(DownloadRequest request, ProgressNotificationData notificationData) {
+    private Notification updateProgressNotification(DownloadRequest request,
+                                                    ProgressNotificationData notificationData) {
 
         final String downloadDescription = resources
                 .getQuantityString(R.plurals.downloading_track_of_tracks, notificationData.totalDownloads,
-                        notificationData.currentDownload, notificationData.totalDownloads);
+                                   notificationData.currentDownload, notificationData.totalDownloads);
 
         progressNotification.setSmallIcon(R.drawable.ic_notification_cloud);
         progressNotification.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);

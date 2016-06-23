@@ -69,7 +69,8 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public DownloadImageViewElement headerDownloadElement() {
-        return new DownloadImageViewElement(testDriver, testDriver.findOnScreenElement(With.id(R.id.header_download_state)));
+        return new DownloadImageViewElement(testDriver,
+                                            testDriver.findOnScreenElement(With.id(R.id.header_download_state)));
     }
 
     public String getTitle() {
@@ -152,7 +153,7 @@ public class PlaylistDetailsScreen extends Screen {
     private TextElement title() {
         final ViewElement normalTitle = testDriver.findOnScreenElement(With.id(R.id.title));
         return normalTitle.hasVisibility() ? new TextElement(normalTitle) :
-                new TextElement(testDriver.findOnScreenElement(With.id(R.id.title_private)));
+               new TextElement(testDriver.findOnScreenElement(With.id(R.id.title_private)));
     }
 
     private ViewElement headerPlayButton() {

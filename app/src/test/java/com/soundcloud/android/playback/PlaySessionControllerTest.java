@@ -68,9 +68,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlaySessionController(eventBus, adsOperations, adsController, playQueueManager,
-                playSessionStateProvider, castConnectionHelper,
-                InjectionSupport.providerOf(playbackStrategy), playbackToastHelper, accountOperations, playbackServiceInitiator);
+        controller = new PlaySessionController(eventBus,
+                                               adsOperations,
+                                               adsController,
+                                               playQueueManager,
+                                               playSessionStateProvider,
+                                               castConnectionHelper,
+                                               InjectionSupport.providerOf(playbackStrategy),
+                                               playbackToastHelper,
+                                               accountOperations,
+                                               playbackServiceInitiator);
         controller.subscribe();
 
         trackUrn = Urn.forTrack(123);
@@ -94,7 +101,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(videoItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(videoItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
     }
@@ -103,7 +111,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void playQueueTrackChangedHandlerCallsPlayCurrentIfThePlayerIsInPlaySession() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
     }
@@ -113,7 +122,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playbackStrategy.playCurrent()).thenReturn(Observable.<Void>error(new BlockedTrackException(trackUrn)));
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         verify(playbackStrategy).pause();
     }
@@ -123,7 +133,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         final PlaybackStateTransition lastTransition = Mockito.mock(PlaybackStateTransition.class);
         when(lastTransition.playSessionIsActive()).thenReturn(false);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
     }
@@ -135,7 +146,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
 
         final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(videoItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromNewQueue(videoItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
     }
@@ -147,14 +159,16 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
 
         final PlayQueueItem newPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(2));
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(newPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionChanged(newPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
     }
 
     @Test
     public void shouldNotRespondToPlayQueueTrackChangesWhenPlayerIsNotPlaying() {
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
     }
@@ -163,26 +177,36 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void playQueueTrackChangeHandlerShouldPlayCurrentOnTrackIfPreviousItemEndedInError() {
         when(playSessionStateProvider.isInErrorState()).thenReturn(true);
 
-        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
     }
 
     @Test
     public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAY_QUEUE_COMPLETE, trackUrn));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.IDLE,
+                                                     PlayStateReason.PLAY_QUEUE_COMPLETE,
+                                                     trackUrn));
         verify(playQueueManager, never()).saveCurrentPosition();
     }
 
     @Test
     public void onStateTransitionForBufferingDoesNotSaveQueuePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, trackUrn, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                     PlayStateReason.NONE,
+                                                     trackUrn,
+                                                     123,
+                                                     456));
         verify(playQueueManager, never()).saveCurrentPosition();
     }
 
     @Test
     public void onStateTransitionForPlayingDoesNotSaveQueuePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, 123, 456));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
+                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, 123, 456));
         verify(playQueueManager, never()).saveCurrentPosition();
     }
 
@@ -517,7 +541,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         setupSetNewQueue(track, playSessionSource, playQueue, Observable.just(PlaybackResult.success()));
 
         controller.playNewQueue(playQueue, track, 0, playSessionSource)
-                .subscribe(subscriber);
+                  .subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0).isSuccess()).isTrue();
@@ -529,12 +553,17 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(TestPlayQueue.fromUrns(Collections.singletonList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
-                .subscribe(subscriber);
+        controller.playNewQueue(TestPlayQueue.fromUrns(Collections.singletonList(track), PlaySessionSource.EMPTY),
+                                track,
+                                0,
+                                PlaySessionSource.EMPTY)
+                  .subscribe(subscriber);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0).isSuccess()).isFalse();
-        assertThat(subscriber.getOnNextEvents().get(0).getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.UNSKIPPABLE);
+        assertThat(subscriber.getOnNextEvents()
+                             .get(0)
+                             .getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.UNSKIPPABLE);
     }
 
     @Test
@@ -543,8 +572,11 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         Urn track = Urn.forTrack(123L);
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
-        controller.playNewQueue(TestPlayQueue.fromUrns(Collections.singletonList(track), PlaySessionSource.EMPTY), track, 0, PlaySessionSource.EMPTY)
-                .subscribe(subscriber);
+        controller.playNewQueue(TestPlayQueue.fromUrns(Collections.singletonList(track), PlaySessionSource.EMPTY),
+                                track,
+                                0,
+                                PlaySessionSource.EMPTY)
+                  .subscribe(subscriber);
 
         assertThat(playCurrentSubject.hasObservers()).isFalse();
     }
@@ -594,7 +626,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         final TestSubscriber<PlaybackResult> subscriber = new TestSubscriber<>();
         controller.playNewQueue(playQueue, track, 0, playSessionSource)
-                .subscribe(subscriber);
+                  .subscribe(subscriber);
 
         assertThat(playCurrentSubject.hasObservers()).isTrue();
     }
@@ -649,7 +681,10 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         assertThat(playCurrentSubject.hasObservers()).isTrue();
     }
 
-    private void setupSetNewQueue(Urn track, PlaySessionSource playSessionSource, PlayQueue playQueue, Observable<PlaybackResult> result) {
+    private void setupSetNewQueue(Urn track,
+                                  PlaySessionSource playSessionSource,
+                                  PlayQueue playQueue,
+                                  Observable<PlaybackResult> result) {
         when(playbackStrategy.setNewQueue(playQueue, track, 0, playSessionSource))
                 .thenReturn(result);
     }

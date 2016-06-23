@@ -36,7 +36,10 @@ public class UIEventTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         promotedSourceInfo = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.of(PROMOTER_URN), null);
-        promotedSourceInfoWithNoPromoter = new PromotedSourceInfo("dfp:ad:123", TRACK_URN, Optional.<Urn>absent(), null);
+        promotedSourceInfoWithNoPromoter = new PromotedSourceInfo("dfp:ad:123",
+                                                                  TRACK_URN,
+                                                                  Optional.<Urn>absent(),
+                                                                  null);
         trackMetadata = EntityMetadata.from(buildPlayablePropertySet(TRACK_URN));
         playlistMetadata = EntityMetadata.from(buildPlayablePropertySet(PLAYLIST_URN));
     }
@@ -168,7 +171,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromLikedPromotedTrackToggleWithNoPromoter() {
         EventContextMetadata eventContext = eventContextBuilder().build();
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, TRACK_URN, eventContext, promotedSourceInfoWithNoPromoter, trackMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true,
+                                                 TRACK_URN,
+                                                 eventContext,
+                                                 promotedSourceInfoWithNoPromoter,
+                                                 trackMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
@@ -227,7 +234,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromLikedPromotedPlaylist() {
         EventContextMetadata eventContext = eventContextBuilder().build();
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true,
+                                                 PLAYLIST_URN,
+                                                 eventContext,
+                                                 promotedSourceInfo,
+                                                 playlistMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
@@ -245,7 +256,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromLikedPromotedPlaylistWithNoPromoter() {
         EventContextMetadata eventContext = eventContextBuilder().build();
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, PLAYLIST_URN, eventContext, promotedSourceInfoWithNoPromoter, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true,
+                                                 PLAYLIST_URN,
+                                                 eventContext,
+                                                 promotedSourceInfoWithNoPromoter,
+                                                 playlistMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
@@ -263,7 +278,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromLikedPromotedPlaylistWithPlaylistPage() {
         EventContextMetadata eventContext = eventContextBuilder().pageUrn(PLAYLIST_URN).build();
-        UIEvent uiEvent = UIEvent.fromToggleLike(true, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleLike(true,
+                                                 PLAYLIST_URN,
+                                                 eventContext,
+                                                 promotedSourceInfo,
+                                                 playlistMetadata);
 
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
@@ -349,7 +368,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromUnlikedPromotedTrackWithNoPromoter() {
         EventContextMetadata eventContext = eventContextBuilder().build();
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, TRACK_URN, eventContext, promotedSourceInfoWithNoPromoter, trackMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false,
+                                                 TRACK_URN,
+                                                 eventContext,
+                                                 promotedSourceInfoWithNoPromoter,
+                                                 trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
@@ -400,7 +423,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromUnlikedPromotedPlaylist() {
         EventContextMetadata eventContext = eventContextBuilder().build();
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false,
+                                                 PLAYLIST_URN,
+                                                 eventContext,
+                                                 promotedSourceInfo,
+                                                 playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
@@ -417,7 +444,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromUnlikedPromotedPlaylistWithPlaylistPage() {
         EventContextMetadata eventContext = eventContextBuilder().pageUrn(PLAYLIST_URN).build();
-        UIEvent uiEvent = UIEvent.fromToggleLike(false, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleLike(false,
+                                                 PLAYLIST_URN,
+                                                 eventContext,
+                                                 promotedSourceInfo,
+                                                 playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getInvokerScreen()).isEqualTo("invoker_screen");
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
@@ -497,7 +528,9 @@ public class UIEventTest extends AndroidUnitTest {
         TrackSourceInfo info = new TrackSourceInfo(Screen.STREAM.get(), true);
         info.setSource("stream", "");
 
-        EventContextMetadata eventContext = eventContextNoInvokerScreen().trackSourceInfo(info).isFromOverflow(true).build();
+        EventContextMetadata eventContext = eventContextNoInvokerScreen().trackSourceInfo(info)
+                                                                         .isFromOverflow(true)
+                                                                         .build();
         UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, null, trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
@@ -570,7 +603,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromRepostedPromotedTrackWithNoPromoter() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().build();
-        UIEvent uiEvent = UIEvent.fromToggleRepost(true, TRACK_URN, eventContext, promotedSourceInfoWithNoPromoter, trackMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true,
+                                                   TRACK_URN,
+                                                   eventContext,
+                                                   promotedSourceInfoWithNoPromoter,
+                                                   trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
 
@@ -623,7 +660,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromRepostedPromotedPlaylist() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().build();
-        UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true,
+                                                   PLAYLIST_URN,
+                                                   eventContext,
+                                                   promotedSourceInfo,
+                                                   playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
 
@@ -639,7 +680,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromRepostedPromotedPlaylistWithPlaylistPage() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().pageUrn(PLAYLIST_URN).build();
-        UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true,
+                                                   PLAYLIST_URN,
+                                                   eventContext,
+                                                   promotedSourceInfo,
+                                                   playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
 
@@ -655,7 +700,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromRepostedPromotedPlaylistWithNoPromoter() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().build();
-        UIEvent uiEvent = UIEvent.fromToggleRepost(true, PLAYLIST_URN, eventContext, promotedSourceInfoWithNoPromoter, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleRepost(true,
+                                                   PLAYLIST_URN,
+                                                   eventContext,
+                                                   promotedSourceInfoWithNoPromoter,
+                                                   playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
 
@@ -751,7 +800,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromUnrepostedPromotedTrackWithNoPromoter() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().build();
-        UIEvent uiEvent = UIEvent.fromToggleRepost(false, TRACK_URN, eventContext, promotedSourceInfoWithNoPromoter, trackMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false,
+                                                   TRACK_URN,
+                                                   eventContext,
+                                                   promotedSourceInfoWithNoPromoter,
+                                                   trackMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
 
@@ -783,7 +836,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromUnrepostedPromotedPlaylist() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().build();
-        UIEvent uiEvent = UIEvent.fromToggleRepost(false, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false,
+                                                   PLAYLIST_URN,
+                                                   eventContext,
+                                                   promotedSourceInfo,
+                                                   playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
 
@@ -799,7 +856,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromUnrepostedPromotedPlaylistWithPlaylistPage() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().pageUrn(PLAYLIST_URN).build();
-        UIEvent uiEvent = UIEvent.fromToggleRepost(false, PLAYLIST_URN, eventContext, promotedSourceInfo, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false,
+                                                   PLAYLIST_URN,
+                                                   eventContext,
+                                                   promotedSourceInfo,
+                                                   playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
 
@@ -815,7 +876,11 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromUnrepostedPromotedPlaylistWithNoPromoter() {
         EventContextMetadata eventContext = eventContextNoInvokerScreen().build();
-        UIEvent uiEvent = UIEvent.fromToggleRepost(false, PLAYLIST_URN, eventContext, promotedSourceInfoWithNoPromoter, playlistMetadata);
+        UIEvent uiEvent = UIEvent.fromToggleRepost(false,
+                                                   PLAYLIST_URN,
+                                                   eventContext,
+                                                   promotedSourceInfoWithNoPromoter,
+                                                   playlistMetadata);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
 
@@ -913,27 +978,41 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromAudioAdClick() {
         AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
+        UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd,
+                                                                   Urn.forTrack(456),
+                                                                   Urn.forUser(456L),
+                                                                   trackSourceInfo,
+                                                                   1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getVisualAd().getAdUrn().toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
-        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getVisualAd().getClickThroughUrl().toString());
-        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getVisualAd()
+                                                                                             .getClickThroughUrl()
+                                                                                             .toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd()
+                                                                                          .getImageUrl()
+                                                                                          .toString());
         assertThat(uiEvent.getAdClickthroughUrls()).contains("comp_click1", "comp_click2");
     }
 
     @Test
     public void shouldCreateEventFromSkipAudioAdClick() {
         AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
+        UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd,
+                                                       Urn.forTrack(456),
+                                                       Urn.forUser(456L),
+                                                       trackSourceInfo,
+                                                       1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
-        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd().getImageUrl().toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd()
+                                                                                          .getImageUrl()
+                                                                                          .toString());
         assertThat(uiEvent.getAdSkipUrls()).contains("audio_skip1", "audio_skip2");
     }
 
@@ -1002,9 +1081,9 @@ public class UIEventTest extends AndroidUnitTest {
 
     private EventContextMetadata.Builder eventContextNoInvokerScreen() {
         return EventContextMetadata.builder()
-                .contextScreen("context_screen")
-                .pageName("page_name")
-                .pageUrn(Urn.NOT_SET);
+                                   .contextScreen("context_screen")
+                                   .pageName("page_name")
+                                   .pageUrn(Urn.NOT_SET);
     }
 
     private PropertySet buildPlayablePropertySet(Urn urn) {

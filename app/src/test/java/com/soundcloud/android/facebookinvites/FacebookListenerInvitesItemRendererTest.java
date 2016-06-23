@@ -34,7 +34,10 @@ public class FacebookListenerInvitesItemRendererTest extends AndroidUnitTest {
     @Before
     public void setup() {
         renderer = new FacebookListenerInvitesItemRenderer(imageOperations, invitesStorage, facebookApi);
-        itemView = LayoutInflater.from(context()).inflate(R.layout.facebook_invites_notification_card, new FrameLayout(context()), false);
+        itemView = LayoutInflater.from(context())
+                                 .inflate(R.layout.facebook_invites_notification_card,
+                                          new FrameLayout(context()),
+                                          false);
     }
 
     @Test

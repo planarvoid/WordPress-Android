@@ -22,7 +22,7 @@ public class ForegroundEvent extends TrackingEvent {
 
     public static ForegroundEvent open(Screen screen, String referrer, Urn urn) {
         return ForegroundEvent.open(screen, referrer)
-                .put(KEY_PAGE_URN, urn.toString());
+                              .put(KEY_PAGE_URN, urn.toString());
     }
 
     private ForegroundEvent(String kind) {

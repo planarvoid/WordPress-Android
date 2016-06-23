@@ -41,9 +41,11 @@ public class ProfileApiMobilePlaylistsTest extends AndroidUnitTest {
     @Test
     public void shouldReturnUserPlaylistsByUrn() throws Exception {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", "/users/soundcloud%3Ausers%3A123/playlists/posted")
-                        .withQueryParam("limit", String.valueOf(ProfileApiMobile.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET",
+                                                               "/users/soundcloud%3Ausers%3A123/playlists/posted")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiMobile.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userPlaylists(Urn.forUser(123L)).subscribe(subscriber);
         subscriber.assertValue(new ModelCollection<>(newArrayList(playlistPost), NEXT_HREF));
@@ -53,8 +55,9 @@ public class ProfileApiMobilePlaylistsTest extends AndroidUnitTest {
     public void shouldReturnUserPlaylistsByNextPageLink() throws Exception {
         final Observable<ModelCollection<ApiPlaylistPost>> results = Observable.just(collection);
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("limit", String.valueOf(ProfileApiMobile.PAGE_SIZE))),
-                isA(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiMobile.PAGE_SIZE))),
+                                        isA(TypeToken.class))).thenReturn(results);
 
         api.userPlaylists(NEXT_HREF).subscribe(subscriber);
         subscriber.assertValue(new ModelCollection<>(newArrayList(playlistPost), NEXT_HREF));

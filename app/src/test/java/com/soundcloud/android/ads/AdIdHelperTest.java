@@ -64,5 +64,5 @@ public class AdIdHelperTest extends AndroidUnitTest {
 
         assertThat(adIdHelper.getAdId().isPresent()).isFalse();
     }
-    
+
 }

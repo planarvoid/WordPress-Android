@@ -51,18 +51,18 @@ public class UsageBarView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if(totalAmount == 0) return;
+        if (totalAmount == 0) return;
 
-        int width = getMeasuredWidth()-2;
-        int height = getMeasuredHeight()-2;
+        int width = getMeasuredWidth() - 2;
+        int height = getMeasuredHeight() - 2;
         float x = 1f;
         float barWidth;
 
-        canvas.drawRect(0, 0, width+2, height+2, borderPaint);
+        canvas.drawRect(0, 0, width + 2, height + 2, borderPaint);
 
-        for(UsageBar bar : bars) {
-            barWidth = (float)(bar.getAmount() * width / totalAmount);
-            canvas.drawRect(x, 1, x+barWidth, height+1, bar.getPaint());
+        for (UsageBar bar : bars) {
+            barWidth = (float) (bar.getAmount() * width / totalAmount);
+            canvas.drawRect(x, 1, x + barWidth, height + 1, bar.getPaint());
             x += barWidth;
         }
     }

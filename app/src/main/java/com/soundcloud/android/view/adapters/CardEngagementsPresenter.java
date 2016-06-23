@@ -81,26 +81,26 @@ public class CardEngagementsPresenter {
         final Urn entityUrn = playableItem.getUrn();
         final boolean addRepost = !playableItem.isReposted();
         repostOperations.toggleRepost(entityUrn, addRepost)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new RepostResultSubscriber(repostButton.getContext(), addRepost));
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RepostResultSubscriber(repostButton.getContext(), addRepost));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(addRepost, entityUrn,
-                contextMetadata,
-                getPromotedSourceInfo(playableItem),
-                EntityMetadata.from(playableItem)));
+                                                                       contextMetadata,
+                                                                       getPromotedSourceInfo(playableItem),
+                                                                       EntityMetadata.from(playableItem)));
     }
 
     private void handleLike(View likeButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
         final Urn entityUrn = playableItem.getUrn();
         final boolean addLike = !playableItem.isLiked();
         likeOperations.toggleLike(entityUrn, addLike)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike));
+                      .observeOn(AndroidSchedulers.mainThread())
+                      .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike));
 
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, entityUrn,
-                contextMetadata,
-                getPromotedSourceInfo(playableItem),
-                EntityMetadata.from(playableItem)));
+                                                                     contextMetadata,
+                                                                     getPromotedSourceInfo(playableItem),
+                                                                     EntityMetadata.from(playableItem)));
     }
 
     private PromotedSourceInfo getPromotedSourceInfo(PlayableItem playable) {

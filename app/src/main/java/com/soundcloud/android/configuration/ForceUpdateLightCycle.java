@@ -24,8 +24,8 @@ public class ForceUpdateLightCycle extends DefaultActivityLightCycle<AppCompatAc
     @Override
     public void onResume(final AppCompatActivity activity) {
         subscription = eventBus.queue(EventQueue.FORCE_UPDATE)
-                .take(1)
-                .subscribe(new ForceUpdateSubscriber(activity));
+                               .take(1)
+                               .subscribe(new ForceUpdateSubscriber(activity));
     }
 
     @Override

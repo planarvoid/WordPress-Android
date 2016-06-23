@@ -83,7 +83,8 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
 
     @Override
     public View createItemView(ViewGroup container, SkipListener skipListener) {
-        final View adView = LayoutInflater.from(container.getContext()).inflate(R.layout.player_ad_page, container, false);
+        final View adView = LayoutInflater.from(container.getContext())
+                                          .inflate(R.layout.player_ad_page, container, false);
         final Holder holder = new Holder(adView, playerOverlayControllerFactory);
         adView.setTag(holder);
         return adView;
@@ -113,7 +114,10 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     }
 
     @Override
-    public void setPlayState(View adView, PlaybackStateTransition stateTransition, boolean isCurrentTrack, boolean isForeground) {
+    public void setPlayState(View adView,
+                             PlaybackStateTransition stateTransition,
+                             boolean isCurrentTrack,
+                             boolean isForeground) {
         final Holder holder = getViewHolder(adView);
         final boolean playSessionIsActive = stateTransition.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
@@ -149,7 +153,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     private void displayAdvertisement(AudioPlayerAd playerAd, final Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
         holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork())
-                .subscribe(new AdImageSubscriber(holder, playerAd));
+                                                    .subscribe(new AdImageSubscriber(holder, playerAd));
     }
 
     private final class AdImageSubscriber extends DefaultSubscriber<Bitmap> {
@@ -169,10 +173,13 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         }
     }
 
-    private void updateAdvertisementLayout(Holder holder, Bitmap adImage, AudioPlayerAd playerAd)  {
+    private void updateAdvertisementLayout(Holder holder, Bitmap adImage, AudioPlayerAd playerAd) {
         final Optional<String> clickthrough = playerAd.getClickThroughUrl();
         if (isBelowStandardIabSize(adImage.getWidth(), adImage.getHeight())) {
-            setCompanionViews(holder.centeredAdArtworkView, holder.centeredAdClickableOverlay, clickthrough.isPresent(), adImage);
+            setCompanionViews(holder.centeredAdArtworkView,
+                              holder.centeredAdClickableOverlay,
+                              clickthrough.isPresent(),
+                              adImage);
         } else {
             setCompanionViews(holder.fullbleedAdArtworkView, holder.ctaButton, clickthrough.isPresent(), adImage);
         }
@@ -232,11 +239,25 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         }
 
         private void populateViewSets() {
-            List<View> clickViews = Arrays.asList(centeredAdArtworkView, fullbleedAdArtworkView, centeredAdClickableOverlay,
-                    artworkIdleOverlay, playButton, nextButton, previousButton, ctaButton, whyAds, skipAd, previewContainer,
-                    footerPlayToggle, close, footer);
+            List<View> clickViews = Arrays.asList(centeredAdArtworkView,
+                                                  fullbleedAdArtworkView,
+                                                  centeredAdClickableOverlay,
+                                                  artworkIdleOverlay,
+                                                  playButton,
+                                                  nextButton,
+                                                  previousButton,
+                                                  ctaButton,
+                                                  whyAds,
+                                                  skipAd,
+                                                  previewContainer,
+                                                  footerPlayToggle,
+                                                  close,
+                                                  footer);
             onClickViews = Iterables.filter(clickViews, presentInConfig);
-            companionViews = Arrays.asList(centeredAdArtworkView, centeredAdClickableOverlay, fullbleedAdArtworkView, ctaButton);
+            companionViews = Arrays.asList(centeredAdArtworkView,
+                                           centeredAdClickableOverlay,
+                                           fullbleedAdArtworkView,
+                                           ctaButton);
         }
     }
 }

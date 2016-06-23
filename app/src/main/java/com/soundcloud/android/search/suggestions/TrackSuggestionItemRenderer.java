@@ -24,6 +24,8 @@ class TrackSuggestionItemRenderer extends SuggestionItemRenderer {
     }
 
     protected void loadIcon(View itemView, ImageResource imageResource) {
-        imageOperations.displayInAdapterView(imageResource, ApiImageSize.getListItemImageSize(itemView.getResources()), icon);
+        imageOperations.displayInAdapterView(imageResource,
+                                             ApiImageSize.getListItemImageSize(itemView.getResources()),
+                                             icon);
     }
 }

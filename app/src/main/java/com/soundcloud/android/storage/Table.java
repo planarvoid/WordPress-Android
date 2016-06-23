@@ -6,8 +6,14 @@ import android.provider.BaseColumns;
 public enum Table implements com.soundcloud.propeller.schema.Table {
     SoundStream(false, DatabaseSchema.DATABASE_CREATE_SOUNDSTREAM),
     PromotedTracks(false, DatabaseSchema.DATABASE_CREATE_PROMOTED_TRACKS),
-    Sounds(PrimaryKey.of(TableColumns.Sounds._ID, TableColumns.Sounds._TYPE), false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
-    TrackPolicies(PrimaryKey.of(TableColumns.TrackPolicies.TRACK_ID), false, DatabaseSchema.DATABASE_CREATE_TRACK_POLICIES, TableColumns.TrackPolicies.ALL_FIELDS),
+    Sounds(PrimaryKey.of(TableColumns.Sounds._ID, TableColumns.Sounds._TYPE),
+           false,
+           DatabaseSchema.DATABASE_CREATE_SOUNDS,
+           TableColumns.Sounds.ALL_FIELDS),
+    TrackPolicies(PrimaryKey.of(TableColumns.TrackPolicies.TRACK_ID),
+                  false,
+                  DatabaseSchema.DATABASE_CREATE_TRACK_POLICIES,
+                  TableColumns.TrackPolicies.ALL_FIELDS),
     Users(false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),
     Comments(false, DatabaseSchema.DATABASE_CREATE_COMMENTS),
     Activities(false, DatabaseSchema.DATABASE_CREATE_ACTIVITIES),
@@ -15,7 +21,7 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
             TableColumns.PlaylistTracks._ID,
             TableColumns.PlaylistTracks.POSITION,
             TableColumns.PlaylistTracks.PLAYLIST_ID),
-            false, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS),
+                   false, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS),
 
     UserAssociations(false, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATIONS),
 
@@ -24,7 +30,9 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
     Waveforms(PrimaryKey.of(TableColumns.Waveforms.TRACK_ID), false, DatabaseSchema.DATABASE_CREATE_WAVEFORMS),
 
     Likes(PrimaryKey.of(TableColumns.Likes._ID, TableColumns.Likes._TYPE), false, DatabaseSchema.DATABASE_CREATE_LIKES),
-    Posts(PrimaryKey.of(TableColumns.Posts.TYPE, TableColumns.Posts.TARGET_TYPE, TableColumns.Posts.TARGET_ID), false, DatabaseSchema.DATABASE_CREATE_POSTS),
+    Posts(PrimaryKey.of(TableColumns.Posts.TYPE, TableColumns.Posts.TARGET_TYPE, TableColumns.Posts.TARGET_ID),
+          false,
+          DatabaseSchema.DATABASE_CREATE_POSTS),
 
     // views
     SoundView(true, DatabaseSchema.DATABASE_CREATE_SOUND_VIEW),
@@ -34,7 +42,7 @@ public enum Table implements com.soundcloud.propeller.schema.Table {
             TableColumns.UserAssociations.TARGET_ID,
             TableColumns.UserAssociations.ASSOCIATION_TYPE,
             TableColumns.UserAssociations.RESOURCE_TYPE),
-            true, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATION_VIEW),
+                        true, DatabaseSchema.DATABASE_CREATE_USER_ASSOCIATION_VIEW),
     PlaylistTracksView(true, DatabaseSchema.DATABASE_CREATE_PLAYLIST_TRACKS_VIEW);
 
 

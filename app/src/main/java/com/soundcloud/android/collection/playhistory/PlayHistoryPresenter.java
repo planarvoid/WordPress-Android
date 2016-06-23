@@ -65,8 +65,8 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<TrackItem>, TrackI
     @Override
     protected CollectionBinding<List<TrackItem>, TrackItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(playHistoryOperations.playHistory())
-                .withAdapter(adapter)
-                .build();
+                                .withAdapter(adapter)
+                                .build();
     }
 
     @Override
@@ -75,14 +75,14 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<TrackItem>, TrackI
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM,
-                        new UpdatePlayingTrackSubscriber(adapter)),
+                                   new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.queue(OFFLINE_CONTENT_CHANGED)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED,
-                        new UpdateEntityListSubscriber(adapter)),
+                                   new UpdateEntityListSubscriber(adapter)),
                 offlineContentOperations.getOfflineContentOrOfflineLikesStatusChanges()
-                        .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
+                                        .subscribe(new RefreshRecyclerViewAdapterSubscriber(adapter))
         );
     }
 

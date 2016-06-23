@@ -55,11 +55,14 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onProgressForwardsCheckpointEventIfCheckpointIntervalHasPassed() {
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         track);
         controller.onStateTransition(playbackItem, transition);
 
         final long position = TrackSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
-        final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L), track);
+        final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
+                                                                            track);
         controller.onProgressEvent(playbackItem, progress);
 
         InOrder inOrder = inOrder(trackSessionDispatcher);
@@ -69,25 +72,32 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onProgressDoesntForwardCheckpointEventIfCheckpointIntervalHasNotPassed() {
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         track);
         controller.onStateTransition(playbackItem, transition);
 
         final long position = TrackSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL - 1;
-        final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L), track);
+        final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
+                                                                            track);
         controller.onProgressEvent(playbackItem, progress);
 
-        verify(trackSessionDispatcher, never()).onProgressCheckpoint(any(PlaybackStateTransition.class), any(PlaybackProgressEvent.class));
+        verify(trackSessionDispatcher, never()).onProgressCheckpoint(any(PlaybackStateTransition.class),
+                                                                     any(PlaybackProgressEvent.class));
     }
 
     @Test
     public void onProgressForwardsCheckpointEventForAdsIfCheckpointIntervalHasPassed() {
         final PropertySet adTrack = TestPropertySets.fromApiTrack();
         playbackItem = AudioAdPlaybackItem.create(adTrack, AdFixtures.getAudioAd(track));
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, adTrack.get(EntityProperty.URN));
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         adTrack.get(EntityProperty.URN));
         controller.onStateTransition(playbackItem, transition);
 
         final long position = AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
-        final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L), adTrack.get(EntityProperty.URN));
+        final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
+                                                                            adTrack.get(EntityProperty.URN));
         controller.onProgressEvent(playbackItem, progress);
 
         InOrder inOrder = inOrder(adSessionDispatcher);
@@ -99,19 +109,25 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
     public void onProgressDoesntForwardCheckpointEventForAdsIfCheckpointIntervalHasNotPassed() {
         final PropertySet adTrack = TestPropertySets.fromApiTrack();
         playbackItem = AudioAdPlaybackItem.create(adTrack, AdFixtures.getAudioAd(track));
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, adTrack.get(EntityProperty.URN));
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         adTrack.get(EntityProperty.URN));
         controller.onStateTransition(playbackItem, transition);
 
         final long position = AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL - 1;
-        final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L), adTrack.get(EntityProperty.URN));
+        final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
+                                                                            adTrack.get(EntityProperty.URN));
         controller.onProgressEvent(playbackItem, progress);
 
-        verify(adSessionDispatcher, never()).onProgressCheckpoint(any(PlaybackStateTransition.class), any(PlaybackProgressEvent.class));
+        verify(adSessionDispatcher, never()).onProgressCheckpoint(any(PlaybackStateTransition.class),
+                                                                  any(PlaybackProgressEvent.class));
     }
 
     @Test
     public void onPlaystateChangedForwardsPlayTransitionToDispatcher() {
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         track);
 
         controller.onStateTransition(playbackItem, transition);
 
@@ -123,7 +139,9 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
     public void onPlaystateChangedForwardsAdPlayTransitionToDispatcher() {
         final VideoAd videoAd = AdFixtures.getVideoAd(track);
         playbackItem = VideoAdPlaybackItem.create(videoAd, 0L);
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         track);
 
         controller.onStateTransition(playbackItem, transition);
 
@@ -132,9 +150,13 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void onPlayTransitionSetsFlagForSameTrack()  {
-        PlaybackStateTransition transition1 = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
-        PlaybackStateTransition transition2 = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
+    public void onPlayTransitionSetsFlagForSameTrack() {
+        PlaybackStateTransition transition1 = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                          PlayStateReason.NONE,
+                                                                          track);
+        PlaybackStateTransition transition2 = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                          PlayStateReason.NONE,
+                                                                          track);
 
         controller.onStateTransition(playbackItem, transition1);
         controller.onStateTransition(playbackItem, transition2);
@@ -146,7 +168,9 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onPlaystateChangedForwardsStopTransitionToDispatcher() {
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, track);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.NONE,
+                                                                         track);
 
         controller.onStateTransition(playbackItem, transition);
 
@@ -158,8 +182,12 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
     public void onPlaystateChangedForwardsSkipTransitionToDispatcher() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123));
         PlaybackItem playbackItem2 = VideoAdPlaybackItem.create(videoAd, 0L);
-        PlaybackStateTransition transition1 = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
-        PlaybackStateTransition transition2 = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.forAd("dfp", "321-123"));
+        PlaybackStateTransition transition1 = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                          PlayStateReason.NONE,
+                                                                          track);
+        PlaybackStateTransition transition2 = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                          PlayStateReason.NONE,
+                                                                          Urn.forAd("dfp", "321-123"));
 
         controller.onStateTransition(playbackItem, transition1);
         controller.onStateTransition(playbackItem2, transition2);
@@ -172,8 +200,13 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onPlaystateChangedForNewItemResetsPromotedSourceInfo() {
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, track);
-        PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:123", track, Optional.<Urn>absent(), Collections.EMPTY_LIST);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         track);
+        PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:123",
+                                                                 track,
+                                                                 Optional.<Urn>absent(),
+                                                                 Collections.EMPTY_LIST);
         promotedInfo.setPlaybackStarted();
         PlaySessionSource sessionSource = new PlaySessionSource("stream");
         sessionSource.setPromotedSourceInfo(promotedInfo);

@@ -58,7 +58,12 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void shouldOpenReposts() throws Exception {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
-        subject.onItemClick(null, view, 0, UserSoundsItem.fromViewAll(UserSoundsTypes.REPOSTS), USER_URN, searchSourceInfo);
+        subject.onItemClick(null,
+                            view,
+                            0,
+                            UserSoundsItem.fromViewAll(UserSoundsTypes.REPOSTS),
+                            USER_URN,
+                            searchSourceInfo);
 
         verify(navigator).openProfileReposts(context, USER_URN, Screen.USERS_REPOSTS, searchSourceInfo);
     }
@@ -66,7 +71,12 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void shouldOpenTracks() throws Exception {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
-        subject.onItemClick(null, view, 0, UserSoundsItem.fromViewAll(UserSoundsTypes.TRACKS), USER_URN, searchSourceInfo);
+        subject.onItemClick(null,
+                            view,
+                            0,
+                            UserSoundsItem.fromViewAll(UserSoundsTypes.TRACKS),
+                            USER_URN,
+                            searchSourceInfo);
 
         verify(navigator).openProfileTracks(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
     }
@@ -74,7 +84,12 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void shouldOpenAlbums() throws Exception {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
-        subject.onItemClick(null, view, 0, UserSoundsItem.fromViewAll(UserSoundsTypes.ALBUMS), USER_URN, searchSourceInfo);
+        subject.onItemClick(null,
+                            view,
+                            0,
+                            UserSoundsItem.fromViewAll(UserSoundsTypes.ALBUMS),
+                            USER_URN,
+                            searchSourceInfo);
 
         verify(navigator).openProfileAlbums(context, USER_URN, Screen.USER_TRACKS, searchSourceInfo);
     }
@@ -82,7 +97,12 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void shouldOpenLikes() throws Exception {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
-        subject.onItemClick(null, view, 0, UserSoundsItem.fromViewAll(UserSoundsTypes.LIKES), USER_URN, searchSourceInfo);
+        subject.onItemClick(null,
+                            view,
+                            0,
+                            UserSoundsItem.fromViewAll(UserSoundsTypes.LIKES),
+                            USER_URN,
+                            searchSourceInfo);
 
         verify(navigator).openProfileLikes(context, USER_URN, Screen.USER_LIKES, searchSourceInfo);
     }
@@ -90,7 +110,12 @@ public class UserSoundsItemClickListenerTest extends AndroidUnitTest {
     @Test
     public void shouldOpenPlaylists() throws Exception {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
-        subject.onItemClick(null, view, 0, UserSoundsItem.fromViewAll(UserSoundsTypes.PLAYLISTS), USER_URN, searchSourceInfo);
+        subject.onItemClick(null,
+                            view,
+                            0,
+                            UserSoundsItem.fromViewAll(UserSoundsTypes.PLAYLISTS),
+                            USER_URN,
+                            searchSourceInfo);
 
         verify(navigator).openProfilePlaylists(context, USER_URN, Screen.USER_PLAYLISTS, searchSourceInfo);
     }

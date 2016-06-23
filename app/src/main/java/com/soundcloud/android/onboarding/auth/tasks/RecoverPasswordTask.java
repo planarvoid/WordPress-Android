@@ -24,11 +24,12 @@ public class RecoverPasswordTask extends AsyncApiTask<String, Void, Boolean> {
             final int code = resp.getStatusLine().getStatusCode();
 
             switch (code) {
-                case HttpStatus.SC_ACCEPTED: return true;
+                case HttpStatus.SC_ACCEPTED:
+                    return true;
                 case HttpStatus.SC_NOT_FOUND:
                     extractErrors(resp);
                 default:
-                    warn("unexpected status code "+code+" received");
+                    warn("unexpected status code " + code + " received");
                     return false;
             }
         } catch (IOException e) {

@@ -172,57 +172,57 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
 
     private void expectTrackPostItemInserted(ApiStreamItem streamItem) {
         assertThat(select(from(SoundStream.name())
-                        .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
-                        .whereEq(SOUND_TYPE, TYPE_TRACK)
-                        .whereNull(REPOSTER_ID)
-                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+                                  .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
+                                  .whereEq(SOUND_TYPE, TYPE_TRACK)
+                                  .whereNull(REPOSTER_ID)
+                                  .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
         )).counts(1);
     }
 
     private void expectPromotedTrackPostItemInserted(ApiStreamItem streamItem) {
         assertThat(select(from(SoundStream.name())
-                        .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
-                        .whereEq(SOUND_TYPE, TYPE_TRACK)
-                        .whereNull(REPOSTER_ID)
-                        .whereEq(CREATED_AT, MAX_VALUE)
-                        .whereNotNull(PROMOTED_ID)
+                                  .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
+                                  .whereEq(SOUND_TYPE, TYPE_TRACK)
+                                  .whereNull(REPOSTER_ID)
+                                  .whereEq(CREATED_AT, MAX_VALUE)
+                                  .whereNotNull(PROMOTED_ID)
         )).counts(1);
     }
 
     private void expectPromotedPlaylistPostItemInserted(ApiStreamItem streamItem) {
         assertThat(select(from(SoundStream.name())
-                        .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
-                        .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
-                        .whereNull(REPOSTER_ID)
-                        .whereEq(CREATED_AT, MAX_VALUE)
-                        .whereNotNull(PROMOTED_ID)
+                                  .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
+                                  .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
+                                  .whereNull(REPOSTER_ID)
+                                  .whereEq(CREATED_AT, MAX_VALUE)
+                                  .whereNotNull(PROMOTED_ID)
         )).counts(1);
     }
 
     private void expectTrackRepostItemInserted(ApiStreamItem streamItem) {
         assertThat(select(from(SoundStream.name())
-                        .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
-                        .whereEq(SOUND_TYPE, TYPE_TRACK)
-                        .whereEq(REPOSTER_ID, streamItem.getReposter().get().getId())
-                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+                                  .whereEq(SOUND_ID, streamItem.getTrack().get().getId())
+                                  .whereEq(SOUND_TYPE, TYPE_TRACK)
+                                  .whereEq(REPOSTER_ID, streamItem.getReposter().get().getId())
+                                  .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
         )).counts(1);
     }
 
     private void expectPlaylistPostItemInserted(ApiStreamItem streamItem) {
         assertThat(select(from(SoundStream.name())
-                        .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
-                        .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
-                        .whereNull(REPOSTER_ID)
-                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+                                  .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
+                                  .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
+                                  .whereNull(REPOSTER_ID)
+                                  .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
         )).counts(1);
     }
 
     private void expectPlaylistRepostItemInserted(ApiStreamItem streamItem) {
         assertThat(select(from(SoundStream.name())
-                        .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
-                        .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
-                        .whereEq(REPOSTER_ID, streamItem.getReposter().get().getId())
-                        .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
+                                  .whereEq(SOUND_ID, streamItem.getPlaylist().get().getId())
+                                  .whereEq(SOUND_TYPE, TYPE_PLAYLIST)
+                                  .whereEq(REPOSTER_ID, streamItem.getReposter().get().getId())
+                                  .whereEq(CREATED_AT, streamItem.getCreatedAtTime())
         )).counts(1);
     }
 

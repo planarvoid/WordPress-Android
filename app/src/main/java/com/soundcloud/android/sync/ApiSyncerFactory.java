@@ -70,7 +70,8 @@ public class ApiSyncerFactory {
                 return lazyPlaylistsSyncer.get();
 
             case PLAYLIST:
-                return new LegacySinglePlaylistSyncer(singlePlaylistSyncerFactory, getPlaylistUrnFromLegacyContentUri(contentUri));
+                return new LegacySinglePlaylistSyncer(singlePlaylistSyncerFactory,
+                                                      getPlaylistUrnFromLegacyContentUri(contentUri));
 
             case ME_SOUNDS:
                 return lazyMyPostsSyncer.get();

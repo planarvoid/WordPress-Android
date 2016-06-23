@@ -26,14 +26,14 @@ public class ScreenTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setsAndGetsScreenFromIntent(){
+    public void setsAndGetsScreenFromIntent() {
         final Intent intent = new Intent();
         Screen.ACTIVITIES.addToIntent(intent);
         assertThat(Screen.fromIntent(intent)).isEqualTo(Screen.ACTIVITIES);
     }
 
     @Test
-    public void setsAndGetsScreenFromBundle(){
+    public void setsAndGetsScreenFromBundle() {
         final Bundle bundle = new Bundle();
         Screen.ACTIVITIES.addToBundle(bundle);
         assertThat(Screen.fromBundle(bundle)).isEqualTo(Screen.ACTIVITIES);

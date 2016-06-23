@@ -24,7 +24,8 @@ public class WriteMixedRecordsCommand extends Command<Iterable<? extends RecordH
 
     @Inject
     protected WriteMixedRecordsCommand(StoreTracksCommand storeTracksCommand,
-                                       StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand) {
+                                       StorePlaylistsCommand storePlaylistsCommand,
+                                       StoreUsersCommand storeUsersCommand) {
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeUsersCommand = storeUsersCommand;

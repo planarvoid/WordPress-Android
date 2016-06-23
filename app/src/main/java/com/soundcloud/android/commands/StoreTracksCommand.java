@@ -65,13 +65,20 @@ public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? ex
 
     public static ContentValues buildPolicyContentValues(TrackRecord trackRecord) {
         final ContentValuesBuilder valuesBuilder = ContentValuesBuilder.values()
-                .put(TrackPolicies.TRACK_ID, trackRecord.getUrn().getNumericId())
-                .put(TrackPolicies.MONETIZABLE, trackRecord.isMonetizable())
-                .put(TrackPolicies.BLOCKED, trackRecord.isBlocked())
-                .put(TrackPolicies.SNIPPED, trackRecord.isSnipped())
-                .put(TrackPolicies.POLICY, trackRecord.getPolicy())
-                .put(TrackPolicies.SYNCABLE, trackRecord.isSyncable())
-                .put(TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
+                                                                       .put(TrackPolicies.TRACK_ID,
+                                                                            trackRecord.getUrn().getNumericId())
+                                                                       .put(TrackPolicies.MONETIZABLE,
+                                                                            trackRecord.isMonetizable())
+                                                                       .put(TrackPolicies.BLOCKED,
+                                                                            trackRecord.isBlocked())
+                                                                       .put(TrackPolicies.SNIPPED,
+                                                                            trackRecord.isSnipped())
+                                                                       .put(TrackPolicies.POLICY,
+                                                                            trackRecord.getPolicy())
+                                                                       .put(TrackPolicies.SYNCABLE,
+                                                                            trackRecord.isSyncable())
+                                                                       .put(TrackPolicies.LAST_UPDATED,
+                                                                            System.currentTimeMillis());
 
         if (trackRecord.getMonetizationModel().isPresent()) {
             valuesBuilder.put(TrackPolicies.MONETIZATION_MODEL, trackRecord.getMonetizationModel().get());

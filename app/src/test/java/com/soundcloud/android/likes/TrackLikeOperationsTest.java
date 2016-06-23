@@ -68,7 +68,9 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Test
     public void syncAndLoadTrackLikesWhenInitialTrackLoadReturnsEmptyList() {
         List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
-        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(likedTracks));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE,
+                                              INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
+                                                                             Observable.just(likedTracks));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("action", false)));
 
         operations.likedTracks().subscribe(observer);
@@ -81,7 +83,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void doesNotSyncTrackLikesIfSecondPageIsEmpty() throws Exception {
         final List<PropertySet> firstPage = createPageOfTrackLikes(PAGE_SIZE);
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(firstPage));
-        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, getListItemTime(firstPage))).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, getListItemTime(firstPage))).thenReturn(Observable.just(
+                Collections.<PropertySet>emptyList()));
 
         final PublishSubject<SyncJobResult> syncObservable = PublishSubject.create();
         when(syncInitiator.syncTrackLikes()).thenReturn(syncObservable);
@@ -129,7 +132,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
     @Test
     public void likedTracksRequestsDoesNotUpdateEmptyListFromSyncer() {
-        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(likedTrackStorage.loadTrackLikes(PAGE_SIZE,
+                                              INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
 
         operations.likedTracks().subscribe(observer);
@@ -152,7 +156,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
         List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("any intent action", true)));
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("any intent action",
+                                                                                              true)));
 
         operations.updatedLikedTracks().subscribe(observer);
 
@@ -182,7 +187,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
 
         final TestObserver<PropertySet> observer = new TestObserver<>();
         operations.onTrackLiked().subscribe(observer);
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(likedTrack.get(TrackProperty.URN), true, 5));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.fromLike(likedTrack.get(TrackProperty.URN), true, 5));
 
         assertThat(observer.getOnNextEvents()).containsExactly(likedTrack);
     }
@@ -198,9 +204,9 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
         assertThat(observer.getOnNextEvents()).containsExactly(unlikedTrackUrn);
     }
 
-    private List<PropertySet> createPageOfTrackLikes(int size){
+    private List<PropertySet> createPageOfTrackLikes(int size) {
         List<PropertySet> page = new ArrayList<>(size);
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             page.add(TestPropertySets.expectedLikedTrackForLikesScreen());
         }
         return page;

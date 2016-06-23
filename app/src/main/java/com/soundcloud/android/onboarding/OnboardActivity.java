@@ -275,10 +275,12 @@ public class OnboardActivity extends FragmentActivity
 
     private void showBackground(@Nullable Bundle savedInstanceState) {
         backgroundImageIdx = savedInstanceState == null
-                ? new Random().nextInt(BACKGROUND_IMAGES.length)
-                : savedInstanceState.getInt(BACKGROUND_IMAGE_IDX);
+                             ? new Random().nextInt(BACKGROUND_IMAGES.length)
+                             : savedInstanceState.getInt(BACKGROUND_IMAGE_IDX);
         ImageView bgImageView = (ImageView) findViewById(R.id.landing_background_image);
-        final Drawable drawable = ResourcesCompat.getDrawable(getResources(), BACKGROUND_IMAGES[backgroundImageIdx], null);
+        final Drawable drawable = ResourcesCompat.getDrawable(getResources(),
+                                                              BACKGROUND_IMAGES[backgroundImageIdx],
+                                                              null);
         bgImageView.setImageDrawable(drawable);
         showView(bgImageView, true);
     }
@@ -541,8 +543,8 @@ public class OnboardActivity extends FragmentActivity
             resultBundle = result;
 
             sendBroadcast(new Intent(Actions.ACCOUNT_ADDED)
-                    .putExtra(PublicApiUser.EXTRA_ID, user.getId())
-                    .putExtra(SignupVia.EXTRA, via.name));
+                                  .putExtra(PublicApiUser.EXTRA_ID, user.getId())
+                                  .putExtra(SignupVia.EXTRA, via.name));
 
             if (wasSignup || wasAuthorizedViaSignupScreen() || Urn.NOT_SET.equals(resourceUrn)) {
                 startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
@@ -662,9 +664,9 @@ public class OnboardActivity extends FragmentActivity
                 } else {
                     final String error = intent.getStringExtra("error");
                     AndroidUtils.showToast(this,
-                            error == null ?
-                                    getString(R.string.authentication_recover_password_failure) :
-                                    getString(R.string.authentication_recover_password_failure_reason, error));
+                                           error == null ?
+                                           getString(R.string.authentication_recover_password_failure) :
+                                           getString(R.string.authentication_recover_password_failure_reason, error));
                 }
                 break;
             }
@@ -784,7 +786,8 @@ public class OnboardActivity extends FragmentActivity
     private void onGoogleAccountSelected(String name) {
         // store the last account name in case we have to retry after startActivityForResult with G+ app
         lastGoogleAccountSelected = name;
-        proposeTermsOfUse(SignupVia.GOOGLE_PLUS, GooglePlusSignInTaskFragment.getParams(name, RequestCodes.SIGNUP_VIA_GOOGLE));
+        proposeTermsOfUse(SignupVia.GOOGLE_PLUS,
+                          GooglePlusSignInTaskFragment.getParams(name, RequestCodes.SIGNUP_VIA_GOOGLE));
     }
 
     /**
@@ -799,7 +802,8 @@ public class OnboardActivity extends FragmentActivity
     private void onGoogleActivityResult(int resultCode) {
         if (resultCode == RESULT_OK) {
             // just kick off another task with the last account selected
-            final Bundle params = GooglePlusSignInTaskFragment.getParams(lastGoogleAccountSelected, RequestCodes.SIGNUP_VIA_GOOGLE);
+            final Bundle params = GooglePlusSignInTaskFragment.getParams(lastGoogleAccountSelected,
+                                                                         RequestCodes.SIGNUP_VIA_GOOGLE);
             createNewUserFromGooglePlus(params);
         }
     }
@@ -849,7 +853,9 @@ public class OnboardActivity extends FragmentActivity
     @Override
     public void onError(String message, boolean allowUserFeedback) {
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
-                .setMessage(TextUtils.isEmpty(message) ? getString(R.string.authentication_signup_error_message) : message)
+                .setMessage(TextUtils.isEmpty(message) ?
+                            getString(R.string.authentication_signup_error_message) :
+                            message)
                 .setPositiveButton(android.R.string.ok, null);
 
         if (allowUserFeedback) {
@@ -885,7 +891,7 @@ public class OnboardActivity extends FragmentActivity
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         startActivity(new Intent(Intent.ACTION_VIEW)
-                                .setData(Uri.parse(getString(R.string.url_contact_support))));
+                                              .setData(Uri.parse(getString(R.string.url_contact_support))));
                         dialogInterface.dismiss();
                     }
                 })
@@ -916,9 +922,9 @@ public class OnboardActivity extends FragmentActivity
     public void onDeviceConflict(final Bundle loginBundle) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setView(new CustomFontViewBuilder(this)
-                        .setIcon(R.drawable.dialog_device_management)
-                        .setTitle(R.string.device_management_limit_title)
-                        .setMessage(R.string.device_management_limit_active).get())
+                                 .setIcon(R.drawable.dialog_device_management)
+                                 .setTitle(R.string.device_management_limit_title)
+                                 .setMessage(R.string.device_management_limit_active).get())
                 .setPositiveButton(R.string.device_management_register, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -933,9 +939,9 @@ public class OnboardActivity extends FragmentActivity
     public void onDeviceBlock() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setView(new CustomFontViewBuilder(this)
-                        .setIcon(R.drawable.dialog_device_management)
-                        .setTitle(R.string.device_management_limit_title)
-                        .setMessage(R.string.device_management_limit_registered).get())
+                                 .setIcon(R.drawable.dialog_device_management)
+                                 .setTitle(R.string.device_management_limit_title)
+                                 .setMessage(R.string.device_management_limit_registered).get())
                 .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(builder, OnboardingEvent.deviceBlockOnLogin());
     }

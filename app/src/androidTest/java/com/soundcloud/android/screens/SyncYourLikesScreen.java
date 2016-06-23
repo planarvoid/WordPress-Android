@@ -17,7 +17,8 @@ public class SyncYourLikesScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return testDriver.findOnScreenElement(text(testDriver.getString(R.string.offline_likes_dialog_title))).isOnScreen();
+        return testDriver.findOnScreenElement(text(testDriver.getString(R.string.offline_likes_dialog_title)))
+                         .isOnScreen();
     }
 
     public TrackLikesScreen clickKeepLikesSynced() {
@@ -33,7 +34,7 @@ public class SyncYourLikesScreen extends Screen {
     }
 
     private ViewElement content() {
-        int titleId = testDriver.getResources().getIdentifier( "contentPanel", "id", "android" );
+        int titleId = testDriver.getResources().getIdentifier("contentPanel", "id", "android");
         return testDriver.findOnScreenElement(With.id(titleId));
     }
 

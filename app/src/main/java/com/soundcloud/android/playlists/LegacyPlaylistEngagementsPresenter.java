@@ -169,9 +169,11 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
                 this.playlistHeaderItem.getTrackCount());
 
         playlistEngagementsView.setInfoText(context.getString(R.string.playlist_new_info_header_text_trackcount_duration,
-                trackCount, this.playlistHeaderItem.geFormattedDuration()));
+                                                              trackCount,
+                                                              this.playlistHeaderItem.geFormattedDuration()));
 
-        playlistEngagementsView.updateLikeItem(this.playlistHeaderItem.getLikesCount(), this.playlistHeaderItem.isLikedByUser());
+        playlistEngagementsView.updateLikeItem(this.playlistHeaderItem.getLikesCount(),
+                                               this.playlistHeaderItem.isLikedByUser());
 
         showPublicOptions(this.playlistHeaderItem);
         showShuffleOption(this.playlistHeaderItem);
@@ -183,10 +185,10 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     private void subscribeForOfflineContentUpdates() {
         offlineStateSubscription.unsubscribe();
         offlineStateSubscription = eventBus.queue(EventQueue.OFFLINE_CONTENT_CHANGED)
-                .filter(isCurrentPlaylist(playlistHeaderItem))
-                .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new OfflineStateSubscriber());
+                                           .filter(isCurrentPlaylist(playlistHeaderItem))
+                                           .map(OfflineContentChangedEvent.TO_OFFLINE_STATE)
+                                           .observeOn(AndroidSchedulers.mainThread())
+                                           .subscribe(new OfflineStateSubscriber());
     }
 
     private void showShuffleOption(PlaylistHeaderItem headerItem) {
@@ -249,7 +251,8 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         } else if (offlineOperations.isOfflineCollectionEnabled()) {
             playlistEngagementsView.setOfflineAvailability(true);
             ConfirmRemoveOfflineDialogFragment.showForPlaylist(fragmentManager, playlistHeaderItem.getUrn(),
-                    playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo());
+                                                               playlistHeaderItem.getPlaySessionSource()
+                                                                                 .getPromotedSourceInfo());
         } else {
             fireAndForget(offlineOperations.makePlaylistUnavailableOffline(playlistHeaderItem.getUrn()));
             eventBus.publish(EventQueue.TRACKING, getOfflinePlaylistTrackingEvent(false));
@@ -258,30 +261,32 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
 
     private TrackingEvent getOfflinePlaylistTrackingEvent(boolean isMarkedForOffline) {
         return isMarkedForOffline ?
-                OfflineInteractionEvent.fromAddOfflinePlaylist(
-                        Screen.PLAYLIST_DETAILS.get(),
-                        playlistHeaderItem.getUrn(),
-                        playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo()) :
-                OfflineInteractionEvent.fromRemoveOfflinePlaylist(
-                        Screen.PLAYLIST_DETAILS.get(),
-                        playlistHeaderItem.getUrn(),
-                        playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo());
+               OfflineInteractionEvent.fromAddOfflinePlaylist(
+                       Screen.PLAYLIST_DETAILS.get(),
+                       playlistHeaderItem.getUrn(),
+                       playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo()) :
+               OfflineInteractionEvent.fromRemoveOfflinePlaylist(
+                       Screen.PLAYLIST_DETAILS.get(),
+                       playlistHeaderItem.getUrn(),
+                       playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo());
     }
 
     @Override
     public void onUpsell(Context context) {
         navigator.openUpgrade(context);
         eventBus.publish(EventQueue.TRACKING,
-                UpgradeFunnelEvent.forPlaylistPageClick(playlistHeaderItem.getUrn()));
+                         UpgradeFunnelEvent.forPlaylistPageClick(playlistHeaderItem.getUrn()));
     }
 
     @Override
     public void onPlayShuffled() {
         if (playlistHeaderItem != null) {
             final Observable<List<Urn>> tracks = playlistOperations.trackUrnsForPlayback(playlistHeaderItem.getUrn());
-            playbackInitiator.playTracksShuffled(tracks, playlistHeaderItem.getPlaySessionSource(), featureOperations.isOfflineContentEnabled())
-                    .doOnCompleted(publishAnalyticsEventForShuffle())
-                    .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+            playbackInitiator.playTracksShuffled(tracks,
+                                                 playlistHeaderItem.getPlaySessionSource(),
+                                                 featureOperations.isOfflineContentEnabled())
+                             .doOnCompleted(publishAnalyticsEventForShuffle())
+                             .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
         }
     }
 
@@ -309,11 +314,11 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     public void onToggleLike(boolean addLike) {
         if (playlistHeaderItem != null) {
             eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromToggleLike(addLike,
-                            playlistHeaderItem.getUrn(),
-                            getEventContext(),
-                            playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo(),
-                            EntityMetadata.from(playlistHeaderItem)));
+                             UIEvent.fromToggleLike(addLike,
+                                                    playlistHeaderItem.getUrn(),
+                                                    getEventContext(),
+                                                    playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo(),
+                                                    EntityMetadata.from(playlistHeaderItem)));
 
             fireAndForget(likeOperations.toggleLike(playlistHeaderItem.getUrn(), addLike));
         }
@@ -323,16 +328,16 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     public void onToggleRepost(boolean isReposted, boolean showResultToast) {
         if (playlistHeaderItem != null) {
             eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromToggleRepost(isReposted,
-                            playlistHeaderItem.getUrn(),
-                            getEventContext(),
-                            playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo(),
-                            EntityMetadata.from(playlistHeaderItem)));
+                             UIEvent.fromToggleRepost(isReposted,
+                                                      playlistHeaderItem.getUrn(),
+                                                      getEventContext(),
+                                                      playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo(),
+                                                      EntityMetadata.from(playlistHeaderItem)));
 
             if (showResultToast) {
                 repostOperations.toggleRepost(playlistHeaderItem.getUrn(), isReposted)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RepostResultSubscriber(context, isReposted));
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new RepostResultSubscriber(context, isReposted));
             } else {
                 fireAndForget(repostOperations.toggleRepost(playlistHeaderItem.getUrn(), isReposted));
             }
@@ -341,20 +346,20 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
 
     private EventContextMetadata getEventContext() {
         return EventContextMetadata.builder()
-                .contextScreen(originProvider.getScreenTag())
-                .pageName(Screen.PLAYLIST_DETAILS.get())
-                .invokerScreen(Screen.PLAYLIST_DETAILS.get())
-                .pageUrn(playlistHeaderItem.getUrn())
-                .build();
+                                   .contextScreen(originProvider.getScreenTag())
+                                   .pageName(Screen.PLAYLIST_DETAILS.get())
+                                   .invokerScreen(Screen.PLAYLIST_DETAILS.get())
+                                   .pageUrn(playlistHeaderItem.getUrn())
+                                   .build();
     }
 
     @Override
     public void onShare() {
         if (playlistHeaderItem != null) {
             shareOperations.share(context,
-                    playlistHeaderItem.getSource(),
-                    getEventContext(),
-                    playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo());
+                                  playlistHeaderItem.getSource(),
+                                  getEventContext(),
+                                  playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo());
         }
     }
 

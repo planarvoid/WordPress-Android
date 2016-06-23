@@ -53,7 +53,7 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
         eventBus = new TestEventBus();
         presenter = new WebCheckoutPresenter(view, accountOperations, localeFormatter, lazyOf(paymentOperations),
-                navigator, eventBus, resources);
+                                             navigator, eventBus, resources);
     }
 
     @Test
@@ -137,22 +137,40 @@ public class WebCheckoutPresenterTest extends AndroidUnitTest {
 
     @Test
     public void shouldBuildUrlThatIncludesCorrectQueryParamsWhenThereIsNoDiscount() {
-        final WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", null, "2.00", "USD", 30, "start", "expiry");
+        final WebProduct product = WebProduct.create("high_tier",
+                                                     "some:product:123",
+                                                     "$2",
+                                                     null,
+                                                     "2.00",
+                                                     "USD",
+                                                     30,
+                                                     "start",
+                                                     "expiry");
         final String token = "12345";
         final String environment = "test";
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
-        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=expiry&package_urn=some%3Aproduct%3A123&env=test&locale=en-GB");
-        
+        final Uri expected = Uri.parse(
+                "https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=expiry&package_urn=some%3Aproduct%3A123&env=test&locale=en-GB");
+
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     public void shouldBuildUrlThatIncludesCorrectQueryParamsWhenThereIsADiscount() {
-        final WebProduct product = WebProduct.create("high_tier", "some:product:123", "$2", "$1", "1.00", "USD", 30, "start", "expiry");
+        final WebProduct product = WebProduct.create("high_tier",
+                                                     "some:product:123",
+                                                     "$2",
+                                                     "$1",
+                                                     "1.00",
+                                                     "USD",
+                                                     30,
+                                                     "start",
+                                                     "expiry");
         final String token = "12345";
         final String environment = "test";
         final Uri actual = Uri.parse(presenter.buildPaymentFormUrl(token, product, environment));
-        final Uri expected = Uri.parse("https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=expiry&package_urn=some%3Aproduct%3A123&env=test&discount_price=%241&locale=en-GB");
+        final Uri expected = Uri.parse(
+                "https://soundcloud.com/android_payment.html?oauth_token=12345&price=%242&trial_days=30&expiry_date=expiry&package_urn=some%3Aproduct%3A123&env=test&discount_price=%241&locale=en-GB");
 
         assertThat(actual).isEqualTo(expected);
     }

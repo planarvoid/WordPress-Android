@@ -25,7 +25,7 @@ import org.mockito.Mock;
 import android.os.Bundle;
 
 public class SignupTaskTest extends AndroidUnitTest {
-    
+
     @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private ApiClient apiClient;
     @Mock private StoreUsersCommand storeUsersCommand;
@@ -74,7 +74,10 @@ public class SignupTaskTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnSpamAuthTaskResultOnSignupCaptchaRequiredError() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, null, "Spam detected, login on web page with captcha.", 103));
+        setupSignupWithError(ApiRequestException.validationError(null,
+                                                                 null,
+                                                                 "Spam detected, login on web page with captcha.",
+                                                                 103));
         AuthTaskResult result = doSignup();
         assertThat(result.wasSpam()).isTrue();
     }
@@ -88,14 +91,20 @@ public class SignupTaskTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnGenericErrorAuthTaskResultOnSignupOtherErrorWithLegacyErrors() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, null, "Sorry we couldn't sign you up with the details you provided.", 105));
+        setupSignupWithError(ApiRequestException.validationError(null,
+                                                                 null,
+                                                                 "Sorry we couldn't sign you up with the details you provided.",
+                                                                 105));
         AuthTaskResult result = doSignup();
         assertThat(result.wasFailure()).isTrue();
     }
 
     @Test
     public void shouldReturnFailureAuthTaskResultOnUnrecognizedErrorCode() throws Exception {
-        setupSignupWithError(ApiRequestException.validationError(null, null, "Sorry we couldn't sign you up with the details you provided.", 180));
+        setupSignupWithError(ApiRequestException.validationError(null,
+                                                                 null,
+                                                                 "Sorry we couldn't sign you up with the details you provided.",
+                                                                 180));
         AuthTaskResult result = doSignup();
         assertThat(result.wasFailure()).isTrue();
     }
@@ -165,13 +174,15 @@ public class SignupTaskTest extends AndroidUnitTest {
     private void setupSignupWithUser(PublicApiUser user) throws Exception {
         when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP)).thenReturn(new Token("access", "refresh"));
 
-        when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)), eq(PublicApiUser.class)))
+        when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)),
+                                           eq(PublicApiUser.class)))
                 .thenReturn(user);
     }
 
     private void setupSignupWithError(ApiRequestException exception) throws Exception {
         when(tokenInformationGenerator.verifyScopes(Token.SCOPE_SIGNUP)).thenReturn(new Token("access", "refresh"));
-        when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)), eq(PublicApiUser.class)))
+        when(apiClient.fetchMappedResponse(argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_USERS)),
+                                           eq(PublicApiUser.class)))
                 .thenThrow(exception);
     }
 

@@ -39,19 +39,19 @@ public class PlayerTrackArtworkView extends FrameLayout {
     }
 
     public void setArtworkActive(boolean isActive) {
-        if (isActive){
+        if (isActive) {
             wrappedImageView.animate()
-                    .setDuration(100)
-                    .setInterpolator(new DecelerateInterpolator())
-                    .scaleX(PLAYING_SCALE)
-                    .scaleY(PLAYING_SCALE)
-                    .start();
+                            .setDuration(100)
+                            .setInterpolator(new DecelerateInterpolator())
+                            .scaleX(PLAYING_SCALE)
+                            .scaleY(PLAYING_SCALE)
+                            .start();
         } else {
             wrappedImageView.animate()
-                    .setDuration(100)
-                    .scaleX(1)
-                    .scaleY(1)
-                    .start();
+                            .setDuration(100)
+                            .scaleX(1)
+                            .scaleY(1)
+                            .start();
         }
     }
 
@@ -66,12 +66,12 @@ public class PlayerTrackArtworkView extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (onWidthChangedListener != null){
+        if (onWidthChangedListener != null) {
             onWidthChangedListener.onArtworkSizeChanged();
         }
     }
 
-    public interface OnWidthChangedListener{
+    public interface OnWidthChangedListener {
         void onArtworkSizeChanged();
     }
 }

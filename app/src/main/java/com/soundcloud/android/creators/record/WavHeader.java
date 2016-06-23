@@ -375,8 +375,8 @@ public class WavHeader {
     @Override
     public String toString() {
         return String.format(Locale.ENGLISH,
-                "WaveHeader format=%d numChannels=%d sampleRate=%d bitsPerSample=%d numBytes=%d",
-                format, numChannels, sampleRate, bitsPerSample, numBytes);
+                             "WaveHeader format=%d numChannels=%d sampleRate=%d bitsPerSample=%d numBytes=%d",
+                             format, numChannels, sampleRate, bitsPerSample, numBytes);
     }
 
     public AudioConfig getAudioConfig() {

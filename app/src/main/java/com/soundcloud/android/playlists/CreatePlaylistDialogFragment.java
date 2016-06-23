@@ -91,10 +91,13 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         final String playlistTitle = input.getText().toString().trim();
                         if (TextUtils.isEmpty(playlistTitle)) {
-                            Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT)
+                                 .show();
                         } else {
                             createPlaylist(playlistTitle, privacy.isChecked(), offline.isChecked());
-                            Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(),
+                                           R.string.added_to_playlist,
+                                           Toast.LENGTH_SHORT).show();
                             dismiss();
                         }
                     }
@@ -116,18 +119,20 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
 
     private void createPlaylist(final String title, final boolean isPrivate, final boolean isOffline) {
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-        final Observable<Urn> newPlaylist = playlistOperations.createNewPlaylist(title, isPrivate, Urn.forTrack(firstTrackId));
+        final Observable<Urn> newPlaylist = playlistOperations.createNewPlaylist(title,
+                                                                                 isPrivate,
+                                                                                 Urn.forTrack(firstTrackId));
 
         fireAndForget(isOffline
-                ? newPlaylist.flatMap(makeAvailableOffline)
-                : newPlaylist);
+                      ? newPlaylist.flatMap(makeAvailableOffline)
+                      : newPlaylist);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(getEventContextMetadata()));
     }
 
     private EventContextMetadata getEventContextMetadata() {
         return EventContextMetadata.builder()
-                .invokerScreen(getArguments().getString(KEY_INVOKER_SCREEN))
-                .contextScreen(getArguments().getString(KEY_CONTEXT_SCREEN))
-                .build();
+                                   .invokerScreen(getArguments().getString(KEY_INVOKER_SCREEN))
+                                   .contextScreen(getArguments().getString(KEY_CONTEXT_SCREEN))
+                                   .build();
     }
 }

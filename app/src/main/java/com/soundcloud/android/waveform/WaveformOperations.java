@@ -31,7 +31,11 @@ public class WaveformOperations {
     private final WaveformParser waveformParser;
 
     @Inject
-    WaveformOperations(Context context, WaveformFetchCommand waveformFetcher, WaveformStorage storage, WaveformParser waveformParser, ClearTableCommand clearTableCommand,
+    WaveformOperations(Context context,
+                       WaveformFetchCommand waveformFetcher,
+                       WaveformStorage storage,
+                       WaveformParser waveformParser,
+                       ClearTableCommand clearTableCommand,
                        @Named(ApplicationModule.LOW_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.waveformFetcher = waveformFetcher;
@@ -43,8 +47,8 @@ public class WaveformOperations {
 
     public Observable<WaveformData> waveformDataFor(final Urn trackUrn, final String waveformUrl) {
         return waveformStorage.load(trackUrn)
-                .switchIfEmpty(fetchAndStore(trackUrn, waveformUrl))
-                .subscribeOn(scheduler);
+                              .switchIfEmpty(fetchAndStore(trackUrn, waveformUrl))
+                              .subscribeOn(scheduler);
     }
 
     public void clearWaveforms() {
@@ -53,8 +57,8 @@ public class WaveformOperations {
 
     private Observable<WaveformData> fetchAndStore(Urn trackUrn, String waveformUrl) {
         return waveformFetcher.toObservable(waveformUrl)
-                .doOnNext(storeAction(trackUrn))
-                .onErrorResumeNext(fetchDefault());
+                              .doOnNext(storeAction(trackUrn))
+                              .onErrorResumeNext(fetchDefault());
     }
 
     @VisibleForTesting

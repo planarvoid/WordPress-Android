@@ -27,7 +27,7 @@ class PostedTrackItemRenderer extends TrackItemRenderer {
                                    Navigator navigator, FeatureOperations featureOperations,
                                    TrackItemView.Factory trackItemViewFactory) {
         super(imageOperations, numberFormatter, trackItemMenuPresenter, eventBus,
-                screenProvider, navigator, featureOperations, trackItemViewFactory);
+              screenProvider, navigator, featureOperations, trackItemViewFactory);
     }
 
     @Override

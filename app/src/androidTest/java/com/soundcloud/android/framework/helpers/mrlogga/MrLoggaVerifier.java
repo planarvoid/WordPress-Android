@@ -41,18 +41,21 @@ public class MrLoggaVerifier {
     private void startLoggingTrackingEvents() {
         MrLoggaResponse startLoggingResponse = client.startLogging();
         isLogSessionActive = startLoggingResponse.success;
-        assertTrue("Failed to start MrLoggaLogga logging\n" + startLoggingResponse.responseBody, startLoggingResponse.success);
+        assertTrue("Failed to start MrLoggaLogga logging\n" + startLoggingResponse.responseBody,
+                   startLoggingResponse.success);
     }
 
     private void stopLoggingTrackingEvents() {
         MrLoggaResponse stopLoggingSession = client.stopLogging();
         isLogSessionActive = !stopLoggingSession.success;
-        assertTrue("Failed to finish MrLoggaLogga logging\n" + stopLoggingSession.responseBody, stopLoggingSession.success);
+        assertTrue("Failed to finish MrLoggaLogga logging\n" + stopLoggingSession.responseBody,
+                   stopLoggingSession.success);
     }
 
     private void assertScenarioImmediately(String scenarioId) {
         final MrLoggaResponse response = client.validate(scenarioId);
-        assertTrue("Error validating scenario: " + scenarioId + " on device " + client.deviceUDID + " \n" + response.responseBody, response.success);
+        assertTrue("Error validating scenario: " + scenarioId + " on device " + client.deviceUDID + " \n" + response.responseBody,
+                   response.success);
     }
 
     static class IsScenarioComplete implements Condition {

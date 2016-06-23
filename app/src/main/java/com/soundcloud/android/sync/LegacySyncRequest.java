@@ -62,11 +62,15 @@ import java.util.Set;
     public void finish() {
         if (resultReceiver != null) {
             if (isSuccess()) {
-                resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ? ApiSyncService.STATUS_APPEND_FINISHED : ApiSyncService.STATUS_SYNC_FINISHED, resultData);
+                resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ?
+                                    ApiSyncService.STATUS_APPEND_FINISHED :
+                                    ApiSyncService.STATUS_SYNC_FINISHED, resultData);
             } else {
                 final Bundle bundle = new Bundle();
                 bundle.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, syncAdapterResult);
-                resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ? ApiSyncService.STATUS_APPEND_ERROR : ApiSyncService.STATUS_SYNC_ERROR, bundle);
+                resultReceiver.send(ApiSyncService.ACTION_APPEND.equals(action) ?
+                                    ApiSyncService.STATUS_APPEND_ERROR :
+                                    ApiSyncService.STATUS_SYNC_ERROR, bundle);
             }
         }
     }
@@ -89,7 +93,7 @@ import java.util.Set;
             this.collectionSyncRequestFactory = collectionSyncRequestFactory;
         }
 
-        LegacySyncRequest create(Intent intent){
+        LegacySyncRequest create(Intent intent) {
             return new LegacySyncRequest(intent, collectionSyncRequestFactory);
         }
     }
@@ -125,14 +129,16 @@ import java.util.Set;
         requestsRemaining.remove(legacySyncJob);
 
         resultData.putBoolean(legacySyncJob.getContentUri().toString(), isUIRequest ?
-                legacySyncJob.getResult().change != LegacySyncResult.UNCHANGED : legacySyncJob.getResult().change == LegacySyncResult.CHANGED);
+                                                                        legacySyncJob.getResult().change != LegacySyncResult.UNCHANGED :
+                                                                        legacySyncJob.getResult().change == LegacySyncResult.CHANGED);
 
         if (!legacySyncJob.getResult().success) {
             syncAdapterResult.stats.numAuthExceptions += legacySyncJob.getResult().syncResult.stats.numAuthExceptions;
             syncAdapterResult.stats.numIoExceptions += legacySyncJob.getResult().syncResult.stats.numIoExceptions;
             syncAdapterResult.stats.numParseExceptions += legacySyncJob.getResult().syncResult.stats.numParseExceptions;
             // This is called for multiple jobs per request, so always maintain the highest delay from any of the jobs
-            syncAdapterResult.delayUntil = Math.max(legacySyncJob.getResult().syncResult.delayUntil, syncAdapterResult.delayUntil);
+            syncAdapterResult.delayUntil = Math.max(legacySyncJob.getResult().syncResult.delayUntil,
+                                                    syncAdapterResult.delayUntil);
         }
     }
 

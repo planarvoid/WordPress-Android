@@ -65,21 +65,24 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, storeUsersCommand,
-                accountOperations, configurationOperations, new TestEventBus(), apiClient);
+                                        accountOperations, configurationOperations, new TestEventBus(), apiClient);
 
-        stub(tokenInformationGenerator.getGrantBundle(anyString(),anyString())).toReturn(bundle);
+        stub(tokenInformationGenerator.getGrantBundle(anyString(), anyString())).toReturn(bundle);
     }
 
     @Test
     public void shouldSpecifyTheCorrectGrantTypeWhenCreatingGrantString() throws IOException, GoogleAuthException {
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn(
+                "validtoken");
         task.doInBackground(bundle);
-        verify(tokenInformationGenerator).getGrantBundle("urn:soundcloud:oauth2:grant-type:google_plus&access_token=", "validtoken");
+        verify(tokenInformationGenerator).getGrantBundle("urn:soundcloud:oauth2:grant-type:google_plus&access_token=",
+                                                         "validtoken");
     }
 
     @Test
     public void shouldInvalidateTokenIfInvalidTokenExceptionIsThrown() throws IOException, GoogleAuthException, ApiRequestException {
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn("invalidtoken");
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn(
+                "invalidtoken");
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenThrow(TokenRetrievalException.class);
         task.doInBackground(bundle);
         verify(accountOperations, times(2)).invalidateGoogleAccountToken("invalidtoken");
@@ -87,7 +90,8 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
 
     @Test
     public void shouldReturnFailureIfGoogleTokenCouldNotBeObtained() throws IOException, GoogleAuthException {
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenThrow(GoogleAuthException.class);
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenThrow(
+                GoogleAuthException.class);
         assertThat(task.doInBackground(bundle).wasSuccess()).isFalse();
     }
 
@@ -96,7 +100,8 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(
                 isApiRequestTo("GET", ApiEndpoints.ME.path())), isA(TypeToken.class)))
                 .thenReturn(Me.create(user));
-        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME),eq(SCOPE), any(Bundle.class))).thenReturn("validtoken");
+        when(accountOperations.getGoogleAccountToken(eq(ACCOUNT_NAME), eq(SCOPE), any(Bundle.class))).thenReturn(
+                "validtoken");
         when(app.addUserAccountAndEnableSync(eq(user), any(Token.class), any(SignupVia.class))).thenReturn(true);
         assertThat(task.doInBackground(bundle).wasSuccess()).isTrue();
     }
@@ -104,9 +109,10 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Test
     public void shouldRequestSpecificVisibleActivities() throws Exception {
         Bundle expectedExtras = new Bundle();
-        expectedExtras.putString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES,  "http://schemas.google.com/AddActivity " +
-                "http://schemas.google.com/CreateActivity " +
-                "http://schemas.google.com/ListenActivity");
+        expectedExtras.putString(GoogleAuthUtil.KEY_REQUEST_VISIBLE_ACTIVITIES,
+                                 "http://schemas.google.com/AddActivity " +
+                                         "http://schemas.google.com/CreateActivity " +
+                                         "http://schemas.google.com/ListenActivity");
 
         task.doInBackground(bundle);
 

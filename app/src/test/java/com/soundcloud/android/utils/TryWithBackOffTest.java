@@ -31,7 +31,7 @@ public class TryWithBackOffTest {
     @Before
     public void setUp() throws Exception {
         tryWithBackOff = new TryWithBackOff<>(sleeper, INITIAL_BACK_OFF_TIME, TIME_UNIT,
-                BACK_OFF_MULTIPLIER, MAX_ATTEMPTS);
+                                              BACK_OFF_MULTIPLIER, MAX_ATTEMPTS);
     }
 
     @Test

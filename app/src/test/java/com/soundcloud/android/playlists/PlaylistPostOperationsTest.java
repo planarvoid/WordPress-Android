@@ -65,7 +65,9 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
     @Test
     public void syncAndLoadPlaylistPostsWhenInitialPlaylistPostsLoadReturnsEmptyList() {
         final List<PropertySet> firstPage = createPageOfPostedPlaylists(PAGE_SIZE);
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE,
+                                                     Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
+                                                                                 Observable.just(firstPage));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.postedPlaylists().subscribe(observer);
@@ -75,7 +77,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void syncAndLoadEmptyPlaylistPostsResultsWithEmptyResults() throws Exception {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE,
+                                                     Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.postedPlaylists().subscribe(observer);
@@ -85,7 +88,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void postedPlaylistsReturnsPostedPlaylistsFromStorage() {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(
+                postedPlaylists));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.postedPlaylists().subscribe(observer);
@@ -95,7 +99,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void postedPlaylistsRequestsUpdatesFromSyncerWhenOnWifi() {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(
+                postedPlaylists));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
@@ -106,7 +111,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void postedPlaylistsDoesNotRequestsUpdatesFromSyncerWhenOffWifi() {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(
+                postedPlaylists));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(false);
 
@@ -117,7 +123,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void postedPlaylistsRequestsDoesNotUpdateEmptyListFromSyncer() {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE,
+                                                     Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.postedPlaylists().subscribe(observer);
@@ -130,7 +137,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
         final List<PropertySet> firstPage = createPageOfPostedPlaylists(PAGE_SIZE);
         final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE,
+                                                     time)).thenReturn(Observable.<List<PropertySet>>never());
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.pagingFunction().call(firstPage);
@@ -140,7 +148,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void playlistPagerFinishesIfLastPageIncomplete() throws Exception {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(
+                postedPlaylists));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         assertThat(operations.pagingFunction().call(postedPlaylists)).isSameAs(Pager.finish());
@@ -148,7 +157,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedPostedPlaylistsReloadsPostedPlaylistsAfterSyncWithChange() {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(
+                postedPlaylists));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.updatedPostedPlaylists().subscribe(observer);
@@ -158,7 +168,8 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedPostedPlaylistsRequestsUpdatesFromSyncerWhenOnWifi() {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(postedPlaylists));
+        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(
+                postedPlaylists));
         when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
@@ -215,9 +226,9 @@ public class PlaylistPostOperationsTest extends AndroidUnitTest {
         assertThat(observer.getOnCompletedEvents()).hasSize(1);
     }
 
-    private List<PropertySet> createPageOfPostedPlaylists(int size){
+    private List<PropertySet> createPageOfPostedPlaylists(int size) {
         List<PropertySet> page = new ArrayList<>(size);
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             page.add(TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen());
         }
         return page;

@@ -56,8 +56,8 @@ public class PlanChangeOperations {
 
     public Observable<Object> awaitAccountDowngrade() {
         return configurationOperations.awaitConfigurationFromPendingPlanChange()
-                .flatMap(continueWith(offlineContentOperations.resetOfflineFeature()))
-                .compose(new PlanChangedSteps());
+                                      .flatMap(continueWith(offlineContentOperations.resetOfflineFeature()))
+                                      .compose(new PlanChangedSteps());
     }
 
     public Observable<Object> awaitAccountUpgrade() {
@@ -78,10 +78,10 @@ public class PlanChangeOperations {
         @Override
         public Observable<Object> call(Observable<Object> source) {
             return source.flatMap(continueWith(policyOperations.refreshedTrackPolicies()))
-                    .doOnSubscribe(resetPlaySession)
-                    .doOnCompleted(clearPendingPlanChangeFlags)
-                    .doOnError(clearPendingPlanChangeFlagsIfUnrecoverableError)
-                    .cast(Object.class);
+                         .doOnSubscribe(resetPlaySession)
+                         .doOnCompleted(clearPendingPlanChangeFlags)
+                         .doOnError(clearPendingPlanChangeFlagsIfUnrecoverableError)
+                         .cast(Object.class);
         }
     }
 }

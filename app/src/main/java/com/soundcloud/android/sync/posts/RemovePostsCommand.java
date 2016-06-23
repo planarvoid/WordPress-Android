@@ -29,11 +29,11 @@ class RemovePostsCommand extends DefaultWriteStorageCommand<Collection<PropertyS
             writeResult = propeller.delete(Table.Posts, filter()
                     .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
                     .whereEq(TableColumns.Posts.TARGET_TYPE, urn.isTrack()
-                            ? TableColumns.Sounds.TYPE_TRACK
-                            : TableColumns.Sounds.TYPE_PLAYLIST)
+                                                             ? TableColumns.Sounds.TYPE_TRACK
+                                                             : TableColumns.Sounds.TYPE_PLAYLIST)
                     .whereEq(TableColumns.Posts.TYPE, post.get(PostProperty.IS_REPOST)
-                            ? TableColumns.Posts.TYPE_REPOST
-                            : TableColumns.Posts.TYPE_POST));
+                                                      ? TableColumns.Posts.TYPE_REPOST
+                                                      : TableColumns.Posts.TYPE_POST));
         }
         return writeResult; // not very robust, do we care about failure here?
     }

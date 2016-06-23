@@ -17,8 +17,8 @@ public class ApiPlaylistRepostTest {
     public void createsPropertySetFromTrackDependencyWithRepost() {
         assertThat(new ApiPlaylistRepost(apiPlaylist, REPOST_DATE).toPropertySet()).isEqualTo(
                 apiPlaylist.toPropertySet()
-                        .put(PostProperty.IS_REPOST, true)
-                        .put(PostProperty.CREATED_AT, REPOST_DATE));
+                           .put(PostProperty.IS_REPOST, true)
+                           .put(PostProperty.CREATED_AT, REPOST_DATE));
     }
 
     @Test

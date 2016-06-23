@@ -40,6 +40,6 @@ public class PlaySessionStateStorage {
 
     Urn getLastPlayingItem() {
         return sharedPreferences.contains(Keys.ITEM.name()) ?
-                new Urn(sharedPreferences.getString(Keys.ITEM.name(), Strings.EMPTY)) : Urn.NOT_SET;
+               new Urn(sharedPreferences.getString(Keys.ITEM.name(), Strings.EMPTY)) : Urn.NOT_SET;
     }
 }

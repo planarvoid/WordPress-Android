@@ -36,7 +36,8 @@ public class ShortcutsStorageTest extends StorageIntegrationTest {
 
         final String title = apiTrack.getTitle();
         final int startIndex = title.indexOf(" ");
-        final List<Shortcut> shortcuts = shortcutsStorage.getShortcuts(title.substring(startIndex + 1, startIndex + 3), 1);
+        final List<Shortcut> shortcuts = shortcutsStorage.getShortcuts(title.substring(startIndex + 1, startIndex + 3),
+                                                                       1);
 
         assertThat(shortcuts).containsExactly(Shortcut.create(apiTrack.getUrn(), title));
     }

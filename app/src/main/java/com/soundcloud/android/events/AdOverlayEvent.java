@@ -21,6 +21,7 @@ public class AdOverlayEvent {
     public static AdOverlayEvent shown(Urn playingUrn, OverlayAdData adData, TrackSourceInfo trackSourceInfo) {
         return new AdOverlayEvent(SHOWN, playingUrn, adData, trackSourceInfo);
     }
+
     public static AdOverlayEvent hidden() {
         return HIDDEN_EVENT;
     }

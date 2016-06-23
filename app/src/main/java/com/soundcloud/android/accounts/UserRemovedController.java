@@ -26,7 +26,8 @@ public class UserRemovedController extends DefaultActivityLightCycle<AppCompatAc
 
     @Override
     public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
-        userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber(activity));
+        userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED,
+                                                   new CurrentUserChangedSubscriber(activity));
     }
 
     @Override

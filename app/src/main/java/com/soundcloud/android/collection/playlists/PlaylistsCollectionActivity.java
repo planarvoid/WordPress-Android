@@ -33,7 +33,9 @@ public class PlaylistsCollectionActivity extends PlayerActivity {
     }
 
     private void attachFragment() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new PlaylistsCollectionFragment()).commit();
+        getSupportFragmentManager().beginTransaction()
+                                   .replace(R.id.container, new PlaylistsCollectionFragment())
+                                   .commit();
     }
 
 }

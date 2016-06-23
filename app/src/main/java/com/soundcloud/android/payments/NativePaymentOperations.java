@@ -36,8 +36,8 @@ class NativePaymentOperations {
         @Override
         public PurchaseStatus call(ApiResponse apiResponse) {
             return apiResponse.isSuccess()
-                    ? PurchaseStatus.PENDING
-                    : PurchaseStatus.UPDATE_FAIL;
+                   ? PurchaseStatus.PENDING
+                   : PurchaseStatus.UPDATE_FAIL;
         }
     };
 
@@ -63,8 +63,8 @@ class NativePaymentOperations {
         @Override
         public Observable<ProductStatus> call(Product product) {
             return product.isEmpty()
-                    ? Observable.just(ProductStatus.fromNoProduct())
-                    : queryProduct(product.id).map(ProductStatus.SUCCESS);
+                   ? Observable.just(ProductStatus.fromNoProduct())
+                   : queryProduct(product.id).map(ProductStatus.SUCCESS);
         }
     };
 
@@ -87,7 +87,10 @@ class NativePaymentOperations {
         this(ScSchedulers.HIGH_PRIO_SCHEDULER, api, playBilling, tokenStorage);
     }
 
-    NativePaymentOperations(Scheduler scheduler, ApiClientRx api, BillingService playBilling, TokenStorage tokenStorage) {
+    NativePaymentOperations(Scheduler scheduler,
+                            ApiClientRx api,
+                            BillingService playBilling,
+                            TokenStorage tokenStorage) {
         this.scheduler = scheduler;
         this.api = api;
         this.playBilling = playBilling;
@@ -104,9 +107,9 @@ class NativePaymentOperations {
 
     Observable<PurchaseStatus> queryStatus() {
         return playBilling.getStatus()
-                .subscribeOn(scheduler)
-                .flatMap(verifyPendingSubscription)
-                .observeOn(AndroidSchedulers.mainThread());
+                          .subscribeOn(scheduler)
+                          .flatMap(verifyPendingSubscription)
+                          .observeOn(AndroidSchedulers.mainThread());
     }
 
     Observable<ProductStatus> queryProduct() {
@@ -117,15 +120,15 @@ class NativePaymentOperations {
 
     Observable<String> purchase(final String id) {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CHECKOUT.path())
-                        .forPrivateApi()
-                        .withContent(new StartCheckout(id))
-                        .build();
+                                             .forPrivateApi()
+                                             .withContent(new StartCheckout(id))
+                                             .build();
         return api.mappedResponse(request, CheckoutStarted.class)
-                .subscribeOn(scheduler)
-                .map(CheckoutStarted.TOKEN)
-                .doOnNext(saveToken)
-                .doOnNext(launchPaymentFlow(id))
-                .observeOn(AndroidSchedulers.mainThread());
+                  .subscribeOn(scheduler)
+                  .map(CheckoutStarted.TOKEN)
+                  .doOnNext(saveToken)
+                  .doOnNext(launchPaymentFlow(id))
+                  .observeOn(AndroidSchedulers.mainThread());
     }
 
     private Action1<String> launchPaymentFlow(final String id) {
@@ -154,49 +157,49 @@ class NativePaymentOperations {
 
     private Observable<PurchaseStatus> update(final Payload payload) {
         return api.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
-                .subscribeOn(scheduler)
-                .map(TO_STATUS);
+                  .subscribeOn(scheduler)
+                  .map(TO_STATUS);
     }
 
     private Observable<PurchaseStatus> pollStatus() {
         return Observable.interval(VERIFY_THROTTLE_SECONDS, TimeUnit.SECONDS, scheduler)
-                .take(4)
-                .flatMap(new Func1<Long, Observable<PurchaseStatus>>() {
-                    @Override
-                    public Observable<PurchaseStatus> call(Long tick) {
-                        return getStatus();
-                    }
-                })
-                .filter(IGNORE_PENDING)
-                .firstOrDefault(PurchaseStatus.VERIFY_TIMEOUT);
+                         .take(4)
+                         .flatMap(new Func1<Long, Observable<PurchaseStatus>>() {
+                             @Override
+                             public Observable<PurchaseStatus> call(Long tick) {
+                                 return getStatus();
+                             }
+                         })
+                         .filter(IGNORE_PENDING)
+                         .firstOrDefault(PurchaseStatus.VERIFY_TIMEOUT);
     }
 
     private Observable<PurchaseStatus> getStatus() {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
-                .forPrivateApi()
-                .build();
+                          .forPrivateApi()
+                          .build();
         return api.mappedResponse(request, CheckoutUpdated.class)
-                .subscribeOn(scheduler)
-                .map(CheckoutUpdated.TO_STATUS);
+                  .subscribeOn(scheduler)
+                  .map(CheckoutUpdated.TO_STATUS);
     }
 
     public Observable<ApiResponse> cancel(final String reason) {
         return api.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)))
-                .subscribeOn(scheduler)
-                .doOnCompleted(clearToken);
+                  .subscribeOn(scheduler)
+                  .doOnCompleted(clearToken);
     }
 
     private ApiRequest buildUpdateRequest(UpdateCheckout update) {
         return ApiRequest.post(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
-                .forPrivateApi()
-                .withContent(update)
-                .build();
+                         .forPrivateApi()
+                         .withContent(update)
+                         .build();
     }
 
     private Observable<ProductDetails> queryProduct(String id) {
         return playBilling.getDetails(id)
-                .subscribeOn(scheduler);
+                          .subscribeOn(scheduler);
     }
 
     private Observable<Product> getSubscriptionId() {
@@ -207,8 +210,8 @@ class NativePaymentOperations {
     private Observable<AvailableProducts> fetchAvailableProducts() {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.NATIVE_PRODUCTS.path())
-                        .forPrivateApi()
-                        .build();
+                          .forPrivateApi()
+                          .build();
         return api.mappedResponse(request, AvailableProducts.class).subscribeOn(scheduler);
     }
 

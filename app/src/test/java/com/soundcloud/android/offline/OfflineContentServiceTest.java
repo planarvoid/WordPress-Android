@@ -69,8 +69,14 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(offlineContentOperations.loadOfflineContentUpdates())
                 .thenReturn(Observable.<OfflineContentUpdates>never());
         when(notificationController.onPendingRequests(any(DownloadQueue.class))).thenReturn(notification);
-        service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
-                offlineContentScheduler, handlerFactory, publisher, downloadQueue, Schedulers.immediate());
+        service = new OfflineContentService(downloadOperations,
+                                            offlineContentOperations,
+                                            notificationController,
+                                            offlineContentScheduler,
+                                            handlerFactory,
+                                            publisher,
+                                            downloadQueue,
+                                            Schedulers.immediate());
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         service.onCreate();
     }
@@ -78,8 +84,8 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void resetsDownloadQueueWhenStartingAService() {
         setUpOfflineContentUpdates(builder()
-                .tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
-                .build());
+                                           .tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
+                                           .build());
 
         startService();
 
@@ -107,8 +113,8 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void publishTrackRequestedWhenStarting() {
         setUpOfflineContentUpdates(builder()
-                .tracksToDownload(singletonList(downloadRequest1))
-                .build());
+                                           .tracksToDownload(singletonList(downloadRequest1))
+                                           .build());
 
         startService();
 
@@ -118,8 +124,8 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Test
     public void republishDownloadingWhenARequestIsAlreadyDownloading() {
         setUpOfflineContentUpdates(builder()
-                .tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
-                .build());
+                                           .tracksToDownload(Arrays.asList(downloadRequest1, downloadRequest2))
+                                           .build());
         when(downloadHandler.isDownloading()).thenReturn(true);
         when(downloadHandler.getCurrentRequest()).thenReturn(downloadRequest1);
 
@@ -495,8 +501,8 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(expectedOfflineContent.isEmpty()).thenReturn(requests.length == 0);
 
         setUpOfflineContentUpdates(builder()
-                .tracksToDownload(Arrays.asList(requests))
-                .userExpectedOfflineContent(expectedOfflineContent).build());
+                                           .tracksToDownload(Arrays.asList(requests))
+                                           .userExpectedOfflineContent(expectedOfflineContent).build());
     }
 
     private void setUpOfflineContentUpdates(OfflineContentUpdates updates) {

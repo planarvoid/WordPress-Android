@@ -25,10 +25,10 @@ public class WritePlayHistoryCommand extends Command<PlayHistoryRecord, Boolean>
 
     private ContentValues buildContentValue(PlayHistoryRecord record) {
         return ContentValuesBuilder.values()
-                .put(Tables.PlayHistory.TIMESTAMP, record.timestamp())
-                .put(Tables.PlayHistory.TRACK_ID, record.trackUrn().getNumericId())
-                .put(Tables.PlayHistory.CONTEXT_TYPE, record.getContextType())
-                .put(Tables.PlayHistory.CONTEXT_ID, record.contextUrn().getNumericId())
-                .get();
+                                   .put(Tables.PlayHistory.TIMESTAMP, record.timestamp())
+                                   .put(Tables.PlayHistory.TRACK_ID, record.trackUrn().getNumericId())
+                                   .put(Tables.PlayHistory.CONTEXT_TYPE, record.getContextType())
+                                   .put(Tables.PlayHistory.CONTEXT_ID, record.contextUrn().getNumericId())
+                                   .get();
     }
 }

@@ -18,7 +18,7 @@ class InlinePlaylistTracksAdapter extends ListItemAdapter<TrackItem> implements 
     InlinePlaylistTracksAdapter(PlaylistTrackItemRenderer playlistItemRenderer,
                                 EmptyPlaylistTracksRenderer emptyViewRenderer) {
         super(new CellRendererBinding<>(DEFAULT_VIEW_TYPE, playlistItemRenderer),
-                new CellRendererBinding<>(IGNORE_ITEM_VIEW_TYPE, emptyViewRenderer));
+              new CellRendererBinding<>(IGNORE_ITEM_VIEW_TYPE, emptyViewRenderer));
         this.emptyViewRenderer = emptyViewRenderer;
         this.playlistItemRenderer = playlistItemRenderer;
     }

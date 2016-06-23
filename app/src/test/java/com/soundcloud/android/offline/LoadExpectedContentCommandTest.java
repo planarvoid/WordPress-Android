@@ -76,7 +76,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 100);
         database().execSQL("UPDATE TrackDownloads SET downloaded_at=100"
-                + " WHERE _id=" + apiTrack.getUrn().getNumericId());
+                                   + " WHERE _id=" + apiTrack.getUrn().getNumericId());
 
         ExpectedOfflineContent toBeOffline = command.call(null);
 

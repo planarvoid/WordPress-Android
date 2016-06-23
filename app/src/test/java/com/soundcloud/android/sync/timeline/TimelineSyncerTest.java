@@ -68,7 +68,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
 
         timelineSyncer = new TimelineSyncer<>(ENDPOINT, CONTENT_URI, apiClient, insertCommand, replaceCommand,
-                timelineSyncStorage, new TypeToken<ModelCollection<Object>>() {
+                                              timelineSyncStorage, new TypeToken<ModelCollection<Object>>() {
         });
     }
 
@@ -108,7 +108,8 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ENDPOINT.path())), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
-        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_HARD_REFRESH);
+        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI,
+                                                                             ApiSyncService.ACTION_HARD_REFRESH);
         assertThat(legacySyncResult.success).isTrue();
         assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.CHANGED);
     }

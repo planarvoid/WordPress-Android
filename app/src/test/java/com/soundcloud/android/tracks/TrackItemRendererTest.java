@@ -60,7 +60,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         renderer = new TrackItemRenderer(imageOperations, numberFormatter, null, eventBus,
-                screenProvider, navigator, featureOperations, trackItemViewFactory);
+                                         screenProvider, navigator, featureOperations, trackItemViewFactory);
 
         propertySet = PropertySet.from(
                 TrackProperty.TITLE.bind("title"),

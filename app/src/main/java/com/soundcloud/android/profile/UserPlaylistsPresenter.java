@@ -23,13 +23,13 @@ class UserPlaylistsPresenter extends ProfilePlayablePresenter<PagedRemoteCollect
 
     @Inject
     UserPlaylistsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                          ImagePauseOnScrollListener imagePauseOnScrollListener,
-                          MixedPlayableRecyclerItemAdapter adapter,
-                          MixedItemClickListener.Factory clickListenerFactory,
-                          PlayableListUpdater.Factory updaterFactory,
-                          UserProfileOperations operations) {
+                           ImagePauseOnScrollListener imagePauseOnScrollListener,
+                           MixedPlayableRecyclerItemAdapter adapter,
+                           MixedItemClickListener.Factory clickListenerFactory,
+                           PlayableListUpdater.Factory updaterFactory,
+                           UserProfileOperations operations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
-                clickListenerFactory, updaterFactory);
+              clickListenerFactory, updaterFactory);
         this.operations = operations;
     }
 
@@ -37,9 +37,9 @@ class UserPlaylistsPresenter extends ProfilePlayablePresenter<PagedRemoteCollect
     protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
         return CollectionBinding.from(operations.userPlaylists(userUrn), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(operations.userPlaylistsPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(operations.userPlaylistsPagingFunction())
+                                .build();
     }
 
     @Override

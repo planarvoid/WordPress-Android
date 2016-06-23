@@ -29,7 +29,8 @@ public class ToolBarElement extends Element {
     }
 
     public ViewElement overflowButton() {
-        return testDriver.findOnScreenElement(With.className("android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton"));
+        return testDriver.findOnScreenElement(With.className(
+                "android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton"));
     }
 
     public SearchResultsScreen doSearch(String query) {

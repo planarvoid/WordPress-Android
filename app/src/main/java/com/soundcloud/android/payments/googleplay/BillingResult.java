@@ -35,7 +35,7 @@ public class BillingResult {
 
     public Payload getPayload() {
         return new Payload(data.getStringExtra(BillingUtil.RESPONSE_PURCHASE_DATA),
-                data.getStringExtra(BillingUtil.RESPONSE_SIGNATURE));
+                           data.getStringExtra(BillingUtil.RESPONSE_SIGNATURE));
     }
 
     public String getFailReason() {

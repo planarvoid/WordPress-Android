@@ -70,7 +70,10 @@ public class BillingService {
     private IInAppBillingService iabService;
 
     @Inject
-    BillingService(DeviceHelper deviceHelper, BillingServiceBinder binder, ResponseProcessor processor, EventBus eventBus) {
+    BillingService(DeviceHelper deviceHelper,
+                   BillingServiceBinder binder,
+                   ResponseProcessor processor,
+                   EventBus eventBus) {
         this.deviceHelper = deviceHelper;
         this.binder = binder;
         this.processor = processor;
@@ -103,7 +106,10 @@ public class BillingService {
             @Override
             public void call(Subscriber<? super ProductDetails> subscriber) {
                 try {
-                    Bundle response = iabService.getSkuDetails(IAB_VERSION, deviceHelper.getPackageName(), TYPE_SUBS, getSkuBundle(id));
+                    Bundle response = iabService.getSkuDetails(IAB_VERSION,
+                                                               deviceHelper.getPackageName(),
+                                                               TYPE_SUBS,
+                                                               getSkuBundle(id));
                     logBillingResponse("getSkuDetails", getResponseCodeFromBundle(response));
 
                     if (response.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
@@ -125,7 +131,10 @@ public class BillingService {
             @Override
             public void call(Subscriber<? super SubscriptionStatus> subscriber) {
                 try {
-                    Bundle response = iabService.getPurchases(IAB_VERSION, deviceHelper.getPackageName(), TYPE_SUBS, null);
+                    Bundle response = iabService.getPurchases(IAB_VERSION,
+                                                              deviceHelper.getPackageName(),
+                                                              TYPE_SUBS,
+                                                              null);
                     int responseCode = getResponseCodeFromBundle(response);
                     logBillingResponse("getPurchases", responseCode);
 
@@ -155,14 +164,22 @@ public class BillingService {
 
     public void startPurchase(final String id, final String purchaseUrn) {
         try {
-            Bundle response = iabService.getBuyIntent(IAB_VERSION, deviceHelper.getPackageName(), id, TYPE_SUBS, purchaseUrn);
+            Bundle response = iabService.getBuyIntent(IAB_VERSION,
+                                                      deviceHelper.getPackageName(),
+                                                      id,
+                                                      TYPE_SUBS,
+                                                      purchaseUrn);
             int responseCode = getResponseCodeFromBundle(response);
             logBillingResponse("getBuyIntent", responseCode);
 
             if (responseCode == RESULT_OK) {
                 PendingIntent buyIntent = response.getParcelable(RESPONSE_BUY_INTENT);
                 bindingActivity.startIntentSenderForResult(buyIntent.getIntentSender(),
-                        BillingResult.REQUEST_CODE, new Intent(), NO_FLAGS, NO_FLAGS, NO_FLAGS);
+                                                           BillingResult.REQUEST_CODE,
+                                                           new Intent(),
+                                                           NO_FLAGS,
+                                                           NO_FLAGS,
+                                                           NO_FLAGS);
             }
         } catch (RemoteException | IntentSender.SendIntentException e) {
             log("Failed to send purchase Intent");

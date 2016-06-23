@@ -14,7 +14,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-class PushPlaylistAdditionsCommand extends LegacyCommand<Collection<Urn>, Collection<Urn>, PushPlaylistAdditionsCommand> {
+class PushPlaylistAdditionsCommand
+        extends LegacyCommand<Collection<Urn>, Collection<Urn>, PushPlaylistAdditionsCommand> {
 
     private final ApiClient apiClient;
 
@@ -35,9 +36,9 @@ class PushPlaylistAdditionsCommand extends LegacyCommand<Collection<Urn>, Collec
         for (Urn urn : input) {
             final ApiRequest request =
                     ApiRequest.post(ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn))
-                            .forPrivateApi()
-                            .withContent(Collections.singletonMap("track_urn", urn.toString()))
-                            .build();
+                              .forPrivateApi()
+                              .withContent(Collections.singletonMap("track_urn", urn.toString()))
+                              .build();
 
             final ApiResponse apiResponse = apiClient.fetchResponse(request);
             if (apiResponse.isSuccess()) {

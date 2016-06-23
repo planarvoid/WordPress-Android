@@ -29,7 +29,9 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
     private TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
     private TestSubscriber<Long> timeSubscriber = new TestSubscriber<>();
     private TestDateProvider dateProvider;
-    private RoboSharedPreferences roboSharedPreferences = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "TEST", Context.MODE_PRIVATE);
+    private RoboSharedPreferences roboSharedPreferences = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(),
+                                                                                    "TEST",
+                                                                                    Context.MODE_PRIVATE);
 
     @Before
     public void setUp() throws Exception {
@@ -172,10 +174,10 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
         storage.legacyUpdateLastSyncAttempt(CONTENT_URI, 789);
 
         assertThat(propeller().query(Query
-                        .from(Collections)
-                        .select(LAST_SYNC_ATTEMPT)
-                        .whereEq(URI, CONTENT_URI))
-                        .firstOrDefault(Long.class, 0L)
+                                             .from(Collections)
+                                             .select(LAST_SYNC_ATTEMPT)
+                                             .whereEq(URI, CONTENT_URI))
+                              .firstOrDefault(Long.class, 0L)
         ).isEqualTo(789);
     }
 
@@ -184,10 +186,10 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
         storage.legacyUpdateLastSyncAttempt(CONTENT_URI, 789);
 
         assertThat(propeller().query(Query
-                        .from(Collections)
-                        .select(LAST_SYNC_ATTEMPT)
-                        .whereEq(URI, CONTENT_URI))
-                        .firstOrDefault(Long.class, 0L)
+                                             .from(Collections)
+                                             .select(LAST_SYNC_ATTEMPT)
+                                             .whereEq(URI, CONTENT_URI))
+                              .firstOrDefault(Long.class, 0L)
         ).isEqualTo(789);
     }
 
@@ -198,10 +200,10 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
         storage.legacyUpdateLastSyncSuccess(CONTENT_URI, 789);
 
         assertThat(propeller().query(Query
-                        .from(Collections)
-                        .select(LAST_SYNC)
-                        .whereEq(URI, CONTENT_URI))
-                        .firstOrDefault(Long.class, 0L)
+                                             .from(Collections)
+                                             .select(LAST_SYNC)
+                                             .whereEq(URI, CONTENT_URI))
+                              .firstOrDefault(Long.class, 0L)
         ).isEqualTo(789);
     }
 
@@ -210,20 +212,20 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
         storage.legacyUpdateLastSyncSuccess(CONTENT_URI, 789);
 
         assertThat(propeller().query(Query
-                        .from(Collections)
-                        .select(LAST_SYNC)
-                        .whereEq(URI, CONTENT_URI))
-                        .firstOrDefault(Long.class, 0L)
+                                             .from(Collections)
+                                             .select(LAST_SYNC)
+                                             .whereEq(URI, CONTENT_URI))
+                              .firstOrDefault(Long.class, 0L)
         ).isEqualTo(789);
     }
 
     @Test
     public void shouldIgnoreUriQueryStrings() {
         storage.legacyUpdateLastSyncSuccess(CONTENT_URI.buildUpon()
-                .appendQueryParameter("a", "b").build(), 1L);
+                                                       .appendQueryParameter("a", "b").build(), 1L);
 
         assertThat(storage.legacyLoadLastSyncSuccess(CONTENT_URI.buildUpon()
-                .appendQueryParameter("c", "d").build())).isEqualTo(1);
+                                                                .appendQueryParameter("c", "d").build())).isEqualTo(1);
     }
 
     @Test
@@ -244,6 +246,7 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
 
         assertThat(roboSharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 4)).isEqualTo(0);
     }
+
     @Test
     public void incrementSyncMissesStoresValue() {
         storage.incrementSyncMisses(Syncable.CHARTS);

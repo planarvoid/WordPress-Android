@@ -54,9 +54,10 @@ public class ProfileApiPublicLegacyPlaylistsTest extends AndroidUnitTest {
     public void returnsUserPlaylistsByUrnFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiPlaylist>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/playlists")
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("linked_partitioning", "1")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        any(TypeToken.class))).thenReturn(results);
 
         api.userLegacyPlaylists(Urn.forUser(123L)).subscribe(observer);
         assertAllItemsEmitted();
@@ -66,9 +67,10 @@ public class ProfileApiPublicLegacyPlaylistsTest extends AndroidUnitTest {
     public void returnsUserPlaylistsByNextPageLinkFromApi() throws Exception {
         final Observable<CollectionHolder<PublicApiPlaylist>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(results);
+                                                        .withQueryParam("linked_partitioning", "1")
+                                                        .withQueryParam("limit",
+                                                                        String.valueOf(ProfileApiPublic.PAGE_SIZE))),
+                                        any(TypeToken.class))).thenReturn(results);
 
         api.userLegacyPlaylists(NEXT_HREF).subscribe(observer);
         assertAllItemsEmitted();

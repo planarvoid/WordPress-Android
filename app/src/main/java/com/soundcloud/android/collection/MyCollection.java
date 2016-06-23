@@ -13,8 +13,12 @@ public abstract class MyCollection {
 
     static MyCollection forCollectionWithPlaylists(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
                                                    List<StationRecord> recentStations, boolean atLeastOneError) {
-        return new AutoValue_MyCollection(likes, likedAndPostedPlaylists, recentStations,
-                Collections.<TrackItem>emptyList(), Collections.<RecentlyPlayedItem>emptyList(), atLeastOneError);
+        return new AutoValue_MyCollection(likes,
+                                          likedAndPostedPlaylists,
+                                          recentStations,
+                                          Collections.<TrackItem>emptyList(),
+                                          Collections.<RecentlyPlayedItem>emptyList(),
+                                          atLeastOneError);
     }
 
     static MyCollection forCollectionWithPlayHistory(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
@@ -22,7 +26,7 @@ public abstract class MyCollection {
                                                      List<RecentlyPlayedItem> recentlyPlayedItems,
                                                      boolean atLeastOneError) {
         return new AutoValue_MyCollection(likes, likedAndPostedPlaylists, Collections.<StationRecord>emptyList(),
-                playHistoryTrackItems, recentlyPlayedItems, atLeastOneError);
+                                          playHistoryTrackItems, recentlyPlayedItems, atLeastOneError);
     }
 
     public abstract LikesItem getLikes();

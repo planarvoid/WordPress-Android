@@ -50,7 +50,8 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
         public Observable<PlaybackResult> call(SearchResult searchResult) {
             List<PropertySet> items = searchResult.getItems();
             checkState(!items.isEmpty(), "There is no result for this search");
-            return playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).get(TrackProperty.URN), new PlaySessionSource(Screen.VOICE_COMMAND));
+            return playbackInitiator.playTrackWithRecommendationsLegacy(items.get(0).get(TrackProperty.URN),
+                                                                        new PlaySessionSource(Screen.VOICE_COMMAND));
         }
     };
 
@@ -108,8 +109,8 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
     private String getGenreKeyCompat(Intent intent) {
         return intent.getExtras().containsKey(ANDROID_INTENT_EXTRA_GENRE) ?
-                            intent.getStringExtra(ANDROID_INTENT_EXTRA_GENRE) :
-                            intent.getStringExtra(SearchManager.QUERY);
+               intent.getStringExtra(ANDROID_INTENT_EXTRA_GENRE) :
+               intent.getStringExtra(SearchManager.QUERY);
     }
 
     private void playTrackFromQuery(final String query) {
@@ -161,7 +162,9 @@ public class PlayFromVoiceSearchPresenter extends DefaultActivityLightCycle<AppC
 
         @Override
         public void onNext(PropertySet result) {
-            navigator.openPlaylistWithAutoPlay(activityContext, result.get(PlaylistProperty.URN), Screen.SEARCH_PLAYLIST_DISCO);
+            navigator.openPlaylistWithAutoPlay(activityContext,
+                                               result.get(PlaylistProperty.URN),
+                                               Screen.SEARCH_PLAYLIST_DISCO);
         }
 
         @Override

@@ -120,16 +120,21 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(loadLocalPlaylists.call()).thenReturn(PropertySets.toPropertySets(playlists));
         when(loadPlaylistTrackUrns.call()).thenReturn(playlist1Tracks, playlist2Tracks);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))), eq(ApiPlaylistWrapper.class)))
+                                                           .withContent(createPushRequestBody(playlists.get(0),
+                                                                                              playlist1Tracks))),
+                                           eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist1));
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                .withContent(createPushRequestBody(playlists.get(1), playlist2Tracks))), eq(ApiPlaylistWrapper.class)))
+                                                           .withContent(createPushRequestBody(playlists.get(1),
+                                                                                              playlist2Tracks))),
+                                           eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist2));
 
         syncer.syncContent(URI, null);
 
         verify(replacePlaylist, times(2)).call();
-        assertThat(replacePlaylist.getInput()).isEqualTo(Pair.create(playlists.get(1).getUrn(), newPlaylist2)); // todo, check in put on first item too
+        assertThat(replacePlaylist.getInput()).isEqualTo(Pair.create(playlists.get(1).getUrn(),
+                                                                     newPlaylist2)); // todo, check in put on first item too
     }
 
     @Test
@@ -220,7 +225,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(syncWithNoChange.call()).thenReturn(false);
 
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
-        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(Arrays.asList(offlinePlaylist, offlinePlaylistWithNoChange));
+        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(Arrays.asList(offlinePlaylist,
+                                                                              offlinePlaylistWithNoChange));
         when(singlePlaylistSyncerFactory.create(offlinePlaylist)).thenReturn(singlePlaylistSyncer);
         when(singlePlaylistSyncerFactory.create(offlinePlaylistWithNoChange)).thenReturn(syncWithNoChange);
         when(singlePlaylistSyncer.call()).thenReturn(true);
@@ -240,7 +246,8 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         final Urn offlinePlaylistWithException = Urn.forPlaylist(1);
         final Urn offlinePlaylistToSync = Urn.forPlaylist(2);
         when(postsSyncer.call(anyListOf(Urn.class))).thenReturn(true);
-        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(Arrays.asList(offlinePlaylistWithException, offlinePlaylistToSync));
+        when(loadOfflinePlaylistsCommand.call(null)).thenReturn(Arrays.asList(offlinePlaylistWithException,
+                                                                              offlinePlaylistToSync));
 
         final SinglePlaylistSyncer syncWithException = mock(SinglePlaylistSyncer.class);
         when(syncWithException.call()).thenThrow(new IOException("Test"));
@@ -273,7 +280,9 @@ public class MyPlaylistsSyncerTest extends AndroidUnitTest {
         when(loadLocalPlaylists.call()).thenReturn(PropertySets.toPropertySets(playlists));
         when(loadPlaylistTrackUrns.call()).thenReturn(playlistTracks);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                .withContent(createPushRequestBody(playlists.get(0), playlistTracks))), eq(ApiPlaylistWrapper.class)))
+                                                           .withContent(createPushRequestBody(playlists.get(0),
+                                                                                              playlistTracks))),
+                                           eq(ApiPlaylistWrapper.class)))
                 .thenReturn(new ApiPlaylistWrapper(newPlaylist));
         return newPlaylist;
     }

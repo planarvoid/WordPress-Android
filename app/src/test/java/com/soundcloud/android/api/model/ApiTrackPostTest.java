@@ -14,8 +14,8 @@ public class ApiTrackPostTest {
     @Test
     public void createsPropertySetFromTrackDependency() throws Exception {
         final PropertySet expected = apiTrack.toPropertySet()
-                .put(PostProperty.IS_REPOST, false)
-                .put(PostProperty.CREATED_AT, apiTrack.getCreatedAt());
+                                             .put(PostProperty.IS_REPOST, false)
+                                             .put(PostProperty.CREATED_AT, apiTrack.getCreatedAt());
 
         assertThat(new ApiTrackPost(apiTrack).toPropertySet()).isEqualTo(expected);
     }

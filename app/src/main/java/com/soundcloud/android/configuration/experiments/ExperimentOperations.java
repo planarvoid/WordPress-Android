@@ -38,7 +38,7 @@ public class ExperimentOperations {
 
     public Observable<Assignment> loadAssignment() {
         return experimentStorage.readAssignment()
-                .doOnNext(cacheCurrentAssignments);
+                                .doOnNext(cacheCurrentAssignments);
     }
 
     public String[] getActiveLayers() {

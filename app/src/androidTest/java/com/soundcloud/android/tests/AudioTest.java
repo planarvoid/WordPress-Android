@@ -90,7 +90,8 @@ public abstract class AudioTest extends ScAndroidTest {
 
     public static final String TRIMMED_RECORDING = "audio/trimmed_recording.ogg";
 
-    protected void checkAudioFile(File file, @SuppressWarnings("UnusedParameters") int expectedDuration) throws IOException {
+    protected void checkAudioFile(File file,
+                                  @SuppressWarnings("UnusedParameters") int expectedDuration) throws IOException {
         assertTrue("file should exist", file.exists());
         assertTrue("file should not be empty", file.length() > 0);
 

@@ -18,7 +18,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Map;
 
-public class UpdateAgeCommandTest extends AndroidUnitTest{
+public class UpdateAgeCommandTest extends AndroidUnitTest {
 
     @Test
     public void shouldSendUpdateRequestToApiMobile() throws Exception {

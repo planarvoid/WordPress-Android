@@ -13,7 +13,8 @@ import com.soundcloud.propeller.query.Query;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadLikesPendingAdditionCommand extends LegacyCommand<Integer, List<PropertySet>, LoadLikesPendingAdditionCommand> {
+class LoadLikesPendingAdditionCommand
+        extends LegacyCommand<Integer, List<PropertySet>, LoadLikesPendingAdditionCommand> {
 
     private final PropellerDatabase database;
 
@@ -25,9 +26,9 @@ class LoadLikesPendingAdditionCommand extends LegacyCommand<Integer, List<Proper
     @Override
     public List<PropertySet> call() throws Exception {
         return database.query(Query.from(Table.Likes.name())
-                .whereEq(TableColumns.Likes._TYPE, input)
-                .order(CREATED_AT, DESC)
-                .whereNotNull(TableColumns.Likes.ADDED_AT))
-                .toList(new LikeMapper());
+                                   .whereEq(TableColumns.Likes._TYPE, input)
+                                   .order(CREATED_AT, DESC)
+                                   .whereNotNull(TableColumns.Likes.ADDED_AT))
+                       .toList(new LikeMapper());
     }
 }

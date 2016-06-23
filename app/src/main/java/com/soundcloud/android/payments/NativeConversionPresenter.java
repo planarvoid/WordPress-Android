@@ -20,7 +20,8 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity> implements ConversionView.Listener {
+class NativeConversionPresenter extends DefaultActivityLightCycle<AppCompatActivity>
+        implements ConversionView.Listener {
 
     private final NativePaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;

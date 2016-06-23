@@ -29,8 +29,8 @@ class RecommendedTracksSyncer implements Callable<Boolean> {
     public Boolean call() throws Exception {
         final ApiRequest request =
                 ApiRequest.get(ApiEndpoints.TRACK_RECOMMENDATIONS.path())
-                        .forPrivateApi()
-                        .build();
+                          .forPrivateApi()
+                          .build();
 
         final ModelCollection<ApiRecommendation> apiRecommendations = getApiRecommendations(request);
         final WriteResult writeResult = storeRecommendationsCommand.call(apiRecommendations);

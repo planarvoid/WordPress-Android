@@ -124,7 +124,9 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
             checkForUnsavedRecordings();
         }
 
-        trackScreen(currentState.isEdit() ? ScreenEvent.create(Screen.RECORD_EDIT) : ScreenEvent.create(Screen.RECORD_MAIN));
+        trackScreen(currentState.isEdit() ?
+                    ScreenEvent.create(Screen.RECORD_EDIT) :
+                    ScreenEvent.create(Screen.RECORD_MAIN));
     }
 
     @Override
@@ -140,8 +142,8 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
     void checkForUnsavedRecordings() {
         // we may have a leftover recording, so defer state configuration until we check
         cleanupRecordingsSubscription = recordingOperations.cleanupRecordings(SoundRecorder.RECORD_DIR)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(getCleanupRecordingsSubscriber());
+                                                           .observeOn(AndroidSchedulers.mainThread())
+                                                           .subscribe(getCleanupRecordingsSubscriber());
 
         fireAndForget(recordingOperations.deleteStaleUploads(SoundRecorder.UPLOAD_DIR));
     }
@@ -189,7 +191,14 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
         initializeView(actionButton, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, RECORD, PLAYBACK);
         actionButton.setEnabled(false);
 
-        initializeAndHideView(chrono, View.INVISIBLE, IDLE_RECORD, IDLE_PLAYBACK, RECORD, PLAYBACK, EDIT, EDIT_PLAYBACK);
+        initializeAndHideView(chrono,
+                              View.INVISIBLE,
+                              IDLE_RECORD,
+                              IDLE_PLAYBACK,
+                              RECORD,
+                              PLAYBACK,
+                              EDIT,
+                              EDIT_PLAYBACK);
 
         initializeAndHideView(next, View.GONE, PLAYBACK, IDLE_PLAYBACK);
         initializeAndHideView(delete, View.GONE, PLAYBACK, IDLE_PLAYBACK);
@@ -210,7 +219,8 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
             initializeAndHideView(actionText, View.GONE);
         }
 
-        final int actionButtonDimension = view.getResources().getDimensionPixelSize(R.dimen.rec_record_button_dimension);
+        final int actionButtonDimension = view.getResources()
+                                              .getDimensionPixelSize(R.dimen.rec_record_button_dimension);
         viewHelper.setCircularButtonOutline(this.actionButton, actionButtonDimension);
 
         waveDisplay = new CreateWaveDisplay(view.getContext());
@@ -518,7 +528,8 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
 
     private void showRevertRecordingDialog() {
         new AlertDialog.Builder(recordFragment.getActivity())
-                .setView(new CustomFontViewBuilder(recordFragment.getActivity()).setTitle(R.string.dialog_revert_recording_message).get())
+                .setView(new CustomFontViewBuilder(recordFragment.getActivity()).setTitle(R.string.dialog_revert_recording_message)
+                                                                                .get())
                 .setNegativeButton(R.string.btn_no, null)
                 .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                     @Override
@@ -555,10 +566,10 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
                 updateUi(CreateState.IDLE_PLAYBACK);
             } else if (SoundRecorder.PLAYBACK_STARTED.equals(action)) {
                 updateUi((currentState == EDIT || currentState == EDIT_PLAYBACK) ?
-                        EDIT_PLAYBACK : CreateState.PLAYBACK);
+                         EDIT_PLAYBACK : CreateState.PLAYBACK);
             } else if (SoundRecorder.PLAYBACK_PROGRESS.equals(action)) {
                 setProgress(intent.getLongExtra(SoundRecorder.EXTRA_POSITION, 0),
-                        intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
+                            intent.getLongExtra(SoundRecorder.EXTRA_DURATION, 0));
             } else if (SoundRecorder.PLAYBACK_COMPLETE.equals(action) ||
                     SoundRecorder.PLAYBACK_STOPPED.equals(action) ||
                     SoundRecorder.PLAYBACK_ERROR.equals(action)) {

@@ -13,7 +13,7 @@ import android.os.ResultReceiver;
 
 import java.util.List;
 
-@AutoFactory( allowSubclasses = true)
+@AutoFactory(allowSubclasses = true)
 public class SingleJobRequest implements SyncRequest {
 
     private final DefaultSyncJob syncJob;
@@ -30,10 +30,10 @@ public class SingleJobRequest implements SyncRequest {
                             boolean isHighPriority,
                             @Provided EventBus eventBus) {
         this(new DefaultSyncJob(syncProvider.syncer(), syncable),
-                syncProvider.id(),
-                isHighPriority,
-                resultReceiver,
-                eventBus);
+             syncProvider.id(),
+             isHighPriority,
+             resultReceiver,
+             eventBus);
     }
 
     public SingleJobRequest(DefaultSyncJob syncJob,
@@ -68,8 +68,8 @@ public class SingleJobRequest implements SyncRequest {
     public void processJobResult(SyncJob syncJob) {
         Exception exception = syncJob.getException();
         resultEvent = exception == null ?
-                SyncJobResult.success(action, syncJob.resultedInAChange())
-                : SyncJobResult.failure(action, syncJob.getException());
+                      SyncJobResult.success(action, syncJob.resultedInAChange())
+                                        : SyncJobResult.failure(action, syncJob.getException());
     }
 
     @Override

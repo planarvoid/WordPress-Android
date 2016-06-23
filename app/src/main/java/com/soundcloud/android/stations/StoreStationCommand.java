@@ -37,13 +37,14 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
             private void addPlayQueue(PropellerDatabase propeller) {
                 final List<StationTrack> tracks = station.getTracks();
                 final Integer playQueueSize = propeller.query(Query.count(StationsPlayQueues.TABLE)
-                        .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString()))
-                        .first(Integer.class);
+                                                                   .whereEq(StationsPlayQueues.STATION_URN,
+                                                                            station.getUrn().toString()))
+                                                       .first(Integer.class);
 
                 for (int position = 0; position < tracks.size(); position++) {
                     step(propeller
-                            .upsert(StationsPlayQueues.TABLE,
-                                    buildContentValues(station, tracks.get(position), playQueueSize + position)));
+                                 .upsert(StationsPlayQueues.TABLE,
+                                         buildContentValues(station, tracks.get(position), playQueueSize + position)));
                 }
             }
         });

@@ -58,15 +58,15 @@ public class SyncStateStorage {
 
     public Observable<Boolean> hasSyncedBefore(Uri uri) {
         final Query query = Query.apply(exists(Query.from(Collections)
-                .whereGt(LAST_SYNC, 0L)
-                .whereEq(URI, normalizedUriString(uri))));
+                                                    .whereGt(LAST_SYNC, 0L)
+                                                    .whereEq(URI, normalizedUriString(uri))));
         return propellerRx.query(query).map(scalar(Boolean.class)).defaultIfEmpty(false);
     }
 
     public Observable<Long> lastSyncOrAttemptTime(Uri uri) {
         final Query query = Query.from(Collections)
-                .select("max(" + LAST_SYNC_ATTEMPT + ", " + LAST_SYNC + ")")
-                .whereEq(URI, normalizedUriString(uri));
+                                 .select("max(" + LAST_SYNC_ATTEMPT + ", " + LAST_SYNC + ")")
+                                 .whereEq(URI, normalizedUriString(uri));
         return propellerRx.query(query).map(scalar(Long.class)).defaultIfEmpty((long) Consts.NOT_SET);
     }
 
@@ -111,9 +111,9 @@ public class SyncStateStorage {
 
     long legacyLoadLastSyncSuccess(Uri uri) {
         return propeller.query(Query.from(Collections)
-                .select(LAST_SYNC)
-                .whereEq(URI, normalizedUriString(uri)))
-                .firstOrDefault(Long.class, -1L);
+                                    .select(LAST_SYNC)
+                                    .whereEq(URI, normalizedUriString(uri)))
+                        .firstOrDefault(Long.class, -1L);
     }
 
     ChangeResult legacyUpdateSyncMisses(Uri uri, int syncMisses) {
@@ -126,9 +126,9 @@ public class SyncStateStorage {
     int legacyLoadSyncMisses(Uri uri) {
         final String extra = propeller.query(
                 Query.from(Collections)
-                        .select(EXTRA)
-                        .whereEq(URI, normalizedUriString(uri)))
-                .firstOrDefault(String.class, null);
+                     .select(EXTRA)
+                     .whereEq(URI, normalizedUriString(uri)))
+                                      .firstOrDefault(String.class, null);
         if (Strings.isNullOrEmpty(extra)) {
             return 0;
         }

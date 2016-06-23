@@ -94,7 +94,12 @@ public final class SchemaMigrationHelper {
         final String fromCols = TextUtils.join(",", fromAppendCols);
 
         // copy current data to tmp table
-        final String sql = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", tmpTable, toCols, fromCols, table);
+        final String sql = String.format(Locale.ENGLISH,
+                                         "INSERT INTO %s (%s) SELECT %s from %s",
+                                         tmpTable,
+                                         toCols,
+                                         fromCols,
+                                         table);
 
         Log.d(TAG, "executing " + sql);
         db.execSQL(sql);
@@ -104,7 +109,12 @@ public final class SchemaMigrationHelper {
         db.execSQL(createString);
 
         // and copy old data from tmp
-        final String copy = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", table, toCols, toCols, tmpTable);
+        final String copy = String.format(Locale.ENGLISH,
+                                          "INSERT INTO %s (%s) SELECT %s from %s",
+                                          table,
+                                          toCols,
+                                          toCols,
+                                          tmpTable);
 
         Log.d(TAG, "executing " + copy);
         db.execSQL(copy);
@@ -133,7 +143,12 @@ public final class SchemaMigrationHelper {
                                String fromTable, List<String> fromColumns) {
         final String toCols = TextUtils.join(",", toColumns);
         final String fromCols = TextUtils.join(",", fromColumns);
-        final String sql = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", toTable, toCols, fromCols, fromTable);
+        final String sql = String.format(Locale.ENGLISH,
+                                         "INSERT INTO %s (%s) SELECT %s from %s",
+                                         toTable,
+                                         toCols,
+                                         fromCols,
+                                         fromTable);
 
         Log.d(TAG, "migrating " + sql);
         db.execSQL(sql);

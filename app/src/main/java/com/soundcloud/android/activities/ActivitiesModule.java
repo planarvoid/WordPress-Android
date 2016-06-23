@@ -9,4 +9,5 @@ import dagger.Module;
                 ActivitiesActivity.class,
                 ActivitiesFragment.class
         }, includes = AssociationsModule.class)
-public class ActivitiesModule { }
+public class ActivitiesModule {
+}

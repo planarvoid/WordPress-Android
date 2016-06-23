@@ -53,9 +53,9 @@ class HeaderSpannableBuilder {
     private HeaderSpannableBuilder createSpannedString(String headerText, int spanStart, int spanEnd) {
         spannedString = new SpannableString(headerText);
         spannedString.setSpan(new ForegroundColorSpan(resources.getColor(R.color.list_secondary)),
-                spanStart,
-                spanEnd,
-                SPAN_EXCLUSIVE_EXCLUSIVE);
+                              spanStart,
+                              spanEnd,
+                              SPAN_EXCLUSIVE_EXCLUSIVE);
         return this;
     }
 

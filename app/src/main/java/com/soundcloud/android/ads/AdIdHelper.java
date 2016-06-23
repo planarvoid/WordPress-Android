@@ -37,9 +37,9 @@ public class AdIdHelper {
     public void init() {
         if (adIdWrapper.isPlayServicesAvailable()) {
             getAdInfo()
-                   .subscribeOn(scheduler)
-                   .observeOn(AndroidSchedulers.mainThread())
-                   .subscribe(new AdInfoSubscriber());
+                    .subscribeOn(scheduler)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new AdInfoSubscriber());
         }
     }
 

@@ -9,7 +9,8 @@ import rx.Observable;
 
 import java.util.List;
 
-public abstract class PagedQueryCommand<I extends PagedQueryCommand.PageParams> extends LegacyCommand<I, List<PropertySet>, PagedQueryCommand<I>> {
+public abstract class PagedQueryCommand<I extends PagedQueryCommand.PageParams>
+        extends LegacyCommand<I, List<PropertySet>, PagedQueryCommand<I>> {
 
     private final PropellerDatabase database;
     private final RxResultMapper<PropertySet> mapper;
@@ -21,9 +22,9 @@ public abstract class PagedQueryCommand<I extends PagedQueryCommand.PageParams> 
 
     protected abstract Query buildQuery(I input);
 
-    private Query buildPagedQuery(I input){
+    private Query buildPagedQuery(I input) {
         final Query query = buildQuery(input);
-        if (input != null){
+        if (input != null) {
             return query.limit(input.getLimit());
         } else {
             return query;

@@ -94,7 +94,12 @@ public class FadeFilter implements PlaybackFilter {
      * @param fadeOffset where (byte offset) the fade is positioned
      * @param invert     is this a reverse fade?
      */
-    private void applyVolumeChangeToBuffer(ByteBuffer buffer, long position, int start, int count, long fadeOffset, boolean invert) {
+    private void applyVolumeChangeToBuffer(ByteBuffer buffer,
+                                           long position,
+                                           int start,
+                                           int count,
+                                           long fadeOffset,
+                                           boolean invert) {
         start = Math.max(0, start - (start % 2)); //validate short
         for (int i = start; i < start + count; i += 2) {
             final double x = (position + i - fadeOffset) / ((double) fadeSize);

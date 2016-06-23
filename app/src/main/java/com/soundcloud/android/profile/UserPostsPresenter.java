@@ -29,7 +29,7 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
                        PlayableListUpdater.Factory updaterFactory,
                        UserProfileOperations profileOperations) {
         super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter,
-                clickListenerFactory, updaterFactory);
+              clickListenerFactory, updaterFactory);
         this.profileOperations = profileOperations;
     }
 
@@ -37,9 +37,9 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     protected CollectionBinding<PagedRemoteCollection, PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         userUrn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
         return CollectionBinding.from(profileOperations.pagedPostItems(userUrn), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.postsPagingFunction(userUrn))
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.postsPagingFunction(userUrn))
+                                .build();
     }
 
     @Override
@@ -52,6 +52,6 @@ class UserPostsPresenter extends ProfilePlayablePresenter<PagedRemoteCollection>
     protected void onItemClicked(View view, int position) {
         PlayableItem item = adapter.getItem(position);
         clickListener.onProfilePostClick(profileOperations.postsForPlayback(adapter.getItems()),
-                view, position, item, userUrn);
+                                         view, position, item, userUrn);
     }
 }

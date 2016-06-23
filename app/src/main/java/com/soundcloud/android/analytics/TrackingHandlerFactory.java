@@ -13,7 +13,9 @@ class TrackingHandlerFactory {
     private final TrackingApiFactory trackingApiFactory;
 
     @Inject
-    TrackingHandlerFactory(NetworkConnectionHelper networkConnectionHelper, TrackingStorage storage, TrackingApiFactory trackingApiFactory) {
+    TrackingHandlerFactory(NetworkConnectionHelper networkConnectionHelper,
+                           TrackingStorage storage,
+                           TrackingApiFactory trackingApiFactory) {
         this.networkConnectionHelper = networkConnectionHelper;
         this.storage = storage;
         this.trackingApiFactory = trackingApiFactory;

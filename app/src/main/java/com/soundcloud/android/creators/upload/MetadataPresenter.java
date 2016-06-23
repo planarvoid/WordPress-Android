@@ -112,7 +112,8 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
         super.onViewCreated(fragment, view, savedInstanceState);
         ButterKnife.bind(this, view);
 
-        final int orangeButtonDimension = view.getResources().getDimensionPixelSize(R.dimen.rec_upload_button_dimension);
+        final int orangeButtonDimension = view.getResources()
+                                              .getDimensionPixelSize(R.dimen.rec_upload_button_dimension);
         viewHelper.setCircularButtonOutline(actionButton, orangeButtonDimension);
         actionButton.setImageResource(R.drawable.ic_record_upload_orange);
 
@@ -178,7 +179,8 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
                     onSuccessfulCrop();
                 } else if (resultCode == Crop.RESULT_ERROR) {
                     ErrorUtils.handleSilentException("error cropping image", Crop.getError(result));
-                    Toast.makeText(metadataFragment.getActivity(), R.string.crop_image_error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(metadataFragment.getActivity(), R.string.crop_image_error, Toast.LENGTH_SHORT)
+                         .show();
                 }
                 break;
             }

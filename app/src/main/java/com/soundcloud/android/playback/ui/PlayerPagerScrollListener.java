@@ -93,8 +93,8 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private void subscribe() {
         subscription = new CompositeSubscription();
         subscription.add(scrollStateSubject
-                .filter(noPageChangedScrollOnAd)
-                .subscribe(showBlockedSwipeToast));
+                                 .filter(noPageChangedScrollOnAd)
+                                 .subscribe(showBlockedSwipeToast));
     }
 
     public void unsubscribe() {

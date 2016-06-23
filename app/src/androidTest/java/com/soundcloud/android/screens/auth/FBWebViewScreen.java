@@ -23,7 +23,7 @@ public class FBWebViewScreen {
         waitForContent();
     }
 
-    public boolean waitForContent(){
+    public boolean waitForContent() {
         return waiter.waitForWebViewToLoad(webview.toWebView());
     }
 

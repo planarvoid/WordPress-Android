@@ -52,7 +52,8 @@ public class BillingServiceBinderTest extends AndroidUnitTest {
 
     @Test
     public void canBindIsFalseIfServiceIntentIsNotResolvable() {
-        when(packageManager.queryIntentServices(any(Intent.class), anyInt())).thenReturn(Collections.<ResolveInfo>emptyList());
+        when(packageManager.queryIntentServices(any(Intent.class),
+                                                anyInt())).thenReturn(Collections.<ResolveInfo>emptyList());
 
         assertThat(binder.canConnect()).isFalse();
     }
@@ -60,7 +61,9 @@ public class BillingServiceBinderTest extends AndroidUnitTest {
     @Test
     public void connectIntentHasCorrectActionAndSetsTargetPackage() {
         binder.connect(activity, serviceConnection);
-        verify(activity).bindService(intentCaptor.capture(), any(ServiceConnection.class), eq(Context.BIND_AUTO_CREATE));
+        verify(activity).bindService(intentCaptor.capture(),
+                                     any(ServiceConnection.class),
+                                     eq(Context.BIND_AUTO_CREATE));
         Intent intent = intentCaptor.getValue();
 
         assertThat(intent.getAction()).isEqualTo("com.android.vending.billing.InAppBillingService.BIND");

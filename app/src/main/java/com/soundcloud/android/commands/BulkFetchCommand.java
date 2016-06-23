@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>, Collection<ApiModel>, BulkFetchCommand<ApiModel>> {
+public abstract class BulkFetchCommand<ApiModel>
+        extends LegacyCommand<List<Urn>, Collection<ApiModel>, BulkFetchCommand<ApiModel>> {
 
     private static final int DEFAULT_PAGE_SIZE = 100;
 

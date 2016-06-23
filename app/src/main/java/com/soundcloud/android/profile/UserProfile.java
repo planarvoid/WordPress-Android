@@ -82,19 +82,22 @@ public class UserProfile {
     private static ModelCollection<PropertySet> fromApiEntitySourceModelCollection(
             ModelCollection<? extends ApiEntityHolderSource> originalModelCollection) {
         Collection<? extends ApiEntityHolderSource> filteredSources = filter(originalModelCollection.getCollection(),
-                new Predicate<ApiEntityHolderSource>() {
-                    @Override
-                    public boolean apply(ApiEntityHolderSource input) {
-                        return input.getEntityHolder().isPresent();
-                    }
-                });
+                                                                             new Predicate<ApiEntityHolderSource>() {
+                                                                                 @Override
+                                                                                 public boolean apply(
+                                                                                         ApiEntityHolderSource input) {
+                                                                                     return input.getEntityHolder()
+                                                                                                 .isPresent();
+                                                                                 }
+                                                                             });
 
-        Collection<ApiEntityHolder> apiEntityHolders = transform(filteredSources, new Function<ApiEntityHolderSource, ApiEntityHolder>() {
-            @Override
-            public ApiEntityHolder apply(ApiEntityHolderSource input) {
-                return input.getEntityHolder().get();
-            }
-        });
+        Collection<ApiEntityHolder> apiEntityHolders = transform(filteredSources,
+                                                                 new Function<ApiEntityHolderSource, ApiEntityHolder>() {
+                                                                     @Override
+                                                                     public ApiEntityHolder apply(ApiEntityHolderSource input) {
+                                                                         return input.getEntityHolder().get();
+                                                                     }
+                                                                 });
 
         return new ModelCollection<>(
                 propertySetsFromApiEntityHolders(apiEntityHolders),

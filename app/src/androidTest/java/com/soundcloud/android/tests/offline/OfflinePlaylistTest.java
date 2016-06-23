@@ -76,8 +76,9 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
     public void testDownloadPlaylistWhenMadeAvailableOfflineFromPlaylistDetails() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
-                .scrollToAndClickPlaylistWithTitle(OFFLINE_PLAYLIST)
-                .clickDownloadToggle();
+                                                                         .scrollToAndClickPlaylistWithTitle(
+                                                                                 OFFLINE_PLAYLIST)
+                                                                         .clickDownloadToggle();
 
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
         assertThat(downloadElement, is(downloading()));
@@ -93,8 +94,9 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
     public void testEmptyPlaylistsAreMarkedAsRequested() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
-                .scrollToAndClickPlaylistWithTitle(EMPTY_PLAYLIST)
-                .clickDownloadToggle();
+                                                                         .scrollToAndClickPlaylistWithTitle(
+                                                                                 EMPTY_PLAYLIST)
+                                                                         .clickDownloadToggle();
 
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
         assertThat(downloadElement, is(not(downloading())));
@@ -110,8 +112,9 @@ public class OfflinePlaylistTest extends ActivityTest<MainActivity> {
 
     public void testUnavailablePlaylistsAreMarkedAsUnavailable() {
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper.goToCollections()
-                .scrollToAndClickPlaylistWithTitle(UNAVAILABLE_PLAYLIST)
-                .clickDownloadToggle();
+                                                                         .scrollToAndClickPlaylistWithTitle(
+                                                                                 UNAVAILABLE_PLAYLIST)
+                                                                         .clickDownloadToggle();
 
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
         assertThat(downloadElement, is(not(downloading())));

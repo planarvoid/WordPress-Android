@@ -43,7 +43,8 @@ public class RecentStationsSyncerTest {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
                 Collections.singletonList(station)
         );
-        final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getCurrentTime(), remoteContent);
+        final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getCurrentTime(),
+                                                                             remoteContent);
         when(api.syncStationsCollections(anyList())).thenReturn(remoteContent);
         when(command.call(metadata)).thenReturn(true);
 
@@ -58,7 +59,8 @@ public class RecentStationsSyncerTest {
         final ApiStationsCollections remoteContent = StationFixtures.collections(
                 Collections.singletonList(station)
         );
-        final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getCurrentTime(), remoteContent);
+        final SyncCollectionsMetadata metadata = new SyncCollectionsMetadata(dateProvider.getCurrentTime(),
+                                                                             remoteContent);
         when(api.syncStationsCollections(anyList())).thenReturn(remoteContent);
         when(command.call(metadata)).thenReturn(false);
 

@@ -92,7 +92,8 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
         @Override
         public List<StreamItem> call(List<StreamItem> streamItems) {
-            if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
+            if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems,
+                                                                                                   NOTIFICATION)) {
                 streamItems.add(0, new StationOnboardingStreamItem());
             }
             return streamItems;
@@ -145,7 +146,12 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
                           FacebookInvitesOperations facebookInvites,
                           StationsOperations stationsOperations, UpsellOperations upsellOperations,
                           SyncStateStorage syncStateStorage) {
-        super(LegacySyncContent.MySoundStream, soundStreamStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
+        super(LegacySyncContent.MySoundStream,
+              soundStreamStorage,
+              syncInitiator,
+              contentStats,
+              scheduler,
+              syncStateStorage);
         this.soundStreamStorage = soundStreamStorage;
         this.removeStalePromotedItemsCommand = removeStalePromotedItemsCommand;
         this.markPromotedItemAsStaleCommand = markPromotedItemAsStaleCommand;
@@ -168,12 +174,12 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     @Override
     protected Observable<List<StreamItem>> initialTimelineItems(boolean syncCompleted) {
         return removeStalePromotedItemsCommand.toObservable(null)
-                .subscribeOn(scheduler)
-                .flatMap(continueWith(super.initialTimelineItems(syncCompleted)))
-                .zipWith(facebookInvites.creatorInvites(), prependFacebookCreatorInvites)
-                .map(appendUpsellAfterSnippet)
-                .map(prependFacebookListenerInvites)
-                .map(prependStationsOnboardingItem);
+                                              .subscribeOn(scheduler)
+                                              .flatMap(continueWith(super.initialTimelineItems(syncCompleted)))
+                                              .zipWith(facebookInvites.creatorInvites(), prependFacebookCreatorInvites)
+                                              .map(appendUpsellAfterSnippet)
+                                              .map(prependFacebookListenerInvites)
+                                              .map(prependStationsOnboardingItem);
     }
 
     private boolean canAddDistinctItemOfKind(List<StreamItem> streamItems, Kind kind) {
@@ -182,8 +188,8 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
     public Observable<List<StreamItem>> updatedStreamItems() {
         return super.updatedTimelineItems()
-                .subscribeOn(scheduler)
-                .doOnNext(promotedImpressionAction);
+                    .subscribeOn(scheduler)
+                    .doOnNext(promotedImpressionAction);
     }
 
     public Observable<List<PropertySet>> urnsForPlayback() {

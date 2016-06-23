@@ -33,7 +33,8 @@ public class DiscoveryScreen extends Screen {
     }
 
     public TrackRecommendationsBucketElement trackRecommendationsBucket() {
-        return new TrackRecommendationsBucketElement(testDriver, scrollToItem(With.id(R.id.track_recommendations_bucket)));
+        return new TrackRecommendationsBucketElement(testDriver,
+                                                     scrollToItem(With.id(R.id.track_recommendations_bucket)));
     }
 
     public boolean isDisplayingTags() {

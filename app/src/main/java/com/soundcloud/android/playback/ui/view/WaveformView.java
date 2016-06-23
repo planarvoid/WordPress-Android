@@ -96,7 +96,8 @@ public class WaveformView extends FrameLayout {
         final int unplayedBelow = a.getColor(R.styleable.WaveformView_unplayedBelow, Color.WHITE);
         waveformWidthRatio = a.getFloat(R.styleable.WaveformView_widthRatio, DEFAULT_WAVEFORM_WIDTH_RATIO);
         barWidth = a.getDimensionPixelSize(R.styleable.WaveformView_barWidth, (int) (DEFAULT_BAR_WIDTH_DP * density));
-        spaceWidth = a.getDimensionPixelSize(R.styleable.WaveformView_spaceWidth, (int) (DEFAULT_BAR_SPACE_DP * density));
+        spaceWidth = a.getDimensionPixelSize(R.styleable.WaveformView_spaceWidth,
+                                             (int) (DEFAULT_BAR_SPACE_DP * density));
         baseline = a.getDimensionPixelSize(R.styleable.WaveformView_baseline, (int) (DEFAULT_BASELINE_DP * density));
         a.recycle();
 
@@ -104,7 +105,7 @@ public class WaveformView extends FrameLayout {
 
         progressAbovePaint = new Paint();
         progressAbovePaint.setShader(new LinearGradient(0, 0, 0, baseline, progressAboveStart,
-                progressAboveEnd, Shader.TileMode.MIRROR));
+                                                        progressAboveEnd, Shader.TileMode.MIRROR));
 
         progressBelowPaint = new Paint();
         progressBelowPaint.setColor(progressBelow);
@@ -239,7 +240,10 @@ public class WaveformView extends FrameLayout {
     }
 
     private ObjectAnimator createScaleDownAnimator(View animateView) {
-        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView, "scaleY", animateView.getScaleY(), 0f);
+        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView,
+                                                                     "scaleY",
+                                                                     animateView.getScaleY(),
+                                                                     0f);
         objectAnimator.setDuration(SCALE_DOWN_DURATION);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         return objectAnimator;
@@ -284,9 +288,9 @@ public class WaveformView extends FrameLayout {
 
         WaveformData scaled = waveformData.scale(totalSamples);
         leftWaveform.initialize(scaled, progressAbovePaint, progressBelowPaint,
-                unplayableAbovePaint, unplayableBelowPaint, barWidth, spaceWidth, baseline);
+                                unplayableAbovePaint, unplayableBelowPaint, barWidth, spaceWidth, baseline);
         rightWaveform.initialize(scaled, unplayedAbovePaint, unplayedBelowPaint,
-                unplayableAbovePaint, unplayableBelowPaint, barWidth, spaceWidth, baseline);
+                                 unplayableAbovePaint, unplayableBelowPaint, barWidth, spaceWidth, baseline);
         dragViewHolder.setAreaWidth(adjustedWidth);
     }
 }

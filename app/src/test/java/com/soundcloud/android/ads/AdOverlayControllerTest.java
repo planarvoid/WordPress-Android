@@ -39,7 +39,9 @@ import android.widget.FrameLayout;
 
 public class AdOverlayControllerTest extends AndroidUnitTest {
 
-    private final TrackQueueItem trackQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), AdFixtures.getLeaveBehindAd(Urn.forTrack(123L)));
+    private final TrackQueueItem trackQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L),
+                                                                                AdFixtures.getLeaveBehindAd(Urn.forTrack(
+                                                                                        123L)));
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo("origin_screen", true);
     private AdOverlayController controller;
 
@@ -65,11 +67,18 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        trackView = LayoutInflater.from(context()).inflate(R.layout.player_track_page, new FrameLayout(context()), false);
+        trackView = LayoutInflater.from(context())
+                                  .inflate(R.layout.player_track_page, new FrameLayout(context()), false);
 
-        controller = new AdOverlayController(trackView, listener,
-                context, deviceHelper, eventBus, playQueueManager,
-                accountOperations, interstitialPresenterFactory, leaveBehindPresenterFactory);
+        controller = new AdOverlayController(trackView,
+                                             listener,
+                                             context,
+                                             deviceHelper,
+                                             eventBus,
+                                             playQueueManager,
+                                             accountOperations,
+                                             interstitialPresenterFactory,
+                                             leaveBehindPresenterFactory);
 
 
         when(deviceHelper.getCurrentOrientation()).thenReturn(Configuration.ORIENTATION_PORTRAIT);
@@ -111,7 +120,9 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
 
         captureLeaveBehindListener().onAdImageLoaded();
 
-        verify(leaveBehindPresenter, never()).onAdVisible(any(TrackQueueItem.class), any(OverlayAdData.class), any(TrackSourceInfo.class));
+        verify(leaveBehindPresenter, never()).onAdVisible(any(TrackQueueItem.class),
+                                                          any(OverlayAdData.class),
+                                                          any(TrackSourceInfo.class));
     }
 
     @Test
@@ -229,7 +240,9 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         controller.initialize(interstitialData);
         controller.onAdImageLoaded();
 
-        verify(interstitialPresenter, never()).onAdVisible(any(PlayQueueItem.class), any(OverlayAdData.class), any(TrackSourceInfo.class));
+        verify(interstitialPresenter, never()).onAdVisible(any(PlayQueueItem.class),
+                                                           any(OverlayAdData.class),
+                                                           any(TrackSourceInfo.class));
     }
 
     @Test
@@ -238,7 +251,9 @@ public class AdOverlayControllerTest extends AndroidUnitTest {
         controller.initialize(leaveBehindData);
         controller.onAdImageLoaded();
 
-        verify(interstitialPresenter, never()).onAdVisible(any(PlayQueueItem.class), any(OverlayAdData.class), any(TrackSourceInfo.class));
+        verify(interstitialPresenter, never()).onAdVisible(any(PlayQueueItem.class),
+                                                           any(OverlayAdData.class),
+                                                           any(TrackSourceInfo.class));
     }
 
     private AdOverlayPresenter.Listener captureLeaveBehindListener() {

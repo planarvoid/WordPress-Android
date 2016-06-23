@@ -65,16 +65,18 @@ abstract class SuggestionItemRenderer implements CellRenderer<SuggestionItem> {
     }
 
     private void setHighlightSpans(SpannableString spanned, SuggestionHighlight suggestionHighlight) {
-        spanned.setSpan(new ForegroundColorSpan(ContextCompat.getColor(titleText.getContext(), R.color.search_suggestion_unhighlighted_text)),
-                0, spanned.length(),
-                Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        spanned.setSpan(new ForegroundColorSpan(ContextCompat.getColor(titleText.getContext(),
+                                                                       R.color.search_suggestion_unhighlighted_text)),
+                        0, spanned.length(),
+                        Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
         int start = suggestionHighlight.getStart();
         int end = suggestionHighlight.getEnd();
         if (start >= 0 && start < end && end > 0 && end <= spanned.length()) {
-            spanned.setSpan(new ForegroundColorSpan(ContextCompat.getColor(titleText.getContext(), R.color.search_suggestion_text)),
-                    start, end,
-                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            spanned.setSpan(new ForegroundColorSpan(ContextCompat.getColor(titleText.getContext(),
+                                                                           R.color.search_suggestion_text)),
+                            start, end,
+                            Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         }
     }
 }

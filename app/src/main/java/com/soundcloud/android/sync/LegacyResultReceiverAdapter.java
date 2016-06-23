@@ -12,7 +12,8 @@ import android.os.ResultReceiver;
 /**
  * Bridge between an Android ResultReceiver and an Rx Subscriber
  */
-@SuppressLint("ParcelCreator") // not sure how to fix this; needs review
+@SuppressLint("ParcelCreator")
+        // not sure how to fix this; needs review
 class LegacyResultReceiverAdapter extends ResultReceiver {
 
     private final Subscriber<? super Boolean> subscriber;
@@ -44,7 +45,7 @@ class LegacyResultReceiverAdapter extends ResultReceiver {
 
     private boolean checkForUpdates(Bundle resultData) {
         for (Uri uri : contentUris) {
-            if (resultData.getBoolean(uri.toString())){
+            if (resultData.getBoolean(uri.toString())) {
                 return true;
             }
         }

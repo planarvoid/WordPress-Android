@@ -46,6 +46,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     public interface AdOverlayListener {
         void onAdOverlayShown(boolean fullscreen);
+
         void onAdOverlayHidden(boolean fullscreen);
     }
 
@@ -146,7 +147,9 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
 
     private void onAdVisible() {
         if (presenter != null && playQueueManager.getCurrentPlayQueueItem().isTrack()) {
-            presenter.onAdVisible(playQueueManager.getCurrentPlayQueueItem(), overlayData.get(), playQueueManager.getCurrentTrackSourceInfo());
+            presenter.onAdVisible(playQueueManager.getCurrentPlayQueueItem(),
+                                  overlayData.get(),
+                                  playQueueManager.getCurrentTrackSourceInfo());
             listener.onAdOverlayShown(presenter.isFullScreen());
         }
     }

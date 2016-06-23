@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-class CollectionTrackItemRenderer implements CellRenderer<CollectionItem>{
+class CollectionTrackItemRenderer implements CellRenderer<CollectionItem> {
 
     private final TrackItemRenderer trackItemRenderer;
     private final TrackItemView.Factory trackItemViewFactory;
@@ -54,7 +54,7 @@ class CollectionTrackItemRenderer implements CellRenderer<CollectionItem>{
             @Override
             public void onClick(View v) {
                 playHistoryOperations.startPlaybackFrom(trackItem.getUrn(), Screen.COLLECTIONS)
-                        .subscribe(expandPlayerSubscriberProvider.get());
+                                     .subscribe(expandPlayerSubscriberProvider.get());
             }
         };
     }

@@ -33,6 +33,6 @@ public class ImageResourceMatcher extends ArgumentMatcher<ImageResource> {
 
     public static ImageResourceMatcher isImageResourceFor(PropertySet entityProperties) {
         return new ImageResourceMatcher(entityProperties.get(EntityProperty.URN),
-                entityProperties.get(EntityProperty.IMAGE_URL_TEMPLATE));
+                                        entityProperties.get(EntityProperty.IMAGE_URL_TEMPLATE));
     }
 }

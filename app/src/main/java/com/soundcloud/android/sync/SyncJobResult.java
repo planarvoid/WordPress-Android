@@ -153,11 +153,11 @@ public final class SyncJobResult implements Parcelable, UrnEvent {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("action", action)
-                .add("wasChanged", wasChanged)
-                .add("exception", exception)
-                .add("entitiesSynced", entitiesSynced)
-                .toString();
+                          .add("action", action)
+                          .add("wasChanged", wasChanged)
+                          .add("exception", exception)
+                          .add("entitiesSynced", entitiesSynced)
+                          .toString();
     }
 }
 

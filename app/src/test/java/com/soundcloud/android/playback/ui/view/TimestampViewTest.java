@@ -35,7 +35,10 @@ public class TimestampViewTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        timestampView = new TimestampView(context(), new RoboAttributeSet(Collections.<Attribute>emptyList(), shadowOf(resources()).getResourceLoader()), springSystem);
+        timestampView = new TimestampView(context(),
+                                          new RoboAttributeSet(Collections.<Attribute>emptyList(),
+                                                               shadowOf(resources()).getResourceLoader()),
+                                          springSystem);
         progressView = (TextView) timestampView.findViewById(R.id.timestamp_progress);
         durationView = (TextView) timestampView.findViewById(R.id.timestamp_duration);
 

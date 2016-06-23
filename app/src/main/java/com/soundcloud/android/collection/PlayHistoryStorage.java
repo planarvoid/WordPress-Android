@@ -41,13 +41,13 @@ public class PlayHistoryStorage {
 
     Observable<TrackItem> fetchTracks(int limit) {
         return rxDatabase.query(fetchTracksQuery(limit))
-                .map(new TrackItemMapper())
-                .map(TrackItem.fromPropertySet());
+                         .map(new TrackItemMapper())
+                         .map(TrackItem.fromPropertySet());
     }
 
     Observable<RecentlyPlayedItem> fetchContexts(int limit) {
         return rxDatabase.query(fetchContextsQuery(limit))
-                .map(new RecentlyPlayedItemMapper());
+                         .map(new RecentlyPlayedItemMapper());
     }
 
     Observable<Urn> fetchPlayHistoryForPlayback() {
@@ -72,12 +72,12 @@ public class PlayHistoryStorage {
         fields.add(field("0").as(SoundView.USER_REPOST));
 
         return Query.from(PlayHistory.TABLE)
-                .select(fields.toArray())
-                .innerJoin(Table.SoundView, filter()
-                        .whereEq(Sounds._ID, PlayHistory.TRACK_ID)
-                        .whereEq(Sounds._TYPE, Sounds.TYPE_TRACK))
-                .order(PlayHistory.TIMESTAMP, Query.Order.DESC)
-                .limit(limit);
+                    .select(fields.toArray())
+                    .innerJoin(Table.SoundView, filter()
+                            .whereEq(Sounds._ID, PlayHistory.TRACK_ID)
+                            .whereEq(Sounds._TYPE, Sounds.TYPE_TRACK))
+                    .order(PlayHistory.TIMESTAMP, Query.Order.DESC)
+                    .limit(limit);
     }
 
     private String fetchContextsQuery(int limit) {
@@ -102,8 +102,8 @@ public class PlayHistoryStorage {
 
     private Query fetchForPlaybackQuery() {
         return Query.from(PlayHistory.TABLE.name())
-                .select("DISTINCT " + PlayHistory.TRACK_ID.name())
-                .order(PlayHistory.TIMESTAMP, Query.Order.DESC);
+                    .select("DISTINCT " + PlayHistory.TRACK_ID.name())
+                    .order(PlayHistory.TIMESTAMP, Query.Order.DESC);
     }
 
     private class RecentlyPlayedItemMapper extends RxResultMapper<RecentlyPlayedItem> {

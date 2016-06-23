@@ -19,7 +19,7 @@ public class PlaybackErrorEvent {
     private final long timestamp;
 
     public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost, String format, int bitrate,
-                              ConnectionType connectionType){
+                              ConnectionType connectionType) {
         this.category = category;
         this.protocol = protocol;
         this.cdnHost = cdnHost;
@@ -29,7 +29,10 @@ public class PlaybackErrorEvent {
         this.timestamp = System.currentTimeMillis();
     }
 
-    public PlaybackErrorEvent(String category, PlaybackProtocol protocol, String cdnHost, ConnectionType connectionType){
+    public PlaybackErrorEvent(String category,
+                              PlaybackProtocol protocol,
+                              String cdnHost,
+                              ConnectionType connectionType) {
         this(category, protocol, cdnHost, SkippyMediaType.MP3.name(), BITRATE_128, connectionType);
     }
 

@@ -331,16 +331,16 @@ public interface Tables {
                 "MAX(IFNULL(PlaylistLikes.created_at, 0), PlaylistProperties.created_at ) AS created_at " +
                 // ^ The timestamp used to sort
                 "FROM Sounds " +
-                    "INNER JOIN PlaylistTracks ON Sounds._id = PlaylistTracks.track_id " +
-                    // ^ Add PlaylistTracks to tracks
-                    "LEFT JOIN Likes as PlaylistLikes ON (PlaylistTracks.playlist_id = PlaylistLikes._id) AND (PlaylistLikes._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ") " +
-                    // ^ When available, adds the Playlist Like date to the tracks (for sorting purpose)
-                    "LEFT JOIN Sounds as PlaylistProperties ON (PlaylistProperties._id = PlaylistTracks.playlist_id AND PlaylistProperties._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ")" +
-                    // ^ Add the playlist creation date
-                    "INNER JOIN OfflineContent ON PlaylistTracks.playlist_id = OfflineContent._id  AND Sounds._type = " + TableColumns.Sounds.TYPE_TRACK + " " +
-                    // ^ Keep only offline tracks
-                    "INNER JOIN TrackPolicies ON PlaylistTracks.track_id = TrackPolicies.track_id " +
-                    // ^ Keep only tracks with policies
+                "INNER JOIN PlaylistTracks ON Sounds._id = PlaylistTracks.track_id " +
+                // ^ Add PlaylistTracks to tracks
+                "LEFT JOIN Likes as PlaylistLikes ON (PlaylistTracks.playlist_id = PlaylistLikes._id) AND (PlaylistLikes._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ") " +
+                // ^ When available, adds the Playlist Like date to the tracks (for sorting purpose)
+                "LEFT JOIN Sounds as PlaylistProperties ON (PlaylistProperties._id = PlaylistTracks.playlist_id AND PlaylistProperties._type = " + TableColumns.Sounds.TYPE_PLAYLIST + ")" +
+                // ^ Add the playlist creation date
+                "INNER JOIN OfflineContent ON PlaylistTracks.playlist_id = OfflineContent._id  AND Sounds._type = " + TableColumns.Sounds.TYPE_TRACK + " " +
+                // ^ Keep only offline tracks
+                "INNER JOIN TrackPolicies ON PlaylistTracks.track_id = TrackPolicies.track_id " +
+                // ^ Keep only tracks with policies
                 "WHERE (PlaylistTracks.removed_at IS NULL) ";
 
         OfflinePlaylistTracks() {

@@ -25,10 +25,10 @@ class LoadLikesCommand extends LegacyCommand<Integer, List<PropertySet>, LoadLik
     @Override
     public List<PropertySet> call() throws Exception {
         return database.query(Query.from(Table.Likes.name())
-                .whereEq(TableColumns.Likes._TYPE, input)
-                .order(CREATED_AT, DESC)
-                .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
-                .toList(new LikeMapper());
+                                   .whereEq(TableColumns.Likes._TYPE, input)
+                                   .order(CREATED_AT, DESC)
+                                   .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT)))
+                       .toList(new LikeMapper());
     }
 
 }

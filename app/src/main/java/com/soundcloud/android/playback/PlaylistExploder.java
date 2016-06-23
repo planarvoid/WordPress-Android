@@ -35,7 +35,9 @@ public class PlaylistExploder {
     private CompositeSubscription loadPlaylistsSubscription = new CompositeSubscription();
 
     @Inject
-    public PlaylistExploder(EventBus eventBus, PlaylistOperations playlistOperations, PlayQueueManager playQueueManager) {
+    public PlaylistExploder(EventBus eventBus,
+                            PlaylistOperations playlistOperations,
+                            PlayQueueManager playQueueManager) {
         this.eventBus = eventBus;
         this.playlistOperations = playlistOperations;
         this.playQueueManager = playQueueManager;
@@ -73,14 +75,14 @@ public class PlaylistExploder {
     private void loadPlaylistTracks(final Urn playlist) {
         playlistLoads.add(playlist);
         loadPlaylistsSubscription.add(playlistOperations.trackUrnsForPlayback(playlist)
-                .doOnTerminate(removePlaylistLoad(playlist))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DefaultSubscriber<List<Urn>>() {
-                    @Override
-                    public void onNext(List<Urn> args) {
-                        playQueueManager.insertPlaylistTracks(playlist, args);
-                    }
-                }));
+                                                        .doOnTerminate(removePlaylistLoad(playlist))
+                                                        .observeOn(AndroidSchedulers.mainThread())
+                                                        .subscribe(new DefaultSubscriber<List<Urn>>() {
+                                                            @Override
+                                                            public void onNext(List<Urn> args) {
+                                                                playQueueManager.insertPlaylistTracks(playlist, args);
+                                                            }
+                                                        }));
     }
 
     @NonNull
@@ -94,7 +96,8 @@ public class PlaylistExploder {
     }
 
     private Collection<Urn> getSurroundingPlaylists() {
-        final List<Urn> surrounding = new ArrayList<>(playQueueManager.getUpcomingPlayQueueItems(PLAYLIST_LOOKAHEAD_COUNT));
+        final List<Urn> surrounding = new ArrayList<>(playQueueManager.getUpcomingPlayQueueItems(
+                PLAYLIST_LOOKAHEAD_COUNT));
         surrounding.addAll(playQueueManager.getPreviousPlayQueueItems(PLAYLIST_LOOKBEHIND_COUNT));
         return MoreCollections.filter(surrounding, new Predicate<Urn>() {
             @Override

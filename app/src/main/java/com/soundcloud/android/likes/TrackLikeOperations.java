@@ -76,17 +76,17 @@ public class TrackLikeOperations {
         this.networkConnectionHelper = networkConnectionHelper;
     }
 
-    Observable<PropertySet> onTrackLiked(){
+    Observable<PropertySet> onTrackLiked() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
-                .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
-                .map(EntityStateChangedEvent.TO_URN)
-                .flatMap(loadLikedTrack);
+                       .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
+                       .map(EntityStateChangedEvent.TO_URN)
+                       .flatMap(loadLikedTrack);
     }
 
     Observable<Urn> onTrackUnliked() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
-                .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
-                .map(EntityStateChangedEvent.TO_URN);
+                       .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
+                       .map(EntityStateChangedEvent.TO_URN);
     }
 
     Observable<List<PropertySet>> likedTracks() {
@@ -101,8 +101,8 @@ public class TrackLikeOperations {
 
     private Observable<List<PropertySet>> loadLikedTracksInternal(long beforeTime) {
         return likedTrackStorage.loadTrackLikes(PAGE_SIZE, beforeTime)
-                .doOnNext(requestTracksSyncAction)
-                .subscribeOn(scheduler);
+                                .doOnNext(requestTracksSyncAction)
+                                .subscribeOn(scheduler);
     }
 
     Observable<List<PropertySet>> updatedLikedTracks() {

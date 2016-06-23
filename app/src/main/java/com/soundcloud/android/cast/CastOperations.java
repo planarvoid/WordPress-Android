@@ -86,42 +86,55 @@ public class CastOperations {
         this.progressPullIntervalScheduler = progressPullIntervalScheduler;
     }
 
-    public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
+    public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(final Urn currentTrackUrn,
+                                                                                           List<Urn> unfilteredLocalPlayQueueTracks) {
         return filterMonetizableAndPrivateTracks(unfilteredLocalPlayQueueTracks).toList()
-                .flatMap(new Func1<List<Urn>, Observable<LocalPlayQueue>>() {
-                    @Override
-                    public Observable<LocalPlayQueue> call(List<Urn> filteredLocalPlayQueueTracks) {
-                        if (filteredLocalPlayQueueTracks.isEmpty()) {
-                            return Observable.just(LocalPlayQueue.empty());
-                        } else if (filteredLocalPlayQueueTracks.contains(currentTrackUrn)) {
-                            return loadLocalPlayQueue(currentTrackUrn, filteredLocalPlayQueueTracks);
-                        } else {
-                            return loadLocalPlayQueue(filteredLocalPlayQueueTracks.get(0), filteredLocalPlayQueueTracks);
-                        }
-                    }
-                });
+                                                                                .flatMap(new Func1<List<Urn>, Observable<LocalPlayQueue>>() {
+                                                                                    @Override
+                                                                                    public Observable<LocalPlayQueue> call(
+                                                                                            List<Urn> filteredLocalPlayQueueTracks) {
+                                                                                        if (filteredLocalPlayQueueTracks
+                                                                                                .isEmpty()) {
+                                                                                            return Observable.just(
+                                                                                                    LocalPlayQueue.empty());
+                                                                                        } else if (filteredLocalPlayQueueTracks
+                                                                                                .contains(
+                                                                                                        currentTrackUrn)) {
+                                                                                            return loadLocalPlayQueue(
+                                                                                                    currentTrackUrn,
+                                                                                                    filteredLocalPlayQueueTracks);
+                                                                                        } else {
+                                                                                            return loadLocalPlayQueue(
+                                                                                                    filteredLocalPlayQueueTracks
+                                                                                                            .get(0),
+                                                                                                    filteredLocalPlayQueueTracks);
+                                                                                        }
+                                                                                    }
+                                                                                });
     }
 
     public Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn, List<Urn> filteredLocalPlayQueueTracks) {
-        return Observable.zip(trackRepository.track(currentTrackUrn), Observable.from(filteredLocalPlayQueueTracks).toList(),
-                new Func2<PropertySet, List<Urn>, LocalPlayQueue>() {
-                    @Override
-                    public LocalPlayQueue call(PropertySet track, List<Urn> filteredLocalPlayQueueTracks) {
-                        return new LocalPlayQueue(
-                                createPlayQueueJSON(filteredLocalPlayQueueTracks),
-                                filteredLocalPlayQueueTracks,
-                                createMediaInfo(track),
-                                track.get(TrackProperty.URN));
-                    }
-                });
+        return Observable.zip(trackRepository.track(currentTrackUrn),
+                              Observable.from(filteredLocalPlayQueueTracks).toList(),
+                              new Func2<PropertySet, List<Urn>, LocalPlayQueue>() {
+                                  @Override
+                                  public LocalPlayQueue call(PropertySet track,
+                                                             List<Urn> filteredLocalPlayQueueTracks) {
+                                      return new LocalPlayQueue(
+                                              createPlayQueueJSON(filteredLocalPlayQueueTracks),
+                                              filteredLocalPlayQueueTracks,
+                                              createMediaInfo(track),
+                                              track.get(TrackProperty.URN));
+                                  }
+                              });
     }
 
     private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
         return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
-                .flatMap(RxUtils.<Urn>iterableToObservable())
-                .flatMap(loadTracks)
-                .filter(FILTER_PRIVATE_TRACKS)
-                .map(TO_URNS);
+                               .flatMap(RxUtils.<Urn>iterableToObservable())
+                               .flatMap(loadTracks)
+                               .filter(FILTER_PRIVATE_TRACKS)
+                               .map(TO_URNS);
     }
 
     private JSONObject createPlayQueueJSON(List<Urn> urns) {
@@ -169,7 +182,8 @@ public class CastOperations {
             if (remoteMediaInformation != null) {
                 final JSONObject customData = remoteMediaInformation.getCustomData();
                 if (customData != null) {
-                    return new RemotePlayQueue(convertRemoteDataToTrackList(customData), getCurrentTrackUrn(remoteMediaInformation));
+                    return new RemotePlayQueue(convertRemoteDataToTrackList(customData),
+                                               getCurrentTrackUrn(remoteMediaInformation));
                 }
             }
         } catch (JSONException e) {
@@ -201,7 +215,9 @@ public class CastOperations {
     }
 
     public Observable<TimeInterval<Long>> intervalForProgressPull() {
-        return Observable.interval(PlaybackConstants.PROGRESS_DELAY_MS, TimeUnit.MILLISECONDS, progressPullIntervalScheduler).timeInterval();
+        return Observable.interval(PlaybackConstants.PROGRESS_DELAY_MS,
+                                   TimeUnit.MILLISECONDS,
+                                   progressPullIntervalScheduler).timeInterval();
     }
 
 }

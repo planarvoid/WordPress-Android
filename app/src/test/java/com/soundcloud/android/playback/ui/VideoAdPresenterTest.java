@@ -58,7 +58,12 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         when(deviceHelper.isOrientation(ORIENTATION_PORTRAIT)).thenReturn(true);
 
-        presenter = new VideoAdPresenter(mediaPlayerAdapter, imageOperations, pageListener, playerOverlayControllerFactory, deviceHelper, resources());
+        presenter = new VideoAdPresenter(mediaPlayerAdapter,
+                                         imageOperations,
+                                         pageListener,
+                                         playerOverlayControllerFactory,
+                                         deviceHelper,
+                                         resources());
         adView = presenter.createItemView(new FrameLayout(context()), null);
         bindVerticalVideo(true);
     }
@@ -117,7 +122,10 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         bindLetterboxVideo(true);
 
         presenter.setPlayState(adView, createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
-        presenter.setPlayState(adView, createStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE), true, true);
+        presenter.setPlayState(adView,
+                               createStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE),
+                               true,
+                               true);
 
         assertThat(adView.findViewById(R.id.video_view)).isVisible();
         assertThat(adView.findViewById(R.id.video_progress)).isVisible();
@@ -180,7 +188,8 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void videoOverlayContainerResizedToVideoInPortrait() {
         bindLetterboxVideo(true);
         final ViewGroup.LayoutParams videoAdParams = adView.findViewById(R.id.video_view).getLayoutParams();
-        final ViewGroup.LayoutParams videoOverlayLayoutParams = adView.findViewById(R.id.video_overlay_container).getLayoutParams();
+        final ViewGroup.LayoutParams videoOverlayLayoutParams = adView.findViewById(R.id.video_overlay_container)
+                                                                      .getLayoutParams();
 
         assertThat(videoOverlayLayoutParams.height).isEqualTo(videoAdParams.height);
         assertThat(videoOverlayLayoutParams.width).isEqualTo(videoAdParams.width);
@@ -189,7 +198,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Test
     public void fadingViewsAreInvisibleAfterPlaybackStarts() {
         presenter.setPlayState(adView,
-                createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
+                               createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
 
         for (View view : fadingViews()) {
             assertThat(view).isInvisible();
@@ -199,7 +208,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Test
     public void fadingViewsAreNotInvisibleAfterPlaybackStartsForNonCurrentItem() {
         presenter.setPlayState(adView,
-                createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), false, true);
+                               createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), false, true);
 
         for (View view : fadingViews()) {
             assertThat(view).isNotInvisible();
@@ -209,7 +218,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Test
     public void fadingViewsAreVisibleOnPlaybackPause() {
         presenter.setPlayState(adView,
-                createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
+                               createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
 
         for (View view : fadingViews()) {
             assertThat(view).isVisible();
@@ -219,9 +228,9 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     @Test
     public void fadingViewsAreSetToInvisibleAfterPlayEventFromPause() {
         presenter.setPlayState(adView,
-                createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
+                               createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
         presenter.setPlayState(adView,
-                createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
+                               createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
 
         for (View view : fadingViews()) {
             assertThat(view).isInvisible();
@@ -390,7 +399,8 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     private VideoAd buildAd(boolean isVertical) {
         final int width = isVertical ? VERTICAL_VIDEO_WIDTH : LETTERBOX_VIDEO_WIDTH;
         final int height = isVertical ? VERTICAL_VIDEO_HEIGHT : LETTERBOX_VIDEO_HEIGHT;
-        final VideoAd ad = AdFixtures.getVideoAd(Urn.forTrack(123L), ApiVideoSource.create("codec", "url", 1000, width, height));
+        final VideoAd ad = AdFixtures.getVideoAd(Urn.forTrack(123L),
+                                                 ApiVideoSource.create("codec", "url", 1000, width, height));
         ad.setMonetizableCreator("Artist");
         ad.setMonetizableTitle("Title");
         return ad;

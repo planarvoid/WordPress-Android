@@ -20,15 +20,15 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
 
     private static final Func1<List<PropertySet>, List<ActivityItem>> TO_VIEW_MODELS =
             new Func1<List<PropertySet>, List<ActivityItem>>() {
-        @Override
-        public List<ActivityItem> call(List<PropertySet> propertySets) {
-            final List<ActivityItem> items = new ArrayList<>(propertySets.size());
-            for (PropertySet sourceSet : propertySets) {
-                items.add(new ActivityItem(sourceSet));
-            }
-            return items;
-        }
-    };
+                @Override
+                public List<ActivityItem> call(List<PropertySet> propertySets) {
+                    final List<ActivityItem> items = new ArrayList<>(propertySets.size());
+                    for (PropertySet sourceSet : propertySets) {
+                        items.add(new ActivityItem(sourceSet));
+                    }
+                    return items;
+                }
+            };
 
     private final Scheduler scheduler;
 
@@ -38,7 +38,12 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
                          ContentStats contentStats,
                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                          SyncStateStorage syncStateStorage) {
-        super(LegacySyncContent.MyActivities, activitiesStorage, syncInitiator, contentStats, scheduler, syncStateStorage);
+        super(LegacySyncContent.MyActivities,
+              activitiesStorage,
+              syncInitiator,
+              contentStats,
+              scheduler,
+              syncStateStorage);
         this.scheduler = scheduler;
     }
 

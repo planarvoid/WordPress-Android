@@ -23,28 +23,29 @@ public class ParallaxImageView extends AspectRatioImageView {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ParallaxImageView);
         focalPoint = a.getFloat(R.styleable.ParallaxImageView_focalPoint, .5f);
-        movement = (int) a.getDimension(R.styleable.ParallaxImageView_movement, -(int) (30 * context.getResources().getDisplayMetrics().density));
+        movement = (int) a.getDimension(R.styleable.ParallaxImageView_movement,
+                                        -(int) (30 * context.getResources().getDisplayMetrics().density));
         a.recycle();
 
         setScaleType(ScaleType.MATRIX);
     }
 
-    public void setParallaxOffset(double offset){
+    public void setParallaxOffset(double offset) {
         parallaxOffset = (int) (offset * movement);
-        setFrame(getLeft(),getTop(),getRight(),getBottom());
+        setFrame(getLeft(), getTop(), getRight(), getBottom());
         invalidate();
     }
 
     @Override
     protected boolean setFrame(int l, int t, int r, int b) {
         final Drawable drawable = getDrawable();
-        if (drawable != null){
+        if (drawable != null) {
             final Matrix matrix = getImageMatrix();
-            float scaleFactor = (r-l)/(float) drawable.getIntrinsicWidth();
+            float scaleFactor = (r - l) / (float) drawable.getIntrinsicWidth();
             final int desiredFocalPoint = (int) (-(drawable.getIntrinsicHeight()) * focalPoint);
             matrix.setTranslate(0, desiredFocalPoint);
             matrix.postScale(scaleFactor, scaleFactor, 0, 0);
-            matrix.postTranslate(0, Math.min((b-t)/(2) + parallaxOffset, -desiredFocalPoint*scaleFactor));
+            matrix.postTranslate(0, Math.min((b - t) / (2) + parallaxOffset, -desiredFocalPoint * scaleFactor));
             setImageMatrix(matrix);
         }
         return super.setFrame(l, t, r, b);

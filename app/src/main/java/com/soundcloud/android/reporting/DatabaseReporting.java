@@ -24,8 +24,8 @@ public class DatabaseReporting {
 
     public int countTracks() {
         return propeller.query(count(Table.Sounds)
-                .whereEq(Sounds._TYPE, Sounds.TYPE_TRACK))
-                .firstOrDefault(Integer.class, 0);
+                                       .whereEq(Sounds._TYPE, Sounds.TYPE_TRACK))
+                        .firstOrDefault(Integer.class, 0);
     }
 
     public Optional<DatabaseMigrationEvent> pullDatabaseMigrationEvent() {

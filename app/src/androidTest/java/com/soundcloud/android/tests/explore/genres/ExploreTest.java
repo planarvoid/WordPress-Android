@@ -30,7 +30,7 @@ public class ExploreTest extends ActivityTest<MainActivity> {
         exploreScreen = mainNavHelper.goToExplore();
     }
 
-    public void testElectronicMusicCategoryHasContent(){
+    public void testElectronicMusicCategoryHasContent() {
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();
@@ -38,7 +38,7 @@ public class ExploreTest extends ActivityTest<MainActivity> {
         assertThat(categoryScreen.getItemsOnList(), is(lessThanOrEqualTo(20)));
     }
 
-    public void testElectronicMusicCategoryPullToRefresh(){
+    public void testElectronicMusicCategoryPullToRefresh() {
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();
@@ -49,7 +49,7 @@ public class ExploreTest extends ActivityTest<MainActivity> {
         assertThat(categoryScreen.getItemsOnList(), is(lessThanOrEqualTo(20)));
     }
 
-    public void testElectronicMusicCategoryLoadsNextPageOfTracks(){
+    public void testElectronicMusicCategoryLoadsNextPageOfTracks() {
         exploreScreen.touchGenresTab();
         categoryScreen = exploreScreen.clickGenreItem("Ambient");
         waiter.waitForContentAndRetryIfLoadingFailed();

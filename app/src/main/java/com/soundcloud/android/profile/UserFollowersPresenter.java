@@ -43,8 +43,11 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
 
     @Inject
-    UserFollowersPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener, SwipeRefreshAttacher swipeRefreshAttacher,
-                           UserProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
+    UserFollowersPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener,
+                           SwipeRefreshAttacher swipeRefreshAttacher,
+                           UserProfileOperations profileOperations,
+                           UserRecyclerItemAdapter adapter,
+                           Navigator navigator) {
         super(swipeRefreshAttacher);
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;
@@ -56,9 +59,9 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
     protected CollectionBinding<PagedRemoteCollection, UserItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(ProfileArguments.USER_URN_KEY);
         return CollectionBinding.from(profileOperations.pagedFollowers(userUrn), pageTransformer)
-                .withAdapter(adapter)
-                .withPager(profileOperations.followersPagingFunction())
-                .build();
+                                .withAdapter(adapter)
+                                .withPager(profileOperations.followersPagingFunction())
+                                .build();
     }
 
     @Override

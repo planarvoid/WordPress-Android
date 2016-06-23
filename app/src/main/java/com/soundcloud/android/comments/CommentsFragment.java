@@ -26,7 +26,8 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment> implements ReactiveListComponent<Observable<List<Comment>>> {
+public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment>
+        implements ReactiveListComponent<Observable<List<Comment>>> {
 
     static final String EXTRA_TRACK_URN = "track_urn";
 
@@ -65,9 +66,9 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
     public Observable<List<Comment>> buildObservable() {
         final Urn trackUrn = getArguments().getParcelable(EXTRA_TRACK_URN);
         comments = operations.pager().page(operations.comments(trackUrn))
-                .map(TO_COMMENT_VIEW_MODEL)
-                .observeOn(mainThread())
-                .replay(1);
+                             .map(TO_COMMENT_VIEW_MODEL)
+                             .observeOn(mainThread())
+                             .replay(1);
         comments.subscribe(adapter);
         return comments;
     }

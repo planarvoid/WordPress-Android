@@ -18,7 +18,7 @@ public class ListElement extends AdapterElement {
 
     public ListElement(View element, Han driver) {
         super(element, driver);
-        absListView = (AbsListView)element;
+        absListView = (AbsListView) element;
     }
 
     public ViewElement getItemAt(int index) {
@@ -29,7 +29,7 @@ public class ListElement extends AdapterElement {
         return getAdapter().getCount();
     }
 
-    public ListAdapter getAdapter(){
+    public ListAdapter getAdapter() {
         waiter.waitForItemCountToIncrease(absListView.getAdapter(), 0);
         return absListView.getAdapter();
     }

@@ -15,14 +15,16 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserFollowersFragment extends ScrollableProfileFragment  {
+public class UserFollowersFragment extends ScrollableProfileFragment {
     public static final String IS_CURRENT_USER = "is_current_user";
 
     @Inject @LightCycle UserFollowersPresenter presenter;
 
-    public static UserFollowersFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static UserFollowersFragment create(Urn userUrn,
+                                               Screen screen,
+                                               SearchQuerySourceInfo searchQuerySourceInfo) {
         UserFollowersFragment fragment = new UserFollowersFragment();
-        fragment.setArguments(ProfileArguments.from(userUrn,screen, searchQuerySourceInfo));
+        fragment.setArguments(ProfileArguments.from(userUrn, screen, searchQuerySourceInfo));
         return fragment;
     }
 

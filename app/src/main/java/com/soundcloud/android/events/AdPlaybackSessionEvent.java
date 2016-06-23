@@ -40,7 +40,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     }
 
     private static AdPlaybackSessionEvent forQuartile(PlayerAdData adData, TrackSourceInfo trackSourceInfo,
-                                                      String quartileType)  {
+                                                      String quartileType) {
         return new AdPlaybackSessionEvent(EVENT_KIND_QUARTILE, adData, trackSourceInfo)
                 .setQuartileTrackingUrls(quartileType, adData)
                 .put(PlayableTrackingKeys.KEY_QUARTILE_TYPE, quartileType);
@@ -63,7 +63,8 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
 
         put(PlayableTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());
         put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
-        put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO);
+        put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE,
+            adData instanceof VideoAd ? MONETIZATION_VIDEO : MONETIZATION_AUDIO);
     }
 
     public boolean hasAdFinished() {

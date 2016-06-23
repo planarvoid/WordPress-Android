@@ -85,10 +85,17 @@ public class BackgroundSyncResultReceiverTest extends AndroidUnitTest {
     @Test
     public void handlesMixedSyncResults() {
         final Bundle resultData = new Bundle();
-        resultData.putParcelable(Syncable.CHARTS.name(), SyncJobResult.failure(Syncable.CHARTS.name(), ApiRequestException.serverError(null, null)));
-        resultData.putParcelable(Syncable.RECENT_STATIONS.name(), SyncJobResult.failure(Syncable.RECENT_STATIONS.name(), ApiRequestException.networkError(null, null)));
-        resultData.putParcelable(Syncable.RECOMMENDED_STATIONS.name(), SyncJobResult.failure(Syncable.RECOMMENDED_STATIONS.name(), ApiRequestException.authError(null, null)));
-        resultData.putParcelable(Syncable.RECOMMENDED_TRACKS.name(), SyncJobResult.success(Syncable.RECOMMENDED_TRACKS.name(), true));
+        resultData.putParcelable(Syncable.CHARTS.name(),
+                                 SyncJobResult.failure(Syncable.CHARTS.name(),
+                                                       ApiRequestException.serverError(null, null)));
+        resultData.putParcelable(Syncable.RECENT_STATIONS.name(),
+                                 SyncJobResult.failure(Syncable.RECENT_STATIONS.name(),
+                                                       ApiRequestException.networkError(null, null)));
+        resultData.putParcelable(Syncable.RECOMMENDED_STATIONS.name(),
+                                 SyncJobResult.failure(Syncable.RECOMMENDED_STATIONS.name(),
+                                                       ApiRequestException.authError(null, null)));
+        resultData.putParcelable(Syncable.RECOMMENDED_TRACKS.name(),
+                                 SyncJobResult.success(Syncable.RECOMMENDED_TRACKS.name(), true));
 
         receiver.onReceiveResult(0, resultData);
 

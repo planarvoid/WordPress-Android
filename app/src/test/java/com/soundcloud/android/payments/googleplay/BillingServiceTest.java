@@ -177,7 +177,12 @@ public class BillingServiceTest extends AndroidUnitTest {
         onServiceConnected();
         billingService.startPurchase("package_id", "token");
 
-        verify(activity).startIntentSenderForResult(any(IntentSender.class), eq(BillingResult.REQUEST_CODE), any(Intent.class), eq(0), eq(0), eq(0));
+        verify(activity).startIntentSenderForResult(any(IntentSender.class),
+                                                    eq(BillingResult.REQUEST_CODE),
+                                                    any(Intent.class),
+                                                    eq(0),
+                                                    eq(0),
+                                                    eq(0));
     }
 
     private void onServiceConnected() {

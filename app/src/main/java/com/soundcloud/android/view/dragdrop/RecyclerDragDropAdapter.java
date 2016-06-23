@@ -36,7 +36,8 @@ public abstract class RecyclerDragDropAdapter<ItemT, VH extends RecyclerDragDrop
 
     private final OnStartDragListener listener;
 
-    public RecyclerDragDropAdapter(OnStartDragListener listener, CellRendererBinding<? extends ItemT>... cellRendererBindings) {
+    public RecyclerDragDropAdapter(OnStartDragListener listener,
+                                   CellRendererBinding<? extends ItemT>... cellRendererBindings) {
         super(cellRendererBindings);
         this.listener = listener;
     }

@@ -16,9 +16,9 @@ import android.content.SharedPreferences;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceManagementStorageTest {
-    
+
     private DeviceManagementStorage deviceManagementStorage;
-    
+
     @Mock SharedPreferences sharedPreferences;
     @Mock SharedPreferences.Editor sharedPreferencesEditor;
 

@@ -73,13 +73,18 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
-    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh, new Bundle());
+    @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh,
+                                                                    new Bundle());
 
     @Before
     public void setUp() throws Exception {
         setupFragmentArguments(true);
-        final List<PropertySet> propertySets = Collections.singletonList(PropertySet.create().put(EntityProperty.URN, TRACK_URN));
-        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets, Optional.<Link>absent(), QUERY_URN);
+        final List<PropertySet> propertySets = Collections.singletonList(PropertySet.create()
+                                                                                    .put(EntityProperty.URN,
+                                                                                         TRACK_URN));
+        final SearchResult searchResult = SearchResult.fromPropertySets(propertySets,
+                                                                        Optional.<Link>absent(),
+                                                                        QUERY_URN);
         final Observable<SearchResult> searchResultObservable = Observable.just(searchResult);
 
         presenter = new SearchResultsPresenter(swipeRefreshAttacher, searchOperations, adapter,
@@ -89,7 +94,8 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         searchQuerySourceInfo.setQueryResults(Arrays.asList(Urn.forTrack(1), Urn.forTrack(3)));
 
 
-        when(clickListenerFactory.create(any(Screen.class), any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
+        when(clickListenerFactory.create(any(Screen.class),
+                                         any(SearchQuerySourceInfo.class))).thenReturn(clickListener);
         when(searchOperations.searchResult(anyString(), any(SearchType.class))).thenReturn(searchResultObservable);
         when(searchOperations.pagingFunction(any(SearchType.class))).thenReturn(searchPagingFunction);
         when(searchPagingFunction.getSearchQuerySourceInfo(anyInt(), any(Urn.class))).thenReturn(searchQuerySourceInfo);
@@ -113,7 +119,9 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         presenter.onBuildBinding(new Bundle());
         presenter.onItemClicked(fragmentRule.getView(), 0);
 
-        verify(searchTracker).trackSearchItemClick(any(SearchType.class), any(Urn.class), any(SearchQuerySourceInfo.class));
+        verify(searchTracker).trackSearchItemClick(any(SearchType.class),
+                                                   any(Urn.class),
+                                                   any(SearchQuerySourceInfo.class));
     }
 
     @Test
@@ -161,7 +169,12 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         final Optional<Link> nextHref = Optional.absent();
         presenter.onPremiumContentViewAllClicked(context(), premiumItemsSource, nextHref);
 
-        verify(navigator).openSearchPremiumContentResults(eq(context()), anyString(), any(SearchType.class), eq(premiumItemsSource), eq(nextHref), eq(QUERY_URN));
+        verify(navigator).openSearchPremiumContentResults(eq(context()),
+                                                          anyString(),
+                                                          any(SearchType.class),
+                                                          eq(premiumItemsSource),
+                                                          eq(nextHref),
+                                                          eq(QUERY_URN));
     }
 
     @Test
@@ -191,8 +204,10 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         setupAdapterWithPremiumContent();
         when(clickListenerFactory.create(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo)).thenReturn(clickListener);
 
-        final ListItem premiumTrackItemOne = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(PREMIUM_TRACK_URN_ONE)));
-        final ListItem premiumTrackItemTwo = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(PREMIUM_TRACK_URN_TWO)));
+        final ListItem premiumTrackItemOne = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(
+                PREMIUM_TRACK_URN_ONE)));
+        final ListItem premiumTrackItemTwo = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(
+                PREMIUM_TRACK_URN_TWO)));
         final List<ListItem> premiumItems = Arrays.asList(premiumTrackItemOne, premiumTrackItemTwo);
 
         presenter.onBuildBinding(new Bundle());
@@ -219,7 +234,9 @@ public class SearchResultsPresenterTest extends AndroidUnitTest {
         PropertySet propertySet = PropertySet.create();
         propertySet.put(TrackProperty.URN, PREMIUM_TRACK_URN_ONE);
 
-        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(propertySet), Optional.<Link>absent(), 1);
+        final ListItem premiumItem = new SearchPremiumItem(Collections.singletonList(propertySet),
+                                                           Optional.<Link>absent(),
+                                                           1);
         final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
         final List<ListItem> listItems = Arrays.asList(premiumItem, trackItem);
 

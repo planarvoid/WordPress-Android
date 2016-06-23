@@ -30,7 +30,10 @@ class TrackingApiFactory {
 
     TrackingApi create(String backend) {
         if (EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME.equals(backend)) {
-            return new BatchTrackingApi(httpClient, deviceHelper, resources.getString(R.string.eventgateway_url), BATCH_SIZE);
+            return new BatchTrackingApi(httpClient,
+                                        deviceHelper,
+                                        resources.getString(R.string.eventgateway_url),
+                                        BATCH_SIZE);
         } else {
             return new SimpleTrackingApi(httpClient, deviceHelper);
         }

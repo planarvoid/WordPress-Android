@@ -60,8 +60,8 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         updatedPlaylist = ModelFixtures.create(ApiPlaylist.class);
         singlePlaylistSyncer = new SinglePlaylistSyncer(fetchPlaylistWithTracks, removePlaylist, loadPlaylistTracks,
-                apiClient, storeTracksCommand,
-                storePlaylistCommand, replacePlaylistTracks, playlistStorage);
+                                                        apiClient, storeTracksCommand,
+                                                        storePlaylistCommand, replacePlaylistTracks, playlistStorage);
     }
 
     @Test
@@ -198,7 +198,10 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
 
         withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
         withLocalTracks(cleanTrack(noChange), addedTrack(localAddition), removedTrack(localRemoval));
-        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage, noChange.getUrn(), localAddition.getUrn());
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(),
+                   playlistFromStorage,
+                   noChange.getUrn(),
+                   localAddition.getUrn());
 
         singlePlaylistSyncer.call();
 
@@ -215,11 +218,20 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
         final ApiTrack remoteAddition = ModelFixtures.create(ApiTrack.class);
         final ApiTrack remoteRemoval = ModelFixtures.create(ApiTrack.class);
-        final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange, localRemoval, remoteAddition);
+        final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange,
+                                                                                       localRemoval,
+                                                                                       remoteAddition);
 
         withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
-        withLocalTracks(cleanTrack(noChange), cleanTrack(remoteRemoval), addedTrack(localAddition), removedTrack(localRemoval));
-        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage, noChange.getUrn(), remoteAddition.getUrn(), localAddition.getUrn());
+        withLocalTracks(cleanTrack(noChange),
+                        cleanTrack(remoteRemoval),
+                        addedTrack(localAddition),
+                        removedTrack(localRemoval));
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(),
+                   playlistFromStorage,
+                   noChange.getUrn(),
+                   remoteAddition.getUrn(),
+                   localAddition.getUrn());
 
         singlePlaylistSyncer.call();
 
@@ -236,11 +248,20 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
         final ApiTrack localAddition = ModelFixtures.create(ApiTrack.class);
         final ApiTrack remoteAddition = ModelFixtures.create(ApiTrack.class);
         final ApiTrack remoteRemoval = ModelFixtures.create(ApiTrack.class);
-        final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange, localRemoval, remoteAddition);
+        final ApiPlaylistWithTracks apiPlaylistWithTracks = setupApiPlaylistWithTracks(noChange,
+                                                                                       localRemoval,
+                                                                                       remoteAddition);
 
         withLocalPlaylist(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage);
-        withLocalTracks(cleanTrack(noChange), cleanTrack(remoteRemoval), addedTrack(localAddition), removedTrack(localRemoval));
-        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(), playlistFromStorage, noChange.getUrn(), localAddition.getUrn(), remoteAddition.getUrn());
+        withLocalTracks(cleanTrack(noChange),
+                        cleanTrack(remoteRemoval),
+                        addedTrack(localAddition),
+                        removedTrack(localRemoval));
+        withPushes(apiPlaylistWithTracks.getPlaylist().getUrn(),
+                   playlistFromStorage,
+                   noChange.getUrn(),
+                   localAddition.getUrn(),
+                   remoteAddition.getUrn());
 
         singlePlaylistSyncer.call();
 
@@ -295,7 +316,8 @@ public class SinglePlaylistSyncerTest extends AndroidUnitTest {
     }
 
     private void withPushes(Urn playlistUrn, PropertySet playlistMetadata, Urn... trackList) throws Exception {
-        final PlaylistApiUpdateObject expectedUpdateObject = PlaylistApiUpdateObject.create(playlistMetadata, Arrays.asList(trackList));
+        final PlaylistApiUpdateObject expectedUpdateObject = PlaylistApiUpdateObject.create(playlistMetadata,
+                                                                                            Arrays.asList(trackList));
         when(apiClient.fetchMappedResponse(argThat(
                 isApiRequestTo("put", ApiEndpoints.PLAYLISTS_UPDATE.path(playlistUrn))
                         .withContent(expectedUpdateObject)), any(Class.class)))

@@ -4,7 +4,7 @@ import com.soundcloud.android.creators.record.filter.FadeFilter;
 
 public class TrimPreview {
     public static long MAX_PREVIEW_DURATION = 500; // ms, max length of each preview chunk
-    public static long PREVIEW_FADE_LENGTH  = 30; // ms
+    public static long PREVIEW_FADE_LENGTH = 30; // ms
     public static int PREVIEW_FADE_EXP_CURVE = 10;
 
     private final PlaybackStream stream;
@@ -14,9 +14,14 @@ public class TrimPreview {
     public int playbackRate;
 
     public TrimPreview(PlaybackStream stream, long startPosition, long endPosition, long moveTime) {
-        this(stream,startPosition, endPosition, moveTime, SoundRecorder.MAX_PLAYBACK_RATE);
+        this(stream, startPosition, endPosition, moveTime, SoundRecorder.MAX_PLAYBACK_RATE);
     }
-    public TrimPreview(PlaybackStream stream, long startPosition, long endPosition, long moveTime, int maxPlaybackRate) {
+
+    public TrimPreview(PlaybackStream stream,
+                       long startPosition,
+                       long endPosition,
+                       long moveTime,
+                       int maxPlaybackRate) {
         this.stream = stream;
         startPos = startPosition;
         endPos = endPosition;
@@ -38,7 +43,7 @@ public class TrimPreview {
             // just truncate it so it represents the last MAX_PREVIEW_DURATION of the users movement
             duration = MAX_PREVIEW_DURATION;
 
-            final long newRange = config.bytesToMs((long) ((playbackRate * config.sampleSize)/(1000f / duration)));
+            final long newRange = config.bytesToMs((long) ((playbackRate * config.sampleSize) / (1000f / duration)));
 
             if (isReverse()) {
                 startPos = endPos + newRange;

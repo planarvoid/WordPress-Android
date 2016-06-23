@@ -34,7 +34,7 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (onScrollListenerDelegate != null) {
             onScrollListenerDelegate.onScrollStateChanged(view,
-                    scrollState);
+                                                          scrollState);
         }
     }
 
@@ -42,7 +42,7 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (onScrollListenerDelegate != null) {
             onScrollListenerDelegate.onScroll(view, firstVisibleItem,
-                    visibleItemCount, totalItemCount);
+                                              visibleItemCount, totalItemCount);
         }
         scrollChanged(view);
     }
@@ -87,18 +87,21 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
         }
 
         if (!parallaxBgImageViewMap.containsKey(itemView)) {
-            parallaxBgImageViewMap.put(itemView, Iterables.transform(Iterables.filter(ViewUtils.allChildViewsOf(itemView), new Predicate<View>() {
-                @Override
-                public boolean apply(View input) {
-                    return input instanceof ParallaxImageView;
-                }
-            }), new Function<View, ParallaxImageView>() {
-                @Nullable
-                @Override
-                public ParallaxImageView apply(@Nullable View input) {
-                    return (ParallaxImageView) input;
-                }
-            }));
+            parallaxBgImageViewMap.put(itemView,
+                                       Iterables.transform(Iterables.filter(ViewUtils.allChildViewsOf(itemView),
+                                                                            new Predicate<View>() {
+                                                                                @Override
+                                                                                public boolean apply(View input) {
+                                                                                    return input instanceof ParallaxImageView;
+                                                                                }
+                                                                            }),
+                                                           new Function<View, ParallaxImageView>() {
+                                                               @Nullable
+                                                               @Override
+                                                               public ParallaxImageView apply(@Nullable View input) {
+                                                                   return (ParallaxImageView) input;
+                                                               }
+                                                           }));
         }
     }
 }

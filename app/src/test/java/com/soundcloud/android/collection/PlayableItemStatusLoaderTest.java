@@ -36,7 +36,7 @@ public class PlayableItemStatusLoaderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         subject = new PlayableItemStatusLoader(loadPlaylistLikedStatuses, loadPlaylistRepostStatuses,
-                loadTrackLikedStatuses, loadTrackRepostStatuses);
+                                               loadTrackLikedStatuses, loadTrackRepostStatuses);
 
         playlistPropertySet = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
         trackPropertySet = ModelFixtures.create(ApiTrack.class).toPropertySet();

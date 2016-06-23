@@ -32,7 +32,10 @@ public class Encryptor {
         this.cipher = cipher;
     }
 
-    public void encrypt(InputStream in, OutputStream out, DeviceSecret secret, EncryptionProgressListener listener) throws EncryptionException, IOException {
+    public void encrypt(InputStream in,
+                        OutputStream out,
+                        DeviceSecret secret,
+                        EncryptionProgressListener listener) throws EncryptionException, IOException {
         runCipher(in, out, secret, Cipher.ENCRYPT_MODE, listener);
     }
 
@@ -44,7 +47,11 @@ public class Encryptor {
         cancelRequest.set(true);
     }
 
-    private void runCipher(InputStream in, OutputStream out, DeviceSecret secret, int cipherMode, @Nullable EncryptionProgressListener listener)
+    private void runCipher(InputStream in,
+                           OutputStream out,
+                           DeviceSecret secret,
+                           int cipherMode,
+                           @Nullable EncryptionProgressListener listener)
             throws EncryptionException, IOException {
 
         initCipher(secret, cipherMode);
@@ -61,7 +68,7 @@ public class Encryptor {
             out.write(encrypted, 0, cipherBytes);
             processed += readBytes;
 
-            if (listener != null && (processed / buffer.length) % REPORT_INTERVAL == 0){
+            if (listener != null && (processed / buffer.length) % REPORT_INTERVAL == 0) {
                 listener.onBytesEncrypted(processed);
             }
         }

@@ -173,7 +173,8 @@ public final class AndroidUtils {
     }
 
     public static void assertOnUiThread(String message) {
-        checkState(Looper.getMainLooper().getThread() == Thread.currentThread(), String.format(message + "[ %s ]", Thread.currentThread()));
+        checkState(Looper.getMainLooper().getThread() == Thread.currentThread(),
+                   String.format(message + "[ %s ]", Thread.currentThread()));
     }
 
     /* package */

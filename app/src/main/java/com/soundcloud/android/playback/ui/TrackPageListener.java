@@ -49,9 +49,9 @@ class TrackPageListener extends PageListener {
         fireAndForget(likeOperations.toggleLike(trackUrn, addLike));
 
         engagementsTracking.likeTrackUrn(trackUrn,
-                addLike,
-                getEventContextMetadata(trackUrn),
-                playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
+                                         addLike,
+                                         getEventContextMetadata(trackUrn),
+                                         playQueueManager.getCurrentPromotedSourceInfo(trackUrn));
     }
 
     public void onUpsell(final Context activityContext, final Urn trackUrn) {
@@ -61,12 +61,12 @@ class TrackPageListener extends PageListener {
 
     private EventContextMetadata getEventContextMetadata(Urn trackUrn) {
         return EventContextMetadata.builder()
-                .invokerScreen(ScreenElement.PLAYER.get())
-                .contextScreen(playQueueManager.getScreenTag())
-                .pageName(Screen.PLAYER_MAIN.get())
-                .trackSourceInfo(playQueueManager.getCurrentTrackSourceInfo())
-                .pageUrn(trackUrn)
-                .build();
+                                   .invokerScreen(ScreenElement.PLAYER.get())
+                                   .contextScreen(playQueueManager.getScreenTag())
+                                   .pageName(Screen.PLAYER_MAIN.get())
+                                   .trackSourceInfo(playQueueManager.getCurrentTrackSourceInfo())
+                                   .pageUrn(trackUrn)
+                                   .build();
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {

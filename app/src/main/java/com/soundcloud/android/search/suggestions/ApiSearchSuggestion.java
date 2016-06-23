@@ -93,8 +93,8 @@ abstract class ApiSearchSuggestion extends SearchSuggestion implements PropertyS
 
     private Optional<String> getImageUrlTemplate() {
         return getUser().isPresent()
-                ? getUser().get().getImageUrlTemplate()
-                : getTrack().get().getImageUrlTemplate();
+               ? getUser().get().getImageUrlTemplate()
+               : getTrack().get().getImageUrlTemplate();
     }
 
     private String getDisplayedText() {

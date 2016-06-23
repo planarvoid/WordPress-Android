@@ -40,8 +40,8 @@ public class StorePostsCommand extends DefaultWriteStorageCommand<Collection<Pro
         final Urn targetUrn = post.get(PostProperty.TARGET_URN);
         cv.put(Posts.TARGET_ID, targetUrn.getNumericId());
         cv.put(Posts.TARGET_TYPE, targetUrn.isTrack()
-                ? TableColumns.Sounds.TYPE_TRACK
-                : TableColumns.Sounds.TYPE_PLAYLIST);
+                                  ? TableColumns.Sounds.TYPE_TRACK
+                                  : TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(Posts.TYPE, post.get(PostProperty.IS_REPOST) ? Posts.TYPE_REPOST : Posts.TYPE_POST);
         cv.put(Posts.CREATED_AT, post.get(PostProperty.CREATED_AT).getTime());
         return cv;

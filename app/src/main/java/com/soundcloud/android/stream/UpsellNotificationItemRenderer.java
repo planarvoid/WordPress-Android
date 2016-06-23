@@ -33,7 +33,7 @@ class UpsellNotificationItemRenderer implements CellRenderer<StreamItem> {
             listener.onUpsellItemCreated();
         }
         return LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.stream_upsell_card, parent, false);
+                             .inflate(R.layout.stream_upsell_card, parent, false);
     }
 
     @Override

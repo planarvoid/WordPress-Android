@@ -26,26 +26,31 @@ public class StreamCacheConfigTest {
     public void setUp() throws Exception {
         cacheConfig = new StreamCacheConfig(countryProvider, cacheDirectory, ioUtils);
     }
+
     @Test
     public void cacheIsMinInUS() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("us");
         assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
     }
+
     @Test
     public void cacheIsMinInGB() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("gb");
         assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
     }
+
     @Test
     public void cacheIsMinInDE() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("de");
         assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
     }
+
     @Test
     public void cacheIsMinInFR() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("fr");
         assertThat(cacheConfig.getStreamCacheSize()).isEqualTo(StreamCacheConfig.MIN_SIZE_BYTES);
     }
+
     @Test
     public void cacheIsMinWithEmptyCode() throws Exception {
         when(countryProvider.getCountryCode()).thenReturn("");

@@ -48,23 +48,27 @@ public class CollectionPlaylistOptionsPresenter {
 
         new AlertDialog.Builder(context)
                 .setView(dialoglayout)
-                .setPositiveButton(R.string.btn_done, buildFilterListener(listener, showLikes, showPosts, showOffline, sortByTitle))
+                .setPositiveButton(R.string.btn_done,
+                                   buildFilterListener(listener, showLikes, showPosts, showOffline, sortByTitle))
                 .setNegativeButton(android.R.string.cancel, buildCancelListener())
                 .show();
     }
 
     @NonNull
-    private DialogInterface.OnClickListener buildFilterListener(final Listener listener, final ToggleButton showLikes,
-                                                                final ToggleButton showPosts, final ToggleButton showOffline,
+    private DialogInterface.OnClickListener buildFilterListener(final Listener listener,
+                                                                final ToggleButton showLikes,
+                                                                final ToggleButton showPosts,
+                                                                final ToggleButton showOffline,
                                                                 final RadioButton sortByTitle) {
         return new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final PlaylistsOptions playlistsOptions = AutoValue_PlaylistsOptions.builder()
-                        .showLikes(showLikes.isChecked())
-                        .showPosts(showPosts.isChecked())
-                        .sortByTitle(sortByTitle.isChecked())
-                        .showOfflineOnly(showOffline.isChecked()).build();
+                                                                                    .showLikes(showLikes.isChecked())
+                                                                                    .showPosts(showPosts.isChecked())
+                                                                                    .sortByTitle(sortByTitle.isChecked())
+                                                                                    .showOfflineOnly(showOffline.isChecked())
+                                                                                    .build();
                 listener.onOptionsUpdated(playlistsOptions);
             }
         };

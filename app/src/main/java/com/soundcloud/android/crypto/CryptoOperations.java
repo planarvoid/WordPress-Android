@@ -61,7 +61,9 @@ public class CryptoOperations {
         return encryptor.hash(urn);
     }
 
-    public void encryptStream(InputStream stream, OutputStream outputStream, Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
+    public void encryptStream(InputStream stream,
+                              OutputStream outputStream,
+                              Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
         try {
             final DeviceSecret secret = checkAndGetDeviceKey();
             encryptor.encrypt(stream, outputStream, secret, listener);

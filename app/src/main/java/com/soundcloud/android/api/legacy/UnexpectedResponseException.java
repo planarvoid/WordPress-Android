@@ -26,6 +26,6 @@ public class UnexpectedResponseException extends IOException {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(getClass())
-                .add("response_status", statusLine).add("request", request).toString();
+                          .add("response_status", statusLine).add("request", request).toString();
     }
 }

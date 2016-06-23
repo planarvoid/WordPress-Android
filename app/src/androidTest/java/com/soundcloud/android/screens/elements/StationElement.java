@@ -19,7 +19,9 @@ public class StationElement {
         return new TextElement(wrapped.findOnScreenElement(With.id(R.id.title))).getText();
     }
 
-    public boolean isVisible() { return wrapped.isOnScreen(); }
+    public boolean isVisible() {
+        return wrapped.isOnScreen();
+    }
 
     public VisualPlayerElement click() {
         wrapped.click();

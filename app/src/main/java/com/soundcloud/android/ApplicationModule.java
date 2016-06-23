@@ -200,7 +200,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public CastConnectionHelper provideCastConnectionHelper(Context context, ApplicationProperties applicationProperties) {
+    public CastConnectionHelper provideCastConnectionHelper(Context context,
+                                                            ApplicationProperties applicationProperties) {
         // The dalvik switch is a horrible hack to prevent instantiation of the real cast manager in unit tests as it crashes on robolectric.
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
@@ -245,7 +246,13 @@ public class ApplicationModule {
         if (castConnectionHelper.isCasting()) {
             return new CastPlaybackStrategy(castPlayer.get());
         } else {
-            return new DefaultPlaybackStrategy(playQueueManager, serviceInitiator, trackRepository, adsOperations, offlinePlaybackOperations, playSessionStateProvider, eventBus);
+            return new DefaultPlaybackStrategy(playQueueManager,
+                                               serviceInitiator,
+                                               trackRepository,
+                                               adsOperations,
+                                               offlinePlaybackOperations,
+                                               playSessionStateProvider,
+                                               eventBus);
         }
     }
 

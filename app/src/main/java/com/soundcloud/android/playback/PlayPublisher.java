@@ -68,8 +68,12 @@ public class PlayPublisher {
     };
 
     @Inject
-    public PlayPublisher(Resources resources, GcmStorage gcmStorage, CurrentDateProvider dateProvider, EventBus eventBus,
-                         @Named(HIGH_PRIORITY) Scheduler scheduler, ApiClient apiClient) {
+    public PlayPublisher(Resources resources,
+                         GcmStorage gcmStorage,
+                         CurrentDateProvider dateProvider,
+                         EventBus eventBus,
+                         @Named(HIGH_PRIORITY) Scheduler scheduler,
+                         ApiClient apiClient) {
         this.resources = resources;
         this.gcmStorage = gcmStorage;
         this.dateProvider = dateProvider;
@@ -88,9 +92,9 @@ public class PlayPublisher {
     @NonNull
     private Payload createPayload(PlaybackStateTransition stateTransition) {
         return new Payload(resources.getString(R.string.gcm_gateway_id),
-                gcmStorage.getToken(),
-                dateProvider.getCurrentTime(),
-                stateTransition.getUrn());
+                           gcmStorage.getToken(),
+                           dateProvider.getCurrentTime(),
+                           stateTransition.getUrn());
     }
 
     private static class ResponseLogger extends DefaultSubscriber<ApiResponse> {

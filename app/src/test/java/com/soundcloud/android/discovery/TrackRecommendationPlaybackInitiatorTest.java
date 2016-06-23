@@ -66,7 +66,8 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        trackRecommendationPlaybackInitiator = new TrackRecommendationPlaybackInitiator(expandPlayerSubscriberProvider, playbackInitiator);
+        trackRecommendationPlaybackInitiator = new TrackRecommendationPlaybackInitiator(expandPlayerSubscriberProvider,
+                                                                                        playbackInitiator);
     }
 
     @Test
@@ -91,7 +92,10 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
         when(playbackInitiator.playTracks(any(List.class), anyInt(), any(PlaySessionSource.class))).thenReturn(
                 Observable.empty());
 
-        trackRecommendationPlaybackInitiator.playFromRecommendation(SEED_2, RECOMMENDATION_URN_2, Screen.RECOMMENDATIONS_MAIN, DISCOVERY_ITEMS);
+        trackRecommendationPlaybackInitiator.playFromRecommendation(SEED_2,
+                                                                    RECOMMENDATION_URN_2,
+                                                                    Screen.RECOMMENDATIONS_MAIN,
+                                                                    DISCOVERY_ITEMS);
 
         List<Urn> expectedPlaylist = newArrayList(
                 RECOMMENDATION_URN_1, RECOMMENDATION_URN_2, RECOMMENDATION_URN_3);

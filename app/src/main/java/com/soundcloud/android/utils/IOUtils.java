@@ -46,7 +46,8 @@ public class IOUtils {
     private static final int BUFFER_SIZE = 8192;
 
     @Inject
-    public IOUtils() {}
+    public IOUtils() {
+    }
 
     @NotNull
     public static File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
@@ -109,8 +110,8 @@ public class IOUtils {
                 cursor = resolver.query(uri, filePathColumn, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
                     final int columnIndex = (uri.toString().startsWith("content://com.google.android.gallery3d")) ?
-                            cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME) :
-                            cursor.getColumnIndex(MediaStore.MediaColumns.DATA); // if it is a picasa image on newer devices with OS 3.0 and up
+                                            cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME) :
+                                            cursor.getColumnIndex(MediaStore.MediaColumns.DATA); // if it is a picasa image on newer devices with OS 3.0 and up
                     if (columnIndex != -1) {
                         String path = cursor.getString(columnIndex);
                         if (path != null) {
@@ -118,7 +119,7 @@ public class IOUtils {
                         }
                     }
                 }
-            } catch (SecurityException|IllegalArgumentException ignored) {
+            } catch (SecurityException | IllegalArgumentException ignored) {
                 // nothing to be done
                 // When uri comes from google's drive, it crashes with _data not found
             } finally {
@@ -141,10 +142,10 @@ public class IOUtils {
                     return title;
                 }
             }
-        } catch (SecurityException|IllegalArgumentException ignore) {
+        } catch (SecurityException | IllegalArgumentException ignore) {
             // ignore
         } finally {
-            if(cursor != null) {
+            if (cursor != null) {
                 cursor.close();
             }
         }

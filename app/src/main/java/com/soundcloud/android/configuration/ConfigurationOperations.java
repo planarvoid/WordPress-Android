@@ -99,8 +99,8 @@ public class ConfigurationOperations {
                                    ForceUpdateHandler forceUpdateHandler,
                                    ImageConfigurationStorage imageConfigurationStorage) {
         this(apiClientRx, experimentOperations, featureOperations, planChangeDetector, forceUpdateHandler,
-                configurationSettingsStorage, imageConfigurationStorage,
-                tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
+             configurationSettingsStorage, imageConfigurationStorage,
+             tryWithBackOffFactory.<Configuration>withDefaults(), scheduler);
     }
 
     @VisibleForTesting
@@ -166,10 +166,10 @@ public class ConfigurationOperations {
 
     public Observable<Configuration> awaitConfigurationWithPlan(final Plan expectedPlan) {
         return Observable.interval(POLLING_INITIAL_DELAY, POLLING_INTERVAL_SECONDS, TimeUnit.SECONDS, scheduler)
-                .take(POLLING_MAX_ATTEMPTS)
-                .flatMap(toFetchConfiguration)
-                .takeFirst(isExpectedPlan(expectedPlan))
-                .doOnNext(saveConfiguration);
+                         .take(POLLING_MAX_ATTEMPTS)
+                         .flatMap(toFetchConfiguration)
+                         .takeFirst(isExpectedPlan(expectedPlan))
+                         .doOnNext(saveConfiguration);
     }
 
     public Observable<Configuration> awaitConfigurationFromPendingPlanChange() {
@@ -202,37 +202,37 @@ public class ConfigurationOperations {
             throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Forcing device registration");
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CONFIGURATION.path())
-                .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
-                .forPrivateApi()
-                .build();
+                                             .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
+                                             .forPrivateApi()
+                                             .build();
 
         return apiClient.fetchMappedResponse(request, Configuration.class).getDeviceManagement();
     }
 
     public Observable<Object> deregisterDevice() {
         return apiClientRx.response(ApiRequest.delete(ApiEndpoints.CONFIGURATION.path())
-                .forPrivateApi()
-                .build())
-                .doOnNext(new Action1<ApiResponse>() {
-                    @Override
-                    public void call(ApiResponse apiResponse) {
-                        Log.d(TAG, "De-registered device");
-                    }
-                })
-                .doOnError(new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        ErrorUtils.handleThrowable(throwable, ConfigurationOperations.class);
-                    }
-                })
-                .cast(Object.class)
-                .onErrorResumeNext(Observable.just(RxUtils.EMPTY_VALUE));
+                                              .forPrivateApi()
+                                              .build())
+                          .doOnNext(new Action1<ApiResponse>() {
+                              @Override
+                              public void call(ApiResponse apiResponse) {
+                                  Log.d(TAG, "De-registered device");
+                              }
+                          })
+                          .doOnError(new Action1<Throwable>() {
+                              @Override
+                              public void call(Throwable throwable) {
+                                  ErrorUtils.handleThrowable(throwable, ConfigurationOperations.class);
+                              }
+                          })
+                          .cast(Object.class)
+                          .onErrorResumeNext(Observable.just(RxUtils.EMPTY_VALUE));
     }
 
     private ApiRequest.Builder configurationRequestBuilderForGet() {
         return ApiRequest.get(ApiEndpoints.CONFIGURATION.path())
-                .addQueryParam(PARAM_EXPERIMENT_LAYERS, experimentOperations.getActiveLayers())
-                .forPrivateApi();
+                         .addQueryParam(PARAM_EXPERIMENT_LAYERS, experimentOperations.getActiveLayers())
+                         .forPrivateApi();
     }
 
     void saveConfiguration(Configuration configuration) {

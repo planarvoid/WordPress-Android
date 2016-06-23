@@ -36,11 +36,11 @@ public class Stream implements Serializable {
 
     public Stream(String url, String streamUrl, HttpResponse resp) throws ResolverException {
         this(url, streamUrl, getHeaderValue(resp, "ETag"),
-                getLongHeader(resp, "Content-Length"),
-                getDateHeader(resp, "Last-Modified"),
-                getIntHeader(resp, AMZ_DURATION),
-                getIntHeader(resp, AMZ_BITRATE),
-                getExpires(streamUrl));
+             getLongHeader(resp, "Content-Length"),
+             getDateHeader(resp, "Last-Modified"),
+             getIntHeader(resp, AMZ_DURATION),
+             getIntHeader(resp, AMZ_BITRATE),
+             getExpires(streamUrl));
     }
 
     public Stream(String url, String streamUrl, String eTag, long contentLength, long lastModified,
@@ -60,7 +60,14 @@ public class Stream implements Serializable {
     }
 
     public Stream withNewStreamUrl(String newStreamUrl) {
-        return new Stream(url, newStreamUrl, eTag, contentLength, lastModified, duration, bitRate, getExpires(newStreamUrl));
+        return new Stream(url,
+                          newStreamUrl,
+                          eTag,
+                          contentLength,
+                          lastModified,
+                          duration,
+                          bitRate,
+                          getExpires(newStreamUrl));
     }
 
     public static long getLongHeader(HttpResponse resp, String name) throws ResolverException {
@@ -103,7 +110,7 @@ public class Stream implements Serializable {
 
     private static long getExpires(String resource) {
         String query = resource.substring(Math.min(resource.length(), resource.indexOf('?') + 1),
-                resource.length());
+                                          resource.length());
         for (String s : query.split("&")) {
             String[] kv = s.split("=", 2);
             if (kv != null && kv.length == 2) {

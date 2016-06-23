@@ -34,7 +34,7 @@ public class ActivitiesStorage implements TimelineStorage {
 
     public Observable<Integer> timelineItemCountSince(final long timestamp) {
         Query query = Query.count(Table.ActivityView.name())
-                .whereGt((Table.ActivityView.field(TableColumns.ActivityView.CREATED_AT)), timestamp);
+                           .whereGt((Table.ActivityView.field(TableColumns.ActivityView.CREATED_AT)), timestamp);
 
         return propellerRx.query(query).map(scalar(Integer.class));
     }

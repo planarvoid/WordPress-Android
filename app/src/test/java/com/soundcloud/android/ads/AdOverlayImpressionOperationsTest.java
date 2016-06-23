@@ -24,7 +24,9 @@ import android.app.Activity;
 public class AdOverlayImpressionOperationsTest extends AndroidUnitTest {
 
     private static final LeaveBehindAd AD_META_DATA = AdFixtures.getLeaveBehindAd(Urn.forTrack(123));
-    private final AdOverlayEvent LEAVE_BEHIND_SHOWN = AdOverlayEvent.shown(Urn.forTrack(123L), AD_META_DATA, new TrackSourceInfo("origin_screen", true));
+    private final AdOverlayEvent LEAVE_BEHIND_SHOWN = AdOverlayEvent.shown(Urn.forTrack(123L),
+                                                                           AD_META_DATA,
+                                                                           new TrackSourceInfo("origin_screen", true));
     private final AdOverlayEvent LEAVE_BEHIND_HIDDEN = AdOverlayEvent.hidden();
     private final PlayerUIEvent PLAYER_EXPANDED = PlayerUIEvent.fromPlayerExpanded();
     private final PlayerUIEvent PLAYER_COLLAPSED = PlayerUIEvent.fromPlayerCollapsed();

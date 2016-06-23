@@ -110,7 +110,7 @@ public class StreamCardElement {
         return wrapped.findOnScreenElement(With.id(R.id.overflow_button));
     }
 
-    public static With WithPreview(final Han testDriver){
+    public static With WithPreview(final Han testDriver) {
         return new With() {
             @Override
             public String getSelector() {

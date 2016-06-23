@@ -46,8 +46,9 @@ public class WebPaymentOperations {
                 .forPrivateApi()
                 .build();
 
-        return apiClientRx.mappedResponse(request, new TypeToken<ModelCollection<WebProduct>>() {})
-                .subscribeOn(scheduler)
-                .map(TO_WEB_PRODUCT);
+        return apiClientRx.mappedResponse(request, new TypeToken<ModelCollection<WebProduct>>() {
+        })
+                          .subscribeOn(scheduler)
+                          .map(TO_WEB_PRODUCT);
     }
 }

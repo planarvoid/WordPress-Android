@@ -32,7 +32,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
-@SlowTest @NonUiTest
+@SlowTest
+@NonUiTest
 public class VorbisEncoderTest extends AudioTest {
 
     private static final boolean PROFILE = false;
@@ -72,7 +73,8 @@ public class VorbisEncoderTest extends AudioTest {
         FadeFilter filter = new FadeFilter(AudioConfig.PCM16_44100_1);
         final long[] m = new long[1];
         final ProgressListener listener = new ProgressListener() {
-            @Override public void onProgress(long current, long max) throws UserCanceledException {
+            @Override
+            public void onProgress(long current, long max) throws UserCanceledException {
                 m[0] = max;
             }
         };
@@ -116,7 +118,7 @@ public class VorbisEncoderTest extends AudioTest {
                 log("progress: %d / %d (%d%%)", current, max, percent);
             }
         }, null);
-        log("encoding file of size "+wav.length());
+        log("encoding file of size " + wav.length());
         VorbisEncoder.encodeWav(wav, out, opts);
     }
 
@@ -124,15 +126,19 @@ public class VorbisEncoderTest extends AudioTest {
         PlaybackFilter filter = new PlaybackFilter() {
             @Override
             public ByteBuffer apply(ByteBuffer buffer, long position, long length) {
-                for (int i = 0; i< buffer.remaining(); i++) {
+                for (int i = 0; i < buffer.remaining(); i++) {
                     buffer.put(i, (byte) 0);
                 }
                 return buffer;
             }
-            @Override public int describeContents() {
+
+            @Override
+            public int describeContents() {
                 return 0;
             }
-            @Override public void writeToParcel(Parcel dest, int flags) {
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
             }
         };
 
@@ -177,7 +183,7 @@ public class VorbisEncoderTest extends AudioTest {
         enc.encodeStream(is);
         enc.release();
 
-        log("written file to "+out.getAbsolutePath());
+        log("written file to " + out.getAbsolutePath());
         assertTrue(VorbisEncoder.validate(out));
 
         VorbisDecoder dec = new VorbisDecoder(out);
@@ -191,7 +197,7 @@ public class VorbisEncoderTest extends AudioTest {
     @Suppress
     public void ignore_testManyEncodeAndStartNewStream() throws Exception {
         int failures = 0;
-        for (int i = 0; i< 20; i++) {
+        for (int i = 0; i < 20; i++) {
             try {
                 ignore_testEncodeAndStartNewStream();
             } catch (AssertionFailedError e) {
@@ -204,8 +210,8 @@ public class VorbisEncoderTest extends AudioTest {
 
     public void ignore_testExtract() throws Exception {
         File ogg = prepareAsset(MED_TEST_OGG);
-        File extracted =  externalPath("extracted.ogg");
-        File extracted_wav =  externalPath("extracted.wav");
+        File extracted = externalPath("extracted.ogg");
+        File extracted_wav = externalPath("extracted.wav");
 
         VorbisEncoder.extract(ogg, extracted, 4.1d, 8.5d);
 
@@ -214,7 +220,7 @@ public class VorbisEncoderTest extends AudioTest {
 
         VorbisDecoder decoder = new VorbisDecoder(extracted);
         VorbisInfo info = decoder.getInfo();
-        assertEquals("got: "+info, 4.433d, info.duration, 0.001);
+        assertEquals("got: " + info, 4.433d, info.duration, 0.001);
         assertEquals("got: " + info, 195520, info.numSamples);
 
         decoder.decodeToFile(extracted_wav);
@@ -229,8 +235,6 @@ public class VorbisEncoderTest extends AudioTest {
         assertFalse(VorbisEncoder.validate(prepareAsset(SHORT_TEST_NO_EOS_OGG)));
         assertTrue(VorbisEncoder.validate(prepareAsset(CHAINED_OGG)));
     }
-
-
 
 
     public void ignore_testWrite() throws Exception {
@@ -253,7 +257,7 @@ public class VorbisEncoderTest extends AudioTest {
         if (length > 0) {
             RandomAccessFile rf = new RandomAccessFile(tmp, "rw");
             rf.setLength(length);
-            rf.seek(length-1);
+            rf.seek(length - 1);
             rf.write(42);
             rf.close();
         }
@@ -267,7 +271,7 @@ public class VorbisEncoderTest extends AudioTest {
         nativeBefore = Debug.getNativeHeapAllocatedSize();
         globalBefore = Debug.getGlobalAllocCount();
 
-        if (PROFILE)  {
+        if (PROFILE) {
             Debug.startMethodTracing();
             Debug.startNativeTracing();
         }
@@ -293,7 +297,7 @@ public class VorbisEncoderTest extends AudioTest {
 
     private double encodeWav(String file, int expectedDuration, final EncoderOptions options) throws Exception {
         assertEquals("need writable external storage",
-                Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
+                     Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED);
 
         final InputStream in = testAssets().open(file);
         assertNotNull(in);
@@ -313,16 +317,18 @@ public class VorbisEncoderTest extends AudioTest {
         final double factor = (double) duration / (double) wavHeader.getDuration();
         final boolean mono = wavHeader.getNumChannels() == 1;
         log("encoded '%s' in quality %f in %d ms, factor %.2f (%s)", file, options.quality, duration,
-                factor,
-                mono ? "mono" : "stereo");
+            factor,
+            mono ? "mono" : "stereo");
 
         assertTrue(
-                String.format("Encoder did not produce valid ogg file (check %s with oggz-validate)", out.getAbsolutePath())
+                String.format("Encoder did not produce valid ogg file (check %s with oggz-validate)",
+                              out.getAbsolutePath())
                 , VorbisEncoder.validate(out));
 
         checkAudioFile(out, expectedDuration);
 
-        assertTrue(String.format(getDefault(), "encoding took more than 5x (%.2f)", factor), factor < 5 * wavHeader.getNumChannels());
+        assertTrue(String.format(getDefault(), "encoding took more than 5x (%.2f)", factor),
+                   factor < 5 * wavHeader.getNumChannels());
 
         return factor;
     }

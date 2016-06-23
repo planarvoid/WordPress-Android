@@ -7,7 +7,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 
-public class UpdateCurrentDownloadSubscriber  extends DefaultSubscriber<OfflineContentChangedEvent> {
+public class UpdateCurrentDownloadSubscriber extends DefaultSubscriber<OfflineContentChangedEvent> {
     private final ItemAdapter<? extends ListItem> adapter;
 
     public UpdateCurrentDownloadSubscriber(ItemAdapter<? extends ListItem> adapter) {
@@ -19,7 +19,7 @@ public class UpdateCurrentDownloadSubscriber  extends DefaultSubscriber<OfflineC
         boolean changed = false;
 
         for (ListItem item : adapter.getItems()) {
-            if (event.entities.contains(item.getUrn())){
+            if (event.entities.contains(item.getUrn())) {
                 changed = true;
                 item.update(PropertySet.from(OfflineProperty.OFFLINE_STATE.bind(event.state)));
             }

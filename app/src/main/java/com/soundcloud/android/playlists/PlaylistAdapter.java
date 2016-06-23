@@ -28,8 +28,8 @@ public class PlaylistAdapter
                            @Provided PlaylistTrackItemRenderer trackItemRenderer,
                            @Provided TrackEditItemRenderer editTrackItemRenderer) {
         super(dragListener,
-                new CellRendererBinding<>(TRACK_ITEM_TYPE, trackItemRenderer),
-                new CellRendererBinding<>(EDIT_TRACK_ITEM_TYPE, editTrackItemRenderer));
+              new CellRendererBinding<>(TRACK_ITEM_TYPE, trackItemRenderer),
+              new CellRendererBinding<>(EDIT_TRACK_ITEM_TYPE, editTrackItemRenderer));
         isEditMode = false;
     }
 

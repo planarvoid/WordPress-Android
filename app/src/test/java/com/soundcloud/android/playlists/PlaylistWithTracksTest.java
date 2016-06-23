@@ -17,31 +17,36 @@ public class PlaylistWithTracksTest extends AndroidUnitTest {
 
     @Test
     public void isLocalPlaylistIfUrnIsNegative() {
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(-123L), Collections.<TrackItem>emptyList());
+        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(-123L),
+                                                                             Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.isLocalPlaylist()).isTrue();
     }
 
     @Test
     public void isNotLocalPlaylistTrueIfUrnIsMissing() {
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(PropertySet.create(), Collections.<TrackItem>emptyList());
+        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(PropertySet.create(),
+                                                                             Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.isLocalPlaylist()).isFalse();
     }
 
     @Test
     public void isNotLocalPlaylistTrueIfUrnIsPositive() {
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(123L), Collections.<TrackItem>emptyList());
+        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(123L),
+                                                                             Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.isLocalPlaylist()).isFalse();
     }
 
     @Test
     public void isMissingMetadataIfPlaylistMetadataIsEmpty() {
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(PropertySet.create(), Collections.<TrackItem>emptyList());
+        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(PropertySet.create(),
+                                                                             Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.isMissingMetaData()).isTrue();
     }
 
     @Test
     public void isNotMissingMetadataIfPlaylistMetadataIsEmpty() {
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(123L), Collections.<TrackItem>emptyList());
+        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(Urn.forPlaylist(123L),
+                                                                             Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.isMissingMetaData()).isFalse();
     }
 
@@ -49,10 +54,12 @@ public class PlaylistWithTracksTest extends AndroidUnitTest {
     public void needsTracksIfTracklistEmpty() {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
-                PlaylistProperty.TRACK_COUNT.bind(0) // the track count is usually wrong, as it does not count private tracks
+                PlaylistProperty.TRACK_COUNT.bind(0)
+                // the track count is usually wrong, as it does not count private tracks
         );
 
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
+        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata,
+                                                                             Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.needsTracks()).isTrue();
     }
 
@@ -73,7 +80,8 @@ public class PlaylistWithTracksTest extends AndroidUnitTest {
                 PlaylistProperty.TRACK_COUNT.bind(2)
         );
 
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
+        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata,
+                                                                             Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.getTrackCount()).isEqualTo(2);
     }
 
@@ -96,7 +104,8 @@ public class PlaylistWithTracksTest extends AndroidUnitTest {
                 PlaylistProperty.PLAYLIST_DURATION.bind(TimeUnit.SECONDS.toMillis(60))
         );
 
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
+        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata,
+                                                                             Collections.<TrackItem>emptyList());
         assertThat(playlistWithTracks.getDuration()).isEqualTo("1:00");
     }
 

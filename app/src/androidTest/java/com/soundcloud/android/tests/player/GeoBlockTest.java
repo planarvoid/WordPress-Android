@@ -34,16 +34,16 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
 
     public void testSkipsBlockedTracks() throws Exception {
         final String title = playlistScreen.clickFirstTrack()
-                .waitForExpandedPlayer()
-                .waitForTheExpandedPlayerToPlayNextTrack()
-                .getTrackTitle();
+                                           .waitForExpandedPlayer()
+                                           .waitForTheExpandedPlayerToPlayNextTrack()
+                                           .getTrackTitle();
         assertThat(title, is("Post - Geoblock"));
     }
 
     public void testSwipeForwardToBlockedTrackShowsGeoError() throws Exception {
         final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
-                .waitForExpandedPlayer()
-                .swipeNext();
+                                                                      .waitForExpandedPlayer()
+                                                                      .swipeNext();
 
         assertThat(visualPlayerElement.isErrorBlockedVisible(), is(true));
         assertThat(visualPlayerElement.swipePrevious().isExpandedPlayerPaused(), is(true));
@@ -51,8 +51,8 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
 
     public void testSwipeBackToBlockedTrackShowsGeoError() throws Exception {
         final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
-                .waitForTheExpandedPlayerToPlayNextTrack()
-                .swipePrevious();
+                                                                      .waitForTheExpandedPlayerToPlayNextTrack()
+                                                                      .swipePrevious();
 
 
         assertThat(visualPlayerElement.isErrorBlockedVisible(), is(true));
@@ -61,8 +61,8 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
 
     public void testSwipeForwardToBlockedTrackCanStartStation() throws Exception {
         final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
-                .waitForExpandedPlayer()
-                .swipeNext();
+                                                                      .waitForExpandedPlayer()
+                                                                      .swipeNext();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
 
@@ -74,8 +74,8 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
     public void testPlayGeoBlockedTrackCanStillLike() {
         // this should eventually be clickFirstBlockedTrack() when the UI is there
         final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
-                .waitForExpandedPlayer()
-                .swipeNext();
+                                                                      .waitForExpandedPlayer()
+                                                                      .swipeNext();
 
         assertThat(visualPlayerElement.likeButton().hasVisibility(), is(true));
         assertThat(visualPlayerElement.shareButton().hasVisibility(), is(true));
@@ -84,10 +84,10 @@ public class GeoBlockTest extends ActivityTest<MainActivity> {
     public void testPlayGeoBlockedTrackCannotBeToggledToPlay() {
         // this should eventually be clickFirstBlockedTrack() when the UI is there
         final VisualPlayerElement visualPlayerElement = playlistScreen.clickFirstTrack()
-                .waitForExpandedPlayer()
-                .swipeNext().pressBackToCollapse()
-                .toggleFooterPlay()
-                .tapFooter();
+                                                                      .waitForExpandedPlayer()
+                                                                      .swipeNext().pressBackToCollapse()
+                                                                      .toggleFooterPlay()
+                                                                      .tapFooter();
 
         assertThat(visualPlayerElement.isExpandedPlayerPlaying(), is(false));
 

@@ -37,7 +37,7 @@ public class VorbisDecoderTest extends AudioTest {
         while ((n = decoder.decode(bb, bb.capacity())) > 0) {
             total += n;
         }
-        assertEquals("non-zero return code: "+n, 0, n);
+        assertEquals("non-zero return code: " + n, 0, n);
         assertEquals(3342640, total);
 
         decoder.release();
@@ -52,7 +52,7 @@ public class VorbisDecoderTest extends AudioTest {
         while ((n = decoder.decode(bb, bb.capacity())) > 0) {
             total += n;
         }
-        assertEquals("non-zero return code: "+n, 0, n);
+        assertEquals("non-zero return code: " + n, 0, n);
         assertEquals(1578640, total);
 
         decoder.release();
@@ -68,7 +68,7 @@ public class VorbisDecoderTest extends AudioTest {
         while ((n = decoder.decode(bb, bb.capacity())) > 0) {
             total += n;
         }
-        assertEquals("non-zero return code: "+n, 0, n);
+        assertEquals("non-zero return code: " + n, 0, n);
         assertEquals(1578640, total);
 
         decoder.release();
@@ -84,7 +84,7 @@ public class VorbisDecoderTest extends AudioTest {
         int read = 0;
         do {
             read += decoder.decode(bb, bb.capacity());
-        }  while (read < 44100 * 2 * 2 /* around 1sec worth of data */);
+        } while (read < 44100 * 2 * 2 /* around 1sec worth of data */);
 
         // and check time
         assertEquals(11.004807256235827d, decoder.timeTell(), 0.001d);
@@ -100,8 +100,8 @@ public class VorbisDecoderTest extends AudioTest {
         assertNotNull(info);
         assertEquals(44100, info.sampleRate);
         assertEquals(2, info.channels);
-        assertEquals(835660,  info.numSamples);
-        assertEquals(331249,  info.bitrate, 10);
+        assertEquals(835660, info.numSamples);
+        assertEquals(331249, info.bitrate, 10);
         assertEquals(18.949, info.duration, 0.001d);
 
         decoder.release();

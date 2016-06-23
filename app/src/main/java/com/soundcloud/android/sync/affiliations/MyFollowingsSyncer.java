@@ -92,7 +92,8 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         LegacySyncResult result = new LegacySyncResult(Content.ME_FOLLOWINGS.uri);
 
         Set<Long> local = userAssociationStorage.loadFollowedUserIds();
-        List<Long> followedUserIds = api.readFullCollection(Request.to(Endpoints.MY_FOLLOWINGS + "/ids"), IdHolder.class);
+        List<Long> followedUserIds = api.readFullCollection(Request.to(Endpoints.MY_FOLLOWINGS + "/ids"),
+                                                            IdHolder.class);
 
         log("Cloud Api service: got followedUserIds " + followedUserIds.size() + " vs [local] " + local.size());
         result.setSyncData(System.currentTimeMillis(), followedUserIds.size());
@@ -112,8 +113,8 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         // load the first page of items to get proper last_seen ordering
         // parse and add first items
         List<PublicApiUser> followedUsers = api.readList(Request.to(Endpoints.MY_FOLLOWINGS)
-                .add(PublicApi.LINKED_PARTITIONING, "1")
-                .add("limit", Consts.LIST_PAGE_SIZE));
+                                                                .add(PublicApi.LINKED_PARTITIONING, "1")
+                                                                .add("limit", Consts.LIST_PAGE_SIZE));
 
         userAssociationStorage.insertFollowedUsers(followedUsers);
 
@@ -187,7 +188,9 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
 
     private void forbiddenUserPushHandler(Urn userUrn, String userName, FollowErrors errors) {
         Notification notification = getForbiddenNotification(userUrn, userName, errors);
-        notificationManager.notify(userUrn.toString(), NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID, notification);
+        notificationManager.notify(userUrn.toString(),
+                                   NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID,
+                                   notification);
         DefaultSubscriber.fireAndForget(followingOperations.toggleFollowing(userUrn, false));
     }
 
@@ -217,12 +220,19 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
 
     private Notification buildUnderAgeNotification(Urn userUrn, FollowErrors errors, String userName) {
         String title = context.getString(R.string.follow_age_restricted_title);
-        String content = context.getString(R.string.follow_age_restricted_content_age_username, errors.getAge(), userName);
-        String contentLong = context.getString(R.string.follow_age_restricted_content_long_age_username, errors.getAge(), userName);
+        String content = context.getString(R.string.follow_age_restricted_content_age_username,
+                                           errors.getAge(),
+                                           userName);
+        String contentLong = context.getString(R.string.follow_age_restricted_content_long_age_username,
+                                               errors.getAge(),
+                                               userName);
         return buildNotification(title, content, contentLong, navigator.openProfileFromNotification(context, userUrn));
     }
 
-    private Notification buildNotification(String title, String content, String contentLong, PendingIntent contentIntent) {
+    private Notification buildNotification(String title,
+                                           String content,
+                                           String contentLong,
+                                           PendingIntent contentIntent) {
         return new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_notification_cloud)
                 .setContentTitle(title)
@@ -256,7 +266,9 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
             result.change = LegacySyncResult.CHANGED;
             result.extra = REQUEST_NO_BACKOFF; // reset sync misses
         } else {
-            result.change = remoteSet.isEmpty() ? LegacySyncResult.UNCHANGED : LegacySyncResult.REORDERED; // always mark users as reordered so we get the first page
+            result.change = remoteSet.isEmpty() ?
+                            LegacySyncResult.UNCHANGED :
+                            LegacySyncResult.REORDERED; // always mark users as reordered so we get the first page
         }
         return result.change == LegacySyncResult.UNCHANGED;
     }

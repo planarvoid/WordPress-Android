@@ -16,7 +16,8 @@ public class SignupSpamScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return solo.findOnScreenElement(With.text(solo.getString(com.soundcloud.android.R.string.authentication_captcha_message))).isOnScreen();
+        return solo.findOnScreenElement(With.text(solo.getString(com.soundcloud.android.R.string.authentication_captcha_message)))
+                   .isOnScreen();
     }
 
     @Override

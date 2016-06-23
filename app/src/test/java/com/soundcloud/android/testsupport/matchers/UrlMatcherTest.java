@@ -31,7 +31,8 @@ public class UrlMatcherTest extends AndroidUnitTest {
 
     @Test
     public void urlsAreInequalIfQueryDoesNotMatch() {
-        assertThat("http://host.com/path?a=1&b=2", is(not((RequestMatchers.urlEqualTo("http://host.com/path?a=1&b=0")))));
+        assertThat("http://host.com/path?a=1&b=2",
+                   is(not((RequestMatchers.urlEqualTo("http://host.com/path?a=1&b=0")))));
     }
 
 }

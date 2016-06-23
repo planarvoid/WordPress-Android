@@ -135,7 +135,7 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
         return this;
     }
 
-    public ApiRequestTo withContent(Object content){
+    public ApiRequestTo withContent(Object content) {
         this.content = content;
         return this;
     }

@@ -14,7 +14,7 @@ public abstract class LegacySyncStrategy implements SyncStrategy {
     protected final AccountOperations accountOperations;
 
     protected LegacySyncStrategy(Context context, PublicApi api,
-                                 AccountOperations accountOperations){
+                                 AccountOperations accountOperations) {
         this.context = context;
         this.api = api;
         this.accountOperations = accountOperations;
@@ -24,7 +24,7 @@ public abstract class LegacySyncStrategy implements SyncStrategy {
         Log.d(TAG, message);
     }
 
-    protected boolean isLoggedIn(){
+    protected boolean isLoggedIn() {
         return accountOperations.isUserLoggedIn();
     }
 }

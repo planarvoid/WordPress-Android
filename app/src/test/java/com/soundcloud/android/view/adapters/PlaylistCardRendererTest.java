@@ -34,7 +34,11 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        renderer = new PlaylistCardRenderer(resources(), navigator, imageOperations, playlistMenuPresenter, cardEngagementsPresenter);
+        renderer = new PlaylistCardRenderer(resources(),
+                                            navigator,
+                                            imageOperations,
+                                            playlistMenuPresenter,
+                                            cardEngagementsPresenter);
     }
 
     @Test

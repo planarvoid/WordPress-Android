@@ -35,9 +35,9 @@ class LoadOfflinePlaylistsContainingTrackCommand extends Command<Urn, List<Urn>>
                 .whereEq(Tables.OfflineContent._TYPE, Tables.OfflineContent.TYPE_PLAYLIST);
 
         final Query playlistsQuery = Query.from(Table.PlaylistTracks.name())
-                .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
-                .innerJoin(Tables.OfflineContent.TABLE, joinConditions)
-                .whereEq(TableColumns.PlaylistTracks.TRACK_ID, track.getNumericId());
+                                          .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
+                                          .innerJoin(Tables.OfflineContent.TABLE, joinConditions)
+                                          .whereEq(TableColumns.PlaylistTracks.TRACK_ID, track.getNumericId());
 
         return propeller
                 .query(playlistsQuery)

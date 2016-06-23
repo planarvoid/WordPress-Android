@@ -39,7 +39,8 @@ public class MeSyncer implements SyncStrategy {
     @NotNull
     @Override
     public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {});
+        Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {
+        });
         storeMe(me);
         publishChangeEvent(me);
         return LegacySyncResult.fromSuccessfulChange(Content.ME.uri);
@@ -47,12 +48,13 @@ public class MeSyncer implements SyncStrategy {
 
     protected ApiRequest buildRequest() {
         return ApiRequest.get(ApiEndpoints.ME.path())
-                .forPrivateApi()
-                .build();
+                         .forPrivateApi()
+                         .build();
     }
 
     private void publishChangeEvent(Me me) {
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.forUpdate(me.getUser().toPropertySet()));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                         EntityStateChangedEvent.forUpdate(me.getUser().toPropertySet()));
     }
 
     private void storeMe(Me me) {

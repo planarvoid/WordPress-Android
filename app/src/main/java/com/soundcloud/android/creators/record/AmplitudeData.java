@@ -4,7 +4,9 @@ import com.soundcloud.android.utils.IOUtils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import com.soundcloud.android.BuildConfig;
+
 import android.util.Log;
 
 import java.io.File;

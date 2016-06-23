@@ -58,20 +58,22 @@ public class RecordActivity extends LoggedInActivity {
 
     private void restoreCurrentFragment() {
         if (getSupportFragmentManager().findFragmentById(R.id.container) == null) {
-            initialStateSubscription = eventBus.queue(EventQueue.UPLOAD).first().subscribe(new DefaultSubscriber<UploadEvent>() {
-                @Override
-                public void onNext(UploadEvent uploadEvent) {
-                    if (uploadEvent.isUploading()) {
-                        displayMonitor(uploadEvent.getRecording());
-                    } else {
-                        if (!setRecordingFromIntent(getIntent())) {
-                            displayRecord();
-                        } else {
-                            onRecordToMetadata(false);
-                        }
-                    }
-                }
-            });
+            initialStateSubscription = eventBus.queue(EventQueue.UPLOAD)
+                                               .first()
+                                               .subscribe(new DefaultSubscriber<UploadEvent>() {
+                                                   @Override
+                                                   public void onNext(UploadEvent uploadEvent) {
+                                                       if (uploadEvent.isUploading()) {
+                                                           displayMonitor(uploadEvent.getRecording());
+                                                       } else {
+                                                           if (!setRecordingFromIntent(getIntent())) {
+                                                               displayRecord();
+                                                           } else {
+                                                               onRecordToMetadata(false);
+                                                           }
+                                                       }
+                                                   }
+                                               });
         }
     }
 
@@ -136,7 +138,10 @@ public class RecordActivity extends LoggedInActivity {
 
     private void transition(Fragment fragment, String fragmentTag, boolean addToBackStack) {
         final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out, R.anim.ak_fade_in, R.anim.ak_fade_out);
+        fragmentTransaction.setCustomAnimations(R.anim.ak_fade_in,
+                                                R.anim.ak_fade_out,
+                                                R.anim.ak_fade_in,
+                                                R.anim.ak_fade_out);
         fragmentTransaction.replace(R.id.container, fragment, fragmentTag);
 
         if (addToBackStack) {
@@ -154,9 +159,9 @@ public class RecordActivity extends LoggedInActivity {
 
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                .replace(R.id.container, fragment, RECORD_FRAGMENT_TAG)
-                .commit();
+                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                                   .replace(R.id.container, fragment, RECORD_FRAGMENT_TAG)
+                                   .commit();
     }
 
     public void displayMonitor(Recording recording) {
@@ -166,9 +171,9 @@ public class RecordActivity extends LoggedInActivity {
         }
 
         getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                .replace(R.id.container, fragment, UPLOAD_PROGRESS_FRAGMENT_TAG)
-                .commit();
+                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                                   .replace(R.id.container, fragment, UPLOAD_PROGRESS_FRAGMENT_TAG)
+                                   .commit();
     }
 
 

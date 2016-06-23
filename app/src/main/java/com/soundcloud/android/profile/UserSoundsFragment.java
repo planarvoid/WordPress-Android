@@ -49,6 +49,6 @@ public class UserSoundsFragment extends ScrollableProfileFragment {
 
     @Override
     public View[] getRefreshableViews() {
-        return new View[]{ presenter.getRecyclerView(), presenter.getEmptyView()};
+        return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
 }

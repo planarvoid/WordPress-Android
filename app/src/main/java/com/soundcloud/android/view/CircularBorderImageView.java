@@ -42,7 +42,8 @@ public class CircularBorderImageView extends ImageView {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircularBorderImageView, defStyle, 0);
 
-        borderWidth = a.getDimensionPixelSize(R.styleable.CircularBorderImageView_cbiv_borderWidth, DEFAULT_BORDER_WIDTH);
+        borderWidth = a.getDimensionPixelSize(R.styleable.CircularBorderImageView_cbiv_borderWidth,
+                                              DEFAULT_BORDER_WIDTH);
         borderColor = a.getColor(R.styleable.CircularBorderImageView_cbiv_borderColor, DEFAULT_BORDER_COLOR);
 
         a.recycle();

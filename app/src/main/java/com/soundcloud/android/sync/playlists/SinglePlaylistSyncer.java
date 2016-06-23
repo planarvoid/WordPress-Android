@@ -82,8 +82,14 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
 
         if (hasChangesToPush(playlistModifications, localRemovals, localAdditions)) {
             final boolean trustLocalState = !playlistModifications.isEmpty();
-            final List<Urn> finalTracklist = compileFinalTrackList(trustLocalState, remoteTracks, fullLocalTracklist, localRemovals, localAdditions);
-            final PlaylistRecord playlistRecord = pushPlaylistChangesToApi(finalTracklist, playlistUrn, playlistModifications);
+            final List<Urn> finalTracklist = compileFinalTrackList(trustLocalState,
+                                                                   remoteTracks,
+                                                                   fullLocalTracklist,
+                                                                   localRemovals,
+                                                                   localAdditions);
+            final PlaylistRecord playlistRecord = pushPlaylistChangesToApi(finalTracklist,
+                                                                           playlistUrn,
+                                                                           playlistModifications);
             resolveLocalState(playlistRecord, apiPlaylistWithTracks, finalTracklist);
         } else {
             resolveLocalState(apiPlaylistWithTracks.getPlaylist(), apiPlaylistWithTracks, remoteTracks);
@@ -91,7 +97,11 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         return true;
     }
 
-    private List<Urn> compileFinalTrackList(boolean trustLocal, List<Urn> remoteTracks, List<Urn> localTracks, List<Urn> localRemovals, Set<Urn> localAdditions) {
+    private List<Urn> compileFinalTrackList(boolean trustLocal,
+                                            List<Urn> remoteTracks,
+                                            List<Urn> localTracks,
+                                            List<Urn> localRemovals,
+                                            Set<Urn> localAdditions) {
         if (trustLocal) {
             return compileLocallyBasedFinalTrackList(remoteTracks, localTracks, localRemovals, localAdditions);
         } else {
@@ -100,7 +110,10 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
     }
 
     @NonNull
-    private List<Urn> compileLocallyBasedFinalTrackList(List<Urn> remoteTracks, List<Urn> localTracks, List<Urn> localRemovals, Set<Urn> localAdditions) {
+    private List<Urn> compileLocallyBasedFinalTrackList(List<Urn> remoteTracks,
+                                                        List<Urn> localTracks,
+                                                        List<Urn> localRemovals,
+                                                        Set<Urn> localAdditions) {
         // add all local tracks that have not been removed remotely
         List<Urn> finalTrackList = new ArrayList<>(Math.max(remoteTracks.size(), localTracks.size()));
         for (Urn track : localTracks) {
@@ -115,7 +128,9 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
     }
 
     @NonNull
-    private List<Urn> compileRemoteBasedFinalTrackList(List<Urn> remoteTracks, List<Urn> localRemovals, Set<Urn> localAdditions) {
+    private List<Urn> compileRemoteBasedFinalTrackList(List<Urn> remoteTracks,
+                                                       List<Urn> localRemovals,
+                                                       Set<Urn> localAdditions) {
         // add all local tracks that have not been removed remotely
         List<Urn> finalTrackList = new ArrayList<>(remoteTracks.size() + localAdditions.size());
         for (Urn track : remoteTracks) {
@@ -133,16 +148,20 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         return !localPlaylist.isEmpty() || !localRemovals.isEmpty() || !localAdditions.isEmpty();
     }
 
-    private ApiPlaylist pushPlaylistChangesToApi(List<Urn> finalTrackList, Urn playlistUrn, PropertySet localPlaylist) throws ApiRequestException, IOException, ApiMapperException {
+    private ApiPlaylist pushPlaylistChangesToApi(List<Urn> finalTrackList,
+                                                 Urn playlistUrn,
+                                                 PropertySet localPlaylist) throws ApiRequestException, IOException, ApiMapperException {
         final ApiRequest request =
                 ApiRequest.put(ApiEndpoints.PLAYLISTS_UPDATE.path(playlistUrn))
-                        .forPrivateApi()
-                        .withContent(PlaylistApiUpdateObject.create(localPlaylist, finalTrackList))
-                        .build();
+                          .forPrivateApi()
+                          .withContent(PlaylistApiUpdateObject.create(localPlaylist, finalTrackList))
+                          .build();
         return apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class).getApiPlaylist();
     }
 
-    private void resolveLocalState(PlaylistRecord playlistRecord, ApiPlaylistWithTracks apiPlaylistWithTracks, List<Urn> finalTrackList) throws Exception {
+    private void resolveLocalState(PlaylistRecord playlistRecord,
+                                   ApiPlaylistWithTracks apiPlaylistWithTracks,
+                                   List<Urn> finalTrackList) throws Exception {
         // store dependencies (all still valid tracks that came back)
         storeTracks.call(extractValidRemoteTracks(apiPlaylistWithTracks, finalTrackList));
 
@@ -168,29 +187,32 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         final ModelCollection<ApiTrack> playlistTracks = playlist.getPlaylistTracks();
         final List<Urn> remoteTracks = new ArrayList<>(playlistTracks.getCollection().size());
 
-        for (ApiTrack apiTrack : playlistTracks.getCollection()){
+        for (ApiTrack apiTrack : playlistTracks.getCollection()) {
             remoteTracks.add(apiTrack.getUrn());
         }
         return remoteTracks;
     }
 
-    private void compileLocalPlaylistState(List<Urn> validLocalTracks, List<Urn> localRemovals, Set<Urn> localAdditions) throws Exception {
-        for (PropertySet playlistTrack : loadPlaylistTracks.call()){
-            if (playlistTrack.contains(PlaylistTrackProperty.REMOVED_AT)){
+    private void compileLocalPlaylistState(List<Urn> validLocalTracks,
+                                           List<Urn> localRemovals,
+                                           Set<Urn> localAdditions) throws Exception {
+        for (PropertySet playlistTrack : loadPlaylistTracks.call()) {
+            if (playlistTrack.contains(PlaylistTrackProperty.REMOVED_AT)) {
                 localRemovals.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
             } else {
                 validLocalTracks.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
-                if (playlistTrack.contains(PlaylistTrackProperty.ADDED_AT)){
+                if (playlistTrack.contains(PlaylistTrackProperty.ADDED_AT)) {
                     localAdditions.add(playlistTrack.get(PlaylistTrackProperty.TRACK_URN));
                 }
             }
         }
     }
 
-    private List<ApiTrack> extractValidRemoteTracks(ApiPlaylistWithTracks playlist, List<Urn> finalTrackList) throws Exception {
+    private List<ApiTrack> extractValidRemoteTracks(ApiPlaylistWithTracks playlist,
+                                                    List<Urn> finalTrackList) throws Exception {
         List<ApiTrack> validRemoteTracks = new ArrayList<>();
-        for (ApiTrack apiTrack : playlist.getPlaylistTracks().getCollection()){
-            if (finalTrackList.contains(apiTrack.getUrn())){
+        for (ApiTrack apiTrack : playlist.getPlaylistTracks().getCollection()) {
+            if (finalTrackList.contains(apiTrack.getUrn())) {
                 validRemoteTracks.add(apiTrack);
             }
         }

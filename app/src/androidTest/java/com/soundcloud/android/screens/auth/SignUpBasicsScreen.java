@@ -12,6 +12,7 @@ import com.soundcloud.android.screens.elements.SignUpSpamDialogElement;
 
 public class SignUpBasicsScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
+
     public SignUpBasicsScreen(Han testDriver) {
         super(testDriver);
     }

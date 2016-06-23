@@ -27,7 +27,13 @@ class PostedPlaylistItemRenderer extends PlaylistItemRenderer {
                                       PlaylistItemMenuPresenter playlistItemMenuPresenter,
                                       EventBus eventBus, ScreenProvider screenProvider,
                                       Navigator navigator) {
-        super(resources, imageOperations, numberFormatter, playlistItemMenuPresenter, eventBus, screenProvider, navigator);
+        super(resources,
+              imageOperations,
+              numberFormatter,
+              playlistItemMenuPresenter,
+              eventBus,
+              screenProvider,
+              navigator);
     }
 
     @Override

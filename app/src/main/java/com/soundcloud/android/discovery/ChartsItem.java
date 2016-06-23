@@ -33,8 +33,8 @@ abstract class ChartsItem extends DiscoveryItem {
     private static Optional<Chart> getGenreAtIfPresent(ChartBucket chartBucket, int index) {
         final List<Chart> featuredGenres = chartBucket.getFeaturedGenres();
         return featuredGenres.size() > index
-                ? Optional.of(featuredGenres.get(index))
-                : Optional.<Chart>absent();
+               ? Optional.of(featuredGenres.get(index))
+               : Optional.<Chart>absent();
     }
 
     private static Predicate<Chart> isType(final ChartType chartType) {
