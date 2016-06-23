@@ -136,7 +136,8 @@ public class PlaySessionController {
     }
 
     public boolean isPlayingCurrentPlayQueueItem() {
-        return playSessionStateProvider.isCurrentlyPlaying(playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet());
+        final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
+        return !currentPlayQueueItem.isEmpty() && playSessionStateProvider.isCurrentlyPlaying(currentPlayQueueItem.getUrn());
     }
 
     public void play() {
