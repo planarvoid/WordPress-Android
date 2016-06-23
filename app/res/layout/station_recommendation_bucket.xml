@@ -14,8 +14,7 @@
     <com.soundcloud.android.view.DynamicSafeViewPager
         android:id="@+id/stations_pager"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/recommended_stations_pager"
-        android:layout_marginLeft="@dimen/recommended_station_pager_margin" />
+        android:layout_height="@dimen/recommended_stations_pager" />
 
     <com.viewpagerindicator.CirclePageIndicator
         android:id="@+id/page_indicator"
