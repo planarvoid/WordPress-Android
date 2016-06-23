@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -34,6 +36,7 @@ import java.util.List;
 
 public class DiscoveryPresenterTest extends AndroidUnitTest {
 
+    private static final Urn SEED_URN = new Urn("soundcloud:tracks:seed");
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final StationRecord STATION = StationFixtures.getStation(Urn.forTrackStation(123));
 
@@ -49,17 +52,19 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private Navigator navigator;
     @Mock private FeatureFlags featureFlags;
     @Mock private StartStationPresenter startStationPresenter;
+    @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
+    @Mock private List<DiscoveryItem> discoveryItems;
 
     private EventBus eventBus = new TestEventBus();
     private DiscoveryPresenter presenter;
 
     @Before
     public void setUp() {
+        when(adapterFactory.create(recommendationBucketRenderer)).thenReturn(adapter);
+        when(adapter.getItems()).thenReturn(discoveryItems);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
-        when(recommendationBucketRendererFactory.create(any(Boolean.class))).thenReturn(recommendationBucketRenderer);
-        when(adapterFactory.create(any(RecommendationBucketRenderer.class))).thenReturn(adapter);
         when(dataSource.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
-
+        when(recommendationBucketRendererFactory.create(eq(true), any(DiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
         this.presenter = new DiscoveryPresenter(
                 dataSource,
                 swipeRefreshAttacher,
@@ -69,7 +74,8 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 navigator,
                 featureFlags,
                 eventBus,
-                startStationPresenter);
+                startStationPresenter,
+                trackRecommendationPlaybackInitiator);
 
         presenter.onCreate(fragment, bundle);
     }
@@ -118,5 +124,17 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                                  1));
 
         verify(adapter, never()).updateNowPlaying(TRACK_URN);
+    }
+
+    @Test
+    public void propagatesOnReasonClickedToRecommendationPlaybackInitiator() {
+        presenter.onReasonClicked(SEED_URN);
+        verify(trackRecommendationPlaybackInitiator).playFromReason(SEED_URN, Screen.SEARCH_MAIN, discoveryItems);
+    }
+
+    @Test
+    public void propagatesOnTrackClickedToRecommendationPlaybackInitiator() {
+        presenter.onTrackClicked(SEED_URN, TRACK_URN);
+        verify(trackRecommendationPlaybackInitiator).playFromRecommendation(SEED_URN, TRACK_URN, Screen.SEARCH_MAIN, discoveryItems);
     }
 }

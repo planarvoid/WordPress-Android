@@ -4,6 +4,8 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -36,9 +38,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
-        implements DiscoveryAdapter.DiscoveryItemListenerBucket {
+        implements DiscoveryAdapter.DiscoveryItemListenerBucket, TrackRecommendationListener {
 
     private final DataSource dataSource;
+    private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     private final DiscoveryAdapter adapter;
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final Navigator navigator;
@@ -56,15 +59,17 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        Navigator navigator,
                        FeatureFlags featureFlags,
                        EventBus eventBus,
-                       StartStationPresenter startStationPresenter) {
+                       StartStationPresenter startStationPresenter,
+                       TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator) {
         super(swipeRefreshAttacher, Options.defaults());
         this.dataSource = dataSource;
-        this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true));
+        this.adapter = adapterFactory.create(recommendationBucketRendererFactory.create(true, this));
         this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.navigator = navigator;
         this.featureFlags = featureFlags;
         this.eventBus = eventBus;
         this.startStationPresenter = startStationPresenter;
+        this.trackRecommendationPlaybackInitiator = trackRecommendationPlaybackInitiator;
     }
 
     @Override
@@ -94,6 +99,16 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     @Override
     public void onTagSelected(Context context, String tag) {
         navigator.openPlaylistDiscoveryTag(context, tag);
+    }
+
+    @Override
+    public void onReasonClicked(Urn seedUrn) {
+        trackRecommendationPlaybackInitiator.playFromReason(seedUrn, Screen.SEARCH_MAIN, adapter.getItems());
+    }
+
+    @Override
+    public void onTrackClicked(Urn seedUrn, Urn trackUrn) {
+        trackRecommendationPlaybackInitiator.playFromRecommendation(seedUrn, trackUrn, Screen.SEARCH_MAIN, adapter.getItems());
     }
 
     @Override

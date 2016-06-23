@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 
 import java.util.List;
 
@@ -51,4 +52,11 @@ abstract class RecommendedTracksBucketItem extends DiscoveryItem implements Play
             viewModel.setIsPlaying(nowPlaying.equals(viewModel.getTrackUrn()));
         }
     }
+
+    public static Function<DiscoveryItem, List<Recommendation>> TO_RECOMMENDATIONS = new Function<DiscoveryItem, List<Recommendation>>() {
+        @Override
+        public List<Recommendation> apply(DiscoveryItem input) {
+            return ((RecommendedTracksBucketItem) input).getRecommendations();
+        }
+    };
 }

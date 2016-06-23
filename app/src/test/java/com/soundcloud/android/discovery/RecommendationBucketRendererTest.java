@@ -1,10 +1,7 @@
 package com.soundcloud.android.discovery;
 
 
-import static java.util.Collections.singletonList;
 import static org.assertj.android.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,56 +10,42 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import javax.inject.Provider;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
+public class RecommendationBucketRendererTest extends AndroidUnitTest {
+    private static final int BUCKET_POSITION = 0;
     private static final long SEED_ID = 1;
-    private static final int QUERY_POSITION = 1;
+    private static final int QUERY_POSITION = 2;
     private static final RecommendationReason REASON = RecommendationReason.LIKED;
     private static final ApiTrack SEED_TRACK = ModelFixtures.create(ApiTrack.class);
     private static final TrackItem RECOMMENDED_TRACK = TrackItem.from(ModelFixtures.create(ApiTrack.class));
-    private static final Recommendation RECOMMENDATION = getRecommendation();
-
-    private static final List<Urn> TRACKS_LIST = Arrays.asList(SEED_TRACK.getUrn(), RECOMMENDED_TRACK.getUrn());
+    private static final Recommendation RECOMMENDATION = new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false, QUERY_POSITION, Urn.NOT_SET);
 
     @Mock private ImageOperations imageOperations;
     @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
-    @Mock private RecommendationsAdapter adapter;
-    @Mock private PlaybackInitiator playbackInitiator;
     @Mock private Navigator navigator;
     @Mock private RecommendationRendererFactory recommendationRendererFactory;
-
-    private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = TestSubscribers.expandPlayerSubscriber();
+    @Mock private TrackRecommendationListener listener;
+    @Mock private RecommendationRenderer recommendationRenderer;
 
     @Before
     public void setUp() {
-        when(playbackInitiator
-                     .playTracks(anyListOf(Urn.class),
-                                 any(Integer.class),
-                                 any(PlaySessionSource.class))).thenReturn(Observable.just(PlaybackResult.success()));
+        when(recommendationRendererFactory.create(listener)).thenReturn(recommendationRenderer);
     }
 
     @Test
@@ -70,7 +53,7 @@ public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
         final List<RecommendedTracksBucketItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
-        renderer.bindItemView(0, itemView, recommendedTracksItems);
+        renderer.bindItemView(BUCKET_POSITION, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_header))
                 .containsText(itemView.getResources().getString(R.string.recommendation_seeds_header))
@@ -83,7 +66,7 @@ public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
         final RecommendationBucketRenderer renderer = createDefaultRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendedTracksItems);
+        renderer.bindItemView(BUCKET_POSITION, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_header)).isGone();
     }
@@ -94,7 +77,7 @@ public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendedTracksItems);
+        renderer.bindItemView(BUCKET_POSITION, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.reason))
                 .containsText("Because you liked " + SEED_TRACK.getTitle())
@@ -102,16 +85,16 @@ public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tappingOnSeedTrackShouldTriggerRecommendationsBucketListenerIfAvailable() {
+    public void tappingOnSeedTrackShouldPropagateEventToListener() {
         final List<RecommendedTracksBucketItem> recommendedTracksItems = createRecommendationsBucket();
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendedTracksItems);
+        renderer.bindItemView(BUCKET_POSITION, itemView, recommendedTracksItems);
 
         ButterKnife.<TextView>findById(itemView, R.id.reason).performClick();
 
-        verify(playbackInitiator).playTracks(TRACKS_LIST, 0, new PlaySessionSource(Screen.SEARCH_MAIN));
+        verify(listener).onReasonClicked(SEED_TRACK.getUrn());
     }
 
     @Test
@@ -120,7 +103,7 @@ public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
         final RecommendationBucketRenderer renderer = createViewAllRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendedTracksItems);
+        renderer.bindItemView(BUCKET_POSITION, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.<TextView>findById(itemView, R.id.recommendations_view_all_text)).containsText(
                 itemView.getResources().getString(R.string.recommendation_view_all));
@@ -132,23 +115,21 @@ public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
         final RecommendationBucketRenderer renderer = createDefaultRenderer();
         final View itemView = createItemView(renderer);
 
-        renderer.bindItemView(0, itemView, recommendedTracksItems);
+        renderer.bindItemView(BUCKET_POSITION, itemView, recommendedTracksItems);
 
         assertThat(ButterKnife.findById(itemView, R.id.recommendations_view_all)).isGone();
     }
 
     private RecommendationBucketRenderer createViewAllRenderer() {
         return new RecommendationBucketRenderer(true,
-                                                playbackInitiator,
-                                                expandPlayerSubscriberProvider,
+                                                listener,
                                                 recommendationRendererFactory,
                                                 navigator);
     }
 
     private RecommendationBucketRenderer createDefaultRenderer() {
         return new RecommendationBucketRenderer(false,
-                                                playbackInitiator,
-                                                expandPlayerSubscriberProvider,
+                                                listener,
                                                 recommendationRendererFactory,
                                                 navigator);
     }
@@ -169,12 +150,10 @@ public class RecommendedTracksBucketItemRendererTest extends AndroidUnitTest {
     }
 
     private List<RecommendedTracksBucketItem> createRecommendationsBucket() {
-        return singletonList(RecommendedTracksBucketItem
-                                     .create(createSeed(), singletonList(RECOMMENDATION)));
-    }
-
-    private static Recommendation getRecommendation() {
-        return new Recommendation(RECOMMENDED_TRACK, SEED_TRACK.getUrn(), false, QUERY_POSITION, Urn.NOT_SET);
+        final RecommendedTracksBucketItem recommendedTracksItem = RecommendedTracksBucketItem.create(createSeed(), Collections
+                .singletonList(
+                        RECOMMENDATION));
+        return Collections.singletonList(recommendedTracksItem);
     }
 
 }

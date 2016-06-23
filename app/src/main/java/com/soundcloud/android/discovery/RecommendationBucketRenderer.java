@@ -1,20 +1,10 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.java.collections.Iterables.concat;
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.java.collections.Lists.transform;
-import static java.util.Collections.singleton;
-
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
@@ -30,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import javax.inject.Provider;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,22 +27,18 @@ import java.util.Locale;
 class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBucketItem> {
 
     private final boolean isViewAllBucket;
-    private final Screen trackingScreen;
     private final RecommendationRendererFactory rendererFactory;
-    private final PlaybackInitiator playbackInitiator;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final Navigator navigator;
+
+    private final TrackRecommendationListener listener;
 
     RecommendationBucketRenderer(
             boolean isViewAllBucket,
-            @Provided PlaybackInitiator playbackInitiator,
-            @Provided Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+            TrackRecommendationListener listener,
             @Provided RecommendationRendererFactory rendererFactory,
             @Provided Navigator navigator) {
         this.isViewAllBucket = isViewAllBucket;
-        this.trackingScreen = isViewAllBucket ? Screen.SEARCH_MAIN : Screen.RECOMMENDATIONS_MAIN;
-        this.playbackInitiator = playbackInitiator;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.listener = listener;
         this.navigator = navigator;
         this.rendererFactory = rendererFactory;
     }
@@ -67,7 +52,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBuck
 
     private void initCarousel(View bucketView, final RecyclerView recyclerView) {
         final Context context = recyclerView.getContext();
-        final RecommendationsAdapter adapter = new RecommendationsAdapter(trackingScreen, rendererFactory);
+        final RecommendationsAdapter adapter = new RecommendationsAdapter(rendererFactory.create(listener));
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
@@ -148,20 +133,8 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBuck
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final PlaySessionSource playSessionSource = PlaySessionSource.forRecommendations(trackingScreen,
-                        bucket.getSeedTrackQueryPosition(), bucket.getQueryUrn());
-                final List<Urn> playQueue = toPlayQueue(bucket.getSeedTrackUrn(), bucket.getRecommendations());
-
-                playbackInitiator.playTracks(playQueue, playQueue.indexOf(bucket.getSeedTrackUrn()), playSessionSource)
-                        .subscribe(expandPlayerSubscriberProvider.get());
+                listener.onReasonClicked(bucket.getSeedTrackUrn());
             }
         };
-    }
-
-    @NonNull
-    @SuppressWarnings("unchecked")
-    private List<Urn> toPlayQueue(Urn seedUrn, List<Recommendation> recommendations) {
-        Iterable<Urn> recommendationUrns = transform(recommendations, Recommendation.TO_TRACK_URN);
-        return newArrayList(concat(singleton(seedUrn), recommendationUrns));
     }
 }
