@@ -62,7 +62,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String UUID = "uuid";
     private static final int APP_VERSION_CODE = 386;
     private static final int CLIENT_ID = 3152;
-    private static final String BOOGALOO_VERSION = "v1.18.1";
+    private static final String BOOGALOO_VERSION = "v1.21.1";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String CONNECTION_TYPE = "3g";
