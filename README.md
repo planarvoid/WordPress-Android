@@ -112,12 +112,6 @@ To run the unit test suite using Gradle, `cd` into the parent module, then run
 
     $ ./gradlew runUnitTests
 
-At the time of this writing, we're still maintaining a legacy test suite based on Robolectric 1 (in `tests-robolectric`), which we're constantly chipping away at by either migrating useful tests to `src/test/java` or removing them. You can run these tests specifically via
-
-    $ ./gradlew runLegacyUnitTests
-
-**NOTE: for the legacy tests in tests-robolectric to run, you need to install the Android SDK platform v22 via the SDK manager**
-
 ### Unit tests in Android Studio
 
 You can simply run unit tests by right clicking the `java` folder in `src/test/java` and selecting "Run Tests in java". This will create a working run config for you. Tip: when using the MacOS X keymap, hitting `CTRL+R` will re-run the previous test run; `CTRL+SHIFT+R` in the test class context will run that test case, and in test method context will run that individual test.
