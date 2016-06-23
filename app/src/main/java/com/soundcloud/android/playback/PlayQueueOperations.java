@@ -1,10 +1,8 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -32,12 +30,6 @@ public class PlayQueueOperations {
     private final StoreTracksCommand storeTracksCommand;
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
-    private final Func1<List<PlayQueueItem>, Boolean> containsLastStoredPlayingTrack = new Func1<List<PlayQueueItem>, Boolean>() {
-        @Override
-        public Boolean call(List<PlayQueueItem> playQueueItems) {
-            return transform(playQueueItems, PlayQueueItem.TO_ID).contains(getLastStoredPlayingTrackId());
-        }
-    };
 
     @Inject
     PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
@@ -50,16 +42,8 @@ public class PlayQueueOperations {
         this.apiClientRx = apiClientRx;
     }
 
-    long getLastStoredSeekPosition() {
-        return sharedPreferences.getLong(Keys.SEEK_POSITION.name(), 0);
-    }
-
     int getLastStoredPlayPosition() {
         return sharedPreferences.getInt(Keys.PLAY_POSITION.name(), 0);
-    }
-
-    long getLastStoredPlayingTrackId() {
-        return sharedPreferences.getLong(Keys.TRACK_ID.name(), Consts.NOT_SET);
     }
 
     PlaySessionSource getLastStoredPlaySessionSource() {
@@ -67,13 +51,12 @@ public class PlayQueueOperations {
     }
 
     Observable<PlayQueue> getLastStoredPlayQueue() {
-        if (getLastStoredPlayingTrackId() == Consts.NOT_SET) {
+        if (!sharedPreferences.contains(Keys.PLAY_POSITION.name())) {
             return Observable.empty();
         }
 
         return playQueueStorage.loadAsync()
                 .toList()
-                .filter(containsLastStoredPlayingTrack)
                 .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
                     @Override
                     public PlayQueue call(List<PlayQueueItem> playQueueItems) {
@@ -89,24 +72,16 @@ public class PlayQueueOperations {
         );
     }
 
-    void savePositionInfo(int position, Urn currentUrn, PlaySessionSource playSessionSource, long seekPosition) {
+    void savePlayInfo(int position, PlaySessionSource playSessionSource) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        // TODO: migrate the preferences to store the URN, not the ID
-        editor.putLong(Keys.TRACK_ID.name(), currentUrn.getNumericId());
-        editor.putInt(Keys.PLAY_POSITION.name(), position);
-        editor.putLong(Keys.SEEK_POSITION.name(), seekPosition);
-
         playSessionSource.saveToPreferences(editor);
-
+        editor.putInt(Keys.PLAY_POSITION.name(), position);
         editor.apply();
     }
 
     void clear() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(Keys.TRACK_ID.name());
         editor.remove(Keys.PLAY_POSITION.name());
-        editor.remove(Keys.SEEK_POSITION.name());
         PlaySessionSource.clearPreferenceKeys(editor);
         editor.apply();
         fireAndForget(
@@ -158,7 +133,7 @@ public class PlayQueueOperations {
     }
 
     enum Keys {
-        PLAY_POSITION, SEEK_POSITION, TRACK_ID
+        PLAY_POSITION
     }
 
 }

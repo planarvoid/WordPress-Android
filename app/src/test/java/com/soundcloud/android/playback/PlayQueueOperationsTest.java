@@ -3,13 +3,11 @@ package com.soundcloud.android.playback;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClientRx;
@@ -87,10 +85,10 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadAPreviouslyStoredPlayQueue() throws Exception {
+        when(sharedPreferences.contains(PlayQueueOperations.Keys.PLAY_POSITION.name())).thenReturn(true);
         PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(123L))
                 .fromSource("source1", "version1")
                 .build();
-        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
 
         Observable<PlayQueueItem> itemObservable = Observable.just(playQueueItem);
         when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
@@ -102,32 +100,9 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldOnlyReturnPlayQueueIfPlayQueueContainsTheLastStoredPlayingTrack() throws Exception {
-        TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
-        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
-
-        PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
-                .fromSource("source1", "version1")
-                .build();
-        PlayQueueItem playQueueItem2 = new TrackQueueItem.Builder(Urn.forTrack(2L))
-                .fromSource("source2", "version2")
-                .build();
-
-        Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1, playQueueItem2));
-
-        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
-
-        playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
-
-        assertThat(subscriber.getOnNextEvents()).isEmpty();
-        assertThat(subscriber.getOnCompletedEvents()).hasSize(1);
-    }
-
-    @Test
     public void shouldReturnEmptyObservableIfStoredPlayQueueIsEmpty() throws Exception {
         final TestSubscriber<PlayQueue> subscriber = new TestSubscriber<>();
 
-        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(123L);
         when(playQueueStorage.loadAsync()).thenReturn(Observable.<PlayQueueItem>empty());
         playQueueOperations.getLastStoredPlayQueue().subscribe(subscriber);
 
@@ -137,8 +112,7 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateQueueFromItemsObservable() throws Exception {
-        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(1L);
-
+        when(sharedPreferences.contains(PlayQueueOperations.Keys.PLAY_POSITION.name())).thenReturn(true);
         PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
                 .fromSource("source1", "version1")
                 .build();
@@ -154,17 +128,25 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldReturnEmptyQueueWhenPlayingTrackNotPresent() throws Exception {
+        PlayQueueItem playQueueItem1 = new TrackQueueItem.Builder(Urn.forTrack(1L))
+                .fromSource("source1", "version1")
+                .build();
+        Observable<PlayQueueItem> itemObservable = Observable.from(Arrays.asList(playQueueItem1));
+
+        when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
+
+        assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Observable.empty());
+    }
+
+    @Test
     public void shouldReturnEmptyObservableWhenReloadingWithNoValidStoredLastTrack() throws Exception {
-        when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(-1L);
-        verifyZeroInteractions(playQueueStorage);
         assertThat(playQueueOperations.getLastStoredPlayQueue()).isEqualTo(Observable.empty());
     }
 
     @Test
     public void savePositionInfoShouldWritePlayQueueMetaDataToPreferences() throws Exception {
-        playQueueOperations.savePositionInfo(8, Urn.forTrack(456), playSessionSource, 200L);
-        verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.SEEK_POSITION.name(), 200L);
-        verify(sharedPreferencesEditor).putLong(PlayQueueOperations.Keys.TRACK_ID.name(), 456L);
+        playQueueOperations.savePlayInfo(8, playSessionSource);
         verify(sharedPreferencesEditor).putInt(PlayQueueOperations.Keys.PLAY_POSITION.name(), 8);
         verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG, ORIGIN_PAGE);
         verify(sharedPreferencesEditor).putString(PlaySessionSource.PREF_KEY_COLLECTION_URN, PLAYLIST_URN.toString());
@@ -183,8 +165,6 @@ public class PlayQueueOperationsTest extends AndroidUnitTest {
     public void clearShouldRemovePreferencesAndDeleteFromDatabase() throws Exception {
         when(playQueueStorage.clearAsync()).thenReturn(Observable.<ChangeResult>empty());
         playQueueOperations.clear();
-        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.SEEK_POSITION.name());
-        verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.TRACK_ID.name());
         verify(sharedPreferencesEditor).remove(PlayQueueOperations.Keys.PLAY_POSITION.name());
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_COLLECTION_URN);
         verify(sharedPreferencesEditor).remove(PlaySessionSource.PREF_KEY_ORIGIN_SCREEN_TAG);

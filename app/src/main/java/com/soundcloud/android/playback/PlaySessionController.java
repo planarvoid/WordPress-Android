@@ -124,7 +124,7 @@ public class PlaySessionController {
     }
 
     public void togglePlayback() {
-        if (playSessionStateProvider.isPlayingCurrentPlayQueueItem()) {
+        if (isPlayingCurrentPlayQueueItem()) {
             if (playSessionStateProvider.isInErrorState()) {
                 playCurrent();
             } else {
@@ -135,8 +135,12 @@ public class PlaySessionController {
         }
     }
 
+    public boolean isPlayingCurrentPlayQueueItem() {
+        return playSessionStateProvider.isCurrentlyPlaying(playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet());
+    }
+
     public void play() {
-        if (playSessionStateProvider.isPlayingCurrentPlayQueueItem()) {
+        if (isPlayingCurrentPlayQueueItem()) {
             playbackStrategyProvider.get().resume();
         } else {
             playCurrent();
@@ -153,10 +157,10 @@ public class PlaySessionController {
 
     public void seek(long position) {
         if (!shouldDisableSkipping()) {
-            if (playSessionStateProvider.isPlayingCurrentPlayQueueItem()) {
+            if (isPlayingCurrentPlayQueueItem()) {
                 playbackStrategyProvider.get().seek(position);
             } else {
-                playQueueManager.saveCurrentProgress(position);
+                playQueueManager.saveCurrentPosition();
             }
         }
     }
@@ -187,8 +191,10 @@ public class PlaySessionController {
     private boolean shouldDisableSkipping() {
         if (adsOperations.isCurrentItemAd()) {
             final PlayerAdData ad = (PlayerAdData) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
-            return !ad.isSkippable() ||
-                   playSessionStateProvider.getLastProgressEventForCurrentPlayQueueItem().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
+            final boolean adIsNotSkippable = !ad.isSkippable();
+            final boolean waitingForAdToStart = !isPlayingCurrentPlayQueueItem();
+            final boolean haveNotReachedSkippableCheckpoint = playSessionStateProvider.getLastProgressEvent().getPosition() < AdConstants.UNSKIPPABLE_TIME_MS;
+            return adIsNotSkippable || waitingForAdToStart || haveNotReachedSkippableCheckpoint;
         } else {
             return false;
         }

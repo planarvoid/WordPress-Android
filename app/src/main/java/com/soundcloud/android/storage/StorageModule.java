@@ -43,6 +43,7 @@ public class StorageModule {
     public static final String STREAM = "stream";
     public static final String NOTIFICATION_PREFERENCES = "NotificationPreferences";
     public static final String IMAGE_CONFIG = "ImageConfiguration";
+    public static final String PLAY_SESSION_STATE = "PlaySessionState";
 
     public static final String PREFS_NOTIFICATION_PREFERENCES = "notification_preferences";
 
@@ -66,6 +67,7 @@ public class StorageModule {
     private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String PREFS_CONFIGURATION_SETTINGS = "device_config_settings";
     private static final String PREFS_IMAGE_CONFIG = "image_configuration";
+    private static final String PREFS_PLAY_SESSION_STATE = "play_session_state";
 
 
     @Provides
@@ -204,6 +206,12 @@ public class StorageModule {
     @Named(IMAGE_CONFIG)
     public SharedPreferences provideImageConfiguration(Context context) {
         return context.getSharedPreferences(PREFS_IMAGE_CONFIG, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named(PLAY_SESSION_STATE)
+    public SharedPreferences providePlaySessionState(Context context) {
+        return context.getSharedPreferences(PREFS_PLAY_SESSION_STATE, Context.MODE_PRIVATE);
     }
 
     @Provides

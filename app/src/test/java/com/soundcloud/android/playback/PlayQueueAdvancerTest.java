@@ -37,7 +37,6 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AdsOperations adsOperations;
     @Mock private AdsController adsController;
     @Mock private CastConnectionHelper castConnectionHelper;
@@ -183,23 +182,5 @@ public class PlayQueueAdvancerTest extends AndroidUnitTest {
                 return event.getNewState() == PlaybackState.IDLE && event.getReason() == PlayStateReason.PLAY_QUEUE_COMPLETE;
             }
         })).hasSize(1);
-    }
-
-    @Test
-    public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAY_QUEUE_COMPLETE, trackUrn));
-        verify(playQueueManager, never()).saveCurrentProgress(anyInt());
-    }
-
-    @Test
-    public void onStateTransitionForBufferingDoesNotSaveQueuePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, trackUrn, 123, 456));
-        verify(playQueueManager, never()).saveCurrentProgress(anyInt());
-    }
-
-    @Test
-    public void onStateTransitionForPlayingDoesNotSaveQueuePosition() throws Exception {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, 123, 456));
-        verify(playQueueManager, never()).saveCurrentProgress(anyInt());
     }
 }
