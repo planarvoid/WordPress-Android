@@ -69,13 +69,15 @@ public class PlaybackServiceTest extends AndroidUnitTest {
     @Mock private MediaSessionControllerFactory mediaSessionControllerFactory;
     @Mock private VolumeController volumeController;
     @Mock private MediaSessionController mediaSessionController;
+    @Mock private PlayStatePublisher playStatePublisher;
 
     @Before
     public void setUp() throws Exception {
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         playbackService = new PlaybackService(eventBus,
-                accountOperations, streamPlayer,playbackReceiverFactory, analyticsDispatcher, adsOperations,
-                adsController, volumeControllerFactory, mediaSessionControllerFactory);
+                accountOperations, streamPlayer,playbackReceiverFactory, analyticsDispatcher,
+                adsOperations, adsController, volumeControllerFactory,
+                mediaSessionControllerFactory, playStatePublisher);
 
         when(playbackReceiverFactory.create(playbackService, accountOperations)).thenReturn(playbackReceiver);
         when(volumeControllerFactory.create(streamPlayer, playbackService)).thenReturn(volumeController);
@@ -195,8 +197,8 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, videoAd.getAdUrn(), 0, 123, dateProvider);
         playbackService.onPlaystateChanged(stateTransition);
 
-        PlaybackStateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
-        assertThat(broadcasted).isEqualTo(stateTransition);
+        verify(playStatePublisher).publish(stateTransition, playbackItem);
+
     }
 
     @Test
@@ -207,20 +209,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 123);
         playbackService.onPlaystateChanged(stateTransition);
 
-        PlaybackStateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
-        assertThat(broadcasted).isEqualTo(stateTransition);
-    }
-
-    @Test
-    public void onPlaystateChangedPublishesStateTransitionWithCorrectedDuration() throws Exception {
-        playbackService.onCreate();
-        playbackService.play(playbackItem);
-
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 0, dateProvider);
-        playbackService.onPlaystateChanged(stateTransition);
-
-        PlaybackStateTransition broadcasted = eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
-        assertThat(broadcasted).isEqualTo(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, playbackItem.getDuration(), dateProvider));
+        verify(playStatePublisher).publish(stateTransition, playbackItem);
     }
 
     @Test
@@ -252,42 +241,6 @@ public class PlaybackServiceTest extends AndroidUnitTest {
         playbackService.onPlaystateChanged(stateTransition);
 
         verify(mediaSessionController).onPlaying(123L);
-    }
-
-
-    @Test
-    public void shouldForwardPlayerStateTransitionToAdsController() {
-        playbackService.onCreate();
-        playbackService.play(playbackItem);
-
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 123);
-        playbackService.onPlaystateChanged(stateTransition);
-
-        verify(adsController).onPlayStateTransition(stateTransition);
-    }
-
-    @Test
-    public void shouldSendVideoAdPlayerStateTransitionToAnalyticsDispatcher() {
-        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123));
-        playbackItem = VideoAdPlaybackItem.create(videoAd, 0L);
-        playbackService.onCreate();
-        playbackService.play(playbackItem);
-
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, videoAd.getAdUrn(), 0, 123, dateProvider);
-        playbackService.onPlaystateChanged(stateTransition);
-
-        verify(analyticsDispatcher).onStateTransition(playbackItem, stateTransition);
-    }
-
-    @Test
-    public void shouldSendPlayerStateTransitionToAnalyticsDispatcher() {
-        playbackService.onCreate();
-        playbackService.play(playbackItem);
-
-        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, track, 0, 123);
-        playbackService.onPlaystateChanged(stateTransition);
-
-        verify(analyticsDispatcher).onStateTransition(playbackItem, stateTransition);
     }
 
     @Test
