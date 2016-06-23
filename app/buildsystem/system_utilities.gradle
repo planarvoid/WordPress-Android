@@ -1,0 +1,9 @@
+dependencies {
+  def libraries = rootProject.ext.libraries
+
+  debugCompile libraries.leakCanary
+
+  releaseCompile libraries.leakCanaryStub
+  testCompile libraries.leakCanaryStub
+  androidTestCompile libraries.leakCanaryStub
+}
