@@ -43,7 +43,16 @@ public class PlaylistItemTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldProvideSetTypeLabel() {
+    public void shouldProvideSetTypeLabelWhenPlaylistIsNotAnAlbum() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, false);
+        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
+
+        assertThat(playlistItem.getSetTypeLabel()).isEqualTo(R.string.set_type_default_label);
+    }
+
+    @Test
+    public void shouldProvideSetTypeLabelWhenPlaylistIsAnAlbum() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
         propertySet.put(PlaylistProperty.SET_TYPE, "ep");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
@@ -52,6 +61,7 @@ public class PlaylistItemTest extends AndroidUnitTest {
 
     @Test
     public void shouldFallBackToDefaultLabelForUnknownSetTypes() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
         propertySet.put(PlaylistProperty.SET_TYPE, "unknown");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
@@ -83,19 +93,29 @@ public class PlaylistItemTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldReturnAlbumTitleAsSetTypeWhenReleaseDateIsNotAvailable() {
+    public void shouldReturnLabelAsPlaylistWhenPlaylistIsNotAnAlbum() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, false);
+        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
+
+        assertThat(playlistItem.getLabel(context())).isEqualTo("Playlist");
+    }
+
+    @Test
+    public void shouldReturnLabelAsSetTypeWhenReleaseDateIsNotAvailable() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
         propertySet.put(PlaylistProperty.SET_TYPE, "ep");
         propertySet.put(PlaylistProperty.RELEASE_DATE, "2010-10-10");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getAlbumTitle(context())).isEqualTo("EP · 2010");
+        assertThat(playlistItem.getLabel(context())).isEqualTo("EP · 2010");
     }
 
     @Test
-    public void shouldReturnAlbumTitleAsSetTypeAndReleaseYearWhenReleaseDateIsAvailable() {
+    public void shouldReturnLabelAsSetTypeAndReleaseYearWhenReleaseDateIsAvailable() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
         propertySet.put(PlaylistProperty.SET_TYPE, "ep");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getAlbumTitle(context())).isEqualTo("EP");
+        assertThat(playlistItem.getLabel(context())).isEqualTo("EP");
     }
 }

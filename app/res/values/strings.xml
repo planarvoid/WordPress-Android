@@ -821,7 +821,8 @@
     <string name="user_albums_label">Albums</string>
     <string name="user_likes_label">Likes</string>
 
-    <!-- Album Types -->
+    <!-- Set Type Labels -->
+    <string name="set_type_default_label">Playlist</string>
     <string name="set_type_album_label">Album</string>
     <string name="set_type_ep_label">EP</string>
     <string name="set_type_single_label">Single</string>

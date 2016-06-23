@@ -97,6 +97,8 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public int getSetTypeLabel() {
+        if (!isAlbum()) return R.string.set_type_default_label;
+
         String setType = source.getOrElse(PlaylistProperty.SET_TYPE, "album");
 
         if (SET_TYPE_TO_LABEL_MAP.containsKey(setType)) return SET_TYPE_TO_LABEL_MAP.get(setType);
@@ -115,7 +117,9 @@ public class PlaylistItem extends PlayableItem {
         }
     }
 
-    public String getAlbumTitle(Context context) {
+    public String getLabel(Context context) {
+        if (!isAlbum()) return context.getString(getSetTypeLabel());
+
         StringBuilder builder = new StringBuilder();
         builder.append(context.getString(getSetTypeLabel()));
         String releaseYear = getReleaseYear();
