@@ -55,16 +55,10 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
 
     public void testStartPlaybackFromRecommendationOnDiscoveryScreen() {
         final TrackRecommendationsBucketElement bucket = discoveryScreen.trackRecommendationsBucket();
-        final String reason = bucket.getReason();
         final String firstRecommendedTrackTitle = bucket.getFirstRecommendedTrackTitle();
         final VisualPlayerElement player = bucket.clickFirstRecommendedTrack();
 
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
-
-        player.waitForExpandedPlayer();
-        player.swipePrevious();
-
-        assertThat(reason, containsString(player.getTrackTitle()));
     }
 
     public void testStartPlaybackFromReasonOnViewAllScreen() {
@@ -89,15 +83,9 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
                                                                                .clickViewAll();
 
         final TrackRecommendationsBucketElement bucket = viewAllScreen.trackRecommendationsBucket();
-        final String reason = bucket.getReason();
         final String firstRecommendedTrackTitle = bucket.getFirstRecommendedTrackTitle();
         final VisualPlayerElement player = bucket.clickFirstRecommendedTrack();
 
         assertThat(firstRecommendedTrackTitle, equalTo(player.getTrackTitle()));
-
-        player.waitForExpandedPlayer();
-        player.swipePrevious();
-
-        assertThat(reason, containsString(player.getTrackTitle()));
     }
 }
