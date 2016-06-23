@@ -219,7 +219,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     private void initializeMemoryAnalizer() {
-        if (BuildConfig.DEBUG) {
+        if (applicationProperties.isDebugBuild()) {
             LeakCanary.install(this);
         }
     }
