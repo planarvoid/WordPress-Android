@@ -137,14 +137,6 @@ task assembleAcceptanceTest(dependsOn: ["assembleProd${project.('buildType').cap
 // UNIT TESTS
 // *********************************************************************************************************************
 
-task runLegacyUnitTests(dependsOn: ':tests-robolectric:test') {
-  description = 'Run legacy unit test suite based on Robolectric 1'
-}
-
-task runAppUnitTests(dependsOn: [':app:cleanTestDevDebugUnitTest', ':app:testDevDebugUnitTest']) {
-  description = 'Run new unit test suite based on Robolectric 3'
-}
-
-task runUnitTests(dependsOn: ['runAppUnitTests', 'runLegacyUnitTests']) {
-  description = 'Run all unit tests'
+task runUnitTests(dependsOn: [':app:cleanTestDevDebugUnitTest', ':app:testDevDebugUnitTest']) {
+  description = 'Run aplication unit tests'
 }

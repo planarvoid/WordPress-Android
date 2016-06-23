@@ -59,14 +59,9 @@
             "unit_tests": {
               "cmd": "./gradlew clean runUnitTests",
               "no-clean": true, 
-              "test-reports": "**/build/test-results/**/*.xml,tests-robolectric/build/test-results/*.xml",
+              "test-reports": "**/build/test-results/**/*.xml",
               "plugins": {
                 "htmlReports": [
-                  {
-                    "reportDir": "tests-robolectric/build/reports/tests/", 
-                    "reportFiles": "index.html", 
-                    "reportName": "Legacy test report"
-                  }, 
                   {
                     "reportDir": "app/build/reports/tests/devDebug/", 
                     "reportFiles": "index.html", 
