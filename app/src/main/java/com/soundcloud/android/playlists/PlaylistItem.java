@@ -30,6 +30,13 @@ public class PlaylistItem extends PlayableItem {
         put("compilation", R.string.set_type_compilation_label);
     }};
 
+    private static final Map<String, Integer> SET_TYPE_TO_LABEL_FOR_TEXT_MAP = new HashMap<String, Integer>() {{
+        put("album", R.string.set_type_album_label_for_text);
+        put("ep", R.string.set_type_ep_label_for_text);
+        put("single", R.string.set_type_single_label_for_text);
+        put("compilation", R.string.set_type_compilation_label_for_text);
+    }};
+
     public static PlaylistItem from(PropertySet propertySet) {
         return new PlaylistItem(propertySet);
     }
@@ -97,11 +104,23 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public int getSetTypeLabel() {
+        if (!isAlbum()) return R.string.set_type_default_label;
+
         String setType = source.getOrElse(PlaylistProperty.SET_TYPE, "album");
 
         if (SET_TYPE_TO_LABEL_MAP.containsKey(setType)) return SET_TYPE_TO_LABEL_MAP.get(setType);
 
         return R.string.set_type_album_label;
+    }
+
+    public int getSetTypeLabelForText() {
+        if (!isAlbum()) return R.string.set_type_default_label_for_text;
+
+        final String setType = source.getOrElse(PlaylistProperty.SET_TYPE, "album");
+
+        if (SET_TYPE_TO_LABEL_FOR_TEXT_MAP.containsKey(setType)) return SET_TYPE_TO_LABEL_FOR_TEXT_MAP.get(setType);
+
+        return R.string.set_type_album_label_for_text;
     }
 
     public String getReleaseYear() {
@@ -115,7 +134,9 @@ public class PlaylistItem extends PlayableItem {
         }
     }
 
-    public String getAlbumTitle(Context context) {
+    public String getLabel(Context context) {
+        if (!isAlbum()) return context.getString(getSetTypeLabel());
+
         StringBuilder builder = new StringBuilder();
         builder.append(context.getString(getSetTypeLabel()));
         String releaseYear = getReleaseYear();

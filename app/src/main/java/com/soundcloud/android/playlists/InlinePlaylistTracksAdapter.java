@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 class InlinePlaylistTracksAdapter extends ListItemAdapter<TrackItem> implements EmptyViewAware {
 
-    private final EmptyViewAware emptyViewRenderer;
+    private final EmptyPlaylistTracksRenderer emptyViewRenderer;
     private final PlaylistTrackItemRenderer playlistItemRenderer;
 
     @Inject
@@ -26,6 +26,10 @@ class InlinePlaylistTracksAdapter extends ListItemAdapter<TrackItem> implements 
     @Override
     public int getItemViewType(int position) {
         return items.isEmpty() ? IGNORE_ITEM_VIEW_TYPE : super.getItemViewType(position);
+    }
+
+    public void setEmptyStateMessage(String title, String description) {
+        emptyViewRenderer.setEmptyStateMessage(title, description);
     }
 
     protected boolean hasContentItems() {

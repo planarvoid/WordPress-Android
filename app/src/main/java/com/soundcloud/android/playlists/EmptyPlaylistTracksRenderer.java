@@ -8,6 +8,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 
 import android.content.Context;
+import android.support.annotation.StringRes;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,20 +18,18 @@ import java.util.List;
 class EmptyPlaylistTracksRenderer implements CellRenderer<TrackItem>, EmptyViewAware {
 
     private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
+    private EmptyViewBuilder viewBuilder;
 
     @Inject
     EmptyPlaylistTracksRenderer() {
-        // for Dagger.
+        this.viewBuilder = new EmptyViewBuilder()
+                .withImage(R.drawable.empty_playlists);
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        Context context = parent.getContext();
-        EmptyView emptyView = new EmptyViewBuilder()
-                .withImage(R.drawable.empty_playlists)
-                .withMessageText(context.getString(R.string.empty_playlist_title))
-                .withSecondaryText(context.getString(R.string.empty_playlist_description))
-                .build(context);
+        final Context context = parent.getContext();
+        final EmptyView emptyView = viewBuilder.build(context);
         emptyView.setPadding(0, ViewUtils.dpToPx(context, 48), 0, ViewUtils.dpToPx(context, 48));
         return emptyView;
     }
@@ -44,4 +43,7 @@ class EmptyPlaylistTracksRenderer implements CellRenderer<TrackItem>, EmptyViewA
         this.emptyViewStatus = emptyViewStatus;
     }
 
+    public void setEmptyStateMessage(String title, String description) {
+        this.viewBuilder.withMessageText(title).withSecondaryText(description);
+    }
 }

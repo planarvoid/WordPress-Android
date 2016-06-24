@@ -159,7 +159,7 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     private void showAlbumTitle(View itemView, PlaylistItem playlist) {
         final TextView albumTitleText = getTextView(itemView, R.id.album_title);
         albumTitleText.setVisibility(View.VISIBLE);
-        albumTitleText.setText(playlist.getAlbumTitle(itemView.getContext()));
+        albumTitleText.setText(playlist.getLabel(itemView.getContext()));
     }
 
     private void showLikeCount(View itemView, PlaylistItem playlist) {

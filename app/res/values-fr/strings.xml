@@ -108,8 +108,6 @@
   <string name="list_empty_notification_secondary">Suivez vos artistes, groupes et podcasts préférés pour écouter leurs derniers titres.</string>
   <string name="list_empty_stream_action">TROUVER DES PERSONNES À SUIVRE</string>
   <string name="list_empty_stream_message">Suivez vos artistes, groupes et podcasts préférés pour écouter leurs derniers titres.</string>
-  <string name="empty_playlist_title">Playlist vide</string>
-  <string name="empty_playlist_description">Cette playlist ne contient pas encore de titres.</string>
   <string name="list_empty_you_sounds_message">Repostez des titres pour les partager avec vos abonnés.</string>
   <string name="list_empty_you_playlists_message">Créez des playlists pour regrouper tous vos titres préférés.</string>
   <string name="list_empty_you_likes_message">Aimez vos titres préférés pour les écouter à nouveau.</string>
@@ -302,7 +300,6 @@
     <item quantity="other">%d commentaires sur ce titre</item>
   </plurals>
   <!--__PLAYLISTS-->
-  <string name="activity_title_playlist">Playlists</string>
   <string name="playlist_load_error">Impossible de charger cette playlist</string>
   <string name="playlist_new_info_header_text_trackcount_duration">%1$s, %2$s</string>
   <string name="shuffle_playlist">Lecture aléatoire</string>

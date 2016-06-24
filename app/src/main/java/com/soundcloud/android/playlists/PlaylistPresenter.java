@@ -303,15 +303,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
             playlistWithTracks = Optional.of(playlist);
             playSessionSource = createPlaySessionSource(playlist);
             headerPresenter.setPlaylist(PlaylistHeaderItem.create(playlist, playSessionSource));
-            updateTitleForActivity(playlist.getPlaylistItem());
-        }
-
-        private void updateTitleForActivity(PlaylistItem playlistItem) {
-            if (playlistItem.isAlbum()) {
-                fragment.getActivity().setTitle(playlistItem.getAlbumTitle(fragment.getContext()));
-            } else {
-                fragment.getActivity().setTitle(R.string.activity_title_playlist);
-            }
+            fragment.getActivity().setTitle(playlist.getPlaylistItem().getLabel(fragment.getContext()));
         }
     }
 

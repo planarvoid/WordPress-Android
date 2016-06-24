@@ -69,6 +69,11 @@ public class PlaylistDetailsControllerTest extends AndroidUnitTest {
         }
 
         @Override
+        void setEmptyStateMessage(String title, String description) {
+            //no op
+        }
+
+        @Override
         boolean hasContent() {
             return false;
         }

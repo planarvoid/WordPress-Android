@@ -389,7 +389,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
 
         this.playlistWithTracks = playlistWithTracks;
         PlaylistItem playlistItem = playlistWithTracks.getPlaylistItem();
-        updateTitleForActivity(playlistItem);
+        getActivity().setTitle(playlistItem.getLabel(getContext()));
         playlistHeaderView.setPlaylist(playlistItem, !playlistWithTracks.getTracks().isEmpty());
         engagementsPresenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
 
@@ -410,6 +410,8 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
             refreshMetaData(playlist);
             controller.setContent(playlist, getPromotedSourceInfo());
+            setEmptyStateMessage(playlist.getPlaylistItem());
+
             showContent(true);
 
             if (playOnLoad && controller.hasTracks()) {
@@ -436,6 +438,13 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         public void onCompleted() {
             controller.setEmptyViewStatus(EmptyView.Status.OK);
             pullToRefreshController.stopRefreshing();
+        }
+
+        private void setEmptyStateMessage(PlaylistItem playlistItem) {
+            final String label = getContext().getString(playlistItem.getSetTypeLabelForText());
+            final String message = getContext().getString(R.string.custom_empty_playlist_title, label);
+            final String secondaryText = getContext().getString(R.string.custom_empty_playlist_description, label);
+            controller.setEmptyStateMessage(message, secondaryText);
         }
     }
 
@@ -468,14 +477,6 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
             final PropertySet updatedPlaylist = args.getNextChangeSet();
             playlistWithTracks.update(updatedPlaylist);
             getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
-        }
-    }
-
-    private void updateTitleForActivity(PlaylistItem playlistItem) {
-        if (playlistItem.isAlbum()) {
-            getActivity().setTitle(playlistItem.getAlbumTitle(getContext()));
-        } else {
-            getActivity().setTitle(R.string.activity_title_playlist);
         }
     }
 }

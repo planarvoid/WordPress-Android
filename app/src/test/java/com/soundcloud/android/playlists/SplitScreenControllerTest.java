@@ -101,4 +101,11 @@ public class SplitScreenControllerTest extends AndroidUnitTest {
 
         assertThat(controller.getAdapter().isEnabled(0)).isFalse();
     }
+
+    @Test
+    public void shouldUpdateEmptyStateMessage() {
+        controller.setEmptyStateMessage("title", "description");
+
+        verify(emptyView).setMessageText("description");
+    }
 }

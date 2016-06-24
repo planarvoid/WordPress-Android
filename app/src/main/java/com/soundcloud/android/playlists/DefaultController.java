@@ -22,6 +22,11 @@ class DefaultController extends PlaylistDetailsController {
     }
 
     @Override
+    void setEmptyStateMessage(String title, String description) {
+        this.adapter.setEmptyStateMessage(title, description);
+    }
+
+    @Override
     public boolean hasContent() {
         return adapter.hasContentItems();
     }

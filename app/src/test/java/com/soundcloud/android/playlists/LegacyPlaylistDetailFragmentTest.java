@@ -369,6 +369,16 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldSetEmptyStateMessage() {
+        when(playlistOperations.playlist(any(Urn.class)))
+                .thenReturn(Observable.just(createAlbumPlaylist("ep", "2010-10-10")));
+
+        createFragmentView();
+
+        verify(controller).setEmptyStateMessage("Empty EP", "This EP has no tracks yet.");
+    }
+
+    @Test
     public void doesNotShowInlineErrorWhenContentWhenAlreadyShownAndRefreshFails() throws CreateModelException {
 
         when(playlistOperations.updatedPlaylistInfo(any(Urn.class))).thenReturn(
