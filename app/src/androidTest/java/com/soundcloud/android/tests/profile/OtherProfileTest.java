@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
@@ -15,7 +14,6 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-@NewProfileTest
 public class OtherProfileTest extends ActivityTest<ResolveActivity> {
 
     private ProfileScreen profileScreen;

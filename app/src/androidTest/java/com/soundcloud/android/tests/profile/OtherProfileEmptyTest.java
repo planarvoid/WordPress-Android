@@ -3,14 +3,12 @@ package com.soundcloud.android.tests.profile;
 import static com.soundcloud.android.framework.TestUser.playerUser;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.annotation.NewProfileTest;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Intent;
 import android.net.Uri;
 
-@NewProfileTest
 public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
 
     private ProfileScreen screen;
