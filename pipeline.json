@@ -7,7 +7,7 @@
           {
             "compile": { 
               "artifacts": [
-                "app/build/outputs/apk/soundcloud*.apk"
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-debug-*.apk"
               ], 
               "cmd": "./gradlew buildDebug",
               "plugins": {
@@ -36,7 +36,7 @@
           },
           {
             "compile_test_apk": {
-              "cmd": "http_proxy=proxy-development.int.s-cloud.net:3128 ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
@@ -74,7 +74,7 @@
           {
             "acceptance_tests": {
               "artifacts": [
-                "app/build/outputs/apk/soundcloud*.apk",
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-debug-*.apk",
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
               ],

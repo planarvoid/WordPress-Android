@@ -7,7 +7,7 @@
           {
             "build_release_apk_for_testing": {
               "artifacts": [
-                "app/build/outputs/apk/soundcloud*.apk"
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-releaseNoProguard-*.apk"
               ],
               "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
               "plugins": {
@@ -36,7 +36,7 @@
           },
           {
             "build_test_apk": {
-              "cmd": "http_proxy=proxy-development.int.s-cloud.net:3128 BUILD_TYPE=releaseNoProguard ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
@@ -125,7 +125,7 @@
           "build_beta_apk": {
             "cmd": "BUILD_TYPE=beta ./gradlew buildBeta",
             "artifacts": [
-              "app/build/outputs/apk/soundcloud*.apk"
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-beta-*.apk"
             ]
           }
         },
@@ -142,7 +142,7 @@
             },
             "manual": true,
             "artifacts": [
-              "app/build/outputs/apk/soundcloud-android-*-beta-*.apk"
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-beta-*.apk"
             ]
           }
         },
@@ -152,7 +152,7 @@
             "manual": true,
             "localBranch": true,
             "artifacts": [
-              "app/build/outputs/apk/soundcloud-android-*-beta-*.apk"
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-beta-*.apk"
             ]
           }
         }
@@ -169,7 +169,7 @@
             "build_release_apk": {
               "cmd": "BUILD_TYPE=release ./gradlew buildRelease",
               "artifacts": [
-                "app/build/outputs/apk/soundcloud*.apk"
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-release-*.apk"
               ]
             }
           },
@@ -177,7 +177,7 @@
             "build_follow_up_beta_apk": {
               "cmd": "BUILD_TYPE=beta ./gradlew buildFollowUpBeta",
               "artifacts": [
-                "app/build/outputs/apk/soundcloud*.apk"
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-beta-*.apk"
               ]
             }
           }
@@ -188,7 +188,7 @@
             "manual": true,
             "localBranch": true,
             "artifacts": [
-              "app/build/outputs/apk/soundcloud-android-*.apk"
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-*-*.apk"
             ]
           }
         },
@@ -198,7 +198,7 @@
             "manual": true,
             "localBranch": true,
             "artifacts": [
-              "app/build/outputs/apk/soundcloud-android-*-release-*.apk"
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-release-*.apk"
             ]
           }
         },
@@ -208,7 +208,7 @@
             "manual": true,
             "localBranch": true,
             "artifacts": [
-              "app/build/outputs/apk/soundcloud-android-*-release-*.apk"
+              "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-release-*.apk"
             ]
           }
         }
