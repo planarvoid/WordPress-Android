@@ -214,7 +214,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void togglePlaybackShouldTogglePlaybackStrategyIfVideoAd() {
         final VideoQueueItem queueItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(queueItem);
-        when(playSessionStateProvider.isCurrentlyPlaying(queueItem.getUrnOrNotSet())).thenReturn(true);
+        when(playSessionStateProvider.isCurrentlyPlaying(queueItem.getUrn())).thenReturn(true);
 
         controller.togglePlayback();
 
@@ -706,7 +706,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     private void setupAdInProgress(long currentProgress, PlayQueueItem playQueueItem) {
         final PlaybackProgress progress = new PlaybackProgress(currentProgress, 30000);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(playQueueItem);
-        when(playSessionStateProvider.isCurrentlyPlaying(playQueueItem.getUrnOrNotSet())).thenReturn(true);
+        when(playSessionStateProvider.isCurrentlyPlaying(playQueueItem.getUrn())).thenReturn(true);
         when(playSessionStateProvider.getLastProgressEvent()).thenReturn(progress);
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(playQueueItem.getAdData());
