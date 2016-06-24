@@ -112,6 +112,7 @@ public enum ApiEndpoints {
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
     CONFIGURATION("/configuration/android"),
+    DEVICE_REGISTRATION("/device/registration"),
     RESOLVE_ENTITY("/resolve"),
     ME("/me"),
     NOTIFICATION_PREFERENCES("/notification_preferences"),

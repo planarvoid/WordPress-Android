@@ -210,7 +210,7 @@ public class ConfigurationOperations {
     }
 
     public Observable<Object> deregisterDevice() {
-        return apiClientRx.response(ApiRequest.delete(ApiEndpoints.CONFIGURATION.path())
+        return apiClientRx.response(ApiRequest.delete(ApiEndpoints.DEVICE_REGISTRATION.path())
                                               .forPrivateApi()
                                               .build())
                           .doOnNext(new Action1<ApiResponse>() {

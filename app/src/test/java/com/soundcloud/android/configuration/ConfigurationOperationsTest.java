@@ -380,8 +380,8 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void deregisterDeviceCallsDeleteOnConfiguration() {
-        when(apiClientRx.response(argThat(isApiRequestTo("DELETE", ApiEndpoints.CONFIGURATION.path()))))
+    public void deregisterDeviceCallsDeleteOnDeviceRegistration() {
+        when(apiClientRx.response(argThat(isApiRequestTo("DELETE", ApiEndpoints.DEVICE_REGISTRATION.path()))))
                 .thenReturn(Observable.just(TestApiResponses.ok()));
 
         operations.deregisterDevice().subscribe(subscriber);
@@ -391,7 +391,7 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
 
     @Test
     public void deregisterDeviceIgnoresFailure() {
-        when(apiClientRx.response(argThat(isApiRequestTo("DELETE", ApiEndpoints.CONFIGURATION.path()))))
+        when(apiClientRx.response(argThat(isApiRequestTo("DELETE", ApiEndpoints.DEVICE_REGISTRATION.path()))))
                 .thenReturn(Observable.just(TestApiResponses.networkError()));
 
         operations.deregisterDevice().subscribe(subscriber);
