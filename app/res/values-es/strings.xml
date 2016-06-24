@@ -412,6 +412,7 @@
   <!--@Todo from l10n: please break this string up in two: "Because you like %1$s" and "Because you played %2$s"-->
   <string name="recommendation_reason_because_you_reason_tracktitle">Motivo: %1$s %2$s</string>
   <string name="recommendation_reason_liked">ha hecho me gusta en</string>
+  <string name="recommendation_reason_played">reproducido</string>
   <!--https://github.com/soundcloud/personalized-tracks/-->
   <string name="recommendation_seeds_header">Descubre más pistas</string>
   <string name="discovery_search_hint">Buscar en SoundCloud</string>
@@ -547,9 +548,16 @@
   <string name="collections_without_stations_onboarding_title">Tus me gusta. Tus listas.\nTodo en el mismo lugar.</string>
   <string name="collections_onboarding_description">Bienvenido a tu nueva colección, un solo destino para tus pistas.</string>
   <string name="collections_play_history_header">Historial de reproducciones</string>
+  <string name="collections_recently_played_header">Escuchadas recientemente</string>
   <string name="collections_view_all_tracks">Ver más</string>
   <string name="dialog_playlist_delete_title">¿Eliminar lista?</string>
   <string name="dialog_playlist_delete_message">Esto borrará la lista permanentemente. ¿Seguro que deseas continuar?</string>
+  <string name="collections_recently_played_track_station">emisora de la pista</string>
+  <string name="collections_recently_played_artist_station">emisora del artista</string>
+  <string name="collections_recently_played_other_station">emisora</string>
+  <string name="collections_recently_played_playlist">lista</string>
+  <string name="collections_recently_played_album">álbum</string>
+  <string name="collections_recently_played_profile">perfil</string>
   <!--__TABS-->
   <string name="tab_home">Inicio</string>
   <string name="tab_discovery">Descubrir</string>
