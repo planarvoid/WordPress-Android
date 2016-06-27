@@ -139,14 +139,13 @@ public class SoundCloudApplication extends MultiDexApplication {
         instance = this;
 
         initializePreInjectionObjects();
+        setUpCrashReportingIfNeeded();
         objectGraph.inject(this);
 
         bootApplication();
     }
 
     protected void bootApplication() {
-        setUpCrashReportingIfNeeded();
-
         migrationEngine.migrate();
 
         Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
