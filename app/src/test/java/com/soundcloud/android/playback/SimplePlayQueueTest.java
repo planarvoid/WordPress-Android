@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PlayQueueTest extends AndroidUnitTest {
+public class SimplePlayQueueTest extends AndroidUnitTest {
 
     private static final TrackQueueItem TRACK_QUEUE_ITEM_1 = TestPlayQueueItem.createTrack(Urn.forTrack(1L),
                                                                                            "source1",
@@ -49,7 +49,7 @@ public class PlayQueueTest extends AndroidUnitTest {
                                                           Urn.forPlaylist(123),
                                                           Urn.forUser(456),
                                                           PLAY_QUEUE_ITEM_COUNT);
-        playQueue = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
+        playQueue = PlayQueue.fromPlayQueueItems(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, VIDEO_QUEUE_ITEM));
     }
 
     @Test
@@ -224,7 +224,7 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void hasSameTracksTrueWithSameTracksInSameOrder() {
-        final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_1,
+        final PlayQueue playQueue2 = PlayQueue.fromPlayQueueItems(newArrayList(TRACK_QUEUE_ITEM_1,
                                                                 TRACK_QUEUE_ITEM_2,
                                                                 VIDEO_QUEUE_ITEM));
         assertThat(this.playQueue.hasSameTracks(playQueue2)).isTrue();
@@ -232,7 +232,7 @@ public class PlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void hasSameTracksFalseWithSameTracksInDifferentOrder() {
-        final PlayQueue playQueue2 = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_2,
+        final PlayQueue playQueue2 = PlayQueue.fromPlayQueueItems(newArrayList(TRACK_QUEUE_ITEM_2,
                                                                 TRACK_QUEUE_ITEM_1,
                                                                 VIDEO_QUEUE_ITEM));
         assertThat(this.playQueue.hasSameTracks(playQueue2)).isFalse();
@@ -242,7 +242,7 @@ public class PlayQueueTest extends AndroidUnitTest {
     public void itemsWithUrnReturnsAllItemsWithGivenUrn() {
         final Urn track1Urn = TRACK_QUEUE_ITEM_1.getUrn();
         final PlayQueueItem duplicateUrn = TestPlayQueueItem.createTrack(track1Urn, "source1", "version1");
-        playQueue = new PlayQueue(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, duplicateUrn));
+        playQueue = PlayQueue.fromPlayQueueItems(newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2, duplicateUrn));
 
         assertThat(playQueue.itemsWithUrn(track1Urn)).containsExactly(TRACK_QUEUE_ITEM_1, duplicateUrn);
     }

@@ -16,11 +16,11 @@ import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -273,7 +273,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     private List<Urn> getCurrentQueueUrnsWithoutAds() {
-        return new PlayQueue(playQueueManager.filterAdQueueItems()).getTrackItemUrns();
+        return PlayQueue.fromPlayQueueItems(playQueueManager.filterAdQueueItems()).getTrackItemUrns();
     }
 
     private boolean isCurrentlyLoadedOnRemotePlayer(Urn urn) {

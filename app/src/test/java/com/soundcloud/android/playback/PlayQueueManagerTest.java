@@ -727,7 +727,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                 TestPlayQueueItem.createPlaylist(Urn.forTrack(1)),
                 TestPlayQueueItem.createTrack(Urn.forTrack(2))
         );
-        playQueueManager.setNewPlayQueue(new PlayQueue(playQueueItems), playlistSessionSource, 0);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromPlayQueueItems(playQueueItems), playlistSessionSource, 0);
 
         assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
         assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);

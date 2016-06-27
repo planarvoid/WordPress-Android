@@ -65,7 +65,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                 .fromSource("source2", "version2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
                 .build();
 
-        PlayQueue playQueue = new PlayQueue(Arrays.<PlayQueueItem>asList(playableQueueItem1, playableQueueItem2));
+        PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.<PlayQueueItem>asList(playableQueueItem1, playableQueueItem2));
 
         storage.storeAsync(playQueue).subscribe(observer);
 
@@ -105,7 +105,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
                 .fromSource("source2", "version2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
                 .persist(false)
                 .build();
-        PlayQueue playQueue = new PlayQueue(Arrays.<PlayQueueItem>asList(playableQueueItem1, playableQueueItem2));
+        PlayQueue playQueue = PlayQueue.fromPlayQueueItems(Arrays.<PlayQueueItem>asList(playableQueueItem1, playableQueueItem2));
 
         storage.storeAsync(playQueue).subscribe(new TestObserver<TxnResult>());
 

@@ -60,7 +60,7 @@ public class PlayQueueOperations {
                                .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
                                    @Override
                                    public PlayQueue call(List<PlayQueueItem> playQueueItems) {
-                                       return new PlayQueue(playQueueItems);
+                                       return PlayQueue.fromPlayQueueItems(playQueueItems);
                                    }
                                })
                                .subscribeOn(scheduler);

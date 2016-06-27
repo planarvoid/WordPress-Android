@@ -318,6 +318,10 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.getTrackItemUrns().equals(remoteTrackList);
     }
 
+    private void setNewPlayQueueInternal(PlayQueue playQueue) {
+        setNewPlayQueueInternal(playQueue, playSessionSource);
+    }
+
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
