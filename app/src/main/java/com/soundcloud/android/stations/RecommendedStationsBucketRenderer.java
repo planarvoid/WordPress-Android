@@ -18,6 +18,7 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
 
     private final RecommendedStationsAdapterFactory adapterFactory;
     private Listener listener;
+    private RecommendedStationsAdapter adapter;
 
     public interface Listener {
         void onRecommendedStationClicked(Context context, StationRecord station);
@@ -40,8 +41,8 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
         final ViewPager viewPager = ButterKnife.findById(itemView, R.id.stations_pager);
         final CirclePageIndicator indicator = ButterKnife.findById(itemView, R.id.page_indicator);
         RecommendedStationsBucketItem recommendedStationsItem = items.get(position);
-
-        viewPager.setAdapter(adapterFactory.create(listener, recommendedStationsItem.getStations()));
+        adapter = adapterFactory.create(listener, recommendedStationsItem.getStations());
+        viewPager.setAdapter(adapter);
         indicator.setViewPager(viewPager);
     }
 
@@ -49,4 +50,9 @@ public class RecommendedStationsBucketRenderer implements CellRenderer<Recommend
         this.listener = listener;
     }
 
+    public void notifyAdapter() {
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
 }

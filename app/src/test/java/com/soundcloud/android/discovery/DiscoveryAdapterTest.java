@@ -95,6 +95,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         adapter.updateNowPlayingWithCollection(nowPlayingCollection, nowPlayingTrack);
 
         verify(stationsBucketItem).updateNowPlaying(nowPlayingCollection);
+        verify(recommendedStationsBucketRenderer).notifyAdapter();
         verify(tracksBucketItem).updateNowPlaying(nowPlayingTrack);
     }
 

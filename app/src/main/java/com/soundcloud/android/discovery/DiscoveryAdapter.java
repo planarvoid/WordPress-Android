@@ -80,27 +80,30 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
 
     @Override
     public void updateNowPlaying(Urn playingUrn) {
-        for (DiscoveryItem discoveryItem : getItems()) {
+        for (int position = 0; position < getItemCount(); position++) {
+            DiscoveryItem discoveryItem = getItem(position);
             if (RecommendedTracksItem.equals(discoveryItem.getKind())) {
                 ((PlayingTrackAware) discoveryItem).updateNowPlaying(playingUrn);
+                notifyItemChanged(position);
             }
         }
-        notifyDataSetChanged();
     }
 
     void updateNowPlayingWithCollection(Urn collectionUrn, Urn trackUrn) {
-        for (DiscoveryItem discoveryItem : getItems()) {
+        for (int position = 0; position < getItemCount(); position++) {
+            DiscoveryItem discoveryItem = getItem(position);
             if (discoveryItem instanceof PlayingTrackAware) {
                 final PlayingTrackAware playingTrackAware = (PlayingTrackAware) discoveryItem;
                 if (RecommendedTracksItem.equals(discoveryItem.getKind())) {
                     playingTrackAware.updateNowPlaying(trackUrn);
+                    notifyItemChanged(position);
                 }
                 if (RecommendedStationsItem.equals(discoveryItem.getKind())) {
                     playingTrackAware.updateNowPlaying(collectionUrn);
+                    stationsBucketRenderer.notifyAdapter();
                 }
             }
         }
-        notifyDataSetChanged();
     }
 
 }
