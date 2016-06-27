@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.TrackRecommendationsBucketElement;
 import com.soundcloud.android.view.SnappedTagView;
 import com.soundcloud.java.collections.Lists;
@@ -37,6 +38,10 @@ public class DiscoveryScreen extends Screen {
                                                      scrollToItem(With.id(R.id.track_recommendations_bucket)));
     }
 
+    public StationsBucketElement stationsRecommendationsBucket() {
+        return new StationsBucketElement(testDriver, With.id(R.id.stations_pager));
+    }
+
     public boolean isDisplayingTags() {
         return allTags().isOnScreen();
     }
@@ -46,7 +51,7 @@ public class DiscoveryScreen extends Screen {
         return new PlaylistResultsScreen(testDriver);
     }
 
-    public List<ViewElement> playlistTags() {
+    private List<ViewElement> playlistTags() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return allTags().findOnScreenElements(With.className(SnappedTagView.class));
     }

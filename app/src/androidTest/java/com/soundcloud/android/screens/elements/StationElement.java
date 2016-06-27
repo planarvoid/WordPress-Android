@@ -28,7 +28,7 @@ public class StationElement {
         return new VisualPlayerElement(testDriver);
     }
 
-    public static With WithTitle(final Han testDriver, final String title) {
+    static With WithTitle(final Han testDriver, final String title) {
         return new With() {
 
             @Override
@@ -41,5 +41,13 @@ public class StationElement {
                 return String.format("Station with title %s", title);
             }
         };
+    }
+
+    public boolean isPlaying() {
+        return nowPlaying().isOnScreen();
+    }
+
+    private ViewElement nowPlaying() {
+        return wrapped.findElement(With.id(R.id.now_playing));
     }
 }

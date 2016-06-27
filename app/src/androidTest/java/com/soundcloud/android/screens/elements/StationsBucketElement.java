@@ -5,20 +5,15 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.RecentStationsScreen;
 
-public class StationsBucketElement {
+public class StationsBucketElement extends Element {
     private final Han testDriver;
     private final ViewElement wrapped;
 
-    public StationsBucketElement(Han testDriver, ViewElement wrapped) {
+    public StationsBucketElement(Han testDriver, With withMatcher) {
+        super(testDriver, withMatcher);
         this.testDriver = testDriver;
-        this.wrapped = wrapped;
-    }
-
-    public RecentStationsScreen clickViewAll() {
-        wrapped.findOnScreenElement(With.text("View all")).click();
-        return new RecentStationsScreen(testDriver);
+        this.wrapped = getRootViewElement();
     }
 
     public StationElement getFirstStation() {
@@ -45,7 +40,7 @@ public class StationsBucketElement {
 
             @Override
             public boolean apply(ViewElement view) {
-                return new StationsBucketElement(testDriver, view).getTitle().equals(title);
+                return new StationsBucketElement(testDriver, this).getTitle().equals(title);
             }
 
             @Override
