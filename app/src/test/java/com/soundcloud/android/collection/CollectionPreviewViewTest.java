@@ -19,6 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.graphics.drawable.Drawable;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -32,12 +34,14 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
     private final int expectedNumHolderViews = numThumbnails;
 
     @Mock ImageOperations imageOperations;
+    @Mock Drawable previewDrawable;
+
     private CollectionPreviewView view;
     private ViewGroup holder;
 
     @Before
     public void setUp() throws Exception {
-        view = new CollectionPreviewView(context(), imageOperations);
+        view = new CollectionPreviewView(context(), imageOperations, null);
         holder = (ViewGroup) view.findViewById(R.id.thumbnail_container);
     }
 
@@ -51,13 +55,13 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
         view.refreshThumbnails(entities, numThumbnails);
         verify(imageOperations).displayWithPlaceholder(same(track1),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(0)));
+                                                       eq(getImagePreview(0)));
         verify(imageOperations).displayWithPlaceholder(same(track2),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(1)));
+                                                       eq(getImagePreview(1)));
         verify(imageOperations).displayWithPlaceholder(same(track3),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(2)));
+                                                       eq(getImagePreview(2)));
         verifyNoMoreInteractions(imageOperations);
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
     }
@@ -72,13 +76,13 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
         view.refreshThumbnails(entities, numThumbnails);
         verify(imageOperations).displayWithPlaceholder(same(track1),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(0)));
+                                                       eq(getImagePreview(0)));
         verify(imageOperations).displayWithPlaceholder(same(track2),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(1)));
+                                                       eq(getImagePreview(1)));
         verify(imageOperations).displayWithPlaceholder(same(track3),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(2)));
+                                                       eq(getImagePreview(2)));
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
     }
 
@@ -92,13 +96,13 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
 
         verify(imageOperations, never()).displayWithPlaceholder(any(ImageResource.class),
                                                                 any(ApiImageSize.class),
-                                                                eq((ImageView) holder.getChildAt(0)));
+                                                                eq(getImagePreview(0)));
         verify(imageOperations).displayWithPlaceholder(same(track1),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(1)));
+                                                       eq(getImagePreview(1)));
         verify(imageOperations).displayWithPlaceholder(same(track2),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(2)));
+                                                       eq(getImagePreview(2)));
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
     }
 
@@ -123,8 +127,29 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
 
         verify(imageOperations).displayWithPlaceholder(same(update.get(0)),
                                                        any(ApiImageSize.class),
-                                                       eq((ImageView) holder.getChildAt(2)));
+                                                       eq(getImagePreview(2)));
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
     }
 
+    @Test
+    public void showsPreviewOverlayOnEntitiesPreviewsOnly() {
+        final List<ImageResource> entities = Arrays.asList(
+                mock(ImageResource.class), mock(ImageResource.class));
+        view = new CollectionPreviewView(context(), imageOperations, previewDrawable);
+        holder = (ViewGroup) view.findViewById(R.id.thumbnail_container);
+
+        view.refreshThumbnails(entities, numThumbnails);
+
+        assertThat(getPreviewOverlay(2).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(getPreviewOverlay(1).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(getPreviewOverlay(0).getVisibility()).isEqualTo(View.GONE);
+    }
+
+    private ImageView getImagePreview(int index) {
+        return (ImageView) holder.getChildAt(index).findViewById(R.id.preview_artwork);
+    }
+
+    private ImageView getPreviewOverlay(int index) {
+        return (ImageView) holder.getChildAt(index).findViewById(R.id.artwork_overlay);
+    }
 }

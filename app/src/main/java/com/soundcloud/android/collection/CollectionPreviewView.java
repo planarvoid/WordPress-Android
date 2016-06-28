@@ -1,16 +1,22 @@
 package com.soundcloud.android.collection;
 
+import static com.soundcloud.android.image.ApiImageSize.getListItemImageSize;
+import static com.soundcloud.java.optional.Optional.fromNullable;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -22,10 +28,12 @@ import java.util.List;
 public class CollectionPreviewView extends FrameLayout {
 
     @Inject ImageOperations imageOperations;
+    private Optional<Drawable> previewIconOverlay;
 
     private LayoutInflater inflater;
     private ViewGroup thumbnailContainer;
     private int numThumbnails;
+
 
     public CollectionPreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -33,19 +41,23 @@ public class CollectionPreviewView extends FrameLayout {
         init(context);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CollectionPreviewView);
+
         final TextView title = (TextView) findViewById(R.id.title);
         title.setText(a.getString(R.styleable.CollectionPreviewView_collectionTitle));
-        title.setCompoundDrawablesWithIntrinsicBounds(a.getDrawable(R.styleable.CollectionPreviewView_collectionIcon),
-                                                      null,
-                                                      null,
-                                                      null);
+        title.setCompoundDrawablesWithIntrinsicBounds(
+                a.getDrawable(R.styleable.CollectionPreviewView_collectionIcon), null, null, null);
+
+        previewIconOverlay = fromNullable(a.getDrawable(R.styleable.CollectionPreviewView_collectionPreviewOverlay));
         a.recycle();
     }
 
     @VisibleForTesting
-    public CollectionPreviewView(Context context, ImageOperations imageOperations) {
+    public CollectionPreviewView(Context context,
+                                 ImageOperations imageOperations,
+                                 @Nullable Drawable previewIconOverlay) {
         super(context);
         this.imageOperations = imageOperations;
+        this.previewIconOverlay = fromNullable(previewIconOverlay);
         init(context);
     }
 
@@ -64,22 +76,32 @@ public class CollectionPreviewView extends FrameLayout {
         populateArtwork(imageResources, numEmptyThumbnails);
     }
 
-    void populateEmptyThumbnails(int numEmptyThumbnails) {
+    private void populateEmptyThumbnails(int numEmptyThumbnails) {
         for (int i = 0; i < numEmptyThumbnails; i++) {
             inflateThumbnailViewIntoHolder();
         }
     }
 
-    void populateArtwork(List<? extends ImageResource> imageResources, int numEmptyThumbnails) {
+    private void populateArtwork(List<? extends ImageResource> imageResources, int numEmptyThumbnails) {
         final int numImages = numThumbnails - numEmptyThumbnails;
-
         for (int j = 0; j < numImages; j++) {
             inflateThumbnailViewIntoHolder();
+            setPreviewArtwork(imageResources, numEmptyThumbnails, j);
+        }
+    }
 
-            ImageView thumbnail = (ImageView) thumbnailContainer.getChildAt(j + numEmptyThumbnails);
-            imageOperations.displayWithPlaceholder(imageResources.get(j),
-                                                   ApiImageSize.getListItemImageSize(thumbnailContainer.getResources()),
-                                                   thumbnail);
+    private void setPreviewArtwork(List<? extends ImageResource> imageResources, int numEmptyThumbnails, int index) {
+        final View thumbnail = thumbnailContainer.getChildAt(index + numEmptyThumbnails);
+        final ImageView artwork = (ImageView) thumbnail.findViewById(R.id.preview_artwork);
+
+        imageOperations.displayWithPlaceholder(imageResources.get(index),
+                                               getListItemImageSize(thumbnailContainer.getResources()),
+                                               artwork);
+
+        if (previewIconOverlay.isPresent()) {
+            final ImageView overlay = (ImageView) thumbnail.findViewById(R.id.artwork_overlay);
+            overlay.setImageDrawable(previewIconOverlay.get());
+            overlay.setVisibility(View.VISIBLE);
         }
     }
 

@@ -55,6 +55,7 @@
     <declare-styleable name="CollectionPreviewView">
         <attr name="collectionTitle" format="string" />
         <attr name="collectionIcon" format="integer" />
+        <attr name="collectionPreviewOverlay" format="integer" />
     </declare-styleable>
 
     <declare-styleable name="DownloadImageView">
