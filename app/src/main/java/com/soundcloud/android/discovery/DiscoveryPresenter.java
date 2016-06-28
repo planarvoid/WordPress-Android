@@ -144,7 +144,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
 
     @Override
     public void onRecommendedStationClicked(Context context, StationRecord station) {
-        startStationPresenter.startStation(context, station.getUrn());
+        startStationPresenter.startStationFromRecommendations(context, station.getUrn());
     }
 
     private class UpdatePlayingUrnSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {

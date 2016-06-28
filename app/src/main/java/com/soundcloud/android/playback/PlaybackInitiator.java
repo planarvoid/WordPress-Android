@@ -11,6 +11,7 @@ import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.Stations;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -106,7 +107,11 @@ public class PlaybackInitiator {
             return Observable.just(PlaybackResult.success());
         }
 
-        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks);
+        DiscoverySource discoverySource = playSessionSource.getDiscoverySource();
+
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks,
+                                                              discoverySource);
+
         return playNewQueue(playQueue, playQueue.getUrn(nextPosition), nextPosition, playSessionSource);
     }
 

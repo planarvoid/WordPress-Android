@@ -90,7 +90,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void clickOnRecommendedStationStartsPlayingStation() {
         presenter.onRecommendedStationClicked(context(), STATION);
 
-        verify(startStationPresenter).startStation(context(), STATION.getUrn());
+        verify(startStationPresenter).startStationFromRecommendations(context(), STATION.getUrn());
     }
 
     @Test

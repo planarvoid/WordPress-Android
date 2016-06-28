@@ -284,6 +284,22 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         assertThat(shuffled.getTrackItemUrns()).containsAll(allTracks);
     }
 
+    @Test
+    public void playStationReturnsQueueWithStationPlayQueueItemsFromSuggestions() {
+        final Urn stationUrn = Urn.forTrackStation(123L);
+        final StationRecord station = StationFixtures.getStation(stationUrn);
+        final List<StationTrack> tracks = station.getTracks();
+        PlayQueue playQueue = PlayQueue.fromStation(stationUrn, tracks, DiscoverySource.STATIONS_SUGGESTIONS);
+
+        assertThat(playQueue).hasSize(1);
+        assertThat(playQueue.getTrackItemUrns()).containsExactly(tracks.get(0).getTrackUrn());
+
+        final TrackQueueItem trackQueueItem = (TrackQueueItem) playQueue.getPlayQueueItem(0);
+        assertThat(trackQueueItem.getSource()).isEqualTo("stations:suggestions");
+        assertThat(trackQueueItem.getSourceVersion()).isEqualTo("default");
+        assertThat(trackQueueItem.getSourceUrn()).isEqualTo(stationUrn);
+    }
+
     private void assertTrackQueueItem(PlayQueueItem playQueueItem, Urn trackUrn) {
         assertThat(playQueueItem.isTrack()).isTrue();
         assertThat(playQueueItem.getUrn()).isEqualTo(trackUrn);

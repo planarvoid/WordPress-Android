@@ -1,10 +1,12 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
@@ -24,18 +26,7 @@ import android.content.DialogInterface;
 import javax.inject.Inject;
 
 public class StartStationPresenter {
-    private final Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult = new Func1<StationRecord, Observable<PlaybackResult>>() {
-        @Override
-        public Observable<PlaybackResult> call(StationRecord station) {
-            checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
-            final PlaySessionSource playSessionSource = PlaySessionSource.forStation(screenProvider.getLastScreenTag(),
-                                                                                     station.getUrn());
-            return playbackInitiator.playStation(station.getUrn(),
-                                                 station.getTracks(),
-                                                 playSessionSource,
-                                                 station.getPreviousPosition());
-        }
-    };
+
 
     private final DelayedLoadingDialogPresenter.Builder dialogBuilder;
     private final StationsOperations stationsOperations;
@@ -61,6 +52,10 @@ public class StartStationPresenter {
         this.screenProvider = screenProvider;
     }
 
+    public void startStationFromRecommendations(Context context, Urn stationUrn) {
+        startStation(context, stationsOperations.station(stationUrn), DiscoverySource.STATIONS_SUGGESTIONS);
+    }
+
     public void startStation(Context context, Urn stationUrn) {
         startStation(context, stationsOperations.station(stationUrn));
     }
@@ -76,6 +71,10 @@ public class StartStationPresenter {
     }
 
     private void startStation(Context context, Observable<StationRecord> station) {
+        startStation(context, station, DiscoverySource.STATIONS);
+    }
+
+    private void startStation(Context context, Observable<StationRecord> station, DiscoverySource discoverySource) {
         DelayedLoadingDialogPresenter delayedLoadingDialogPresenter = dialogBuilder
                 .setLoadingMessage(context.getString(R.string.stations_loading_station))
                 .setOnErrorToastText(context.getString(R.string.stations_unable_to_start_station))
@@ -89,11 +88,27 @@ public class StartStationPresenter {
                 .show(context);
 
         subscription = station
-                .flatMap(toPlaybackResult)
+                .flatMap(toPlaybackResult(discoverySource))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context,
                                                                 eventBus,
                                                                 playbackToastHelper,
                                                                 delayedLoadingDialogPresenter));
+    }
+
+    private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(final DiscoverySource discoverySource) {
+        return new Func1<StationRecord, Observable<PlaybackResult>>() {
+            @Override
+            public Observable<PlaybackResult> call(StationRecord station) {
+                checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
+                final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
+                                                                       station.getUrn(),
+                                                                       discoverySource);
+                return playbackInitiator.playStation(station.getUrn(),
+                                                     station.getTracks(),
+                                                     playSessionSource,
+                                                     station.getPreviousPosition());
+            }
+        };
     }
 
     private static class ExpandAndDismissDialogSubscriber extends ExpandPlayerSubscriber {

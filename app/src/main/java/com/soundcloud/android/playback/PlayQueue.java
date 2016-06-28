@@ -123,12 +123,18 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public static PlayQueue fromStation(Urn stationUrn, List<StationTrack> stationTracks) {
+        return fromStation(stationUrn, stationTracks, DiscoverySource.STATIONS);
+    }
+
+    public static PlayQueue fromStation(Urn stationUrn,
+                                        List<StationTrack> stationTracks,
+                                        DiscoverySource discoverySource) {
         List<PlayQueueItem> playQueueItems = new ArrayList<>();
         for (StationTrack stationTrack : stationTracks) {
             final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(stationTrack.getTrackUrn())
                     .relatedEntity(stationUrn)
                     .fromSource(
-                            PlaySessionSource.DiscoverySource.STATIONS.value(),
+                            discoverySource.value(),
                             DEFAULT_SOURCE_VERSION,
                             stationUrn,
                             stationTrack.getQueryUrn()
@@ -156,7 +162,7 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
         for (ApiTrack relatedTrack : relatedTracks) {
             final TrackQueueItem.Builder builder = new TrackQueueItem.Builder(relatedTrack.getUrn())
                     .relatedEntity(seedTrack)
-                    .fromSource(PlaySessionSource.DiscoverySource.RECOMMENDER.value(),
+                    .fromSource(DiscoverySource.RECOMMENDER.value(),
                                 relatedTracks.getSourceVersion());
             playQueueItems.add(builder.build());
         }

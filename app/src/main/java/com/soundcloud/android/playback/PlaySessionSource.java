@@ -14,8 +14,6 @@ import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Locale;
-
 public class PlaySessionSource implements Parcelable {
 
     public static final PlaySessionSource EMPTY = new PlaySessionSource();
@@ -43,6 +41,7 @@ public class PlaySessionSource implements Parcelable {
     private SearchQuerySourceInfo searchQuerySourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
     private RecommendationsSourceInfo recommendationsSourceInfo;
+    private DiscoverySource discoverySource;
 
     public static PlaySessionSource forPlaylist(Screen screen, Urn playlist, Urn playlistOwner, int playlistSize) {
         return forPlaylist(screen.get(), playlist, playlistOwner, playlistSize);
@@ -57,11 +56,12 @@ public class PlaySessionSource implements Parcelable {
     }
 
     public static PlaySessionSource forStation(Screen screen, Urn station) {
-        return forStation(screen.get(), station);
+        return forStation(screen.get(), station, DiscoverySource.STATIONS);
     }
 
-    public static PlaySessionSource forStation(String screen, Urn station) {
+    public static PlaySessionSource forStation(String screen, Urn station, DiscoverySource discoverySource) {
         final PlaySessionSource source = new PlaySessionSource(screen);
+        source.discoverySource = discoverySource;
         source.collectionUrn = station;
         return source;
     }
@@ -107,6 +107,10 @@ public class PlaySessionSource implements Parcelable {
         collectionUrn = readUrn(sharedPreferences, PREF_KEY_COLLECTION_URN);
         collectionOwnerUrn = readUrn(sharedPreferences, PREF_KEY_COLLECTION_OWNER_URN);
         collectionSize = sharedPreferences.getInt(PREF_KEY_COLLECTION_SIZE, Consts.NOT_SET);
+    }
+
+    DiscoverySource getDiscoverySource() {
+        return discoverySource;
     }
 
     private Urn readUrn(SharedPreferences sharedPreferences, String key) {
@@ -270,14 +274,6 @@ public class PlaySessionSource implements Parcelable {
 
     public boolean originatedInSearchSuggestions() {
         return originScreen.startsWith(Screen.SEARCH_SUGGESTIONS.get());
-    }
-
-    public enum DiscoverySource {
-        RECOMMENDER, EXPLORE, STATIONS, STREAM;
-
-        public String value() {
-            return this.toString().toLowerCase(Locale.ENGLISH);
-        }
     }
 
     @Override

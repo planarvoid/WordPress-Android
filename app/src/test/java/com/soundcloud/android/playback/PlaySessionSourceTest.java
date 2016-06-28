@@ -76,7 +76,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(playSessionSource.getCollectionSize()).isEqualTo(Consts.NOT_SET);
-        assertThat(playSessionSource.getInitialSource()).isEqualTo(PlaySessionSource.DiscoverySource.EXPLORE.value());
+        assertThat(playSessionSource.getInitialSource()).isEqualTo(DiscoverySource.EXPLORE.value());
         assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(EXPLORE_VERSION);
     }
 
@@ -155,7 +155,7 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(copy.getCollectionUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(copy.getCollectionOwnerUrn()).isEqualTo(Urn.NOT_SET);
         assertThat(copy.getCollectionSize()).isEqualTo(Consts.NOT_SET);
-        assertThat(copy.getInitialSource()).isEqualTo(PlaySessionSource.DiscoverySource.EXPLORE.value());
+        assertThat(copy.getInitialSource()).isEqualTo(DiscoverySource.EXPLORE.value());
         assertThat(copy.getInitialSourceVersion()).isEqualTo(EXPLORE_VERSION);
         assertThat(copy.getSearchQuerySourceInfo()).isNull();
         assertThat(copy.getPromotedSourceInfo()).isNull();
@@ -204,5 +204,25 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
     @Test
     public void shouldNotOriginateFromExploreWithEmptyOrigin() {
         assertThat(new PlaySessionSource(Strings.EMPTY).originatedInExplore()).isFalse();
+    }
+
+    @Test
+    public void createsPlaySessionSourceForStation() {
+        final Urn station = Urn.forTrackStation(123);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation(Screen.COLLECTIONS, station);
+
+        assertThat(playSessionSource.getDiscoverySource()).isEqualTo(DiscoverySource.STATIONS);
+        assertThat(playSessionSource.getCollectionUrn()).isEqualTo(station);
+    }
+
+    @Test
+    public void createsPlaySessionSourceForStationWithDiscoverySource() {
+        final Urn station = Urn.forTrackStation(123);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forStation("screen",
+                                                                                 station,
+                                                                                 DiscoverySource.STATIONS_SUGGESTIONS);
+
+        assertThat(playSessionSource.getDiscoverySource()).isEqualTo(DiscoverySource.STATIONS_SUGGESTIONS);
+        assertThat(playSessionSource.getCollectionUrn()).isEqualTo(station);
     }
 }

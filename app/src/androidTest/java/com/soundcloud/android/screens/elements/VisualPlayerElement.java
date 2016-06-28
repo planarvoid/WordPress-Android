@@ -404,8 +404,9 @@ public class VisualPlayerElement extends Element {
         return this;
     }
 
-    public void clickArtwork() {
+    public VisualPlayerElement clickArtwork() {
         artwork().click();
+        return this;
     }
 
     public void clickAdVideo() {
