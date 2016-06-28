@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
@@ -40,7 +43,7 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public PlayQueueItem getPlayQueueItem(int position) {
-        Preconditions.checkElementIndex(position, size());
+        checkElementIndex(position, size());
         return playQueueItems.get(position);
     }
 
@@ -99,13 +102,13 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public Urn getUrn(int position) {
-        Preconditions.checkElementIndex(position, size());
+        checkElementIndex(position, size());
         return playQueueItems.get(position).getUrn();
     }
 
     @Override
     public Iterable<? extends PlayQueueItem> itemsWithUrn(final Urn urn) {
-        return Lists.newArrayList(Iterables.filter(playQueueItems, isMatchingItem(urn)));
+        return newArrayList(Iterables.filter(playQueueItems, isMatchingItem(urn)));
     }
 
     @Override
@@ -196,7 +199,7 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public Optional<AdData> getAdData(int position) {
-        Preconditions.checkElementIndex(position, size());
+        checkElementIndex(position, size());
         return playQueueItems.get(position).getAdData();
     }
 
@@ -237,6 +240,16 @@ class SimplePlayQueue extends PlayQueue {
     }
 
     @Override
+    ShuffledPlayQueue shuffle(int start) {
+        return ShuffledPlayQueue.from(this, start);
+    }
+
+    @Override
+    protected List<PlayQueueItem> items() {
+        return playQueueItems;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -253,4 +266,6 @@ class SimplePlayQueue extends PlayQueue {
     public int hashCode() {
         return playQueueItems.hashCode();
     }
+
+
 }

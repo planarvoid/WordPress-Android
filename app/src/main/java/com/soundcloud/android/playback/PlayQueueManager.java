@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 import static com.soundcloud.java.checks.Preconditions.checkNotNull;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.AdUtils;
@@ -60,6 +61,24 @@ public class PlayQueueManager implements OriginProvider {
         this.eventBus = eventBus;
         this.networkConnectionHelper = networkConnectionHelper;
         this.offlineStateProvider = offlineStateProvider;
+    }
+
+    public void shuffle() {
+        setPlayQueueKeepPosition(playQueue.shuffle(currentPosition + 1));
+    }
+
+    public void unshuffle() {
+        checkState(playQueue instanceof ShuffledPlayQueue, "unshuffle must be called on a shuffled play queue.");
+        setPlayQueueKeepPosition(((ShuffledPlayQueue) playQueue).unshuffle());
+    }
+
+    private void setPlayQueueKeepPosition(PlayQueue newPlayQueue) {
+        final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
+        final int startPosition = newPlayQueue.indexOfPlayQueueItem(currentPlayQueueItem);
+
+        checkState(startPosition != -1, "The current play queue item must be present in the new play queue.");
+
+        setNewPlayQueue(newPlayQueue, playSessionSource, startPosition);
     }
 
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
