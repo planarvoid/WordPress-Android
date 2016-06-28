@@ -139,16 +139,16 @@ public class SoundCloudApplication extends MultiDexApplication {
         super.onCreate();
         instance = this;
 
-        initializeMemoryAnalizer();
-
         initializePreInjectionObjects();
-        setUpCrashReportingIfNeeded();
+        initializeMemoryAnalyzer();
+
         objectGraph.inject(this);
 
         bootApplication();
     }
 
     protected void bootApplication() {
+        setUpCrashReportingIfNeeded();
         migrationEngine.migrate();
 
         Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
@@ -216,7 +216,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         uncaughtExceptionHandlerController = new UncaughtExceptionHandlerController(this, isReportingCrashes());
     }
 
-    private void initializeMemoryAnalizer() {
+    private void initializeMemoryAnalyzer() {
         if (applicationProperties.isDebugBuild()) {
             LeakCanary.install(this);
         }
