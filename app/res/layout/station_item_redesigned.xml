@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/cards"
+        android:paddingBottom="8dp"
         tools:ignore="UselessParent">
 
         <FrameLayout
@@ -21,12 +22,11 @@
             android:layout_height="wrap_content"
             tools:layout_height="150dp">
 
-            <ImageView
+            <com.soundcloud.android.view.SquareImageView
                 android:id="@+id/artwork"
                 style="@style/Stations.ItemArtwork"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:adjustViewBounds="true"
                 tools:background="@color/ad_default_background" />
 
             <ImageView
