@@ -79,6 +79,10 @@ public enum Screen {
     // recommendations
     RECOMMENDATIONS_MAIN("personal-recommended:main"),
 
+    // charts
+    TOP_CHARTS("charts:top"),
+    TRENDING_CHARTS("charts:trending"),
+
     // creators
     RECORD_MAIN("record:main"),
     RECORD_EDIT("record:edit"),

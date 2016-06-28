@@ -409,7 +409,7 @@ public class DatabaseFixtures {
         long chartLocalId = insertInto(Tables.Charts.TABLE, cv);
 
         final ApiUser user = insertUser();
-        final List<ApiTrack> apiChartTracks = apiChart.tracks();
+        final List<ApiTrack> apiChartTracks = apiChart.tracks().getCollection();
         final List<ChartTrack> chartTracks = new ArrayList<>(apiChartTracks.size());
         for (final ApiTrack track : apiChartTracks) {
             chartTracks.add(insertChartTrack(track, user, chartLocalId));

@@ -1,21 +1,20 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.api.model.PagedRemoteCollection.TO_PAGED_REMOTE_COLLECTION;
+
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.api.model.PagedCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
-import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
 import rx.Observable;
 import rx.Scheduler;
@@ -30,14 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 class UserProfileOperations {
-
-    private static final Func1<ModelCollection<? extends PropertySetSource>, PagedRemoteCollection> TO_PAGED_REMOTE_COLLECTION =
-            new Func1<ModelCollection<? extends PropertySetSource>, PagedRemoteCollection>() {
-                @Override
-                public PagedRemoteCollection call(ModelCollection<? extends PropertySetSource> modelCollection) {
-                    return new PagedRemoteCollection(modelCollection);
-                }
-            };
 
     private final ProfileApi profileApi;
     private final Scheduler scheduler;
@@ -373,16 +364,6 @@ class UserProfileOperations {
 
     private PagingFunction<PagedRemoteCollection> pagingFunction(final Command<String,
             Observable<PagedRemoteCollection>> nextPage) {
-        return new PagingFunction<PagedRemoteCollection>() {
-            @Override
-            public Observable<PagedRemoteCollection> call(PagedRemoteCollection collection) {
-                final Optional<String> nextPageLink = collection.nextPageLink();
-                if (nextPageLink.isPresent()) {
-                    return nextPage.call(nextPageLink.get()).subscribeOn(scheduler);
-                } else {
-                    return Pager.finish();
-                }
-            }
-        };
+        return PagedCollection.pagingFunction(nextPage, scheduler);
     }
 }

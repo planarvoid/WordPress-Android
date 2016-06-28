@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionPreviewView;
 import com.soundcloud.android.image.ImageResource;
@@ -20,10 +21,12 @@ import java.util.List;
 
 class ChartsItemRenderer implements CellRenderer<ChartsItem> {
     private final Resources resources;
+    private final Navigator navigator;
 
     @Inject
-    ChartsItemRenderer(Resources resources) {
+    ChartsItemRenderer(Resources resources, Navigator navigator) {
         this.resources = resources;
+        this.navigator = navigator;
     }
 
     @Override
@@ -54,7 +57,7 @@ class ChartsItemRenderer implements CellRenderer<ChartsItem> {
 
             final Chart chart = firstGenreChartItem.get();
             setThumbnails(chart.tracks(), preview);
-            preview.setTag(chart.genre());
+            preview.setTag(chart);
         } else {
             preview.setVisibility(View.GONE);
         }
@@ -66,13 +69,13 @@ class ChartsItemRenderer implements CellRenderer<ChartsItem> {
     }
 
     @OnClick(R.id.charts_new_and_hot_preview)
-    void onNewAndHotClicked() {
-        Log.d("charts", "new and hot");
+    void onNewAndHotClicked(View item) {
+        navigator.openChart(item.getContext(), (Chart) item.getTag());
     }
 
     @OnClick(R.id.charts_top_fifty_preview)
-    void onTopFiftyClicked() {
-        Log.d("charts", "top 50");
+    void onTopFiftyClicked(View item) {
+        navigator.openChart(item.getContext(), (Chart) item.getTag());
     }
 
     @OnClick(R.id.charts_first_genre)

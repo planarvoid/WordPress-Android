@@ -12,8 +12,11 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.discovery.Chart;
+import com.soundcloud.android.discovery.ChartFragment;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.SearchActivity;
+import com.soundcloud.android.discovery.TabbedChartActivity;
 import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
@@ -316,6 +319,12 @@ public class Navigator {
 
     public void openViewAllRecommendations(Context context) {
         context.startActivity(new Intent(context, ViewAllRecommendedTracksActivity.class));
+    }
+
+    public void openChart(Context context, Chart chart) {
+        context.startActivity(new Intent(context, TabbedChartActivity.class)
+                                      .putExtra(ChartFragment.EXTRA_GENRE_URN, chart.genre())
+                                      .putExtra(ChartFragment.EXTRA_TYPE, chart.type()));
     }
 
     public void openRecentStations(Context context) {

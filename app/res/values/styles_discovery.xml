@@ -166,4 +166,17 @@
         <item name="android:paddingRight">@dimen/discovery_cell_text_padding</item>
         <item name="android:paddingTop">@dimen/recommendations_cell_text_recommended_padding_top</item>
     </style>
+
+    <!-- Charts -->
+    <style name="Chart" parent="TextAppearance.SoundCloudLightFont" />
+
+    <style name="Chart.TextItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/discovery_cell_text_height</item>
+        <item name="android:textSize">@dimen/chart_header_text_size</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">@dimen/discovery_cell_text_padding</item>
+        <item name="android:paddingRight">@dimen/discovery_cell_text_padding</item>
+        <item name="android:background">@color/white</item>
+    </style>
 </resources>

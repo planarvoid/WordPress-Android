@@ -7,27 +7,27 @@ import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 
-import java.util.Collections;
-import java.util.List;
-
 public class ApiChart {
 
     private final String displayName;
     private final Urn genre;
     private final ChartType type;
     private final ChartCategory category;
-    private final List<ApiTrack> tracks;
+    private final Long lastUpdated;
+    private final ModelCollection<ApiTrack> tracks;
 
     public ApiChart(@JsonProperty("displayName") String displayName,
                     @JsonProperty("genre") final Urn genre,
                     @JsonProperty("type") ChartType type,
                     @JsonProperty("category") ChartCategory category,
+                    @JsonProperty("last_updated") Long lastUpdated,
                     @JsonProperty("tracks") ModelCollection<ApiTrack> tracks) {
         this.displayName = displayName;
         this.genre = genre;
         this.type = type;
         this.category = category;
-        this.tracks = Collections.unmodifiableList(tracks.getCollection());
+        this.tracks = tracks;
+        this.lastUpdated = lastUpdated;
     }
 
     public String displayName() {
@@ -46,7 +46,11 @@ public class ApiChart {
         return category;
     }
 
-    public List<ApiTrack> tracks() {
+    public Long lastUpdated() {
+        return lastUpdated;
+    }
+
+    public ModelCollection<ApiTrack> tracks() {
         return tracks;
     }
 }

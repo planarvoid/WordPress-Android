@@ -135,6 +135,10 @@ public final class Urn extends ContentStringHelper<Urn> {
         return longId;
     }
 
+    public String getStringId() {
+        return stringId;
+    }
+
     public PropertySet toPropertySet() {
         return PropertySet.from(EntityProperty.URN.bind(this));
     }

@@ -62,7 +62,7 @@ public class ChartsStorageTest extends StorageIntegrationTest {
     @NonNull
     private ApiChart createChart(int countOfTracks, ChartType type) {
         final ModelCollection<ApiTrack> chartTracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class,
-                                                                                                 countOfTracks));
-        return new ApiChart("title", new Urn("soundcloud:genre:all"), type, ChartCategory.NONE, chartTracks);
+                countOfTracks));
+        return new ApiChart("title", new Urn("soundcloud:genre:all"), type, ChartCategory.NONE, 12345L, chartTracks);
     }
 }

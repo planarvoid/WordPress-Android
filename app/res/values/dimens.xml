@@ -115,6 +115,9 @@
     <dimen name="recommended_stations_pager">216dp</dimen>
     <dimen name="recommended_station_card_margin">8dp</dimen>
 
+    <!-- Charts -->
+    <dimen name="chart_header_text_size">12dp</dimen>
+
     <!-- Record -->
     <dimen name="rec_upload_button_dimension">60dp</dimen>
     <dimen name="rec_record_button_dimension">60dp</dimen>
