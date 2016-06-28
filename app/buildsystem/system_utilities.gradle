@@ -1,9 +1,16 @@
 dependencies {
   def libraries = rootProject.ext.libraries
 
+  //TODO: consolidate all build variants to avoid DRY
   debugCompile libraries.leakCanary
+  repackCompile libraries.leakCanary
 
+  alphaCompile libraries.leakCanaryStub
+  betaCompile libraries.leakCanaryStub
   releaseCompile libraries.leakCanaryStub
+  releaseNoProguardCompile libraries.leakCanaryStub
+  releaseNonPlayStoreCompile libraries.leakCanaryStub
+
   testCompile libraries.leakCanaryStub
   androidTestCompile libraries.leakCanaryStub
 }
