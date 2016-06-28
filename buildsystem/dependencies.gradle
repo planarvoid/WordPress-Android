@@ -20,7 +20,7 @@ ext {
   networkManager = '29'
 
   libraries = [
-          // annotation processors / annotations
+          // Annotation processors / Annotations
           daggerCompiler              : "com.squareup.dagger:dagger-compiler:$daggerVersion",
           dagger                      : "com.squareup.dagger:dagger:$daggerVersion",
           lightCycleProcessor         : "com.soundcloud.lightcycle:lightcycle-processor:$lightCycleVersion",
@@ -50,13 +50,17 @@ ext {
           crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.5.5",
           appBoy                      : "com.appboy:android-sdk-ui:1.13.4",
 
-          // utility libraries
+          // Utility libraries
           jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",
           okHttp                      : "com.squareup.okhttp:okhttp:2.3.0",
           rxAndroid                   : "io.reactivex:rxandroid:1.1.0",
           rxJava                      : "io.reactivex:rxjava:1.1.0",
           rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
           universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.5",
+
+          // System utility libraries
+          leakCanary                  : "com.squareup.leakcanary:leakcanary-android:1.3.1",
+          leakCanaryStub              : "com.squareup.leakcanary:leakcanary-android-no-op:1.3.1",
 
           // UI libraries
           slidingUpPanel              : "com.sothree.slidinguppanel:library:3.0.0-SC@aar",

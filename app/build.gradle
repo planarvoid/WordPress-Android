@@ -68,6 +68,7 @@ apply from: "${buildSrcDir}/ci.gradle"
 apply from: "${buildSrcDir}/networkmanager.gradle"
 apply from: "${buildSrcDir}/repacker/repacker.gradle"
 apply from: "${buildSrcDir}/mobile_testrunner/mobile_testrunner.gradle"
+apply from: "${buildSrcDir}/system_utilities.gradle"
 
 apply plugin: 'com.android.application'
 //You can enable it when need it.
