@@ -8,6 +8,7 @@ import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -44,6 +45,7 @@ import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Checkable;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,6 +73,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
     private final ShareAsTextButtonExperiment shareExperiment;
+    private final PlayerUpsellCopyExperiment upsellCopyExperiment;
     private final FeatureFlags featureFlags;
 
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
@@ -90,6 +93,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               Resources resources,
                               PlayerUpsellImpressionController upsellImpressionController,
                               ShareAsTextButtonExperiment shareExperiment,
+                              PlayerUpsellCopyExperiment upsellCopyExperiment,
                               FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
@@ -105,6 +109,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
         this.shareExperiment = shareExperiment;
+        this.upsellCopyExperiment = upsellCopyExperiment;
         this.featureFlags = featureFlags;
     }
 
@@ -147,6 +152,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final View trackView = LayoutInflater.from(container.getContext())
                                              .inflate(R.layout.player_track_page, container, false);
         setupHolder(trackView);
+        getViewHolder(trackView).upsellButton.setText(upsellCopyExperiment.getUpsellCtaId());
         setupSkipListener(trackView, skipListener);
         return trackView;
     }
@@ -603,8 +609,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setupShareButtons(holder);
 
         holder.playQueueButton = trackView.findViewById(R.id.play_queue_button);
-
-        holder.upsellButton = trackView.findViewById(R.id.upsell_button);
+        holder.upsellButton = (Button) trackView.findViewById(R.id.upsell_button);
         holder.highTierLabel = (TextView) trackView.findViewById(R.id.high_tier_label);
 
         // set initial media route button state
@@ -735,7 +740,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         @Nullable View playButton;
         View closeIndicator;
         TextView highTierLabel;
-        View upsellButton;
+        Button upsellButton;
         View profileLink;
         View playControlsHolder;
         View interstitialHolder;
