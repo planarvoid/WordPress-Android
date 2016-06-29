@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -15,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -29,7 +31,8 @@ public class ChartsApiTest extends AndroidUnitTest {
     private ApiClientRx apiClientRx;
 
     private ChartsApi chartsApi;
-    private final TestSubscriber<ApiChart> subscriber = TestSubscriber.create();
+    private final TestSubscriber<ApiChart> chartSubscriber = TestSubscriber.create();
+    private final TestSubscriber<ModelCollection<ApiChart>> genreSubscriber = TestSubscriber.create();
     private final ChartType chartType = ChartType.TOP;
     private final String genre = "all-music";
 
@@ -39,7 +42,7 @@ public class ChartsApiTest extends AndroidUnitTest {
     }
 
     @Test
-    public void callsApiClientWithQueryParams() {
+    public void returnsChartTracksForQueryParams() {
         final ApiChart expectedChart = createApiChart();
         when(apiClientRx.mappedResponse(
                 argThat(isApiRequestTo("GET", "/charts").withQueryParam("type", chartType.value())
@@ -47,13 +50,13 @@ public class ChartsApiTest extends AndroidUnitTest {
                 ), eq(ApiChart.class)))
                 .thenReturn(Observable.just(expectedChart));
 
-        chartsApi.chartTracks(chartType, genre).subscribe(subscriber);
+        chartsApi.chartTracks(chartType, genre).subscribe(chartSubscriber);
 
-        assertThat(subscriber.getOnNextEvents()).containsExactly(expectedChart);
+        assertThat(chartSubscriber.getOnNextEvents()).containsExactly(expectedChart);
     }
 
     @Test
-    public void callsApiClientWithNextLink() {
+    public void returnsChartTracksForNextLink() {
         String path = "/page2";
         String nextHref = "http://next-page" + path;
         final ApiChart expectedChart = createApiChart();
@@ -62,9 +65,23 @@ public class ChartsApiTest extends AndroidUnitTest {
 
 
         final Observable<ApiChart> apiChartObservable = chartsApi.chartTracks(nextHref);
-        apiChartObservable.subscribe(subscriber);
+        apiChartObservable.subscribe(chartSubscriber);
 
-        assertThat(subscriber.getOnNextEvents()).containsExactly(expectedChart);
+        assertThat(chartSubscriber.getOnNextEvents()).containsExactly(expectedChart);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void returnsAllChartGenres() {
+        final ModelCollection<ApiChart> expectedModelCollection = ModelCollection.EMPTY;
+        when(apiClientRx.mappedResponse(
+                argThat(isApiRequestTo("GET", "/charts/genres").withQueryParam("type", ChartType.TRENDING.value())),
+                any(TypeToken.class)))
+                .thenReturn(Observable.just(expectedModelCollection));
+
+        chartsApi.allGenres().subscribe(genreSubscriber);
+
+        assertThat(genreSubscriber.getOnNextEvents()).containsExactly(expectedModelCollection);
     }
 
     private ApiChart createApiChart() {

@@ -42,6 +42,7 @@ public enum ApiEndpoints {
 
     // charts
     CHARTS_FEATURED("/charts/featured"),
+    CHARTS_GENRES("/charts/genres"),
     CHARTS("/charts"),
 
     // ads + monetization
