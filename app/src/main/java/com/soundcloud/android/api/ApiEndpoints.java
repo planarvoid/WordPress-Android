@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.Locale;
 
 public enum ApiEndpoints {
+
+    // gcm
+    GCM_REGISTER("/push/register"),
+    GCM_DEREGISTER("/push/deregister"),
+
     // explore
     EXPLORE_TRACKS_POPULAR_MUSIC("/suggestions/tracks/popular/music"),
     EXPLORE_TRACKS_POPULAR_AUDIO("/suggestions/tracks/popular/audio"),
