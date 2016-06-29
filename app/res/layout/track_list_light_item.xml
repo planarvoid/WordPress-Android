@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout android:id="@+id/track_list_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/dark_bg"
+    tools:ignore="UnknownIdInLayout">
+
+    <RelativeLayout
+        style="@style/ListItemLayout"
+        android:paddingTop="0dp">
+
+        <ImageView
+            android:id="@+id/image"
+            style="@style/ListItemImage"
+            android:layout_marginTop="16dp" />
+
+        <com.soundcloud.android.offline.DownloadImageView
+            android:id="@+id/item_download_state"
+            style="@style/DownloadItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@id/image"
+            android:layout_alignTop="@id/image"
+            android:layout_marginRight="@dimen/download_progress_indicator_margin"
+            android:layout_marginTop="@dimen/download_progress_indicator_margin"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@id/list_item_header_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/image"
+            android:layout_marginTop="1dp"
+            android:layout_toLeftOf="@id/list_item_right_info"
+            android:layout_toRightOf="@id/image">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/list_item_header"
+                style="@style/ListItemText.SecondaryText"
+                android:textColor="@color/gray_text"
+                tools:text="Secondary text" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/reposter"
+                style="@style/ListItemText.SecondaryText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="3dp"
+                android:drawableLeft="@drawable/inset_stats_repost"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@id/list_item_subheader"
+            style="@style/ListItemText.PrimaryText"
+            android:layout_below="@id/list_item_header_container"
+            android:layout_toRightOf="@id/image"
+            android:textColor="@color/white"
+            tools:text="Some text" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@id/list_item_counter"
+            style="@style/ListItemText.Numeric.Stats"
+            android:layout_below="@id/list_item_subheader"
+            android:layout_toRightOf="@id/image"
+            android:drawableLeft="@drawable/stats_play"
+            android:textColor="@color/white"
+            tools:text="25.312" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/promoted_track"
+            style="@style/ListItemText.TertiaryText"
+            android:layout_below="@id/list_item_subheader"
+            android:layout_toRightOf="@id/image"
+            android:drawableLeft="@drawable/promoted_icon"
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/now_playing"
+            style="@style/ListItemText.TertiaryText"
+            android:layout_below="@id/list_item_subheader"
+            android:layout_toRightOf="@id/image"
+            android:text="@string/title_now_playing"
+            android:textColor="@color/ak_sc_orange"
+            android:visibility="invisible" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/not_available_offline"
+            style="@style/ListItemText.TertiaryText"
+            android:layout_below="@id/list_item_subheader"
+            android:layout_toRightOf="@id/image"
+            android:text="@string/offline_not_available_offline"
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_list_item_geo_blocked_text"
+            style="@style/ListItemText.TertiaryText"
+            android:layout_below="@id/list_item_subheader"
+            android:layout_toRightOf="@id/image"
+            android:drawableLeft="@drawable/geo_list_item"
+            android:drawablePadding="6dp"
+            android:text="@string/upsell_track_geo_blocked"
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@id/list_item_right_info"
+            style="@style/ListItemText.Numeric"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/image"
+            android:layout_marginTop="3dp"
+            android:textColor="@color/white" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_list_item_preview_label"
+            style="@style/ListItemText.HighTierTrack.Preview"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/image"
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_list_item_go_label"
+            style="@style/ListItemText.HighTierTrack.Go"
+            android:layout_alignBaseline="@id/list_item_counter"
+            android:layout_marginLeft="12dp"
+            android:layout_toRightOf="@id/list_item_counter"
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/private_indicator"
+            style="@style/ListItemText.Private"
+            android:layout_alignBaseline="@id/list_item_right_info"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="2dp"
+            android:layout_toLeftOf="@id/list_item_right_info"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/overflow_button"
+        style="@style/ListItemOverflowButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right" />
+
+</FrameLayout>
+

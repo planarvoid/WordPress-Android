@@ -36,6 +36,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         implements PanelSlideListener {
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
+    private static final String EXTRA_PLAYQUEUE_LOCK = "playqueue_lock";
 
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
@@ -47,6 +48,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private Subscription subscription = RxUtils.invalidSubscription();
 
     private boolean isLocked;
+    private boolean isPlayQueueLocked;
     private boolean expandOnResume;
     private boolean wasDragged;
 
@@ -72,6 +74,9 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
         slidingPanel.setOnTouchListener(new TrackingDragListener());
+        if (bundle != null) {
+            isPlayQueueLocked = bundle.getBoolean(EXTRA_PLAYQUEUE_LOCK, false);
+        }
         expandOnResume = shouldExpand(getCurrentBundle(activity, bundle));
 
         expandedStatusColor = resources.getColor(R.color.primary_darker);
@@ -117,15 +122,24 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     }
 
     private void unlock() {
-        slidingPanel.setTouchEnabled(true);
-        isLocked = false;
+        if (!isPlayQueueLocked) {
+            slidingPanel.setTouchEnabled(true);
+            isLocked = false;
+        }
     }
 
     public boolean handleBackPressed() {
-        if (!isLocked && isExpanded()) {
-            collapse();
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
+        if (playerFragment.handleBackPressed()) {
             return true;
+        } else {
+            if (!isLocked && isExpanded()) {
+                collapse();
+                eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
+                return true;
+            } else if (isLocked && isPlayQueueLocked) {
+                unlockForPlayQueue();
+                return true;
+            }
         }
         return false;
     }
@@ -144,11 +158,17 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @Override
     public void onNewIntent(AppCompatActivity activity, Intent intent) {
+        isPlayQueueLocked = intent.getExtras().getBoolean(EXTRA_PLAYQUEUE_LOCK, false);
         expandOnResume = shouldExpand(intent.getExtras());
     }
 
     private boolean shouldExpand(Bundle bundle) {
-        return bundle != null && bundle.getBoolean(EXTRA_EXPAND_PLAYER, false);
+        if (bundle == null) {
+            return false;
+        } else {
+            return bundle.getBoolean(EXTRA_EXPAND_PLAYER, false) || isPlayQueueLocked;
+        }
+
     }
 
     @Override
@@ -165,8 +185,8 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     private void restorePlayerState() {
         final boolean isRestoringVideoAd = playQueueManager.getCurrentPlayQueueItem().isVideo();
         showPanelAsCollapsedIfNeeded();
-        if (expandOnResume || isRestoringVideoAd) {
-            restoreExpanded(isRestoringVideoAd);
+        if (expandOnResume || isRestoringVideoAd || isPlayQueueLocked) {
+            restoreExpanded(isRestoringVideoAd || isPlayQueueLocked);
         }
     }
 
@@ -193,6 +213,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
     @Override
     public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, isExpanded());
+        bundle.putBoolean(EXTRA_PLAYQUEUE_LOCK, isPlayQueueLocked);
     }
 
     @Override
@@ -216,8 +237,22 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
                 lockExpanded();
             } else if (event.isUnlock()) {
                 unlock();
+            } else if (event.isLockPlayQueue()) {
+                lockForPlayQueue();
+            } else if (event.isUnlockPlayQueue()) {
+                unlockForPlayQueue();
             }
         }
+    }
+
+    private void lockForPlayQueue() {
+        lockExpanded();
+        isPlayQueueLocked = true;
+    }
+
+    private void unlockForPlayQueue() {
+        isPlayQueueLocked = false;
+        unlock();
     }
 
     private class TrackingDragListener implements View.OnTouchListener {

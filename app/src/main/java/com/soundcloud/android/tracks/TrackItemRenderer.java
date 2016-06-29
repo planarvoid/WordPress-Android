@@ -28,6 +28,12 @@ import java.util.concurrent.TimeUnit;
 
 public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
+    public interface Listener {
+
+        void trackItemClicked(Urn urn);
+
+    }
+
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
     private final EventBus eventBus;
@@ -39,6 +45,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
 
     private Urn playingTrack = Urn.NOT_SET;
+    private Listener listener = null;
 
     @Inject
     public TrackItemRenderer(ImageOperations imageOperations,
@@ -71,12 +78,20 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         bindTrackView(track, itemView, position);
     }
 
-    public void bindTrackView(TrackItem track, View itemView, int position) {
+    public void bindTrackView(final TrackItem track, View itemView, final int position) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
-        trackItemView.setTitle(track.getTitle(),
-                               track.isBlocked() ? R.color.list_disabled : R.color.list_primary);
-
+        trackItemView.setTitle(track.getTitle(), track.isBlocked()
+                                                 ? trackItemViewFactory.getDisabledTitleColor()
+                                                 : trackItemViewFactory.getPrimaryTitleColor());
+        if (listener != null) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.trackItemClicked(track.getUrn());
+                }
+            });
+        }
         if (track.isBlocked()) {
             itemView.setClickable(false);
         }
@@ -164,4 +179,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         this.playingTrack = playingTrack;
     }
 
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
 }

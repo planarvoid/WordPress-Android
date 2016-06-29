@@ -4,6 +4,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
+import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
 import com.soundcloud.android.playback.ui.BlurringPlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerFragment;
@@ -23,7 +24,7 @@ import javax.inject.Named;
                 PlayerFragment.class,
                 PlaybackActionReceiver.class,
                 WaveformView.class,
-
+                PlayQueueFragment.class
         })
 public class PlayerModule {
 

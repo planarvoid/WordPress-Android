@@ -14,6 +14,7 @@ enum Feature {
   USER_STATIONS,
   RECOMMENDED_STATIONS,
   LOCAL_PLAY_HISTORY,
+  PLAY_QUEUE,
   NEW_SYNC_ADAPTER,
   ALBUMS;
 }
@@ -31,6 +32,7 @@ android {
     buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), FALSE
     buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), FALSE
   }
 
   buildTypes {
@@ -42,6 +44,8 @@ android {
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
     }
 
     beta {
@@ -59,6 +63,8 @@ android {
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
     }
 
     release {

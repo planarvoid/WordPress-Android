@@ -131,6 +131,11 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="PlayerQueue">
+        <item name="android:src">@drawable/ic_queue</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
     <style name="Waveform">
         <item name="barWidth">@dimen/waveform_bar_width</item>
         <item name="spaceWidth">@dimen/waveform_space_width</item>

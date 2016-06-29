@@ -119,6 +119,10 @@ public class PlayQueueManager implements OriginProvider {
         saveCurrentPosition();
     }
 
+    public void setCurrentPlayQueueItem(Urn urn) {
+        setPositionInternal(playQueue.indexOfTrackUrn(urn), true);
+    }
+
     public List<PlayQueueItem> getPlayQueueItems(Predicate<PlayQueueItem> predicate) {
         return Lists.newArrayList(Iterables.filter(playQueue, predicate));
     }
@@ -201,6 +205,10 @@ public class PlayQueueManager implements OriginProvider {
         } else {
             return PlayQueueItem.EMPTY;
         }
+    }
+
+    public int getPositionOfCurrentPlayQueueItem() {
+        return playQueue.indexOfPlayQueueItem(getCurrentPlayQueueItem());
     }
 
     @VisibleForTesting

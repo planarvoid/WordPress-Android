@@ -18,7 +18,8 @@ public enum Flag {
     USER_STATIONS(BuildConfig.USER_STATIONS),
     RECOMMENDED_STATIONS(BuildConfig.RECOMMENDED_STATIONS),
     LOCAL_PLAY_HISTORY(BuildConfig.LOCAL_PLAY_HISTORY),
-    ALBUMS(BuildConfig.ALBUMS);
+    ALBUMS(BuildConfig.ALBUMS),
+    PLAY_QUEUE(BuildConfig.PLAY_QUEUE);
 
     private final boolean value;
 

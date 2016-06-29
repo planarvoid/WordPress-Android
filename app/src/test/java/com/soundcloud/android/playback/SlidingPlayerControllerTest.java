@@ -162,6 +162,37 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void locksWhenPlayQueueLockEventIsReceived() {
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
+
+        verify(slidingPanel).setTouchEnabled(false);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+    }
+
+    @Test
+    public void unlocksWhenPlayQueueUnLockEventIsReceived() {
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
+
+        verify(slidingPanel).setTouchEnabled(true);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+    }
+
+    @Test
+    public void doesNotUnlockWhenPlayQueueLockIsRecieved() {
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
+
+        verify(slidingPanel).setTouchEnabled(false);
+        verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+    }
+
+
+    @Test
     public void locksPlayerDoesntExpandAlreadyExpandedPlayerWhenLockEventIsReceived() {
         when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
         controller.onResume(activity);
@@ -273,6 +304,16 @@ public class SlidingPlayerControllerTest extends AndroidUnitTest {
         controller.onResume(activity);
 
         verify(slidingPanel).setPanelState(PanelState.EXPANDED);
+        verify(slidingPanel).setTouchEnabled(false);
+    }
+
+    @Test
+    public void shouldExpandAndLockPlayerOnResumeIfPlaylistLock() {
+        when(slidingPanel.getPanelState()).thenReturn(PanelState.EXPANDED);
+        controller.onResume(activity);
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
+
+        assertThat(slidingPanel.getPanelState()).isEqualTo(PanelState.EXPANDED);
         verify(slidingPanel).setTouchEnabled(false);
     }
 

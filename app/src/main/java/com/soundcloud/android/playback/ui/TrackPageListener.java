@@ -78,6 +78,10 @@ class TrackPageListener extends PageListener {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
     }
 
+    void onPlayQueue() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueDisplayed());
+    }
+
     private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final Urn userUrn) {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override

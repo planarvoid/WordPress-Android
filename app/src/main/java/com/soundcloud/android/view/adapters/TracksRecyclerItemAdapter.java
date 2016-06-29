@@ -15,9 +15,12 @@ public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, Tr
 
     private static final int TRACK_ITEM_TYPE = 0;
 
+    private final TrackItemRenderer trackItemRenderer;
+
     @Inject
     public TracksRecyclerItemAdapter(TrackItemRenderer trackItemRenderer) {
         super(trackItemRenderer);
+        this.trackItemRenderer = trackItemRenderer;
     }
 
     @Override
@@ -42,6 +45,10 @@ public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, Tr
         public TrackViewHolder(View itemView) {
             super(itemView);
         }
+    }
+
+    public void setTrackItemListener(TrackItemRenderer.Listener listener) {
+        trackItemRenderer.setListener(listener);
     }
 
 }

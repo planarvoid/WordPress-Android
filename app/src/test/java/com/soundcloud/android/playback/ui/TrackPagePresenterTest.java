@@ -108,7 +108,8 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            castConnectionHelper,
                                            resources(),
                                            upsellImpressionController,
-                                           shareExperiment);
+                                           shareExperiment,
+                                           featureFlags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);

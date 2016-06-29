@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
 
-    @Inject @LightCycle PlayerPresenter controller;
+    @Inject @LightCycle PlayerPresenter presenter;
 
     public PlayerFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -26,6 +26,10 @@ public class PlayerFragment extends LightCycleSupportFragment<PlayerFragment> {
     }
 
     public void onPlayerSlide(float slideOffset) {
-        controller.onPlayerSlide(slideOffset);
+        presenter.onPlayerSlide(slideOffset);
+    }
+
+    public boolean handleBackPressed() {
+        return presenter.handleBackPressed();
     }
 }

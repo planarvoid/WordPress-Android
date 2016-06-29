@@ -159,12 +159,33 @@ public class TrackItemView {
     }
 
     public static class Factory {
+        private final int layoutId;
+        private final int disabledTitleColor;
+        private final int primaryTitleColor;
+
         @Inject
         public Factory() {
+            this.layoutId = R.layout.track_list_item;
+            this.disabledTitleColor = R.color.list_disabled;
+            this.primaryTitleColor = R.color.list_primary;
+        }
+
+        public Factory(@LayoutRes int layoutId, @ColorRes int disabledTitleColor, @ColorRes int primaryTitleColor) {
+            this.layoutId = layoutId;
+            this.disabledTitleColor = disabledTitleColor;
+            this.primaryTitleColor = primaryTitleColor;
+        }
+
+        public int getDisabledTitleColor() {
+            return disabledTitleColor;
+        }
+
+        public int getPrimaryTitleColor() {
+            return primaryTitleColor;
         }
 
         public View createItemView(ViewGroup parent) {
-            return createItemView(parent, R.layout.track_list_item);
+            return createItemView(parent, layoutId);
         }
 
         public View createItemView(ViewGroup parent, @LayoutRes int layout) {

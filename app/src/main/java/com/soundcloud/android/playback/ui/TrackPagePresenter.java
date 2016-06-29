@@ -23,6 +23,8 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.TimestampView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.view.JaggedTextView;
@@ -69,6 +71,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
     private final ShareAsTextButtonExperiment shareExperiment;
+    private final FeatureFlags featureFlags;
 
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
@@ -86,7 +89,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               CastConnectionHelper castConnectionHelper,
                               Resources resources,
                               PlayerUpsellImpressionController upsellImpressionController,
-                              ShareAsTextButtonExperiment shareExperiment) {
+                              ShareAsTextButtonExperiment shareExperiment,
+                              FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -101,6 +105,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
         this.shareExperiment = shareExperiment;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -128,6 +133,9 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             case R.id.upsell_button:
                 listener.onUpsell(view.getContext(), (Urn) view.getTag());
                 break;
+            case R.id.play_queue_button:
+                listener.onPlayQueue();
+                break;
             default:
                 throw new IllegalArgumentException("Unexpected view ID: "
                                                            + resources.getResourceName(view.getId()));
@@ -151,6 +159,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.profileLink.setTag(trackState.getUserUrn());
         setCastDeviceName(trackView, castConnectionHelper.getDeviceName());
         bindStationsContext(trackState, holder);
+
+        if (featureFlags.isEnabled(Flag.PLAY_QUEUE)) {
+            holder.playQueueButton.setVisibility(View.VISIBLE);
+        }
 
         holder.artworkController.loadArtwork(trackState, trackState.isCurrentTrack(),
                                              trackState.getViewVisibilityProvider());
@@ -590,6 +602,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.shareButtonText = trackView.findViewById(R.id.track_page_share_text);
         setupShareButtons(holder);
 
+        holder.playQueueButton = trackView.findViewById(R.id.play_queue_button);
+
         holder.upsellButton = trackView.findViewById(R.id.upsell_button);
         holder.highTierLabel = (TextView) trackView.findViewById(R.id.high_tier_label);
 
@@ -727,6 +741,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         View interstitialHolder;
         View shareButton;
         View shareButtonText;
+        View playQueueButton;
 
         WaveformViewController waveformController;
         TrackPageMenuController menuController;
@@ -768,7 +783,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                    playButton,
                                                    bottomClose,
                                                    highTierLabel,
-                                                   upsellButton);
+                                                   upsellButton,
+                                                   playQueueButton);
             List<View> hideOnError = Arrays.asList(playButton, timestamp);
             List<View> clickViews = Arrays.asList(artworkView,
                                                   closeIndicator,
@@ -777,7 +793,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   footer,
                                                   footerPlayToggle,
                                                   profileLink,
-                                                  upsellButton);
+                                                  upsellButton,
+                                                  playQueueButton);
 
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder);
             fullScreenAdViews = Arrays.asList(interstitialHolder);
@@ -786,7 +803,14 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
-            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp, castDeviceName);
+            hideOnAdViews = Arrays.asList(close,
+                                          more,
+                                          likeToggle,
+                                          title,
+                                          user,
+                                          timestamp,
+                                          castDeviceName,
+                                          playQueueButton);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController,
                                                                    artworkController,
                                                                    timestamp,

@@ -10,10 +10,14 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
+import com.soundcloud.android.playback.playqueue.PlayQueueFragmentFactory;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -33,6 +37,9 @@ import rx.subscriptions.CompositeSubscription;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -49,6 +56,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final PlayQueueManager playQueueManager;
     private final PlaySessionController playSessionController;
     private final AdsOperations adsOperations;
+    private final PlayQueueFragmentFactory playQueueFragmentFactory;
+
 
     private final Observable<PlaybackProgressEvent> checkAdProgress;
     private final PlayerPagerScrollListener playerPagerScrollListener;
@@ -60,6 +69,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private PlayerTrackPager trackPager;
     private boolean isResumed;
     private boolean setPlayQueueAfterScroll;
+    private FragmentManager fragmentManager;
 
     private final Func1<CurrentPlayQueueItemEvent, Boolean> isCurrentTrackAd = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
@@ -130,15 +140,20 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     };
 
     @Inject
-    public PlayerPresenter(PlayerPagerPresenter presenter, EventBus eventBus,
-                           PlayQueueManager playQueueManager, PlaySessionController playSessionController,
-                           PlayerPagerScrollListener playerPagerScrollListener, final AdsOperations adsOperations) {
+    public PlayerPresenter(PlayerPagerPresenter presenter,
+                           EventBus eventBus,
+                           PlayQueueManager playQueueManager,
+                           PlaySessionController playSessionController,
+                           PlayerPagerScrollListener playerPagerScrollListener,
+                           final AdsOperations adsOperations,
+                           PlayQueueFragmentFactory playQueueFragmentFactory) {
         this.presenter = presenter;
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playSessionController = playSessionController;
         this.playerPagerScrollListener = playerPagerScrollListener;
         this.adsOperations = adsOperations;
+        this.playQueueFragmentFactory = playQueueFragmentFactory;
 
         LightCycles.bind(this);
 
@@ -152,6 +167,12 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     public void onPlayerSlide(float slideOffset) {
         presenter.onPlayerSlide(slideOffset);
+    }
+
+    @Override
+    public void onCreate(PlayerFragment fragment, @Nullable Bundle bundle) {
+        super.onCreate(fragment, bundle);
+        fragmentManager = fragment.getFragmentManager();
     }
 
     @Override
@@ -176,6 +197,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     }
 
     private void setupTrackChangeSubscribers() {
+
+        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAYER_UI, new PlayQueueVisibilitySubscriber()));
+
         // play queue changes
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
 
@@ -207,6 +231,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     @Override
     public void onDestroyView(PlayerFragment playerFragment) {
+
         unblockPagerSubscription.unsubscribe();
         playerPagerScrollListener.unsubscribe();
         changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
@@ -215,6 +240,20 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         subscription = new CompositeSubscription();
 
         super.onDestroyView(playerFragment);
+    }
+
+    public boolean handleBackPressed() {
+        Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
+        if (fragment == null) {
+            return false;
+        } else {
+            fragmentManager.beginTransaction()
+                           .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                           .remove(fragment)
+                           .commitAllowingStateLoss();
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
+            return true;
+        }
     }
 
     private void setPager(final PlayerTrackPager trackPager) {
@@ -272,6 +311,34 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private void refreshPlayQueue() {
         setFullQueue();
+    }
+
+    private final class PlayQueueVisibilitySubscriber extends DefaultSubscriber<PlayerUIEvent> {
+
+        @Override
+        public void onNext(PlayerUIEvent playerUIEvent) {
+            Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
+            if (playerUIEvent.getKind() == PlayerUIEvent.PLAYQUEUE_DISPLAYED) {
+                if (fragment == null) {
+                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
+                    fragmentManager.beginTransaction()
+                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                                   .add(R.id.player_pager_holder,
+                                        playQueueFragmentFactory.create(),
+                                        PlayQueueFragment.TAG)
+                                   .commitAllowingStateLoss();
+                }
+            } else if (playerUIEvent.getKind() == PlayerUIEvent.PLAYQUEUE_HIDDEN) {
+                if (fragment != null) {
+                    fragmentManager.beginTransaction()
+                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                                   .remove(fragment)
+                                   .commitAllowingStateLoss();
+                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
+                }
+            }
+        }
+
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {

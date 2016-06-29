@@ -3,13 +3,15 @@ package com.soundcloud.android.events;
 public final class PlayerUICommand {
 
     private static final int SHOW_PLAYER = 0;
-    private static final int HIDE_PLAYER = 7;
     private static final int EXPAND_PLAYER = 1;
     private static final int COLLAPSE_PLAYER = 2;
     private static final int LOCK_PLAYER_EXPANDED = 3;
     private static final int UNLOCK_PLAYER = 4;
     private static final int FORCE_PLAYER_LANDSCAPE = 5;
     private static final int FORCE_PLAYER_PORTRAIT = 6;
+    private static final int HIDE_PLAYER = 7;
+    private static final int LOCK_FOR_PLAY_QUEUE = 8;
+    private static final int UNLOCK_FOR_PLAY_QUEUE = 9;
 
     private final int kind;
 
@@ -69,6 +71,16 @@ public final class PlayerUICommand {
         return new PlayerUICommand(FORCE_PLAYER_PORTRAIT);
     }
 
+
+    public static PlayerUICommand lockPlayQueue() {
+        return new PlayerUICommand(LOCK_FOR_PLAY_QUEUE);
+    }
+
+    public static PlayerUICommand unlockPlayQueue() {
+        return new PlayerUICommand(UNLOCK_FOR_PLAY_QUEUE);
+    }
+
+
     private PlayerUICommand(int kind) {
         this.kind = kind;
     }
@@ -103,6 +115,14 @@ public final class PlayerUICommand {
 
     public boolean isForcePortrait() {
         return kind == FORCE_PLAYER_PORTRAIT;
+    }
+
+    public boolean isLockPlayQueue() {
+        return kind == LOCK_FOR_PLAY_QUEUE;
+    }
+
+    public boolean isUnlockPlayQueue() {
+        return kind == UNLOCK_FOR_PLAY_QUEUE;
     }
 
     @Override

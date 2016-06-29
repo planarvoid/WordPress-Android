@@ -73,6 +73,7 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         );
         trackItem = TrackItem.from(propertySet);
 
+        when(trackItemViewFactory.getPrimaryTitleColor()).thenReturn(R.color.list_primary);
         when(trackItemView.getImage()).thenReturn(imageView);
         when(trackItemView.getContext()).thenReturn(context());
         when(trackItemView.getResources()).thenReturn(resources());

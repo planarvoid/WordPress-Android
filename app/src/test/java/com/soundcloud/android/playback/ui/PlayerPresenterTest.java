@@ -8,6 +8,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
@@ -26,11 +28,15 @@ import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
+import com.soundcloud.android.events.PlayerUICommand;
+import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
+import com.soundcloud.android.playback.playqueue.PlayQueueFragmentFactory;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -45,8 +51,12 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
+import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -70,6 +80,10 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     @Mock private PlayerTrackPager viewPager;
     @Mock private PlayerPagerScrollListener playerPagerScrollListener;
     @Mock private PlayerFragment fragment;
+    @Mock private FragmentManager fragmentManager;
+    @Mock private PlayQueueFragment playQueueFragment;
+    @Mock private FragmentTransaction fragmentTransaction;
+    @Mock private PlayQueueFragmentFactory playQueueFragmentFactory;
     @Captor private ArgumentCaptor<List<PlayQueueItem>> playQueueItemsCaptor;
 
     private PlayerPresenter controller;
@@ -82,12 +96,14 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
+        setUpFragment();
         controller = new PlayerPresenter(playerPagerPresenter,
                                          eventBus,
                                          playQueueManager,
                                          playSessionController,
                                          playerPagerScrollListener,
-                                         adsOperations);
+                                         adsOperations,
+                                         playQueueFragmentFactory);
         when(playQueueManager.getPlayQueueItems(any(Predicate.class))).thenReturn(fullPlayQueue);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TRACK_PLAY_QUEUE_ITEM);
         when(playerPagerPresenter.getCurrentPlayQueue()).thenReturn(fullPlayQueue);
@@ -95,7 +111,21 @@ public class PlayerPresenterTest extends AndroidUnitTest {
         when(container.getResources()).thenReturn(resources());
         when(viewPager.getContext()).thenReturn(context());
         when(playerPagerScrollListener.getPageChangedObservable()).thenReturn(scrollStateObservable);
+        controller.onCreate(fragment, null);
         controller.onViewCreated(fragment, container, null);
+    }
+
+    private void setUpFragment() {
+        when(playQueueFragmentFactory.create()).thenReturn(playQueueFragment);
+        when(fragmentTransaction.add(eq(R.id.player_pager_holder), isA(Fragment.class), isA(String.class)))
+                .thenReturn(fragmentTransaction);
+        when(fragmentTransaction.setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out))
+                .thenReturn(fragmentTransaction);
+        when(fragmentTransaction.remove(any(Fragment.class)))
+                .thenReturn(fragmentTransaction);
+        when(fragmentManager.beginTransaction()).thenReturn(fragmentTransaction);
+        when(fragmentManager.findFragmentByTag(PlayQueueFragment.TAG)).thenReturn(null);
+        when(fragment.getFragmentManager()).thenReturn(fragmentManager);
     }
 
     @Test
@@ -384,6 +414,30 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
         verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(fullPlayQueue, 1);
         verify(viewPager, times(2)).setCurrentItem(1, false);
+    }
+
+    @Test
+    public void displayPlayQueue() {
+        TestSubscriber subscriber = TestSubscriber.create();
+        eventBus.subscribe(EventQueue.PLAYER_COMMAND, subscriber);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueDisplayed());
+
+        verify(fragmentManager, times(1)).beginTransaction();
+        verify(fragmentTransaction, times(1)).add(any(Integer.class), any(Fragment.class), eq(PlayQueueFragment.TAG));
+        subscriber.assertValue(PlayerUICommand.lockPlayQueue());
+    }
+
+    @Test
+    public void hidePlayQueue() {
+        TestSubscriber subscriber = TestSubscriber.create();
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueDisplayed());
+        eventBus.subscribe(EventQueue.PLAYER_COMMAND, subscriber);
+        when(fragmentManager.findFragmentByTag(PlayQueueFragment.TAG)).thenReturn(playQueueFragment);
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueHidden());
+
+        verify(fragmentManager, times(2)).beginTransaction();
+        verify(fragmentTransaction, times(1)).remove(any(Fragment.class));
+        subscriber.assertValue(PlayerUICommand.unlockPlayQueue());
     }
 
     private void setupPositionsForAd(int pagerPosition) {
