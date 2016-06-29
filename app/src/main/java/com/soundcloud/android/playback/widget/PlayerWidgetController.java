@@ -16,7 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -128,9 +128,9 @@ public class PlayerWidgetController {
         }
     }
 
-    private class PlaybackStateSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
+    private class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
         @Override
-        public void onNext(PlaybackStateTransition state) {
+        public void onNext(PlayStateEvent state) {
             presenter.updatePlayState(context, state.playSessionIsActive());
         }
     }

@@ -13,7 +13,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.rx.RxUtils;
@@ -96,9 +96,9 @@ public class AdsController {
         }
     };
 
-    private final Func1<PlaybackStateTransition, Boolean> isBufferingAd = new Func1<PlaybackStateTransition, Boolean>() {
+    private final Func1<PlayStateEvent, Boolean> isBufferingAd = new Func1<PlayStateEvent, Boolean>() {
         @Override
-        public Boolean call(PlaybackStateTransition state) {
+        public Boolean call(PlayStateEvent state) {
             return state.isBuffering() && adsOperations.isCurrentItemAd();
         }
     };
@@ -110,12 +110,12 @@ public class AdsController {
         }
     };
 
-    private final Action1<PlaybackStateTransition> unsubscribeFailedAdSkip = new Action1<PlaybackStateTransition>() {
+    private final Action1<PlayStateEvent> unsubscribeFailedAdSkip = new Action1<PlayStateEvent>() {
         @Override
-        public void call(PlaybackStateTransition stateTransition) {
-            if (stateTransition.isPlayerPlaying() || stateTransition.isPaused()) {
+        public void call(PlayStateEvent playStateEvent) {
+            if (playStateEvent.isPlayerPlaying() || playStateEvent.isPaused()) {
                 skipFailedAdSubscription.unsubscribe();
-            } else if (stateTransition.wasError() && adsOperations.isCurrentItemAd()) {
+            } else if (playStateEvent.getTransition().wasError() && adsOperations.isCurrentItemAd()) {
                 skipFailedAdSubscription.unsubscribe();
                 playQueueManager.autoMoveToNextPlayableItem();
             }
@@ -231,8 +231,8 @@ public class AdsController {
         return Urn.NOT_SET;
     }
 
-    public void onPlayStateTransition(PlaybackStateTransition stateTransition) {
-        if (adsOperations.isCurrentItemAudioAd() && stateTransition.playbackEnded()) {
+    public void onPlayStateChanged(PlayStateEvent playStateEvent) {
+        if (adsOperations.isCurrentItemAudioAd() && playStateEvent.playbackEnded()) {
             final Optional<AdData> monetizableAdData = adsOperations.getNextTrackAdData();
             if (monetizableAdData.isPresent() && monetizableAdData.get() instanceof OverlayAdData) {
                 ((OverlayAdData) monetizableAdData.get()).setMetaAdCompleted();
@@ -337,9 +337,9 @@ public class AdsController {
         }
     }
 
-    private final class SkipFailedAdSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
+    private final class SkipFailedAdSubscriber extends DefaultSubscriber<PlayStateEvent> {
         @Override
-        public void onNext(final PlaybackStateTransition state) {
+        public void onNext(final PlayStateEvent state) {
             skipFailedAdSubscription.unsubscribe();
             skipFailedAdSubscription = Observable.timer(FAILED_AD_WAIT_SECS, TimeUnit.SECONDS, scheduler)
                                                  .subscribe(new DefaultSubscriber<Long>() {
@@ -348,7 +348,7 @@ public class AdsController {
                                                          Log.i(ADS_TAG,
                                                                "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
                                                          final AdFailedToBufferEvent event =
-                                                                 new AdFailedToBufferEvent(state.getUrn(),
+                                                                 new AdFailedToBufferEvent(state.getPlayingItemUrn(),
                                                                                            state.getProgress(),
                                                                                            FAILED_AD_WAIT_SECS);
                                                          eventBus.publish(EventQueue.TRACKING, event);

@@ -6,12 +6,12 @@ public interface PlaybackAnalyticsDispatcher {
 
     void onProgressEvent(PlaybackProgressEvent progressEvent);
 
-    void onPlayTransition(PlaybackStateTransition transition, boolean isNewItem);
+    void onPlayTransition(PlayStateEvent playStateEvent, boolean isNewItem);
 
-    void onStopTransition(PlaybackStateTransition transition, boolean isNewItem);
+    void onStopTransition(PlayStateEvent playStateEvent, boolean isNewItem);
 
-    void onSkipTransition(PlaybackStateTransition transition);
+    void onSkipTransition(PlayStateEvent playStateEvent);
 
-    void onProgressCheckpoint(PlaybackStateTransition previousTransition, PlaybackProgressEvent progressEvent);
+    void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent, PlaybackProgressEvent progressEvent);
 
 }

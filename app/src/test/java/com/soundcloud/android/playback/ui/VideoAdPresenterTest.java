@@ -15,12 +15,10 @@ import com.soundcloud.android.ads.ApiVideoSource;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.data.Offset;
@@ -112,7 +110,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void videoViewShouldBeVisibleAndLoadingIndicatorGoneAfterPlaybackStarts() {
         bindLetterboxVideo(true);
 
-        presenter.setPlayState(adView, createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
+        presenter.setPlayState(adView, TestPlayStates.playing(), true, true);
         assertThat(adView.findViewById(R.id.video_view)).isVisible();
         assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
     }
@@ -121,11 +119,8 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void loadingIndicatorAndVideoViewAreVisibleOnPlaybackBuffering() {
         bindLetterboxVideo(true);
 
-        presenter.setPlayState(adView, createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
-        presenter.setPlayState(adView,
-                               createStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE),
-                               true,
-                               true);
+        presenter.setPlayState(adView, TestPlayStates.playing(), true, true);
+        presenter.setPlayState(adView, TestPlayStates.buffering(), true, true);
 
         assertThat(adView.findViewById(R.id.video_view)).isVisible();
         assertThat(adView.findViewById(R.id.video_progress)).isVisible();
@@ -135,7 +130,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     public void loadingIndicatorIsntVisibleWhenPlaybackPaused() {
         bindLetterboxVideo(true);
 
-        presenter.setPlayState(adView, createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
+        presenter.setPlayState(adView, TestPlayStates.idle(), true, true);
 
         assertThat(adView.findViewById(R.id.video_progress)).isNotVisible();
     }
@@ -197,8 +192,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void fadingViewsAreInvisibleAfterPlaybackStarts() {
-        presenter.setPlayState(adView,
-                               createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
+        presenter.setPlayState(adView, TestPlayStates.playing(), true, true);
 
         for (View view : fadingViews()) {
             assertThat(view).isInvisible();
@@ -207,8 +201,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void fadingViewsAreNotInvisibleAfterPlaybackStartsForNonCurrentItem() {
-        presenter.setPlayState(adView,
-                               createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), false, true);
+        presenter.setPlayState(adView, TestPlayStates.playing(), false, true);
 
         for (View view : fadingViews()) {
             assertThat(view).isNotInvisible();
@@ -217,8 +210,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void fadingViewsAreVisibleOnPlaybackPause() {
-        presenter.setPlayState(adView,
-                               createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
+        presenter.setPlayState(adView, TestPlayStates.idle(), true, true);
 
         for (View view : fadingViews()) {
             assertThat(view).isVisible();
@@ -227,10 +219,8 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void fadingViewsAreSetToInvisibleAfterPlayEventFromPause() {
-        presenter.setPlayState(adView,
-                               createStateTransition(PlaybackState.IDLE, PlayStateReason.NONE), true, true);
-        presenter.setPlayState(adView,
-                               createStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE), true, true);
+        presenter.setPlayState(adView, TestPlayStates.idle(), true, true);
+        presenter.setPlayState(adView, TestPlayStates.playing(), true, true);
 
         for (View view : fadingViews()) {
             assertThat(view).isInvisible();
@@ -378,10 +368,6 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
     private PlaybackProgress createProgress(TimeUnit timeUnit, int position, int duration) {
         return new PlaybackProgress(timeUnit.toMillis(position), timeUnit.toMillis(duration));
-    }
-
-    private PlaybackStateTransition createStateTransition(PlaybackState state, PlayStateReason reason) {
-        return new PlaybackStateTransition(state, reason, Urn.forTrack(123L));
     }
 
     private TextView timeUntilSkip() {

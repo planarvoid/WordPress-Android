@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
@@ -384,7 +385,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     public void onPlaystateChangeDoesThrowsNPEWithSuccessStateAndNoListener() {
         instantiateStreamPlaya();
         streamPlayerWrapper.setListener(null);
-        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
+        streamPlayerWrapper.onPlaystateChanged(TestPlayerTransitions.buffering());
     }
 
     @Test
@@ -392,7 +393,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
         instantiateStreamPlaya();
         streamPlayerWrapper.setListener(playerListener);
 
-        final PlaybackStateTransition transition = TestPlayStates.buffering();
+        final PlaybackStateTransition transition = TestPlayerTransitions.buffering();
         streamPlayerWrapper.onPlaystateChanged(transition);
         verify(playerListener).onPlaystateChanged(transition);
     }
@@ -464,7 +465,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void getStateReturnsLastState() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
+        streamPlayerWrapper.onPlaystateChanged(TestPlayerTransitions.buffering());
         assertThat(streamPlayerWrapper.getState()).isSameAs(PlaybackState.BUFFERING);
     }
 
@@ -477,7 +478,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void getLastStateTransitionReturnsLastTransition() {
         instantiateStreamPlaya();
-        final PlaybackStateTransition stateTransition = TestPlayStates.buffering();
+        final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
         assertThat(streamPlayerWrapper.getLastStateTransition()).isEqualTo(stateTransition);
     }
@@ -485,21 +486,21 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void isPlayingReturnsIsPlayingFromLastTransition() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
+        streamPlayerWrapper.onPlaystateChanged(TestPlayerTransitions.buffering());
         assertThat(streamPlayerWrapper.isPlaying()).isTrue();
     }
 
     @Test
     public void isPlayerPlayingReturnsIsPlayerPlayingFromLastTransition() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.playing());
+        streamPlayerWrapper.onPlaystateChanged(TestPlayerTransitions.playing());
         assertThat(streamPlayerWrapper.isPlaying()).isTrue();
     }
 
     @Test
     public void isBufferingReturnsIsPlayerPlayingFromLastTransition() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
+        streamPlayerWrapper.onPlaystateChanged(TestPlayerTransitions.buffering());
         assertThat(streamPlayerWrapper.isPlaying()).isTrue();
     }
 

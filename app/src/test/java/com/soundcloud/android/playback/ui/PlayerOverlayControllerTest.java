@@ -8,10 +8,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +22,7 @@ import android.view.View;
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerOverlayControllerTest {
 
-    public static final Urn TRACK_URN = Urn.forTrack(123L);
+    public static final Urn TRACK_URN = TestPlayStates.URN;
     private PlayerOverlayController controller;
 
     @Mock private OverlayAnimator overlayAnimator;
@@ -130,7 +128,7 @@ public class PlayerOverlayControllerTest {
     }
 
     private void setPlayingState() {
-        controller.setPlayState(new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+        controller.setPlayState(TestPlayStates.playing());
     }
 
     @Test
@@ -177,7 +175,7 @@ public class PlayerOverlayControllerTest {
     }
 
     private void setIdleState() {
-        controller.setPlayState(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN));
+        controller.setPlayState(TestPlayStates.idle());
     }
 
     @Test

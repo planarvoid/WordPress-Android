@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 
@@ -19,7 +20,7 @@ public interface PlayerPagePresenter<T extends PlayerItem> {
     void setProgress(View trackPage, PlaybackProgress progress);
 
     void setPlayState(View trackPage,
-                      PlaybackStateTransition stateTransition,
+                      PlayStateEvent playStateEvent,
                       boolean isCurrentTrack,
                       boolean isForeground);
 

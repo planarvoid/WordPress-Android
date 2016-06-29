@@ -2,7 +2,6 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -21,13 +20,14 @@ public class PlayQueueAdvancer {
     private final PlaySessionController playSessionController;
     private final AdsController adsController;
 
-    private final Func1<PlaybackStateTransition, Boolean> shouldAdvanceItems = new Func1<PlaybackStateTransition, Boolean>() {
+    private final Func1<PlayStateEvent, Boolean> shouldAdvanceItems = new Func1<PlayStateEvent, Boolean>() {
         @Override
-        public Boolean call(PlaybackStateTransition stateTransition) {
-            return playQueueManager.isCurrentItem(stateTransition.getUrn())
-                    && stateTransition.isPlayerIdle()
-                    && !stateTransition.isPlayQueueComplete()
-                    && (stateTransition.playbackEnded() || unrecoverableErrorDuringAutoplay(stateTransition));
+        public Boolean call(PlayStateEvent playStateEvent) {
+            return playQueueManager.isCurrentItem(playStateEvent.getPlayingItemUrn())
+                    && playStateEvent.isPlayerIdle()
+                    && !playStateEvent.isPlayQueueComplete()
+                    && (playStateEvent.playbackEnded()
+                    || unrecoverableErrorDuringAutoplay(playStateEvent.getTransition()));
         }
     };
 
@@ -67,20 +67,16 @@ public class PlayQueueAdvancer {
                 && connectionHelper.isNetworkConnected();
     }
 
-    private class AdvanceTrackSubscriber extends DefaultSubscriber<PlaybackStateTransition> {
+    private class AdvanceTrackSubscriber extends DefaultSubscriber<PlayStateEvent> {
         @Override
-        public void onNext(PlaybackStateTransition stateTransition) {
+        public void onNext(PlayStateEvent playStateEvent) {
             if (!playQueueManager.autoMoveToNextPlayableItem()) {
                 eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                                 createPlayQueueCompleteEvent(stateTransition.getUrn()));
-            } else if (!stateTransition.playSessionIsActive()) {
+                                 PlayStateEvent.createPlayQueueCompleteEvent(playStateEvent));
+            } else if (!playStateEvent.playSessionIsActive()) {
                 playSessionController.playCurrent();
             }
         }
-    }
-
-    private PlaybackStateTransition createPlayQueueCompleteEvent(Urn trackUrn) {
-        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAY_QUEUE_COMPLETE, trackUrn);
     }
 
 }

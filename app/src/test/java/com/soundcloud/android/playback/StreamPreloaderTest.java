@@ -15,6 +15,7 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
@@ -71,8 +72,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         final long duration = position + StreamPreloader.MOBILE_TIME_TOLERANCE - 1;
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                          PlaybackProgressEvent.create(new PlaybackProgress(position, duration), Urn.NOT_SET));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 
         verify(serviceInitiator).preload(preloadItem);
@@ -134,8 +134,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
 
         firePlayQueueItemChanged();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.WIFI);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                          PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
@@ -149,8 +148,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         setupValidSpaceRemaining();
 
         firePlayQueueItemChanged();
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.UNKNOWN);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                          PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));
@@ -168,8 +166,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
         final long duration = position + StreamPreloader.MOBILE_TIME_TOLERANCE;
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                          PlaybackProgressEvent.create(new PlaybackProgress(position, duration), Urn.NOT_SET));
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.TWO_G);
 
         verify(serviceInitiator, never()).preload(any(PreloadItem.class));
@@ -190,8 +187,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     }
 
     private void publishValidPlaybackConditions() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, Urn.NOT_SET));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         eventBus.publish(EventQueue.NETWORK_CONNECTION_CHANGED, ConnectionType.WIFI);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
                          PlaybackProgressEvent.create(PlaybackProgress.empty(), Urn.NOT_SET));

@@ -14,6 +14,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -287,34 +288,34 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     @Override
     public void setPlayState(View trackPage,
-                             PlaybackStateTransition stateTransition,
+                             PlayStateEvent playStateEvent,
                              boolean isCurrentTrack,
                              boolean isForeground) {
         final TrackPageHolder holder = getViewHolder(trackPage);
-        final boolean playSessionIsActive = stateTransition.playSessionIsActive();
+        final boolean playSessionIsActive = playStateEvent.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
         holder.footerPlayToggle.setChecked(playSessionIsActive);
-        setWaveformPlayState(holder, stateTransition, isCurrentTrack);
-        setViewPlayState(holder, stateTransition, isCurrentTrack);
+        setWaveformPlayState(holder, playStateEvent, isCurrentTrack);
+        setViewPlayState(holder, playStateEvent, isCurrentTrack);
 
-        holder.timestamp.setBufferingMode(isCurrentTrack && stateTransition.isBuffering());
+        holder.timestamp.setBufferingMode(isCurrentTrack && playStateEvent.isBuffering());
 
-        if (stateTransition.playSessionIsActive() && !isCurrentTrack) {
+        if (playStateEvent.playSessionIsActive() && !isCurrentTrack) {
             for (ProgressAware view : getViewHolder(trackPage).progressAwareViews) {
                 view.clearProgress();
             }
         }
-        configureAdOverlay(stateTransition, isCurrentTrack, isForeground, holder);
+        configureAdOverlay(playStateEvent, isCurrentTrack, isForeground, holder);
     }
 
-    private void configureAdOverlay(PlaybackStateTransition stateTransition,
+    private void configureAdOverlay(PlayStateEvent playStateEvent,
                                     boolean isCurrentTrack,
                                     boolean isForeground,
                                     TrackPageHolder holder) {
         if (isCurrentTrack) {
-            if (stateTransition.isPlayerPlaying() && isForeground) {
+            if (playStateEvent.isPlayerPlaying() && isForeground) {
                 holder.adOverlayController.show(true);
-            } else if (stateTransition.isPaused() || stateTransition.wasError()) {
+            } else if (playStateEvent.isPaused() || playStateEvent.getTransition().wasError()) {
                 clearAdOverlay(holder);
             }
         }
@@ -387,7 +388,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void setWaveformPlayState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
+    private void setWaveformPlayState(TrackPageHolder holder, PlayStateEvent state, boolean isCurrentTrack) {
         if (isCurrentTrack && state.playSessionIsActive()) {
             if (state.isPlayerPlaying()) {
                 holder.waveformController.showPlayingState(state.getProgress());
@@ -399,7 +400,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         }
     }
 
-    private void setViewPlayState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
+    private void setViewPlayState(TrackPageHolder holder, PlayStateEvent state, boolean isCurrentTrack) {
         updateErrorState(holder, state, isCurrentTrack);
         holder.artworkController.setPlayState(state, isCurrentTrack);
 
@@ -410,9 +411,10 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setTextBackgrounds(holder, state.playSessionIsActive());
     }
 
-    private void updateErrorState(TrackPageHolder holder, PlaybackStateTransition state, boolean isCurrentTrack) {
-        if (isCurrentTrack && state.wasError()) {
-            holder.errorViewController.showError(getErrorStateFromPlayerState(state));
+    private void updateErrorState(TrackPageHolder holder, PlayStateEvent state, boolean isCurrentTrack) {
+        final PlaybackStateTransition transition = state.getTransition();
+        if (isCurrentTrack && transition.wasError()) {
+            holder.errorViewController.showError(getErrorStateFromPlayerState(transition));
         } else {
             holder.errorViewController.hideNonBlockedErrors();
         }

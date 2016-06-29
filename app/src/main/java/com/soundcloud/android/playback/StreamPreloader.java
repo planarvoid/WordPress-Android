@@ -62,12 +62,12 @@ public class StreamPreloader {
         }
     };
 
-    private final Func3<PlaybackStateTransition, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState> toPlaybackNetworkState = new Func3<PlaybackStateTransition, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState>() {
+    private final Func3<PlayStateEvent, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState> toPlaybackNetworkState = new Func3<PlayStateEvent, ConnectionType, PlaybackProgressEvent, PlaybackNetworkState>() {
         @Override
-        public PlaybackNetworkState call(PlaybackStateTransition stateTransition,
+        public PlaybackNetworkState call(PlayStateEvent playStateEvent,
                                          ConnectionType connectionType,
                                          PlaybackProgressEvent playbackProgressEvent) {
-            return new PlaybackNetworkState(stateTransition,
+            return new PlaybackNetworkState(playStateEvent,
                                             playbackProgressEvent.getPlaybackProgress(),
                                             connectionType);
         }
@@ -76,7 +76,7 @@ public class StreamPreloader {
     private final Func1<PlaybackNetworkState, Boolean> checkNetworkAndProgressConditions = new Func1<PlaybackNetworkState, Boolean>() {
         @Override
         public Boolean call(PlaybackNetworkState playbackNetworkState) {
-            if (playbackNetworkState.playerState.isPlayerPlaying()) {
+            if (playbackNetworkState.playStateEvent.isPlayerPlaying()) {
                 if (playbackNetworkState.connectionType == ConnectionType.WIFI) {
                     return true;
                 } else {
@@ -172,14 +172,14 @@ public class StreamPreloader {
 
     private static class PlaybackNetworkState {
         private final PlaybackProgress playbackProgress;
-        private final PlaybackStateTransition playerState;
+        private final PlayStateEvent playStateEvent;
         private final ConnectionType connectionType;
 
-        private PlaybackNetworkState(PlaybackStateTransition playerState,
+        private PlaybackNetworkState(PlayStateEvent playStateEvent,
                                      PlaybackProgress playbackProgress,
                                      ConnectionType connectionType) {
             this.playbackProgress = playbackProgress;
-            this.playerState = playerState;
+            this.playStateEvent = playStateEvent;
             this.connectionType = connectionType;
         }
 
@@ -187,7 +187,7 @@ public class StreamPreloader {
         public String toString() {
             return "PlaybackNetworkState{" +
                     "playbackProgress=" + playbackProgress +
-                    ", playerState=" + playerState +
+                    ", playStateEvent=" + playStateEvent +
                     ", connectionType=" + connectionType +
                     '}';
         }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -107,7 +108,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
                                                                          PlayStateReason.NONE,
                                                                          adTrackUrn);
 
-        dispatcher.onPlayTransition(transition, true);
+        dispatcher.onPlayTransition(wrap(transition), true);
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
         AdPlaybackSessionEvent adEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -126,9 +127,9 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
                                                                    PlayStateReason.NONE,
                                                                    Urn.forTrack(123L));
 
-        dispatcher.onPlayTransition(start, true);
-        dispatcher.onStopTransition(stop, false);
-        dispatcher.onPlayTransition(start, false);
+        dispatcher.onPlayTransition(wrap(start), true);
+        dispatcher.onStopTransition(wrap(stop), false);
+        dispatcher.onPlayTransition(wrap(start), false);
 
         final List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         final AdPlaybackSessionEvent first = (AdPlaybackSessionEvent) events.get(0);
@@ -202,7 +203,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
         final PlaybackStateTransition transition = playTransition();
-        dispatcher.onProgressCheckpoint(transition,
+        dispatcher.onProgressCheckpoint(wrap(transition),
                                         PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
                                                                      transition.getUrn()));
 
@@ -220,7 +221,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         final PlaybackStateTransition transition = playTransition();
         stopTransition(PlaybackState.IDLE, PlayStateReason.NONE);
-        dispatcher.onProgressCheckpoint(transition,
+        dispatcher.onProgressCheckpoint(wrap(transition),
                                         PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000),
                                                                      transition.getUrn()));
 
@@ -236,7 +237,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
 
         final PlaybackStateTransition transition = playTransition();
-        dispatcher.onProgressCheckpoint(transition,
+        dispatcher.onProgressCheckpoint(wrap(transition),
                                         PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000),
                                                                      Urn.forTrack(101L)));
 
@@ -263,7 +264,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition startEvent = new PlaybackStateTransition(
                 PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, PROGRESS, DURATION);
 
-        dispatcher.onPlayTransition(withExtras(startEvent), true);
+        dispatcher.onPlayTransition(wrap(withExtras(startEvent)), true);
 
         return startEvent;
     }
@@ -272,7 +273,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition skipEvent = new PlaybackStateTransition(
                 PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, PROGRESS, DURATION);
 
-        dispatcher.onSkipTransition(withExtras(skipEvent));
+        dispatcher.onSkipTransition(wrap(withExtras(skipEvent)));
 
         return skipEvent;
     }
@@ -282,7 +283,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
         stopEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
 
-        dispatcher.onStopTransition(withExtras(stopEvent), false);
+        dispatcher.onStopTransition(wrap(withExtras(stopEvent)), false);
 
         return stopEvent;
     }
@@ -293,7 +294,7 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         stopEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
         when(stopReasonProvider.fromTransition(stopEvent)).thenReturn(stopReason);
 
-        dispatcher.onStopTransition(withExtras(stopEvent), false);
+        dispatcher.onStopTransition(wrap(withExtras(stopEvent)), false);
 
         return stopEvent;
     }

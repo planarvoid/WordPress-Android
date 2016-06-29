@@ -15,16 +15,24 @@ public class PlaybackProgress {
         return new PlaybackProgress(0, 0);
     }
 
-    @VisibleForTesting
-    public PlaybackProgress(long position, long duration, DateProvider dateProvider) {
-        this.position = position;
-        this.duration = duration;
-        this.dateProvider = dateProvider;
-        this.createdAt = dateProvider.getCurrentTime();
+    public static PlaybackProgress withDuration(PlaybackProgress progress, long duration) {
+        return new PlaybackProgress(progress.getPosition(), duration, progress.getCreatedAt(), new SystemClockDateProvider());
     }
 
     public PlaybackProgress(long position, long duration) {
         this(position, duration, new SystemClockDateProvider());
+    }
+
+    @VisibleForTesting
+    public PlaybackProgress(long position, long duration, DateProvider dateProvider) {
+        this(position, duration, dateProvider.getCurrentTime(), dateProvider);
+    }
+
+    private PlaybackProgress(long position, long duration, long createdAt, DateProvider dateProvider) {
+        this.position = position;
+        this.duration = duration;
+        this.createdAt = createdAt;
+        this.dateProvider = dateProvider;
     }
 
     public boolean isEmpty() {

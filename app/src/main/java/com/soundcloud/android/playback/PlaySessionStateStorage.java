@@ -14,7 +14,7 @@ public class PlaySessionStateStorage {
     private final SharedPreferences sharedPreferences;
 
     enum Keys {
-        PROGRESS, ITEM
+        PROGRESS, ITEM, PLAY_ID
     }
 
     @Inject
@@ -22,9 +22,10 @@ public class PlaySessionStateStorage {
         this.sharedPreferences = sharedPreferences;
     }
 
-    void savePlayInfo(Urn currentUrn) {
+    void savePlayInfo(Urn currentUrn, String playId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Keys.ITEM.name(), currentUrn.toString());
+        editor.putString(Keys.PLAY_ID.name(), playId);
         editor.apply();
     }
 
@@ -41,5 +42,9 @@ public class PlaySessionStateStorage {
     Urn getLastPlayingItem() {
         return sharedPreferences.contains(Keys.ITEM.name()) ?
                new Urn(sharedPreferences.getString(Keys.ITEM.name(), Strings.EMPTY)) : Urn.NOT_SET;
+    }
+
+    String getLastPlayId() {
+        return sharedPreferences.getString(Keys.PLAY_ID.name(), Strings.EMPTY);
     }
 }

@@ -9,11 +9,9 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,9 +19,8 @@ import org.mockito.Mock;
 import rx.schedulers.Schedulers;
 
 public class StationsControllerTest extends AndroidUnitTest {
-    private static final long TRACK_ID = 123L;
-    private static final Urn TRACK_URN = Urn.forTrack(TRACK_ID);
-    private static final Urn STATION = Urn.forTrackStation(TRACK_ID);
+    private static final Urn TRACK_URN = TestPlayStates.URN;
+    private static final Urn STATION = Urn.forTrackStation(TRACK_URN.getNumericId());
 
     @Mock StationsOperations operations;
     private TestEventBus eventBus = new TestEventBus();
@@ -44,8 +41,7 @@ public class StationsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldSaveCurrentTrackPositionWhenPlayingAStation() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
                                                                        STATION,
@@ -55,8 +51,7 @@ public class StationsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldPublisEventWhenPlayingAStation() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
                                                                        STATION,
@@ -69,8 +64,7 @@ public class StationsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldNotSaveRecentlyPlayedStationsWhenStationNotPlaying() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
                                                                        STATION,
@@ -82,7 +76,7 @@ public class StationsControllerTest extends AndroidUnitTest {
     @Test
     public void shouldNotSaveRecentlyPlayedStationsWhenPlayingAPlaylist() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+                         TestPlayStates.playing());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
                                                                        Urn.forPlaylist(456L),
@@ -94,7 +88,7 @@ public class StationsControllerTest extends AndroidUnitTest {
     @Test
     public void shouldSaveStationAsRecentlyPlayedStationsWhenPlayingAStation() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+                         TestPlayStates.playing());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
                                                                        STATION,

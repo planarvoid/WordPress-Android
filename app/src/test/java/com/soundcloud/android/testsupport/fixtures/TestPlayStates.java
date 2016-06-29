@@ -1,62 +1,86 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackStateTransition;
-import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackState;
+import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.TestDateProvider;
+
+import android.support.annotation.NonNull;
 
 public class TestPlayStates {
 
-    public static final Urn URN = Urn.forTrack(123L);
+    public static final Urn URN = TestPlayerTransitions.URN;
+    private static final String PLAY_ID = "play-id";
+    private static final boolean IS_FIRST_PLAY = false;
+    private static final int API_DURATION = 456;
 
-    public static PlaybackStateTransition playing() {
-        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, URN);
+    public static PlayStateEvent playing() {
+        return wrap(TestPlayerTransitions.playing());
     }
 
-    public static PlaybackStateTransition playing(long position, long duration) {
-        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, URN, position, duration);
+    public static PlayStateEvent playing(Urn urn) {
+        return wrap(TestPlayerTransitions.playing(urn));
     }
 
-    public static PlaybackStateTransition playing(long position, long duration, CurrentDateProvider dateProvider) {
-        return new PlaybackStateTransition(PlaybackState.PLAYING,
-                                           PlayStateReason.NONE,
-                                           URN,
-                                           position,
-                                           duration,
-                                           dateProvider);
+    public static PlayStateEvent playing(long position, long duration) {
+        return playing(URN, position, duration);
     }
 
-    public static PlaybackStateTransition idle() {
-        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, URN);
+    public static PlayStateEvent playing(Urn urn, long position, long duration) {
+        return wrap(TestPlayerTransitions.playing(urn, position, duration));
     }
 
-    public static PlaybackStateTransition idle(long position, long duration) {
-        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, URN, position, duration);
+
+    public static PlayStateEvent playing(Urn urn, int position, int duration, DateProvider dateProvider) {
+        return wrap(TestPlayerTransitions.playing(urn, position, duration, dateProvider));
     }
 
-    public static PlaybackStateTransition idleDefault() {
-        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, Urn.NOT_SET);
+    public static PlayStateEvent playing(long position, long duration, CurrentDateProvider dateProvider) {
+        return wrap(TestPlayerTransitions.playing(position, duration, dateProvider));
     }
 
-    public static PlaybackStateTransition complete() {
-        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, URN);
+    public static PlayStateEvent idle() {
+        return wrap(TestPlayerTransitions.idle());
     }
 
-    public static PlaybackStateTransition buffering() {
-        return new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN);
+    public static PlayStateEvent idle(long position, long duration) {
+        return wrap(TestPlayerTransitions.idle(position, duration));
     }
 
-    public static PlaybackStateTransition buffering(TestDateProvider dateProvider) {
-        return new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, 0, 0, dateProvider);
+    public static PlayStateEvent complete() {
+        return complete(URN);
     }
 
-    public static PlaybackStateTransition buffering(long position, long duration) {
-        return new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, position, duration);
+    public static PlayStateEvent complete(Urn urn) {
+        return wrap(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, urn));
     }
 
-    public static PlaybackStateTransition error(PlayStateReason reason) {
-        return new PlaybackStateTransition(PlaybackState.IDLE, reason, URN);
+    public static PlayStateEvent playQueueComplete() {
+        return PlayStateEvent.createPlayQueueCompleteEvent(complete());
+    }
+
+    public static PlayStateEvent buffering() {
+        return wrap(TestPlayerTransitions.buffering());
+    }
+
+    public static PlayStateEvent buffering(TestDateProvider dateProvider) {
+        return wrap(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, 0, 0, dateProvider));
+    }
+
+    public static PlayStateEvent buffering(long position, long duration) {
+        return wrap(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN, position, duration));
+    }
+
+    public static PlayStateEvent error(PlayStateReason reason) {
+        return wrap(new PlaybackStateTransition(PlaybackState.IDLE, reason, URN));
+    }
+
+    @NonNull
+    public static PlayStateEvent wrap(PlaybackStateTransition transition) {
+        return PlayStateEvent.create(transition, API_DURATION, IS_FIRST_PLAY, PLAY_ID);
     }
 }

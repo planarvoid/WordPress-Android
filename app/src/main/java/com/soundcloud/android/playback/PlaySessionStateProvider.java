@@ -18,7 +18,7 @@ public class PlaySessionStateProvider {
     private final PlaySessionStateStorage playSessionStateStorage;
 
     private PlaybackProgress lastProgress = PlaybackProgress.empty();
-    private PlaybackStateTransition lastStateTransition = PlaybackStateTransition.DEFAULT;
+    private PlayStateEvent lastStateEvent = PlayStateEvent.DEFAULT;
     private Urn currentPlayingUrn = Urn.NOT_SET; // the urn of the item that is currently loaded in the playback service
 
     @Inject
@@ -26,20 +26,19 @@ public class PlaySessionStateProvider {
         this.playSessionStateStorage = playSessionStateStorage;
     }
 
-    void onPlayStateTransition(PlaybackStateTransition stateTransition) {
-        if (!PlaybackStateTransition.DEFAULT.equals(stateTransition)) {
-            final boolean isItemChange = !playSessionStateStorage.getLastPlayingItem().equals(stateTransition.getUrn());
-            currentPlayingUrn = stateTransition.getUrn();
-            lastStateTransition = stateTransition;
-            lastProgress = stateTransition.getProgress();
+    void onPlayStateTransition(PlayStateEvent playStateEvent) {
+        if (!PlayStateEvent.DEFAULT.equals(playStateEvent)) {
+            final boolean isItemChange = !playSessionStateStorage.getLastPlayingItem().equals(playStateEvent.getPlayingItemUrn());
+            currentPlayingUrn = playStateEvent.getPlayingItemUrn();
+            lastStateEvent = playStateEvent;
+            lastProgress = playStateEvent.getProgress();
 
-            if (playingNewItemFromBeginning(stateTransition,
-                                            isItemChange) || playbackStoppedMidSession(stateTransition)) {
+            if (playingNewItemFromBeginning(playStateEvent, isItemChange) || playStateEvent.getTransition().isPlayerIdle()) {
                 playSessionStateStorage.saveProgress(getPositionIfPlayingTrack());
             }
 
             if (isItemChange) {
-                playSessionStateStorage.savePlayInfo(stateTransition.getUrn());
+                playSessionStateStorage.savePlayInfo(playStateEvent.getPlayingItemUrn(), playStateEvent.getPlayId());
             }
         }
     }
@@ -54,19 +53,15 @@ public class PlaySessionStateProvider {
         }
     }
 
-    private boolean playbackStoppedMidSession(PlaybackStateTransition stateTransition) {
-        return (stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete());
-    }
-
-    private boolean playingNewItemFromBeginning(PlaybackStateTransition stateTransition, boolean isItemChange) {
-        return isItemChange && !isCurrentlyPlaying(stateTransition.getUrn());
+    private boolean playingNewItemFromBeginning(PlayStateEvent playStateEvent, boolean isItemChange) {
+        return isItemChange && !isLastPlayed(playStateEvent.getPlayingItemUrn());
     }
 
     public PlaybackProgress getLastProgressForItem(Urn urn) {
         if (currentPlayingUrn.equals(urn) && lastProgress.isDurationValid()) {
             return lastProgress;
 
-        } else if (isCurrentlyPlaying(urn)) {
+        } else if (isLastPlayed(urn)) {
             return new PlaybackProgress(getLastSavedProgressPosition(), Consts.NOT_SET);
 
         } else {
@@ -74,20 +69,29 @@ public class PlaySessionStateProvider {
         }
     }
 
-    public boolean isCurrentlyPlaying(Urn urn) {
+    public boolean isLastPlayed(Urn urn) {
         return playSessionStateStorage.getLastPlayingItem().equals(urn);
     }
+
+    public boolean isCurrentlyPlaying(Urn urn) {
+        return currentPlayingUrn.equals(urn);
+    }
+
 
     public long getLastSavedProgressPosition() {
         return playSessionStateStorage.getLastStoredProgress();
     }
 
+    public String getCurrentPlayId() {
+        return playSessionStateStorage.getLastPlayId();
+    }
+
     public boolean isPlaying() {
-        return lastStateTransition.playSessionIsActive();
+        return lastStateEvent.getTransition().playSessionIsActive();
     }
 
     public boolean isInErrorState() {
-        return lastStateTransition.wasError();
+        return lastStateEvent.getTransition().wasError();
     }
 
     public PlaybackProgress getLastProgressEvent() {

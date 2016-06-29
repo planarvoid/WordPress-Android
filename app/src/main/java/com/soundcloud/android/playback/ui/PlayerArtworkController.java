@@ -6,6 +6,7 @@ import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_
 import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnWidthChangedListener;
 
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -62,7 +63,7 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         setProgress(PlaybackProgress.empty());
     }
 
-    public void setPlayState(PlaybackStateTransition state, boolean isCurrentTrack) {
+    public void setPlayState(PlayStateEvent state, boolean isCurrentTrack) {
         if (state.playSessionIsActive() && isCurrentTrack) {
             if (state.isPlayerPlaying()) {
                 showPlayingState(state.getProgress());

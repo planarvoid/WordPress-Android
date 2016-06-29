@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.objects.MoreObjects;
 
 import android.util.SparseArray;
@@ -45,7 +46,7 @@ public class PlaybackStateTransition {
                                    Urn itemUrn,
                                    long currentProgress,
                                    long duration,
-                                   CurrentDateProvider dateProvider) {
+                                   DateProvider dateProvider) {
         this(newState,
              reason,
              itemUrn,
@@ -63,7 +64,7 @@ public class PlaybackStateTransition {
                                    long duration,
                                    String format,
                                    int bitrate,
-                                   CurrentDateProvider dateProvider) {
+                                   DateProvider dateProvider) {
         this.newState = newState;
         this.reason = reason;
         this.itemUrn = itemUrn;
@@ -118,10 +119,6 @@ public class PlaybackStateTransition {
 
     public boolean isBuffering() {
         return newState.isBuffering();
-    }
-
-    public boolean isPlayQueueComplete() {
-        return reason == PlayStateReason.PLAY_QUEUE_COMPLETE;
     }
 
     public boolean playbackHasStopped() {

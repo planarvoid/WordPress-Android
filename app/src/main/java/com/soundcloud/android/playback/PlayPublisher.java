@@ -39,17 +39,17 @@ public class PlayPublisher {
     private final Scheduler scheduler;
     private final ApiClient apiClient;
 
-    private static final Func1<PlaybackStateTransition, Boolean> IS_PLAYER_PLAYING_A_TRACK =
-            new Func1<PlaybackStateTransition, Boolean>() {
+    private static final Func1<PlayStateEvent, Boolean> IS_PLAYER_PLAYING_A_TRACK =
+            new Func1<PlayStateEvent, Boolean>() {
                 @Override
-                public Boolean call(PlaybackStateTransition stateTransition) {
-                    return !stateTransition.getUrn().isAd() && stateTransition.isPlayerPlaying();
+                public Boolean call(PlayStateEvent playStateEvent) {
+                    return !playStateEvent.getPlayingItemUrn().isAd() && playStateEvent.isPlayerPlaying();
                 }
             };
 
-    private Func1<PlaybackStateTransition, Observable<ApiResponse>> toApiResponse = new Func1<PlaybackStateTransition, Observable<ApiResponse>>() {
+    private Func1<PlayStateEvent, Observable<ApiResponse>> toApiResponse = new Func1<PlayStateEvent, Observable<ApiResponse>>() {
         @Override
-        public Observable<ApiResponse> call(final PlaybackStateTransition stateTransition) {
+        public Observable<ApiResponse> call(final PlayStateEvent stateTransition) {
             return Observable
                     .defer(new Func0<Observable<ApiResponse>>() {
                         @Override
@@ -90,11 +90,11 @@ public class PlayPublisher {
     }
 
     @NonNull
-    private Payload createPayload(PlaybackStateTransition stateTransition) {
+    private Payload createPayload(PlayStateEvent playStateEvent) {
         return new Payload(resources.getString(R.string.gcm_gateway_id),
                            gcmStorage.getToken(),
                            dateProvider.getCurrentTime(),
-                           stateTransition.getUrn());
+                           playStateEvent.getPlayingItemUrn());
     }
 
     private static class ResponseLogger extends DefaultSubscriber<ApiResponse> {

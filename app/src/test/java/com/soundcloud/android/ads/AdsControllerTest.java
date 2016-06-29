@@ -1,8 +1,5 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.playback.PlaybackState;
-import com.soundcloud.android.playback.PlayStateReason;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -17,15 +14,17 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlayStateReason;
+import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
@@ -520,7 +519,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                                                                                     trackUrn,
                                                                                     12,
                                                                                     1200);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.wrap(stateTransition));
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
@@ -542,7 +541,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                                                                                     videoAdUrn,
                                                                                     12,
                                                                                     1200);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.wrap(stateTransition));
         assertThat(eventBus.eventsOn(EventQueue.TRACKING)).isEmpty();
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
@@ -629,7 +628,7 @@ public class AdsControllerTest extends AndroidUnitTest {
         final LeaveBehindAd monetizableAdData = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
         when(adsOperations.getNextTrackAdData()).thenReturn(Optional.<AdData>of(monetizableAdData));
 
-        adsController.onPlayStateTransition(TestPlayStates.complete());
+        adsController.onPlayStateChanged(TestPlayStates.complete());
 
         assertThat(monetizableAdData.isMetaAdCompleted()).isTrue();
     }

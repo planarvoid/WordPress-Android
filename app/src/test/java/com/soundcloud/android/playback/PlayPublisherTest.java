@@ -15,6 +15,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(new ApiResponse(null, 200, "body"));
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN));
+                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN)));
 
         verify(apiClient).fetchResponse(argThat(isPublicApiRequestTo("POST",
                                                                      "/tpub").withContent(new PlayPublisher.Payload(
@@ -65,7 +66,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
     @Test
     public void bufferingEventDoesNotCausePlayPublishApiRequest() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN));
+                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, TRACK_URN)));
 
         verify(apiClient, never()).fetchResponse(any(ApiRequest.class));
     }
@@ -73,7 +74,7 @@ public class PlayPublisherTest extends AndroidUnitTest {
     @Test
     public void idleEventDoesNotCausePlayPublishApiRequest() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
-                         new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN));
+                         TestPlayStates.wrap(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, TRACK_URN)));
 
         verify(apiClient, never()).fetchResponse(any(ApiRequest.class));
     }

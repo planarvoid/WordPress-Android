@@ -4,8 +4,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Iterables;
@@ -115,14 +115,14 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
 
     @Override
     public void setPlayState(View adView,
-                             PlaybackStateTransition stateTransition,
+                             PlayStateEvent playStateEvent,
                              boolean isCurrentTrack,
                              boolean isForeground) {
         final Holder holder = getViewHolder(adView);
-        final boolean playSessionIsActive = stateTransition.playSessionIsActive();
+        final boolean playSessionIsActive = playStateEvent.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
         holder.footerPlayToggle.setChecked(playSessionIsActive);
-        holder.playerOverlayController.setPlayState(stateTransition);
+        holder.playerOverlayController.setPlayState(playStateEvent);
     }
 
     @Override

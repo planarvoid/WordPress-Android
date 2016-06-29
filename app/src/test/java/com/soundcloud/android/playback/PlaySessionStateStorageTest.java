@@ -31,7 +31,7 @@ public class PlaySessionStateStorageTest extends AndroidUnitTest {
 
     @Test
     public void savePlayInfoStoresCurrentInfoInPrefs() {
-        storage.savePlayInfo(TRACK);
+        storage.savePlayInfo(TRACK, "play-id");
 
         assertThat(prefs.getString(ITEM.name(), Strings.EMPTY)).isEqualTo(TRACK.toString());
     }

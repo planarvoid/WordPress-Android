@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ViewUtils;
@@ -23,7 +23,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import javax.inject.Inject;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -199,35 +198,35 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
     @Override
     public void setPlayState(View adPage,
-                             PlaybackStateTransition stateTransition,
+                             PlayStateEvent playStateEvent,
                              boolean isCurrentItem,
                              boolean isForeground) {
         final Holder holder = getViewHolder(adPage);
-        holder.playControlsHolder.setVisibility(stateTransition.playSessionIsActive() ? View.GONE : View.VISIBLE);
-        holder.playerOverlayController.setPlayState(stateTransition);
-        setLoadingState(holder, stateTransition, isCurrentItem);
+        holder.playControlsHolder.setVisibility(playStateEvent.playSessionIsActive() ? View.GONE : View.VISIBLE);
+        holder.playerOverlayController.setPlayState(playStateEvent);
+        setLoadingState(holder, playStateEvent, isCurrentItem);
 
         if (isCurrentItem) {
-            if (holder.isUIState(UIState.INITIAL) && stateTransition.isPlayerPlaying()) {
+            if (holder.isUIState(UIState.INITIAL) && playStateEvent.isPlayerPlaying()) {
                 setInactiveUI(holder, adPage.getContext());
-            } else if (holder.isUIState(UIState.PAUSED) && stateTransition.playSessionIsActive()) {
+            } else if (holder.isUIState(UIState.PAUSED) && playStateEvent.playSessionIsActive()) {
                 setInactiveUI(holder, adPage.getContext());
-            } else if (!holder.isUIState(UIState.INITIAL) && !stateTransition.playSessionIsActive()) {
+            } else if (!holder.isUIState(UIState.INITIAL) && !playStateEvent.playSessionIsActive()) {
                 setPausedUI(holder);
             }
         }
     }
 
-    private void setLoadingState(Holder holder, PlaybackStateTransition stateTransition, boolean isCurrentItem) {
+    private void setLoadingState(Holder holder, PlayStateEvent playStateEvent, boolean isCurrentItem) {
         if (isCurrentItem) {
-            holder.videoProgress.setVisibility(stateTransition.isBuffering() && stateTransition.playSessionIsActive() ?
+            holder.videoProgress.setVisibility(playStateEvent.isBuffering() && playStateEvent.playSessionIsActive() ?
                                                View.VISIBLE :
                                                View.GONE);
-            if (stateTransition.isPlayerPlaying() && !isVideoSurfaceVisible(holder)) {
+            if (playStateEvent.isPlayerPlaying() && !isVideoSurfaceVisible(holder)) {
                 holder.videoSurfaceView.setVisibility(View.VISIBLE);
             }
         } else {
-            holder.videoProgress.setVisibility(stateTransition.playSessionIsActive() ? View.VISIBLE : View.GONE);
+            holder.videoProgress.setVisibility(playStateEvent.playSessionIsActive() ? View.VISIBLE : View.GONE);
         }
     }
 

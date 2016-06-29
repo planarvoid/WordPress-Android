@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.testsupport.fixtures.TestPlayStates.wrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +90,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
                 PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, PROGRESS, DURATION));
         startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, "file://some/local/uri");
 
-        dispatcher.onPlayTransition(startEvent, true);
+        dispatcher.onPlayTransition(wrap(startEvent), true);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(startEvent, playbackSessionEvent);
@@ -100,7 +101,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void stateChangeEventWithValidTrackUrnInPlayingStateDoesNotPublishTwoConsecutivePlayEvents() {
         PlaybackStateTransition playEvent = playTransition();
 
-        dispatcher.onPlayTransition(playEvent, false);
+        dispatcher.onPlayTransition(wrap(playEvent), false);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -200,7 +201,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void shouldPublishCheckpointEvent() {
         final PlaybackStateTransition transition = playTransition();
 
-        dispatcher.onProgressCheckpoint(transition,
+        dispatcher.onProgressCheckpoint(wrap(transition),
                                         PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
                                                                      transition.getUrn()));
 
@@ -216,7 +217,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition transition = playTransition();
         stopTransition(PlaybackState.IDLE, PlayStateReason.NONE, PlaybackSessionEvent.STOP_REASON_PAUSE);
 
-        dispatcher.onProgressCheckpoint(transition,
+        dispatcher.onProgressCheckpoint(wrap(transition),
                                         PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
                                                                      transition.getUrn()));
 
@@ -230,7 +231,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void shouldNotPublishCheckpointEventIfProgressEventIsNotForPlayingItem() {
         final PlaybackStateTransition transition = playTransition();
 
-        dispatcher.onProgressCheckpoint(transition,
+        dispatcher.onProgressCheckpoint(wrap(transition),
                                         PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
                                                                      Urn.forTrack(101L)));
 
@@ -244,7 +245,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     protected PlaybackStateTransition playTransitionForTrack(Urn trackUrn) {
         final PlaybackStateTransition startEvent = new PlaybackStateTransition(
                 PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, PROGRESS, DURATION);
-        dispatcher.onPlayTransition(addStateExtras(startEvent), true);
+        dispatcher.onPlayTransition(wrap(addStateExtras(startEvent)), true);
 
         return startEvent;
     }
@@ -253,7 +254,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition stopEvent = new PlaybackStateTransition(
                 newState, reason, TRACK_URN, PROGRESS, DURATION);
         when(stopReasonProvider.fromTransition(addStateExtras(stopEvent))).thenReturn(stopReason);
-        dispatcher.onStopTransition(stopEvent, false);
+        dispatcher.onStopTransition(wrap(stopEvent), false);
 
         return stopEvent;
     }
@@ -262,7 +263,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         final PlaybackStateTransition skipEvent = new PlaybackStateTransition(
                 PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, PROGRESS, DURATION);
 
-        dispatcher.onSkipTransition(addStateExtras(skipEvent));
+        dispatcher.onSkipTransition(wrap(addStateExtras(skipEvent)));
 
         return skipEvent;
     }

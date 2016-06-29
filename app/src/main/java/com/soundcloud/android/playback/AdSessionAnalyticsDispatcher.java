@@ -70,11 +70,11 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @Override
-    public void onProgressCheckpoint(PlaybackStateTransition previousTransition, PlaybackProgressEvent progressEvent) {
+    public void onProgressCheckpoint(PlayStateEvent previousPlayStateEvent, PlaybackProgressEvent progressEvent) {
         if (isCurrentlyPlayingAudioAd()) {
             trackObservable
                     .filter(shouldPublishCheckpoint(progressEvent))
-                    .map(toCheckpointEvent(previousTransition, progressEvent))
+                    .map(toCheckpointEvent(previousPlayStateEvent, progressEvent))
                     .subscribe(eventBus.queue(EventQueue.TRACKING));
         }
     }
@@ -85,27 +85,27 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @Override
-    public void onPlayTransition(PlaybackStateTransition transition, boolean isNewItem) {
-        loadTrackIfChanged(transition, isNewItem);
-        publishPlayEvent(transition);
+    public void onPlayTransition(PlayStateEvent playStateEvent, boolean isNewItem) {
+        loadTrackIfChanged(playStateEvent, isNewItem);
+        publishPlayEvent(playStateEvent);
     }
 
     @Override
-    public void onStopTransition(PlaybackStateTransition transition, boolean isNewItem) {
-        loadTrackIfChanged(transition, isNewItem);
-        publishStopEvent(transition, stopReasonProvider.fromTransition(transition));
+    public void onStopTransition(PlayStateEvent playStateEvent, boolean isNewItem) {
+        loadTrackIfChanged(playStateEvent, isNewItem);
+        publishStopEvent(playStateEvent, stopReasonProvider.fromTransition(playStateEvent.getTransition()));
     }
 
-    private void loadTrackIfChanged(PlaybackStateTransition transition, boolean isNewItem) {
+    private void loadTrackIfChanged(PlayStateEvent playStateEvent, boolean isNewItem) {
         if (isNewItem && isCurrentItemTrack()) {
             trackObservable = ReplaySubject.createWithSize(1);
-            trackRepository.track(transition.getUrn()).subscribe(trackObservable);
+            trackRepository.track(playStateEvent.getPlayingItemUrn()).subscribe(trackObservable);
         }
     }
 
     @Override
-    public void onSkipTransition(PlaybackStateTransition transition) {
-        publishStopEvent(transition, PlaybackSessionEvent.STOP_REASON_SKIP);
+    public void onSkipTransition(PlayStateEvent playStateEvent) {
+        publishStopEvent(playStateEvent, PlaybackSessionEvent.STOP_REASON_SKIP);
     }
 
     private void publishAdQuartileEvent(AdPlaybackSessionEvent adPlaybackSessionEvent) {
@@ -116,14 +116,14 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         return !adsOperations.isCurrentItemVideoAd();
     }
 
-    private void publishPlayEvent(final PlaybackStateTransition stateTransition) {
+    private void publishPlayEvent(final PlayStateEvent playStateEvent) {
         currentTrackSourceInfo = Optional.fromNullable(playQueueManager.getCurrentTrackSourceInfo());
         if (currentTrackSourceInfo.isPresent() && lastEventWasNotPlayEvent()) {
             if (adsOperations.isCurrentItemVideoAd()) {
                 publishVideoAdPlay();
             } else {
                 trackObservable
-                        .map(toAudioAdSessionPlayEvent(stateTransition))
+                        .map(toAudioAdSessionPlayEvent(playStateEvent))
                         .subscribe(eventBus.queue(EventQueue.TRACKING));
             }
         }
@@ -141,14 +141,14 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         };
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> toCheckpointEvent(final PlaybackStateTransition previousTransition,
+    private Func1<PropertySet, PlaybackSessionEvent> toCheckpointEvent(final PlayStateEvent playStateEvent,
                                                                        final PlaybackProgressEvent progressEvent) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet trackPropertySet) {
                 return PlaybackSessionEvent.forCheckpoint(buildEventArgs(trackPropertySet,
                                                                          progressEvent.getPlaybackProgress(),
-                                                                         previousTransition))
+                                                                         playStateEvent.getTransition()))
                                            .withAudioAd((AudioAd) lastPlayedAd.get());
             }
         };
@@ -166,12 +166,12 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                                                                        .isPlayEvent()) && !lastPlayedAd.isPresent();
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionPlayEvent(final PlaybackStateTransition stateTransition) {
+    private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionPlayEvent(final PlayStateEvent stateTransition) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
                 PlaybackSessionEvent playSessionEventData = PlaybackSessionEvent.forPlay(
-                        buildEventArgs(track, stateTransition));
+                        buildEventArgs(track, stateTransition.getTransition()));
                 lastPlayedAd = playQueueManager.getCurrentPlayQueueItem().getAdData();
                 final AudioAd audioAd = (AudioAd) lastPlayedAd.get();
                 playSessionEventData = playSessionEventData.withAudioAd(audioAd);
@@ -182,7 +182,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         };
     }
 
-    private void publishStopEvent(final PlaybackStateTransition stateTransition, final int stopReason) {
+    private void publishStopEvent(final PlayStateEvent playStateEvent, final int stopReason) {
         // note that we only want to publish a stop event if we have a corresponding play event. This value
         // will be nulled out after it is used, and we will not publish another stop event until a play event
         // creates a new value for lastSessionEventData
@@ -194,7 +194,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                                                 stopReason));
             } else {
                 trackObservable
-                        .map(toAudioAdSessionStopEvent(stopReason, stateTransition, lastAudioAdPlaySessionEvent.get()))
+                        .map(toAudioAdSessionStopEvent(stopReason, playStateEvent, lastAudioAdPlaySessionEvent.get()))
                         .subscribe(eventBus.queue(EventQueue.TRACKING));
             }
             lastAudioAdPlaySessionEvent = Optional.absent();
@@ -203,7 +203,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionStopEvent(final int stopReason,
-                                                                               final PlaybackStateTransition stateTransition,
+                                                                               final PlayStateEvent playStateEvent,
                                                                                final PlaybackSessionEvent lastPlayEventData) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
@@ -211,7 +211,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                 return PlaybackSessionEvent.forStop(
                         lastPlayEventData,
                         stopReason,
-                        buildEventArgs(track, stateTransition)
+                        buildEventArgs(track, playStateEvent.getTransition())
                 ).withAudioAd((AudioAd) lastPlayedAd.get());
             }
         };
