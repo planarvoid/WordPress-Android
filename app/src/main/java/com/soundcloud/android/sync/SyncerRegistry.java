@@ -4,6 +4,7 @@ import com.soundcloud.android.discovery.ChartsSyncProvider;
 import com.soundcloud.android.discovery.RecommendedTracksSyncProvider;
 import com.soundcloud.android.stations.RecentStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
+import com.soundcloud.android.sync.likes.TrackLikesSyncProvider;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -18,13 +19,15 @@ public class SyncerRegistry {
     public SyncerRegistry(RecentStationsSyncProvider recentStationsSyncerProvider,
                           RecommendedStationsSyncProvider recommendedStationsSyncProvider,
                           RecommendedTracksSyncProvider recommendationsSyncProvider,
-                          ChartsSyncProvider chartsSyncProvider) {
+                          ChartsSyncProvider chartsSyncProvider,
+                          TrackLikesSyncProvider trackLikesSyncProvider) {
         this.syncers = new HashMap<>();
 
         registerSyncer(recentStationsSyncerProvider);
         registerSyncer(recommendedStationsSyncProvider);
         registerSyncer(recommendationsSyncProvider);
         registerSyncer(chartsSyncProvider);
+        registerSyncer(trackLikesSyncProvider);
     }
 
     public SyncProvider get(Syncable syncable) {

@@ -49,13 +49,14 @@ public class LikesSyncModule {
                                  fetchTracks,
                                  pushLikeAdditions,
                                  pushLikeDeletions,
-                                 loadLikes.with(Sounds.TYPE_TRACK),
-                                 loadLikesPendingAddition.with(Sounds.TYPE_TRACK),
-                                 loadLikesPendingRemoval.with(Sounds.TYPE_TRACK),
+                                 loadLikes,
+                                 loadLikesPendingAddition,
+                                 loadLikesPendingRemoval,
                                  storeTracks,
                                  storeLikes,
                                  removeLikes,
-                                 eventBus);
+                                 eventBus,
+                                 Sounds.TYPE_TRACK);
     }
 
     @Provides
@@ -76,13 +77,14 @@ public class LikesSyncModule {
                                  fetchPlaylists,
                                  pushLikeAdditions,
                                  pushLikeDeletions,
-                                 loadLikes.with(Sounds.TYPE_PLAYLIST),
-                                 loadLikesPendingAddition.with(Sounds.TYPE_PLAYLIST),
-                                 loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST),
+                                 loadLikes,
+                                 loadLikesPendingAddition,
+                                 loadLikesPendingRemoval,
                                  storePlaylists,
                                  storeLikes,
                                  removeLikes,
-                                 eventBus);
+                                 eventBus,
+                                 Sounds.TYPE_PLAYLIST);
     }
 
     @Provides
