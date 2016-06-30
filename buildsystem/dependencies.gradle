@@ -12,6 +12,7 @@ ext {
   androidMultiDex = "1.0.1"
   androidSupportVersion = '23.4.0'
   playServicesVersion = '9.0.0'
+  firebaseVersion = '9.0.2'
   androidKitVersion = '0.48'
   lightCycleVersion = '1.1.0'
   daggerVersion = '1.2.2'
@@ -84,7 +85,9 @@ ext {
           androidPlayServicesBase         : "com.google.android.gms:play-services-base:$playServicesVersion",
           androidPlayServicesAuth         : "com.google.android.gms:play-services-auth:$playServicesVersion",
           androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$playServicesVersion",
-          androidPlayServicesGCM          : "com.google.android.gms:play-services-gcm:$playServicesVersion"
+
+          firebaseCore                    : "com.google.firebase:firebase-core:$firebaseVersion",
+          firebaseMessaging               : "com.google.firebase:firebase-messaging:$firebaseVersion"
   ]
 
   unitTestLibraries = [

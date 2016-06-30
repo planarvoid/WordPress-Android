@@ -25,7 +25,7 @@ public class GcmStorage {
     }
 
     public boolean shouldRegister(){
-        return featureFlags.isEnabled(Flag.ARCHER_GCM) ? !hasRegistered() : !hasToken();
+        return featureFlags.isEnabled(Flag.ARCHER_PUSH) ? !hasRegistered() : !hasToken();
     }
 
     private boolean hasRegistered() {
@@ -33,7 +33,7 @@ public class GcmStorage {
     }
 
     public void markAsRegistered(String token) {
-        if (featureFlags.isEnabled(Flag.ARCHER_GCM)) {
+        if (featureFlags.isEnabled(Flag.ARCHER_PUSH)) {
             setAsRegistered(true);
         } else {
             storeToken(token);
@@ -41,7 +41,7 @@ public class GcmStorage {
     }
 
     public void clearHasRegistered() {
-        if (featureFlags.isEnabled(Flag.ARCHER_GCM)) {
+        if (featureFlags.isEnabled(Flag.ARCHER_PUSH)) {
             setAsRegistered(false);
         } else {
             clearToken();

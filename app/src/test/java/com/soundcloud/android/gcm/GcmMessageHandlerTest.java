@@ -4,6 +4,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.firebase.messaging.RemoteMessage;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.crypto.EncryptionException;
@@ -14,9 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.Intent;
-
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GcmMessageHandlerTest extends AndroidUnitTest {
 
@@ -35,53 +36,45 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
 
     @Test
     public void stopsPlaybackWhenStopMessageReceivedAndPlaying() throws UnsupportedEncodingException, EncryptionException {
-        final Intent intent = new Intent("com.google.android.c2dm.intent.RECEIVE");
-        intent.putExtra("from", resources().getString(R.string.google_api_key));
-        intent.putExtra("data", ENCRYPTED_DATA);
-
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123}");
 
-        handler.handleMessage(intent);
+        handler.handleMessage(getRemoteMessage());
 
         verify(concurrentPlaybackOperations).pauseIfPlaying();
     }
 
     @Test
     public void doesNotStopPlaybackWhenWhenMessageForADifferentUser() throws UnsupportedEncodingException, EncryptionException {
-        final Intent intent = new Intent("com.google.android.c2dm.intent.RECEIVE");
-        intent.putExtra("from", resources().getString(R.string.google_api_key));
-        intent.putExtra("data", ENCRYPTED_DATA);
 
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":234}");
 
-        handler.handleMessage(intent);
+        handler.handleMessage(getRemoteMessage());
 
         verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
     }
 
     @Test
     public void stopsPlaybackWInStealthMode() throws UnsupportedEncodingException, EncryptionException {
-        final Intent intent = new Intent("com.google.android.c2dm.intent.RECEIVE");
-        intent.putExtra("from", resources().getString(R.string.google_api_key));
-        intent.putExtra("data", ENCRYPTED_DATA);
-
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"stealth\":true, \"user_id\":123}");
 
-        handler.handleMessage(intent);
+        handler.handleMessage(getRemoteMessage());
 
         verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
     }
 
     @Test
     public void doesNotStopPlaybackForOtherActionType() throws UnsupportedEncodingException, EncryptionException {
-        final Intent intent = new Intent("com.google.android.c2dm.intent.RECEIVE");
-        intent.putExtra("from", resources().getString(R.string.google_api_key));
-        intent.putExtra("data", ENCRYPTED_DATA);
-
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"blah\"}, \"user_id\":123}");
 
-        handler.handleMessage(intent);
+        handler.handleMessage(getRemoteMessage());
 
         verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
+    }
+
+    private RemoteMessage getRemoteMessage() {
+        final Map<String, String> data = new HashMap<>();
+        data.put("data", ENCRYPTED_DATA);
+        data.put("from", resources().getString(R.string.gcm_defaultSenderId));
+        return new RemoteMessage.Builder("to").setData(data).build();
     }
 }
