@@ -77,7 +77,6 @@ apply plugin: 'maven'
 apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
 apply plugin: 'com.getkeepsafe.dexcount'
-apply plugin: 'com.google.gms.google-services'
 apply plugin: "com.nimbledroid.profiler"
 
 android {
@@ -249,3 +248,5 @@ dependencies {
   androidTestCompile acceptanceTestLibraries.robotium
   androidTestCompile acceptanceTestLibraries.networkManagerClient
 }
+
+apply plugin: 'com.google.gms.google-services'
