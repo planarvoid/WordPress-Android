@@ -71,6 +71,10 @@ public class PlaybackProgress {
         return isDurationValid() && ((float) position / (float) duration >= percentile);
     }
 
+    public boolean isPastPosition(long position) {
+        return this.position > position;
+    }
+
     public long getTimeSinceCreation() {
         return dateProvider.getCurrentTime() - createdAt;
     }

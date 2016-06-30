@@ -288,21 +288,41 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     @Test
     public void unskippableAudioAdDoesNotUnlockPagerAfterSkipInterval() {
         final PlayQueueItem audioItem = TestPlayQueueItem.createTrack(TRACK_URN,
-                                                                      AdFixtures.getNonskippableAudioAd(TRACK_URN));
+                AdFixtures.getNonskippableAudioAd(TRACK_URN));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(audioItem.getAdData());
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(audioItem);
         setupPositionsForAd(2);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(audioItem, Urn.NOT_SET, 1));
+                CurrentPlayQueueItemEvent.fromPositionChanged(audioItem, Urn.NOT_SET, 1));
         InOrder inOrder = inOrder(playerPagerPresenter);
         inOrder.verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyList(), anyInt());
-        final PlaybackProgress playbackProgress = new PlaybackProgress(AdConstants.UNSKIPPABLE_TIME_MS + 1, 1L);
+        final PlaybackProgress playbackProgress = new PlaybackProgress(16000L, 30000L);
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
-                         PlaybackProgressEvent.create(playbackProgress, audioItem.getUrn()));
+                PlaybackProgressEvent.create(playbackProgress, audioItem.getUrn()));
 
         inOrder.verify(playerPagerPresenter, never()).setCurrentPlayQueue(anyList(), anyInt());
+    }
+
+    @Test
+    public void unskippableAudioAdUnlocksPagerWhenTrackIsEnding() {
+        final PlayQueueItem audioItem = TestPlayQueueItem.createTrack(TRACK_URN,
+                AdFixtures.getNonskippableAudioAd(TRACK_URN));
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(audioItem.getAdData());
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(audioItem);
+        setupPositionsForAd(2);
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                CurrentPlayQueueItemEvent.fromPositionChanged(audioItem, Urn.NOT_SET, 1));
+        InOrder inOrder = inOrder(playerPagerPresenter);
+        inOrder.verify(playerPagerPresenter, times(2)).setCurrentPlayQueue(anyList(), anyInt());
+        final PlaybackProgress playbackProgress = new PlaybackProgress(29900L, 30000L);
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS,
+                PlaybackProgressEvent.create(playbackProgress, audioItem.getUrn()));
+
+        inOrder.verify(playerPagerPresenter).setCurrentPlayQueue(anyList(), anyInt());
     }
 
     @Test

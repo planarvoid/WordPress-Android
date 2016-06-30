@@ -16,6 +16,7 @@ import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragmentFactory;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
@@ -49,6 +50,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private static final int CHANGE_TRACKS_MESSAGE = 0;
     private static final int CHANGE_TRACKS_DELAY = 350;
+    private static final int UNSKIPPABLE_UNLOCK = 500;
 
     @LightCycle final PlayerPagerPresenter presenter;
 
@@ -58,8 +60,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final AdsOperations adsOperations;
     private final PlayQueueFragmentFactory playQueueFragmentFactory;
 
-
-    private final Observable<PlaybackProgressEvent> checkAdProgress;
     private final PlayerPagerScrollListener playerPagerScrollListener;
 
     private CompositeSubscription subscription = new CompositeSubscription();
@@ -95,11 +95,20 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private final Action1<CurrentPlayQueueItemEvent> allowScrollAfterAdSkipTimeout = new Action1<CurrentPlayQueueItemEvent>() {
         @Override
         public void call(CurrentPlayQueueItemEvent currentItemEvent) {
-            final PlayerAdData adData = (PlayerAdData) adsOperations.getCurrentTrackAdData().get();
-            if (adData.isSkippable()) {
-                unblockPagerSubscription = checkAdProgress.observeOn(AndroidSchedulers.mainThread())
-                                                          .subscribe(getRestoreQueueSubscriber());
-            }
+            unblockPagerSubscription = eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
+                    .first(isBecomingSkippable)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(getRestoreQueueSubscriber());
+        }
+    };
+
+    private final Func1<PlaybackProgressEvent, Boolean> isBecomingSkippable = new Func1<PlaybackProgressEvent, Boolean>() {
+        @Override
+        public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
+            boolean isSkippableAd = ((PlayerAdData) adsOperations.getCurrentTrackAdData().get()).isSkippable();
+            PlaybackProgress progress = playbackProgressEvent.getPlaybackProgress();
+            return (isSkippableAd && progress.isPastPosition(AdConstants.UNSKIPPABLE_TIME_MS))
+                    || progress.isPastPosition(progress.getDuration() - UNSKIPPABLE_UNLOCK);
         }
     };
 
@@ -132,13 +141,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     };
 
-    private static final Func1<PlaybackProgressEvent, Boolean> IS_PAST_UNSKIPPABLE_TIME = new Func1<PlaybackProgressEvent, Boolean>() {
-        @Override
-        public Boolean call(PlaybackProgressEvent playbackProgressEvent) {
-            return playbackProgressEvent.getPlaybackProgress().getPosition() >= AdConstants.UNSKIPPABLE_TIME_MS;
-        }
-    };
-
     @Inject
     public PlayerPresenter(PlayerPagerPresenter presenter,
                            EventBus eventBus,
@@ -158,7 +160,6 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         LightCycles.bind(this);
 
         changeTracksHandler = new ChangeTracksHandler(this);
-        checkAdProgress = eventBus.queue(EventQueue.PLAYBACK_PROGRESS).first(IS_PAST_UNSKIPPABLE_TIME);
     }
 
     private void setPositionToDisplayedTrack() {
