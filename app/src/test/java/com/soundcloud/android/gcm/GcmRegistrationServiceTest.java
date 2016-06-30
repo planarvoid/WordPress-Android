@@ -78,7 +78,7 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Test
     public void clearsTokenOnUnsuccessfullyFetchedToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(instanceId.getToken()).thenThrow(new IOException());
+        when(instanceId.getToken()).thenReturn(null);
 
         service.onHandleIntent(intent);
 

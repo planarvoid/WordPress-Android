@@ -30,7 +30,7 @@ public class GcmRegistrationService extends IntentService {
     @Inject Provider<AppboyWrapper> appboyWrapperProvider;
     @Inject FeatureFlags featureFlags;
 
-    public static void startGcmService(Context context){
+    public static void startGcmService(Context context) {
         context.startService(new Intent(context, GcmRegistrationService.class));
     }
 
@@ -61,26 +61,24 @@ public class GcmRegistrationService extends IntentService {
     }
 
     private void doTokenRefresh() {
-        try {
-            String token = instanceId.getToken();
+        String token = instanceId.getToken();
+        if (token != null) {
             Log.d(TAG, "Push Registration Token: " + token);
             appboyWrapperProvider.get().handleRegistration(token);
 
             if (featureFlags.isDisabled(Flag.ARCHER_PUSH) || registerTokenWithApi(token).isSuccess()) {
                 gcmStorage.markAsRegistered(token);
             }
-
-        } catch (Exception e) {
-            ErrorUtils.handleSilentException("Failed to register token", e);
+        } else {
             gcmStorage.clearHasRegistered();
         }
     }
 
-    private ApiResponse registerTokenWithApi(String token){
+    private ApiResponse registerTokenWithApi(String token) {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.GCM_REGISTER.path())
-                .forPrivateApi()
-                .withContent(Collections.singletonMap("token", token))
-                .build();
+                                             .forPrivateApi()
+                                             .withContent(Collections.singletonMap("token", token))
+                                             .build();
 
         return apiClient.fetchResponse(request);
     }
