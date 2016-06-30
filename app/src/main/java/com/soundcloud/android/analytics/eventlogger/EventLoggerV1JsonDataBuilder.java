@@ -315,7 +315,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .track(event.getTrackUrn())
                 .trackOwner(event.getTrackOwner())
                 .inOfflineLikes(event.isFromLikes())
-                .inPlaylist(event.partOfPlaylist());
+                .inOfflinePlaylist(event.partOfPlaylist());
         return transform(eventLoggerEventData);
     }
 

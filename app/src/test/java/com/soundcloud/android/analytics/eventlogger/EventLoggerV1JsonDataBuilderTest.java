@@ -39,7 +39,7 @@ import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
+import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -589,7 +589,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
                                                .track(TRACK_URN)
                                                .trackOwner(CREATOR_URN)
-                                               .inPlaylist(false)
+                                               .inOfflinePlaylist(false)
                                                .inOfflineLikes(true)
                                                .eventStage("start")
         );
@@ -605,7 +605,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
                                                .track(TRACK_URN)
                                                .trackOwner(CREATOR_URN)
-                                               .inPlaylist(false)
+                                               .inOfflinePlaylist(false)
                                                .inOfflineLikes(true)
                                                .eventStage("fail")
         );
@@ -621,7 +621,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
                                                .track(TRACK_URN)
                                                .trackOwner(CREATOR_URN)
-                                               .inPlaylist(false)
+                                               .inOfflinePlaylist(false)
                                                .inOfflineLikes(true)
                                                .eventStage("user_cancelled")
         );
@@ -637,7 +637,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(getEventData("offline_sync", BOOGALOO_VERSION, event.getTimestamp())
                                                .track(TRACK_URN)
                                                .trackOwner(CREATOR_URN)
-                                               .inPlaylist(false)
+                                               .inOfflinePlaylist(false)
                                                .inOfflineLikes(true)
                                                .eventStage("complete")
         );
@@ -646,7 +646,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsJsonFromRichMediaStreamPlayEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayStates.playing(), UUID);
+        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), UUID);
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(audioAd, eventArgs);
 
         trackSourceInfo.setSource("source", "source-version");
@@ -675,7 +675,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsJsonFromRichMediaStreamStopEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayStates.idle(), UUID);
+        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), UUID);
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(audioAd, eventArgs, PlaybackSessionEvent.STOP_REASON_BUFFERING);
 
         trackSourceInfo.setSource("source", "source-version");
@@ -900,7 +900,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdImpression() throws ApiMapperException {
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayStates.playing(), "123");
+        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN), args);
 
         jsonDataBuilder.buildForAdImpression(event);
@@ -915,7 +915,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdFinish() throws ApiMapperException {
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayStates.idle(), "123");
+        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(AdFixtures.getVideoAd(TRACK_URN), args, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         jsonDataBuilder.buildForAdFinished(event);

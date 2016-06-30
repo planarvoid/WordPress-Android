@@ -396,7 +396,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackAdResumeEvents() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         videoAd.setStartReported();
-        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayStates.playing(), "123");
+        AdPlaybackSessionEventArgs adArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
         AdPlaybackSessionEvent adEvent = AdPlaybackSessionEvent.forPlay(videoAd, adArgs);
 
         when(dataBuilderv1.buildForAdSessionEvent(adEvent)).thenReturn("AdPlaybackSessionEvent");
