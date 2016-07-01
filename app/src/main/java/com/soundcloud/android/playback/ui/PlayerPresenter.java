@@ -11,7 +11,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -19,6 +18,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragmentFactory;
+import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -96,9 +96,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public void call(CurrentPlayQueueItemEvent currentItemEvent) {
             unblockPagerSubscription = eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
-                    .first(isBecomingSkippable)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(getRestoreQueueSubscriber());
+                                               .first(isBecomingSkippable)
+                                               .observeOn(AndroidSchedulers.mainThread())
+                                               .subscribe(getRestoreQueueSubscriber());
         }
     };
 
@@ -199,7 +199,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
     private void setupTrackChangeSubscribers() {
 
-        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAYER_UI, new PlayQueueVisibilitySubscriber()));
+        subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE_UI, new PlayQueueVisibilitySubscriber()));
 
         // play queue changes
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
@@ -314,12 +314,12 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         setFullQueue();
     }
 
-    private final class PlayQueueVisibilitySubscriber extends DefaultSubscriber<PlayerUIEvent> {
+    private final class PlayQueueVisibilitySubscriber extends DefaultSubscriber<PlayQueueUIEvent> {
 
         @Override
-        public void onNext(PlayerUIEvent playerUIEvent) {
+        public void onNext(PlayQueueUIEvent playQueueUIEvent) {
             Fragment fragment = fragmentManager.findFragmentByTag(PlayQueueFragment.TAG);
-            if (playerUIEvent.getKind() == PlayerUIEvent.PLAYQUEUE_DISPLAYED) {
+            if (playQueueUIEvent.isDisplayEvent()) {
                 if (fragment == null) {
                     eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
                     fragmentManager.beginTransaction()
@@ -329,7 +329,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
                                         PlayQueueFragment.TAG)
                                    .commitAllowingStateLoss();
                 }
-            } else if (playerUIEvent.getKind() == PlayerUIEvent.PLAYQUEUE_HIDDEN) {
+            } else if (playQueueUIEvent.isHideEvent()) {
                 if (fragment != null) {
                     fragmentManager.beginTransaction()
                                    .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)

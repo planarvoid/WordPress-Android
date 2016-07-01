@@ -8,7 +8,6 @@ import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.rx.RxUtils;
@@ -74,7 +73,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @OnClick(R.id.close_play_queue)
     public void closePlayQueue(View view) {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueHidden());
+        eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
     }
 
     private class UpdateSubscriber extends DefaultSubscriber<PlayQueueEvent> {

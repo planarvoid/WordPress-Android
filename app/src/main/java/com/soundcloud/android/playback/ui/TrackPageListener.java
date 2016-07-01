@@ -16,6 +16,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscriber;
@@ -79,7 +80,7 @@ class TrackPageListener extends PageListener {
     }
 
     void onPlayQueue() {
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueDisplayed());
+        eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createDisplayEvent());
     }
 
     private Subscriber<PlayerUIEvent> startProfileActivity(final Context activityContext, final Urn userUrn) {

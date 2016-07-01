@@ -6,8 +6,6 @@ public class PlayerUIEvent {
 
     public static final int PLAYER_EXPANDED = 0;
     public static final int PLAYER_COLLAPSED = 1;
-    public static final int PLAYQUEUE_DISPLAYED = 2;
-    public static final int PLAYQUEUE_HIDDEN = 3;
 
     private final int kind;
 
@@ -32,13 +30,6 @@ public class PlayerUIEvent {
         return new PlayerUIEvent(PLAYER_COLLAPSED);
     }
 
-    public static PlayerUIEvent fromPlayQueueDisplayed() {
-        return new PlayerUIEvent(PLAYQUEUE_DISPLAYED);
-    }
-
-    public static PlayerUIEvent fromPlayQueueHidden() {
-        return new PlayerUIEvent(PLAYQUEUE_HIDDEN);
-    }
 
     public PlayerUIEvent(int kind) {
         this.kind = kind;

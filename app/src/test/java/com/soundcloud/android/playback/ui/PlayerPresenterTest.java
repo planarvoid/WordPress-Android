@@ -29,7 +29,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -37,6 +36,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragment;
 import com.soundcloud.android.playback.playqueue.PlayQueueFragmentFactory;
+import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -440,7 +440,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     public void displayPlayQueue() {
         TestSubscriber subscriber = TestSubscriber.create();
         eventBus.subscribe(EventQueue.PLAYER_COMMAND, subscriber);
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueDisplayed());
+        eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createDisplayEvent());
 
         verify(fragmentManager, times(1)).beginTransaction();
         verify(fragmentTransaction, times(1)).add(any(Integer.class), any(Fragment.class), eq(PlayQueueFragment.TAG));
@@ -450,10 +450,10 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     @Test
     public void hidePlayQueue() {
         TestSubscriber subscriber = TestSubscriber.create();
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueDisplayed());
+        eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createDisplayEvent());
         eventBus.subscribe(EventQueue.PLAYER_COMMAND, subscriber);
         when(fragmentManager.findFragmentByTag(PlayQueueFragment.TAG)).thenReturn(playQueueFragment);
-        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayQueueHidden());
+        eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
 
         verify(fragmentManager, times(2)).beginTransaction();
         verify(fragmentTransaction, times(1)).remove(any(Fragment.class));

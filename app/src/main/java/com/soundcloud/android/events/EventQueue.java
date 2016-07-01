@@ -4,6 +4,7 @@ import com.soundcloud.android.configuration.ForceUpdateEvent;
 import com.soundcloud.android.configuration.UserPlanChangedEvent;
 import com.soundcloud.android.offline.OfflineContentChangedEvent;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.playback.playqueue.PlayQueueUIEvent;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.rx.eventbus.Queue;
@@ -36,6 +37,9 @@ public final class EventQueue {
                                                               .onError(ON_ERROR)
                                                               .replay(PlayerUIEvent.fromPlayerCollapsed())
                                                               .get();
+    public static final Queue<PlayQueueUIEvent> PLAY_QUEUE_UI = Queue.of(PlayQueueUIEvent.class)
+                                                                   .onError(ON_ERROR)
+                                                                   .get();
     public static final Queue<PlayerUICommand> PLAYER_COMMAND = Queue.of(PlayerUICommand.class).onError(ON_ERROR).get();
     public static final Queue<PlayQueueEvent> PLAY_QUEUE = Queue.of(PlayQueueEvent.class).onError(ON_ERROR).get();
     public static final Queue<CurrentPlayQueueItemEvent> CURRENT_PLAY_QUEUE_ITEM = Queue.of(CurrentPlayQueueItemEvent.class)
