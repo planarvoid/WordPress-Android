@@ -582,7 +582,7 @@
     <string name="facebook_creator_invites_title">Invite friends to listen to your latest track on SoundCloud</string>
 
     <!-- __COLLECTION -->
-    <string name="collections_playlists_header">Playlists</string>
+    <string name="collections_playlists_header">Playlists &amp; Albums</string>
     <string name="collections_your_liked_tracks">Liked tracks</string>
     <string name="track_likes_title">Liked tracks</string>
     <string name="collections_options_header_filters">Filters</string>
@@ -591,8 +591,8 @@
     <string name="collections_options_toggle_likes">Liked</string>
     <string name="collections_options_dialog_sort_by_creation">Recency</string>
     <string name="collections_options_dialog_sort_by_title">Title</string>
-    <string name="collections_empty_playlists">Your liked or created playlists will show up here.</string>
-    <string name="collections_filters_active_message">Not all your playlists are being shown. Clear filters to see them all.</string>
+    <string name="collections_empty_playlists">Playlists and albums you have liked or created will show up here.</string>
+    <string name="collections_filters_active_message">Not all your playlists and albums are being shown. Clear filters to see them all.</string>
     <string name="collections_remove_filters">Clear filters</string>
     <string name="collections_loading_error">There was a problem loading your collection.\nTry again later</string>
     <string name="collections_options_toggle_offline">Offline</string>
@@ -726,7 +726,7 @@
     <string name="go_onboarding_header">Welcome to SoundCloud Go</string>
     <string name="go_onboarding_subheader">Now you can enjoy even more music, offline and ad-free.</string>
     <string name="go_onboarding_title">Save your music offline</string>
-    <string name="go_onboarding_subtext">Use the arrow to save all your likes or\nany of your playlists offline.</string>
+    <string name="go_onboarding_subtext">Use the arrow to save all your likes or\nany of your playlists and albums offline.</string>
     <string name="go_onboarding_start">OK, got it</string>
     <string name="go_onboarding_retry">Loading failed. Retry?</string>
     <string name="go_onboarding_error_dialog_title">Something went wrong</string>
@@ -734,7 +734,7 @@
     <string name="go_onboarding_error_dialog_button">Try again later</string>
 
     <string name="go_onboarding_offline_settings_title">Save everything automatically</string>
-    <string name="go_onboarding_offline_settings_subtext">Selecting this will save all your current and future likes and playlists offline automatically.</string>
+    <string name="go_onboarding_offline_settings_subtext">Selecting this will save all your current and future likes, playlists and albums offline automatically.</string>
     <string name="go_onboarding_offline_settings_continue">OK, got it</string>
 
     <!-- __GO OFFBOARDING -->
@@ -746,7 +746,7 @@
 
     <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_offline_collection">Save automatically</string>
-    <string name="pref_offline_offline_collection_description_off">Turn this on to save all your current and future likes and playlists offline.</string>
+    <string name="pref_offline_offline_collection_description_off">Turn this on to save all your current and future likes, playlists and albums offline.</string>
     <string name="pref_offline_offline_collection_description_on">Turn this off to stop saving automatically and remove anything previously saved offline.</string>
     <string name="pref_offline_wifi_only_sync">Only save via Wi-Fi</string>
     <string name="pref_offline_wifi_only_description">When this is turned on, we will only save tracks offline over a Wi-Fi connection.</string>
@@ -762,12 +762,12 @@
     <string name="pref_offline_remove_all_offline_content_description">This will remove any content that is stored on the device.</string>
     <string name="remove_offline_content_title">Remove everything from offline listening?</string>
     <string name="remove_offline_content_body_default">You’re about remove everything from offline listening.</string>
-    <string name="remove_offline_content_body_sync_collection">You’re about remove everything from offline listening. Additionally, your new likes and playlists won’t save automatically anymore.</string>
+    <string name="remove_offline_content_body_sync_collection">You’re about remove everything from offline listening. Additionally, your new likes, playlists and albums won’t save automatically anymore.</string>
     <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
     <string name="sign_out_title_offline">Signing out removes all offline tracks</string>
     <string name="sign_out_description_offline">The next time you sign in, you’ll be able to decide which tracks, playlists and albums should be saved again.</string>
-    <string name="disable_offline_collection_title">Stop automatically saving playlists &amp; likes?</string>
-    <string name="disable_offline_collection_body">Your new likes and playlists won’t save automatically anymore and existing saved sounds will be removed from offline listening.</string>
+    <string name="disable_offline_collection_title">Stop automatically saving?</string>
+    <string name="disable_offline_collection_body">Your new likes, playlists and albums won’t save automatically anymore and existing saved sounds will be removed from offline listening.</string>
     <string name="disable_offline_collection_from_context_title">Remove this from offline listening?</string>
     <string name="disable_offline_collection_from_context_body">You’re about to remove this from offline. Additionally, your newly created or liked playlists won’t save offline automatically anymore.</string>
 
