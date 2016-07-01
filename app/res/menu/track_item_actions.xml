@@ -2,6 +2,9 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/play_next"
+        android:title="@string/play_next" />
+    <item
         android:id="@+id/start_station"
         android:title="@string/stations_start_track_station" />
     <item

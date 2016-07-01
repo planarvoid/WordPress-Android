@@ -919,4 +919,7 @@
     <string name="kill_switch_message">In order to continue using the SoundCloud app, please update to the latest version.</string>
     <string name="kill_switch_confirm">Update now</string>
 
+    <!-- __PLAY QUEUE -->
+    <string name="play_next">Play next</string>
+
 </resources>

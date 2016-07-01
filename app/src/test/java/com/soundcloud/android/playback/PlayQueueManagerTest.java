@@ -1163,6 +1163,82 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(playQueueManager.getPreviousPlayQueueItems(3)).isEqualTo(TestUrns.createTrackUrns(1L, 2L, 3L));
     }
 
+    @Test
+    public void canInsertNextIsFalseWhenCurrentOrNextIsSame() throws Exception {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        assertThat(playQueueManager.canInsertNext(Urn.forTrack(3L))).isFalse();
+        assertThat(playQueueManager.canInsertNext(Urn.forTrack(4L))).isFalse();
+    }
+
+    @Test
+    public void canInsertNextIsTrueWhenQueueIsEmpty() throws Exception {
+        playQueueManager.clearAll();;
+
+        assertThat(playQueueManager.canInsertNext(Urn.forTrack(3L))).isTrue();
+    }
+
+    @Test
+    public void canInsertNextIsTrueWhenIsNotCurrentOrNext() throws Exception {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        assertThat(playQueueManager.canInsertNext(Urn.forTrack(2L))).isTrue();
+        assertThat(playQueueManager.canInsertNext(Urn.forTrack(5L))).isTrue();
+        assertThat(playQueueManager.canInsertNext(Urn.forTrack(100L))).isTrue();
+    }
+
+    @Test
+    public void insertNextActuallyInsertsNext() throws Exception {
+        final Urn nextTrackUrn = Urn.forTrack(100L);
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(nextTrackUrn);
+
+        assertThat(playQueueManager.getNextPlayQueueItem().getUrn()).isEqualTo(nextTrackUrn);
+    }
+
+    @Test
+    public void insertNextSavesQueue() throws Exception {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(Urn.forTrack(100L));
+
+        final List<Urn> updatedTracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 100L, 4L, 5L);
+        final PlayQueue updatedPlayQueueItems = TestPlayQueue.fromUrns(updatedTracksUrn, playlistSessionSource);
+        verify(playQueueOperations).saveQueue(updatedPlayQueueItems);
+    }
+
+    @Test
+    public void insertNextPublishesQueueUpdate() throws Exception {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(Urn.forTrack(100L));
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
+                PlayQueueEvent.fromNewQueue(Urn.NOT_SET),
+                PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET)
+        );
+    }
+
+    @Test
+    public void insertNextDoesNothingWhenQueueIsEmpty() throws Exception {
+        playQueueManager.insertNext(Urn.forTrack(100L));
+
+        assertThat(playQueueManager.isQueueEmpty()).isTrue();
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).isEmpty();
+        verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class));
+    }
+
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {
         assertThat(playQueueManager.getQueueSize()).isEqualTo(playQueue.size());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++) {

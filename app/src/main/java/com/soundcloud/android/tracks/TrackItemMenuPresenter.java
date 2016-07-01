@@ -15,9 +15,16 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionSource;
+import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.ShowPlayerSubscriber;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.playlists.RepostResultSubscriber;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -37,6 +44,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
+import java.util.Collections;
 
 public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
 
@@ -51,6 +59,10 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final ScreenProvider screenProvider;
     private final StartStationPresenter startStationPresenter;
     private final AccountOperations accountOperations;
+    private final FeatureFlags featureFlags;
+    private final PlayQueueManager playQueueManager;
+    private final PlaybackInitiator playbackInitiator;
+    private final PlaybackToastHelper playbackToastHelper;
 
     private FragmentActivity activity;
     private TrackItem track;
@@ -78,7 +90,11 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            ScreenProvider screenProvider,
                            ShareOperations shareOperations,
                            StartStationPresenter startStationPresenter,
-                           AccountOperations accountOperations) {
+                           AccountOperations accountOperations,
+                           FeatureFlags featureFlags,
+                           PlayQueueManager playQueueManager,
+                           PlaybackInitiator playbackInitiator,
+                           PlaybackToastHelper playbackToastHelper) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
@@ -90,6 +106,10 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.startStationPresenter = startStationPresenter;
         this.shareOperations = shareOperations;
         this.accountOperations = accountOperations;
+        this.featureFlags = featureFlags;
+        this.playQueueManager = playQueueManager;
+        this.playbackInitiator = playbackInitiator;
+        this.playbackToastHelper = playbackToastHelper;
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
@@ -121,8 +141,10 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         menu.setItemVisible(R.id.add_to_playlist, !isOwnedPlaylist());
         menu.setItemVisible(R.id.remove_from_playlist, isOwnedPlaylist());
         menu.setItemEnabled(R.id.start_station, IOUtils.isConnected(button.getContext()));
+        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
 
         configureAdditionalEngagementsOptions(menu);
+        configurePlayNext(menu);
         menu.show();
         return menu;
     }
@@ -130,6 +152,14 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
         menu.setItemVisible(R.id.toggle_repost, canRepost(track));
         menu.setItemVisible(R.id.share, !track.isPrivate());
+    }
+
+    private void configurePlayNext(PopupMenuWrapper menu) {
+        menu.setItemEnabled(R.id.play_next, canPlayNext(track));
+    }
+
+    private boolean canPlayNext(TrackItem track) {
+        return !track.isBlocked() && playQueueManager.canInsertNext(track.getUrn());
     }
 
     private boolean canRepost(TrackItem track) {
@@ -181,8 +211,21 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
             case R.id.start_station:
                 startStationPresenter.startStationForTrack(context, track.getUrn());
                 return true;
+            case R.id.play_next:
+                playNext(track.getUrn());
+                return true;
             default:
                 return false;
+        }
+    }
+
+    private void playNext(Urn trackUrn) {
+        if (playQueueManager.isQueueEmpty()) {
+            PlaySessionSource playSessionSource = new PlaySessionSource(screenProvider.getLastScreenTag());
+            playbackInitiator.playTracks(Collections.singletonList(trackUrn), 0, playSessionSource)
+                             .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+        } else {
+            playQueueManager.insertNext(trackUrn);
         }
     }
 

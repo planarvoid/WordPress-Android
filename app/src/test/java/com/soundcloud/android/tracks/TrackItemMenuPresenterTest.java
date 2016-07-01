@@ -3,6 +3,8 @@ package com.soundcloud.android.tracks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,10 +17,14 @@ import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -28,6 +34,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
@@ -37,6 +44,8 @@ import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.Collections;
+
 public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
     @Mock TrackRepository trackRepository;
@@ -45,6 +54,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock RepostOperations repostOperations;
     @Mock PlaylistOperations playlistOperations;
     @Mock ScreenProvider screenProvider;
+    @Mock PlayQueueManager playQueueManager;
     @Mock PlaybackInitiator playbackInitiator;
     @Mock PlaybackToastHelper playbackToastHelper;
     @Mock FeatureFlags featureFlags;
@@ -71,6 +81,9 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
         when(screenProvider.getLastScreenTag()).thenReturn("screen");
+        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
+        when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
+                .thenReturn(Observable.<PlaybackResult>empty());
 
         presenter = new TrackItemMenuPresenter(popupMenuWrapperFactory,
                                                trackRepository,
@@ -82,7 +95,11 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                screenProvider,
                                                shareOperations,
                                                startStationPresenter,
-                                               accountOperations);
+                                               accountOperations,
+                                               featureFlags,
+                                               playQueueManager,
+                                               playbackInitiator,
+                                               playbackToastHelper);
     }
 
     @Test
@@ -124,6 +141,60 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                     .isFromOverflow(true)
                                     .build();
         verify(shareOperations).share(context, trackItem.getSource(), eventContextMetadata, null);
+    }
+
+    @Test
+    public void clickingOnPlayNextInsertsNextWhenQueueIsNotEmpty() {
+        when(menuItem.getItemId()).thenReturn(R.id.play_next);
+        when(playQueueManager.isQueueEmpty()).thenReturn(false);
+
+        presenter.show(activity, view, trackItem, 0);
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(playQueueManager).insertNext(trackItem.getUrn());
+    }
+
+    @Test
+    public void clickingOnPlayNextStartsPlaybackWhenQueueIsEmpty() {
+        when(menuItem.getItemId()).thenReturn(R.id.play_next);
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
+
+        presenter.show(activity, view, trackItem, 0);
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(playbackInitiator).playTracks(eq(Collections.singletonList(trackItem.getUrn())),
+                                             eq(0), any(PlaySessionSource.class));
+        verify(playQueueManager, never()).insertNext(trackItem.getUrn());
+    }
+
+    @Test
+    public void playNextIsDisabledWhenCanNotInsert() throws Exception {
+        when(playQueueManager.canInsertNext(trackItem.getUrn())).thenReturn(false);
+        trackItem.update(PropertySet.from(TrackProperty.BLOCKED.bind(false)));
+
+        presenter.show(activity, view, trackItem, 0);
+
+        verify(popupMenuWrapper).setItemEnabled(R.id.play_next, false);
+    }
+
+    @Test
+    public void playNextIsDisabledWhenTrackIsBlocked() throws Exception {
+        when(playQueueManager.canInsertNext(trackItem.getUrn())).thenReturn(true);
+        trackItem.update(PropertySet.from(TrackProperty.BLOCKED.bind(true)));
+
+        presenter.show(activity, view, trackItem, 0);
+
+        verify(popupMenuWrapper).setItemEnabled(R.id.play_next, false);
+    }
+
+    @Test
+    public void playNextIsEnabledWhenCanInsertAndIsNotBlocked() throws Exception {
+        when(playQueueManager.canInsertNext(trackItem.getUrn())).thenReturn(true);
+        trackItem.update(PropertySet.from(TrackProperty.BLOCKED.bind(false)));
+
+        presenter.show(activity, view, trackItem, 0);
+
+        verify(popupMenuWrapper).setItemEnabled(R.id.play_next, true);
     }
 
     private TrackItem createTrackItem() {
