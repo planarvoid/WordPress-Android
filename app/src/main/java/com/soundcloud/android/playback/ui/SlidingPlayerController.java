@@ -158,7 +158,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle<AppCompat
 
     @Override
     public void onNewIntent(AppCompatActivity activity, Intent intent) {
-        isPlayQueueLocked = intent.getExtras().getBoolean(EXTRA_PLAYQUEUE_LOCK, false);
         expandOnResume = shouldExpand(intent.getExtras());
     }
 
