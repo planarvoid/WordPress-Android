@@ -94,12 +94,6 @@ android {
       buildConfigField "boolean", "RUN_ADS_TEST", "true"
       buildConfigField "String", "APP_ENVIRONMENT", "\"dev\""
     }
-
-    repack.initWith(buildTypes.debug)
-    repack {
-      minifyEnabled true
-      proguardFiles 'buildsystem/repacker/proguard-repack.cfg'
-    }
   }
 
   productFlavors {

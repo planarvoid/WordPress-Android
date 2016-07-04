@@ -3,7 +3,6 @@ dependencies {
 
   //TODO: consolidate all build variants to avoid DRY
   debugCompile libraries.leakCanary
-  repackCompile libraries.leakCanary
 
   alphaCompile libraries.leakCanaryStub
   betaCompile libraries.leakCanaryStub
