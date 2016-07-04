@@ -17,7 +17,7 @@ public class TrackLikesSyncProvider extends SyncerRegistry.SyncProvider {
 
     @Inject
     public TrackLikesSyncProvider(@Named(LikesSyncModule.TRACK_LIKES_SYNCER) Provider<LikesSyncer<ApiTrack>> trackLikesSyncer,
-                                     MyTrackLikesStateProvider myTrackLikesStateProvider) {
+                                  MyTrackLikesStateProvider myTrackLikesStateProvider) {
         super(Syncable.TRACK_LIKES);
         this.trackLikesSyncer = trackLikesSyncer;
         this.myTrackLikesStateProvider = myTrackLikesStateProvider;
