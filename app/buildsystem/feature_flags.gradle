@@ -92,6 +92,8 @@ android {
     }
   }
 }
+//Excluded unrelated stuff
+def excludeConfigFields = ['RUN_ADS_TEST']
 
 task checkFlags(dependsOn: ':app:preBuild') {
   def defaultFeatureFlags = android.defaultConfig.getBuildConfigFields()
@@ -112,7 +114,8 @@ task checkFlags(dependsOn: ':app:preBuild') {
 //the build asking to remove it since the default value is FALSE.
 android.buildTypes.all { buildType ->
   buildType.getBuildConfigFields().each {
-    if (it.getValue().getValue() == FALSE) {
+    if (!excludeConfigFields.contains(it.key))
+      if (it.getValue().getValue() == FALSE) {
       failBuild("Flag ${it.key} has a FALSE value in build type: ${buildType.name}. " +
               "Please remove it or turn its value to TRUE.")
     }
