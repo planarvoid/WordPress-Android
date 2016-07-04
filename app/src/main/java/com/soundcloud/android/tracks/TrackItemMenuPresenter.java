@@ -159,7 +159,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private boolean canPlayNext(TrackItem track) {
-        return !track.isBlocked() && playQueueManager.canInsertNext(track.getUrn());
+        return !track.isBlocked();
     }
 
     private boolean canRepost(TrackItem track) {

@@ -171,13 +171,8 @@ public class PlayQueueManager implements OriginProvider {
         publishQueueUpdate();
     }
 
-    public boolean canInsertNext(Urn trackUrn) {
-        boolean isNextSameUrn = !playQueue.isEmpty() && getNextPlayQueueItem().getUrn().equals(trackUrn);
-        return !isCurrentTrack(trackUrn) && !isNextSameUrn;
-    }
-
     public void insertNext(Urn trackUrn) {
-        if (!playQueue.isEmpty() && canInsertNext(trackUrn)) {
+        if (!playQueue.isEmpty()) {
             TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn).build();
             playQueue.insertPlayQueueItem(currentPosition + 1, queueItem);
             publishQueueUpdate();

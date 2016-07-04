@@ -168,33 +168,12 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playNextIsDisabledWhenCanNotInsert() throws Exception {
-        when(playQueueManager.canInsertNext(trackItem.getUrn())).thenReturn(false);
-        trackItem.update(PropertySet.from(TrackProperty.BLOCKED.bind(false)));
-
-        presenter.show(activity, view, trackItem, 0);
-
-        verify(popupMenuWrapper).setItemEnabled(R.id.play_next, false);
-    }
-
-    @Test
     public void playNextIsDisabledWhenTrackIsBlocked() throws Exception {
-        when(playQueueManager.canInsertNext(trackItem.getUrn())).thenReturn(true);
         trackItem.update(PropertySet.from(TrackProperty.BLOCKED.bind(true)));
 
         presenter.show(activity, view, trackItem, 0);
 
         verify(popupMenuWrapper).setItemEnabled(R.id.play_next, false);
-    }
-
-    @Test
-    public void playNextIsEnabledWhenCanInsertAndIsNotBlocked() throws Exception {
-        when(playQueueManager.canInsertNext(trackItem.getUrn())).thenReturn(true);
-        trackItem.update(PropertySet.from(TrackProperty.BLOCKED.bind(false)));
-
-        presenter.show(activity, view, trackItem, 0);
-
-        verify(popupMenuWrapper).setItemEnabled(R.id.play_next, true);
     }
 
     private TrackItem createTrackItem() {
