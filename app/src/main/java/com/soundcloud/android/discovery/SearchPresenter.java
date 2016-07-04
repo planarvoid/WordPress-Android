@@ -265,8 +265,11 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void showSuggestionsFor(String query) {
-        showSearchSuggestionsView();
-        getSuggestionFragment().showSuggestionsFor(query);
+        final SearchSuggestionsFragment suggestionFragment = getSuggestionFragment();
+        if (suggestionFragment != null) {
+            fragmentTransaction.show(suggestionFragment);
+            suggestionFragment.showSuggestionsFor(query);
+        }
     }
 
     private void showCloseButton() {
@@ -275,10 +278,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private void hideCloseButton() {
         searchCloseView.setVisibility(View.INVISIBLE);
-    }
-
-    private void showSearchSuggestionsView() {
-        fragmentTransaction.show(getSuggestionFragment());
     }
 
     private void hideSearchSuggestionsView() {

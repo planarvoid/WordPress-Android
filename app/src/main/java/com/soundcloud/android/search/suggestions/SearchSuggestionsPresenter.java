@@ -126,7 +126,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     }
 
     void showSuggestionsFor(String query) {
-        if (!query.equals(this.searchQuery)) {
+        if (query != null && !query.equals(this.searchQuery)) {
             this.searchQuery = query;
             if (collectionBinding != null) {
                 collectionBinding.disconnect();
