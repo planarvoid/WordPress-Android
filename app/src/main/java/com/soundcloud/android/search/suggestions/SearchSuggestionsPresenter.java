@@ -81,6 +81,7 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     private SuggestionsResult localSuggestionResult = SuggestionsResult.emptyLocal();
     private SuggestionsResult remoteSuggestionResult = SuggestionsResult.emptyRemote();
     private SuggestionListener suggestionListener;
+    private String searchQuery;
 
     @Inject
     SearchSuggestionsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -125,11 +126,14 @@ public class SearchSuggestionsPresenter extends RecyclerViewPresenter<Suggestion
     }
 
     void showSuggestionsFor(String query) {
-        if (collectionBinding != null) {
-            collectionBinding.disconnect();
+        if (!query.equals(this.searchQuery)) {
+            this.searchQuery = query;
+            if (collectionBinding != null) {
+                collectionBinding.disconnect();
+            }
+            collectionBinding = createCollection(query);
+            retryWith(collectionBinding);
         }
-        collectionBinding = createCollection(query);
-        retryWith(collectionBinding);
     }
 
     void setSuggestionListener(@NonNull SuggestionListener suggestionlistener) {

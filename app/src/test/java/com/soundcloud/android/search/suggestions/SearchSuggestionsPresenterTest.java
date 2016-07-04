@@ -6,7 +6,9 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
@@ -110,6 +112,19 @@ public class SearchSuggestionsPresenterTest extends AndroidUnitTest {
         final SuggestionItem firstSuggestionItem = testSubscriber.getOnNextEvents().get(0).get(0);
         assertThat(firstSuggestionItem.getKind()).isEqualTo(SuggestionItem.Kind.SearchItem);
         testSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void doesNotRepeatSearchWithTheSameQuery() {
+        when(operations.suggestionsFor(SEARCH_QUERY)).thenReturn(Observable.<SuggestionsResult>empty());
+
+        presenter.showSuggestionsFor(SEARCH_QUERY);
+        presenter.getCollectionBinding().items().subscribe((Subscriber) testSubscriber);
+        verify(operations).suggestionsFor(SEARCH_QUERY);
+        reset(operations);
+
+        presenter.showSuggestionsFor(SEARCH_QUERY);
+        verifyZeroInteractions(operations);
     }
 
     @Test

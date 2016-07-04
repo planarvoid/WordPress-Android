@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
@@ -63,7 +64,6 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     private Window window;
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
-    private SearchSuggestionsFragment suggestionsFragment;
 
     private final SearchIntentResolver intentResolver;
     private final SearchTracker tracker;
@@ -103,6 +103,14 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
         if (bundle == null) {
             intentResolver.handle(activity, activity.getIntent());
         }
+    }
+
+    @Override
+    public void onDestroy(AppCompatActivity activity) {
+        this.window = null;
+        this.fragmentManager = null;
+        this.fragmentTransaction = null;
+        super.onDestroy(activity);
     }
 
     @Override
@@ -165,11 +173,17 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     //without a commit but fails to see the commit on a later row.
     @SuppressLint("CommitTransaction")
     private void setupSuggestionsView() {
-        suggestionsFragment = new SearchSuggestionsFragment();
+        final Fragment fragment = getSuggestionFragment();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction
-                .replace(R.id.search_suggestions_container, suggestionsFragment, SearchSuggestionsFragment.TAG)
+                .replace(R.id.search_suggestions_container,
+                         fragment != null ? fragment : new SearchSuggestionsFragment(),
+                         SearchSuggestionsFragment.TAG)
                 .commit();
+    }
+
+    private SearchSuggestionsFragment getSuggestionFragment() {
+        return (SearchSuggestionsFragment) fragmentManager.findFragmentByTag(SearchSuggestionsFragment.TAG);
     }
 
     private void setupViewFlipper(Activity activity) {
@@ -252,7 +266,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     private void showSuggestionsFor(String query) {
         showSearchSuggestionsView();
-        suggestionsFragment.showSuggestionsFor(query);
+        getSuggestionFragment().showSuggestionsFor(query);
     }
 
     private void showCloseButton() {
@@ -264,11 +278,11 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     private void showSearchSuggestionsView() {
-        fragmentTransaction.show(suggestionsFragment);
+        fragmentTransaction.show(getSuggestionFragment());
     }
 
     private void hideSearchSuggestionsView() {
-        fragmentTransaction.hide(suggestionsFragment);
+        fragmentTransaction.hide(getSuggestionFragment());
     }
 
     private void showSearchResultsView() {
