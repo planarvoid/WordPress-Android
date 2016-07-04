@@ -77,7 +77,7 @@ android {
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }
 
-    releaseNoProguard {
+    preRelease {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE

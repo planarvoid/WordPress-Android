@@ -62,7 +62,7 @@ android {
       resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
     }
 
-    release {
+    preRelease {
       resValue "string", "build_type", "release"
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"
@@ -73,10 +73,10 @@ android {
       resValue "bool", "google_plus_enabled", "true"
 
       resValue "string", "mobile_api_base_url", "https://api-mobile.soundcloud.com"
-      resValue "string", "eventgateway_url", "https://telemetry.soundcloud.com/v1/events"
+      resValue "string", "eventgateway_url", "http://ci.mobile.s-cloud.net:4567/v1/events"
     }
 
-    releaseNoProguard {
+    release {
       resValue "string", "build_type", "release"
       resValue "string", "com_appboy_api_key", "a16b00df-fc7c-487c-a034-290cf918bf2a"
       resValue "string", "com_appboy_server", "serpens.iad.appboy.com"

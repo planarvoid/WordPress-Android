@@ -17,7 +17,7 @@ expected_events:
     anonymous_id: (\w|-)+
     page_name: stream:main
     source: stream
-    user: soundcloud:users:107904111
+    user: soundcloud:users:102628335
     connection_type: wifi
     reposted_by: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
@@ -44,7 +44,7 @@ expected_events:
     client_id: '3152'
     source: stream
     page_name: stream:main
-    user: soundcloud:users:107904111
+    user: soundcloud:users:102628335
     reposted_by: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'

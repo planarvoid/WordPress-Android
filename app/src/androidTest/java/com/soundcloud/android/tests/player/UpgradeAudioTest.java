@@ -1,7 +1,6 @@
 package com.soundcloud.android.tests.player;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
@@ -12,7 +11,6 @@ import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-@EventTrackingTest
 public class UpgradeAudioTest extends TrackingActivityTest<MainActivity> {
 
     private static final String TEST_SCENARIO_UPGRADE_AUDIO = "audio-events-v1-profile-upgrade";

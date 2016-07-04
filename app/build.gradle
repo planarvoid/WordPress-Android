@@ -38,7 +38,7 @@ ext {
 }
 
 private def provideApplicationId() {
-  boolean isReleaseBuild = (buildType == 'releaseNoProguard' || buildType == 'beta' || buildType == 'release')
+  boolean isReleaseBuild = (buildType == 'preRelease' || buildType == 'beta' || buildType == 'release')
   return isReleaseBuild ? rootPackage : "${rootPackage}.${buildType}"
 }
 

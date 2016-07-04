@@ -6,16 +6,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import org.hamcrest.core.Is;
 
 public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
+    private static final String TEST_SCENARIO_LIKES = "audio-events-v1-main-likes";
     private static final String TEST_LIKES_SHUFFLE = "likes-shuffle-events";
+
     private TrackLikesScreen likesScreen;
 
     public TrackLikesTest() {
@@ -35,10 +38,20 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
         TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testClickingTrackOpensPlayer() {
-        VisualPlayerElement playerElement = likesScreen.clickTrack(1);
+    public void testPlayAndPauseTrackFromLikes() {
+        final VisualPlayerElement playerElement =
+                likesScreen.clickTrack(0).waitForExpandedPlayerToStartPlaying();
 
-        assertThat(playerElement, is(visible()));
+        assertThat(playerElement, Is.is(visible()));
+        assertThat(playerElement, Is.is(playing()));
+
+        startEventTracking();
+
+        playerElement.clickArtwork();
+
+        assertThat(playerElement, Is.is(not(playing())));
+
+        finishEventTracking(TEST_SCENARIO_LIKES);
     }
 
     public void testLoadsNextPage() {
@@ -67,7 +80,6 @@ public class TrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount));
     }
 
-    @EventTrackingTest
     public void testSongIsPlayedWhenShuffleEnabled() {
         startEventTracking();
 

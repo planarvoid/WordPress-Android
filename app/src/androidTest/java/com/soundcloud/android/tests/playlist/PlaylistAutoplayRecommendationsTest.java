@@ -8,7 +8,6 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.CollectionsTest;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
@@ -19,7 +18,6 @@ import com.soundcloud.android.settings.SettingKey;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-@EventTrackingTest
 public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<MainActivity> {
 
     public static final String TEST_PLAYLIST_AUTO_RECOMMENDATION = "audio-events-v1-my-playlist-auto-recommendation";

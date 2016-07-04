@@ -72,7 +72,6 @@ task runLollipopTestsRelease << {
   def excludeAnnotations = [
           "com.soundcloud.android.framework.annotation.Ignore",
           "com.soundcloud.android.framework.annotation.AdsTest",
-          "com.soundcloud.android.framework.annotation.EventTrackingTest",
           "com.soundcloud.android.framework.annotation.BlockedTrackTest",
           "com.soundcloud.android.framework.annotation.CollectionsTest",
           "com.soundcloud.android.framework.annotation.GoogleAccountTest",

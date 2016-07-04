@@ -9,12 +9,13 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ActivityTest;
 
-public class StartStationTest extends ActivityTest<LauncherActivity> {
+public class StartStationTest extends TrackingActivityTest<LauncherActivity> {
+    private static final String START_STATION_FROM_PLAYLIST = "audio-events-v1-start_station_from_playlist";
 
     private PlaylistDetailsScreen playlistDetailsScreen;
 
@@ -38,9 +39,17 @@ public class StartStationTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testStartStationFromTrackItem() {
+        startEventTracking();
+
         final VisualPlayerElement player = playlistDetailsScreen.startStationFromFirstTrack();
 
         assertThat(player, is(visible()));
+        assertTrue(player.isExpandedPlayerPlaying());
+        player.swipeNext();
+        assertTrue(player.isExpandedPlayerPlaying());
+        player.clickArtwork();
+
+        finishEventTracking(START_STATION_FROM_PLAYLIST);
     }
 
     public void testStartStationFromPlayer() {

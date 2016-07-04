@@ -17,7 +17,7 @@ expected_events:
     action: pause
     client_id: '3152'
     page_name: collection:likes
-    user: soundcloud:users:107904111
+    user: soundcloud:users:135116976
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
     track_owner: soundcloud:users:[0-9]+

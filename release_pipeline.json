@@ -7,9 +7,9 @@
           {
             "build_release_apk_for_testing": {
               "artifacts": [
-                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-releaseNoProguard-*.apk"
+                "app/build/outputs/apk/soundcloud-android-*-${PIPELINE_VERSION}-preRelease-*.apk"
               ],
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew buildReleaseNoProguard",
+              "cmd": "BUILD_TYPE=preRelease ./gradlew buildPreRelease",
               "plugins": {
                 "androidLint": {
                   "failedTotalHigh": 0,
@@ -36,7 +36,7 @@
           },
           {
             "build_test_apk": {
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
+              "cmd": "BUILD_TYPE=preRelease ./gradlew clean assembleAcceptanceTest downloadNetworkManagerApkCI",
               "artifacts": [
                 "app/build/outputs/apk/*androidTest*.apk",
                 "app/build/outputs/apk/androidnetworkmanager-*.apk"
@@ -71,7 +71,7 @@
           },
           {
             "acceptance_tests": {
-              "cmd": "BUILD_TYPE=releaseNoProguard ./gradlew runLollipopTestsRelease",
+              "cmd": "BUILD_TYPE=preRelease ./gradlew runLollipopTestsRelease",
               "test-reports": "results/xml/*.xml",
               "plugins": {
                 "htmlReports": [
@@ -216,8 +216,8 @@
     }
   ],
   "settings": {
-    "default-name": "Android_Listeners_Release",
-    "git-branch": "release",
+    "default-name": "Android_Listeners_Release-MrLoggerLoggerTest",
+    "git-branch": "run-tracking-tests-against-release",
     "git-url": "git@github.com:soundcloud/SoundCloud-Android.git",
     "github-url": "https://github.com/soundcloud/SoundCloud-Android/",
     "jenkins-server": "http://mobile-jenkins.int.s-cloud.net",

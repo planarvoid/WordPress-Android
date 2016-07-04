@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
@@ -22,7 +21,6 @@ import android.content.Context;
 
 import java.io.IOException;
 
-@EventTrackingTest
 public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainActivity> {
     private static final String OFFLINE_PLAYLIST_CANCEL_DOWNLOAD_TRACKING = "offline_playlist_cancel_download_tracking";
     private static final String OFFLINE_LIKES_STORAGE_LIMIT_TRACKING = "offline_likes_storage_limit_tracking";
