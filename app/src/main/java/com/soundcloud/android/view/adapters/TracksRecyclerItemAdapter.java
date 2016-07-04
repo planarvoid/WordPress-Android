@@ -11,7 +11,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, TracksRecyclerItemAdapter.TrackViewHolder>
-        implements PlayingTrackAware {
+        implements PlayingTrackAware, RepeatableItemAdapter {
 
     private static final int TRACK_ITEM_TYPE = 0;
 
@@ -30,10 +30,25 @@ public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, Tr
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
-        for (TrackItem item : getItems()) {
-            item.setIsPlaying(item.getUrn().equals(currentlyPlayingUrn));
+        for (int position = 0; position < getItemCount(); position++) {
+            TrackItem item = getItem(position);
+            boolean isCurrent = item.getUrn().equals(currentlyPlayingUrn);
+            if (item.isPlaying() || isCurrent) {
+                item.setIsPlaying(isCurrent);
+                notifyItemChanged(position);
+            }
         }
-        notifyDataSetChanged();
+    }
+
+    @Override
+    public void updateInRepeatMode(boolean isInRepeatMode) {
+        for (int position = 0; position < getItemCount(); position++) {
+            TrackItem item = getItem(position);
+            if (item.isInRepeatMode() != isInRepeatMode) {
+                item.setInRepeatMode(isInRepeatMode);
+                notifyItemChanged(position);
+            }
+        }
     }
 
     @Override

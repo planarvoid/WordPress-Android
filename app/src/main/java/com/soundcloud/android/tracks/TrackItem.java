@@ -8,6 +8,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
 
@@ -17,6 +18,7 @@ import java.util.List;
 public class TrackItem extends PlayableItem implements TieredTrack {
 
     private boolean isPlaying;
+    private boolean isInRepeatMode;
 
     public static TrackItem from(PropertySet trackState) {
         return new TrackItem(trackState);
@@ -93,6 +95,14 @@ public class TrackItem extends PlayableItem implements TieredTrack {
         return isPlaying;
     }
 
+    public boolean isInRepeatMode() {
+        return isInRepeatMode;
+    }
+
+    public void setInRepeatMode(boolean inRepeatMode) {
+        isInRepeatMode = inRepeatMode;
+    }
+
     public boolean hasPlayCount() {
         return getPlayCount() > 0;
     }
@@ -119,11 +129,13 @@ public class TrackItem extends PlayableItem implements TieredTrack {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof TrackItem && ((TrackItem) o).source.equals(this.source);
+        return o instanceof TrackItem && ((TrackItem) o).source.equals(this.source)
+                && ((TrackItem) o).isInRepeatMode == this.isInRepeatMode
+                && ((TrackItem) o).isPlaying == this.isPlaying;
     }
 
     @Override
     public int hashCode() {
-        return source.hashCode();
+        return MoreObjects.hashCode(source, isInRepeatMode, isPlaying);
     }
 }

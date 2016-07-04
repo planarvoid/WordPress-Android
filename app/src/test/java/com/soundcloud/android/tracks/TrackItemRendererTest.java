@@ -214,4 +214,14 @@ public class TrackItemRendererTest extends AndroidUnitTest {
 
         verify(itemView).setClickable(false);
     }
+
+    @Test
+    public void shouldSetInRepeatingMode() {
+        trackItem.setIsPlaying(true);
+        trackItem.setInRepeatMode(true);
+
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
+
+        verify(trackItemView).setRepeating(true, true);
+    }
 }

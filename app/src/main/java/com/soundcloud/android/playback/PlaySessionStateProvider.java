@@ -60,12 +60,17 @@ public class PlaySessionStateProvider {
     public PlaybackProgress getLastProgressForItem(Urn urn) {
         if (currentPlayingUrn.equals(urn) && lastProgress.isDurationValid()) {
             return lastProgress;
-
         } else if (isLastPlayed(urn)) {
             return new PlaybackProgress(getLastSavedProgressPosition(), Consts.NOT_SET);
-
         } else {
             return PlaybackProgress.empty();
+        }
+    }
+
+    void clearLastProgressForItem(Urn urn) {
+        if (currentPlayingUrn.equals(urn) || isLastPlayed(urn)) {
+            playSessionStateStorage.saveProgress(0);
+            lastProgress = PlaybackProgress.empty();
         }
     }
 

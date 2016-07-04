@@ -1239,6 +1239,115 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class));
     }
 
+    @Test
+    public void isNotInRepeatModeByDefault() {
+        assertThat(playQueueManager.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_NONE);
+    }
+
+    @Test
+    public void setsRepeatMode() {
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ONE);
+
+        assertThat(playQueueManager.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
+    }
+
+    @Test
+    public void whenInRepeatOneModeItRepeats() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 1);
+
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ONE);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+    }
+
+    @Test
+    public void whenInRepeatNoneModeItDoesNotRepeat() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 1);
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_NONE);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
+    }
+
+    @Test
+    public void whenInRepeatOneModePublishesCurrentPosition() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 1);
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ONE);
+
+        playQueueManager.autoMoveToNextPlayableItem();
+
+        final List<CurrentPlayQueueItemEvent> actual = eventBus.eventsOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
+        assertCurrentPlayQueueItemEventsEqual(actual.get(1),
+                                              playQueue.getPlayQueueItem(1),
+                                              playlistSessionSource.getCollectionUrn(),
+                                              1);
+    }
+
+    @Test
+    public void whenInRepeatAllMovesToNextWhenNotAtTheEnd() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 1);
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ALL);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
+    }
+
+    @Test
+    public void whenInRepeatAllMovesToFirstPositionWhenItReachesTheEnd() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 2);
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ALL);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(0);
+    }
+
+    @Test
+    public void whenInRepeatAllRepeatsCurrentWhenOnlyOneTrack() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ALL);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(0);
+    }
+
+    @Test
+    public void whenInRepeatAllReturnsFalseWhenQueueIsEmpty() {
+        final PlayQueue playQueue = createPlayQueue(Collections.<Urn>emptyList());
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ALL);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isFalse();
+    }
+
+    @Test
+    public void whenInRepeatAllMovesToFirstPlayableItem() {
+        final PlayQueue playQueue = createPlayQueue(Arrays.asList(Urn.forPlaylist(1), Urn.forTrack(2)));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ALL);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+    }
+
+    @Test
+    public void whenLoadingANewPlayQueueResetsRepeatMode() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        playQueueManager.setRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ONE);
+
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
+
+        assertThat(playQueueManager.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_NONE);
+    }
+
+
+
     private void expectPlayQueueContentToBeEqual(PlayQueueManager playQueueManager, PlayQueue playQueue) {
         assertThat(playQueueManager.getQueueSize()).isEqualTo(playQueue.size());
         for (int i = 0; i < playQueueManager.getQueueSize(); i++) {

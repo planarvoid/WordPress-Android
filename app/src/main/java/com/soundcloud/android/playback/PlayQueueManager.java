@@ -39,6 +39,8 @@ import java.util.List;
 @Singleton
 public class PlayQueueManager implements OriginProvider {
 
+    public enum RepeatMode {REPEAT_NONE, REPEAT_ONE, REPEAT_ALL}
+
     private static final String UI_ASSERTION_MESSAGE = "Play queues must be set from the main thread only.";
 
     private final PlayQueueOperations playQueueOperations;
@@ -48,6 +50,7 @@ public class PlayQueueManager implements OriginProvider {
 
     private int currentPosition;
     private boolean currentItemIsUserTriggered;
+    private RepeatMode repeatMode = RepeatMode.REPEAT_NONE;
 
     private PlayQueue playQueue = PlayQueue.empty();
     private PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
@@ -294,7 +297,39 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     public boolean autoMoveToNextPlayableItem() {
-        return moveToNextPlayableItemInternal(false);
+        switch (repeatMode) {
+            case REPEAT_ONE:
+                return repeatCurrentPlayableItemInternal();
+            case REPEAT_ALL:
+                return moveToNextOrFirstPlayableItemInternal(false);
+            case REPEAT_NONE:
+            default:
+                return moveToNextPlayableItemInternal(false);
+        }
+    }
+
+    private boolean moveToNextOrFirstPlayableItemInternal(boolean userTriggered) {
+        if (isQueueEmpty()) {
+            return false;
+        } else if (getNextPlayableItem() != Consts.NOT_SET) {
+            return moveToNextPlayableItemInternal(userTriggered);
+        } else if (currentPosition == 0) {
+            return repeatCurrentPlayableItemInternal();
+        } else if (isPlayableAtPosition(0)) {
+            setPositionInternal(0, userTriggered);
+            return true;
+        } else {
+            currentPosition = 0;
+            return moveToNextPlayableItemInternal(userTriggered);
+        }
+    }
+
+    public RepeatMode getRepeatMode() {
+        return repeatMode;
+    }
+
+    public void setRepeatMode(RepeatMode repeatMode) {
+        this.repeatMode = repeatMode;
     }
 
     private boolean moveToNextPlayableItemInternal(boolean userTriggered) {
@@ -308,6 +343,12 @@ public class PlayQueueManager implements OriginProvider {
         } else {
             return false;
         }
+    }
+
+    private boolean repeatCurrentPlayableItemInternal() {
+        currentItemIsUserTriggered = false;
+        publishPositionUpdate();
+        return true;
     }
 
     private int getNextPlayableItem() {
@@ -365,6 +406,7 @@ public class PlayQueueManager implements OriginProvider {
 
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
+        this.repeatMode = RepeatMode.REPEAT_NONE;
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         this.currentItemIsUserTriggered = true;
         this.playSessionSource = playSessionSource;

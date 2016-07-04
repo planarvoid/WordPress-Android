@@ -17,6 +17,7 @@ import javax.inject.Inject;
 
 public class TrackItemView {
 
+    private final View view;
     private final ImageView image;
     private final TextView creator;
     private final TextView title;
@@ -33,6 +34,7 @@ public class TrackItemView {
     private OverflowListener overflowListener;
 
     public TrackItemView(View view) {
+        this.view = view;
         creator = (TextView) view.findViewById(R.id.list_item_header);
         title = (TextView) view.findViewById(R.id.list_item_subheader);
         image = (ImageView) view.findViewById(R.id.image);
@@ -68,6 +70,14 @@ public class TrackItemView {
     public void setTitle(String name, @ColorRes int titleColor) {
         title.setText(name);
         title.setTextColor(getColor(titleColor));
+    }
+
+    void setRepeating(boolean inRepeatingMode, boolean isPlaying) {
+        if (inRepeatingMode && !isPlaying) {
+            view.setAlpha(0.5f);
+        } else {
+            view.setAlpha(1.0f);
+        }
     }
 
     private int getColor(int color) {

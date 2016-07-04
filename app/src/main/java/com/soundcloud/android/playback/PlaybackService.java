@@ -223,7 +223,6 @@ public class PlaybackService extends Service
                                                                                         playbackItem.getUrn());
 
             if (currentPlaybackItem.isPresent()) {
-                Log.i("asdf","Publishing progress " + analyticsDispatcher);
                 playSessionStateProvider.onProgressEvent(playbackProgress);
                 analyticsDispatcher.onProgressEvent(currentPlaybackItem.get(), playbackProgress);
             }

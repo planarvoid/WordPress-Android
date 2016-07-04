@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ALL;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -86,9 +87,12 @@ public class PlayQueueExtender {
     private boolean currentQueueAllowsRecommendations() {
         final PlaySessionSource currentPlaySessionSource = playQueueManager.getCurrentPlaySessionSource();
         final boolean isStation = playQueueManager.getCollectionUrn().isStation();
-        return !isStation && (sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true) ||
-                currentPlaySessionSource.originatedInExplore() ||
-                Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen()));
+        final boolean isRepeatAll = REPEAT_ALL.equals(playQueueManager.getRepeatMode());
+        final boolean isAutoplay = sharedPreferences.getBoolean(SettingKey.AUTOPLAY_RELATED_ENABLED, true);
+        final boolean isFromExplore = currentPlaySessionSource.originatedInExplore();
+        final boolean isDeeplink = Screen.DEEPLINK.get().equals(currentPlaySessionSource.getOriginScreen());
+
+        return !isStation && !isRepeatAll && (isAutoplay || isFromExplore || isDeeplink);
     }
 
     private boolean withinRecommendedFetchTolerance() {

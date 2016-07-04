@@ -265,6 +265,7 @@ public class PlaySessionController {
                         playCurrent();
                     }
                 } else if (playSessionStateProvider.isPlaying() || playSessionStateProvider.isInErrorState()) {
+                    playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
                     playCurrent();
                 }
             } else if (playQueueItem.isVideo()) {

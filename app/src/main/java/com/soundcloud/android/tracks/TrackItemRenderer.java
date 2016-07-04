@@ -101,6 +101,11 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
         loadArtwork(trackItemView, track);
         setupOverFlow(trackItemView, track, position);
+        setupRepeating(track, trackItemView);
+    }
+
+    private void setupRepeating(TrackItem track, TrackItemView trackItemView) {
+        trackItemView.setRepeating(track.isInRepeatMode(), track.isPlaying());
     }
 
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
@@ -115,7 +120,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    protected void setupOverFlow(final TrackItemView itemView, final TrackItem track, final int position) {
+    private void setupOverFlow(final TrackItemView itemView, final TrackItem track, final int position) {
         itemView.setOverflowListener(new TrackItemView.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {

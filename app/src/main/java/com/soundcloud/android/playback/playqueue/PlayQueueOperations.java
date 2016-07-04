@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ONE;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -51,8 +52,19 @@ public class PlayQueueOperations {
                          .flatMapIterable(TO_URN)
                          .concatMapEager(toPropertySets)
                          .map(TrackItem.fromPropertySet())
+                         .map(withCurrentRepeatMode())
                          .toList()
                          .subscribeOn(scheduler);
+    }
+
+    private Func1<TrackItem, TrackItem> withCurrentRepeatMode() {
+        return new Func1<TrackItem, TrackItem>() {
+            @Override
+            public TrackItem call(TrackItem trackItem) {
+                trackItem.setInRepeatMode(playQueueManager.getRepeatMode() == REPEAT_ONE);
+                return trackItem;
+            }
+        };
     }
 
 }

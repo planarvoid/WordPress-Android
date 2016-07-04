@@ -169,6 +169,14 @@ public class PlayQueueExtenderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void doesNotAppendRecommendedTracksWhenQueueIsInRepeatAllMode() {
+        when(playQueueManager.getRepeatMode()).thenReturn(PlayQueueManager.RepeatMode.REPEAT_ALL);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromNewQueue(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        verifyZeroInteractions(playQueueOperations);
+    }
+
+    @Test
     public void doesNotAppendRecommendedTracksMoreThanTolerance() {
         when(playQueueManager.getPlayableQueueItemsRemaining()).thenReturn(PlayQueueExtender.RECOMMENDED_LOAD_TOLERANCE + 1);
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,

@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.android.ApplicationModule.LIGHT_TRACK_ADAPTER;
+import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ONE;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -10,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -27,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -64,6 +67,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
+        recyclerView.setItemAnimator(new PlayQueueItemAnimator());
+
+        setupRepeatButton(view);
+
         playQueueDrawer.setVisibility(View.VISIBLE);
         subscriptions.add(eventBus.subscribeImmediate(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                                                       new UpdatePlayingTrackSubscriber(adapter)));
@@ -77,13 +84,11 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     private class UpdateSubscriber extends DefaultSubscriber<PlayQueueEvent> {
-
         @Override
         public void onNext(PlayQueueEvent playQueueEvent) {
             updateSubscription.unsubscribe();
             refreshPlayQueue();
         }
-
     }
 
     private void refreshPlayQueue() {
@@ -93,7 +98,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     private class PlayQueueSubscriber extends DefaultSubscriber<List<TrackItem>> {
-
         @Override
         public void onNext(List<TrackItem> trackItems) {
             adapter.clear();
@@ -104,7 +108,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
             recyclerView.scrollToPosition(getScrollPosition());
             adapter.updateNowPlaying(playQueueManager.getCurrentPlayQueueItem().getUrn());
         }
-
     }
 
     private int getScrollPosition() {
@@ -127,7 +130,45 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     @Override
     public void trackItemClicked(Urn urn) {
         playQueueManager.setCurrentPlayQueueItem(urn);
+        adapter.updateNowPlaying(urn);
     }
 
-}
+    private void setupRepeatButton(View view) {
+        ImageView button = ButterKnife.findById(view, R.id.repeat_button);
+        setupRepeatButtonIcon(button);
 
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playQueueManager.setRepeatMode(getNextRepeatMode());
+                updateRepeatAdapter();
+                setupRepeatButtonIcon((ImageView) v);
+            }
+        });
+    }
+
+    private RepeatMode getNextRepeatMode() {
+        final RepeatMode[] repeatModes = RepeatMode.values();
+        final int currentOrdinal = playQueueManager.getRepeatMode().ordinal();
+        final int nextOrdinal = (currentOrdinal + 1) % repeatModes.length;
+        return repeatModes[nextOrdinal];
+    }
+
+    private void setupRepeatButtonIcon(ImageView button) {
+        switch (playQueueManager.getRepeatMode()) {
+            case REPEAT_ONE:
+                button.setImageResource(R.drawable.ic_repeat_one);
+                break;
+            case REPEAT_ALL:
+                button.setImageResource(R.drawable.ic_repeat_all);
+                break;
+            case REPEAT_NONE:
+            default:
+                button.setImageResource(R.drawable.ic_repeat);
+        }
+    }
+
+    private void updateRepeatAdapter() {
+        adapter.updateInRepeatMode(playQueueManager.getRepeatMode() == REPEAT_ONE);
+    }
+}
