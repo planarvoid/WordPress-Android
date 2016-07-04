@@ -16,7 +16,7 @@ public class ChartTrackItem extends TrackItem {
     }
 
     @VisibleForTesting
-    ChartTrackItem(ChartType chartType, PropertySet propertySet, int position) {
+    public ChartTrackItem(ChartType chartType, PropertySet propertySet, int position) {
         super(propertySet);
         this.chartType = chartType;
         this.position = position;

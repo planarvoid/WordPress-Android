@@ -223,20 +223,22 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void shouldShowTrackPositionAndPostedTimeForTrendingChartTrackItem() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        final TrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack);
-        renderer.bindItemView(1, itemView, Arrays.asList(chartTrackItem));
+        final int position = 0;
+        final TrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack.toPropertySet(), position);
+        renderer.bindItemView(position, itemView, Arrays.asList(chartTrackItem));
 
-        verify(trackItemView).showPosition(1);
+        verify(trackItemView).showPosition(position);
         verify(trackItemView).showPostedTime(apiTrack.getCreatedAt());
     }
 
     @Test
     public void shouldShowTrackPositionButNotPostedTimeForTopChartTrackItem() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        final TrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack);
-        renderer.bindItemView(1, itemView, Arrays.asList(chartTrackItem));
+        final int position = 0;
+        final TrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack.toPropertySet(), position);
+        renderer.bindItemView(position, itemView, Arrays.asList(chartTrackItem));
 
-        verify(trackItemView).showPosition(1);
+        verify(trackItemView).showPosition(position);
         verify(trackItemView, never()).showPostedTime(apiTrack.getCreatedAt());
         verify(trackItemView).showPlaycount(anyString());
     }
