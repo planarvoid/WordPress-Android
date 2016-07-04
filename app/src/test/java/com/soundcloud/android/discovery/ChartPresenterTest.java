@@ -11,14 +11,14 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
@@ -27,22 +27,22 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ChartPresenterTest extends AndroidUnitTest {
-    final ChartTrackItem.Header HEADER = ChartTrackItem.forHeader(TOP);
-    final ChartTrackItem.Track FIRST_TRACK_ITEM = ChartTrackItem.forTrack(ModelFixtures.create(TrackItem.class));
-    final ChartTrackItem.Track SECOND_TRACK_ITEM = ChartTrackItem.forTrack(ModelFixtures.create(TrackItem.class));
-    final ChartTrackItem.Track THIRD_TRACK_ITEM = ChartTrackItem.forTrack(ModelFixtures.create(TrackItem.class));
-    final ChartTrackItem.Footer FOOTER = ChartTrackItem.forFooter(1);
-    final ArrayList<ChartTrackItem> CHART_TRACK_ITEMS = Lists.newArrayList(HEADER,
-                                                                           FIRST_TRACK_ITEM,
-                                                                           SECOND_TRACK_ITEM,
-                                                                           THIRD_TRACK_ITEM,
-                                                                           FOOTER);
+    final ChartTrackListItem.Header HEADER = ChartTrackListItem.forHeader(TOP);
+    final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem(1);
+    final ChartTrackListItem.Track SECOND_TRACK_ITEM = createChartTrackListItem(2);
+    final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3);
+    final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.forFooter(1);
+    final List<ChartTrackListItem> CHART_TRACK_ITEMS = Lists.newArrayList(HEADER,
+                                                                          FIRST_TRACK_ITEM,
+                                                                          SECOND_TRACK_ITEM,
+                                                                          THIRD_TRACK_ITEM,
+                                                                          FOOTER);
 
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private ChartsOperations chartsOperations;
@@ -66,7 +66,6 @@ public class ChartPresenterTest extends AndroidUnitTest {
         chartPresenter.onBuildBinding(getChartArguments());
     }
 
-    @NonNull
     private Bundle getChartArguments() {
         Bundle bundle = new Bundle();
         bundle.putSerializable(ChartFragment.EXTRA_TYPE, chartType);
@@ -77,16 +76,16 @@ public class ChartPresenterTest extends AndroidUnitTest {
 
     @Test
     public void startsPlaybackFromTrackItem() {
-        final ArrayList<Urn> expectedPlayQueue = Lists.newArrayList(FIRST_TRACK_ITEM.trackItem.getUrn(),
-                                                                    SECOND_TRACK_ITEM.trackItem.getUrn(),
-                                                                    THIRD_TRACK_ITEM.trackItem.getUrn());
+        final ArrayList<Urn> expectedPlayQueue = Lists.newArrayList(FIRST_TRACK_ITEM.chartTrackItem.getUrn(),
+                                                                    SECOND_TRACK_ITEM.chartTrackItem.getUrn(),
+                                                                    THIRD_TRACK_ITEM.chartTrackItem.getUrn());
         final int chartItemPosition = CHART_TRACK_ITEMS.indexOf(SECOND_TRACK_ITEM);
         when(chartTrackAdapter.getItem(chartItemPosition)).thenReturn(SECOND_TRACK_ITEM);
         when(chartTrackAdapter.getItems()).thenReturn(CHART_TRACK_ITEMS);
         when(playbackInitiator.playTracks(anyList(), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.empty());
         chartPresenter.onItemClicked(mock(View.class), chartItemPosition);
 
-        final int expectedPlayQueuePosition = expectedPlayQueue.indexOf(SECOND_TRACK_ITEM.trackItem.getUrn());
+        final int expectedPlayQueuePosition = expectedPlayQueue.indexOf(SECOND_TRACK_ITEM.chartTrackItem.getUrn());
         verify(playbackInitiator).playTracks(expectedPlayQueue, expectedPlayQueuePosition, PlaySessionSource.EMPTY);
     }
 
@@ -103,4 +102,11 @@ public class ChartPresenterTest extends AndroidUnitTest {
         verifyZeroInteractions(playbackInitiator);
     }
 
+    private ChartTrackListItem.Track createChartTrackListItem(int position) {
+        return ChartTrackListItem.forTrack(new ChartTrackItem(
+                ChartType.TOP,
+                PropertySet.create().put(PlayableProperty.URN, Urn.forTrack(position)),
+                position
+        ));
+    }
 }

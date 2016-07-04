@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class ChartTracksFooterRenderer implements CellRenderer<ChartTrackItem> {
+class ChartTracksFooterRenderer implements CellRenderer<ChartTrackListItem> {
 
     private final Resources resources;
 
@@ -24,13 +25,14 @@ class ChartTracksFooterRenderer implements CellRenderer<ChartTrackItem> {
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.chart_tracks_header_item, parent, false);
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.chart_tracks_footer_item, parent, false);
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<ChartTrackItem> items) {
-        ChartTrackItem.Footer item = (ChartTrackItem.Footer) items.get(position);
+    public void bindItemView(int position, View itemView, List<ChartTrackListItem> items) {
+        ChartTrackListItem.Footer item = (ChartTrackListItem.Footer) items.get(position);
         final String formattedTime = ScTextUtils.formatTimeElapsedSince(resources, item.lastUpdatedAt, true);
-        ((TextView) itemView).setText(resources.getString(R.string.last_updated, formattedTime));
+        TextView textView = ButterKnife.findById(itemView, R.id.charts_footer);
+        textView.setText(resources.getString(R.string.updated_time, formattedTime));
     }
 }

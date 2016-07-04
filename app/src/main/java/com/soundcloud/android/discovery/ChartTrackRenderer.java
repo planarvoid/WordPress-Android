@@ -5,7 +5,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
-import org.jetbrains.annotations.Nullable;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +12,9 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class ChartTrackRenderer implements CellRenderer<ChartTrackItem> {
+class ChartTrackRenderer implements CellRenderer<ChartTrackListItem> {
 
     private final TrackItemRenderer trackItemRenderer;
-    private final static Function<ChartTrackItem, TrackItem> CHART_TRACK_TO_TRACK_ITEM =
-            new Function<ChartTrackItem, TrackItem>() {
-        @Nullable
-        @Override
-        public TrackItem apply(ChartTrackItem input) {
-            return ((ChartTrackItem.Track) input).trackItem;
-        }
-    };
 
     @Inject
     ChartTrackRenderer(TrackItemRenderer trackItemRenderer) {
@@ -36,8 +27,16 @@ class ChartTrackRenderer implements CellRenderer<ChartTrackItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<ChartTrackItem> items) {
-        final List<TrackItem> trackItems = Lists.transform(items, CHART_TRACK_TO_TRACK_ITEM);
+    public void bindItemView(final int position, View itemView, List<ChartTrackListItem> items) {
+        final List<TrackItem> trackItems = Lists.transform(items, toPositionedChartTrackItem(position));
         trackItemRenderer.bindItemView(position, itemView, trackItems);
+    }
+
+    private static Function<ChartTrackListItem, TrackItem> toPositionedChartTrackItem(final int position) {
+        return new Function<ChartTrackListItem, TrackItem>() {
+            public TrackItem apply(ChartTrackListItem input) {
+                return ((ChartTrackListItem.Track) input).chartTrackItem.copyWithPosition(position);
+            }
+        };
     }
 }

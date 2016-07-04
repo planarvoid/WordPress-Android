@@ -1,5 +1,7 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.api.model.ChartType.TOP;
+import static com.soundcloud.android.api.model.ChartType.TRENDING;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -10,7 +12,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.discovery.ChartTrackItem;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
@@ -20,6 +24,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
@@ -213,6 +218,27 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         verify(itemView).setClickable(false);
+    }
+
+    @Test
+    public void shouldShowTrackPositionAndPostedTimeForTrendingChartTrackItem() {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final TrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack);
+        renderer.bindItemView(1, itemView, Arrays.asList(chartTrackItem));
+
+        verify(trackItemView).showPosition(1);
+        verify(trackItemView).showPostedTime(apiTrack.getCreatedAt());
+    }
+
+    @Test
+    public void shouldShowTrackPositionButNotPostedTimeForTopChartTrackItem() {
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        final TrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack);
+        renderer.bindItemView(1, itemView, Arrays.asList(chartTrackItem));
+
+        verify(trackItemView).showPosition(1);
+        verify(trackItemView, never()).showPostedTime(apiTrack.getCreatedAt());
+        verify(trackItemView).showPlaycount(anyString());
     }
 
     @Test

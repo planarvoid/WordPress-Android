@@ -13,6 +13,7 @@ import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Tables.ChartTracks;
+import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
@@ -33,14 +34,14 @@ class ChartsStorage {
     private final PropellerRx propellerRx;
     private final Scheduler scheduler;
 
-    private final Func1<Chart, Observable<Chart>> addTracksToChart = new Func1<Chart, Observable<Chart>>() {
+    private final Func1<Chart, Observable<Chart>> addTrackArtworksToChart = new Func1<Chart, Observable<Chart>>() {
         @Override
         public Observable<Chart> call(final Chart chart) {
-            return chartTracks(chart.localId())
-                    .map(new Func1<List<ChartTrack>, Chart>() {
+            return trackArtworks(chart.localId())
+                    .map(new Func1<List<TrackArtwork>, Chart>() {
                         @Override
-                        public Chart call(List<ChartTrack> chartTracks) {
-                            return chart.copyWithTracks(chartTracks);
+                        public Chart call(List<TrackArtwork> trackArtworks) {
+                            return chart.copyWithTrackArtworks(trackArtworks);
                         }
                     });
         }
@@ -63,7 +64,7 @@ class ChartsStorage {
 
         return propellerRx.query(query)
                           .map(new ChartMapper())
-                          .flatMap(addTracksToChart)
+                          .flatMap(addTrackArtworksToChart)
                           .toList()
                           .map(toChartBucket())
                           .subscribeOn(scheduler);
@@ -90,7 +91,7 @@ class ChartsStorage {
         });
     }
 
-    private Observable<List<ChartTrack>> chartTracks(final Long chartId) {
+    private Observable<List<TrackArtwork>> trackArtworks(final Long chartId) {
 
         final Where soundsViewJoin = filter().whereEq(ChartTracks.SOUND_ID, SoundView.field(_ID));
         final Query query = Query.from(ChartTracks.TABLE)
@@ -100,15 +101,15 @@ class ChartsStorage {
 
         return propellerRx
                 .query(query)
-                .map(new ChartTrackMapper())
+                .map(new TrackArtworkMapper())
                 .toList();
     }
 
-    private static final class ChartTrackMapper extends RxResultMapper<ChartTrack> {
+    private static final class TrackArtworkMapper extends RxResultMapper<TrackArtwork> {
         @Override
-        public ChartTrack map(CursorReader cursorReader) {
-            return ChartTrack.create(Urn.forTrack(cursorReader.getLong(ChartTracks.SOUND_ID)),
-                                     Optional.fromNullable(cursorReader.getString(ARTWORK_URL)));
+        public TrackArtwork map(CursorReader cursorReader) {
+            return TrackArtwork.create(Urn.forTrack(cursorReader.getLong(ChartTracks.SOUND_ID)),
+                                       Optional.fromNullable(cursorReader.getString(ARTWORK_URL)));
         }
     }
 

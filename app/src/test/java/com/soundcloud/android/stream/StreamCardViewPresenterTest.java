@@ -19,6 +19,7 @@ import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -268,7 +269,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private PlaylistItem postedPlaylist() {
         final PropertySet playlist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        playlist.put(SoundStreamProperty.CREATED_AT, createdAtStream);
+        playlist.put(PlayableProperty.CREATED_AT, createdAtStream);
 
         return PlaylistItem.from(playlist);
     }
@@ -284,7 +285,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private TrackItem postedTrack() {
         final PropertySet track = ModelFixtures.create(ApiTrack.class).toPropertySet();
-        track.put(SoundStreamProperty.CREATED_AT, createdAtStream);
+        track.put(PlayableProperty.CREATED_AT, createdAtStream);
 
         return TrackItem.from(track);
     }
@@ -300,14 +301,14 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
 
     private TrackItem upsellableTrack() {
         final PropertySet track = TestPropertySets.upsellableTrack();
-        track.put(SoundStreamProperty.CREATED_AT, createdAtStream);
+        track.put(PlayableProperty.CREATED_AT, createdAtStream);
 
         return TrackItem.from(track);
     }
 
     private TrackItem highTierTrack() {
         final PropertySet track = TestPropertySets.highTierTrack();
-        track.put(SoundStreamProperty.CREATED_AT, createdAtStream);
+        track.put(PlayableProperty.CREATED_AT, createdAtStream);
 
         return TrackItem.from(track);
     }

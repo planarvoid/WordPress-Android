@@ -16,6 +16,7 @@ import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -180,7 +181,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     }
 
     private Chart createChart(long localId, ChartType trending, ChartCategory none, ChartBucketType chartBucketType) {
-        final ChartTrack chartTrack = ChartTrack.create(Urn.forTrack(localId), Optional.<String>absent());
+        final TrackArtwork trackArtwork = TrackArtwork.create(Urn.forTrack(localId), Optional.<String>absent());
 
         return Chart.create(localId,
                             trending,
@@ -188,7 +189,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
                             "title",
                             new Urn("soundcloud:chart"),
                             chartBucketType,
-                            Collections.singletonList(chartTrack));
+                            Collections.singletonList(trackArtwork));
     }
 
     private ApiChart createApiChart(ChartType type, String genre, Optional<String> nextPageLink) {

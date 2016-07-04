@@ -184,7 +184,7 @@ public class SoundStreamStorage implements TimelineStorage {
             propertySet.put(PlayableProperty.CREATOR_URN, Urn.forUser(cursorReader.getInt(SoundView.USER_ID)));
             propertySet.put(SoundStreamProperty.AVATAR_URL_TEMPLATE,
                             Optional.fromNullable(cursorReader.getString(SoundView.USER_AVATAR_URL)));
-            propertySet.put(SoundStreamProperty.CREATED_AT,
+            propertySet.put(PlayableProperty.CREATED_AT,
                             cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,
                             Sharing.PRIVATE.name()

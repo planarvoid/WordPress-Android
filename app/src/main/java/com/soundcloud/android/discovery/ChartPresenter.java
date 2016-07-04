@@ -12,10 +12,9 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
@@ -30,34 +29,40 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-class ChartPresenter extends RecyclerViewPresenter<PagedChartTracks, ChartTrackItem> {
+class ChartPresenter extends RecyclerViewPresenter<PagedChartTracks, ChartTrackListItem> {
 
-    private final static Predicate<ChartTrackItem> isTrack = new Predicate<ChartTrackItem>() {
-        public boolean apply(ChartTrackItem input) {
-            return input.getKind() == ChartTrackItem.Kind.TrackItem;
+    private static final Predicate<ChartTrackListItem> IS_TRACK = new Predicate<ChartTrackListItem>() {
+        public boolean apply(ChartTrackListItem input) {
+            return input.getKind() == ChartTrackListItem.Kind.TrackItem;
         }
     };
 
-    private static final Function<ApiTrack, ChartTrackItem> apiTrackToChartItem = new Function<ApiTrack, ChartTrackItem>() {
-        public ChartTrackItem apply(ApiTrack input) {
-            return ChartTrackItem.forTrack(TrackItem.from(input));
-        }
-    };
+    private static Function<ApiTrack, ChartTrackListItem> toChartTrackListItem(final ChartType chartType) {
+        return new Function<ApiTrack, ChartTrackListItem>() {
+            public ChartTrackListItem apply(ApiTrack input) {
+                return ChartTrackListItem.forTrack(new ChartTrackItem(chartType, input));
+            }
+        };
+    }
 
-    private static final Func1<PagedChartTracks, Iterable<ChartTrackItem>> toPresentationModels =
-            new Func1<PagedChartTracks, Iterable<ChartTrackItem>>() {
+    private static final Func1<PagedChartTracks, Iterable<ChartTrackListItem>> TO_PRESENTATION_MODELS =
+            new Func1<PagedChartTracks, Iterable<ChartTrackListItem>>() {
                 @Override
-                public Iterable<ChartTrackItem> call(PagedChartTracks pagedChartTracks) {
+                public Iterable<ChartTrackListItem> call(final PagedChartTracks pagedChartTracks) {
 
-                    final List<ChartTrackItem> chartTrackItems = new ArrayList<>();
+                    final List<ChartTrackListItem> chartTrackListItems = new ArrayList<>(pagedChartTracks.items()
+                                                                                                         .getCollection()
+                                                                                                         .size() + 2);
                     if (pagedChartTracks.firstPage()) {
-                        chartTrackItems.add(ChartTrackItem.forHeader(pagedChartTracks.chartType()));
+                        chartTrackListItems.add(ChartTrackListItem.forHeader(pagedChartTracks.chartType()));
                     }
-                    chartTrackItems.addAll(Lists.newArrayList(transform(pagedChartTracks.items(), apiTrackToChartItem)));
+                    Iterables.addAll(chartTrackListItems,
+                                     transform(pagedChartTracks.items(),
+                                               toChartTrackListItem(pagedChartTracks.chartType())));
                     if (pagedChartTracks.lastPage()) {
-                        chartTrackItems.add(ChartTrackItem.forFooter(pagedChartTracks.lastUpdated()));
+                        chartTrackListItems.add(ChartTrackListItem.forFooter(pagedChartTracks.lastUpdated()));
                     }
-                    return chartTrackItems;
+                    return chartTrackListItems;
                 }
             };
 
@@ -87,22 +92,22 @@ class ChartPresenter extends RecyclerViewPresenter<PagedChartTracks, ChartTrackI
 
     @Override
     protected void onItemClicked(View view, int position) {
-        final ChartTrackItem item = chartTrackAdapter.getItem(position);
-        if (isTrack.apply(item)) {
-            final ChartTrackItem.Track trackItem = (ChartTrackItem.Track) item;
+        final ChartTrackListItem item = chartTrackAdapter.getItem(position);
+        if (IS_TRACK.apply(item)) {
+            final ChartTrackListItem.Track trackItem = (ChartTrackListItem.Track) item;
             final List<Urn> playQueue = getPlayQueue();
 
-            playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.trackItem.getUrn()), PlaySessionSource.EMPTY)
+            playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.chartTrackItem.getUrn()), PlaySessionSource.EMPTY)
                              .subscribe(expandPlayerSubscriberProvider.get());
         }
     }
 
     @Override
-    protected CollectionBinding<PagedChartTracks, ChartTrackItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<PagedChartTracks, ChartTrackListItem> onBuildBinding(Bundle bundle) {
         final ChartType chartType = (ChartType) bundle.getSerializable(ChartFragment.EXTRA_TYPE);
         final Urn chartUrn = bundle.getParcelable(ChartFragment.EXTRA_GENRE_URN);
         return CollectionBinding
-                .from(chartsOperations.firstPagedTracks(chartType, chartUrn.getStringId()), toPresentationModels)
+                .from(chartsOperations.firstPagedTracks(chartType, chartUrn.getStringId()), TO_PRESENTATION_MODELS)
                 .withAdapter(chartTrackAdapter)
                 .withPager(chartsOperations.nextPagedTracks())
                 .build();
@@ -110,9 +115,9 @@ class ChartPresenter extends RecyclerViewPresenter<PagedChartTracks, ChartTrackI
 
     private List<Urn> getPlayQueue() {
         final List<Urn> playQueue = new ArrayList<>();
-        for (ChartTrackItem chartTrackItem : chartTrackAdapter.getItems()) {
-            if (isTrack.apply(chartTrackItem)) {
-                final Urn urn = ((ChartTrackItem.Track) chartTrackItem).trackItem.getUrn();
+        for (ChartTrackListItem chartTrackListItem : chartTrackAdapter.getItems()) {
+            if (IS_TRACK.apply(chartTrackListItem)) {
+                final Urn urn = ((ChartTrackListItem.Track) chartTrackListItem).chartTrackItem.getUrn();
                 playQueue.add(urn);
             }
         }

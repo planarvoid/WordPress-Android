@@ -56,7 +56,7 @@ class ChartsItemRenderer implements CellRenderer<ChartsItem> {
             preview.setVisibility(View.VISIBLE);
 
             final Chart chart = firstGenreChartItem.get();
-            setThumbnails(chart.tracks(), preview);
+            setThumbnails(chart.trackArtworks(), preview);
             preview.setTag(chart);
         } else {
             preview.setVisibility(View.GONE);

@@ -114,7 +114,7 @@ public abstract class PlayableItem implements StreamItem {
 
     @Override
     public Date getCreatedAt() {
-        return source.get(SoundStreamProperty.CREATED_AT);
+        return source.get(PlayableProperty.CREATED_AT);
     }
 
     public int getLikesCount() {

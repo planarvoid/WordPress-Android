@@ -1,5 +1,7 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.utils.ScTextUtils.formatTimeElapsedSince;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ViewUtils;
 
@@ -14,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.util.Date;
 
 public class TrackItemView {
 
@@ -27,10 +30,13 @@ public class TrackItemView {
     private final View nowPlaying;
     private final View privateIndicator;
     private final TextView promoted;
+    private final TextView postedTime;
     private final TextView notAvailableOffline;
     private final TextView previewLabel;
     private final TextView goLabel;
     private final TextView geoBlocked;
+    private final View leftSpacer;
+    private final TextView position;
     private OverflowListener overflowListener;
 
     public TrackItemView(View view) {
@@ -44,10 +50,13 @@ public class TrackItemView {
         nowPlaying = view.findViewById(R.id.now_playing);
         privateIndicator = view.findViewById(R.id.private_indicator);
         promoted = (TextView) view.findViewById(R.id.promoted_track);
+        postedTime = (TextView) view.findViewById(R.id.posted_time);
         notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
         previewLabel = (TextView) view.findViewById(R.id.track_list_item_preview_label);
         goLabel = (TextView) view.findViewById(R.id.track_list_item_go_label);
         geoBlocked = (TextView) view.findViewById(R.id.track_list_item_geo_blocked_text);
+        leftSpacer = view.findViewById(R.id.left_spacer);
+        position = (TextView) view.findViewById(R.id.position);
 
         view.findViewById(R.id.overflow_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,6 +81,12 @@ public class TrackItemView {
         title.setTextColor(getColor(titleColor));
     }
 
+    public void showPosition(int index) {
+        leftSpacer.setVisibility(View.GONE);
+        position.setText(String.valueOf(index));
+        position.setVisibility(View.VISIBLE);
+    }
+
     void setRepeating(boolean inRepeatingMode, boolean isPlaying) {
         if (inRepeatingMode && !isPlaying) {
             view.setAlpha(0.5f);
@@ -79,6 +94,7 @@ public class TrackItemView {
             view.setAlpha(1.0f);
         }
     }
+
 
     private int getColor(int color) {
         return getContext().getResources().getColor(color);
@@ -92,6 +108,12 @@ public class TrackItemView {
     public void showPromotedTrack(String text) {
         promoted.setVisibility(View.VISIBLE);
         promoted.setText(text);
+    }
+
+    public void showPostedTime(Date date) {
+        postedTime.setVisibility(View.VISIBLE);
+        postedTime.setText(getResources().getString(R.string.posted_time,
+                                                    formatTimeElapsedSince(getResources(), date.getTime(), true)));
     }
 
     public void showGeoBlocked() {

@@ -10,7 +10,7 @@ import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.discovery.Chart;
 import com.soundcloud.android.discovery.ChartBucketType;
-import com.soundcloud.android.discovery.ChartTrack;
+import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
@@ -410,9 +410,9 @@ public class DatabaseFixtures {
 
         final ApiUser user = insertUser();
         final List<ApiTrack> apiChartTracks = apiChart.tracks().getCollection();
-        final List<ChartTrack> chartTracks = new ArrayList<>(apiChartTracks.size());
+        final List<TrackArtwork> trackArtworks = new ArrayList<>(apiChartTracks.size());
         for (final ApiTrack track : apiChartTracks) {
-            chartTracks.add(insertChartTrack(track, user, chartLocalId));
+            trackArtworks.add(insertChartTrack(track, user, chartLocalId));
         }
         return Chart.create(chartLocalId,
                             apiChart.type(),
@@ -420,7 +420,7 @@ public class DatabaseFixtures {
                             apiChart.displayName(),
                             apiChart.genre(),
                             getChartBucketType(bucketType),
-                            chartTracks);
+                            trackArtworks);
     }
 
     private ChartBucketType getChartBucketType(int bucketType) {
@@ -432,13 +432,13 @@ public class DatabaseFixtures {
         }
     }
 
-    private ChartTrack insertChartTrack(ApiTrack seedTrack, ApiUser apiUser, long chartLocalId) {
+    private TrackArtwork insertChartTrack(ApiTrack seedTrack, ApiUser apiUser, long chartLocalId) {
         insertTrackWithUser(seedTrack, apiUser);
         final ContentValues cv = new ContentValues();
         cv.put(Tables.ChartTracks.CHART_ID.name(), chartLocalId);
         cv.put(Tables.ChartTracks.SOUND_ID.name(), seedTrack.getUrn().getNumericId());
         insertInto(Tables.ChartTracks.TABLE, cv);
-        return ChartTrack.create(seedTrack.getUrn(), seedTrack.getImageUrlTemplate());
+        return TrackArtwork.create(seedTrack.getUrn(), seedTrack.getImageUrlTemplate());
     }
 
     private ContentValues getStationContentValues(StationRecord station, long createdAt, int lastPlayedPosition) {

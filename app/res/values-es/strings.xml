@@ -417,11 +417,7 @@
   <!--__DISCOVERY STATIONS-->
   <string name="suggested_stations">Emisoras sugeridas</string>
   <!--__DISCOVERY CHARTS-->
-  <string name="charts_header">Listas de SoundCloud</string>
-  <string name="charts_new_and_hot">Nuevas pistas destacadas</string>
-  <string name="charts_top_fifty">Top 50 - pistas</string>
   <string name="charts_genre_view_all">Explorar todos los géneros</string>
-  <string name="charts_soundcloud">Listas de SoundCloud</string>
   <string name="charts_by_genre">Listas por género</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Borrar el caché de la aplicación</string>

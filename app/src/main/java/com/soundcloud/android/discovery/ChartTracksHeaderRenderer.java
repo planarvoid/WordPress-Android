@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -12,7 +13,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class ChartTracksHeaderRenderer implements CellRenderer<ChartTrackItem> {
+class ChartTracksHeaderRenderer implements CellRenderer<ChartTrackListItem> {
 
     @Inject
     public ChartTracksHeaderRenderer() {
@@ -24,8 +25,9 @@ class ChartTracksHeaderRenderer implements CellRenderer<ChartTrackItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<ChartTrackItem> items) {
-        ChartTrackItem.Header item = (ChartTrackItem.Header) items.get(position);
-        ((TextView) itemView).setText(item.type == ChartType.TOP ? R.string.charts_top_fifty_list_header : R.string.charts_new_and_hot_list_header);
+    public void bindItemView(int position, View itemView, List<ChartTrackListItem> items) {
+        ChartTrackListItem.Header item = (ChartTrackListItem.Header) items.get(position);
+        TextView textView = ButterKnife.findById(itemView, R.id.charts_header);
+        textView.setText(item.type == ChartType.TOP ? R.string.charts_top_fifty_list_header : R.string.charts_new_and_hot_list_header);
     }
 }

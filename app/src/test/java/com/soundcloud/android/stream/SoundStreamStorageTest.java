@@ -336,7 +336,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     private PropertySet createTrackPropertySet(final ApiTrack track, final Date createdAt) {
         return PropertySet.from(
                 SoundStreamProperty.AVATAR_URL_TEMPLATE.bind(track.getUser().getImageUrlTemplate()),
-                SoundStreamProperty.CREATED_AT.bind(createdAt),
+                PlayableProperty.CREATED_AT.bind(createdAt),
                 PlayableProperty.URN.bind(Urn.forTrack(track.getId())),
                 PlayableProperty.TITLE.bind(track.getTitle()),
                 EntityProperty.IMAGE_URL_TEMPLATE.bind(track.getImageUrlTemplate()),
@@ -364,7 +364,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     private PropertySet createPlaylistPropertySet(ApiPlaylist playlist) {
         return PropertySet.from(
                 SoundStreamProperty.AVATAR_URL_TEMPLATE.bind(playlist.getUser().getImageUrlTemplate()),
-                SoundStreamProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
+                PlayableProperty.CREATED_AT.bind(new Date(TIMESTAMP)),
                 PlayableProperty.URN.bind(Urn.forPlaylist(playlist.getId())),
                 PlayableProperty.TITLE.bind(playlist.getTitle()),
                 EntityProperty.IMAGE_URL_TEMPLATE.bind(playlist.getImageUrlTemplate()),

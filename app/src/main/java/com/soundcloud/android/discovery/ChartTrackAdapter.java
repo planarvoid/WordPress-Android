@@ -8,15 +8,15 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class ChartTrackAdapter extends PagingRecyclerItemAdapter<ChartTrackItem, RecyclerView.ViewHolder> {
+public class ChartTrackAdapter extends PagingRecyclerItemAdapter<ChartTrackListItem, RecyclerView.ViewHolder> {
 
     @Inject
     ChartTrackAdapter(ChartTrackRenderer chartTrackRenderer,
                       ChartTracksHeaderRenderer chartTracksHeaderRenderer,
                       ChartTracksFooterRenderer chartTracksFooterRenderer) {
-        super(new CellRendererBinding<>(ChartTrackItem.Kind.TrackItem.ordinal(), chartTrackRenderer),
-              new CellRendererBinding<>(ChartTrackItem.Kind.ChartHeader.ordinal(), chartTracksHeaderRenderer),
-              new CellRendererBinding<>(ChartTrackItem.Kind.ChartFooter.ordinal(), chartTracksFooterRenderer));
+        super(new CellRendererBinding<>(ChartTrackListItem.Kind.TrackItem.ordinal(), chartTrackRenderer),
+              new CellRendererBinding<>(ChartTrackListItem.Kind.ChartHeader.ordinal(), chartTracksHeaderRenderer),
+              new CellRendererBinding<>(ChartTrackListItem.Kind.ChartFooter.ordinal(), chartTracksFooterRenderer));
     }
 
     @Override

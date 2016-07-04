@@ -7,7 +7,9 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.discovery.ChartTrackItem;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -143,6 +145,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         itemView.hideInfosViewsBottom();
         if (track instanceof PromotedTrackItem) {
             showPromoted(itemView, (PromotedTrackItem) track);
+        } else if (track instanceof ChartTrackItem) {
+            showChartTrackItem(itemView, (ChartTrackItem) track);
         } else if (track.isBlocked()) {
             itemView.showGeoBlocked();
         } else if (track.isPlaying() || track.getUrn().equals(playingTrack)) {
@@ -151,9 +155,15 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             itemView.showNotAvailableOffline();
         } else {
             showPlayCount(itemView, track);
-            if (isFullHighTierTrack(track)) {
-                itemView.showGoLabel();
-            }
+        }
+    }
+
+    private void showChartTrackItem(TrackItemView itemView, ChartTrackItem chartTrackItem) {
+        itemView.showPosition(chartTrackItem.position());
+        if (chartTrackItem.chartType() == ChartType.TRENDING) {
+            itemView.showPostedTime(chartTrackItem.getCreatedAt());
+        } else {
+            showPlayCount(itemView, chartTrackItem);
         }
     }
 
@@ -172,6 +182,9 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         final int count = track.getPlayCount();
         if (hasPlayCount(count)) {
             itemView.showPlaycount(numberFormatter.format(count));
+        }
+        if (isFullHighTierTrack(track)) {
+            itemView.showGoLabel();
         }
     }
 

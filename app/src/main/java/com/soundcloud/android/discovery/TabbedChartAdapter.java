@@ -39,7 +39,7 @@ class TabbedChartAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return getType(position) == ChartType.TRENDING ?
-               resources.getString(R.string.charts_new_and_hot_tab_header) :
-               resources.getString(R.string.charts_top_fifty_tab_header);
+               resources.getString(R.string.charts_new_and_hot) :
+               resources.getString(R.string.charts_top_fifty);
     }
 }
