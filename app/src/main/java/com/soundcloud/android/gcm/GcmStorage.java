@@ -33,18 +33,16 @@ public class GcmStorage {
     }
 
     public void markAsRegistered(String token) {
+        storeToken(token);
         if (featureFlags.isEnabled(Flag.ARCHER_PUSH)) {
             setAsRegistered(true);
-        } else {
-            storeToken(token);
         }
     }
 
     public void clearHasRegistered() {
+        clearToken();
         if (featureFlags.isEnabled(Flag.ARCHER_PUSH)) {
             setAsRegistered(false);
-        } else {
-            clearToken();
         }
     }
 
@@ -62,12 +60,10 @@ public class GcmStorage {
         return sharedPreferences.contains(TOKEN_KEY);
     }
 
-    @Deprecated
     private void storeToken(String token) {
         sharedPreferences.edit().putString(TOKEN_KEY, token).apply();
     }
 
-    @Deprecated
     private void clearToken() {
         sharedPreferences.edit().remove(TOKEN_KEY).apply();
     }
