@@ -93,12 +93,12 @@ android {
   }
 }
 
-task checkFlags (dependsOn: ':app:preBuild') {
+task checkFlags(dependsOn: ':app:preBuild') {
   def defaultFeatureFlags = android.defaultConfig.getBuildConfigFields()
   //Checks that the number of flags defined in the enum is consistent
   //with the number of flags defined in the default section.
   if (defaultFeatureFlags.keySet().size() != Feature.values().size())
-      failBuild("Inconsistent number of flags between defaultConfig section and Feature enum.")
+    failBuild("Inconsistent number of flags between defaultConfig section and Feature enum.")
   //Make sure that all flags in default config section are disabled.
   defaultFeatureFlags.each {
     if (it.getValue().getValue() == TRUE) {
@@ -111,16 +111,14 @@ task checkFlags (dependsOn: ':app:preBuild') {
 //Checks whether all flags in each build are TRUE otherwise fails
 //the build asking to remove it since the default value is FALSE.
 android.buildTypes.all { buildType ->
-  if (!excludedBuildTypes.contains(buildType.name)) {
-    buildType.getBuildConfigFields().each {
-      if (it.getValue().getValue() == FALSE) {
-        failBuild("Flag ${it.key} has a FALSE value in build type: ${buildType.name}. " +
-                "Please remove it or turn its value to TRUE.")
-      }
+  buildType.getBuildConfigFields().each {
+    if (it.getValue().getValue() == FALSE) {
+      failBuild("Flag ${it.key} has a FALSE value in build type: ${buildType.name}. " +
+              "Please remove it or turn its value to TRUE.")
     }
   }
 }
 
 def failBuild(message) {
-    throw new GradleException(message)
+  throw new GradleException(message)
 }
