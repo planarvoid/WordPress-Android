@@ -105,10 +105,6 @@ public class PlaybackStateTransition {
         return newState.isPlaying();
     }
 
-    public boolean playSessionIsActive() {
-        return newState.isPlaying() || (newState == PlaybackState.IDLE && reason == PlayStateReason.PLAYBACK_COMPLETE);
-    }
-
     public boolean isPlayerPlaying() {
         return newState.isPlayerPlaying();
     }

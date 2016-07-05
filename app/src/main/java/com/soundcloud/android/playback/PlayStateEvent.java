@@ -26,7 +26,11 @@ public abstract class PlayStateEvent {
     }
 
     public boolean playSessionIsActive() {
-        return getTransition().playSessionIsActive();
+        final boolean playQueueIsNotComplete = !isPlayQueueComplete();
+        final boolean isPlaying = getTransition().getNewState().isPlaying();
+        final boolean justFinishedTrack = getTransition().getNewState() == PlaybackState.IDLE &&
+                getTransition().getReason() == PlayStateReason.PLAYBACK_COMPLETE;
+        return playQueueIsNotComplete && (isPlaying || justFinishedTrack);
     }
 
     public boolean isPlayerIdle() {
@@ -55,6 +59,10 @@ public abstract class PlayStateEvent {
 
     public PlayStateReason getReason() {
         return getTransition().getReason();
+    }
+
+    public boolean isTrackComplete() {
+        return getTransition().isPlayerIdle() && getTransition().getReason() == PlayStateReason.PLAYBACK_COMPLETE;
     }
 
     private static PlaybackProgress getValidProgress(PlaybackStateTransition stateTransition, long apiDuration) {

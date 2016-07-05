@@ -23,7 +23,6 @@ import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlayPublisher;
-import com.soundcloud.android.playback.PlayQueueAdvancer;
 import com.soundcloud.android.playback.PlayQueueExtender;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -91,7 +90,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject PlayerWidgetController widgetController;
     @Inject PeripheralsController peripheralsController;
     @Inject PlaySessionController playSessionController;
-    @Inject PlayQueueAdvancer playQueueAdvancer;
     @Inject PlaySessionStateProvider playSessionStateProvider;
     @Inject PlaylistExploder playlistExploder;
     @Inject PlayQueueExtender playQueueExtender;
@@ -179,7 +177,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         widgetController.subscribe();
         peripheralsController.subscribe();
         playSessionController.subscribe();
-        playQueueAdvancer.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
         appboyPlaySessionState.subscribe();

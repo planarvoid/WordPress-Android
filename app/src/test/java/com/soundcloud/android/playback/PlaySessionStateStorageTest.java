@@ -61,4 +61,9 @@ public class PlaySessionStateStorageTest extends AndroidUnitTest {
 
         assertThat(storage.getLastStoredProgress()).isEqualTo(456);
     }
+
+    @Test
+    public void getLastProgressReturnsZeroIfNotStored() {
+        assertThat(storage.getLastStoredProgress()).isEqualTo(0);
+    }
 }

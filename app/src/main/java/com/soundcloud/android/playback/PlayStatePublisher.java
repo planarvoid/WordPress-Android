@@ -14,6 +14,7 @@ public class PlayStatePublisher {
     private final PlaySessionStateProvider playSessionStateProvider;
     private final UuidProvider uuidProvider;
     private final PlaybackAnalyticsController analyticsController;
+    private final PlayQueueAdvancer playQueueAdvancer;
     private final AdsController adsController;
     private final EventBus eventBus;
 
@@ -21,11 +22,12 @@ public class PlayStatePublisher {
     public PlayStatePublisher(PlaySessionStateProvider playSessionStateProvider,
                               UuidProvider uuidProvider,
                               PlaybackAnalyticsController analyticsController,
-                              AdsController adsController,
+                              PlayQueueAdvancer playQueueAdvancer, AdsController adsController,
                               EventBus eventBus) {
         this.playSessionStateProvider = playSessionStateProvider;
         this.uuidProvider = uuidProvider;
         this.analyticsController = analyticsController;
+        this.playQueueAdvancer = playQueueAdvancer;
         this.adsController = adsController;
         this.eventBus = eventBus;
     }
@@ -43,7 +45,18 @@ public class PlayStatePublisher {
             analyticsController.onStateTransition(currentPlaybackItem, playStateEvent);
         }
         adsController.onPlayStateChanged(playStateEvent);
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, playStateEvent);
+
+        switch (playQueueAdvancer.onPlayStateChanged(playStateEvent)) {
+            case QUEUE_COMPLETE:
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, PlayStateEvent.createPlayQueueCompleteEvent(playStateEvent));
+                break;
+            case ADVANCED:
+                // we might be able to do nothing here. big change in behavior though. fall through for now
+            case NO_OP:
+                eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, playStateEvent);
+                break;
+        }
+
     }
 
 }

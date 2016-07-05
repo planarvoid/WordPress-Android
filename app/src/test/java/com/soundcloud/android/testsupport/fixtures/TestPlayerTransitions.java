@@ -13,7 +13,11 @@ public class TestPlayerTransitions {
     public static final Urn URN = Urn.forTrack(123L);
 
     public static PlaybackStateTransition idle() {
-        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, URN);
+        return idle(PlayStateReason.NONE);
+    }
+
+    public static PlaybackStateTransition idle(PlayStateReason reason) {
+        return new PlaybackStateTransition(PlaybackState.IDLE, reason, URN);
     }
 
     public static PlaybackStateTransition buffering() {

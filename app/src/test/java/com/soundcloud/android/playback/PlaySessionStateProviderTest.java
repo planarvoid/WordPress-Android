@@ -67,8 +67,6 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void isLastPlayedTrueIfStorageReturnsSameTrack() {
-        when(playSessionStateStorage.getLastPlayingItem()).thenReturn(TRACK_URN);
-
         assertThat(provider.isLastPlayed(TRACK_URN)).isTrue();
     }
 
@@ -130,6 +128,12 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onStateTransitionForItemEndWillReportItemNotPlayingAfter() throws Exception {
+        provider.onPlayStateTransition(TestPlayStates.complete());
+        assertThat(provider.isCurrentlyPlaying(TRACK_URN)).isFalse();
+    }
+
+    @Test
     public void onStateTransitionForReasonNoneSavesQueueWithPositionFromTransition() throws Exception {
         provider.onPlayStateTransition(TestPlayStates.idle(123, 456));
         verify(playSessionStateStorage).saveProgress(123);
@@ -137,7 +141,6 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
 
     @Test
     public void onStateTransitionForBufferingDoesNotSaveProgressIfResuming() throws Exception {
-        when(playSessionStateStorage.getLastPlayingItem()).thenReturn(TRACK_URN);
         when(playSessionStateStorage.getLastStoredProgress()).thenReturn(123L);
 
         provider.onPlayStateTransition(TestPlayStates.buffering());

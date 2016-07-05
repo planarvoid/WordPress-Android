@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,14 +33,19 @@ public class PlayStatePublisherTest {
     private PlayStatePublisher publisher;
     @Mock private PlaySessionStateProvider sessionStateProvider;
     @Mock private PlaybackAnalyticsController analyticsController;
+    @Mock private PlayQueueAdvancer playQueueAdvancer;
     @Mock private AdsController adsController;
     @Mock private UuidProvider uuidProvider;
     @Mock private EventBus eventBus;
 
     @Before
     public void setUp() throws Exception {
-        publisher = new PlayStatePublisher(sessionStateProvider, uuidProvider, analyticsController, adsController, eventBus);
+        publisher = new PlayStatePublisher(sessionStateProvider, uuidProvider, analyticsController,
+                                           playQueueAdvancer,
+                                           adsController, eventBus);
         when(uuidProvider.getRandomUuid()).thenReturn(PLAY_ID);
+        when(sessionStateProvider.getCurrentPlayId()).thenReturn(PLAY_ID);
+        when(playQueueAdvancer.onPlayStateChanged(any(PlayStateEvent.class))).thenReturn(PlayQueueAdvancer.Result.NO_OP);
     }
 
     @Test
@@ -52,10 +58,30 @@ public class PlayStatePublisherTest {
         publisher.publish(stateTransition, playbackItem, true);
 
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), true, PLAY_ID);
-        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, eventBus);
+        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, playQueueAdvancer, eventBus);
         inOrder.verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
         inOrder.verify(adsController).onPlayStateChanged(playStateEvent);
+        inOrder.verify(playQueueAdvancer).onPlayStateChanged(playStateEvent);
         inOrder.verify(eventBus).publish(EventQueue.PLAYBACK_STATE_CHANGED, playStateEvent);
+    }
+
+    @Test
+    public void publishesPlayQueueCompleteState() {
+        when(sessionStateProvider.isLastPlayed(URN)).thenReturn(true);
+
+        final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
+        final AudioPlaybackItem playbackItem = getPlaybackItem();
+
+        final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), false, PLAY_ID);
+        when(playQueueAdvancer.onPlayStateChanged(playStateEvent)).thenReturn(PlayQueueAdvancer.Result.QUEUE_COMPLETE);
+
+        publisher.publish(stateTransition, playbackItem, true);
+
+        final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, playQueueAdvancer, eventBus);
+        inOrder.verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
+        inOrder.verify(adsController).onPlayStateChanged(playStateEvent);
+        inOrder.verify(playQueueAdvancer).onPlayStateChanged(playStateEvent);
+        inOrder.verify(eventBus).publish(EventQueue.PLAYBACK_STATE_CHANGED, PlayStateEvent.createPlayQueueCompleteEvent(playStateEvent));
     }
 
     @Test

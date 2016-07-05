@@ -29,7 +29,7 @@ public class PlaySessionStateProvider {
     void onPlayStateTransition(PlayStateEvent playStateEvent) {
         if (!PlayStateEvent.DEFAULT.equals(playStateEvent)) {
             final boolean isItemChange = !playSessionStateStorage.getLastPlayingItem().equals(playStateEvent.getPlayingItemUrn());
-            currentPlayingUrn = playStateEvent.getPlayingItemUrn();
+            currentPlayingUrn = playStateEvent.isTrackComplete() ? Urn.NOT_SET : playStateEvent.getPlayingItemUrn();
             lastStateEvent = playStateEvent;
             lastProgress = playStateEvent.getProgress();
 
@@ -44,7 +44,7 @@ public class PlaySessionStateProvider {
     }
 
     private long getPositionIfPlayingTrack() {
-        return currentPlayingUrn.isTrack() ? getLastProgressForItem(currentPlayingUrn).getPosition() : Consts.NOT_SET;
+        return currentPlayingUrn.isTrack() ? getLastProgressForItem(currentPlayingUrn).getPosition() : 0;
     }
 
     void onProgressEvent(PlaybackProgressEvent progress) {
@@ -92,7 +92,7 @@ public class PlaySessionStateProvider {
     }
 
     public boolean isPlaying() {
-        return lastStateEvent.getTransition().playSessionIsActive();
+        return lastStateEvent.playSessionIsActive();
     }
 
     public boolean isInErrorState() {
