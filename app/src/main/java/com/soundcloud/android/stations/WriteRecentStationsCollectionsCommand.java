@@ -8,6 +8,7 @@ import com.soundcloud.android.storage.Tables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -109,13 +110,18 @@ class WriteRecentStationsCollectionsCommand
     }
 
     private static ContentValues buildStationContentValues(ApiStationMetadata station) {
-        return ContentValuesBuilder
+        final ContentValuesBuilder contentValuesBuilder = ContentValuesBuilder
                 .values()
                 .put(Tables.Stations.STATION_URN, station.getUrn().toString())
                 .put(Tables.Stations.TYPE, station.getType())
                 .put(Tables.Stations.TITLE, station.getTitle())
-                .put(Tables.Stations.PERMALINK, station.getPermalink())
-                .get();
+                .put(Tables.Stations.PERMALINK, station.getPermalink());
+
+        final Optional<String> artworkUrlTemplate = station.getArtworkUrlTemplate();
+        contentValuesBuilder.put(Tables.Stations.ARTWORK_URL_TEMPLATE, artworkUrlTemplate.isPresent() ?
+                                                                       artworkUrlTemplate.get() :
+                                                                       null);
+        return contentValuesBuilder.get();
     }
 
     static final class SyncCollectionsMetadata {

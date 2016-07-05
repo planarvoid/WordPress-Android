@@ -86,6 +86,7 @@ import static com.soundcloud.android.storage.Tables.Comments.TIMESTAMP;
 import static com.soundcloud.android.storage.Tables.Comments.URN;
 import static com.soundcloud.android.storage.Tables.OfflineContent.ID_OFFLINE_LIKES;
 import static com.soundcloud.android.storage.Tables.OfflineContent.TYPE_COLLECTION;
+import static com.soundcloud.android.storage.Tables.Stations.ARTWORK_URL_TEMPLATE;
 import static com.soundcloud.android.storage.Tables.Stations.LAST_PLAYED_TRACK_POSITION;
 import static com.soundcloud.android.storage.Tables.Stations.PERMALINK;
 import static com.soundcloud.android.storage.Tables.Stations.STATION_URN;
@@ -248,12 +249,17 @@ public class DatabaseAssertions {
     }
 
     public void assertStationMetadataInserted(ApiStationMetadata station) {
+        final Optional<String> artworkUrlTemplateOptional = station.getArtworkUrlTemplate();
+        final String artworkUrlTemplate = artworkUrlTemplateOptional.isPresent() ?
+                                          artworkUrlTemplateOptional.get() :
+                                          null;
         assertThat(select(
                 from(Stations.TABLE)
                         .whereEq(STATION_URN, station.getUrn())
                         .whereEq(Stations.TITLE, station.getTitle())
                         .whereEq(TYPE, station.getType())
                         .whereEq(PERMALINK, station.getPermalink())
+                        .whereEq(ARTWORK_URL_TEMPLATE, artworkUrlTemplate)
                         .whereNull(LAST_PLAYED_TRACK_POSITION)
                         .whereNotNull(Stations.PLAY_QUEUE_UPDATED_AT)
         )).counts(1);
