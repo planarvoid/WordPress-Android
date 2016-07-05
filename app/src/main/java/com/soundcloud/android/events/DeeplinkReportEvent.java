@@ -6,26 +6,26 @@ import org.jetbrains.annotations.NotNull;
 
 public class DeeplinkReportEvent extends TrackingEvent implements MetricEvent {
 
-    private static final String DEEPLINK_STATUS = "DeeplinkStatus";
-
     private static final String KIND_SUCCESS = "Success";
     private static final String KIND_FAILURE = "Failed";
+    private final String referrer;
 
-    public static DeeplinkReportEvent forResolvedDeeplink() {
-        return new DeeplinkReportEvent(KIND_SUCCESS);
+    public static DeeplinkReportEvent forResolvedDeeplink(String referrer) {
+        return new DeeplinkReportEvent(KIND_SUCCESS, referrer);
     }
 
-    public static DeeplinkReportEvent forResolutionFailure() {
-        return new DeeplinkReportEvent(KIND_FAILURE);
+    public static DeeplinkReportEvent forResolutionFailure(String referrer) {
+        return new DeeplinkReportEvent(KIND_FAILURE,referrer);
     }
 
-    private DeeplinkReportEvent(@NotNull String kind) {
+    private DeeplinkReportEvent(@NotNull String kind, String referrer) {
         super(kind, System.currentTimeMillis());
+        this.referrer = referrer;
     }
 
     @Override
     public Metric toMetric() {
-        return Metric.create("DeeplinksReport", DataPoint.string(DEEPLINK_STATUS, getKind()));
+        return Metric.create("DeeplinksReport", DataPoint.string(referrer, getKind()));
     }
 
 }

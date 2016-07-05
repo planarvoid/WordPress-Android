@@ -158,19 +158,19 @@ public class IntentResolver {
                     startWebView(context, resolvedUri, referrer);
                 } else {
                     trackForegroundEvent(referrer);
-                    reportFailedToResolveDeeplink();
+                    reportFailedToResolveDeeplink(referrer);
                     launchApplicationWithMessage(context, R.string.error_loading_url);
                 }
             }
         };
     }
 
-    private void reportSuccessfulDeeplink() {
-        eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolvedDeeplink());
+    private void reportSuccessfulDeeplink(String referrer) {
+        eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolvedDeeplink(referrer));
     }
 
-    private void reportFailedToResolveDeeplink() {
-        eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolutionFailure());
+    private void reportFailedToResolveDeeplink(String referrer) {
+        eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolutionFailure(referrer));
     }
 
     private void startWebView(Context context, Uri uri, String referrer) {
@@ -259,7 +259,7 @@ public class IntentResolver {
         }
 
         trackForegroundEventForResource(urn, referrer);
-        reportSuccessfulDeeplink();
+        reportSuccessfulDeeplink(referrer);
     }
 
     private void navigateToResource(final Context context, final Urn urn) {

@@ -15,6 +15,7 @@ import javax.inject.Inject;
 public class ForegroundController extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final EventBus eventBus;
+    private static final String EXTRA_HAS_TRACKED = "hasTrackedForeground";
 
     @Inject
     public ForegroundController(EventBus eventBus) {
@@ -32,11 +33,10 @@ public class ForegroundController extends DefaultActivityLightCycle<AppCompatAct
     }
 
     private void trackForegroundEvent(Intent intent) {
-        if (Referrer.hasReferrer(intent) && Screen.hasScreen(intent)) {
+        if (!intent.getBooleanExtra(EXTRA_HAS_TRACKED, false) && Referrer.hasReferrer(intent) && Screen.hasScreen(intent)) {
             ForegroundEvent event = ForegroundEvent.open(Screen.fromIntent(intent), Referrer.fromIntent(intent));
             eventBus.publish(EventQueue.TRACKING, event);
-            Referrer.removeFromIntent(intent);
+            intent.putExtra(EXTRA_HAS_TRACKED, true);
         }
     }
-
 }

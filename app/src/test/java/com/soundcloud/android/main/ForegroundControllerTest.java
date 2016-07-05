@@ -49,6 +49,17 @@ public class ForegroundControllerTest extends AndroidUnitTest {
         assertThat(getLastEventOnQueue().getAttributes()).isEqualTo(EXPECTED.getAttributes());
     }
 
+    @Test
+    public void doesNotSendForegroundEventSecondTime() {
+        Intent intent = buildIntentWithReferrer();
+        when(activity.getIntent()).thenReturn(intent);
+
+        lightCycle.onCreate(activity, null);
+        lightCycle.onCreate(activity, null);
+
+        assertThat(eventBus.eventsOn(EventQueue.TRACKING)).hasSize(1);
+    }
+
     private Intent buildIntentWithReferrer() {
         Intent intent = new Intent();
         Referrer.PLAYBACK_NOTIFICATION.addToIntent(intent);
