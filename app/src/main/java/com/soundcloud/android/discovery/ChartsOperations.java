@@ -4,7 +4,9 @@ import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.api.model.PagedCollection.pagingFunction;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
+import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.sync.SyncOperations;
@@ -21,6 +23,8 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
+import java.util.List;
 
 class ChartsOperations {
 
@@ -38,6 +42,15 @@ class ChartsOperations {
         @Override
         public void call(ApiChart apiChart) {
             storeTracksCommand.toAction1().call(apiChart.tracks());
+        }
+    };
+
+    private Action1<ModelCollection<ApiChart>> storeTracksFromCharts = new Action1<ModelCollection<ApiChart>>() {
+        @Override
+        public void call(ModelCollection<ApiChart> charts) {
+            for (final ApiChart chart : charts) {
+                storeTracksFromChart.call(chart);
+            }
         }
     };
 
@@ -106,6 +119,28 @@ class ChartsOperations {
                                 .subscribeOn(scheduler);
                     }
                 }, scheduler);
+    }
+
+    Observable<List<ApiChart>> genresByCategory(final ChartCategory chartCategory) {
+        return chartsApi.allGenres()
+                        .doOnNext(storeTracksFromCharts)
+                        .map(filterGenresByCategory(chartCategory))
+                        .subscribeOn(scheduler);
+    }
+
+    private Func1<ModelCollection<ApiChart>, List<ApiChart>> filterGenresByCategory(final ChartCategory chartCategory) {
+        return new Func1<ModelCollection<ApiChart>, List<ApiChart>>() {
+            @Override
+            public List<ApiChart> call(ModelCollection<ApiChart> apiCharts) {
+                final List<ApiChart> filteredGenres = new ArrayList<>();
+                for (final ApiChart genre : apiCharts) {
+                    if (genre.category() == chartCategory) {
+                        filteredGenres.add(genre);
+                    }
+                }
+                return filteredGenres;
+            }
+        };
     }
 
     void clearData() {
