@@ -37,6 +37,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     private final StoreLikesCommand storeLikes;
     private final RemoveLikesCommand removeLikes;
     private final EventBus eventBus;
+    private final int soundType;
 
     @SuppressWarnings("PMD.ExcessiveParameterList")
     LikesSyncer(FetchLikesCommand fetchLikes,
@@ -49,7 +50,8 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
                 DefaultWriteStorageCommand storeLikedResources,
                 StoreLikesCommand storeLikes,
                 RemoveLikesCommand removeLikes,
-                EventBus eventBus) {
+                EventBus eventBus,
+                int soundType) {
         this.fetchLikes = fetchLikes;
         this.pushLikeAdditions = pushLikeAdditions;
         this.pushLikeDeletions = pushLikeDeletions;
@@ -61,6 +63,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         this.storeLikedResources = storeLikedResources;
         this.storeLikes = storeLikes;
         this.eventBus = eventBus;
+        this.soundType = soundType;
     }
 
     @Override
@@ -68,12 +71,13 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         final NavigableSet<PropertySet> remoteLikes = fetchLikes.call();
 
         final Set<PropertySet> localLikes = new TreeSet<>(LIKES_COMPARATOR);
-        localLikes.addAll(loadLikes.call());
+        localLikes.addAll(loadLikes.call(soundType));
+
         final Set<PropertySet> localAdditions = new TreeSet<>(LIKES_COMPARATOR);
-        localAdditions.addAll(loadLikesPendingAddition.call());
+        localAdditions.addAll(loadLikesPendingAddition.call(soundType));
 
         final Set<PropertySet> localRemovals = new TreeSet<>(LIKES_COMPARATOR);
-        localRemovals.addAll(loadLikesPendingRemoval.call());
+        localRemovals.addAll(loadLikesPendingRemoval.call(soundType));
 
         final Set<PropertySet> pendingRemoteAdditions = getSetDifference(localAdditions, remoteLikes);
         final Set<PropertySet> newLocalAdditions = getSetDifference(remoteLikes, localLikes, localRemovals);

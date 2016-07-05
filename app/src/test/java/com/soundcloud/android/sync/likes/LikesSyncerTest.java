@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromLike;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static com.soundcloud.java.collections.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
@@ -64,7 +65,7 @@ public class LikesSyncerTest extends AndroidUnitTest {
     public void setup() throws Exception {
         syncer = new LikesSyncer(fetchLikes, fetchLikedResources, pushLikeAdditions, pushLikeDeletions, loadLikes,
                                  loadLikesPendingAddition, loadLikesPendingRemoval, storeLikedResources, storeLikes,
-                                 removeLikes, eventBus);
+                                 removeLikes, eventBus, TYPE_TRACK);
         trackLike = ModelFixtures.apiTrackLike();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
     }
@@ -332,22 +333,22 @@ public class LikesSyncerTest extends AndroidUnitTest {
     }
 
     private void withLocalTrackLikes() throws Exception {
-        when(loadLikes.call()).thenReturn(Collections.<PropertySet>emptyList());
+        when(loadLikes.call(TYPE_TRACK)).thenReturn(Collections.<PropertySet>emptyList());
     }
 
     private void withLocalTrackLikes(ApiLike... likes) throws Exception {
-        when(loadLikes.call()).thenReturn(PropertySets.toPropertySets(asList(likes)));
+        when(loadLikes.call(TYPE_TRACK)).thenReturn(PropertySets.toPropertySets(asList(likes)));
     }
 
     private void withLocalTrackLikes(PropertySet... likes) throws Exception {
-        when(loadLikes.call()).thenReturn(asList(likes));
+        when(loadLikes.call(TYPE_TRACK)).thenReturn(asList(likes));
     }
 
     private void withLocalTrackLikesPendingRemoval(PropertySet... likes) throws Exception {
-        when(loadLikesPendingRemoval.call()).thenReturn(asList(likes));
+        when(loadLikesPendingRemoval.call(TYPE_TRACK)).thenReturn(asList(likes));
     }
 
     private void withLocalTrackLikesPendingAddition(PropertySet... likes) throws Exception {
-        when(loadLikesPendingAddition.call()).thenReturn(asList(likes));
+        when(loadLikesPendingAddition.call(TYPE_TRACK)).thenReturn(asList(likes));
     }
 }

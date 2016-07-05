@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.likes;
 
-import static com.soundcloud.android.storage.TableColumns.Sounds;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_PLAYLIST;
+import static com.soundcloud.android.storage.TableColumns.Sounds.TYPE_TRACK;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -29,7 +30,7 @@ public class LoadLikesCommandTest extends StorageIntegrationTest {
         ApiTrack track = testFixtures().insertLikedTrack(new Date(100));
         testFixtures().insertLikedTrackPendingRemoval(new Date(200)); // must not be returned
 
-        List<PropertySet> trackLikes = command.with(Sounds.TYPE_TRACK).call();
+        List<PropertySet> trackLikes = command.call(TYPE_TRACK);
 
         assertThat(trackLikes).containsExactly(expectedLikeFor(track.getUrn(), new Date(100)));
     }
@@ -39,7 +40,7 @@ public class LoadLikesCommandTest extends StorageIntegrationTest {
         ApiPlaylist playlist = testFixtures().insertLikedPlaylist(new Date(100));
         testFixtures().insertLikedPlaylistPendingRemoval(new Date(200)); // must not be returned
 
-        List<PropertySet> playlistLikes = command.with(Sounds.TYPE_PLAYLIST).call();
+        List<PropertySet> playlistLikes = command.call(TYPE_PLAYLIST);
 
         assertThat(playlistLikes).containsExactly(expectedLikeFor(playlist.getUrn(), new Date(100)));
     }
