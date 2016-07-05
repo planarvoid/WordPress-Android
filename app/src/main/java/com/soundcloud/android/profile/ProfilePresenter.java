@@ -102,7 +102,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         }
     }
 
-    public void refreshUser() {
+    private void refreshUser() {
         userSubscription.unsubscribe();
         userSubscription = profileOperations
                 .getLocalProfileUser(user)

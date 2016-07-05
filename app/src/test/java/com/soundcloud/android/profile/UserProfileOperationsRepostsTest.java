@@ -22,6 +22,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,6 +48,7 @@ public class UserProfileOperationsRepostsTest extends AndroidUnitTest {
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
+    @Mock private EventBus eventBus;
 
     final TestSubscriber<PagedRemoteCollection> subscriber = new TestSubscriber<>();
     final ApiTrackRepost apiTrackRepost = new ApiTrackRepost(create(ApiTrack.class), CREATED_AT);
@@ -66,7 +68,8 @@ public class UserProfileOperationsRepostsTest extends AndroidUnitTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
-                spotlightItemStatusLoader);
+                spotlightItemStatusLoader,
+                eventBus);
     }
 
     @Test

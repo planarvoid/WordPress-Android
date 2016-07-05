@@ -1,27 +1,21 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.create;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylistRepost;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiTrackRepost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.model.ApiEntityHolder;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,7 +26,6 @@ import rx.schedulers.Schedulers;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class UserProfileOperationsTracksTest extends AndroidUnitTest {
     private static final Urn USER_URN = Urn.forUser(123L);
@@ -47,6 +40,7 @@ public class UserProfileOperationsTracksTest extends AndroidUnitTest {
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
+    @Mock private EventBus eventBus;
 
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
     final ApiTrack apiTrack = create(ApiTrack.class);
@@ -64,7 +58,8 @@ public class UserProfileOperationsTracksTest extends AndroidUnitTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
-                spotlightItemStatusLoader);
+                spotlightItemStatusLoader,
+                eventBus);
     }
 
     @Test

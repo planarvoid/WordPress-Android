@@ -11,15 +11,16 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiTrackLike;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +52,7 @@ public class UserProfileOperationsLegacyLikesTest {
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
+    @Mock private EventBus eventBus;
 
     private final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
@@ -73,7 +75,8 @@ public class UserProfileOperationsLegacyLikesTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
-                spotlightItemStatusLoader);
+                spotlightItemStatusLoader,
+                eventBus);
     }
 
     @Test

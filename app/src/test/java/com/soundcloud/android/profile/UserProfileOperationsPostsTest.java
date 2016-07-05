@@ -13,6 +13,7 @@ import com.soundcloud.android.api.model.ApiTrackPost;
 import com.soundcloud.android.api.model.ApiTrackRepost;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PlayableProperty;
@@ -21,7 +22,6 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -30,6 +30,7 @@ import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +63,7 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
+    @Mock private EventBus eventBus;
 
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
@@ -91,7 +93,8 @@ public class UserProfileOperationsPostsTest extends AndroidUnitTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
-                spotlightItemStatusLoader);
+                spotlightItemStatusLoader,
+                eventBus);
 
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
     }

@@ -7,10 +7,14 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
+import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -33,6 +37,7 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
+    @Mock private EventBus eventBus;
 
     @Before
     public void setUp() {
@@ -43,7 +48,8 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
-                spotlightItemStatusLoader);
+                spotlightItemStatusLoader,
+                eventBus);
 
         subscriber = new TestSubscriber<>();
         profile = new UserProfileRecordFixtures.Builder().build();
@@ -82,5 +88,15 @@ public class UserProfileOperationsProfileTest extends AndroidUnitTest {
         operations.userProfile(userUrn).subscribe(subscriber);
 
         verify(spotlightItemStatusLoader).call(any(UserProfile.class));
+    }
+
+    @Test
+    public void shouldPublishEntityChangedEvent() {
+        PropertySet user = profile.getUser().toPropertySet();
+
+        operations.userProfile(userUrn).subscribe(subscriber);
+
+        verify(eventBus).publish(EventQueue.ENTITY_STATE_CHANGED,
+                                 EntityStateChangedEvent.forUpdate(user));
     }
 }

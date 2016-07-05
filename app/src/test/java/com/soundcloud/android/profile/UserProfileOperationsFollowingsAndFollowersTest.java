@@ -7,14 +7,14 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.collection.PlayableItemStatusLoader;
+import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.model.ApiEntityHolder;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.collection.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +44,7 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
     @Mock private WriteMixedRecordsCommand writeMixedRecordsCommand;
     @Mock private StoreProfileCommand storeProfileCommand;
     @Mock private SpotlightItemStatusLoader spotlightItemStatusLoader;
+    @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<Iterable<ApiEntityHolder>> userCaptor;
 
     private final ApiUser apiUser1 = ModelFixtures.create(ApiUser.class);
@@ -66,7 +67,8 @@ public class UserProfileOperationsFollowingsAndFollowersTest {
                 userRepository,
                 writeMixedRecordsCommand,
                 storeProfileCommand,
-                spotlightItemStatusLoader);
+                spotlightItemStatusLoader,
+                eventBus);
     }
 
     @Test

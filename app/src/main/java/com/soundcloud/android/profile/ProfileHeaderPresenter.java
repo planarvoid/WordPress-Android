@@ -74,6 +74,8 @@ class ProfileHeaderPresenter {
             });
         }
 
+        stationButton.setVisibility(View.GONE);
+
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,14 +84,15 @@ class ProfileHeaderPresenter {
         });
     }
 
-    private void updateStationButton() {
-        stationButton.setChecked(!(followButton.isChecked() || followButton.getVisibility() == View.GONE));
-    }
-
     void setUserDetails(ProfileUser user) {
         username.setText(user.getName());
-        setProfileButtons(user);
+        setUserImage(user);
+        setFollowerCount(user);
+        setFollowingButton(user);
+        setArtistStation(user);
+    }
 
+    private void setUserImage(ProfileUser user) {
         if (!user.getUrn().equals(lastUser)) {
             lastUser = user.getUrn();
             imageOperations.displayCircularWithPlaceholder(user,
@@ -98,29 +101,39 @@ class ProfileHeaderPresenter {
         }
     }
 
-    private void setProfileButtons(final ProfileUser user) {
+    private void setFollowerCount(ProfileUser user) {
         if (user.getFollowerCount() != Consts.NOT_SET) {
             followerCount.setText(numberFormatter.format(user.getFollowerCount()));
             followerCount.setVisibility(View.VISIBLE);
         } else {
             followerCount.setVisibility(View.GONE);
         }
+    }
+
+    private void setFollowingButton(ProfileUser user) {
+        boolean hasArtistStation = user.getArtistStationUrn().isPresent();
+        boolean stationVisible = stationButton.getVisibility() == View.VISIBLE;
+        boolean isFollowed = user.isFollowed();
 
         if (featureFlags.isEnabled(Flag.USER_STATIONS)) {
-            showArtistStationButton(user);
-        } else {
-            // keep unchanged functionality unchanged until we ship user stations
             if (followButton instanceof ProfileToggleButton) {
-                ((ProfileToggleButton) followButton).setTextOn(R.string.btn_following);
+                if (isFollowed) {
+                    if (hasArtistStation || stationVisible) {
+                        ((ProfileToggleButton) followButton).setTextOn(Consts.NOT_SET);
+                    } else {
+                        ((ProfileToggleButton) followButton).setTextOn(R.string.btn_following);
+                    }
+                }
             }
         }
 
-        followButton.setChecked(user.isFollowed());
-        updateStationButton();
+        followButton.setChecked(isFollowed);
     }
 
-    private void showArtistStationButton(final ProfileUser user) {
-        if (user.getArtistStationUrn().isPresent()) {
+    private void setArtistStation(final ProfileUser user) {
+        boolean hasArtistStation = user.getArtistStationUrn().isPresent();
+
+        if (hasArtistStation) {
             stationButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -129,7 +142,15 @@ class ProfileHeaderPresenter {
                 }
             });
             stationButton.setVisibility(View.VISIBLE);
+            updateStationButton();
         }
+    }
+
+    private void updateStationButton() {
+        boolean notFollowing = !followButton.isChecked();
+        boolean followButtonVisible = followButton.getVisibility() == View.VISIBLE;
+
+        stationButton.setChecked(notFollowing && followButtonVisible);
     }
 
     public static class ProfileHeaderPresenterFactory {
