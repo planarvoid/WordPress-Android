@@ -106,17 +106,12 @@
         <item name="android:textColor">@color/collections_empty_playlists_text_color</item>
     </style>
 
-    <style name="Collections.SmallTrackCountContainer">
+    <style name="Collections.SmallTrackCount">
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:layout_marginLeft">8dp</item>
         <item name="android:background">@drawable/recently_played_circle_playlist_tracks_bg</item>
         <item name="android:gravity">center</item>
-        <item name="android:orientation">vertical</item>
-    </style>
-
-    <style name="Collections.SmallTrackCount">
         <item name="android:antialias">true</item>
-        <item name="android:gravity">center</item>
         <item name="android:maxLines">1</item>
         <item name="android:textColor">@color/overlay_text</item>
         <item name="android:textSize">20sp</item>

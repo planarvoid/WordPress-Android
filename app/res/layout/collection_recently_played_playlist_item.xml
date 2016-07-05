@@ -16,25 +16,18 @@
 
         <com.soundcloud.android.view.SquareImageView
             android:id="@+id/artwork"
-            android:scaleType="centerCrop"
-            android:padding="1dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:padding="1dp"
+            android:scaleType="centerCrop" />
 
-        <LinearLayout
-            android:id="@+id/track_count_container"
-            style="@style/Collections.SmallTrackCountContainer"
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_count"
+            style="@style/Collections.SmallTrackCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/artwork">
-
-            <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/track_count"
-                style="@style/Collections.SmallTrackCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="12" />
-        </LinearLayout>
+            android:layout_alignBottom="@id/artwork"
+            tools:text="12" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
