@@ -1,6 +1,7 @@
 package com.soundcloud.android.gcm;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -8,7 +9,6 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.utils.ErrorUtils;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -28,6 +28,7 @@ public class GcmRegistrationService extends IntentService {
     @Inject ApiClient apiClient;
     @Inject InstanceIdWrapper instanceId;
     @Inject Provider<AppboyWrapper> appboyWrapperProvider;
+    @Inject AccountOperations accountOperations;
     @Inject FeatureFlags featureFlags;
 
     public static void startGcmService(Context context) {
@@ -44,18 +45,20 @@ public class GcmRegistrationService extends IntentService {
                            ApiClient apiClient,
                            InstanceIdWrapper instanceId,
                            Provider<AppboyWrapper> appboyWrapperProvider,
+                           AccountOperations accountOperations,
                            FeatureFlags featureFlags) {
         super(TAG);
         this.gcmStorage = gcmStorage;
         this.apiClient = apiClient;
         this.instanceId = instanceId;
         this.appboyWrapperProvider = appboyWrapperProvider;
+        this.accountOperations = accountOperations;
         this.featureFlags = featureFlags;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (gcmStorage.shouldRegister()) {
+        if (accountOperations.isUserLoggedIn() && gcmStorage.shouldRegister()) {
             doTokenRefresh();
         }
     }
