@@ -41,8 +41,7 @@
         <item name="android:stateListAnimator">@null</item>
     </style>
 
-    <style name="PlayQueueRepeatButton" parent="Widget.AppCompat.Button.Borderless">
-        <item name="android:src">@drawable/ic_repeat</item>
+    <style name="PlayerPlayQueueButton" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:background">@drawable/circular_ripple</item>
         <item name="android:stateListAnimator">@null</item>
     </style>

@@ -245,6 +245,11 @@ class SimplePlayQueue extends PlayQueue {
     }
 
     @Override
+    boolean isShuffled() {
+        return false;
+    }
+
+    @Override
     protected List<PlayQueueItem> items() {
         return playQueueItems;
     }

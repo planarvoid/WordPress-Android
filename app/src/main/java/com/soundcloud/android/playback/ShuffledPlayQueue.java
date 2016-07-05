@@ -29,6 +29,11 @@ abstract class ShuffledPlayQueue extends SimplePlayQueue {
         };
     }
 
+    @Override
+    boolean isShuffled() {
+        return true;
+    }
+
     // This is a shuffled view of a list.
     static class ShuffledList<T> implements List<T> {
 

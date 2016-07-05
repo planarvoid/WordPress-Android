@@ -136,9 +136,25 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="PlayQueueRepeatButton">
-        <item name="android:src">@drawable/ic_repeat</item>
+    <style name="PlayerPlayQueueButton" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="PlayerPlayQueueButton.Shuffle" >
+        <item name="android:button">@drawable/btn_player_shuffle</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_width">44dp</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
+    </style>
+
+    <style name="PlayerPlayQueueButton.Repeat" >
+        <item name="android:src">@drawable/ic_repeat</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginRight">4dp</item>
+        <item name="android:scaleType">center</item>
     </style>
 
     <style name="Waveform">
@@ -196,7 +212,8 @@
         <item name="android:layout_centerVertical">true</item>
         <item name="android:paddingRight">6dp</item>
         <item name="android:paddingLeft">6dp</item>
-        <item name="android:textSize" tools:ignore="SpUsage">12dp</item> <!-- This text cannot be scaled due to fixed timestamp height -->
+        <item name="android:textSize" tools:ignore="SpUsage">12dp
+        </item> <!-- This text cannot be scaled due to fixed timestamp height -->
         <item name="android:textColor">@color/timestamp_primary</item>
         <item name="android:includeFontPadding">false</item>
     </style>

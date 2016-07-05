@@ -75,6 +75,10 @@ public class PlayQueueManager implements OriginProvider {
         setPlayQueueKeepPosition(((ShuffledPlayQueue) playQueue).unshuffle());
     }
 
+    public boolean isShuffled() {
+        return playQueue.isShuffled();
+    }
+
     private void setPlayQueueKeepPosition(PlayQueue newPlayQueue) {
         final PlayQueueItem currentPlayQueueItem = getCurrentPlayQueueItem();
         final int startPosition = newPlayQueue.indexOfPlayQueueItem(currentPlayQueueItem);

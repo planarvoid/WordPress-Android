@@ -30,6 +30,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -69,13 +70,20 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.setHasFixedSize(false);
         recyclerView.setItemAnimator(new PlayQueueItemAnimator());
 
-        setupRepeatButton(view);
-
         playQueueDrawer.setVisibility(View.VISIBLE);
         subscriptions.add(eventBus.subscribeImmediate(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                                                       new UpdatePlayingTrackSubscriber(adapter)));
         subscriptions.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new UpdateSubscriber()));
         refreshPlayQueue();
+    }
+
+    @Override
+    public void onResume(Fragment fragment) {
+        final View view = fragment.getView();
+        setupRepeatButton(view);
+        setupShuffleButton(view);
+
+        super.onResume(fragment);
     }
 
     @OnClick(R.id.close_play_queue)
@@ -145,6 +153,20 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
                 setupRepeatButtonIcon((ImageView) v);
             }
         });
+    }
+
+    private void setupShuffleButton(View view) {
+        ToggleButton button = ButterKnife.findById(view, R.id.shuffle_button);
+        button.setChecked(playQueueManager.isShuffled());
+    }
+
+    @OnClick(R.id.shuffle_button)
+    void shuffleClicked(ToggleButton toggle) {
+        if (toggle.isChecked()) {
+            playQueueManager.shuffle();
+        } else {
+            playQueueManager.unshuffle();
+        }
     }
 
     private RepeatMode getNextRepeatMode() {
