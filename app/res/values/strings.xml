@@ -23,9 +23,9 @@
     <string name="password">Password</string>
     <string name="website">Website</string>
     <string name="imprint">Imprint</string>
-    <string name="terms_of_use">Terms of Use</string>
-    <string name="terms_of_use_go">SoundCloud Go Terms of Use</string>
-    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_use">Terms of use</string>
+    <string name="terms_of_use_go">SoundCloud Go terms of use</string>
+    <string name="privacy_policy">Privacy policy</string>
     <string name="contact_support">Contact support</string>
     <string name="copyright_information">Copyright information</string>
     <!-- @Todo from l10n: please explain -->
@@ -94,10 +94,10 @@
     <string name="authentication_log_in_with_google">Sign in with Google</string>
     <string name="error_google_sign_in_failed">We couldn’t sign you in with Google+. To activate your Google+ account and try again, go to plus.google.com.</string>
     <string name="auth_disclaimer_title">One more step</string>
-    <string name="auth_disclaimer_message">By selecting \"Continue\", you agree to the Terms of Use and Privacy Policy of SoundCloud.</string>
+    <string name="auth_disclaimer_message">By selecting \"Continue\", you agree to the Terms of use and Privacy policy of SoundCloud.</string>
     <string name="facebook_authentication_failed_message">Try again soon or sign in using your email address and password.</string>
     <string name="authentication_recover_password_msg">Enter your email address and we’ll send you a link to change your password. If you still need help, visit our Help Center.</string>
-    <string name="authentication_recover_password_visit_our_Help_Center">Visit our Help Center</string>
+    <string name="authentication_recover_password_visit_our_Help_Center">Visit our Help center</string>
     <string name="authentication_recover_password_send">Send</string>
     <string name="authentication_blocked_title">We couldn’t create an account for you</string>
     <string name="authentication_blocked_message">Our robots think this sign-up looks too much like spam. If you think this is a mistake, contact SoundCloud support.</string>
@@ -238,9 +238,9 @@
     <string name="onboarding_gender_option_nopref">Prefer not to say</string>
     <string name="ok_got_it">OK, got it</string>
 
-    <string name="onboarding_email_use_notice">We may use your email for updates and tips on SoundCloud\'s products and services. You can unsubscribe for free at any time in your notification preferences.</string>
-    <string name="onboarding_tou_reminder">By signing in, you agree to our Terms of Use.</string>
-    <string name="onboarding_tou_reminder_link_highlight">Terms of Use</string>
+    <string name="onboarding_email_use_notice">We may use your email for updates and tips on SoundCloud’s products and services. You can unsubscribe for free at any time in your notification preferences.</string>
+    <string name="onboarding_tou_reminder">By signing in, you agree to our Terms of use.</string>
+    <string name="onboarding_tou_reminder_link_highlight">Terms of use</string>
 
     <!-- __LANDING -->
     <string name="landing_title">Find music you love.</string>
@@ -479,7 +479,7 @@
     <string name="pref_crashlogs">Crashlogs</string>
     <string name="pref_crashlogs_desc">Enabling crash logs helps us improve the app significantly. We don’t collect any personal data. For details, refer to our Privacy Policy.</string>
     <string name="cache_clearing">Clearing cache</string>
-    <string name="cache_clearing_message">Deleting cached files...</string>
+    <string name="cache_clearing_message">Deleting cached files…</string>
     <string name="cache_cleared">Cache cleared</string>
 
     <!-- __SETTINGS SIGN OUT -->
@@ -667,7 +667,7 @@
     <string name="conversion_buy_loading">Loading</string>
     <string name="conversion_buy_trial" tools:ignore="StringFormatCount">Try it free for %d days</string>
     <string name="conversion_buy_no_trial">Upgrade now</string>
-    <string name="conversion_retry_heading">Oops... try again</string>
+    <string name="conversion_retry_heading">Oops… try again</string>
     <string name="conversion_retry_message">Looks like something went wrong. Please try again.</string>
     <string name="conversion_retry_button">Try again</string>
     <string name="conversion_buy_retry">Loading failed. Retry?</string>
