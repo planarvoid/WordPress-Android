@@ -6,13 +6,16 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
+@EventTrackingTest
 public class StationsRecommendationsTest extends TrackingActivityTest<MainActivity> {
+    private static final String RECOMMENDED_STATIONS_PLAYING_SPEC = "playing_recommended_station";
 
     public StationsRecommendationsTest() {
         super(MainActivity.class);
@@ -24,6 +27,7 @@ public class StationsRecommendationsTest extends TrackingActivityTest<MainActivi
     }
 
     public void testStartSuggestedStationFromDiscovery() {
+
         final DiscoveryScreen discoveryScreen = mainNavHelper.goToDiscovery();
         final StationsBucketElement stationsBucketElement = discoveryScreen.stationsRecommendationsBucket();
         assertThat(stationsBucketElement, is(visible()));
@@ -40,6 +44,21 @@ public class StationsRecommendationsTest extends TrackingActivityTest<MainActivi
         playerElement.pressBackToCollapse().waitForCollapsedPlayer();
         assertThat(playerElement.isCollapsed(), is(true));
         assertThat(stationsBucketElement.getFirstStation().isPlaying(), is(true));
+    }
+
+    public void testStartSuggestedStationTracking() {
+        final VisualPlayerElement player = mainNavHelper
+                .goToDiscovery()
+                .stationsRecommendationsBucket()
+                .getFirstStation()
+                .click()
+                .waitForExpandedPlayerToStartPlaying();
+
+        startEventTracking();
+        // pause
+        player.clickArtwork();
+
+        finishEventTracking(RECOMMENDED_STATIONS_PLAYING_SPEC);
     }
 
 }
