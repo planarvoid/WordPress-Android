@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,8 +14,10 @@ import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -172,7 +175,11 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verifyTrackingEvent(Urn.forTrack(123), Referrer.TWITTER);
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventBus, times(2)).publish(eq(EventQueue.TRACKING), captor.capture());
+
+        ForegroundEvent event = (ForegroundEvent) captor.getAllValues().get(0);
+        verifyTrackingEvent(event, Urn.forTrack(123), Referrer.TWITTER);
     }
 
     @Test
@@ -184,7 +191,11 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verifyTrackingEvent(Urn.forTrack(123), Referrer.FACEBOOK);
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventBus, times(2)).publish(eq(EventQueue.TRACKING), captor.capture());
+
+        ForegroundEvent event = (ForegroundEvent) captor.getAllValues().get(0);
+        verifyTrackingEvent(event, Urn.forTrack(123), Referrer.FACEBOOK);
     }
 
     @Test
@@ -228,8 +239,15 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verifyTrackingEvent(Urn.forTrack(123), Referrer.OTHER);
+        ArgumentCaptor<TrackingEvent> captor = ArgumentCaptor.forClass(TrackingEvent.class);
+        verify(eventBus, times(2)).publish(eq(EventQueue.TRACKING), captor.capture());
+
+        ForegroundEvent event = (ForegroundEvent) captor.getAllValues().get(0);
+        verifyTrackingEvent(event, Urn.forTrack(123), Referrer.OTHER);
         verify(navigator).openOnboarding(context, Urn.forTrack(123), Screen.DEEPLINK);
+
+        DeeplinkReportEvent reportEvent = (DeeplinkReportEvent) captor.getAllValues().get(1);
+        assertThat(reportEvent.getKind()).isEqualTo(DeeplinkReportEvent.forResolvedDeeplink().getKind());
     }
 
     @Test
@@ -495,7 +513,10 @@ public class IntentResolverTest extends AndroidUnitTest {
 
     private void verifyTrackingEvent(Urn urn, Referrer referrer) {
         ForegroundEvent event = captureForegroundEvent();
+        verifyTrackingEvent(event, urn, referrer);
+    }
 
+    private void verifyTrackingEvent(ForegroundEvent event, Urn urn, Referrer referrer) {
         assertThat(event.getKind()).isEqualTo(ForegroundEvent.KIND_OPEN);
         assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.value());
         assertThat(event.get(ForegroundEvent.KEY_PAGE_NAME)).isEqualTo(Screen.DEEPLINK.get());

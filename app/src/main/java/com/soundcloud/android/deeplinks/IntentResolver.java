@@ -6,6 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.main.Screen;
@@ -157,10 +158,19 @@ public class IntentResolver {
                     startWebView(context, resolvedUri, referrer);
                 } else {
                     trackForegroundEvent(referrer);
+                    reportFailedToResolveDeeplink();
                     launchApplicationWithMessage(context, R.string.error_loading_url);
                 }
             }
         };
+    }
+
+    private void reportSuccessfulDeeplink() {
+        eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolvedDeeplink());
+    }
+
+    private void reportFailedToResolveDeeplink() {
+        eventBus.publish(EventQueue.TRACKING, DeeplinkReportEvent.forResolutionFailure());
     }
 
     private void startWebView(Context context, Uri uri, String referrer) {
@@ -242,13 +252,14 @@ public class IntentResolver {
             loginCrawler();
         }
 
-        trackForegroundEventForResource(urn, referrer);
-
         if (accountOperations.isUserLoggedIn()) {
             navigateToResource(context, urn);
         } else {
             showOnboardingForUrn(context, urn);
         }
+
+        trackForegroundEventForResource(urn, referrer);
+        reportSuccessfulDeeplink();
     }
 
     private void navigateToResource(final Context context, final Urn urn) {
