@@ -441,7 +441,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         }
 
         private void setEmptyStateMessage(PlaylistItem playlistItem) {
-            final String label = getContext().getString(playlistItem.getSetTypeLabelForText());
+            final String label = getContext().getString(PlaylistItem.getSetTypeLabel(playlistItem.getPlayableType()));
             final String message = getContext().getString(R.string.custom_empty_playlist_title, label);
             final String secondaryText = getContext().getString(R.string.custom_empty_playlist_description, label);
             controller.setEmptyStateMessage(message, secondaryText);

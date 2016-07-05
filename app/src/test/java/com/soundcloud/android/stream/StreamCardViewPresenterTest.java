@@ -78,7 +78,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     public void shouldShowPromotedIndicator() {
         SpannableString promotedSpannedString = new SpannableString("Promoted");
         TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
-        when(headerSpannableBuilder.promotedSpannedString(true)).thenReturn(headerSpannableBuilder);
+        when(headerSpannableBuilder.promotedSpannedString(promotedTrackItem.getPlayableType())).thenReturn(headerSpannableBuilder);
         when(headerSpannableBuilder.get()).thenReturn(promotedSpannedString);
         presenter.bind(itemView, promotedTrackItem);
 
@@ -90,7 +90,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
     public void shouldShowPromotedIndicatorWithPromoter() {
         SpannableString promotedSpannedString = new SpannableString("Promoted");
         TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        when(headerSpannableBuilder.promotedSpannedString(true)).thenReturn(headerSpannableBuilder);
+        when(headerSpannableBuilder.promotedSpannedString(promotedTrackItem.getPlayableType())).thenReturn(headerSpannableBuilder);
         when(headerSpannableBuilder.get()).thenReturn(promotedSpannedString);
         presenter.bind(itemView, promotedTrackItem);
 
@@ -122,7 +122,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlayableItem playlistItem = repostedPlaylist();
         presenter.bind(itemView, playlistItem);
 
-        verify(headerSpannableBuilder).actionSpannedString(repostedString(), false);
+        verify(headerSpannableBuilder).actionSpannedString(repostedString(), playlistItem.getPlayableType());
         verify(itemView).setRepostHeader(playlistItem.getReposter().get(), spannable);
     }
 
@@ -134,7 +134,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlaylistItem playlistItem = postedPlaylist();
         presenter.bind(itemView, playlistItem);
 
-        verify(headerSpannableBuilder).userActionSpannedString(playlistItem.getCreatorName(), "posted", false);
+        verify(headerSpannableBuilder).userActionSpannedString(playlistItem.getCreatorName(), "posted", playlistItem.getPlayableType());
         verify(itemView).setHeaderText(spannable);
     }
 
@@ -155,7 +155,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         TrackItem postedTrack = postedTrack();
         presenter.bind(itemView, postedTrack);
 
-        verify(headerSpannableBuilder).userActionSpannedString(postedTrack.getCreatorName(), "posted", true);
+        verify(headerSpannableBuilder).userActionSpannedString(postedTrack.getCreatorName(), "posted", postedTrack.getPlayableType());
         verify(itemView).setHeaderText(spannable);
     }
 
@@ -167,7 +167,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         PlayableItem trackItem = repostedTrack();
         presenter.bind(itemView, trackItem);
 
-        verify(headerSpannableBuilder).actionSpannedString(repostedString(), true);
+        verify(headerSpannableBuilder).actionSpannedString(repostedString(), trackItem.getPlayableType());
         verify(itemView).setRepostHeader(trackItem.getReposter().get(), spannable);
     }
 

@@ -76,6 +76,8 @@ public abstract class PlayableItem implements StreamItem {
         return PLAYABLE;
     }
 
+    abstract public String getPlayableType();
+
     public String getTitle() {
         return source.getOrElse(PlayableProperty.TITLE, Strings.EMPTY);
     }

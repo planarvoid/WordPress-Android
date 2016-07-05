@@ -47,7 +47,7 @@ public class PlaylistItemTest extends AndroidUnitTest {
         propertySet.put(PlaylistProperty.IS_ALBUM, false);
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getSetTypeLabel()).isEqualTo(R.string.set_type_default_label);
+        assertThat(PlaylistItem.getSetTypeTitle(playlistItem.getPlayableType())).isEqualTo(R.string.set_type_default_label);
     }
 
     @Test
@@ -56,16 +56,32 @@ public class PlaylistItemTest extends AndroidUnitTest {
         propertySet.put(PlaylistProperty.SET_TYPE, "ep");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getSetTypeLabel()).isEqualTo(R.string.set_type_ep_label);
+        assertThat(PlaylistItem.getSetTypeTitle(playlistItem.getPlayableType())).isEqualTo(R.string.set_type_ep_label);
+    }
+
+    @Test
+    public void shouldReturnPlaylistAsPlayableTypeIfNotAnAlbum() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, false);
+        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
+
+        assertThat(playlistItem.getPlayableType()).isEqualTo(PlaylistItem.TYPE_PLAYLIST);
+    }
+
+    @Test
+    public void shouldReturnSetTypeAsPlayableTypeIfAlbum() {
+        propertySet.put(PlaylistProperty.IS_ALBUM, true);
+        propertySet.put(PlaylistProperty.SET_TYPE, PlaylistItem.TYPE_ALBUM);
+        PlaylistItem playlistItem = PlaylistItem.from(propertySet);
+
+        assertThat(playlistItem.getPlayableType()).isEqualTo(PlaylistItem.TYPE_ALBUM);
     }
 
     @Test
     public void shouldFallBackToDefaultLabelForUnknownSetTypes() {
-        propertySet.put(PlaylistProperty.IS_ALBUM, true);
         propertySet.put(PlaylistProperty.SET_TYPE, "unknown");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getSetTypeLabel()).isEqualTo(R.string.set_type_album_label);
+        assertThat(PlaylistItem.getSetTypeTitle(playlistItem.getPlayableType())).isEqualTo(R.string.set_type_default_label);
     }
 
     @Test
@@ -73,7 +89,7 @@ public class PlaylistItemTest extends AndroidUnitTest {
         propertySet.put(PlaylistProperty.IS_ALBUM, false);
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getSetTypeLabelForText()).isEqualTo(R.string.set_type_default_label_for_text);
+        assertThat(PlaylistItem.getSetTypeLabel(playlistItem.getPlayableType())).isEqualTo(R.string.set_type_default_label_for_text);
     }
 
     @Test
@@ -82,16 +98,15 @@ public class PlaylistItemTest extends AndroidUnitTest {
         propertySet.put(PlaylistProperty.SET_TYPE, "ep");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getSetTypeLabelForText()).isEqualTo(R.string.set_type_ep_label_for_text);
+        assertThat(PlaylistItem.getSetTypeLabel(playlistItem.getPlayableType())).isEqualTo(R.string.set_type_ep_label_for_text);
     }
 
     @Test
     public void shouldFallBackToDefaultLabelForTextForUnknownSetTypes() {
-        propertySet.put(PlaylistProperty.IS_ALBUM, true);
         propertySet.put(PlaylistProperty.SET_TYPE, "unknown");
         PlaylistItem playlistItem = PlaylistItem.from(propertySet);
 
-        assertThat(playlistItem.getSetTypeLabelForText()).isEqualTo(R.string.set_type_album_label_for_text);
+        assertThat(PlaylistItem.getSetTypeLabel(playlistItem.getPlayableType())).isEqualTo(R.string.set_type_default_label_for_text);
     }
 
     @Test

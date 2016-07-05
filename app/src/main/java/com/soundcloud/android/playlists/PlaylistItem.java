@@ -7,6 +7,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -17,25 +18,50 @@ import android.content.Context;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PlaylistItem extends PlayableItem {
 
-    private static final Map<String, Integer> SET_TYPE_TO_LABEL_MAP = new HashMap<String, Integer>() {{
-        put("album", R.string.set_type_album_label);
-        put("ep", R.string.set_type_ep_label);
-        put("single", R.string.set_type_single_label);
-        put("compilation", R.string.set_type_compilation_label);
-    }};
+    public static final String TYPE_PLAYLIST = "playlist";
+    public static final String TYPE_ALBUM = "album";
+    public static final String TYPE_EP = "ep";
+    public static final String TYPE_SINGLE = "single";
+    public static final String TYPE_COMPILATION = "compilation";
 
-    private static final Map<String, Integer> SET_TYPE_TO_LABEL_FOR_TEXT_MAP = new HashMap<String, Integer>() {{
-        put("album", R.string.set_type_album_label_for_text);
-        put("ep", R.string.set_type_ep_label_for_text);
-        put("single", R.string.set_type_single_label_for_text);
-        put("compilation", R.string.set_type_compilation_label_for_text);
-    }};
+    @VisibleForTesting
+    public static int getSetTypeTitle(String playableType) {
+        switch (playableType) {
+            case PlaylistItem.TYPE_PLAYLIST:
+                return R.string.set_type_default_label;
+            case PlaylistItem.TYPE_ALBUM:
+                return R.string.set_type_album_label;
+            case PlaylistItem.TYPE_EP:
+                return R.string.set_type_ep_label;
+            case PlaylistItem.TYPE_SINGLE:
+                return R.string.set_type_single_label;
+            case PlaylistItem.TYPE_COMPILATION:
+                return R.string.set_type_compilation_label;
+            default:
+                return R.string.set_type_default_label;
+        }
+    }
+
+    public static int getSetTypeLabel(String playableType) {
+        switch (playableType) {
+            case PlaylistItem.TYPE_PLAYLIST:
+                return R.string.set_type_default_label_for_text;
+            case PlaylistItem.TYPE_ALBUM:
+                return R.string.set_type_album_label_for_text;
+            case PlaylistItem.TYPE_EP:
+                return R.string.set_type_ep_label_for_text;
+            case PlaylistItem.TYPE_SINGLE:
+                return R.string.set_type_single_label_for_text;
+            case PlaylistItem.TYPE_COMPILATION:
+                return R.string.set_type_compilation_label_for_text;
+            default:
+                return R.string.set_type_default_label_for_text;
+        }
+    }
 
     public static PlaylistItem from(PropertySet propertySet) {
         return new PlaylistItem(propertySet);
@@ -60,6 +86,15 @@ public class PlaylistItem extends PlayableItem {
 
     public PlaylistItem(PropertySet source) {
         super(source);
+    }
+
+    @Override
+    public String getPlayableType() {
+        if (isAlbum()) {
+            return source.getOrElse(PlaylistProperty.SET_TYPE, TYPE_ALBUM);
+        } else {
+            return TYPE_PLAYLIST;
+        }
     }
 
     public int getTrackCount() {
@@ -103,26 +138,6 @@ public class PlaylistItem extends PlayableItem {
         return source.getOrElse(PlaylistProperty.IS_ALBUM, false);
     }
 
-    public int getSetTypeLabel() {
-        if (!isAlbum()) return R.string.set_type_default_label;
-
-        String setType = source.getOrElse(PlaylistProperty.SET_TYPE, "album");
-
-        if (SET_TYPE_TO_LABEL_MAP.containsKey(setType)) return SET_TYPE_TO_LABEL_MAP.get(setType);
-
-        return R.string.set_type_album_label;
-    }
-
-    public int getSetTypeLabelForText() {
-        if (!isAlbum()) return R.string.set_type_default_label_for_text;
-
-        final String setType = source.getOrElse(PlaylistProperty.SET_TYPE, "album");
-
-        if (SET_TYPE_TO_LABEL_FOR_TEXT_MAP.containsKey(setType)) return SET_TYPE_TO_LABEL_FOR_TEXT_MAP.get(setType);
-
-        return R.string.set_type_album_label_for_text;
-    }
-
     public String getReleaseYear() {
         String releaseDate = source.getOrElse(PlaylistProperty.RELEASE_DATE, Strings.EMPTY);
         if (releaseDate.isEmpty()) return Strings.EMPTY;
@@ -135,10 +150,12 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public String getLabel(Context context) {
-        if (!isAlbum()) return context.getString(getSetTypeLabel());
+        final String title = context.getString(getSetTypeTitle(getPlayableType()));
+
+        if (!isAlbum()) return title;
 
         StringBuilder builder = new StringBuilder();
-        builder.append(context.getString(getSetTypeLabel()));
+        builder.append(title);
         String releaseYear = getReleaseYear();
         if (!releaseYear.isEmpty()) {
             builder.append(String.format(" · %s", releaseYear));
