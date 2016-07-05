@@ -31,6 +31,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import javax.inject.Inject;
@@ -166,6 +167,13 @@ public class AccountOperations {
 
         if (!accountexists) {
             account = new Account(user.getPermalink(), context.getString(R.string.account_type));
+
+            // workaround for https://code.google.com/p/android/issues/detail?id=210992
+            // This is a no-op even if the bug is fixed. Remove upon release of Android N
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                accountManager.removeAccountExplicitly(account);
+            }
+
             accountexists = accountManager.addAccountExplicitly(account, null, null);
         }
 
