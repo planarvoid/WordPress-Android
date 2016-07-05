@@ -61,6 +61,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
         final TextView creator = (TextView) view.findViewById(R.id.creator);
         final View privateIndicator = view.findViewById(R.id.private_indicator);
         final View likeIndicator = view.findViewById(R.id.like_indicator);
+        final TextView trackCount = (TextView) view.findViewById(R.id.track_count);
 
         view.setOnClickListener(goToPlaylist(playlistItem));
 
@@ -68,6 +69,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
         creator.setText(playlistItem.getCreatorName());
         privateIndicator.setVisibility(playlistItem.isPrivate() ? View.VISIBLE : View.GONE);
         likeIndicator.setVisibility(playlistItem.isLiked() ? View.VISIBLE : View.GONE);
+        trackCount.setText(String.valueOf(playlistItem.getTrackCount()));
 
         imageOperations.displayInAdapterView(
                 playlistItem,

@@ -21,6 +21,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/track_count"
+            style="@style/Cards.PlaylistTracks.Count"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignBottom="@+id/artwork"
+            android:layout_alignLeft="@+id/artwork"
+            android:layout_margin="@dimen/cards_artwork_inner_padding"
+            android:background="@drawable/overlay_text_background_circle"
+            android:gravity="center"
+            tools:text="10"
+            android:textColor="@color/white" />
+
         <com.soundcloud.android.offline.DownloadImageView
             android:id="@+id/item_download_state"
             style="@style/DownloadItem"
