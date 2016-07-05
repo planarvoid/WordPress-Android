@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.AlbumsTest;
-import com.soundcloud.android.framework.annotation.PreAlbumsTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -104,22 +103,6 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
                 .findAndClickFirstAlbumItem();
 
         assertThat("Album screen should be visible", playlistDetailsScreen, is(visible()));
-    }
-
-    //TODO remove test when search of albums is released
-    @PreAlbumsTest
-    public void testOrderOfDisplayedTabs() {
-        SearchResultsScreen resultsScreen = searchScreen.doSearch("clownstep");
-        assertThat("Current tab should be ALL", resultsScreen.currentTabTitle(), is("ALL"));
-
-        resultsScreen.swipeLeft();
-        assertThat("Current tab should be TRACKS", resultsScreen.currentTabTitle(), is("TRACKS"));
-
-        resultsScreen.swipeLeft();
-        assertThat("Current tab should be PEOPLE", resultsScreen.currentTabTitle(), is("PEOPLE"));
-
-        resultsScreen.swipeLeft();
-        assertThat("Current tab should be PLAYLISTS", resultsScreen.currentTabTitle(), is("PLAYLISTS"));
     }
 
     @AlbumsTest
