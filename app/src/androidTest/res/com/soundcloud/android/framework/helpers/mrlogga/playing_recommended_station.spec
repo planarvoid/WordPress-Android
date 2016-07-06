@@ -9,12 +9,12 @@ expected_events:
     client_id: 3152
     source_version: default
     action: pause
-    policy: ALLOW
+    policy: (ALLOW|MONETIZE)
     player_type: Skippy
     consumer_subs_plan: (\w|-)+
     page_name: search:main
     source_urn: soundcloud:artist-stations:[0-9]+
-    monetization_model: NOT_APPLICABLE
+    monetization_model: (NOT_APPLICABLE|AD_SUPPORTED)
     user: soundcloud:users:[0-9]+
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
