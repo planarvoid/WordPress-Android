@@ -1,7 +1,6 @@
 package com.soundcloud.android.tests.search;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.AlbumsTest;
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
@@ -27,7 +26,6 @@ public class SearchResultsTrackingTest extends TrackingActivityTest<MainActivity
         searchScreen = mainNavHelper.goToDiscovery().clickSearch();
     }
 
-    @AlbumsTest
     public void testTappingAlbumOnAlbumsTabOpensAlbumDetails() {
         startEventTracking();
 
