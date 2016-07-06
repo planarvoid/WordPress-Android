@@ -18,6 +18,7 @@ class MrLoggaLoggaClient {
     private static final String TAG = MrLoggaVerifier.class.getSimpleName();
 
     private static final MediaType MEDIA_TYPE_PLAIN_TEXT = MediaType.parse("text/plain");
+    private static final RequestBody EMPTY_REQUEST_BODY = RequestBody.create(MEDIA_TYPE_PLAIN_TEXT, "");
     private static final String PARAM_ANONYMOUS_ID = "anonymous_id";
     private static final String PARAM_SCENARIO_ID = "scenario_id";
 
@@ -78,7 +79,7 @@ class MrLoggaLoggaClient {
     public MrLoggaResponse finishRecording() {
         final Request request = new Request.Builder()
                 .url(loggingEndpoint + ACTION_FINISH_RECORDING)
-                .post(null)
+                .post(EMPTY_REQUEST_BODY)
                 .build();
         return executeRequest(request);
     }
