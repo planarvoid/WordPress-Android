@@ -64,14 +64,25 @@ public class TrackLikesScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public boolean waitForLikesDownloadToFinish() {
+    boolean waitForLikesDownloadToFinish() {
         waitForLikesToStartDownloading();
-        return waiter.waitForNetworkCondition(new Condition() {
-            @Override
-            public boolean isSatisfied() {
-                return !testDriver.isElementDisplayed(updateInProgress);
-            }
-        });
+
+        final int retries = 3;
+        boolean downloadFinished = false;
+        for (int i = 0; i < retries && !downloadFinished; i++) {
+            waiter.waitForNetworkCondition(new Condition() {
+                @Override
+                public boolean isSatisfied() {
+                    return !isUpdateInProgress();
+                }
+            });
+            downloadFinished = !isUpdateInProgress();
+        }
+        return downloadFinished;
+    }
+
+    private boolean isUpdateInProgress() {
+        return testDriver.isElementDisplayed(updateInProgress);
     }
 
     public void waitForLikesToStartDownloading() {
