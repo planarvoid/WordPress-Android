@@ -63,6 +63,8 @@
     <dimen name="view_all_height">48dp</dimen>
     <dimen name="view_all_chevron_padding">6dp</dimen>
 
+    <dimen name="artwork_border_width">1dp</dimen>
+
     <!-- will correspond to the arrow height -->
     <dimen name="view_pager_divider_width">1dp</dimen>
 

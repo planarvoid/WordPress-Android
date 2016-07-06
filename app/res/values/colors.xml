@@ -112,6 +112,8 @@
     <color name="usage_bar_free">#ffffff</color>
     <color name="translucent_background">#80000000</color>
     <color name="user_image_border_color">#1a000000</color>
+    <color name="artwork_border_color">#1a000000</color>
+
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>

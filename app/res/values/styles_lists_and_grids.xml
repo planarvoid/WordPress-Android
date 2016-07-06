@@ -101,6 +101,12 @@
         <item name="android:layout_height">@dimen/list_item_image_dimension</item>
     </style>
 
+    <style name="ListItemImage.Artwork">
+        <item name="android:cropToPadding">true</item>
+        <item name="android:background">@drawable/artwork_border</item>
+        <item name="android:padding">@dimen/artwork_border_width</item>
+    </style>
+
     <style name="ListItemImage.User">
         <item name="cbiv_borderColor">@color/user_image_border_color</item>
         <item name="cbiv_borderWidth">@dimen/user_image_border_width</item>
@@ -160,6 +166,9 @@
 
     <style name="GridItemImageView" parent="GridItemImageViewBase">
         <item name="movement">-15dp</item>
+        <item name="android:cropToPadding">true</item>
+        <item name="android:background">@drawable/artwork_border</item>
+        <item name="android:padding">@dimen/artwork_border_width</item>
     </style>
 
     <!-- cards style -->
@@ -185,7 +194,11 @@
         <item name="android:minHeight">@dimen/cards_header_min_height</item>
     </style>
 
-    <style name="Cards.Image" parent="GridItemImageView" />
+    <style name="Cards.Image" parent="GridItemImageView">
+        <item name="android:cropToPadding">true</item>
+        <item name="android:background">@drawable/artwork_border</item>
+        <item name="android:padding">@dimen/artwork_border_width</item>
+    </style>
 
     <style name="Cards.Footer">
         <item name="android:minHeight">56dp</item>

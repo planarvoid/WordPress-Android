@@ -14,7 +14,7 @@
 
         <ImageView
             android:id="@+id/image"
-            style="@style/ListItemImage"
+            style="@style/ListItemImage.Artwork"
             android:layout_marginTop="16dp" />
 
         <com.soundcloud.android.offline.DownloadImageView

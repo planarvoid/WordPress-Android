@@ -16,6 +16,7 @@
 
         <com.soundcloud.android.view.SquareImageView
             android:id="@+id/artwork"
+            style="@style/ArtworkBorder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="1dp"

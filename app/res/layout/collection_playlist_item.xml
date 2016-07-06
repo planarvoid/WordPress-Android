@@ -17,7 +17,7 @@
 
         <com.soundcloud.android.view.SquareImageView
             android:id="@+id/artwork"
-            style="Collections.ItemArtwork"
+            style="@style/ListItemImage.Artwork"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

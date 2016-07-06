@@ -127,6 +127,12 @@
         <item name="android:paddingTop">@dimen/likes_header_padding_top</item>
     </style>
 
+    <style name="ArtworkBorder">
+        <item name="android:background">@drawable/artwork_border</item>
+        <item name="android:cropToPadding">true</item>
+        <item name="android:padding">@dimen/artwork_border_width</item>
+    </style>
+
     <!-- Notifications -->
 
     <style name="ListItemNotificationLayout">
