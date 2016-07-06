@@ -32,13 +32,15 @@ public class LikesEventGatewayAudioTest extends TrackingActivityTest<MainActivit
         startEventTracking();
 
         final VisualPlayerElement playerElement =
-                trackLikesScreen.clickTrack(0);
+                trackLikesScreen.clickTrack(0).waitForExpandedPlayerToStartPlaying();
 
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));
 
-        playerElement.clickArtwork();
+        startEventTracking();
 
+        // pause
+        playerElement.clickArtwork();
         assertThat(playerElement, is(not(playing())));
 
         finishEventTracking(TEST_SCENARIO_LIKES);

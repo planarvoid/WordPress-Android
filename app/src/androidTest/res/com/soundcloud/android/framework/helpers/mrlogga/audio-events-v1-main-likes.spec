@@ -6,31 +6,6 @@ expected_events:
   name: audio
   params:
     trigger: manual
-    playhead_position: '[0-9]+'
-    track_length: '[0-9]+'
-    protocol: hls|https
-    policy: ALLOW
-    ts: '[0-9]+'
-    track: soundcloud:tracks:[0-9]+
-    player_type: Skippy|MediaPlayer
-    action: play
-    client_id: '3152'
-    anonymous_id: (\w|-)+
-    page_name: collection:likes
-    user: soundcloud:users:107904111
-    connection_type: wifi
-    playhead_position: '[0-9]+'
-    track_owner: soundcloud:users:[0-9]+
-    consumer_subs_plan: none
-    local_storage_playback: false
-    app_version: '[0-9]+'
-    client_event_id: (\w|-)+
-    monetization_model: (\w|-)+
-  version: '0'
-- !ruby/object:MrLoggerLogger::Event
-  name: audio
-  params:
-    trigger: manual
     protocol: hls|https
     ts: '[0-9]+'
     pause_reason: pause
