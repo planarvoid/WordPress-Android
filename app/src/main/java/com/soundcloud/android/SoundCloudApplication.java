@@ -50,7 +50,6 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.rx.eventbus.EventBus;
-import com.squareup.leakcanary.LeakCanary;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
@@ -81,6 +80,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     private SharedPreferences sharedPreferences;
     private ApplicationProperties applicationProperties;
 
+    @Inject DevToolsHelper devTools;
     @Inject MigrationEngine migrationEngine;
     @Inject EventBus eventBus;
     @Inject NetworkConnectivityListener networkConnectivityListener;
@@ -138,10 +138,9 @@ public class SoundCloudApplication extends MultiDexApplication {
         instance = this;
 
         initializePreInjectionObjects();
-        initializeMemoryAnalyzer();
 
         objectGraph.inject(this);
-
+        devTools.initialize(this);
         bootApplication();
     }
 
@@ -211,12 +210,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         applicationProperties = new ApplicationProperties(getResources());
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         uncaughtExceptionHandlerController = new UncaughtExceptionHandlerController(this, isReportingCrashes());
-    }
-
-    private void initializeMemoryAnalyzer() {
-        if (applicationProperties.isDebugBuild()) {
-            LeakCanary.install(this);
-        }
     }
 
     private void setUpCrashReportingIfNeeded() {

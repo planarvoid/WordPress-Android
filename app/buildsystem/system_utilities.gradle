@@ -1,15 +1,27 @@
-dependencies {
-  def libraries = rootProject.ext.libraries
+def libraries = rootProject.ext.devLibraries
 
-  //TODO: consolidate all build variants to avoid DRY
-  debugCompile libraries.leakCanary
+addDevLibraryWithStub(libraries.leakCanary, libraries.leakCanaryStub)
+addDevOnlyLibrary(libraries.stetho)
+addDevOnlyLibrary(libraries.stethoOkhttp)
 
-  alphaCompile libraries.leakCanaryStub
-  betaCompile libraries.leakCanaryStub
-  releaseCompile libraries.leakCanaryStub
-  releaseNoProguardCompile libraries.leakCanaryStub
-  releaseNonPlayStoreCompile libraries.leakCanaryStub
+def addDevOnlyLibrary(String lib) {
+  dependencies.debugCompile lib
+  dependencies.alphaProvided lib
+  dependencies.betaProvided lib
+  dependencies.releaseProvided lib
+  dependencies.releaseNoProguardProvided lib
+  dependencies.releaseNonPlayStoreProvided lib
+  dependencies.testProvided lib
+  dependencies.androidTestProvided lib
+}
 
-  testCompile libraries.leakCanaryStub
-  androidTestCompile libraries.leakCanaryStub
+def addDevLibraryWithStub(String lib, String stub) {
+  dependencies.debugCompile lib
+  dependencies.alphaCompile stub
+  dependencies.betaCompile stub
+  dependencies.releaseCompile stub
+  dependencies.releaseNoProguardCompile stub
+  dependencies.releaseNonPlayStoreCompile stub
+  dependencies.testCompile stub
+  dependencies.androidTestCompile stub
 }

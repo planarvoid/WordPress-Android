@@ -18,7 +18,7 @@ import org.mockito.Mock;
 public class StrictSSLHttpClientTest extends AndroidUnitTest {
 
     private final String USER_AGENT = "agent";
-    private final String FILE_PATH = "/filepath";
+    private final String FILE_URL = "http://path/file";
     private final String OAUTH_TOKEN = "OAuth some token";
 
     private StrictSSLHttpClient httpClient;
@@ -40,21 +40,21 @@ public class StrictSSLHttpClientTest extends AndroidUnitTest {
 
     @Test
     public void downloadFileRequestUsesGivenUrl() throws Exception {
-        httpClient.getFileStream(FILE_PATH);
+        httpClient.getFileStream(FILE_URL);
 
-        assertThat(requestCaptor.getValue().urlString()).isEqualTo(FILE_PATH);
+        assertThat(requestCaptor.getValue().urlString()).isEqualTo(FILE_URL);
     }
 
     @Test
     public void downloadFileRequestIncludesDeviceHeader() throws Exception {
-        httpClient.getFileStream(FILE_PATH);
+        httpClient.getFileStream(FILE_URL);
 
         assertThat(requestCaptor.getValue().headers("User-Agent")).containsExactly(USER_AGENT);
     }
 
     @Test
     public void downloadFileRequestIncludesOAuthToken() throws Exception {
-        httpClient.getFileStream(FILE_PATH);
+        httpClient.getFileStream(FILE_URL);
 
         assertThat(requestCaptor.getValue().headers("Authorization")).containsExactly(OAUTH_TOKEN);
     }
