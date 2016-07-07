@@ -1,18 +1,18 @@
 def libraries = rootProject.ext.devLibraries
 
 addDevLibraryWithStub(libraries.leakCanary, libraries.leakCanaryStub)
-addLibrary(libraries.stetho)
-addLibrary(libraries.stethoOkhttp)
+addDevOnlyLibrary(libraries.stetho)
+addDevOnlyLibrary(libraries.stethoOkhttp)
 
-def addLibrary(String lib) {
+def addDevOnlyLibrary(String lib) {
   dependencies.debugCompile lib
-  dependencies.alphaCompile lib
-  dependencies.betaCompile lib
-  dependencies.releaseCompile lib
-  dependencies.releaseNoProguardCompile lib
-  dependencies.releaseNonPlayStoreCompile lib
-  dependencies.testCompile lib
-  dependencies.androidTestCompile lib
+  dependencies.alphaProvided(lib) { transitive = false }
+  dependencies.betaProvided(lib) { transitive = false }
+  dependencies.releaseProvided(lib) { transitive = false }
+  dependencies.releaseNoProguardProvided(lib) { transitive = false }
+  dependencies.releaseNonPlayStoreProvided(lib) { transitive = false }
+  dependencies.testProvided(lib) { transitive = false }
+  dependencies.androidTestProvided(lib) { transitive = false }
 }
 
 def addDevLibraryWithStub(String lib, String stub) {
