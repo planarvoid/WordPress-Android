@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -14,6 +15,8 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -33,6 +36,7 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     private static final long START_EVENT = 12345678L;
 
     @Mock WritePlayHistoryCommand storeCommand;
+    @Mock FeatureFlags featureFlags;
 
     private TestScheduler scheduler = new TestScheduler();
     private TestDateProvider dateProvider = new TestDateProvider(START_EVENT);
@@ -40,7 +44,8 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        PlayHistoryController controller = new PlayHistoryController(eventBus, storeCommand, scheduler);
+        when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
+        PlayHistoryController controller = new PlayHistoryController(eventBus, storeCommand, featureFlags, scheduler);
         controller.subscribe();
     }
 

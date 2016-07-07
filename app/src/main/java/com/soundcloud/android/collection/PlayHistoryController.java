@@ -9,6 +9,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Pair;
@@ -58,6 +60,7 @@ public class PlayHistoryController {
 
     private final EventBus eventBus;
     private final WritePlayHistoryCommand storeCommand;
+    private final FeatureFlags featureFlags;
     private final Scheduler scheduler;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -65,9 +68,11 @@ public class PlayHistoryController {
     @Inject
     PlayHistoryController(EventBus eventBus,
                           WritePlayHistoryCommand storeCommand,
+                          FeatureFlags featureFlags,
                           @Named(LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.storeCommand = storeCommand;
+        this.featureFlags = featureFlags;
         this.scheduler = scheduler;
     }
 
@@ -114,7 +119,9 @@ public class PlayHistoryController {
         return new Action1<PlayHistoryRecord>() {
             @Override
             public void call(PlayHistoryRecord record) {
-                eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(record.trackUrn()));
+                if(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
+                    eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(record.trackUrn()));
+                }
             }
         };
     }
