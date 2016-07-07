@@ -27,14 +27,14 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private PlaylistTagRenderer playlistTagRenderer;
     @Mock private SearchItemRenderer searchItemRenderer;
     @Mock private RecommendedStationsBucketRenderer recommendedStationsBucketRenderer;
-    @Mock private ChartsItemRenderer chartsItemRenderer;
+    @Mock private ChartsBucketItemRenderer chartsBucketItemRenderer;
     @Mock private RecommendationsFooterRenderer recommendationsFooterRenderer;
     @Mock private EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer;
 
     @Mock private RecommendedStationsBucketItem stationsBucketItem;
     @Mock private RecommendedTracksBucketItem tracksBucketItem;
     @Mock private PlaylistTagsItem playlistTagItem;
-    @Mock private ChartsItem chartsItem;
+    @Mock private ChartsBucketItem chartsBucketItem;
 
     private DiscoveryItem searchItem = DiscoveryItem.forSearchItem();
     private DiscoveryAdapter adapter;
@@ -44,14 +44,14 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
         when(stationsBucketItem.getKind()).thenReturn(RecommendedStationsItem);
         when(tracksBucketItem.getKind()).thenReturn(RecommendedTracksItem);
         when(playlistTagItem.getKind()).thenReturn(PlaylistTagsItem);
-        when(chartsItem.getKind()).thenReturn(ChartItem);
+        when(chartsBucketItem.getKind()).thenReturn(ChartItem);
 
 
         adapter = new DiscoveryAdapter(recommendationBucketRenderer,
                                        playlistTagRenderer,
                                        searchItemRenderer,
                                        recommendedStationsBucketRenderer,
-                                       chartsItemRenderer,
+                                       chartsBucketItemRenderer,
                                        recommendationsFooterRenderer,
                                        emptyDiscoveryItemRenderer);
     }
@@ -62,7 +62,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                               playlistTagItem,
                               tracksBucketItem,
                               stationsBucketItem,
-                              chartsItem));
+                              chartsBucketItem));
 
         assertThat(adapter.getBasicItemViewType(0)).isEqualTo(SearchItem.ordinal());
         assertThat(adapter.getBasicItemViewType(1)).isEqualTo(PlaylistTagsItem.ordinal());
@@ -90,7 +90,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                               playlistTagItem,
                               tracksBucketItem,
                               stationsBucketItem,
-                              chartsItem));
+                              chartsBucketItem));
 
         adapter.updateNowPlayingWithCollection(nowPlayingCollection, nowPlayingTrack);
 
@@ -107,7 +107,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                               playlistTagItem,
                               tracksBucketItem,
                               stationsBucketItem,
-                              chartsItem));
+                              chartsBucketItem));
 
         adapter.updateNowPlaying(nowPlayingTrack);
 

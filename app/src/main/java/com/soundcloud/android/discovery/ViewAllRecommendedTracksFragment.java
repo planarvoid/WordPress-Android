@@ -27,6 +27,6 @@ public class ViewAllRecommendedTracksFragment extends LightCycleSupportFragment<
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.recommendation_view_all, container, false);
+        return inflater.inflate(R.layout.discovery_recycler_view, container, false);
     }
 }

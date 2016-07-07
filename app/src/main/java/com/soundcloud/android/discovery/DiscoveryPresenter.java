@@ -172,7 +172,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         private static final Func1<ChartBucket, DiscoveryItem> TO_DISCOVERY_ITEM = new Func1<ChartBucket, DiscoveryItem>() {
             @Override
             public DiscoveryItem call(ChartBucket chartBucket) {
-                return ChartsItem.from(chartBucket);
+                return ChartsBucketItem.from(chartBucket);
             }
         };
 

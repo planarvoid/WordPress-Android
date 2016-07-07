@@ -10,19 +10,13 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class TabbedChartActivity extends PlayerActivity {
+public class TabbedGenresActivity extends PlayerActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
-    @Inject @LightCycle TabbedChartPresenter presenter;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setTitle(R.string.charts_header);
-    }
+    @Inject @LightCycle TabbedGenresPresenter presenter;
 
     @Override
     public Screen getScreen() {
-        return Screen.TOP_CHARTS;
+        return Screen.ALL_GENRES;
     }
 
     @Override

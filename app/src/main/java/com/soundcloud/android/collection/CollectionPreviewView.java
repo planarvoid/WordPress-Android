@@ -33,6 +33,7 @@ public class CollectionPreviewView extends FrameLayout {
     private LayoutInflater inflater;
     private ViewGroup thumbnailContainer;
     private int numThumbnails;
+    private TextView title;
 
 
     public CollectionPreviewView(Context context, AttributeSet attrs) {
@@ -40,15 +41,19 @@ public class CollectionPreviewView extends FrameLayout {
         SoundCloudApplication.getObjectGraph().inject(this);
         init(context);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CollectionPreviewView);
+        final TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.CollectionPreviewView);
 
-        final TextView title = (TextView) findViewById(R.id.title);
-        title.setText(a.getString(R.styleable.CollectionPreviewView_collectionTitle));
+        title = (TextView) findViewById(R.id.title);
+        setTitle(styledAttributes.getString(R.styleable.CollectionPreviewView_collectionTitle));
         title.setCompoundDrawablesWithIntrinsicBounds(
-                a.getDrawable(R.styleable.CollectionPreviewView_collectionIcon), null, null, null);
+                styledAttributes.getDrawable(R.styleable.CollectionPreviewView_collectionIcon), null, null, null);
 
-        previewIconOverlay = fromNullable(a.getDrawable(R.styleable.CollectionPreviewView_collectionPreviewOverlay));
-        a.recycle();
+        previewIconOverlay = fromNullable(styledAttributes.getDrawable(R.styleable.CollectionPreviewView_collectionPreviewOverlay));
+        styledAttributes.recycle();
+    }
+
+    public void setTitle(String text) {
+        title.setText(text);
     }
 
     @VisibleForTesting

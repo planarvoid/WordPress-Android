@@ -9,12 +9,12 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-abstract class ChartsItem extends DiscoveryItem {
-    protected ChartsItem() {
+abstract class ChartsBucketItem extends DiscoveryItem {
+    protected ChartsBucketItem() {
         super(Kind.ChartItem);
     }
 
-    static ChartsItem from(ChartBucket chartBucket) {
+    static ChartsBucketItem from(ChartBucket chartBucket) {
         final Optional<Chart> newAndHotChart = Iterables.tryFind(chartBucket.getGlobal(), isType(ChartType.TRENDING));
         final Optional<Chart> topFiftyChart = Iterables.tryFind(chartBucket.getGlobal(), isType(ChartType.TOP));
 
@@ -22,7 +22,7 @@ abstract class ChartsItem extends DiscoveryItem {
         final Optional<Chart> secondGenreChart = getGenreAtIfPresent(chartBucket, 1);
         final Optional<Chart> thirdGenreChart = getGenreAtIfPresent(chartBucket, 2);
 
-        return new AutoValue_ChartsItem(
+        return new AutoValue_ChartsBucketItem(
                 newAndHotChart,
                 topFiftyChart,
                 firstGenreChart,

@@ -19,12 +19,12 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class ChartsItemRenderer implements CellRenderer<ChartsItem> {
+class ChartsBucketItemRenderer implements CellRenderer<ChartsBucketItem> {
     private final Resources resources;
     private final Navigator navigator;
 
     @Inject
-    ChartsItemRenderer(Resources resources, Navigator navigator) {
+    ChartsBucketItemRenderer(Resources resources, Navigator navigator) {
         this.resources = resources;
         this.navigator = navigator;
     }
@@ -38,13 +38,13 @@ class ChartsItemRenderer implements CellRenderer<ChartsItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<ChartsItem> list) {
-        final ChartsItem chartsItem = list.get(position);
-        initChart(findCollectionPreviewView(itemView, R.id.charts_new_and_hot_preview), chartsItem.newAndHotChart());
-        initChart(findCollectionPreviewView(itemView, R.id.charts_top_fifty_preview), chartsItem.topFiftyChart());
-        initChart(findCollectionPreviewView(itemView, R.id.charts_first_genre), chartsItem.firstGenreChart());
-        initChart(findCollectionPreviewView(itemView, R.id.charts_second_genre), chartsItem.secondGenreChart());
-        initChart(findCollectionPreviewView(itemView, R.id.charts_third_genre), chartsItem.thirdGenreChart());
+    public void bindItemView(int position, View itemView, List<ChartsBucketItem> list) {
+        final ChartsBucketItem chartsBucketItem = list.get(position);
+        initChart(findCollectionPreviewView(itemView, R.id.charts_new_and_hot_preview), chartsBucketItem.newAndHotChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_top_fifty_preview), chartsBucketItem.topFiftyChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_first_genre), chartsBucketItem.firstGenreChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_second_genre), chartsBucketItem.secondGenreChart());
+        initChart(findCollectionPreviewView(itemView, R.id.charts_third_genre), chartsBucketItem.thirdGenreChart());
     }
 
     private CollectionPreviewView findCollectionPreviewView(View itemView, int charts_new_and_hot_preview) {
@@ -80,22 +80,22 @@ class ChartsItemRenderer implements CellRenderer<ChartsItem> {
 
     @OnClick(R.id.charts_first_genre)
     void onFirstGenreClicked(View v) {
-        onGenreClicked(((Urn) v.getTag()));
+        onGenreClicked(((Chart) v.getTag()).genre());
     }
 
     @OnClick(R.id.charts_second_genre)
     void onSecondGenreClicked(View v) {
-        onGenreClicked(((Urn) v.getTag()));
+        onGenreClicked(((Chart) v.getTag()).genre());
     }
 
     @OnClick(R.id.charts_third_genre)
     void onThirdGenreClicked(View v) {
-        onGenreClicked(((Urn) v.getTag()));
+        onGenreClicked(((Chart) v.getTag()).genre());
     }
 
     @OnClick(R.id.charts_genre_view_all)
-    void onViewAllClicked() {
-        Log.d("charts", "view all");
+    void onViewAllClicked(View item) {
+        navigator.openAllGenres(item.getContext());
     }
 
     private void onGenreClicked(Urn urn) {

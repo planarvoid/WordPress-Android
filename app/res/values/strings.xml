@@ -464,6 +464,7 @@
     <string name="charts_top_fifty_list_header">The most played tracks on SoundCloud this week.</string>
     <string name="charts_genre_view_all">Browse all genres</string>
     <string name="charts_by_genre">Charts by genre</string>
+    <string name="all_genres">All genres</string>
 
     <!-- __SETTINGS -->
     <string name="pref_clear_cache">Clear application cache</string>

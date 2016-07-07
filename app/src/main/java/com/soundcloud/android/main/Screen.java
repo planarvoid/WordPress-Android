@@ -82,6 +82,7 @@ public enum Screen {
     // charts
     TOP_CHARTS("charts:top"),
     TRENDING_CHARTS("charts:trending"),
+    ALL_GENRES("charts:all"),
 
     // creators
     RECORD_MAIN("record:main"),

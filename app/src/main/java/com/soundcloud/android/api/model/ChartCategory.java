@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.soundcloud.java.strings.Strings;
 
 public enum ChartCategory {
-    AUDIO("audio"),
     MUSIC("music"),
+    AUDIO("audio"),
     NONE("none");
 
     private final String value;

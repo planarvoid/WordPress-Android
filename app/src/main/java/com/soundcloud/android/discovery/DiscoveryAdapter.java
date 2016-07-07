@@ -39,14 +39,14 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
                      @Provided PlaylistTagRenderer playlistTagRenderer,
                      @Provided SearchItemRenderer searchItemRenderer,
                      @Provided RecommendedStationsBucketRenderer stationsBucketRenderer,
-                     @Provided ChartsItemRenderer chartsItemRenderer,
+                     @Provided ChartsBucketItemRenderer chartsBucketItemRenderer,
                      @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
                      @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer) {
         super(new CellRendererBinding<>(RecommendedTracksItem.ordinal(), recommendationBucketRenderer),
               new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
               new CellRendererBinding<>(SearchItem.ordinal(), searchItemRenderer),
               new CellRendererBinding<>(RecommendedStationsItem.ordinal(), stationsBucketRenderer),
-              new CellRendererBinding<>(ChartItem.ordinal(), chartsItemRenderer),
+              new CellRendererBinding<>(ChartItem.ordinal(), chartsBucketItemRenderer),
               new CellRendererBinding<>(RecommendedTracksFooterItem.ordinal(), recommendationsFooterRenderer),
               new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer)
         );
