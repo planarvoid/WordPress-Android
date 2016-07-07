@@ -6,13 +6,13 @@ addDevOnlyLibrary(libraries.stethoOkhttp)
 
 def addDevOnlyLibrary(String lib) {
   dependencies.debugCompile lib
-  dependencies.alphaProvided lib
-  dependencies.betaProvided lib
-  dependencies.releaseProvided lib
-  dependencies.releaseNoProguardProvided lib
-  dependencies.releaseNonPlayStoreProvided lib
-  dependencies.testProvided lib
-  dependencies.androidTestProvided lib
+  dependencies.alphaProvided(lib) { transitive = false }
+  dependencies.betaProvided(lib) { transitive = false }
+  dependencies.releaseProvided(lib) { transitive = false }
+  dependencies.releaseNoProguardProvided(lib) { transitive = false }
+  dependencies.releaseNonPlayStoreProvided(lib) { transitive = false }
+  dependencies.testProvided(lib) { transitive = false }
+  dependencies.androidTestProvided(lib) { transitive = false }
 }
 
 def addDevLibraryWithStub(String lib, String stub) {
