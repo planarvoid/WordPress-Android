@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
+import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
@@ -802,7 +803,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   playQueueButton);
 
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder);
-            fullScreenAdViews = Arrays.asList(interstitialHolder);
+            fullScreenAdViews = singletonList(interstitialHolder);
             fullScreenErrorViews = Arrays.asList(title, user, trackContext, close, interstitialHolder);
 
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
