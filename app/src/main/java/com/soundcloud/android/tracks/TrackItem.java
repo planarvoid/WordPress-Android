@@ -17,6 +17,8 @@ import java.util.List;
 
 public class TrackItem extends PlayableItem implements TieredTrack {
 
+    public static final String PLAYABLE_TYPE = "track";
+
     private boolean isPlaying;
     private boolean isInRepeatMode;
 
@@ -65,6 +67,11 @@ public class TrackItem extends PlayableItem implements TieredTrack {
 
     public TrackItem(PropertySet source) {
         super(source);
+    }
+
+    @Override
+    public String getPlayableType() {
+        return PLAYABLE_TYPE;
     }
 
     public long getDuration() {

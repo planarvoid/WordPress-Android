@@ -11,11 +11,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.tracks.TieredTrack;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
@@ -58,7 +56,7 @@ class StreamCardViewPresenter {
         itemView.resetCardView();
 
         if (playableItem instanceof PromotedListItem) {
-            showPromoted(itemView, (PromotedListItem) playableItem);
+            showPromoted(itemView, (PromotedListItem) playableItem, playableItem.getPlayableType());
         } else {
             loadAvatar(itemView, playableItem.getUserUrn(), playableItem.getAvatarUrlTemplate());
             setHeaderText(itemView, playableItem);
@@ -101,25 +99,25 @@ class StreamCardViewPresenter {
                                                   R.string.stream_posted_action);
 
         if (isRepost) {
-            headerSpannableBuilder.actionSpannedString(action, isTrack(playableItem));
+            headerSpannableBuilder.actionSpannedString(action, playableItem.getPlayableType());
             itemView.setRepostHeader(userName, headerSpannableBuilder.get());
         } else {
-            headerSpannableBuilder.userActionSpannedString(userName, action, isTrack(playableItem));
+            headerSpannableBuilder.userActionSpannedString(userName, action, playableItem.getPlayableType());
             itemView.setHeaderText(headerSpannableBuilder.get());
         }
     }
 
-    private void showPromoted(StreamItemViewHolder itemView, PromotedListItem promoted) {
+    private void showPromoted(StreamItemViewHolder itemView, PromotedListItem promoted, String playableType) {
         if (promoted.hasPromoter()) {
             final String action = resources.getString(R.string.stream_promoted_action);
             loadAvatar(itemView, promoted.getPromoterUrn().get(), promoted.getAvatarUrlTemplate());
-            headerSpannableBuilder.actionSpannedString(action, isTrack(promoted));
+            headerSpannableBuilder.actionSpannedString(action, playableType);
             itemView.setPromoterHeader(promoted.getPromoterName().get(), headerSpannableBuilder.get());
             itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
         } else {
             itemView.hideUserImage();
 
-            headerSpannableBuilder.promotedSpannedString(isTrack(promoted));
+            headerSpannableBuilder.promotedSpannedString(playableType);
             itemView.setPromotedHeader(headerSpannableBuilder.get());
         }
     }
@@ -149,9 +147,5 @@ class StreamCardViewPresenter {
         public void onClick(View v) {
             navigator.openProfile(v.getContext(), userUrn);
         }
-    }
-
-    private boolean isTrack(ListItem item) {
-        return item instanceof TrackItem;
     }
 }

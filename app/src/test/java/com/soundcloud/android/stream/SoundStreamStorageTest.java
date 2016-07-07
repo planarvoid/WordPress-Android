@@ -377,6 +377,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 PlayableProperty.REPOSTS_COUNT.bind(playlist.getStats().getRepostsCount()),
                 PlayableProperty.IS_USER_LIKE.bind(false),
                 PlayableProperty.IS_PRIVATE.bind(false),
+                PlaylistProperty.IS_ALBUM.bind(false),
+                PlaylistProperty.SET_TYPE.bind(""),
                 PlaylistProperty.TRACK_COUNT.bind(playlist.getTrackCount()));
     }
 

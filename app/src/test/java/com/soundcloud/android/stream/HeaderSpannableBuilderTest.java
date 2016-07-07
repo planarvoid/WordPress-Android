@@ -4,7 +4,9 @@ package com.soundcloud.android.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.tracks.TrackItem;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -29,7 +31,7 @@ public class HeaderSpannableBuilderTest extends AndroidUnitTest {
     @Test
     public void buildsUserActionStringForATrack() {
         final SpannableString spannableString = builder
-                .userActionSpannedString(USERNAME, ACTION, true)
+                .userActionSpannedString(USERNAME, ACTION, TrackItem.PLAYABLE_TYPE)
                 .get();
 
         assertThat(spannableString.toString()).isEqualTo("username posted a track");
@@ -39,10 +41,50 @@ public class HeaderSpannableBuilderTest extends AndroidUnitTest {
     @Test
     public void buildsUserActionStringForAPlaylist() {
         final SpannableString spannableString = builder
-                .userActionSpannedString(USERNAME, ACTION, false)
+                .userActionSpannedString(USERNAME, ACTION, PlaylistItem.TYPE_PLAYLIST)
                 .get();
 
         assertThat(spannableString.toString()).isEqualTo("username posted a playlist");
+        assertThatHasForegroundSpan(spannableString);
+    }
+
+    @Test
+    public void buildsUserActionStringForAnAlbum() {
+        final SpannableString spannableString = builder
+                .userActionSpannedString(USERNAME, ACTION, PlaylistItem.TYPE_ALBUM)
+                .get();
+
+        assertThat(spannableString.toString()).isEqualTo("username posted an album");
+        assertThatHasForegroundSpan(spannableString);
+    }
+
+    @Test
+    public void buildsUserActionStringForAnEp() {
+        final SpannableString spannableString = builder
+                .userActionSpannedString(USERNAME, ACTION, PlaylistItem.TYPE_EP)
+                .get();
+
+        assertThat(spannableString.toString()).isEqualTo("username posted an EP");
+        assertThatHasForegroundSpan(spannableString);
+    }
+
+    @Test
+    public void buildsUserActionStringForACompilation() {
+        final SpannableString spannableString = builder
+                .userActionSpannedString(USERNAME, ACTION, PlaylistItem.TYPE_COMPILATION)
+                .get();
+
+        assertThat(spannableString.toString()).isEqualTo("username posted a compilation");
+        assertThatHasForegroundSpan(spannableString);
+    }
+
+    @Test
+    public void buildsUserActionStringForASingle() {
+        final SpannableString spannableString = builder
+                .userActionSpannedString(USERNAME, ACTION, PlaylistItem.TYPE_SINGLE)
+                .get();
+
+        assertThat(spannableString.toString()).isEqualTo("username posted a single");
         assertThatHasForegroundSpan(spannableString);
     }
 

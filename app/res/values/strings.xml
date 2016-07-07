@@ -632,6 +632,10 @@
     <!-- __NEW STREAM -->
     <string name="stream_playlist_header_text">%1$s %2$s a playlist</string>
     <string name="stream_track_header_text">%1$s %2$s a track</string>
+    <string name="stream_album_header_text">%1$s %2$s an album</string>
+    <string name="stream_ep_header_text">%1$s %2$s an EP</string>
+    <string name="stream_single_header_text">%1$s %2$s a single</string>
+    <string name="stream_compilation_header_text">%1$s %2$s a compilation</string>
     <string name="stream_posted_action">posted</string>
     <string name="stream_reposted_action">reposted</string>
     <string name="stream_promoted_action">promoted</string>

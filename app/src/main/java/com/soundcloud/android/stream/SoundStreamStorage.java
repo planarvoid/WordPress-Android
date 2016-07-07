@@ -53,6 +53,8 @@ public class SoundStreamStorage implements TimelineStorage {
             SoundView.SHARING,
             SoundView.ARTWORK_URL,
             SoundView.USER_AVATAR_URL,
+            SoundView.SET_TYPE,
+            SoundView.IS_ALBUM,
             field(Table.SoundStreamView.field(SoundStreamView.CREATED_AT)).as(SoundStreamView.CREATED_AT),
             SoundView.POLICIES_SNIPPED,
             SoundView.POLICIES_SUB_HIGH_TIER,
@@ -193,6 +195,7 @@ public class SoundStreamStorage implements TimelineStorage {
                             Optional.fromNullable(cursorReader.getString(SoundView.ARTWORK_URL)));
 
             addDurations(cursorReader, propertySet, urn.isPlaylist());
+            addSetType(cursorReader, propertySet, urn.isTrack());
             addUserLike(cursorReader, propertySet);
             addUserRepost(cursorReader, propertySet);
 
@@ -209,6 +212,18 @@ public class SoundStreamStorage implements TimelineStorage {
             }
 
             return propertySet;
+        }
+
+        private void addSetType(CursorReader cursorReader, PropertySet propertySet, boolean isTrack) {
+            if (isTrack) { return; }
+
+            if (cursorReader.isNotNull(SoundView.IS_ALBUM)) {
+                propertySet.put(PlaylistProperty.IS_ALBUM, cursorReader.getBoolean(SoundView.IS_ALBUM));
+            }
+
+            if (cursorReader.isNotNull(SoundView.SET_TYPE)) {
+                propertySet.put(PlaylistProperty.SET_TYPE, cursorReader.getString(SoundView.SET_TYPE));
+            }
         }
 
         private void addDurations(CursorReader cursorReader, PropertySet propertySet, boolean isPlaylist) {
