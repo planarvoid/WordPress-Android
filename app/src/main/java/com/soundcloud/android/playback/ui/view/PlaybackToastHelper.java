@@ -5,6 +5,7 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackResult;
 
 import android.content.Context;
+import android.os.Handler;
 import android.widget.Toast;
 
 import javax.inject.Inject;
@@ -13,11 +14,13 @@ public class PlaybackToastHelper {
 
     private final Context context;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final Handler handler;
 
     @Inject
     public PlaybackToastHelper(Context context, PlaySessionStateProvider playSessionStateProvider) {
         this.context = context;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.handler = new Handler(context.getMainLooper());
     }
 
     public void showToastOnPlaybackError(PlaybackResult.ErrorReason errorReason) {
@@ -55,7 +58,12 @@ public class PlaybackToastHelper {
     }
 
     public void showConcurrentStreamingStoppedToast() {
-        Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void showUnableToCastTrack() {
