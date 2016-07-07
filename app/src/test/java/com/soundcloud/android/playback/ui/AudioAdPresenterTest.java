@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -44,13 +45,14 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     @Mock private AdPageListener pageListener;
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
     @Mock private SkipListener skipListener;
+    @Mock private PlayerArtworkLoader artworkLoader;
 
     @Before
     public void setUp() throws Exception {
-        when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
-        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.<Bitmap>empty());
+        when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.<Bitmap>empty());
 
-        presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener);
+        presenter = new AudioAdPresenter(imageOperations, resources(), playerOverlayControllerFactory, pageListener, artworkLoader);
         adView = presenter.createItemView(new FrameLayout(context()), skipListener);
         bindSkippableAd();
     }
@@ -144,6 +146,33 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void conpanionlessTextIsNotVisibleIfCompanionExists() {
+        bindSkippableAd();
+
+        assertThat(adView.findViewById(R.id.companionless_ad_text)).isNotVisible();
+    }
+
+    @Test
+    public void companionlessTextIsVisibleIfNoCompanion() {
+        when(artworkLoader.loadAdBackgroundImage(TRACK_URN)).thenReturn(Observable.<Bitmap>empty());
+
+        bindCompanionlessAd();
+
+        assertThat(adView.findViewById(R.id.companionless_ad_text)).isVisible();
+    }
+
+    @Test
+    public void blurredNextTrackArtIsSetAsBackgroundIfNoCompanion() {
+        PublishSubject subject = PublishSubject.<Bitmap>create();
+        when(artworkLoader.loadAdBackgroundImage(TRACK_URN)).thenReturn(subject);
+
+        bindCompanionlessAd();
+
+        verify(playerOverlayController).setAdOverlayShown(true);
+        org.assertj.core.api.Assertions.assertThat(subject.hasObservers()).isTrue();
+    }
+
+    @Test
     public void clickSkipAdShouldSkipAd() {
         adView.findViewById(R.id.skip_ad).performClick();
 
@@ -173,7 +202,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void bothLayoutsInvisibleOnNullAdImage() {
-        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just((Bitmap) null));
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just((Bitmap) null));
         bindSkippableAd();
 
         assertCenteredLayoutInvisible();
@@ -182,7 +211,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void centeredLayoutSetOnIABSizedAdImage() {
-        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
         bindSkippableAd();
 
         assertCenteredLayoutVisible();
@@ -191,7 +220,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void centeredLayoutSetOn2xIABSizedAdImage() {
-        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(600, 500)));
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just(buildBitmap(600, 500)));
         bindSkippableAd();
 
         assertCenteredLayoutVisible();
@@ -200,7 +229,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void centeredAdWithoutClickthroughIsNotClickable() {
-        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just(buildBitmap(300, 250)));
         bindNonClickableAd();
 
         assertThat(adView.findViewById(R.id.centered_ad_clickable_overlay)).isGone();
@@ -210,7 +239,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void fullbleedAdWithoutClickthroughDoesNotShowCallToAction() {
-        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
         bindNonClickableAd();
 
         assertCenteredLayoutInvisible();
@@ -220,7 +249,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     @Test
     public void fullbleedLayoutSetOnLargerThan2xIABSizedAdImage() {
-        when(imageOperations.adImage(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
+        when(imageOperations.bitmap(any(Uri.class))).thenReturn(Observable.just(buildBitmap(601, 501)));
         bindSkippableAd();
 
         assertCenteredLayoutInvisible();
@@ -409,6 +438,10 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
 
     private void bindNonClickableAd() {
         presenter.bindItemView(adView, new AudioPlayerAd(AdFixtures.getNonClickableAudioAd(TRACK_URN), buildTrack()));
+    }
+
+    private void bindCompanionlessAd() {
+        presenter.bindItemView(adView, new AudioPlayerAd(AdFixtures.getCompanionlessAudioAd(TRACK_URN), buildTrack()));
     }
 
 }

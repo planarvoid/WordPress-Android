@@ -33,28 +33,32 @@ abstract class PlayerAd extends PlayerItem {
         return adData.getMonetizableTrackUrn();
     }
 
+    boolean hasVisualAdProperties() {
+        return adData.getDisplayProperties().isPresent();
+    }
+
     int getDefaultTextColor() {
-        return Color.parseColor(adData.getDisplayProperties().getDefaultTextColor());
+        return Color.parseColor(adData.getDisplayProperties().get().getDefaultTextColor());
     }
 
     int getDefaultBackgroundColor() {
-        return Color.parseColor(adData.getDisplayProperties().getDefaultBackgroundColor());
+        return Color.parseColor(adData.getDisplayProperties().get().getDefaultBackgroundColor());
     }
 
     int getPressedTextColor() {
-        return Color.parseColor(adData.getDisplayProperties().getPressedTextColor());
+        return Color.parseColor(adData.getDisplayProperties().get().getPressedTextColor());
     }
 
     int getPressedBackgroundColor() {
-        return Color.parseColor(adData.getDisplayProperties().getPressedBackgroundColor());
+        return Color.parseColor(adData.getDisplayProperties().get().getPressedBackgroundColor());
     }
 
     int getFocusedTextColor() {
-        return Color.parseColor(adData.getDisplayProperties().getFocusedTextColor());
+        return Color.parseColor(adData.getDisplayProperties().get().getFocusedTextColor());
     }
 
     int getFocusedBackgroundColor() {
-        return Color.parseColor(adData.getDisplayProperties().getFocusedBackgroundColor());
+        return Color.parseColor(adData.getDisplayProperties().get().getFocusedBackgroundColor());
     }
 
     PlayerAdData getAdData() {

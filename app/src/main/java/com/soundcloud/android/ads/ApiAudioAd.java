@@ -77,12 +77,17 @@ class ApiAudioAd {
         return leaveBehind != null;
     }
 
+    public boolean hasCompanion() {
+        return visualAd != null;
+    }
+
     @Nullable
     public ApiLeaveBehind getLeaveBehind() {
         return leaveBehind;
     }
 
     @VisibleForTesting
+    @Nullable
     public ApiCompanionAd getCompanion() {
         return visualAd;
     }

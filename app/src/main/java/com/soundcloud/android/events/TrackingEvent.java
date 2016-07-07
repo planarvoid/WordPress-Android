@@ -1,5 +1,6 @@
 package com.soundcloud.android.events;
 
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +34,13 @@ public class TrackingEvent {
 
     public <T extends TrackingEvent> T put(String key, @Nullable String value) {
         attributes.put(key, value);
+        return (T) this;
+    }
+
+    public <T extends TrackingEvent> T put(String key, Optional<?> value) {
+        if (value.isPresent()) {
+            attributes.put(key, value.get().toString());
+        }
         return (T) this;
     }
 

@@ -985,15 +985,11 @@ public class UIEventTest extends AndroidUnitTest {
                                                                    1000L);
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AUDIO_AD_CLICK);
         assertThat(uiEvent.getTimestamp()).isEqualTo(1000L);
-        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getVisualAd().getAdUrn().toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getCompanionAdUrn().get().toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
-        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getVisualAd()
-                                                                                             .getClickThroughUrl()
-                                                                                             .toString());
-        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd()
-                                                                                          .getImageUrl()
-                                                                                          .toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL)).isEqualTo(audioAd.getClickThroughUrl().get().toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getCompanionImageUrl().get().toString());
         assertThat(uiEvent.getAdClickthroughUrls()).contains("comp_click1", "comp_click2");
     }
 
@@ -1010,9 +1006,7 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(Urn.forTrack(123).toString());
         assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_TRACK_URN)).isEqualTo(Urn.forTrack(456).toString());
-        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getVisualAd()
-                                                                                          .getImageUrl()
-                                                                                          .toString());
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getCompanionImageUrl().get().toString());
         assertThat(uiEvent.getAdSkipUrls()).contains("audio_skip1", "audio_skip2");
     }
 

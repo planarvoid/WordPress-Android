@@ -57,6 +57,10 @@ public class AdFixtures {
         return AudioAd.create(getApiAudioAdForThirdParty(), monetizableUrn);
     }
 
+    public static AudioAd getCompanionlessAudioAd(Urn monetizableUrn) {
+        return AudioAd.create(getCompanionlessAudioAd(), monetizableUrn);
+    }
+
     public static VideoAd getVideoAd(Urn monetizableUrn) {
         return VideoAd.create(getApiVideoAd(), monetizableUrn);
     }
@@ -155,6 +159,20 @@ public class AdFixtures {
                 Urn.forAd("dfp", "869"),
                 ModelFixtures.create(ApiTrack.class),
                 skippable,
+                relatedResources,
+                Arrays.asList("audio_impression1", "audio_impression2"),
+                Arrays.asList("audio_finish1", "audio_finish2"),
+                Arrays.asList("audio_skip1", "audio_skip2"),
+                getApiAudioAdTracking()
+        );
+    }
+
+    private static ApiAudioAd getCompanionlessAudioAd() {
+        RelatedResources relatedResources = new RelatedResources(null, getApiLeaveBehind());
+        return new ApiAudioAd(
+                Urn.forAd("dfp", "869"),
+                ModelFixtures.create(ApiTrack.class),
+                true,
                 relatedResources,
                 Arrays.asList("audio_impression1", "audio_impression2"),
                 Arrays.asList("audio_finish1", "audio_finish2"),

@@ -11,6 +11,12 @@
     <include layout="@layout/player_ad_footer_controls"/>
     <include layout="@layout/player_ad_expanded_header"/>
 
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/companionless_ad_text"
+        style="@style/AdText.Companionless"
+        android:text="@string/ads_companionless"
+        android:layout_centerInParent="true" />
+
     <com.soundcloud.android.playback.ui.view.RoundedColorButton
             android:id="@+id/cta_button"
             style="@style/AdButton.CallToAction"

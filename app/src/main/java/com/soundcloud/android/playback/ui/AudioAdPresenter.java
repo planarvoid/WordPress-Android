@@ -8,6 +8,7 @@ import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -32,15 +33,18 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     private final Resources resources;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final AdPageListener listener;
+    private final PlayerArtworkLoader artworkLoader;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
     public AudioAdPresenter(ImageOperations imageOperations, Resources resources,
-                            PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener) {
+                            PlayerOverlayController.Factory playerOverlayControllerFactory, AdPageListener listener,
+                            PlayerArtworkLoader artworkLoader) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.listener = listener;
+        this.artworkLoader = artworkLoader;
     }
 
     @Override
@@ -101,7 +105,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     @Override
     public void bindItemView(View view, AudioPlayerAd playerAd) {
         final Holder holder = getViewHolder(view);
-        displayAdvertisement(playerAd, holder);
+        setupAdVisual(playerAd, holder);
         displayPreview(playerAd, holder, imageOperations, resources);
         styleCallToActionButton(holder, playerAd, resources);
         setClickListener(this, holder.onClickViews);
@@ -121,6 +125,12 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         final Holder holder = getViewHolder(adView);
         final boolean playSessionIsActive = playStateEvent.playSessionIsActive();
         holder.playControlsHolder.setVisibility(playSessionIsActive ? View.GONE : View.VISIBLE);
+
+        if (playSessionIsActive && holder.isCompanionless) {
+            AnimUtils.showView(holder.companionlessText, true);
+        } else {
+            holder.companionlessText.setVisibility(View.GONE);
+        }
         holder.footerPlayToggle.setChecked(playSessionIsActive);
         holder.playerOverlayController.setPlayState(playStateEvent);
     }
@@ -146,14 +156,26 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
     private void resetAdImageLayouts(Holder holder) {
         holder.centeredAdArtworkView.setImageDrawable(null);
         holder.fullbleedAdArtworkView.setImageDrawable(null);
+        holder.playerOverlayController.setAdOverlayShown(false);
+        holder.companionlessText.setVisibility(View.GONE);
+        holder.isCompanionless = false;
         holder.adImageSubscription.unsubscribe();
         setVisibility(false, holder.companionViews);
     }
 
-    private void displayAdvertisement(AudioPlayerAd playerAd, final Holder holder) {
+    private void setupAdVisual(AudioPlayerAd playerAd, final Holder holder) {
         holder.footerAdvertisement.setText(resources.getString(R.string.ads_advertisement));
-        holder.adImageSubscription = imageOperations.adImage(playerAd.getArtwork())
-                                                    .subscribe(new AdImageSubscriber(holder, playerAd));
+        if (playerAd.hasCompanion()) {
+            holder.adImageSubscription = imageOperations.bitmap(playerAd.getImage().get())
+                    .subscribe(new AdImageSubscriber(holder, playerAd));
+        } else {
+            // Companionless audio ads use blurred artwork of monetizable track for background
+            holder.adImageSubscription = artworkLoader.loadAdBackgroundImage(playerAd.getMonetizableTrack())
+                    .subscribe(new AdImageSubscriber(holder, playerAd));
+            holder.playerOverlayController.setAdOverlayShown(true);
+            holder.companionlessText.setVisibility(View.VISIBLE);
+            holder.isCompanionless = true;
+        }
     }
 
     private final class AdImageSubscriber extends DefaultSubscriber<Bitmap> {
@@ -175,7 +197,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
 
     private void updateAdvertisementLayout(Holder holder, Bitmap adImage, AudioPlayerAd playerAd) {
         final Optional<String> clickthrough = playerAd.getClickThroughUrl();
-        if (isBelowStandardIabSize(adImage.getWidth(), adImage.getHeight())) {
+        if (isBelowStandardIabSize(adImage.getWidth(), adImage.getHeight()) && playerAd.hasCompanion()) {
             setCompanionViews(holder.centeredAdArtworkView,
                               holder.centeredAdClickableOverlay,
                               clickthrough.isPresent(),
@@ -205,6 +227,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         private final ImageView centeredAdArtworkView;
         private final View centeredAdClickableOverlay;
         private final View artworkIdleOverlay;
+        private final View companionlessText;
 
         private final ToggleButton footerPlayToggle;
         private final View close;
@@ -213,6 +236,8 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
         private final TextView footerAdvertisement;
 
         private final PlayerOverlayController playerOverlayController;
+
+        boolean isCompanionless;
 
         // View sets
         Iterable<View> onClickViews;
@@ -226,6 +251,7 @@ class AudioAdPresenter extends AdPagePresenter<AudioPlayerAd> implements View.On
             centeredAdArtworkView = (ImageView) adView.findViewById(R.id.centered_ad_artwork);
             centeredAdClickableOverlay = adView.findViewById(R.id.centered_ad_clickable_overlay);
             artworkIdleOverlay = adView.findViewById(R.id.artwork_overlay);
+            companionlessText = adView.findViewById(R.id.companionless_ad_text);
 
             footerPlayToggle = (ToggleButton) adView.findViewById(R.id.footer_toggle);
             close = adView.findViewById(R.id.player_close);

@@ -201,11 +201,10 @@ public final class UIEvent extends TrackingEvent {
                                           audioAdTrack,
                                           user,
                                           trackSourceInfo)
-                .<UIEvent>put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getVisualAd().getAdUrn().toString())
-                .<UIEvent>put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
-                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL,
-                              audioAd.getVisualAd().getClickThroughUrl().toString())
-                .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.getVisualAd().getClickUrls());
+                .addPromotedTrackingUrls(CLICKTHROUGHS, audioAd.getCompanionClickUrls())
+                .put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getCompanionAdUrn())
+                .put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getCompanionImageUrl())
+                .put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, audioAd.getClickThroughUrl());
     }
 
     @VisibleForTesting
@@ -237,8 +236,8 @@ public final class UIEvent extends TrackingEvent {
                 .put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, audioAdTrack.toString())
                 .put(PlayableTrackingKeys.KEY_USER_URN, user.toString())
                 .put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString())
-                .put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString())
                 .put(PlayableTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString())
+                .put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getCompanionImageUrl())
                 .put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, getNotNullOriginScreen(trackSourceInfo));
     }
 
@@ -263,10 +262,7 @@ public final class UIEvent extends TrackingEvent {
         if (promotedSourceInfo != null) {
             put(PlayableTrackingKeys.KEY_AD_URN, promotedSourceInfo.getAdUrn());
             put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_MONETIZABLE_PROMOTED);
-
-            if (promotedSourceInfo.getPromoterUrn().isPresent()) {
-                put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn().get().toString());
-            }
+            put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSourceInfo.getPromoterUrn());
         }
         return this;
     }

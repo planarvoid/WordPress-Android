@@ -454,7 +454,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
 
         verify(audioAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
 
-        assertThat(captorPropertySet.getValue().getArtwork()).isNotNull();
+        assertThat(captorPropertySet.getValue().getImage()).isNotNull();
         assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
     }

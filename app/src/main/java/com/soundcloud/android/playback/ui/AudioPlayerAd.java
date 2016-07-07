@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
@@ -20,21 +19,19 @@ public class AudioPlayerAd extends PlayerAd {
 
     @Override
     String getCallToActionButtonText(Resources resources) {
-        return audioData.getVisualAd().getCallToActionButtonText().or(
-                resources.getString(R.string.ads_call_to_action)
-        );
+        return audioData.getCallToActionButtonText().or(resources.getString(R.string.ads_call_to_action));
+    }
+
+    Optional<Uri> getImage() {
+        return audioData.getCompanionImageUrl();
     }
 
     Optional<String> getClickThroughUrl() {
-        return audioData.getVisualAd().getClickThroughUrl();
+        return audioData.getClickThroughUrl();
     }
 
-    Uri getArtwork() {
-        return audioData.getVisualAd().getImageUrl();
-    }
-
-    String getAdTitle() {
-        return source.get(PlayableProperty.TITLE);
+    boolean hasCompanion() {
+        return audioData.hasCompanion();
     }
 
 }

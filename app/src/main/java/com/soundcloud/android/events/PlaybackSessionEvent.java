@@ -97,12 +97,12 @@ public class PlaybackSessionEvent extends TrackingEvent {
         put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getAdUrn().toString());
         put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO_AD);
         put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString());
-        put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getVisualAd().getImageUrl().toString());
         put(PlayableTrackingKeys.KEY_AD_TRACK_URN, trackUrn.toString());
         put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, trackSourceInfo.getOriginScreen());
         put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, trackUrn.toString());
+        put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getCompanionImageUrl());
+        this.adCompanionImpressionUrls = audioAd.getCompanionImpressionUrls();
         this.adImpressionUrls = audioAd.getImpressionUrls();
-        this.adCompanionImpressionUrls = audioAd.getVisualAd().getImpressionUrls();
         this.adFinishedUrls = audioAd.getFinishUrls();
         this.shouldReportAdStart = !audioAd.hasReportedStart();
         return this;
@@ -112,9 +112,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public PlaybackSessionEvent withPromotedTrack(PromotedSourceInfo promotedSource) {
         put(PlayableTrackingKeys.KEY_AD_URN, promotedSource.getAdUrn());
         put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_PROMOTED);
-        if (promotedSource.getPromoterUrn().isPresent()) {
-            put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSource.getPromoterUrn().get().toString());
-        }
+        put(PlayableTrackingKeys.KEY_PROMOTER_URN, promotedSource.getPromoterUrn());
         this.shouldReportAdStart = !promotedSource.isPlaybackStarted();
         this.promotedPlayUrls = promotedSource.getTrackingUrls();
         return this;

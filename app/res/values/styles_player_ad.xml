@@ -7,6 +7,13 @@
     <style name="AdText.Advertisement">
         <item name="android:textSize">12sp</item>
     </style>
+    <style name="AdText.Companionless">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/companionless_text</item>
+        <item name="android:visibility">gone</item>
+    </style>
     <style name="AdText.NextUp">
         <item name="android:textSize">14sp</item>
         <item name="android:layout_gravity">center</item>

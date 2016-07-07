@@ -1,12 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.view.View;
-import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -19,8 +12,14 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
-
 import org.jetbrains.annotations.Nullable;
+
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.view.View;
+import android.view.animation.Animation;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -124,16 +123,18 @@ abstract class AdPagePresenter<T extends PlayerAd> implements PlayerPagePresente
 
     void styleCallToActionButton(AdHolder holder, PlayerAd playerAd, Resources resources) {
         holder.ctaButton.setText(playerAd.getCallToActionButtonText(resources));
-        holder.ctaButton.setTextColor(getColorStates(
-                playerAd.getFocusedTextColor(),
-                playerAd.getPressedTextColor(),
-                playerAd.getDefaultTextColor()
-        ));
-        holder.ctaButton.setBackground(getColorStates(
-                playerAd.getFocusedBackgroundColor(),
-                playerAd.getPressedBackgroundColor(),
-                playerAd.getDefaultBackgroundColor()
-        ));
+        if (playerAd.hasVisualAdProperties()) {
+            holder.ctaButton.setTextColor(getColorStates(
+                    playerAd.getFocusedTextColor(),
+                    playerAd.getPressedTextColor(),
+                    playerAd.getDefaultTextColor()
+            ));
+            holder.ctaButton.setBackground(getColorStates(
+                    playerAd.getFocusedBackgroundColor(),
+                    playerAd.getPressedBackgroundColor(),
+                    playerAd.getDefaultBackgroundColor()
+            ));
+        }
     }
 
     void displayPreview(PlayerAd playerAd, AdHolder holder, ImageOperations imageOperations, Resources resources) {

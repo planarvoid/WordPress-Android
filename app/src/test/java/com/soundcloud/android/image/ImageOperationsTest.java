@@ -353,7 +353,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         final Bitmap bitmap = Mockito.mock(Bitmap.class);
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.adImage(Uri.parse(URL));
+        Observable<Bitmap> observable = imageOperations.bitmap(Uri.parse(URL));
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
         observable.subscribe(subscriber);
@@ -372,7 +372,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     public void adImageObservablePassesLoadFailedToLoadingAdapter() {
         ArgumentCaptor<ImageLoadingListener> captor = ArgumentCaptor.forClass(ImageLoadingListener.class);
 
-        Observable<Bitmap> observable = imageOperations.adImage(Uri.parse(URL));
+        Observable<Bitmap> observable = imageOperations.bitmap(Uri.parse(URL));
         TestSubscriber<Bitmap> subscriber = new TestSubscriber<>();
         when(bitmapLoadingAdapterFactory.create(any(Subscriber.class))).thenReturn(bitmapLoadingAdapter);
         observable.subscribe(subscriber);

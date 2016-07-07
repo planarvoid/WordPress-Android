@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.collections.Lists;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public abstract class VideoAd extends PlayerAdData {
                 videoTracking.pauseUrls,
                 videoTracking.resumeUrls,
                 apiVideoAd.isSkippable(),
-                VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties()),
+                Optional.of(VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties())),
                 Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoSource),
                 apiVideoAd.getClickThroughUrl(),
                 videoTracking.clickUrls,

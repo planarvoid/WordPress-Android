@@ -67,7 +67,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         listener.onClickThrough();
 
         final AudioAd audioAd = (AudioAd) adData;
-        verify(navigator).openAdClickthrough(context(), audioAd.getVisualAd().getClickThroughUrl().get());
+        verify(navigator).openAdClickthrough(context(), audioAd.getClickThroughUrl().get());
     }
 
     @Test

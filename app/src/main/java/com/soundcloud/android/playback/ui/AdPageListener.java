@@ -81,7 +81,7 @@ class AdPageListener extends PageListener {
 
     private void audioAdClickThrough(AudioAd audioAd) {
         final Urn trackUrn = playQueueManager.getCurrentPlayQueueItem().getUrn();
-        navigator.openAdClickthrough(context, audioAd.getVisualAd().getClickThroughUrl().get());
+        navigator.openAdClickthrough(context, audioAd.getClickThroughUrl().get());
         eventBus.publish(EventQueue.TRACKING,
                          UIEvent.fromAudioAdClick(audioAd,
                                                   trackUrn,

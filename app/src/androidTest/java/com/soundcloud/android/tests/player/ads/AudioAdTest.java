@@ -1,3 +1,4 @@
+
 package com.soundcloud.android.tests.player.ads;
 
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;

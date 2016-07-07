@@ -302,7 +302,7 @@ public class ImageOperations {
                                                                                   .getDrawable(R.drawable.circular_placeholder)));
     }
 
-    public Observable<Bitmap> adImage(final Uri uri) {
+    public Observable<Bitmap> bitmap(final Uri uri) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
@@ -313,6 +313,10 @@ public class ImageOperations {
                                          new ImageListenerUILAdapter(bitmapAdapterFactory.create(subscriber)));
             }
         });
+    }
+
+    public Observable<Bitmap> bitmap(final ImageResource imageResource, ApiImageSize size) {
+        return bitmap(Uri.parse(buildUrlIfNotPreviouslyMissing(imageResource, size)));
     }
 
     public Observable<Bitmap> artwork(final ImageResource imageResource, final ApiImageSize apiImageSize) {
@@ -406,11 +410,6 @@ public class ImageOperations {
         // may have a impact on the memory usage and without the performance seems pretty good, though.
         final GradientDrawable fallbackDrawable = placeholderGenerator.generateDrawable(resourceUrn.toString());
         return ImageUtils.toBitmap(fallbackDrawable, apiImageSize.width, apiImageSize.height);
-    }
-
-    @Nullable
-    public Bitmap getCachedBitmap(ImageResource imageResource, ApiImageSize apiImageSize) {
-        return getCachedBitmap(imageResource, apiImageSize, apiImageSize.width, apiImageSize.height);
     }
 
     @Nullable

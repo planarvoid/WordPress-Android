@@ -1,5 +1,7 @@
 package com.soundcloud.android.ads;
 
+import com.soundcloud.java.optional.Optional;
+
 import java.util.List;
 
 public abstract class PlayerAdData extends AdData {
@@ -61,6 +63,6 @@ public abstract class PlayerAdData extends AdData {
 
     public abstract boolean isSkippable();
 
-    public abstract VisualAdDisplayProperties getDisplayProperties();
+    public abstract Optional<VisualAdDisplayProperties> getDisplayProperties();
 
 }

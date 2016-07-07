@@ -25,10 +25,10 @@ public class VisualAdImpressionEvent extends TrackingEvent {
         put(PlayableTrackingKeys.KEY_USER_URN, userUrn.toString());
         put(PlayableTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString());
         put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
-        put(PlayableTrackingKeys.KEY_AD_URN, adData.getVisualAd().getAdUrn().toString());
-        put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, adData.getVisualAd().getImageUrl().toString());
         put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, sessionSource.getOriginScreen());
-        this.impressionUrls = adData.getVisualAd().getImpressionUrls();
+        put(PlayableTrackingKeys.KEY_AD_URN, adData.getCompanionAdUrn());
+        put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, adData.getCompanionImageUrl());
+        this.impressionUrls = adData.getCompanionImpressionUrls();
     }
 
     public List<String> getImpressionUrls() {
