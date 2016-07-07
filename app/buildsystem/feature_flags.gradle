@@ -14,6 +14,7 @@ enum Feature {
   USER_STATIONS,
   RECOMMENDED_STATIONS,
   LOCAL_PLAY_HISTORY,
+  LOCAL_PLAY_HISTORY_STORAGE,
   PLAY_QUEUE,
   NEW_SYNC_ADAPTER,
   ALBUMS;
@@ -31,6 +32,7 @@ android {
     buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), FALSE
+    buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), FALSE
     buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
     buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), FALSE
   }
@@ -41,6 +43,7 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
+      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
@@ -54,6 +57,7 @@ android {
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
     }
 
@@ -66,6 +70,7 @@ android {
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }
 
     release {
@@ -75,6 +80,7 @@ android {
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }
 
     releaseNoProguard {
@@ -84,6 +90,7 @@ android {
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }
 
     releaseNonPlayStore {
@@ -93,6 +100,7 @@ android {
       buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }
   }
 }
