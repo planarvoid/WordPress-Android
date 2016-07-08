@@ -7,7 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiResponse;
@@ -37,7 +36,6 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Mock private InstanceIdWrapper instanceId;
     @Mock private AppboyWrapper appboyWrapper;
     @Mock private ApiClient apiClient;
-    @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
 
     private Intent intent = new Intent();
@@ -45,13 +43,7 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(featureFlags.isDisabled(Flag.ARCHER_PUSH)).thenReturn(true);
-        service = new GcmRegistrationService(gcmStorage,
-                                             apiClient,
-                                             instanceId,
-                                             InjectionSupport.providerOf(appboyWrapper),
-                                             accountOperations,
-                                             featureFlags);
-        when(accountOperations.isUserLoggedIn()).thenReturn(true);
+        service = new GcmRegistrationService(gcmStorage, apiClient, instanceId, InjectionSupport.providerOf(appboyWrapper), featureFlags);
     }
 
     @Test
@@ -61,18 +53,6 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
         service.onHandleIntent(intent);
 
         verify(instanceId, never()).getToken();
-    }
-
-    @Test
-    public void doesNotFetchTokenIfNotLoggedIn() throws IOException {
-        when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(accountOperations.isUserLoggedIn()).thenReturn(false);
-        when(instanceId.getToken()).thenReturn(TOKEN);
-
-        service.onHandleIntent(intent);
-
-        verify(instanceId, never()).getToken();
-        verify(gcmStorage, never()).markAsRegistered(anyString());
     }
 
     @Test
