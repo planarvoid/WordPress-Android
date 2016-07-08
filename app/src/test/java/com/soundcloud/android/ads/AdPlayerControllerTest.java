@@ -12,6 +12,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -24,6 +25,8 @@ import org.mockito.Mock;
 import android.support.v7.app.AppCompatActivity;
 
 public class AdPlayerControllerTest extends AndroidUnitTest {
+
+    public static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private PlaySessionController playSessionController;
     @Mock private AdsOperations adsOperations;
@@ -40,12 +43,23 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void expandsAndUnlocksPlayerWhenAudioAdIsPlaying() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-        setAudioPlaying(true);
+        setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
 
         resumeFromBackground();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).contains(PlayerUICommand.unlockPlayer());
         assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).contains(PlayerUICommand.expandPlayer());
+    }
+
+    @Test
+    public void doesNotExpandPlayerIfCompanionlessAudioAdIsPlaying() {
+        eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
+        setAudioPlaying(AdFixtures.getCompanionlessAudioAd(TRACK_URN));
+
+        resumeFromBackground();
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).contains(PlayerUICommand.unlockPlayer());
+        assertThat(eventBus.eventsOn(EventQueue.PLAYER_COMMAND)).doesNotContain(PlayerUICommand.expandPlayer());
     }
 
     @Test
@@ -60,7 +74,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void emitPlayerOpenWhenAudioAdIsPlaying() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-        setAudioPlaying(true);
+        setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
 
         resumeFromBackground();
 
@@ -72,7 +86,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void doesNotExpandAudioAdIfItHasAlreadyBeenExpanded() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        setAudioPlaying(true);
+        setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
 
         resumeFromBackground();
         resumeFromBackground();
@@ -83,7 +97,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void doNotEmitPlayerOpenIfItHasAlreadyBeenExpanded() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
-        setAudioPlaying(true);
+        setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
 
         resumeFromBackground();
         resumeFromBackground();
@@ -95,7 +109,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     public void expandsOnlyOncePerAd() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
         controller.onResume(activity);
-        setAudioPlaying(true);
+        setAudioPlaying(AdFixtures.getAudioAd(TRACK_URN));
         PlayerUIEvent playerCollapsed = PlayerUIEvent.fromPlayerCollapsed();
         eventBus.publish(EventQueue.PLAYER_UI, playerCollapsed);
 
@@ -128,28 +142,35 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     @Test
     public void unlocksPlayerAndResetOrientationToUnspecifiedWhenRegularTrackIsPlaying() {
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
-        setAudioPlaying(false);
+        setAudioPlaying();
 
         controller.onResume(activity);
 
         assertThat(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isUnlock()).isTrue();
     }
 
-    private void setAudioPlaying(boolean isAd) {
+    private void setAudioPlaying() {
+        setAudioPlaying(null);
+    }
+
+    private void setAudioPlaying(AdData adData) {
+        boolean isAd = adData != null;
+        final PlayQueueItem item = isAd
+                ? TestPlayQueueItem.createTrack(TRACK_URN, adData)
+                : TestPlayQueueItem.createTrack(TRACK_URN);
+
         when(adsOperations.isCurrentItemAd()).thenReturn(isAd);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(isAd);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(item.getAdData());
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(Urn.forTrack(123L)),
-                                                                       Urn.NOT_SET,
-                                                                       0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(item, Urn.NOT_SET, 0));
     }
 
     private void setVideoAdIsPlaying(boolean verticalVideo) {
         final ApiVideoSource videoSource = verticalVideo ?
                                            AdFixtures.getApiVideoSource(300, 600) :
                                            AdFixtures.getApiVideoSource(600, 300);
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L),
-                                                                                             videoSource));
+        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(TRACK_URN, videoSource));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(videoItem.getAdData());

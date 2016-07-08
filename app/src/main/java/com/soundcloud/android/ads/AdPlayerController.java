@@ -106,13 +106,23 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
                 lastSeenAdUrn = currentItem.getUrn();
             } else {
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
-                if (adsOperations.isCurrentItemAudioAd() && !lastSeenAdUrn.equals(currentItem.getUrn())) {
-                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
-                    eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen());
-                    lastSeenAdUrn = currentItem.getUrn();
+                if (adsOperations.isCurrentItemAudioAd()
+                        && shouldExpandAudioAd()
+                        && !lastSeenAdUrn.equals(currentItem.getUrn())) {
+                    expandAudioAd(currentItem);
                 }
             }
         }
+    }
+
+    private boolean shouldExpandAudioAd() {
+        return ((AudioAd) adsOperations.getCurrentTrackAdData().get()).hasCompanion();
+    }
+
+    private void expandAudioAd(PlayQueueItem currentItem) {
+        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerOpen());
+        lastSeenAdUrn = currentItem.getUrn();
     }
 
     private static class PlayerState {
