@@ -397,8 +397,7 @@
         </receiver>
 
         <service
-            android:name=".gcm.ScFirebaseMessagingService"
-            android:exported="false">
+            android:name=".gcm.ScFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
