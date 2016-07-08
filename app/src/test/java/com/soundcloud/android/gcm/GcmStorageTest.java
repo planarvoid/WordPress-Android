@@ -44,29 +44,12 @@ public class GcmStorageTest extends AndroidUnitTest{
     }
 
     @Test
-    public void hasTokenAfterMarkedAsRegistered() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
-        gcmStorage.markAsRegistered("token");
-
-        assertThat(gcmStorage.getToken()).isNotEmpty();
-    }
-
-    @Test
     public void shouldRegisterAfterClearingRegistration() {
         when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
         gcmStorage.markAsRegistered("token");
         gcmStorage.clearHasRegistered();
 
         assertThat(gcmStorage.shouldRegister()).isTrue();
-    }
-
-    @Test
-    public void shouldNotHaveTokenAfterClearingRegisteration() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
-        gcmStorage.markAsRegistered("token");
-        gcmStorage.clearHasRegistered();
-
-        assertThat(gcmStorage.getToken()).isNullOrEmpty();
     }
 
     @Test
