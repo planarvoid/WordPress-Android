@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static com.soundcloud.java.collections.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anySet;
@@ -13,7 +12,6 @@ import com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
-import com.soundcloud.android.analytics.firebase.FirebaseAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.settings.SettingKey;
@@ -43,7 +41,6 @@ public class AnalyticsProviderFactoryTest {
     @Mock private ComScoreAnalyticsProvider comScoreProvider;
     @Mock private AdjustAnalyticsProvider adjustAnalyticsProvider;
     @Mock private FabricAnalyticsProvider fabricAnalyticsProvider;
-    @Mock private FirebaseAnalyticsProvider firebaseAnalyticsProvider;
 
     @Mock private EventTracker eventTracker;
     private PromotedAnalyticsProvider promotedProvider;
@@ -59,7 +56,7 @@ public class AnalyticsProviderFactoryTest {
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
                                                analyticsSettings, appboyAnalyticsProvider,
                                                adjustAnalyticsProvider, comScoreProvider, fabricAnalyticsProvider,
-                                               lazyOf(firebaseAnalyticsProvider), baseProviders, applicationProperties);
+                                               baseProviders);
     }
 
     @Test
@@ -105,9 +102,7 @@ public class AnalyticsProviderFactoryTest {
     public void getProvidersReturnsAllProvidersExceptComScoreWhenItFailedToInitialize() {
         factory = new AnalyticsProviderFactory(analyticsProperties, sharedPreferences,
                                                analyticsSettings, appboyAnalyticsProvider,
-                                               adjustAnalyticsProvider, null, fabricAnalyticsProvider,
-                                               lazyOf(firebaseAnalyticsProvider),
-                                               baseProviders, applicationProperties);
+                                               adjustAnalyticsProvider, null, fabricAnalyticsProvider, baseProviders);
         when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
