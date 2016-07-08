@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.playqueue;
 
-import static com.soundcloud.android.ApplicationModule.LIGHT_TRACK_ADAPTER;
 import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ONE;
 
 import butterknife.Bind;
@@ -12,12 +11,12 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
+import com.soundcloud.android.playback.playqueue.PlayQueueItemAnimator.Mode;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
-import com.soundcloud.android.view.adapters.TracksRecyclerItemAdapter;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -33,13 +32,12 @@ import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.List;
 
 class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         implements TrackItemRenderer.Listener {
 
-    private final TracksRecyclerItemAdapter adapter;
+    private final PlayQueueRecyclerItemAdapter adapter;
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
     private final EventBus eventBus;
@@ -48,9 +46,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @Bind(R.id.recycler_view) RecyclerView recyclerView;
     @Bind(R.id.play_queue_drawer) View playQueueDrawer;
+    private PlayQueueItemAnimator animator;
 
     @Inject
-    public PlayQueuePresenter(@Named(LIGHT_TRACK_ADAPTER) TracksRecyclerItemAdapter adapter,
+    public PlayQueuePresenter(PlayQueueRecyclerItemAdapter adapter,
                               PlayQueueManager playQueueManager,
                               PlayQueueOperations playQueueOperations,
                               EventBus eventBus) {
@@ -68,7 +67,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
-        recyclerView.setItemAnimator(new PlayQueueItemAnimator());
+        animator = new PlayQueueItemAnimator();
+        recyclerView.setItemAnimator(animator);
 
         playQueueDrawer.setVisibility(View.VISIBLE);
         subscriptions.add(eventBus.subscribeImmediate(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
@@ -87,7 +87,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     @OnClick(R.id.close_play_queue)
-    public void closePlayQueue(View view) {
+    public void closePlayQueue() {
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
     }
 
@@ -110,6 +110,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         public void onNext(List<TrackItem> trackItems) {
             adapter.clear();
             for (TrackItem item : trackItems) {
+                item.setInRepeatMode(playQueueManager.getRepeatMode() == REPEAT_ONE);
                 adapter.addItem(item);
             }
             adapter.notifyDataSetChanged();
@@ -148,6 +149,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                animator.setMode(Mode.REPEAT);
                 playQueueManager.setRepeatMode(getNextRepeatMode());
                 updateRepeatAdapter();
                 setupRepeatButtonIcon((ImageView) v);
@@ -163,8 +165,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     @OnClick(R.id.shuffle_button)
     void shuffleClicked(ToggleButton toggle) {
         if (toggle.isChecked()) {
+            animator.setMode(Mode.SHUFFLING);
             playQueueManager.shuffle();
         } else {
+            animator.setMode(Mode.DEFAULT);
             playQueueManager.unshuffle();
         }
     }

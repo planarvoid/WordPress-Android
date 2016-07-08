@@ -40,7 +40,6 @@ import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.stream.StreamNavigationTarget;
 import com.soundcloud.android.sync.SyncModule;
-import com.soundcloud.android.sync.likes.LikesSyncModule;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
@@ -48,7 +47,6 @@ import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.android.view.adapters.TracksRecyclerItemAdapter;
 import com.soundcloud.android.waveform.WaveformData;
 import com.soundcloud.android.you.YouNavigationTarget;
 import com.soundcloud.reporting.FabricReporter;
@@ -93,7 +91,7 @@ public class ApplicationModule {
     public static final String MAIN_LOOPER = "MainLooper";
 
     public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
-    public static final String LIGHT_TRACK_ADAPTER = "LightTrackAdapter";
+    public static final String LIGHT_TRACK_ITEM_RENDERER = "LightTrackItemRenderer";
 
     private final SoundCloudApplication application;
 
@@ -330,19 +328,19 @@ public class ApplicationModule {
         return new CurrentDateProvider();
     }
 
+
     @Provides
-    @Named(LIGHT_TRACK_ADAPTER)
-    public TracksRecyclerItemAdapter provideLightTrackItemAdapter(ImageOperations imageOperations,
-                                                                  CondensedNumberFormatter numberFormatter,
-                                                                  TrackItemMenuPresenter trackItemMenuPresenter,
-                                                                  EventBus eventBus,
-                                                                  ScreenProvider screenProvider,
-                                                                  Navigator navigator,
-                                                                  FeatureOperations featureOperations) {
-        return new TracksRecyclerItemAdapter(new TrackItemRenderer(
+    @Named(LIGHT_TRACK_ITEM_RENDERER)
+    public TrackItemRenderer provideLightTrackItemRenderer(ImageOperations imageOperations,
+                                                           CondensedNumberFormatter numberFormatter,
+                                                           TrackItemMenuPresenter trackItemMenuPresenter,
+                                                           EventBus eventBus,
+                                                           ScreenProvider screenProvider,
+                                                           Navigator navigator, FeatureOperations featureOperations) {
+        return new TrackItemRenderer(
                 imageOperations, numberFormatter, trackItemMenuPresenter, eventBus,
                 screenProvider, navigator, featureOperations,
-                new TrackItemView.Factory(R.layout.track_list_light_item, R.color.list_disabled, R.color.white)));
+                new TrackItemView.Factory(R.layout.track_list_light_item, R.color.list_disabled, R.color.white));
     }
 
 }

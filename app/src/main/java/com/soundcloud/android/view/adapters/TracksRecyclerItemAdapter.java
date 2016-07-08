@@ -1,5 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.android.ApplicationModule.LIGHT_TRACK_ITEM_RENDERER;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItem;
@@ -9,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, TracksRecyclerItemAdapter.TrackViewHolder>
         implements PlayingTrackAware, RepeatableItemAdapter {
@@ -18,7 +21,7 @@ public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, Tr
     private final TrackItemRenderer trackItemRenderer;
 
     @Inject
-    public TracksRecyclerItemAdapter(TrackItemRenderer trackItemRenderer) {
+    public TracksRecyclerItemAdapter(@Named(LIGHT_TRACK_ITEM_RENDERER) TrackItemRenderer trackItemRenderer) {
         super(trackItemRenderer);
         this.trackItemRenderer = trackItemRenderer;
     }
@@ -43,10 +46,12 @@ public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, Tr
     @Override
     public void updateInRepeatMode(boolean isInRepeatMode) {
         for (int position = 0; position < getItemCount(); position++) {
-            TrackItem item = getItem(position);
+            final TrackItem item = getItem(position);
             if (item.isInRepeatMode() != isInRepeatMode) {
                 item.setInRepeatMode(isInRepeatMode);
-                notifyItemChanged(position);
+                if (!item.isPlaying()) {
+                    notifyItemChanged(position);
+                }
             }
         }
     }

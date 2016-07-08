@@ -67,7 +67,8 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     public void shuffle() {
-        setPlayQueueKeepPosition(playQueue.shuffle(currentPosition + 1));
+        final int pivot = currentPosition + 1 >= playQueue.size() ? 0 : currentPosition + 1;
+        setPlayQueueKeepPosition(playQueue.shuffle(pivot));
     }
 
     public void unshuffle() {
@@ -96,7 +97,7 @@ public class PlayQueueManager implements OriginProvider {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         logEmptyPlayQueues(playQueue, playSessionSource);
 
-        if (this.playQueue.hasSameTracks(playQueue) && this.playSessionSource.equals(playSessionSource)) {
+        if (isSamePlayQueue(playQueue, playSessionSource) && isSamePlayQueueType(playQueue)) {
             this.currentPosition = startPosition;
             publishCurrentQueueItemChanged();
         } else {
@@ -105,6 +106,14 @@ public class PlayQueueManager implements OriginProvider {
         }
         saveQueue();
         saveCurrentPosition();
+    }
+
+    private boolean isSamePlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
+        return this.playQueue.hasSameTracks(playQueue) && this.playSessionSource.equals(playSessionSource);
+    }
+
+    private boolean isSamePlayQueueType(PlayQueue newPlayQueue) {
+        return newPlayQueue.isShuffled() == this.playQueue.isShuffled();
     }
 
     public void saveCurrentPosition() {
@@ -399,13 +408,12 @@ public class PlayQueueManager implements OriginProvider {
         return playQueue.getTrackItemUrns().equals(remoteTrackList);
     }
 
-    private void setNewPlayQueueInternal(PlayQueue playQueue) {
-        setNewPlayQueueInternal(playQueue, playSessionSource);
-    }
-
     private void setNewPlayQueueInternal(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-        this.repeatMode = RepeatMode.REPEAT_NONE;
+
+        if (!playSessionSource.equals(this.playSessionSource)) {
+            this.repeatMode = RepeatMode.REPEAT_NONE;
+        }
         this.playQueue = checkNotNull(playQueue, "Playqueue to update should not be null");
         this.currentItemIsUserTriggered = true;
         this.playSessionSource = playSessionSource;

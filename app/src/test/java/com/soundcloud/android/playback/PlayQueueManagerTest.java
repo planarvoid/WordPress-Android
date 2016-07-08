@@ -852,6 +852,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void loadPlayQueueAsyncLoadsQueueFromLocalStorage() {
         PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
 
+        when(playQueueOperations.getLastStoredPlaySessionSource()).thenReturn(playlistSessionSource);
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(playQueue));
         playQueueManager.loadPlayQueueAsync().subscribe(new TestSubscriber<PlayQueue>());
 
@@ -1358,6 +1359,19 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @NonNull
     private PlayQueue createPlayQueue(PlaySessionSource playSessionSource) {
         return TestPlayQueue.fromUrns(TestUrns.createTrackUrns(1L, 2L), playSessionSource);
+    }
+
+    @Test
+    public void shuffleBroadcastNewPlayQueue() {
+        final PlayQueueItem playQueueItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(Collections.singletonList(playQueueItem));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
+
+        playQueueManager.shuffle();
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(2);
+        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
     }
 
     private void assertPlayQueueSaved(PlayQueue expected) {
