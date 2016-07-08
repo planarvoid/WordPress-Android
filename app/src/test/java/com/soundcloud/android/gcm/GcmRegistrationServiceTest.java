@@ -1,12 +1,15 @@
 package com.soundcloud.android.gcm;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiResponse;
@@ -19,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import android.content.Context;
 import android.content.Intent;
 
 import java.io.IOException;
@@ -42,7 +46,7 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isDisabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(featureFlags.isDisabled(Flag.ARCHER_GCM)).thenReturn(true);
         service = new GcmRegistrationService(gcmStorage, apiClient, instanceId, InjectionSupport.providerOf(appboyWrapper), featureFlags);
     }
 
@@ -52,13 +56,16 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
 
         service.onHandleIntent(intent);
 
-        verify(instanceId, never()).getToken();
+        verify(instanceId, never()).getToken(any(Context.class), anyString(), anyString());
     }
 
     @Test
     public void storesSuccessfullyFetchedToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(instanceId.getToken()).thenReturn(TOKEN);
+        when(instanceId.getToken(service,
+                                 resources().getString(R.string.gcm_defaultSenderId),
+                                 GoogleCloudMessaging.INSTANCE_ID_SCOPE))
+                .thenReturn(TOKEN);
 
         service.onHandleIntent(intent);
 
@@ -68,7 +75,10 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Test
     public void sendsTokenToAppboyOnSuccessfullyFetchedToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(instanceId.getToken()).thenReturn(TOKEN);
+        when(instanceId.getToken(service,
+                                 resources().getString(R.string.gcm_defaultSenderId),
+                                 GoogleCloudMessaging.INSTANCE_ID_SCOPE))
+                .thenReturn(TOKEN);
 
         service.onHandleIntent(intent);
 
@@ -78,7 +88,10 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Test
     public void clearsTokenOnUnsuccessfullyFetchedToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(instanceId.getToken()).thenThrow(new IOException());
+        when(instanceId.getToken(service,
+                                 resources().getString(R.string.gcm_defaultSenderId),
+                                 GoogleCloudMessaging.INSTANCE_ID_SCOPE))
+                .thenThrow(new IOException());
 
         service.onHandleIntent(intent);
 
@@ -88,8 +101,9 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Test
     public void marksRegisteredOnSuccessfullyFetchedToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(featureFlags.isDisabled(Flag.ARCHER_PUSH)).thenReturn(false);
-        when(instanceId.getToken()).thenReturn(TOKEN);
+        when(featureFlags.isDisabled(Flag.ARCHER_GCM)).thenReturn(false);
+        when(instanceId.getToken(service, resources().getString(R.string.gcm_defaultSenderId), GoogleCloudMessaging.INSTANCE_ID_SCOPE))
+                .thenReturn(TOKEN);
         when(apiClient.fetchResponse(argThat(isApiRequestTo("POST", "/push/register")
                 .withContent(Collections.singletonMap("token", TOKEN))))).thenReturn(OK_RESPONSE);
 
@@ -101,8 +115,9 @@ public class GcmRegistrationServiceTest extends AndroidUnitTest {
     @Test
     public void doesNotMarksRegisteredOnUnsuccessfullyFetchedToken() throws IOException {
         when(gcmStorage.shouldRegister()).thenReturn(true);
-        when(featureFlags.isDisabled(Flag.ARCHER_PUSH)).thenReturn(false);
-        when(instanceId.getToken()).thenReturn(TOKEN);
+        when(featureFlags.isDisabled(Flag.ARCHER_GCM)).thenReturn(false);
+        when(instanceId.getToken(service, resources().getString(R.string.gcm_defaultSenderId), GoogleCloudMessaging.INSTANCE_ID_SCOPE))
+                .thenReturn(TOKEN);
         when(apiClient.fetchResponse(argThat(isApiRequestTo("POST", "/push/register")
                 .withContent(Collections.singletonMap("token", TOKEN))))).thenReturn(FAILED_RESPONSE);
 

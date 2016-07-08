@@ -33,6 +33,11 @@
     <uses-feature android:name="android.hardware.location.network" android:required="false"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
 
+    <!-- c2dm -->
+    <permission android:name="${applicationId}.permission.C2D_MESSAGE" android:protectionLevel="signature"/>
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+
     <!--
     TODO: to properly support right to left languages for relative layouts, we need to add a
       android:supportsRtl="true"
@@ -380,6 +385,7 @@
             </intent-filter>
         </receiver>
 
+
         <receiver android:name="com.appboy.AppboyGcmReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
@@ -397,23 +403,24 @@
         </receiver>
 
         <service
-            android:name=".gcm.ScFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <service
             android:name=".gcm.GcmInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.android.gms.iid.InstanceID"/>
             </intent-filter>
         </service>
         <service
             android:name=".gcm.GcmRegistrationService"
             android:exported="false">
         </service>
+
+        <receiver android:name=".gcm.GcmMessageReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
 
         <!-- Google Cast Companion -->
         <receiver android:name="com.google.android.libraries.cast.companionlibrary.remotecontrol.VideoIntentReceiver">

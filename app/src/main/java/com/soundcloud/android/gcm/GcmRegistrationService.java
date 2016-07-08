@@ -1,5 +1,7 @@
 package com.soundcloud.android.gcm;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.api.ApiClient;
@@ -62,11 +64,14 @@ public class GcmRegistrationService extends IntentService {
 
     private void doTokenRefresh() {
         try {
-            String token = instanceId.getToken();
-            Log.d(TAG, "Push Registration Token: " + token);
+            String token = instanceId.getToken(this, getString(R.string.gcm_defaultSenderId),
+                                               GoogleCloudMessaging.INSTANCE_ID_SCOPE);
+
+            Log.d(TAG, "GCM Registration Token: " + token);
+
             appboyWrapperProvider.get().handleRegistration(token);
 
-            if (featureFlags.isDisabled(Flag.ARCHER_PUSH) || registerTokenWithApi(token).isSuccess()) {
+            if (featureFlags.isDisabled(Flag.ARCHER_GCM) || registerTokenWithApi(token).isSuccess()) {
                 gcmStorage.markAsRegistered(token);
             }
 

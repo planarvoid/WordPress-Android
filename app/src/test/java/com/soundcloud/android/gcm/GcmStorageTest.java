@@ -31,13 +31,13 @@ public class GcmStorageTest extends AndroidUnitTest{
 
     @Test
     public void shouldRegisterIsTrueByDefault() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.ARCHER_GCM)).thenReturn(true);
         assertThat(gcmStorage.shouldRegister()).isTrue();
     }
 
     @Test
     public void shouldNotRegisterAfterMarkedAsRegistered() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.ARCHER_GCM)).thenReturn(true);
         gcmStorage.markAsRegistered("token");
 
         assertThat(gcmStorage.shouldRegister()).isFalse();
@@ -45,7 +45,7 @@ public class GcmStorageTest extends AndroidUnitTest{
 
     @Test
     public void shouldRegisterAfterClearingRegistration() {
-        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.ARCHER_GCM)).thenReturn(true);
         gcmStorage.markAsRegistered("token");
         gcmStorage.clearHasRegistered();
 

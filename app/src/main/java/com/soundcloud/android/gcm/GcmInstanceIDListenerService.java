@@ -1,11 +1,11 @@
 package com.soundcloud.android.gcm;
 
-import com.google.firebase.iid.FirebaseInstanceIdService;
+import com.google.android.gms.iid.InstanceIDListenerService;
 import com.soundcloud.android.SoundCloudApplication;
 
 import javax.inject.Inject;
 
-public class GcmInstanceIDListenerService extends FirebaseInstanceIdService {
+public class GcmInstanceIDListenerService extends InstanceIDListenerService {
 
     @Inject GcmStorage gcmStorage;
 
