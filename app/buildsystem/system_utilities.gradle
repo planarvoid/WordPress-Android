@@ -11,8 +11,6 @@ def addLibrary(String lib) {
   dependencies.releaseCompile lib
   dependencies.releaseNoProguardCompile lib
   dependencies.releaseNonPlayStoreCompile lib
-  dependencies.testCompile lib
-  dependencies.androidTestCompile lib
 }
 
 def addDevLibraryWithStub(String lib, String stub) {
@@ -22,6 +20,4 @@ def addDevLibraryWithStub(String lib, String stub) {
   dependencies.releaseCompile stub
   dependencies.releaseNoProguardCompile stub
   dependencies.releaseNonPlayStoreCompile stub
-  dependencies.testCompile stub
-  dependencies.androidTestCompile stub
 }
