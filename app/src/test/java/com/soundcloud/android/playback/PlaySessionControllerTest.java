@@ -191,6 +191,22 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void playQueueTrackChangedIsIgnoredWhenAlreadyPlayingTrack() {
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        when(playbackStrategy.playCurrent()).thenReturn(playCurrentSubject);
+
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+
+        assertThat(playCurrentSubject.hasObservers()).isTrue();
+        playCurrentSubject.onCompleted();
+
+        final PublishSubject<Void> nextPlayCurrentSubject = PublishSubject.create();
+        when(playbackStrategy.playCurrent()).thenReturn(nextPlayCurrentSubject);
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, CurrentPlayQueueItemEvent.fromPositionChanged(trackPlayQueueItem, Urn.NOT_SET, 0));
+        assertThat(nextPlayCurrentSubject.hasObservers()).isFalse();
+    }
+
+    @Test
     public void onStateTransitionForQueueCompleteDoesNotSavePosition() throws Exception {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,TestPlayStates.playQueueComplete());
         verify(playQueueManager, never()).saveCurrentPosition();
