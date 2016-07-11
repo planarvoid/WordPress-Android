@@ -21,7 +21,7 @@
             android:text="@string/upsell_stream_upgrade_description" />
 
         <com.soundcloud.android.playback.ui.view.RoundedColorButton
-            android:id="@+id/invite_button"
+            android:id="@+id/action_button"
             android:layout_marginBottom="8dp"
             style="@style/ListItemNotificationButton"
             android:text="@string/upsell_stream_upgrade_button" />

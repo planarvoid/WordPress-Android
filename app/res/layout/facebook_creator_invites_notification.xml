@@ -14,7 +14,7 @@
         android:text="@string/facebook_creator_invites_title" />
 
     <com.soundcloud.android.playback.ui.view.RoundedColorButton
-        android:id="@+id/invite_button"
+        android:id="@+id/action_button"
         style="@style/ListItemNotificationButton"
         android:text="@string/facebook_invites_button" />
 

@@ -110,7 +110,7 @@ public class FacebookListenerInvitesItemRenderer implements CellRenderer<Faceboo
             }
         });
 
-        itemView.findViewById(R.id.invite_button).setOnClickListener(new View.OnClickListener() {
+        itemView.findViewById(R.id.action_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 facebookInvitesStorage.setClicked();
