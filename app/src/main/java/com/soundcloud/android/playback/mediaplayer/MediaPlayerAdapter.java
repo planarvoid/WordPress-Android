@@ -12,6 +12,7 @@ import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlayStateReason;
@@ -22,6 +23,7 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
+import com.soundcloud.android.playback.VideoTextureContainer;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -41,16 +43,20 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
-import android.view.SurfaceHolder;
+import android.view.Surface;
+import android.view.TextureView;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 
 @Singleton
 public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener, SurfaceHolder.Callback {
+        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener,
+        VideoTextureContainer.Listener {
 
     private static final String TAG = "MediaPlayerAdapter";
     private static final int POS_NOT_SET = Consts.NOT_SET;
@@ -80,13 +86,13 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private long resumePos = POS_NOT_SET;
 
     private volatile MediaPlayer mediaPlayer;
-    private Optional<SurfaceHolder> surfaceHolder = Optional.absent();
-    private double loadPercent;
-    @Nullable
-    private PlayerListener playerListener;
+    @Nullable private PlayerListener playerListener;
 
+    private double loadPercent;
     private long prepareStartTimeMs;
     private String currentStreamUrl = Strings.EMPTY;
+
+    private Map<Urn, VideoTextureContainer> videoTextureContainers = new HashMap<>(1);
     private Optional<VideoSource> currentVideoSource = Optional.absent();
 
     @Inject
@@ -145,7 +151,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
         try {
             setStreamUrl(playbackItem);
-            updateVideoView(surfaceHolder.orNull());
+            attemptToSetSurface(playbackItem.getUrn());
             mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
@@ -265,8 +271,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                 setInternalState(PlaybackState.ERROR);
                 mp.release();
                 resetConnectionRetries();
+                resetVideoView();
                 mediaPlayer = null;
-                clearVideoView();
             }
         }
         return true;
@@ -358,8 +364,9 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     void onPlaybackEnded() {
-        resetConnectionRetries();
         setInternalState(PlaybackState.COMPLETED);
+        resetConnectionRetries();
+        resetVideoView();
     }
 
     void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, long lastPosition) {
@@ -627,17 +634,21 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             // store times as they will not be accessible after release
             final long progress = getAdjustedProgress();
             final long duration = getDuration();
-            currentVideoSource = Optional.absent();
 
             if (internalState.isStoppable()) {
                 mediaPlayer.stop();
             }
 
             mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
+            resetVideoView();
             this.mediaPlayer = null;
 
             setInternalState(PlaybackState.STOPPED, progress, duration);
         }
+    }
+
+    private void resetVideoView() {
+        // no-op for now
     }
 
     @Override
@@ -645,29 +656,48 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         stop();
     }
 
-    private void clearVideoView() {
-        updateVideoView(null);
-    }
+    public void setVideoTextureView(Urn urn, TextureView videoTexture) {
+        // If this texture view was recycled, lets delete the old container referencing it
+        removeContainerWithTexture(videoTexture);
 
-    private void updateVideoView(SurfaceHolder holder) {
-        surfaceHolder = Optional.fromNullable(holder);
-        if (mediaPlayer != null) {
-            mediaPlayer.setDisplay(surfaceHolder.orNull());
+        if (videoTextureContainers.containsKey(urn)) {
+            videoTextureContainers.get(urn).reattachSurfaceTextureIfNeeded(videoTexture);
+        } else {
+            videoTextureContainers.put(urn, new VideoTextureContainer(urn, videoTexture, this));
         }
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        updateVideoView(holder);
+    private void removeContainerWithTexture(TextureView videoTexture) {
+        for (VideoTextureContainer container: videoTextureContainers.values()) {
+            if (container.containsTextureView(videoTexture)) {
+                container.release();
+                videoTextureContainers.remove(container.getVideoUrn());
+            }
+        }
     }
 
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    // Rename me to onConfigurationChange
+    public void onVideoTextureViewDestroy() {
+        for (VideoTextureContainer container: videoTextureContainers.values()) {
+            container.onTextureViewDestroy();
+        }
     }
 
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        clearVideoView();
+    // Rename me to onDestroy
+    public void releaseVideoTextureContainers() {
+        for (VideoTextureContainer container: videoTextureContainers.values()) {
+            container.release();
+        }
+        videoTextureContainers.clear();
+    }
+
+    public void attemptToSetSurface(Urn urn) {
+        if (currentItem.getPlaybackType() == VIDEO_AD && videoTextureContainers.containsKey(urn)) {
+            final Surface surface = videoTextureContainers.get(urn).getSurface();
+            if (mediaPlayer != null && surface != null) {
+                mediaPlayer.setSurface(surface);
+            }
+        }
     }
 
     @VisibleForTesting

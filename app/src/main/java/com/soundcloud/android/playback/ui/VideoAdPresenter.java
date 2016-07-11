@@ -12,9 +12,9 @@ import com.soundcloud.java.collections.Iterables;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -36,7 +36,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     private static final long FADE_OUT_DURATION_MS = 1000L;
     private static final long FADE_OUT_OFFSET_MS = 2000L;
 
-    private final MediaPlayerAdapter mediaPlayerAdapter;
     private final ImageOperations imageOperations;
     private final AdPageListener listener;
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
@@ -44,10 +43,9 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     private final Resources resources;
 
     @Inject
-    public VideoAdPresenter(MediaPlayerAdapter mediaPlayerAdapter, ImageOperations imageOperations,
+    public VideoAdPresenter(ImageOperations imageOperations,
                             AdPageListener listener, PlayerOverlayController.Factory playerOverlayControllerFactory,
                             DeviceHelper deviceHelper, Resources resources) {
-        this.mediaPlayerAdapter = mediaPlayerAdapter;
         this.imageOperations = imageOperations;
         this.listener = listener;
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
@@ -117,6 +115,11 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         setupSkipButton(holder, playerAd);
     }
 
+    public TextureView getVideoTexture(View adView) {
+        final Holder holder = getViewHolder(adView);
+        return holder.videoTextureView;
+    }
+
     private void adjustLayoutForVideo(View adView, VideoPlayerAd playerAd, Holder holder) {
         final LayoutParams layoutParams = adjustedVideoViewLayoutParams(playerAd, holder);
         final int backgroundColor = resources.getColor(isOrientationLandscape() ?
@@ -124,7 +127,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
                                                        R.color.ad_default_background);
 
         adView.setBackgroundColor(backgroundColor);
-        holder.videoSurfaceView.setLayoutParams(layoutParams);
+        holder.videoTextureView.setLayoutParams(layoutParams);
         holder.letterboxBackground.setLayoutParams(layoutParams);
         if (isOrientationPortrait()) {
             holder.videoOverlayContainer.setLayoutParams(layoutParams);
@@ -144,7 +147,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     private LayoutParams adjustedVideoViewLayoutParams(VideoPlayerAd playerAd, Holder holder) {
-        final LayoutParams layoutParams = holder.videoSurfaceView.getLayoutParams();
+        final LayoutParams layoutParams = holder.videoTextureView.getLayoutParams();
 
         if (playerAd.isVerticalVideo()) { // Vertical video view should scale like ImageView's CENTER_CROP
             final int sourceWidth = playerAd.getFirstSource().getWidth();
@@ -186,13 +189,10 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         return deviceHelper.isOrientation(Configuration.ORIENTATION_LANDSCAPE);
     }
 
-    private void setVideoViewHolder(Holder holder) {
-        final SurfaceHolder surfaceHolder = holder.videoSurfaceView.getHolder();
-        surfaceHolder.addCallback(mediaPlayerAdapter);
-    }
-
     @Override
     public void setProgress(View adView, PlaybackProgress progress) {
+        String visible = getViewHolder(adView).videoTextureView.getVisibility() == View.VISIBLE ? "YES" : "NO";
+        Log.d("ads", "video view visible? " + visible);
         updateSkipStatus(getViewHolder(adView), progress, resources);
     }
 
@@ -223,7 +223,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
                                                View.VISIBLE :
                                                View.GONE);
             if (playStateEvent.isPlayerPlaying() && !isVideoSurfaceVisible(holder)) {
-                holder.videoSurfaceView.setVisibility(View.VISIBLE);
+                holder.videoTextureView.setVisibility(View.VISIBLE);
             }
         } else {
             holder.videoProgress.setVisibility(playStateEvent.playSessionIsActive() ? View.VISIBLE : View.GONE);
@@ -231,28 +231,17 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     private boolean isVideoSurfaceVisible(Holder holder) {
-        return holder.videoSurfaceView.getVisibility() == View.VISIBLE;
+        return holder.videoTextureView.getVisibility() == View.VISIBLE;
     }
 
     private void setupLoadingStateViews(Holder holder, boolean isLetterboxVideo, boolean videoAlreadyStarted) {
         final boolean playControlsVisible = holder.playControlsHolder.getVisibility() == View.VISIBLE;
         holder.videoProgress.setVisibility(playControlsVisible || videoAlreadyStarted ? View.GONE : View.VISIBLE);
-        holder.videoSurfaceView.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
+        holder.videoTextureView.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
         if (isLetterboxVideo) {
             holder.letterboxBackground.setVisibility(videoAlreadyStarted ? View.GONE : View.VISIBLE);
             holder.videoOverlayContainer.setVisibility(videoAlreadyStarted ? View.VISIBLE : View.GONE);
         }
-    }
-
-    @Override
-    public void onForeground(View adPage) {
-        setVideoViewHolder(getViewHolder(adPage));
-    }
-
-    @Override
-    public void onBackground(View adPage) {
-        final SurfaceHolder surfaceHolder = getViewHolder(adPage).videoSurfaceView.getHolder();
-        surfaceHolder.removeCallback(mediaPlayerAdapter);
     }
 
     private Holder getViewHolder(View videoPage) {
@@ -286,7 +275,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     static class Holder extends AdHolder {
 
         private final View videoContainer;
-        private final SurfaceView videoSurfaceView;
+        private final TextureView videoTextureView;
         private final View videoOverlayContainer;
         private final View videoOverlay;
 
@@ -306,7 +295,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
         Holder(View adView, PlayerOverlayController.Factory playerOverlayControllerFactory) {
             super(adView);
             videoContainer = adView.findViewById(R.id.video_container);
-            videoSurfaceView = (SurfaceView) adView.findViewById(R.id.video_view);
+            videoTextureView = (TextureView) adView.findViewById(R.id.video_view);
             videoOverlayContainer = adView.findViewById(R.id.video_overlay_container);
             videoOverlay = adView.findViewById(R.id.video_overlay);
 
@@ -324,7 +313,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
                                                   shrinkButton,
                                                   fullscreenButton,
                                                   videoOverlay,
-                                                  videoSurfaceView,
+                    videoTextureView,
                                                   ctaButton,
                                                   whyAds,
                                                   skipAd);
