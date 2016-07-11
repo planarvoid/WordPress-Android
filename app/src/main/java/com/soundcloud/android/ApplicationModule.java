@@ -34,7 +34,6 @@ import com.soundcloud.android.playback.ui.CompatLikeButtonPresenter;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
 import com.soundcloud.android.playback.ui.MaterialLikeButtonPresenter;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
@@ -79,7 +78,6 @@ import android.telephony.TelephonyManager;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.lang.reflect.Constructor;
 import java.util.Locale;
 
 @Module(library = true, includes = {ApiModule.class, StorageModule.class,
@@ -223,10 +221,6 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public VideoCastManager provideVideoCastManager(Context context, ApplicationProperties applicationProperties) {
-        for (Constructor<?> constructor : VideoCastManager.class.getConstructors()) {
-            System.out.println(constructor);
-        }
-
         return VideoCastManager
                 .initialize(
                         context,
@@ -299,7 +293,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    public Navigator provideNavigator(FeatureFlags featureFlags) {
+    public Navigator provideNavigator() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return new SmoothNavigator();
         } else {

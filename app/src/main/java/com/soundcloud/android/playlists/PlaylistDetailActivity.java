@@ -13,7 +13,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -31,37 +30,6 @@ public class PlaylistDetailActivity extends PlayerActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject FeatureFlags featureFlags;
-
-    @Deprecated // Use Navigator
-    public static void start(Context context, @NotNull Urn playlist, Screen screen) {
-        start(context, playlist, screen, false);
-    }
-
-    @Deprecated // Use Navigator
-    public static void start(Context context,
-                             @NotNull Urn playlist,
-                             Screen screen,
-                             SearchQuerySourceInfo searchQuerySourceInfo) {
-        start(context, playlist, screen, false, searchQuerySourceInfo);
-    }
-
-    @Deprecated // Use Navigator
-    public static void start(Context context, Urn playlistUrn, Screen screen, boolean autoPlay) {
-        start(context, playlistUrn, screen, autoPlay, null);
-    }
-
-    @Deprecated // Use Navigator
-    public static void start(Context context,
-                             Urn playlistUrn,
-                             Screen screen,
-                             boolean autoPlay,
-                             SearchQuerySourceInfo searchQuerySourceInfo) {
-        context.startActivity(getIntent(playlistUrn, screen, autoPlay, searchQuerySourceInfo, null));
-    }
-
-    public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen) {
-        return getIntent(playlistUrn, screen, false);
-    }
 
     public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay) {
         return getIntent(playlistUrn, screen, autoPlay, null, null);
