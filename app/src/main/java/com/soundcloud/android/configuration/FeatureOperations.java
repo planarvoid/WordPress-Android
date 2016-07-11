@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration;
 
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
+import com.soundcloud.android.properties.ApplicationProperties;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -11,11 +12,15 @@ public class FeatureOperations {
 
     private final FeatureStorage featureStorage;
     private final PlanStorage planStorage;
+    private final ApplicationProperties applicationProperties;
 
     @Inject
-    public FeatureOperations(FeatureStorage featureStorage, PlanStorage planStorage) {
+    public FeatureOperations(FeatureStorage featureStorage,
+                             PlanStorage planStorage,
+                             ApplicationProperties applicationProperties) {
         this.featureStorage = featureStorage;
         this.planStorage = planStorage;
+        this.applicationProperties = applicationProperties;
     }
 
     public void updateFeatures(List<Feature> features) {
@@ -29,6 +34,10 @@ public class FeatureOperations {
 
     public Plan getCurrentPlan() {
         return planStorage.getPlan();
+    }
+
+    public boolean isDevelopmentMenuEnabled() {
+        return featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, applicationProperties.isDebugBuild());
     }
 
     public boolean isOfflineContentOrUpsellEnabled() {
@@ -68,6 +77,10 @@ public class FeatureOperations {
 
     private Observable<Boolean> getUpdates(String name) {
         return featureStorage.getUpdates(name);
+    }
+
+    public Observable<Boolean> developmentMenuEnabled() {
+        return getUpdates(FeatureName.DEVELOPMENT_MENU);
     }
 
 }

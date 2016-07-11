@@ -3,15 +3,18 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.CustomFontTabLayout;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
+import rx.Subscription;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -35,7 +38,6 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private final MainPagerAdapter.Factory pagerAdapterFactory;
     private final EventBus eventBus;
     private final Navigator navigator;
-    private final FeatureFlags featureFlags;
 
     private NavigationModel navigationModel;
 
@@ -43,17 +45,19 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private MainPagerAdapter pagerAdapter;
     private ViewPager pager;
     private TabLayout tabBar;
+    private FeatureOperations featureOperations;
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper,
                       MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus,
-                      Navigator navigator, FeatureFlags featureFlags) {
+                      Navigator navigator, FeatureOperations featureOperations) {
         this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.eventBus = eventBus;
         this.navigator = navigator;
-        this.featureFlags = featureFlags;
+        this.featureOperations = featureOperations;
     }
 
     public void setBaseLayout(AppCompatActivity activity) {
@@ -68,6 +72,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         if (bundle == null) {
             setTabFromIntent(activity.getIntent());
         }
+        startDevelopmentMenuStream();
     }
 
     @Override
@@ -81,8 +86,19 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     @Override
+    public void onDestroy(AppCompatActivity activity) {
+        subscription.unsubscribe();
+    }
+
+    @Override
     public void onNewIntent(AppCompatActivity activity, Intent intent) {
         setTabFromIntent(intent);
+    }
+
+    private void startDevelopmentMenuStream() {
+        subscription = featureOperations.developmentMenuEnabled()
+                                        .startWith(featureOperations.isDevelopmentMenuEnabled())
+                                        .subscribe(new UpdateDevelopmentMenuAction());
     }
 
     private void setTabFromIntent(Intent intent) {
@@ -240,5 +256,17 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
 
     Screen getScreen() {
         return currentTargetItem().getScreen();
+    }
+
+    private class UpdateDevelopmentMenuAction extends DefaultSubscriber<Boolean> {
+
+        @Override
+        public void onNext(Boolean value) {
+            if (value) {
+                BaseLayoutHelper.addDevelopmentDrawer(activity);
+            } else {
+                BaseLayoutHelper.removeDevelopmentDrawer(activity);
+            }
+        }
     }
 }

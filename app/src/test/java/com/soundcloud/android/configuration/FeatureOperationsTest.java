@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.features.FeatureStorage;
+import com.soundcloud.android.properties.ApplicationProperties;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,12 +19,13 @@ public class FeatureOperationsTest {
 
     @Mock private FeatureStorage featureStorage;
     @Mock private PlanStorage planStorage;
+    @Mock private ApplicationProperties applicationProperties;
 
     private FeatureOperations featureOperations;
 
     @Before
     public void setUp() throws Exception {
-        featureOperations = new FeatureOperations(featureStorage, planStorage);
+        featureOperations = new FeatureOperations(featureStorage, planStorage, applicationProperties);
     }
 
     @Test
@@ -50,6 +52,36 @@ public class FeatureOperationsTest {
         when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER));
 
         assertThat(featureOperations.upsellHighTier()).isTrue();
+    }
+
+    @Test
+    public void developmentMenuDisabledByDefault() {
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
+    }
+
+    @Test
+    public void developmentMenuEnabledWhenStorageContainsFeatureTrue() {
+        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, false)).thenReturn(true);
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isTrue();
+    }
+
+    @Test
+    public void developmentMenuEnabledWhenStorageContainsFeatureFalse() {
+        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, false)).thenReturn(false);
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
+    }
+
+    @Test
+    public void developmentMenuEnabledWhenDebug() {
+        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, true)).thenReturn(true);
+        when(applicationProperties.isDebugBuild()).thenReturn(true);
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isTrue();
+    }
+
+    @Test
+    public void developmentMenuDisabledWhenNotDebug() {
+        when(applicationProperties.isDebugBuild()).thenReturn(false);
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
     }
 
     @Test

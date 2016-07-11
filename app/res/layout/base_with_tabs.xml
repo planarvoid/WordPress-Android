@@ -1,40 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sothree.slidinguppanel.SlidingUpPanelLayout
+<android.support.v4.widget.DrawerLayout android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="bottom"
-    sothree:umanoDragView="@+id/player_layout"
-    sothree:umanoPanelHeight="@dimen/player_footer">
+    android:layout_height="match_parent">
 
-    <RelativeLayout
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        sothree:umanoDragView="@+id/player_layout"
+        sothree:umanoPanelHeight="@dimen/player_footer">
 
-        <include layout="@layout/toolbar" />
-
-        <com.soundcloud.android.view.SafeViewPager
-            android:id="@+id/pager"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar_id" />
+            android:layout_height="match_parent">
 
-        <FrameLayout
-            android:id="@+id/snackbar_holder"
+            <include layout="@layout/toolbar" />
+
+            <com.soundcloud.android.view.SafeViewPager
+                android:id="@+id/pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/toolbar_id" />
+
+            <FrameLayout
+                android:id="@+id/snackbar_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/toolbar_id" />
+
+            <View style="@style/ToolbarShadow" />
+
+        </RelativeLayout>
+
+        <fragment
+            android:id="@+id/player_root"
+            android:name="com.soundcloud.android.playback.ui.PlayerFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar_id"/>
+            android:layout_height="match_parent" />
 
-        <View style="@style/ToolbarShadow" />
-
-    </RelativeLayout>
-
-    <fragment
-        android:id="@+id/player_root"
-        android:name="com.soundcloud.android.playback.ui.PlayerFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+</android.support.v4.widget.DrawerLayout>

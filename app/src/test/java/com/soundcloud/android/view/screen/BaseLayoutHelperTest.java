@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.properties.ApplicationProperties;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,11 +31,10 @@ public class BaseLayoutHelperTest {
     @Mock private View layout;
     @Mock private ViewGroup container;
     @Mock private View content;
-    @Mock private ApplicationProperties applicationProperties;
 
     @Before
     public void setUp() throws Exception {
-        helper = new BaseLayoutHelper(applicationProperties);
+        helper = new BaseLayoutHelper();
 
         when(activity.getLayoutInflater()).thenReturn(inflater);
         when(layout.findViewById(R.id.container)).thenReturn(container);
@@ -99,25 +97,4 @@ public class BaseLayoutHelperTest {
         verify(container).addView(layout);
     }
 
-    @Test
-    public void shouldSetDebugContentViewOnDebugBuild() {
-        View debugLayout = mock(View.class);
-        when(inflater.inflate(R.layout.base_with_tabs_debug, null)).thenReturn(debugLayout);
-        when(applicationProperties.isDebugBuild()).thenReturn(true);
-
-        helper.setBaseTabsLayout(activity);
-
-        verify(activity).setContentView(debugLayout);
-    }
-
-    @Test
-    public void shouldSetDefaultContentViewOnNonDebugBuild() {
-        View defaultLayout = mock(View.class);
-        when(inflater.inflate(R.layout.base_with_tabs, null)).thenReturn(defaultLayout);
-        when(applicationProperties.isDebugBuild()).thenReturn(false);
-
-        helper.setBaseTabsLayout(activity);
-
-        verify(activity).setContentView(defaultLayout);
-    }
 }

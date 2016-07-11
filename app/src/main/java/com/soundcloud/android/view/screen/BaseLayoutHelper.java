@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.screen;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.properties.ApplicationProperties;
 
 import android.support.v4.view.WindowCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,11 +14,8 @@ import javax.inject.Inject;
 
 public class BaseLayoutHelper {
 
-    private ApplicationProperties applicationProperties;
-
     @Inject
-    BaseLayoutHelper(ApplicationProperties applicationProperties) {
-        this.applicationProperties = applicationProperties;
+    public BaseLayoutHelper() {
     }
 
     public View setContainerLayout(AppCompatActivity activity) {
@@ -35,9 +31,7 @@ public class BaseLayoutHelper {
     }
 
     public View setBaseTabsLayout(AppCompatActivity activity) {
-        return createLayout(activity, applicationProperties.isDebugBuild()
-                                      ? R.layout.base_with_tabs_debug
-                                      : R.layout.base_with_tabs);
+        return createLayout(activity, R.layout.base_with_tabs);
     }
 
     public View setBaseLayoutWithMargins(AppCompatActivity activity) {
@@ -52,15 +46,25 @@ public class BaseLayoutHelper {
 
     private View createLayout(AppCompatActivity activity, int baseLayoutId) {
         activity.supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
-
         final View layout = activity.getLayoutInflater().inflate(baseLayoutId, null);
         activity.setContentView(layout);
-
-        final DrawerLayout drawerLayout = (DrawerLayout) layout.findViewById(R.id.drawer_layout);
-        if (drawerLayout != null && applicationProperties.isDebugBuild()) {
-            View.inflate(layout.getContext(), R.layout.dev_drawer, drawerLayout);
-        }
         return layout;
+    }
+
+    public static void addDevelopmentDrawer(AppCompatActivity activity) {
+        final DrawerLayout drawerLayout = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
+        final View devDrawer = activity.findViewById(R.id.dev_drawer);
+        if (drawerLayout != null && devDrawer == null) {
+            View.inflate(activity, R.layout.dev_drawer, drawerLayout);
+        }
+    }
+
+    public static void removeDevelopmentDrawer(AppCompatActivity activity) {
+        final View devDrawer = activity.findViewById(R.id.dev_drawer);
+        if (devDrawer != null) {
+            ViewGroup viewGroup = (ViewGroup) devDrawer.getParent();
+            viewGroup.removeView(devDrawer);
+        }
     }
 
     public View createActionBarLayout(AppCompatActivity activity, int baseLayoutId) {
