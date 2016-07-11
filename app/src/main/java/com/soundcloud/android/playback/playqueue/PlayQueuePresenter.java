@@ -236,7 +236,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
             }
             adapter.notifyDataSetChanged();
             recyclerView.scrollToPosition(getScrollPosition());
-            adapter.updateNowPlaying(playQueueManager.getCurrentPlayQueueItem().getUrn());
+            adapter.updateNowPlaying(playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet());
         }
     }
 
