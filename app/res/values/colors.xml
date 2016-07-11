@@ -7,15 +7,15 @@
     <color name="translucent_status_bar">#0cffffff</color>
     <color name="translucent_white">#ccffffff</color>
 
-    <color name="primary">#ffffff</color>
+    <color name="primary">@color/white</color>
     <color name="primary_dark">#bbbbbb</color>
     <color name="primary_darker">#1d1d1d</color>
 
     <color name="toggle_on">@color/ak_sc_orange</color>
     <color name="toggle_on_disabled">#7fff5500</color>
     <color name="toggle_on_ripple">#e24b03</color>
-    <color name="toggle_on_text">#ffffff</color>
-    <color name="toggle_off">#e5e5e5</color>
+    <color name="toggle_on_text">@color/white</color>
+    <color name="toggle_off">@color/ak_light_gray</color>
     <color name="toggle_off_disabled">#7fe5e5e5</color>
     <color name="toggle_off_ripple">#c9c9c9</color>
     <color name="toggle_off_text">#888888</color>
@@ -23,8 +23,8 @@
     <color name="orange_radio_on_text">@color/ak_sc_orange</color>
     <color name="orange_radio_off_text">#777777</color>
 
-    <color name="snack_bar_bg_dark">#333</color>
-    <color name="snack_bar_bg_light">#999</color>
+    <color name="snack_bar_bg_dark">@color/ak_almost_black</color>
+    <color name="snack_bar_bg_light">@color/ak_medium_dark_gray</color>
 
     <!-- List items -->
     <!-- Legacy cells -->
@@ -33,20 +33,20 @@
     <color name="list_text_secondary">#777777</color>
     <color name="list_text_created_at">#c9c9c9</color>
     <color name="list_text_track_user">#828282</color>
-    <color name="list_text_header">#666666</color>
+    <color name="list_text_header">@color/ak_dark_gray</color>
 
     <!-- New cells -->
-    <color name="list_primary">#333333</color>
-    <color name="list_secondary">#999999</color>
-    <color name="list_disabled">#cccccc</color>
+    <color name="list_primary">@color/ak_almost_black</color>
+    <color name="list_secondary">@color/ak_medium_dark_gray</color>
+    <color name="list_disabled">@color/ak_medium_gray</color>
 
     <!-- Player -->
     <color name="dark_gradient_start">#4c000000</color>
     <color name="player_user_text">#c5c5c5</color>
-    <color name="player_cast_device_name">#ffffff</color>
+    <color name="player_cast_device_name">@color/white</color>
 
     <color name="wave_above">#fafafa</color>
-    <color name="wave_below">#e5e5e5</color>
+    <color name="wave_below">@color/ak_light_gray</color>
     <color name="wave_progress_start">#ff7700</color>
     <color name="wave_progress_end">#ff3300</color>
     <color name="wave_progress_below">#ffbf99</color>
@@ -57,64 +57,57 @@
 
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>
-    <color name="ad_default_background">#333333</color>
-    <color name="ad_landscape_video_background">#000000</color>
-    <color name="companionless_text">#cccccc</color>
+    <color name="ad_default_background">@color/ak_almost_black</color>
+    <color name="ad_landscape_video_background">@color/black</color>
+    <color name="companionless_text">@color/ak_medium_gray</color>
 
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>
 
     <!-- Onboarding -->
     <color name="tour_overlay">#cc000000</color>
-    <color name="signup_separator">#999999</color>
+    <color name="signup_separator">@color/ak_medium_dark_gray</color>
 
     <!-- Search -->
-    <color name="tag_text">#666</color>
-    <color name="tag_section_text">#999</color>
+    <color name="tag_text">@color/ak_dark_gray</color>
+    <color name="tag_section_text">@color/ak_medium_dark_gray</color>
 
     <!-- Dialogs -->
-    <color name="dialog_text">#666666</color>
-    <color name="dialog_subtext">#999999</color>
+    <color name="dialog_text">@color/ak_dark_gray</color>
+    <color name="dialog_subtext">@color/ak_medium_dark_gray</color>
 
     <!-- Playlist -->
-    <color name="playlist_background">#f2f2f2</color>
+    <color name="playlist_background">@color/ak_very_light_gray</color>
     <color name="playlist_background_pressed">#fafafa</color>
-    <color name="playlist_edition_background">#e5e5e5</color>
+    <color name="playlist_edition_background">@color/ak_light_gray</color>
 
     <!-- Image overlays -->
     <color name="overlay_text">@color/white</color>
-    <color name="overlay_subtext">#cccccc</color>
+    <color name="overlay_subtext">@color/ak_medium_gray</color>
     <color name="overlay_subtext_pressed">@color/white</color>
     <color name="overlay_text_background">#cc000000</color>
-    <color name="overlay_text_background_pressed">#333333</color>
-
-    <!-- Placeholders -->
-    <color name="placeholder_image_purple">#846170</color>
-    <color name="placeholder_image_blue">#70929c</color>
-    <color name="placeholder_image_orange">#e6846e</color>
-    <color name="placeholder_image_beige">#8e8485</color>
+    <color name="overlay_text_background_pressed">@color/ak_almost_black</color>
 
     <!-- Modules -->
-    <color name="view_all_text_color">#666666</color>
+    <color name="view_all_text_color">@color/ak_dark_gray</color>
 
     <!-- Misc -->
     <color name="dark_bg">#252525</color>
     <color name="page_background">#f3f3f3</color>
 
-    <color name="txt_description_color">#FF5500</color>
-    <color name="gray_text">#999999</color>
-    <color name="dark_gray_text">#333333</color>
+    <color name="following_text">@color/ak_sc_orange</color>
+    <color name="gray_text">@color/ak_medium_dark_gray</color>
+    <color name="dark_gray_text">@color/ak_almost_black</color>
     <color name="tab_bar_divider">#dddddd</color>
     <color name="gray_background">#f3f3f3</color>
     <color name="usage_bar_border">#878787</color>
     <color name="usage_bar_other">#dfdfdf</color>
     <color name="usage_bar_used">#fe3c06</color>
     <color name="usage_bar_limit">#ffae87</color>
-    <color name="usage_bar_free">#ffffff</color>
+    <color name="usage_bar_free">@color/white</color>
     <color name="translucent_background">#80000000</color>
     <color name="user_image_border_color">#1a000000</color>
     <color name="artwork_border_color">#1a000000</color>
-
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>
@@ -122,7 +115,7 @@
 
     <!-- Notifications -->
     <color name="rec_wave_gray_above">#aaaaaa</color>
-    <color name="rec_wave_gray_below">#cccccc</color>
+    <color name="rec_wave_gray_below">@color/ak_medium_gray</color>
     <color name="rec_wave_dark_gray_above">#444444</color>
     <color name="rec_wave_dark_gray_below">#777777</color>
     <color name="rec_wave_orange_above_start">#ff7700</color>
@@ -136,48 +129,48 @@
     <color name="ccl_mr_custom_button">@color/ak_sc_orange</color>
 
     <!-- Google Cast -->
-    <color name="play_related_tracks_bars_color">#999999</color>
-    <color name="play_related_tracks_text_color">#333333</color>
+    <color name="play_related_tracks_bars_color">@color/ak_medium_dark_gray</color>
+    <color name="play_related_tracks_text_color">@color/ak_almost_black</color>
 
     <!-- Discovery -->
-    <color name="recommendation_reason_text">#999999</color>
-    <color name="seed_track_text">#333333</color>
-    <color name="recommended_for_you_text">#999999</color>
-    <color name="search_query_text">#333333</color>
-    <color name="search_hint_text">#CCCCCC</color>
-    <color name="discovery_tags_title">#666666</color>
-    <color name="discovery_search_premium_view_all">#666666</color>
-    <color name="recommendation_card_track_title">#333333</color>
-    <color name="recommendation_card_artist_name">#999999</color>
+    <color name="recommendation_reason_text">@color/ak_medium_dark_gray</color>
+    <color name="seed_track_text">@color/ak_almost_black</color>
+    <color name="recommended_for_you_text">@color/ak_medium_dark_gray</color>
+    <color name="search_query_text">@color/ak_almost_black</color>
+    <color name="search_hint_text">@color/ak_medium_gray</color>
+    <color name="discovery_tags_title">@color/ak_dark_gray</color>
+    <color name="discovery_search_premium_view_all">@color/ak_dark_gray</color>
+    <color name="recommendation_card_track_title">@color/ak_almost_black</color>
+    <color name="recommendation_card_artist_name">@color/ak_medium_dark_gray</color>
 
     <!-- Stations -->
     <color name="stations_home_background">@color/page_background</color>
     <color name="stations_bucket_action_background">#828282</color>
-    <color name="stations_bucket_action_text">#e5e5e5</color>
+    <color name="stations_bucket_action_text">@color/ak_light_gray</color>
 
     <!-- Profile -->
-    <color name="user_sounds_header">#666666</color>
-    <color name="user_sounds_view_all">#666666</color>
-    <color name="user_toggle_button_border">#e5e5e5</color>
+    <color name="user_sounds_header">@color/ak_dark_gray</color>
+    <color name="user_sounds_view_all">@color/ak_dark_gray</color>
+    <color name="user_toggle_button_border">@color/ak_light_gray</color>
     <color name="user_toggle_button_background">@color/ak_sc_orange</color>
 
     <!-- Collections -->
     <color name="collections_options_dialog_header">#b3b3b3</color>
-    <color name="collections_kill_filter_text_color">#999999</color>
-    <color name="collections_empty_slot_border">#999999</color>
-    <color name="collections_empty_playlists_text_color">#999999</color>
-    <color name="collections_recently_played_header">#999999</color>
+    <color name="collections_kill_filter_text_color">@color/ak_medium_dark_gray</color>
+    <color name="collections_empty_slot_border">@color/ak_medium_dark_gray</color>
+    <color name="collections_empty_playlists_text_color">@color/ak_medium_dark_gray</color>
+    <color name="collections_recently_played_header">@color/ak_medium_dark_gray</color>
 
     <!-- You -->
     <color name="you_version_text">@color/gray_text</color>
 
     <!-- Search -->
-    <color name="search_suggestion_text">#333</color>
-    <color name="search_suggestion_unhighlighted_text">#999</color>
+    <color name="search_suggestion_text">@color/ak_almost_black</color>
+    <color name="search_suggestion_unhighlighted_text">@color/ak_medium_dark_gray</color>
 
     <!-- Upsell -->
-    <color name="conversion_restrictions_text">#80FFFFFF</color>
-    <color name="conversion_restrictions_text_focused">#BBFFFFFF</color>
-    <color name="conversion_restrictions_text_pressed">#FFFFFFFF</color>
+    <color name="conversion_restrictions_text">#80ffffff</color>
+    <color name="conversion_restrictions_text_focused">#bbffffff</color>
+    <color name="conversion_restrictions_text_pressed">#ffffffff</color>
 
 </resources>
