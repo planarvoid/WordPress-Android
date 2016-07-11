@@ -121,9 +121,11 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         if (currentTrackSourceInfo.isPresent() && lastEventWasNotPlayEvent()) {
             if (adsOperations.isCurrentItemVideoAd()) {
                 publishVideoAdPlay();
-            } else {
+            } else if (adsOperations.isCurrentItemAudioAd()) {
+                final AudioAd audioAd = (AudioAd) playQueueManager.getCurrentPlayQueueItem().getAdData().get();
+                lastPlayedAd = Optional.<AdData>of(audioAd);
                 trackObservable
-                        .map(toAudioAdSessionPlayEvent(playStateEvent))
+                        .map(toAudioAdSessionPlayEvent(playStateEvent, audioAd))
                         .subscribe(eventBus.queue(EventQueue.TRACKING));
             }
         }
@@ -166,14 +168,12 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                                                                        .isPlayEvent()) && !lastPlayedAd.isPresent();
     }
 
-    private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionPlayEvent(final PlayStateEvent stateTransition) {
+    private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionPlayEvent(final PlayStateEvent stateTransition, final AudioAd audioAd) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
                 PlaybackSessionEvent playSessionEventData = PlaybackSessionEvent.forPlay(
                         buildEventArgs(track, stateTransition.getTransition()));
-                lastPlayedAd = playQueueManager.getCurrentPlayQueueItem().getAdData();
-                final AudioAd audioAd = (AudioAd) lastPlayedAd.get();
                 playSessionEventData = playSessionEventData.withAudioAd(audioAd);
                 lastAudioAdPlaySessionEvent = Optional.of(playSessionEventData);
                 audioAd.setStartReported();
@@ -193,8 +193,10 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                                                 currentTrackSourceInfo.get(),
                                                                 stopReason));
             } else {
+                final PlaybackSessionEvent lastPlayForStop = lastAudioAdPlaySessionEvent.get();
+                final AudioAd audioAd = (AudioAd) lastPlayedAd.get();
                 trackObservable
-                        .map(toAudioAdSessionStopEvent(stopReason, playStateEvent, lastAudioAdPlaySessionEvent.get()))
+                        .map(toAudioAdSessionStopEvent(stopReason, playStateEvent, lastPlayForStop, audioAd))
                         .subscribe(eventBus.queue(EventQueue.TRACKING));
             }
             lastAudioAdPlaySessionEvent = Optional.absent();
@@ -204,7 +206,8 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     private Func1<PropertySet, PlaybackSessionEvent> toAudioAdSessionStopEvent(final int stopReason,
                                                                                final PlayStateEvent playStateEvent,
-                                                                               final PlaybackSessionEvent lastPlayEventData) {
+                                                                               final PlaybackSessionEvent lastPlayEventData,
+                                                                               final AudioAd audioAd) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
@@ -212,7 +215,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                         lastPlayEventData,
                         stopReason,
                         buildEventArgs(track, playStateEvent.getTransition())
-                ).withAudioAd((AudioAd) lastPlayedAd.get());
+                ).withAudioAd(audioAd);
             }
         };
     }

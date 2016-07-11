@@ -2,7 +2,6 @@ package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.api.ApiModule.API_HTTP_CLIENT;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
@@ -39,12 +38,6 @@ public class AnalyticsModule {
             ErrorUtils.handleSilentException("Error during Comscore library init", e);
             return null;
         }
-    }
-
-    @Provides
-    @Singleton
-    public FirebaseAnalytics provideFirebaseAnalytics(Context context) {
-        return FirebaseAnalytics.getInstance(context);
     }
 
     @Provides

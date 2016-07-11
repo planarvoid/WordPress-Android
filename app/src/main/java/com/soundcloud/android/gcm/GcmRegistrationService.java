@@ -1,7 +1,8 @@
 package com.soundcloud.android.gcm;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -9,6 +10,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.utils.ErrorUtils;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -28,10 +30,9 @@ public class GcmRegistrationService extends IntentService {
     @Inject ApiClient apiClient;
     @Inject InstanceIdWrapper instanceId;
     @Inject Provider<AppboyWrapper> appboyWrapperProvider;
-    @Inject AccountOperations accountOperations;
     @Inject FeatureFlags featureFlags;
 
-    public static void startGcmService(Context context) {
+    public static void startGcmService(Context context){
         context.startService(new Intent(context, GcmRegistrationService.class));
     }
 
@@ -45,43 +46,46 @@ public class GcmRegistrationService extends IntentService {
                            ApiClient apiClient,
                            InstanceIdWrapper instanceId,
                            Provider<AppboyWrapper> appboyWrapperProvider,
-                           AccountOperations accountOperations,
                            FeatureFlags featureFlags) {
         super(TAG);
         this.gcmStorage = gcmStorage;
         this.apiClient = apiClient;
         this.instanceId = instanceId;
         this.appboyWrapperProvider = appboyWrapperProvider;
-        this.accountOperations = accountOperations;
         this.featureFlags = featureFlags;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (accountOperations.isUserLoggedIn() && gcmStorage.shouldRegister()) {
+        if (gcmStorage.shouldRegister()) {
             doTokenRefresh();
         }
     }
 
     private void doTokenRefresh() {
-        String token = instanceId.getToken();
-        if (token != null) {
-            Log.d(TAG, "Push Registration Token: " + token);
+        try {
+            String token = instanceId.getToken(this, getString(R.string.gcm_defaultSenderId),
+                                               GoogleCloudMessaging.INSTANCE_ID_SCOPE);
+
+            Log.d(TAG, "GCM Registration Token: " + token);
+
             appboyWrapperProvider.get().handleRegistration(token);
 
-            if (featureFlags.isDisabled(Flag.ARCHER_PUSH) || registerTokenWithApi(token).isSuccess()) {
+            if (featureFlags.isDisabled(Flag.ARCHER_GCM) || registerTokenWithApi(token).isSuccess()) {
                 gcmStorage.markAsRegistered(token);
             }
-        } else {
+
+        } catch (Exception e) {
+            ErrorUtils.handleSilentException("Failed to register token", e);
             gcmStorage.clearHasRegistered();
         }
     }
 
-    private ApiResponse registerTokenWithApi(String token) {
+    private ApiResponse registerTokenWithApi(String token){
         final ApiRequest request = ApiRequest.post(ApiEndpoints.GCM_REGISTER.path())
-                                             .forPrivateApi()
-                                             .withContent(Collections.singletonMap("token", token))
-                                             .build();
+                .forPrivateApi()
+                .withContent(Collections.singletonMap("token", token))
+                .build();
 
         return apiClient.fetchResponse(request);
     }

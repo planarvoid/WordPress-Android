@@ -6,10 +6,7 @@ import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.appboy.AppboyAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
 import com.soundcloud.android.analytics.crashlytics.FabricAnalyticsProvider;
-import com.soundcloud.android.analytics.firebase.FirebaseAnalyticsProvider;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.settings.SettingKey;
-import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
@@ -33,9 +30,7 @@ public class AnalyticsProviderFactory {
     private final Provider<AppboyAnalyticsProvider> appboyAnalyticsProvider;
     private final AdjustAnalyticsProvider adjustAnalyticsProvider;
     private final FabricAnalyticsProvider fabricAnalyticsProvider;
-    private final Lazy<FirebaseAnalyticsProvider> firebaseAnalyticsProvider;
     private final List<AnalyticsProvider> baseProviders;
-    private final ApplicationProperties applicationProperties;
 
     @Nullable private final ComScoreAnalyticsProvider comScoreAnalyticsProvider;
 
@@ -47,9 +42,7 @@ public class AnalyticsProviderFactory {
                                     AdjustAnalyticsProvider adjustAnalyticsProvider,
                                     @Nullable ComScoreAnalyticsProvider comScoreProvider,
                                     FabricAnalyticsProvider fabricAnalyticsProvider,
-                                    Lazy<FirebaseAnalyticsProvider> firebaseAnalyticsProvider,
-                                    @Named(AnalyticsModule.BASE_PROVIDERS) List<AnalyticsProvider> baseProviders,
-                                    ApplicationProperties applicationProperties) {
+                                    @Named(AnalyticsModule.BASE_PROVIDERS) List<AnalyticsProvider> baseProviders) {
         this.sharedPreferences = sharedPreferences;
         this.analyticsProperties = analyticsProperties;
         this.analyticsSettings = analyticsSettings;
@@ -57,9 +50,7 @@ public class AnalyticsProviderFactory {
         this.adjustAnalyticsProvider = adjustAnalyticsProvider;
         this.comScoreAnalyticsProvider = comScoreProvider;
         this.fabricAnalyticsProvider = fabricAnalyticsProvider;
-        this.firebaseAnalyticsProvider = firebaseAnalyticsProvider;
         this.baseProviders = baseProviders;
-        this.applicationProperties = applicationProperties;
     }
 
     public List<AnalyticsProvider> getProviders() {
@@ -92,10 +83,6 @@ public class AnalyticsProviderFactory {
         providers.add(adjustAnalyticsProvider);
         providers.add(fabricAnalyticsProvider);
         providers.add(appboyAnalyticsProvider.get());
-
-        if (applicationProperties.isAlphaBuild() || applicationProperties.isDebugBuild()) {
-            providers.add(firebaseAnalyticsProvider.get());
-        }
 
         if (comScoreAnalyticsProvider != null) {
             providers.add(comScoreAnalyticsProvider);

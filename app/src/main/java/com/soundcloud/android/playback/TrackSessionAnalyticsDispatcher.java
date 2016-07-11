@@ -138,11 +138,12 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
         // will be nulled out after it is used, and we will not publish another stop event until a play event
         // creates a new value for lastSessionEventData
         if (lastPlaySessionEvent.isPresent() && currentTrackSourceInfo.isPresent()) {
+            final PlaybackSessionEvent playEventForStop = lastPlaySessionEvent.get();
             trackObservable
                     .map(new Func1<PropertySet, PlaybackSessionEvent>() {
                         @Override
                         public PlaybackSessionEvent call(PropertySet track) {
-                            return PlaybackSessionEvent.forStop(lastPlaySessionEvent.get(),
+                            return PlaybackSessionEvent.forStop(playEventForStop,
                                                                 stopReason,
                                                                 buildEventArgs(track, playStateEvent));
                         }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.gcm;
 
-import com.google.firebase.messaging.RemoteMessage;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.playback.ConcurrentPlaybackOperations;
@@ -10,6 +9,7 @@ import com.soundcloud.java.strings.Strings;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
@@ -39,14 +39,17 @@ public class GcmMessageHandler {
         this.accountOperations = accountOperations;
     }
 
-    public void handleMessage(RemoteMessage remoteMessage) {
-        final String scApiKey = resources.getString(R.string.gcm_defaultSenderId);
-        if (scApiKey.equals(remoteMessage.getFrom())) {
-            final String payload = remoteMessage.getData().get(EXTRA_DATA);
-            if (Strings.isBlank(payload)) {
-                ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Remote Message Payload : " + remoteMessage));
-            } else {
-                handleScMessage(payload);
+    public void handleMessage(Intent intent) {
+        Log.i(TAG, "Received Push : " + intent);
+        if (RECEIVE_MESSSAGE_ACTION.equals(intent.getAction())) {
+            final String scApiKey = resources.getString(R.string.google_api_key);
+            if (scApiKey.equals(intent.getStringExtra(EXTRA_FROM))) {
+                final String payload = intent.getStringExtra(EXTRA_DATA);
+                if (Strings.isBlank(payload)) {
+                    ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Gcm Payload : " + intent));
+                } else {
+                    handleScMessage(payload);
+                }
             }
         }
     }
@@ -54,9 +57,10 @@ public class GcmMessageHandler {
     private void handleScMessage(String payload) {
         try {
             final String decryptedString = gcmDecryptor.decrypt(payload);
-            logScMessage(decryptedString);
+            Log.i(TAG, "Received SC Message : " + decryptedString);
             final JSONObject jsonPayload = new JSONObject(decryptedString);
             if (isStopAction(jsonPayload) && isLoggedInUser(jsonPayload)) {
+                // TODO : tracking event here
                 if (!jsonPayload.optBoolean("stealth")) {
                     concurrentPlaybackOperations.pauseIfPlaying();
                 }
@@ -64,10 +68,6 @@ public class GcmMessageHandler {
         } catch (Exception e) {
             ErrorUtils.handleSilentException(e, "payload", payload);
         }
-    }
-
-    private void logScMessage(String decryptedString) {
-        Log.d(TAG, "Received SC Message : " + decryptedString);
     }
 
     private boolean isLoggedInUser(JSONObject jsonPayload) throws JSONException {

@@ -4,7 +4,6 @@ import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.os.Bundle;
 import android.support.v4.util.ArrayMap;
 
 import java.util.Map;
@@ -51,14 +50,6 @@ public class TrackingEvent {
     @NotNull
     public Map<String, String> getAttributes() {
         return attributes;
-    }
-
-    public Bundle getAttributesAsBundle() {
-        Bundle bundle = new Bundle(attributes.size());
-        for (String key : attributes.keySet()) {
-            bundle.putString(key, attributes.get(key));
-        }
-        return bundle;
     }
 
     @Override
