@@ -4,7 +4,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <View style="@style/Divider.Section" />
+    <View
+        style="@style/Divider.Item"
+        android:id="@+id/item_divider"/>
+    <View
+        style="@style/Divider.Section"
+        android:id="@+id/section_divider"
+        android:visibility="gone"/>
 
     <com.soundcloud.android.collection.CollectionPreviewView
         android:id="@+id/chart_list_item"

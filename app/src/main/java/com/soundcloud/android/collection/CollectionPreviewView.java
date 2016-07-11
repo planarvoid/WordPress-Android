@@ -4,7 +4,6 @@ import static com.soundcloud.android.image.ApiImageSize.getListItemImageSize;
 import static com.soundcloud.java.optional.Optional.fromNullable;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.java.optional.Optional;
@@ -22,12 +21,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.List;
 
 public class CollectionPreviewView extends FrameLayout {
 
-    @Inject ImageOperations imageOperations;
     private Optional<Drawable> previewIconOverlay;
 
     private LayoutInflater inflater;
@@ -38,7 +35,6 @@ public class CollectionPreviewView extends FrameLayout {
 
     public CollectionPreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        SoundCloudApplication.getObjectGraph().inject(this);
         init(context);
 
         final TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.CollectionPreviewView);
@@ -58,10 +54,8 @@ public class CollectionPreviewView extends FrameLayout {
 
     @VisibleForTesting
     public CollectionPreviewView(Context context,
-                                 ImageOperations imageOperations,
                                  @Nullable Drawable previewIconOverlay) {
         super(context);
-        this.imageOperations = imageOperations;
         this.previewIconOverlay = fromNullable(previewIconOverlay);
         init(context);
     }
@@ -72,13 +66,13 @@ public class CollectionPreviewView extends FrameLayout {
         thumbnailContainer = (ViewGroup) findViewById(R.id.thumbnail_container);
     }
 
-    public void refreshThumbnails(List<? extends ImageResource> imageResources, int numThumbnails) {
+    public void refreshThumbnails(ImageOperations imageOperations, List<? extends ImageResource> imageResources, int numThumbnails) {
         final int numEmptyThumbnails = Math.max(numThumbnails - imageResources.size(), 0);
         this.numThumbnails = numThumbnails;
 
         thumbnailContainer.removeAllViews();
         populateEmptyThumbnails(numEmptyThumbnails);
-        populateArtwork(imageResources, numEmptyThumbnails);
+        populateArtwork(imageOperations, imageResources, numEmptyThumbnails);
     }
 
     private void populateEmptyThumbnails(int numEmptyThumbnails) {
@@ -87,15 +81,15 @@ public class CollectionPreviewView extends FrameLayout {
         }
     }
 
-    private void populateArtwork(List<? extends ImageResource> imageResources, int numEmptyThumbnails) {
+    private void populateArtwork(ImageOperations imageOperations, List<? extends ImageResource> imageResources, int numEmptyThumbnails) {
         final int numImages = numThumbnails - numEmptyThumbnails;
         for (int j = 0; j < numImages; j++) {
             inflateThumbnailViewIntoHolder();
-            setPreviewArtwork(imageResources, numEmptyThumbnails, j);
+            setPreviewArtwork(imageOperations, imageResources, numEmptyThumbnails, j);
         }
     }
 
-    private void setPreviewArtwork(List<? extends ImageResource> imageResources, int numEmptyThumbnails, int index) {
+    private void setPreviewArtwork(ImageOperations imageOperations, List<? extends ImageResource> imageResources, int numEmptyThumbnails, int index) {
         final View thumbnail = thumbnailContainer.getChildAt(index + numEmptyThumbnails);
         final ImageView artwork = (ImageView) thumbnail.findViewById(R.id.preview_artwork);
 

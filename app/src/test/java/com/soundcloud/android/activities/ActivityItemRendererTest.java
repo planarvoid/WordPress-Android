@@ -20,7 +20,6 @@ import android.widget.TextView;
 import java.util.Date;
 
 public class ActivityItemRendererTest extends AndroidUnitTest {
-    @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
     private View itemView;
 

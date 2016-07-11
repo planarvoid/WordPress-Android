@@ -1,131 +1,43 @@
 package com.soundcloud.android.discovery;
 
-
-import static com.soundcloud.java.collections.Iterables.transform;
-
-import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaySessionSource;
-import com.soundcloud.android.playback.PlaybackInitiator;
-import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.RecyclerViewPresenter;
-import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.functions.Function;
-import com.soundcloud.java.functions.Predicate;
-import org.jetbrains.annotations.Nullable;
-import rx.functions.Func1;
+import com.soundcloud.lightcycle.DefaultActivityLightCycle;
 
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.View;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.List;
 
-class ChartPresenter extends RecyclerViewPresenter<PagedChartTracks, ChartTrackListItem> {
+class ChartPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
 
-    private static final Predicate<ChartTrackListItem> IS_TRACK = new Predicate<ChartTrackListItem>() {
-        public boolean apply(ChartTrackListItem input) {
-            return input.getKind() == ChartTrackListItem.Kind.TrackItem;
-        }
-    };
-
-    private static Function<ApiTrack, ChartTrackListItem> toChartTrackListItem(final ChartType chartType) {
-        return new Function<ApiTrack, ChartTrackListItem>() {
-            public ChartTrackListItem apply(ApiTrack input) {
-                return ChartTrackListItem.forTrack(new ChartTrackItem(chartType, input));
-            }
-        };
-    }
-
-    private static final Func1<PagedChartTracks, Iterable<ChartTrackListItem>> TO_PRESENTATION_MODELS =
-            new Func1<PagedChartTracks, Iterable<ChartTrackListItem>>() {
-                @Override
-                public Iterable<ChartTrackListItem> call(final PagedChartTracks pagedChartTracks) {
-
-                    final List<ChartTrackListItem> chartTrackListItems = new ArrayList<>(pagedChartTracks.items()
-                                                                                                         .getCollection()
-                                                                                                         .size() + 2);
-                    if (pagedChartTracks.firstPage()) {
-                        chartTrackListItems.add(ChartTrackListItem.forHeader(pagedChartTracks.chartType()));
-                    }
-                    Iterables.addAll(chartTrackListItems,
-                                     transform(pagedChartTracks.items(),
-                                               toChartTrackListItem(pagedChartTracks.chartType())));
-                    if (pagedChartTracks.lastPage()) {
-                        chartTrackListItems.add(ChartTrackListItem.forFooter(pagedChartTracks.lastUpdated()));
-                    }
-                    return chartTrackListItems;
-                }
-            };
-
-    private final ChartsOperations chartsOperations;
-    private final ChartTrackAdapter chartTrackAdapter;
-    private final PlaybackInitiator playbackInitiator;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final Resources resources;
 
     @Inject
-    ChartPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                   ChartsOperations chartsOperations,
-                   ChartTrackAdapter chartTrackAdapter,
-                   PlaybackInitiator playbackInitiator,
-                   Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
-        super(swipeRefreshAttacher);
-        this.chartsOperations = chartsOperations;
-        this.chartTrackAdapter = chartTrackAdapter;
-        this.playbackInitiator = playbackInitiator;
-        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+    ChartPresenter(Resources resources) {
+        this.resources = resources;
     }
 
     @Override
-    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
-        super.onCreate(fragment, bundle);
-        getBinding().connect();
-    }
+    public void onCreate(AppCompatActivity activity, Bundle bundle) {
+        super.onCreate(activity, bundle);
+        final ChartType chartType = (ChartType) activity.getIntent().getSerializableExtra(ChartTracksFragment.EXTRA_TYPE);
+        final Urn chartGenreUrn = activity.getIntent().getParcelableExtra(ChartTracksFragment.EXTRA_GENRE_URN);
+        final ChartPagerAdapter adapter = new ChartPagerAdapter(activity.getSupportFragmentManager(), resources, chartGenreUrn);
+        final ViewPager pager = (ViewPager) activity.findViewById(R.id.pager);
+        pager.setAdapter(adapter);
+        pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
+        pager.setPageMargin(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
-    @Override
-    protected void onItemClicked(View view, int position) {
-        final ChartTrackListItem item = chartTrackAdapter.getItem(position);
-        if (IS_TRACK.apply(item)) {
-            final ChartTrackListItem.Track trackItem = (ChartTrackListItem.Track) item;
-            final List<Urn> playQueue = getPlayQueue();
+        TabLayout tabIndicator = (TabLayout) activity.findViewById(R.id.tab_indicator);
+        tabIndicator.setupWithViewPager(pager);
 
-            playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.chartTrackItem.getUrn()), PlaySessionSource.EMPTY)
-                             .subscribe(expandPlayerSubscriberProvider.get());
+        if (bundle == null) {
+            pager.setCurrentItem(chartType.ordinal());
         }
-    }
-
-    @Override
-    protected CollectionBinding<PagedChartTracks, ChartTrackListItem> onBuildBinding(Bundle bundle) {
-        final ChartType chartType = (ChartType) bundle.getSerializable(ChartFragment.EXTRA_TYPE);
-        final Urn chartUrn = bundle.getParcelable(ChartFragment.EXTRA_GENRE_URN);
-        return CollectionBinding
-                .from(chartsOperations.firstPagedTracks(chartType, chartUrn.getStringId()), TO_PRESENTATION_MODELS)
-                .withAdapter(chartTrackAdapter)
-                .withPager(chartsOperations.nextPagedTracks())
-                .build();
-    }
-
-    private List<Urn> getPlayQueue() {
-        final List<Urn> playQueue = new ArrayList<>();
-        for (ChartTrackListItem chartTrackListItem : chartTrackAdapter.getItems()) {
-            if (IS_TRACK.apply(chartTrackListItem)) {
-                final Urn urn = ((ChartTrackListItem.Track) chartTrackListItem).chartTrackItem.getUrn();
-                playQueue.add(urn);
-            }
-        }
-        return playQueue;
-    }
-
-    @Override
-    protected EmptyView.Status handleError(Throwable error) {
-        return ErrorUtils.emptyViewStatusFromError(error);
     }
 }

@@ -12,12 +12,12 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class ChartTrackRenderer implements CellRenderer<ChartTrackListItem> {
+class ChartTracksRenderer implements CellRenderer<ChartTrackListItem> {
 
     private final TrackItemRenderer trackItemRenderer;
 
     @Inject
-    ChartTrackRenderer(TrackItemRenderer trackItemRenderer) {
+    ChartTracksRenderer(TrackItemRenderer trackItemRenderer) {
         this.trackItemRenderer = trackItemRenderer;
     }
 

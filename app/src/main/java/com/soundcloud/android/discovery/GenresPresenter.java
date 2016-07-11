@@ -23,7 +23,8 @@ public class GenresPresenter extends RecyclerViewPresenter<List<ApiChart>, Chart
         public List<ChartListItem> call(List<ApiChart> apiCharts) {
             return Lists.transform(apiCharts, new Function<ApiChart, ChartListItem>() {
                 public ChartListItem apply(ApiChart input) {
-                    return new ChartListItem(input.tracks().getCollection(), input.genre());
+                    return new ChartListItem(input.tracks().getCollection(), input.genre(), input.displayName(),
+                                             ChartBucketType.FEATURED_GENRES, input.type());
                 }
             });
         }

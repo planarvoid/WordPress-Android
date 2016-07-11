@@ -10,12 +10,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-class TabbedChartAdapter extends FragmentPagerAdapter {
+class ChartPagerAdapter extends FragmentPagerAdapter {
 
     private final Resources resources;
     private final Urn chartGenreUrn;
 
-    public TabbedChartAdapter(FragmentManager fm, Resources resources, Urn chartGenreUrn) {
+    ChartPagerAdapter(FragmentManager fm, Resources resources, Urn chartGenreUrn) {
         super(fm);
         this.resources = resources;
         this.chartGenreUrn = chartGenreUrn;
@@ -23,7 +23,7 @@ class TabbedChartAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return ChartFragment.create(getType(position), chartGenreUrn);
+        return ChartTracksFragment.create(getType(position), chartGenreUrn);
     }
 
     @NonNull
@@ -39,7 +39,7 @@ class TabbedChartAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return getType(position) == ChartType.TRENDING ?
-               resources.getString(R.string.charts_new_and_hot) :
-               resources.getString(R.string.charts_top_fifty);
+               resources.getString(R.string.charts_trending) :
+               resources.getString(R.string.charts_top);
     }
 }

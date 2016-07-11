@@ -13,12 +13,12 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class GenresFragment extends LightCycleSupportFragment<ChartFragment> {
+public class GenresFragment extends LightCycleSupportFragment<ChartTracksFragment> {
     public static final String EXTRA_CHART_CATEGORY = "chartCategory";
 
     @Inject @LightCycle GenresPresenter presenter;
 
-    public static GenresFragment create(ChartCategory chartCategory) {
+    static GenresFragment create(ChartCategory chartCategory) {
         final Bundle bundle = new Bundle();
         bundle.putSerializable(EXTRA_CHART_CATEGORY, chartCategory);
         GenresFragment genresFragment = new GenresFragment();

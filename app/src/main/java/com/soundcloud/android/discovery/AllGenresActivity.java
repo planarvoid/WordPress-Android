@@ -6,13 +6,11 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.lightcycle.LightCycle;
 
-import android.os.Bundle;
-
 import javax.inject.Inject;
 
-public class TabbedGenresActivity extends PlayerActivity {
+public class AllGenresActivity extends PlayerActivity {
     @Inject BaseLayoutHelper baseLayoutHelper;
-    @Inject @LightCycle TabbedGenresPresenter presenter;
+    @Inject @LightCycle AllGenresPresenter presenter;
 
     @Override
     public Screen getScreen() {

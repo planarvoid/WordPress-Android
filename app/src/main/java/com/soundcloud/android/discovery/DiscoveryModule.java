@@ -28,9 +28,9 @@ import java.util.Random;
                 PlaylistResultsFragment.class,
                 PlayFromVoiceSearchActivity.class,
                 SearchPremiumResultsFragment.class,
-                TabbedChartActivity.class,
-                ChartFragment.class,
-                TabbedGenresActivity.class,
+                ChartActivity.class,
+                ChartTracksFragment.class,
+                AllGenresActivity.class,
                 GenresFragment.class
         }, includes = AssociationsModule.class)
 public class DiscoveryModule {

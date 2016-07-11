@@ -459,13 +459,55 @@
 
     <!-- __DISCOVERY CHARTS -->
     <string name="charts_header">Charts</string>
-    <string name="charts_new_and_hot">New &amp; hot</string>
-    <string name="charts_top_fifty">Top 50</string>
+    <string name="charts_trending">New &amp; hot</string>
+    <string name="charts_top">Top 50</string>
     <string name="charts_new_and_hot_list_header">Today’s up-and-coming tracks.</string>
     <string name="charts_top_fifty_list_header">The most played tracks on SoundCloud this week.</string>
     <string name="charts_genre_view_all">Browse all genres</string>
     <string name="charts_by_genre">Charts by genre</string>
     <string name="all_genres">All genres</string>
+    <string tools:ignore="UnusedResources" name="charts_alternativerock">Alternative Rock</string>
+    <string tools:ignore="UnusedResources" name="charts_ambient">Ambient</string>
+    <string tools:ignore="UnusedResources" name="charts_classical">Classical</string>
+    <string tools:ignore="UnusedResources" name="charts_country">Country</string>
+    <string tools:ignore="UnusedResources" name="charts_danceedm">Dance &amp; EDM</string>
+    <string tools:ignore="UnusedResources" name="charts_dancehall">Dancehall</string>
+    <string tools:ignore="UnusedResources" name="charts_deephouse">Deep House</string>
+    <string tools:ignore="UnusedResources" name="charts_disco">Disco</string>
+    <string tools:ignore="UnusedResources" name="charts_drumbass">Drum &amp; Bass</string>
+    <string tools:ignore="UnusedResources" name="charts_dubstep">Dubstep</string>
+    <string tools:ignore="UnusedResources" name="charts_electronic">Electronic</string>
+    <string tools:ignore="UnusedResources" name="charts_folksingersongwriter">Folk &amp; Singer-Songwriter</string>
+    <string tools:ignore="UnusedResources" name="charts_hiphoprap">Hip-hop &amp; Rap</string>
+    <string tools:ignore="UnusedResources" name="charts_house">House</string>
+    <string tools:ignore="UnusedResources" name="charts_indie">Indie</string>
+    <string tools:ignore="UnusedResources" name="charts_jazzblues">Jazz &amp; Blues</string>
+    <string tools:ignore="UnusedResources" name="charts_latin">Latin</string>
+    <string tools:ignore="UnusedResources" name="charts_metal">Metal</string>
+    <string tools:ignore="UnusedResources" name="charts_piano">Piano</string>
+    <string tools:ignore="UnusedResources" name="charts_pop">Pop</string>
+    <string tools:ignore="UnusedResources" name="charts_rbsoul">R&amp;B &amp; Soul</string>
+    <string tools:ignore="UnusedResources" name="charts_reggae">Reggae</string>
+    <string tools:ignore="UnusedResources" name="charts_reggaeton">Reggaeton</string>
+    <string tools:ignore="UnusedResources" name="charts_rock">Rock</string>
+    <string tools:ignore="UnusedResources" name="charts_soundtrack">Soundtrack</string>
+    <string tools:ignore="UnusedResources" name="charts_speech">Speech</string>
+    <string tools:ignore="UnusedResources" name="charts_techno">Techno</string>
+    <string tools:ignore="UnusedResources" name="charts_trance">Trance</string>
+    <string tools:ignore="UnusedResources" name="charts_trap">Trap</string>
+    <string tools:ignore="UnusedResources" name="charts_triphop">Triphop</string>
+    <string tools:ignore="UnusedResources" name="charts_world">World</string>
+    <string tools:ignore="UnusedResources" name="charts_audiobooks">Audiobooks</string>
+    <string tools:ignore="UnusedResources" name="charts_business">Business</string>
+    <string tools:ignore="UnusedResources" name="charts_comedy">Comedy</string>
+    <string tools:ignore="UnusedResources" name="charts_entertainment">Entertainment</string>
+    <string tools:ignore="UnusedResources" name="charts_learning">Learning</string>
+    <string tools:ignore="UnusedResources" name="charts_newspolitics">News &amp; Politics</string>
+    <string tools:ignore="UnusedResources" name="charts_religionspirituality">Religion &amp; Spirituality</string>
+    <string tools:ignore="UnusedResources" name="charts_science">Science</string>
+    <string tools:ignore="UnusedResources" name="charts_sports">Sports</string>
+    <string tools:ignore="UnusedResources" name="charts_storytelling">Storytelling</string>
+    <string tools:ignore="UnusedResources" name="charts_technology">Technology</string>
 
     <!-- __SETTINGS -->
     <string name="pref_clear_cache">Clear application cache</string>

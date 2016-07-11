@@ -96,6 +96,10 @@
         <item name="android:drawablePadding">6dp</item>
     </style>
 
+    <style name="ListItemText.TertiaryText.Posted">
+        <item name="android:textColor">@color/list_secondary</item>
+    </style>
+
     <style name="ListItemImage">
         <item name="android:layout_width">@dimen/list_item_image_dimension</item>
         <item name="android:layout_height">@dimen/list_item_image_dimension</item>

@@ -41,7 +41,7 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        view = new CollectionPreviewView(context(), imageOperations, null);
+        view = new CollectionPreviewView(context(), (Drawable) null);
         holder = (ViewGroup) view.findViewById(R.id.thumbnail_container);
     }
 
@@ -52,7 +52,7 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
         final ImageResource track3 = mock(ImageResource.class);
         final List<ImageResource> entities = Arrays.asList(track1, track2, track3, mock(ImageResource.class));
 
-        view.refreshThumbnails(entities, numThumbnails);
+        view.refreshThumbnails(imageOperations, entities, numThumbnails);
         verify(imageOperations).displayWithPlaceholder(same(track1),
                                                        any(ApiImageSize.class),
                                                        eq(getImagePreview(0)));
@@ -73,7 +73,7 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
         final ImageResource track3 = mock(ImageResource.class);
         final List<ImageResource> entities = Arrays.asList(track1, track2, track3);
 
-        view.refreshThumbnails(entities, numThumbnails);
+        view.refreshThumbnails(imageOperations, entities, numThumbnails);
         verify(imageOperations).displayWithPlaceholder(same(track1),
                                                        any(ApiImageSize.class),
                                                        eq(getImagePreview(0)));
@@ -92,7 +92,7 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
         final ImageResource track2 = mock(ImageResource.class);
         final List<ImageResource> entities = Arrays.asList(track1, track2);
 
-        view.refreshThumbnails(entities, numThumbnails);
+        view.refreshThumbnails(imageOperations, entities, numThumbnails);
 
         verify(imageOperations, never()).displayWithPlaceholder(any(ImageResource.class),
                                                                 any(ApiImageSize.class),
@@ -110,7 +110,7 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
     public void bindViewAddsEmptyThumbnailsIfNoEntities() {
         final List<ImageResource> entities = Collections.emptyList();
 
-        view.refreshThumbnails(entities, numThumbnails);
+        view.refreshThumbnails(imageOperations, entities, numThumbnails);
         assertThat(holder.getChildCount()).isEqualTo(expectedNumHolderViews);
         verifyZeroInteractions(imageOperations);
     }
@@ -122,8 +122,8 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
         );
         final List<ImageResource> update = Collections.singletonList(mock(ImageResource.class));
 
-        view.refreshThumbnails(original, numThumbnails);
-        view.refreshThumbnails(update, numThumbnails);
+        view.refreshThumbnails(imageOperations, original, numThumbnails);
+        view.refreshThumbnails(imageOperations, update, numThumbnails);
 
         verify(imageOperations).displayWithPlaceholder(same(update.get(0)),
                                                        any(ApiImageSize.class),
@@ -135,10 +135,10 @@ public class CollectionPreviewViewTest extends AndroidUnitTest {
     public void showsPreviewOverlayOnEntitiesPreviewsOnly() {
         final List<ImageResource> entities = Arrays.asList(
                 mock(ImageResource.class), mock(ImageResource.class));
-        view = new CollectionPreviewView(context(), imageOperations, previewDrawable);
+        view = new CollectionPreviewView(context(), previewDrawable);
         holder = (ViewGroup) view.findViewById(R.id.thumbnail_container);
 
-        view.refreshThumbnails(entities, numThumbnails);
+        view.refreshThumbnails(imageOperations, entities, numThumbnails);
 
         assertThat(getPreviewOverlay(2).getVisibility()).isEqualTo(View.VISIBLE);
         assertThat(getPreviewOverlay(1).getVisibility()).isEqualTo(View.VISIBLE);

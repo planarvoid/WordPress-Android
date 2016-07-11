@@ -16,24 +16,24 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class ChartFragment extends LightCycleSupportFragment<ChartFragment> implements RefreshableScreen {
+public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFragment> implements RefreshableScreen {
 
     public static final String EXTRA_TYPE = "chartType";
     public static final String EXTRA_GENRE_URN = "chartGenreUrn";
 
-    @Inject @LightCycle ChartPresenter presenter;
+    @Inject @LightCycle ChartTracksPresenter presenter;
 
-    public static ChartFragment create(ChartType type, Urn genreUrn) {
+    static ChartTracksFragment create(ChartType type, Urn genreUrn) {
         final Bundle bundle = new Bundle();
         bundle.putSerializable(EXTRA_TYPE, type);
         bundle.putParcelable(EXTRA_GENRE_URN, genreUrn);
 
-        final ChartFragment fragment = new ChartFragment();
+        final ChartTracksFragment fragment = new ChartTracksFragment();
         fragment.setArguments(bundle);
         return fragment;
     }
 
-    public ChartFragment() {
+    public ChartTracksFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

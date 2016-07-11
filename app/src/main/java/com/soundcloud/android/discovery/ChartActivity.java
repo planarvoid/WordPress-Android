@@ -10,14 +10,16 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class TabbedChartActivity extends PlayerActivity {
+public class ChartActivity extends PlayerActivity {
+    public static final String EXTRA_HEADER = "chartHeader";
+
     @Inject BaseLayoutHelper baseLayoutHelper;
-    @Inject @LightCycle TabbedChartPresenter presenter;
+    @Inject @LightCycle ChartPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(R.string.charts_header);
+        setTitle(getIntent().getStringExtra(EXTRA_HEADER));
     }
 
     @Override

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Module.Background"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,21 +12,19 @@
         style="@style/Module.Header"
         android:text="@string/charts_header" />
 
-    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Item" />
 
     <com.soundcloud.android.collection.CollectionPreviewView
         android:id="@+id/charts_new_and_hot_preview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:collectionTitle="@string/charts_new_and_hot" />
+        android:layout_height="wrap_content" />
 
-    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Item" />
 
     <com.soundcloud.android.collection.CollectionPreviewView
         android:id="@+id/charts_top_fifty_preview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:collectionTitle="@string/charts_top_fifty"/>
+        android:layout_height="wrap_content" />
 
     <View style="@style/Divider.Section" />
 
@@ -40,31 +37,28 @@
         style="@style/Module.Header"
         android:text="@string/charts_by_genre" />
 
-    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Item" />
 
     <com.soundcloud.android.collection.CollectionPreviewView
         android:id="@+id/charts_first_genre"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:collectionTitle="1st genre localized title" />
+        android:layout_height="wrap_content" />
 
-    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Item" />
 
     <com.soundcloud.android.collection.CollectionPreviewView
         android:id="@+id/charts_second_genre"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:collectionTitle="2nd genre localized title" />
+        android:layout_height="wrap_content" />
 
-    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Item" />
 
     <com.soundcloud.android.collection.CollectionPreviewView
         android:id="@+id/charts_third_genre"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:collectionTitle="3rd genre localized title" />
+        android:layout_height="wrap_content" />
 
-    <View style="@style/Divider.Section" />
+    <View style="@style/Divider.Item" />
 
     <FrameLayout
         android:id="@+id/charts_genre_view_all"

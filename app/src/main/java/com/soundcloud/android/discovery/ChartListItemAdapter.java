@@ -19,7 +19,7 @@ class ChartListItemAdapter extends PagingRecyclerItemAdapter<ChartListItem, Recy
     protected ChartListItemViewHolder createViewHolder(View itemView) {
         return new ChartListItemViewHolder(itemView);
     }
-    
+
     static class ChartListItemViewHolder extends RecyclerView.ViewHolder {
         ChartListItemViewHolder(View itemView) {
             super(itemView);

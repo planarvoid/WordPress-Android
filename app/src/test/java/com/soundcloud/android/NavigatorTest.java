@@ -6,19 +6,16 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
-import com.soundcloud.android.discovery.Chart;
-import com.soundcloud.android.discovery.ChartBucketType;
-import com.soundcloud.android.discovery.ChartFragment;
+import com.soundcloud.android.discovery.ChartTracksFragment;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.discovery.TabbedChartActivity;
-import com.soundcloud.android.discovery.TabbedGenresActivity;
+import com.soundcloud.android.discovery.ChartActivity;
+import com.soundcloud.android.discovery.AllGenresActivity;
 import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
@@ -46,12 +43,10 @@ import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.assertj.core.api.Assertions;
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -540,19 +535,14 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensChartTracks() {
         final Urn genreUrn = new Urn("soundcloud:genre:123");
         final ChartType chartType = ChartType.TOP;
-        final Chart chart = Chart.create(1L,
-                                         chartType,
-                                         ChartCategory.MUSIC,
-                                         "name",
-                                         genreUrn,
-                                         ChartBucketType.GLOBAL,
-                                         Lists.<TrackArtwork>newArrayList());
-        navigator.openChart(activityContext, chart);
+        final String header = "header";
+        navigator.openChart(activityContext, genreUrn, chartType, header);
 
         assertThat(activityContext).nextStartedIntent()
-                                   .containsExtra(ChartFragment.EXTRA_GENRE_URN, genreUrn)
-                                   .containsExtra(ChartFragment.EXTRA_TYPE, chartType)
-                                   .opensActivity(TabbedChartActivity.class);
+                                   .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn)
+                                   .containsExtra(ChartTracksFragment.EXTRA_TYPE, chartType)
+                                   .containsExtra(ChartActivity.EXTRA_HEADER, header)
+                                   .opensActivity(ChartActivity.class);
     }
 
     @Test
@@ -560,6 +550,6 @@ public class NavigatorTest extends AndroidUnitTest {
         navigator.openAllGenres(activityContext);
 
         assertThat(activityContext).nextStartedIntent()
-                                   .opensActivity(TabbedGenresActivity.class);
+                                   .opensActivity(AllGenresActivity.class);
     }
 }
