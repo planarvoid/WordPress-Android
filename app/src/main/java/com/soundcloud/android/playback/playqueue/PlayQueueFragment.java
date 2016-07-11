@@ -28,8 +28,7 @@ public class PlayQueueFragment extends LightCycleSupportFragment<PlayQueueFragme
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        final View fragmentView = inflater.inflate(R.layout.player_play_queue, container, false);
-        return fragmentView;
+        return inflater.inflate(R.layout.player_play_queue, container, false);
     }
 
 }

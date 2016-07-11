@@ -11,5 +11,12 @@ public interface ViewVisibilityProvider {
         }
     };
 
+    ViewVisibilityProvider ALWAYS_VISIBLE = new ViewVisibilityProvider() {
+        @Override
+        public boolean isCurrentlyVisible(View view) {
+            return true;
+        }
+    };
+
     boolean isCurrentlyVisible(View view);
 }

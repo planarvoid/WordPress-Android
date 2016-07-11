@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.playqueue;
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ONE;
 
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackItem;
@@ -37,14 +38,16 @@ public class PlayQueueOperations {
     private Scheduler scheduler;
     private final PlayQueueManager playQueueManager;
     private final TrackRepository trackRepository;
+    private final LoadTrackImageResource loadTrackImageResource;
 
     @Inject
     public PlayQueueOperations(@Named(HIGH_PRIORITY) Scheduler scheduler,
                                PlayQueueManager playQueueManager,
-                               TrackRepository trackRepository) {
+                               TrackRepository trackRepository, LoadTrackImageResource loadTrackImageResource) {
         this.scheduler = scheduler;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
+        this.loadTrackImageResource = loadTrackImageResource;
     }
 
     public Observable<List<TrackItem>> getTrackItems() {
@@ -55,6 +58,10 @@ public class PlayQueueOperations {
                          .map(withCurrentRepeatMode())
                          .toList()
                          .subscribeOn(scheduler);
+    }
+
+    public Observable<ImageResource> getTrackArtworkResource(Urn urn) {
+        return loadTrackImageResource.toObservable(urn).subscribeOn(scheduler);
     }
 
     private Func1<TrackItem, TrackItem> withCurrentRepeatMode() {

@@ -6,17 +6,22 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
+import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.playqueue.PlayQueueItemAnimator.Mode;
+import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.view.adapters.PlayingTrackAware;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
@@ -40,8 +45,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private final PlayQueueRecyclerItemAdapter adapter;
     private final PlayQueueManager playQueueManager;
     private final PlayQueueOperations playQueueOperations;
+    private final PlayQueueArtworkController artworkController;
+
     private final EventBus eventBus;
-    private final CompositeSubscription subscriptions = new CompositeSubscription();
+    private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private Subscription updateSubscription = RxUtils.invalidSubscription();
 
     @Bind(R.id.recycler_view) RecyclerView recyclerView;
@@ -52,10 +59,12 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     public PlayQueuePresenter(PlayQueueRecyclerItemAdapter adapter,
                               PlayQueueManager playQueueManager,
                               PlayQueueOperations playQueueOperations,
+                              PlayQueueArtworkController playerArtworkController,
                               EventBus eventBus) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
+        this.artworkController = playerArtworkController;
         this.eventBus = eventBus;
         adapter.setTrackItemListener(this);
     }
@@ -71,10 +80,22 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.setItemAnimator(animator);
 
         playQueueDrawer.setVisibility(View.VISIBLE);
-        subscriptions.add(eventBus.subscribeImmediate(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                                                      new UpdatePlayingTrackSubscriber(adapter)));
-        subscriptions.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new UpdateSubscriber()));
+        artworkController.bind(ButterKnife.<PlayerTrackArtworkView>findById(view, R.id.artwork_view));
+        subscribeToEvents();
         refreshPlayQueue();
+    }
+
+    private void subscribeToEvents() {
+        eventSubscriptions.add(eventBus.subscribeImmediate(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                                                           new UpdateCurrentTrackSubscriber(adapter)));
+        eventSubscriptions.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new ChangePlayQueueSubscriber()));
+        eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
+                                       .observeOn(AndroidSchedulers.mainThread())
+                                       .subscribe(new PlaybackProgressSubscriber()));
+        eventSubscriptions.add(
+                eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new PlaybackStateSubscriber()));
     }
 
     @Override
@@ -91,32 +112,10 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
     }
 
-    private class UpdateSubscriber extends DefaultSubscriber<PlayQueueEvent> {
-        @Override
-        public void onNext(PlayQueueEvent playQueueEvent) {
-            updateSubscription.unsubscribe();
-            refreshPlayQueue();
-        }
-    }
-
     private void refreshPlayQueue() {
         updateSubscription = playQueueOperations.getTrackItems()
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(new PlayQueueSubscriber());
-    }
-
-    private class PlayQueueSubscriber extends DefaultSubscriber<List<TrackItem>> {
-        @Override
-        public void onNext(List<TrackItem> trackItems) {
-            adapter.clear();
-            for (TrackItem item : trackItems) {
-                item.setInRepeatMode(playQueueManager.getRepeatMode() == REPEAT_ONE);
-                adapter.addItem(item);
-            }
-            adapter.notifyDataSetChanged();
-            recyclerView.scrollToPosition(getScrollPosition());
-            adapter.updateNowPlaying(playQueueManager.getCurrentPlayQueueItem().getUrn());
-        }
     }
 
     private int getScrollPosition() {
@@ -130,7 +129,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        subscriptions.unsubscribe();
+        eventSubscriptions.unsubscribe();
         updateSubscription.unsubscribe();
         ButterKnife.unbind(this);
         super.onDestroyView(fragment);
@@ -197,4 +196,56 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private void updateRepeatAdapter() {
         adapter.updateInRepeatMode(playQueueManager.getRepeatMode() == REPEAT_ONE);
     }
+
+    private class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
+
+        @Override
+        public void onNext(PlaybackProgressEvent progressEvent) {
+            artworkController.setProgress(progressEvent.getPlaybackProgress());
+        }
+    }
+
+    private class PlaybackStateSubscriber extends DefaultSubscriber<PlayStateEvent> {
+
+        @Override
+        public void onNext(PlayStateEvent stateEvent) {
+            artworkController.setPlayState(stateEvent);
+        }
+    }
+
+    private class UpdateCurrentTrackSubscriber extends UpdatePlayingTrackSubscriber {
+
+        UpdateCurrentTrackSubscriber(PlayingTrackAware adapter) {
+            super(adapter);
+        }
+
+        @Override
+        public void onNext(CurrentPlayQueueItemEvent event) {
+            super.onNext(event);
+            artworkController.loadArtwork(event.getCurrentPlayQueueItem().getUrnOrNotSet());
+        }
+    }
+
+    private class PlayQueueSubscriber extends DefaultSubscriber<List<TrackItem>> {
+        @Override
+        public void onNext(List<TrackItem> trackItems) {
+            adapter.clear();
+            for (TrackItem item : trackItems) {
+                item.setInRepeatMode(playQueueManager.getRepeatMode() == REPEAT_ONE);
+                adapter.addItem(item);
+            }
+            adapter.notifyDataSetChanged();
+            recyclerView.scrollToPosition(getScrollPosition());
+            adapter.updateNowPlaying(playQueueManager.getCurrentPlayQueueItem().getUrn());
+        }
+    }
+
+    private class ChangePlayQueueSubscriber extends DefaultSubscriber<PlayQueueEvent> {
+        @Override
+        public void onNext(PlayQueueEvent playQueueEvent) {
+            updateSubscription.unsubscribe();
+            refreshPlayQueue();
+        }
+    }
+
 }

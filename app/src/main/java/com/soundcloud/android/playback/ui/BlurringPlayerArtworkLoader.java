@@ -47,9 +47,13 @@ public class BlurringPlayerArtworkLoader extends PlayerArtworkLoader {
     @Override
     public void loadArtwork(ImageResource imageResource, ImageView wrappedImageView, ImageView imageOverlay,
                             boolean isHighPriority, ViewVisibilityProvider viewVisibilityProvider) {
-
         super.loadArtwork(imageResource, wrappedImageView, imageOverlay, isHighPriority, viewVisibilityProvider);
+        loadBlurredArtwork(imageResource, imageOverlay, viewVisibilityProvider);
+    }
 
+    protected void loadBlurredArtwork(ImageResource imageResource,
+                                      ImageView imageOverlay,
+                                      ViewVisibilityProvider viewVisibilityProvider) {
         blurSubscription.unsubscribe();
         blurSubscription = imageOperations.blurredPlayerArtwork(resources,
                                                                 imageResource,

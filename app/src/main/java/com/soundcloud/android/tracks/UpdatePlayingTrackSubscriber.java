@@ -5,7 +5,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
-public final class UpdatePlayingTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
+public class UpdatePlayingTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
     private final PlayingTrackAware adapter;
 
     public UpdatePlayingTrackSubscriber(PlayingTrackAware adapter) {
