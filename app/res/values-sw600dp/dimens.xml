@@ -43,4 +43,7 @@
     <!-- Recommendations -->
     <dimen name="recommendation_item_size">164dp</dimen>
 
+    <!-- Collections -->
+    <dimen name="collection_recently_played_item_size">164dp</dimen>
+
 </resources>
