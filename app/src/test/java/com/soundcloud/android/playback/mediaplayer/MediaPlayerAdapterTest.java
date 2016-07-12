@@ -40,6 +40,7 @@ import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
+import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -59,7 +60,9 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.PowerManager;
+import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.TextureView;
 
 import java.io.IOException;
 import java.util.Date;
@@ -83,7 +86,9 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Mock private StreamUrlBuilder urlBuilder;
     @Mock private CurrentDateProvider dateProvider;
     @Mock private VideoSourceProvider videoSourceProvider;
-    @Mock private SurfaceHolder surfaceHolder;
+    @Mock private VideoSurfaceProvider videoSurfaceProvider;
+    @Mock private Surface surface;
+
     @Captor private ArgumentCaptor<PlaybackStateTransition> stateCaptor;
 
     private Urn trackUrn = Urn.forTrack(123L);
@@ -126,6 +131,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
                                                     accountOperations,
                                                     bufferUnderrunListener,
                                                     videoSourceProvider,
+                                                    videoSurfaceProvider,
                                                     urlBuilder,
                                                     dateProvider);
         mediaPlayerAdapter.setListener(listener);
@@ -480,35 +486,19 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void setsDisplayOnVideoPlayIfSurfaceHolderSet() throws IOException {
-        mediaPlayerAdapter.surfaceCreated(surfaceHolder);
+    public void setsSurfaceOnVideoPlay() throws IOException {
+        when(videoSurfaceProvider.getSurface(videoItem.getUrn())).thenReturn(surface);
         mediaPlayerAdapter.play(videoItem);
 
-        verify(mediaPlayer).setDisplay(surfaceHolder);
+        verify(videoSurfaceProvider).getSurface(videoItem.getUrn());
+        verify(mediaPlayer).setSurface(surface);
     }
 
     @Test
-    public void setsDisplayAfterPlaybackStartsWhenNewSurfaceHolderSet() throws IOException {
-        playUrlAndSetPrepared(videoItem);
-        mediaPlayerAdapter.surfaceCreated(surfaceHolder);
-
-        verify(mediaPlayer).setDisplay(surfaceHolder);
-    }
-
-    @Test
-    public void setsDisplayToNullIfSurfaceHolderDestroyed() throws IOException {
-        playUrlAndSetPrepared(videoItem);
-        mediaPlayerAdapter.surfaceDestroyed(surfaceHolder);
-
-        verify(mediaPlayer).setDisplay(null);
-    }
-
-    @Test
-    public void onSurfaceChangeIsNoopAndDoesntSetDisplay() throws IOException {
-        playUrlAndSetPrepared(videoItem);
-        mediaPlayerAdapter.surfaceChanged(surfaceHolder, 1, 1, 1);
-
-        verify(mediaPlayer, never()).setDisplay(any(SurfaceHolder.class));
+    public void resetsSurfaceOnVideoStop() throws IOException {
+        mediaPlayerAdapter.play(videoItem);
+        mediaPlayerAdapter.stop();
+        verify(mediaPlayer).setSurface(null);
     }
 
     @Test

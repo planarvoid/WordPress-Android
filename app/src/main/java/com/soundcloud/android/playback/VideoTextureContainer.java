@@ -8,55 +8,54 @@ import android.view.TextureView;
 import com.soundcloud.android.model.Urn;
 
 // Inspired by: github.com/google/grafika/blob/master/src/com/android/grafika/DoubleDecodeActivity.java
-// But better. Probably.
 public class VideoTextureContainer implements TextureView.SurfaceTextureListener {
 
-    final private Listener listener;
-    final private Urn videoUrn;
+    final private Urn urn;
+    final private VideoSurfaceProvider.Listener listener;
 
     private Surface surface;
     private SurfaceTexture surfaceTexture;
     private TextureView currentTextureView;
 
-    public VideoTextureContainer(Urn videoUrn, TextureView textureView, Listener listener) {
+    public VideoTextureContainer(Urn videoUrn,
+                                 TextureView textureView,
+                                 VideoSurfaceProvider.Listener listener) {
+        this.urn = videoUrn;
         this.listener = listener;
-        this.videoUrn = videoUrn;
-        reattachSurfaceTextureIfNeeded(textureView);
+        attachSurfaceTexture(textureView);
     }
 
-    public void reattachSurfaceTextureIfNeeded(TextureView textureView) {
-        if (isNewTextureView(textureView)) {
-            currentTextureView = textureView;
-            currentTextureView.setSurfaceTextureListener(this);
-            if (surfaceTexture != null) {
-                textureView.setSurfaceTexture(surfaceTexture);
-                currentTextureView = textureView;
-            }
+    public void attachSurfaceTexture(TextureView textureView) {
+        currentTextureView = textureView;
+        currentTextureView.setSurfaceTextureListener(this);
+        if (surfaceTexture != null && !surfaceTextureAlreadyAttached(textureView)) {
+            textureView.setSurfaceTexture(surfaceTexture);
         }
     }
 
-    private boolean isNewTextureView(TextureView textureView) {
-        return (currentTextureView == null || !currentTextureView.equals(textureView));
+    private boolean surfaceTextureAlreadyAttached(TextureView textureView) {
+        final SurfaceTexture currentSurfaceTexture = textureView.getSurfaceTexture();
+        return currentSurfaceTexture != null && currentSurfaceTexture.equals(surfaceTexture);
     }
 
-    @Nullable
-    public Surface getSurface() {
-        return surface;
-    }
-
-    public Urn getVideoUrn() {
-        return videoUrn;
-    }
-
-    public boolean containsTextureView(TextureView textureView) {
+    boolean containsTextureView(TextureView textureView) {
         return textureView.equals(currentTextureView);
     }
 
-    public void onTextureViewDestroy() {
+    @Nullable
+    Surface getSurface() {
+        return surface;
+    }
+
+    Urn getUrn() {
+        return urn;
+    }
+
+    void releaseTextureView() {
         currentTextureView = null;
     }
 
-    public void release() {
+    void release() {
         if (surface != null) {
             surface.release();
         }
@@ -70,13 +69,15 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
         if (surfaceTexture == null) {
             surfaceTexture = surface;
             this.surface = new Surface(surface);
-            listener.attemptToSetSurface(videoUrn);
+            if (listener != null) {
+                listener.attemptToSetSurface(urn);
+            }
         }
     }
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        // Only let the TextureView release it if we do not need it to render video to it anymore
+        // Only let the TextureView release SurfaceTexture if we're not rendering video to it anymore
         return surfaceTexture == null;
     }
 
@@ -88,9 +89,5 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         // no-op
-    }
-
-    public interface Listener {
-        void attemptToSetSurface(Urn urn);
     }
 }

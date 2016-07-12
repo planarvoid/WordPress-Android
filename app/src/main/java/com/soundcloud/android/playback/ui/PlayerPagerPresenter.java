@@ -22,7 +22,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
-import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
+import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StationRecord;
@@ -60,7 +60,7 @@ import java.util.Map;
 public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<PlayerFragment>
         implements CastConnectionHelper.OnConnectionChangeListener {
 
-    public static final int PAGE_VIEW_POOL_SIZE = 6;
+    static final int PAGE_VIEW_POOL_SIZE = 6;
     private static final int TYPE_TRACK_VIEW = 0;
     private static final int TYPE_AUDIO_AD_VIEW = 1;
     private static final int TYPE_VIDEO_AD_VIEW = 2;
@@ -77,7 +77,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     private final EventBus eventBus;
     private final StationsOperations stationsOperations;
     private final TrackPageRecycler trackPageRecycler;
-    private final MediaPlayerAdapter mediaPlayerAdapter;
+    private final VideoSurfaceProvider videoSurfaceProvider;
 
     private final Map<View, PlayQueueItem> pagesInPlayer = new HashMap<>(PAGE_VIEW_POOL_SIZE);
     private final TrackPagerAdapter trackPagerAdapter;
@@ -137,7 +137,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                          VideoAdPresenter videoAdPresenter,
                          CastConnectionHelper castConnectionHelper,
                          AdsOperations adOperations,
-                         MediaPlayerAdapter mediaPlayerAdapter,
+                         VideoSurfaceProvider videoSurfaceProvider,
                          EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
@@ -147,7 +147,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         this.videoAdPresenter = videoAdPresenter;
         this.castConnectionHelper = castConnectionHelper;
         this.adOperations = adOperations;
-        this.mediaPlayerAdapter = mediaPlayerAdapter;
+        this.videoSurfaceProvider = videoSurfaceProvider;
         this.eventBus = eventBus;
         this.stationsOperations = stationsOperations;
         this.trackPagerAdapter = new TrackPagerAdapter();
@@ -230,12 +230,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             final PlayerPagePresenter presenter = pagePresenter(pageData);
             final View view = entry.getKey();
             presenter.onForeground(view);
-
             if (pageData.isVideo()) {
-                if (pageData.isVideo()) {
-                    final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
-                    mediaPlayerAdapter.setVideoTextureView(pageData.getUrn(), textureView);
-                }
+                setVideoSurface(pageData, presenter, view);
             }
         }
     }
@@ -274,9 +270,9 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         }
 
         if (playerFragment.getActivity().isChangingConfigurations()) {
-            mediaPlayerAdapter.onVideoTextureViewDestroy();
+            videoSurfaceProvider.onConfigurationChange();
         } else {
-            mediaPlayerAdapter.releaseVideoTextureContainers();
+            videoSurfaceProvider.onDestroy();
         }
 
         final PlayerTrackPager trackPager = (PlayerTrackPager) playerFragment.getView()
@@ -353,10 +349,8 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         if (isForeground) {
             // this will attach the cast button
             presenter.onForeground(view);
-            // provide texture view for rendering of video
             if (playQueueItem.isVideo()) {
-                final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
-                mediaPlayerAdapter.setVideoTextureView(playQueueItem.getUrn(), textureView);
+                setVideoSurface(playQueueItem, presenter, view);
             }
         }
 
@@ -366,6 +360,11 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                                            .subscribe(new PlayerItemSubscriber(presenter, view)));
 
         return view;
+    }
+
+    private void setVideoSurface(PlayQueueItem playQueueItem, PlayerPagePresenter presenter, View view) {
+        final TextureView textureView = ((VideoAdPresenter) presenter).getVideoTexture(view);
+        videoSurfaceProvider.setTextureView(playQueueItem.getUrn(), textureView);
     }
 
     private void configureInitialPageState(final View view) {

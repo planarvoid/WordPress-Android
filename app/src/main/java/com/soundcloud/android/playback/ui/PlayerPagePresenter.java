@@ -4,9 +4,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 

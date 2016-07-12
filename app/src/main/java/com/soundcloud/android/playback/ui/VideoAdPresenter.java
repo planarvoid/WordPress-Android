@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.java.collections.Iterables;
@@ -12,7 +11,6 @@ import com.soundcloud.java.collections.Iterables;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -191,8 +189,6 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
     @Override
     public void setProgress(View adView, PlaybackProgress progress) {
-        String visible = getViewHolder(adView).videoTextureView.getVisibility() == View.VISIBLE ? "YES" : "NO";
-        Log.d("ads", "video view visible? " + visible);
         updateSkipStatus(getViewHolder(adView), progress, resources);
     }
 

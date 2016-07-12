@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.ui;
 import static android.support.v4.view.PagerAdapter.POSITION_NONE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.atLeastOnce;
@@ -22,6 +23,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
@@ -29,6 +31,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.VideoSurfaceProvider;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -48,6 +51,7 @@ import rx.Observable;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -71,6 +75,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private AdsOperations adOperations;
     @Mock private StationsOperations stationsOperations;
+    @Mock private VideoSurfaceProvider videoSurfaceProvider;
 
     @Mock private PlayerTrackPager playerTrackPager;
 
@@ -88,7 +93,11 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Mock private View audioAdView;
     @Mock private View videoAdView;
 
+    @Mock private TextureView videoTextureView;
+
+    @Mock private View fragmentView;
     @Mock private PlayerFragment playerFragment;
+    @Mock private PlayerActivity playerActivity;
 
     private TestEventBus eventBus;
     private PlayerPagerPresenter presenter;
@@ -124,6 +133,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                                              videoAdPresenter,
                                              castConnectionHelper,
                                              adOperations,
+                                             videoSurfaceProvider,
                                              eventBus
         );
 
@@ -460,13 +470,15 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldBindAdViewForVideoAds() {
+    public void shouldBindAdViewAndSetVideoSurfaceForVideoAds() {
+        when(videoAdPresenter.getVideoTexture(any(View.class))).thenReturn(videoTextureView);
         presenter.onResume(playerFragment);
         setupVideoAd();
         View pageView = getVideoAdPageView();
         ArgumentCaptor<VideoPlayerAd> captorPropertySet = ArgumentCaptor.forClass(VideoPlayerAd.class);
 
         verify(videoAdPresenter).bindItemView(eq(pageView), captorPropertySet.capture());
+        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), videoTextureView);
 
         assertThat(captorPropertySet.getValue().getMonetizableTrack()).isEqualTo(MONETIZABLE_TRACK_URN);
         assertThat(captorPropertySet.getValue().getPreviewTitle(resources())).isEqualTo("Next up: title (artist)");
@@ -572,6 +584,31 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         final View pageView = getPageView();
         presenter.onResume(playerFragment);
         verify(trackPagePresenter).onForeground(pageView);
+    }
+
+    @Test
+    public void onResumeSetsVideoSurfacesForVideoItems() {
+        when(videoAdPresenter.getVideoTexture(any(View.class))).thenReturn(videoTextureView);
+        setupVideoAd();
+        getVideoAdPageView();
+
+        presenter.onResume(playerFragment);
+
+        verify(videoSurfaceProvider).setTextureView(Urn.forAd("dfp", "905"), videoTextureView);
+    }
+
+    @Test
+    public void configurationChangeForwardsToOnConfigurationChangeOnVideoSurfaceProvider() {
+        onDestroy(true);
+
+        verify(videoSurfaceProvider).onConfigurationChange();
+    }
+
+    @Test
+    public void onDestroyForwardsCallToOnDestroyVideoSurfaceProvider() {
+        onDestroy(false);
+
+        verify(videoSurfaceProvider).onDestroy();
     }
 
     @Test
@@ -712,5 +749,13 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     private void setupVideoAd() {
         presenter.setCurrentPlayQueue(Arrays.<PlayQueueItem>asList(TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(
                 MONETIZABLE_TRACK_URN))), 0);
+    }
+
+    private void onDestroy(boolean isConfigurationChange) {
+        when(playerFragment.getView()).thenReturn(fragmentView);
+        when(fragmentView.findViewById(anyInt())).thenReturn(playerTrackPager);
+        when(playerFragment.getActivity()).thenReturn(playerActivity);
+        when(playerActivity.isChangingConfigurations()).thenReturn(isConfigurationChange);
+        presenter.onDestroyView(playerFragment);
     }
 }
