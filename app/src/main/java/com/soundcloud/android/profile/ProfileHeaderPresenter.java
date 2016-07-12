@@ -11,7 +11,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stations.StartStationPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
@@ -115,14 +114,12 @@ class ProfileHeaderPresenter {
         boolean stationVisible = stationButton.getVisibility() == View.VISIBLE;
         boolean isFollowed = user.isFollowed();
 
-        if (featureFlags.isEnabled(Flag.USER_STATIONS)) {
-            if (followButton instanceof ProfileToggleButton) {
-                if (isFollowed) {
-                    if (hasArtistStation || stationVisible) {
-                        ((ProfileToggleButton) followButton).setTextOn(Consts.NOT_SET);
-                    } else {
-                        ((ProfileToggleButton) followButton).setTextOn(R.string.btn_following);
-                    }
+        if (followButton instanceof ProfileToggleButton) {
+            if (isFollowed) {
+                if (hasArtistStation || stationVisible) {
+                    ((ProfileToggleButton) followButton).setTextOn(Consts.NOT_SET);
+                } else {
+                    ((ProfileToggleButton) followButton).setTextOn(R.string.btn_following);
                 }
             }
         }

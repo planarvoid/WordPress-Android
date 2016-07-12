@@ -199,9 +199,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
                 discoveryItems.add(chartsOperations.charts().map(TO_DISCOVERY_ITEM));
             }
-            if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
-                discoveryItems.add(recommendedStationsOperations.recommendedStations());
-            }
+
+            discoveryItems.add(recommendedStationsOperations.recommendedStations());
+
             if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
                 discoveryItems.add(recommendedTracksOperations.recommendedTracks());
             }
@@ -215,9 +215,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
                 discoveryItems.add(chartsOperations.refreshCharts().map(TO_DISCOVERY_ITEM));
             }
-            if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
-                discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
-            }
+
+            discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
+
             if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
                 discoveryItems.add(recommendedTracksOperations.refreshRecommendedTracks());
             }

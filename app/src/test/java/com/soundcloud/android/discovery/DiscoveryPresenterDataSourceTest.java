@@ -1,6 +1,5 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +55,6 @@ public class DiscoveryPresenterDataSourceTest {
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>empty());
         when(featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)).thenReturn(true);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
-        when(featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)).thenReturn(true);
 
         final ChartBucket chartsItem = ChartBucket.create(Collections.<Chart>emptyList(),
                                                           Collections.<Chart>emptyList());

@@ -65,7 +65,7 @@ class RecommendedStationsAdapter extends PagerAdapter {
     private void bindCards(ViewGroup container, int position) {
         for (int i = 0; i < cardsPerPage; i++) {
             if (container.getChildAt(i) == null) {
-                inflater.inflate(R.layout.station_item_redesigned, container);
+                inflater.inflate(R.layout.station_item, container);
             }
 
             final View card = container.getChildAt(i);

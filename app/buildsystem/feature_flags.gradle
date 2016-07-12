@@ -11,8 +11,6 @@ enum Feature {
   DISCOVERY_RECOMMENDATIONS,
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
   EDIT_PLAYLIST,
-  USER_STATIONS,
-  RECOMMENDED_STATIONS,
   LOCAL_PLAY_HISTORY,
   LOCAL_PLAY_HISTORY_STORAGE,
   PLAY_QUEUE,
@@ -29,8 +27,6 @@ android {
     buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
     buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
-    buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), FALSE
     buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), FALSE
     buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
@@ -44,10 +40,7 @@ android {
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
     }
 
@@ -55,8 +48,6 @@ android {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
     }
@@ -66,10 +57,7 @@ android {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }
@@ -78,8 +66,6 @@ android {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }
@@ -88,8 +74,6 @@ android {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }
@@ -98,8 +82,6 @@ android {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.RECOMMENDED_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.USER_STATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
     }

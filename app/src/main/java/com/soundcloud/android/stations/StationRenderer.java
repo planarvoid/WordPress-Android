@@ -7,11 +7,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 
 import android.content.res.Resources;
-import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,27 +22,19 @@ class StationRenderer implements CellRenderer<StationViewModel> {
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final StartStationPresenter startStationPresenter;
-    private final FeatureFlags featureFlags;
 
     @Inject
     public StationRenderer(ImageOperations imageOperations,
                            Resources resources,
-                           StartStationPresenter startStationPresenter,
-                           FeatureFlags featureFlags) {
+                           StartStationPresenter startStationPresenter) {
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.startStationPresenter = startStationPresenter;
-        this.featureFlags = featureFlags;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        if (featureFlags.isEnabled(Flag.RECOMMENDED_STATIONS)) {
-            return LayoutInflater.from(parent.getContext()).inflate(R.layout.station_item_redesigned, parent, false);
-        } else {
-            return LayoutInflater.from(parent.getContext()).inflate(R.layout.station_item, parent, false);
-        }
-
+        return LayoutInflater.from(parent.getContext()).inflate(R.layout.station_item, parent, false);
     }
 
     @Override
@@ -57,9 +46,6 @@ class StationRenderer implements CellRenderer<StationViewModel> {
         final TextView type = ButterKnife.findById(view, R.id.type);
         final TextView nowPlaying = ButterKnife.findById(view, R.id.now_playing);
 
-        if (featureFlags.isDisabled(Flag.RECOMMENDED_STATIONS)) {
-            ((CardView) view).setPreventCornerOverlap(false);
-        }
         view.setOnClickListener(startStation(station));
         title.setText(station.getTitle());
 
