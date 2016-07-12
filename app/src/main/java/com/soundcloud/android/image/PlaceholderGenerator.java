@@ -14,18 +14,18 @@ import javax.inject.Inject;
 public class PlaceholderGenerator {
 
     private static final int[][] COLOR_COMBINATIONS = new int[][]{
-            {R.color.placeholder_image_purple, R.color.placeholder_image_blue},
-            {R.color.placeholder_image_purple, R.color.placeholder_image_orange},
-            {R.color.placeholder_image_purple, R.color.placeholder_image_beige},
-            {R.color.placeholder_image_blue, R.color.placeholder_image_purple},
-            {R.color.placeholder_image_blue, R.color.placeholder_image_orange},
-            {R.color.placeholder_image_blue, R.color.placeholder_image_beige},
-            {R.color.placeholder_image_orange, R.color.placeholder_image_purple},
-            {R.color.placeholder_image_orange, R.color.placeholder_image_blue},
-            {R.color.placeholder_image_orange, R.color.placeholder_image_beige},
-            {R.color.placeholder_image_beige, R.color.placeholder_image_purple},
-            {R.color.placeholder_image_beige, R.color.placeholder_image_blue},
-            {R.color.placeholder_image_beige, R.color.placeholder_image_orange}
+            {R.color.ak_placeholder_aubergine, R.color.ak_placeholder_slate},
+            {R.color.ak_placeholder_aubergine, R.color.ak_placeholder_salmon},
+            {R.color.ak_placeholder_aubergine, R.color.ak_placeholder_greige},
+            {R.color.ak_placeholder_slate, R.color.ak_placeholder_aubergine},
+            {R.color.ak_placeholder_slate, R.color.ak_placeholder_salmon},
+            {R.color.ak_placeholder_slate, R.color.ak_placeholder_greige},
+            {R.color.ak_placeholder_salmon, R.color.ak_placeholder_aubergine},
+            {R.color.ak_placeholder_salmon, R.color.ak_placeholder_slate},
+            {R.color.ak_placeholder_salmon, R.color.ak_placeholder_greige},
+            {R.color.ak_placeholder_greige, R.color.ak_placeholder_aubergine},
+            {R.color.ak_placeholder_greige, R.color.ak_placeholder_slate},
+            {R.color.ak_placeholder_greige, R.color.ak_placeholder_salmon}
     };
 
     protected final Resources resources;
