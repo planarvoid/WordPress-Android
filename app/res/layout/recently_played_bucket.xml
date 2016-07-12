@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/recently_played_bucket"
+    style="@style/Collections.RecentlyPlayedBucket"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View style="@style/Divider.Background" />
+
+    <View style="@style/Divider.Section" />
+
+    <com.soundcloud.android.view.CustomFontTextView
+        android:id="@+id/recently_played_header"
+        style="@style/Collections.RecentlyPlayedHeader"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="@string/collections_recently_played_header" />
+
+    <View style="@style/Divider.Item" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recently_played_carousel"
+        style="@style/Collections.RecentlyPlayedCarousel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View style="@style/Divider.Item" />
+
+</LinearLayout>

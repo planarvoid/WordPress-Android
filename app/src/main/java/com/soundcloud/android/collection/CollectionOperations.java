@@ -54,8 +54,8 @@ import java.util.Set;
 public class CollectionOperations {
 
     @VisibleForTesting static final int PLAYLIST_LIMIT = 1000; // Arbitrarily high, we don't want to worry about paging
-    @VisibleForTesting static final int PLAY_HISTORY_LIMIT = 3;
-    @VisibleForTesting static final int RECENTLY_PLAYED_LIMIT = 4;
+    private static final int PLAY_HISTORY_LIMIT = 3;
+    private static final int RECENTLY_PLAYED_LIMIT = 10;
 
     private final EventBus eventBus;
     private final Scheduler scheduler;

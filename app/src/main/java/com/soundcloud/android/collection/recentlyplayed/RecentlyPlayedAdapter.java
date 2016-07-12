@@ -1,5 +1,7 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.collection.CollectionItem;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
@@ -7,17 +9,16 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 
 import android.view.View;
 
-import javax.inject.Inject;
-
+@AutoFactory(allowSubclasses = true)
 class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<CollectionItem, RecyclerItemAdapter.ViewHolder> {
 
-    @Inject
-    RecentlyPlayedAdapter(RecentlyPlayedPlaylistRenderer recentlyPlayedPlaylistRenderer,
-                          RecentlyPlayedProfileRenderer recentlyPlayedProfileRenderer,
-                          RecentlyPlayedStationRenderer recentlyPlayedStationRenderer) {
-        super(new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PLAYLIST, recentlyPlayedPlaylistRenderer),
-              new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PROFILE, recentlyPlayedProfileRenderer),
-              new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_STATION, recentlyPlayedStationRenderer));
+    RecentlyPlayedAdapter(boolean fixedWidth,
+                          @Provided RecentlyPlayedPlaylistRendererFactory recentlyPlayedPlaylistRendererFactory,
+                          @Provided RecentlyPlayedProfileRendererFactory recentlyPlayedProfileRendererFactory,
+                          @Provided RecentlyPlayedStationRendererFactory recentlyPlayedStationRendererFactory) {
+        super(new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PLAYLIST, recentlyPlayedPlaylistRendererFactory.create(fixedWidth)),
+              new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_PROFILE, recentlyPlayedProfileRendererFactory.create(fixedWidth)),
+              new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_STATION, recentlyPlayedStationRendererFactory.create(fixedWidth)));
     }
 
     @Override

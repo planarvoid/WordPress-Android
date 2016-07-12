@@ -1,6 +1,8 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
 import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionItem;
@@ -19,19 +21,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.List;
 
+@AutoFactory(allowSubclasses = true)
 public class RecentlyPlayedPlaylistRenderer implements CellRenderer<CollectionItem> {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
+    private final boolean fixedWidth;
 
-    @Inject
-    public RecentlyPlayedPlaylistRenderer(ImageOperations imageOperations,
-                                          Resources resources,
-                                          Navigator navigator) {
+    public RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
+                                          @Provided ImageOperations imageOperations,
+                                          @Provided Resources resources,
+                                          @Provided Navigator navigator) {
+        this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.navigator = navigator;
@@ -39,8 +43,12 @@ public class RecentlyPlayedPlaylistRenderer implements CellRenderer<CollectionIt
 
     @Override
     public View createItemView(ViewGroup parent) {
+        int layout = fixedWidth
+                     ? R.layout.collection_recently_played_playlist_item_fixed_width
+                     : R.layout.collection_recently_played_playlist_item;
+
         return LayoutInflater.from(parent.getContext())
-                             .inflate(R.layout.collection_recently_played_playlist_item, parent, false);
+                             .inflate(layout, parent, false);
     }
 
     @Override

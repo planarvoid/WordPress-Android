@@ -18,6 +18,7 @@ public abstract class CollectionItem implements ListItem {
     public static final int TYPE_RECENTLY_PLAYED_PLAYLIST = 8;
     public static final int TYPE_RECENTLY_PLAYED_STATION = 9;
     public static final int TYPE_RECENTLY_PLAYED_PROFILE = 10;
+    public static final int TYPE_RECENTLY_PLAYED_BUCKET = 11;
 
     public abstract int getType();
 

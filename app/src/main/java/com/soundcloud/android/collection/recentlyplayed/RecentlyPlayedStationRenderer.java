@@ -1,6 +1,8 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
 import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.CollectionItem;
 import com.soundcloud.android.collection.RecentlyPlayedCollectionItem;
@@ -19,19 +21,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.List;
 
+@AutoFactory(allowSubclasses = true)
 public class RecentlyPlayedStationRenderer implements CellRenderer<CollectionItem> {
 
+    private final boolean fixedWidth;
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final StartStationPresenter startStationPresenter;
 
-    @Inject
-    public RecentlyPlayedStationRenderer(ImageOperations imageOperations,
-                                         Resources resources,
-                                         StartStationPresenter startStationPresenter) {
+    public RecentlyPlayedStationRenderer(boolean fixedWidth,
+                                         @Provided ImageOperations imageOperations,
+                                         @Provided Resources resources,
+                                         @Provided StartStationPresenter startStationPresenter) {
+        this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.startStationPresenter = startStationPresenter;
@@ -39,8 +43,12 @@ public class RecentlyPlayedStationRenderer implements CellRenderer<CollectionIte
 
     @Override
     public View createItemView(ViewGroup parent) {
+        int layout = fixedWidth
+                     ? R.layout.collection_recently_played_station_item_fixed_width
+                     : R.layout.collection_recently_played_station_item;
+
         return LayoutInflater.from(parent.getContext())
-                             .inflate(R.layout.collection_recently_played_station_item, parent, false);
+                             .inflate(layout, parent, false);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +33,21 @@ class CollectionViewAllRenderer implements CellRenderer<CollectionItem> {
     public void bindItemView(int position, View itemView, List<CollectionItem> items) {
         final ViewAllCollectionItem collectionItem = (ViewAllCollectionItem) items.get(position);
         final TextView viewAllTextView = (TextView) itemView.findViewById(R.id.sounds_view_all_text);
+        final int target = collectionItem.getTarget();
 
-        viewAllTextView.setText(R.string.collections_view_all_tracks);
-        itemView.setOnClickListener(viewAll(collectionItem.getTarget()));
+        viewAllTextView.setText(getTextForTarget(target));
+        itemView.setOnClickListener(viewAll(target));
+    }
+
+    @StringRes
+    private int getTextForTarget(int target) {
+        switch (target) {
+            case ViewAllCollectionItem.TYPE_RECENTLY_PLAYED:
+                return R.string.collections_view_all_recently_played;
+            case ViewAllCollectionItem.TYPE_PLAY_HISTORY:
+            default:
+                return R.string.collections_view_all_tracks;
+        }
     }
 
     @NonNull
