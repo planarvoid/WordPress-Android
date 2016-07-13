@@ -135,7 +135,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
                 openSearchScreen(intent);
                 break;
             case Actions.MORE:
-                selectItem(Screen.YOU);
+                selectItem(Screen.MORE);
                 break;
             default:
                 break;

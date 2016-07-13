@@ -98,7 +98,7 @@ public enum Screen {
 
     // misc
     ACTIVITIES("activity:main"),
-    YOU("you:main"),
+    MORE("more:main"),
 
     // explore screens
     EXPLORE_GENRES("explore:genres"),

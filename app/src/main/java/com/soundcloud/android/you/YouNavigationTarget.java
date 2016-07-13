@@ -1,8 +1,8 @@
 package com.soundcloud.android.you;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.main.BaseNavigationTarget;
+import com.soundcloud.android.main.Screen;
 
 import android.support.v4.app.Fragment;
 
@@ -19,7 +19,7 @@ public class YouNavigationTarget extends BaseNavigationTarget {
 
     @Override
     public Screen getScreen() {
-        return Screen.YOU;
+        return Screen.MORE;
     }
 
 }

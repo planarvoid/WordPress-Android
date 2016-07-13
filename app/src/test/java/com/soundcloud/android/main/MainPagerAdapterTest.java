@@ -65,7 +65,7 @@ public class MainPagerAdapterTest extends AndroidUnitTest {
 
             @Override
             public Screen getScreen() {
-                return Screen.YOU;
+                return Screen.MORE;
             }
         };
 
