@@ -425,7 +425,7 @@ public class DatabaseFixtures {
 
     private ChartBucketType getChartBucketType(int bucketType) {
         switch (bucketType) {
-            case Tables.Charts.BUCKET_TYPE_FEATURED_GENRE:
+            case Tables.Charts.BUCKET_TYPE_FEATURED_GENRES:
                 return ChartBucketType.FEATURED_GENRES;
             default:
                 return ChartBucketType.GLOBAL;

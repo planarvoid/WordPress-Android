@@ -63,7 +63,7 @@ public class DiscoveryPresenterDataSourceTest {
         final PlaylistTagsItem playlistTagsItem = PlaylistTagsItem.create(Collections.singletonList("Test tag"),
                                                                           Collections.<String>emptyList());
 
-        when(chartsOperations.charts()).thenReturn(Observable.just(chartsItem));
+        when(chartsOperations.featuredCharts()).thenReturn(Observable.just(chartsItem));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.<DiscoveryItem>just(playlistTagsItem));

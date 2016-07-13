@@ -13,32 +13,32 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
-import rx.Scheduler;
 import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import android.support.annotation.NonNull;
+
+import java.util.List;
 
 public class ChartsStorageTest extends StorageIntegrationTest {
 
     private final TestSubscriber<ChartBucket> subscriber = new TestSubscriber<>();
+    private final TestSubscriber<List<Chart>> genresSubscriber = new TestSubscriber<>();
 
     private ChartsStorage storage;
-    private Scheduler scheduler = Schedulers.immediate();
 
     @Before
     public void setUp() throws Exception {
-        storage = new ChartsStorage(propellerRx(), scheduler);
+        storage = new ChartsStorage(propellerRx());
     }
 
     @Test
     public void returnsChartsWithTracksFromDb() {
-        final Chart sourceChart1 = testFixtures().insertChart(createChart(3, ChartType.TOP),
+        final Chart sourceChart1 = testFixtures().insertChart(createChart(3, ChartType.TOP, ChartCategory.MUSIC),
                                                               Charts.BUCKET_TYPE_GLOBAL);
-        final Chart sourceChart2 = testFixtures().insertChart(createChart(3, ChartType.TRENDING),
+        final Chart sourceChart2 = testFixtures().insertChart(createChart(3, ChartType.TRENDING, ChartCategory.MUSIC),
                                                               Charts.BUCKET_TYPE_GLOBAL);
 
-        storage.charts().subscribe(subscriber);
+        storage.featuredCharts().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final ChartBucket firstEvent = subscriber.getOnNextEvents().get(0);
@@ -50,8 +50,25 @@ public class ChartsStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void returnsGenresWithTracksFromDb() {
+        //Excluded chart
+        final ChartCategory chartCategory = ChartCategory.MUSIC;
+        testFixtures().insertChart(createChart(3, ChartType.TOP, chartCategory), Charts.BUCKET_TYPE_GLOBAL);
+        final Chart includedChart = testFixtures().insertChart(createChart(3, ChartType.TRENDING, chartCategory),
+                                                               Charts.BUCKET_TYPE_ALL_GENRES);
+
+        storage.genres(chartCategory).subscribe(genresSubscriber);
+
+        genresSubscriber.assertValueCount(1);
+        final List<Chart> result  = genresSubscriber.getOnNextEvents().get(0);
+
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).type()).isEqualTo(includedChart.type());
+    }
+
+    @Test
     public void chartsEmptyWhenNoValueInDb() {
-        storage.charts().subscribe(subscriber);
+        storage.featuredCharts().subscribe(subscriber);
 
         subscriber.assertValueCount(1);
         final ChartBucket charts = subscriber.getOnNextEvents().get(0);
@@ -60,9 +77,9 @@ public class ChartsStorageTest extends StorageIntegrationTest {
     }
 
     @NonNull
-    private ApiChart createChart(int countOfTracks, ChartType type) {
+    private ApiChart createChart(int countOfTracks, ChartType type, ChartCategory chartCategory) {
         final ModelCollection<ApiTrack> chartTracks = new ModelCollection<>(ModelFixtures.create(ApiTrack.class,
                 countOfTracks));
-        return new ApiChart("title", new Urn("soundcloud:genre:all"), type, ChartCategory.NONE, 12345L, chartTracks);
+        return new ApiChart("title", new Urn("soundcloud:genre:all"), type, chartCategory, 12345L, chartTracks);
     }
 }

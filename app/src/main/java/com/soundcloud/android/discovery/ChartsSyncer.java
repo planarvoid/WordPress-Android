@@ -6,7 +6,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.sync.charts.ApiChartBucket;
+import com.soundcloud.android.sync.charts.ApiFeaturedCharts;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.WriteResult;
 
@@ -28,14 +28,14 @@ class ChartsSyncer implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         final ApiRequest request = ApiRequest.get(ApiEndpoints.CHARTS_FEATURED.path()).forPrivateApi().build();
-        final ApiChartBucket apiCharts = getApiCharts(request);
-        final WriteResult writeResult = storeChartsCommand.call(apiCharts);
+        final ApiFeaturedCharts apiCharts = getApiCharts(request);
+        final WriteResult writeResult = storeChartsCommand.call(apiCharts.getApiChartBuckets());
         return writeResult.success();
     }
 
-    private ApiChartBucket getApiCharts(ApiRequest request)
+    private ApiFeaturedCharts getApiCharts(ApiRequest request)
             throws IOException, ApiRequestException, ApiMapperException {
-        return apiClient.fetchMappedResponse(request, new TypeToken<ApiChartBucket>() {
+        return apiClient.fetchMappedResponse(request, new TypeToken<ApiFeaturedCharts>() {
         });
     }
 }

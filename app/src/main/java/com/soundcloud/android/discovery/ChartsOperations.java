@@ -85,17 +85,17 @@ class ChartsOperations {
         this.scheduler = scheduler;
     }
 
-    Observable<ChartBucket> charts() {
+    Observable<ChartBucket> featuredCharts() {
         return load(syncOperations.lazySyncIfStale(Syncable.CHARTS));
     }
 
-    Observable<ChartBucket> refreshCharts() {
+    Observable<ChartBucket> refreshFeaturedCharts() {
         return load(syncOperations.sync(Syncable.CHARTS));
     }
 
     private Observable<ChartBucket> load(Observable<SyncOperations.Result> source) {
         return source
-                .flatMap(continueWith(chartsStorage.charts()))
+                .flatMap(continueWith(chartsStorage.featuredCharts().subscribeOn(scheduler)))
                 .filter(HAS_EXPECTED_CONTENT);
     }
 
@@ -121,19 +121,18 @@ class ChartsOperations {
                 }, scheduler);
     }
 
-    Observable<List<ApiChart>> genresByCategory(final ChartCategory chartCategory) {
-        return chartsApi.allGenres()
-                        .doOnNext(storeTracksFromCharts)
-                        .map(filterGenresByCategory(chartCategory))
-                        .subscribeOn(scheduler);
+    Observable<List<Chart>> genresByCategory(final ChartCategory chartCategory) {
+        return syncOperations.lazySyncIfStale(Syncable.CHART_GENRES)
+                             .flatMap(continueWith(chartsStorage.genres(chartCategory).subscribeOn(scheduler)))
+                             .map(filterGenresByCategory(chartCategory));
     }
 
-    private Func1<ModelCollection<ApiChart>, List<ApiChart>> filterGenresByCategory(final ChartCategory chartCategory) {
-        return new Func1<ModelCollection<ApiChart>, List<ApiChart>>() {
+    private Func1<List<Chart>, List<Chart>> filterGenresByCategory(final ChartCategory chartCategory) {
+        return new Func1<List<Chart>, List<Chart>>() {
             @Override
-            public List<ApiChart> call(ModelCollection<ApiChart> apiCharts) {
-                final List<ApiChart> filteredGenres = new ArrayList<>();
-                for (final ApiChart genre : apiCharts) {
+            public List<Chart> call(List<Chart> apiCharts) {
+                final List<Chart> filteredGenres = new ArrayList<>();
+                for (final Chart genre : apiCharts) {
                     if (genre.category() == chartCategory) {
                         filteredGenres.add(genre);
                     }

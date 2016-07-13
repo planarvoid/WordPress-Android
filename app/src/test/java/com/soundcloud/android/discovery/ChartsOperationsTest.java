@@ -43,9 +43,9 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     private final PublishSubject<Result> syncSubject = PublishSubject.create();
     private final TestSubscriber<ChartBucket> subscriber = new TestSubscriber<>();
     private final TestSubscriber<PagedChartTracks> chartTrackSubscriber = new TestSubscriber<>();
-    private final TestSubscriber<List<ApiChart>> genresSubscriber = new TestSubscriber<>();
-    private final ApiChart musicChart = createApiChart(Optional.<String>absent(), ChartCategory.MUSIC);
-    private final ApiChart audioChart = createApiChart(Optional.<String>absent(), ChartCategory.AUDIO);
+    private final TestSubscriber<List<Chart>> genresSubscriber = new TestSubscriber<>();
+    private final Chart musicChart = createGenreChart(1L, ChartCategory.MUSIC);
+    private final Chart audioChart = createGenreChart(2L, ChartCategory.AUDIO);
 
     private ChartsOperations operations;
 
@@ -62,13 +62,14 @@ public class ChartsOperationsTest extends AndroidUnitTest {
                                                chartsStorage,
                                                chartsApi, Schedulers.immediate());
         when(syncOperations.lazySyncIfStale(Syncable.CHARTS)).thenReturn(syncSubject);
+        when(syncOperations.lazySyncIfStale(Syncable.CHART_GENRES)).thenReturn(syncSubject);
     }
 
     @Test
     public void lazySyncAndLoadFromStorage() {
         initChartsForModule();
 
-        operations.charts().subscribe(subscriber);
+        operations.featuredCharts().subscribe(subscriber);
         subscriber.assertNoValues();
 
         syncSubject.onNext(Result.SYNCING);
@@ -81,7 +82,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     public void returnsDiscoveryItemWithHotAndNewAndTopFiftyChartsAndGenres() {
         final ChartBucket charts = initChartsForModule();
 
-        operations.charts().subscribe(subscriber);
+        operations.featuredCharts().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
         subscriber.assertValueCount(1);
@@ -96,7 +97,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final Chart topFiftyChart = createTopFiftyChart();
         initChartsWithTracks(topFiftyChart);
 
-        operations.charts().subscribe(subscriber);
+        operations.featuredCharts().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
         subscriber.assertNoValues();
@@ -107,7 +108,7 @@ public class ChartsOperationsTest extends AndroidUnitTest {
         final Chart hotAndNewChart = createHotAndNewChart();
         initChartsWithTracks(hotAndNewChart);
 
-        operations.charts().subscribe(subscriber);
+        operations.featuredCharts().subscribe(subscriber);
         syncSubject.onNext(Result.SYNCING);
 
         subscriber.assertNoValues();
@@ -157,19 +158,22 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsFilteredGenresFromApi() {
-        initAllGenresEndpoint();
+    public void returnsFilteredGenresFromStorage() {
+        final ChartCategory chartCategory = ChartCategory.MUSIC;
+        initGenresStorage(chartCategory);
 
-        operations.genresByCategory(ChartCategory.MUSIC).subscribe(genresSubscriber);
+        operations.genresByCategory(chartCategory).subscribe(genresSubscriber);
+
+        genresSubscriber.assertNoValues();
+
+        syncSubject.onNext(Result.SYNCING);
 
         assertThat(genresSubscriber.getOnNextEvents().get(0)).containsExactly(musicChart);
-
-        verify(storeTracksCommand).toAction1().call(musicChart.tracks());
     }
 
-    private void initAllGenresEndpoint() {
-        final ModelCollection<ApiChart> apiCharts = new ModelCollection<>(Lists.newArrayList(musicChart, audioChart));
-        when(chartsApi.allGenres()).thenReturn(Observable.just(apiCharts));
+    private void initGenresStorage(ChartCategory chartCategory) {
+        final List<Chart> genres = Lists.newArrayList(musicChart, audioChart);
+        when(chartsStorage.genres(chartCategory)).thenReturn(Observable.just(genres));
     }
 
     private ChartBucket initChartsForModule() {
@@ -199,7 +203,11 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     }
 
     private Chart createGenreChart(long localId) {
-        return createChart(localId, ChartType.TRENDING, ChartCategory.MUSIC, ChartBucketType.FEATURED_GENRES);
+        return createGenreChart(localId, ChartCategory.MUSIC);
+    }
+
+    private Chart createGenreChart(long localId, ChartCategory category) {
+        return createChart(localId, ChartType.TRENDING, category, ChartBucketType.FEATURED_GENRES);
     }
 
     private Chart createChart(long localId, ChartType trending, ChartCategory none, ChartBucketType chartBucketType) {
@@ -229,6 +237,6 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     }
 
     private void initChartsWithTracks(ChartBucket charts) {
-        when(chartsStorage.charts()).thenReturn(Observable.just(charts));
+        when(chartsStorage.featuredCharts()).thenReturn(Observable.just(charts));
     }
 }

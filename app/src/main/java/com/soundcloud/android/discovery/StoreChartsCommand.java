@@ -2,6 +2,7 @@ package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.storage.Tables.ChartTracks;
 import static com.soundcloud.android.storage.Tables.Charts;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
@@ -14,13 +15,14 @@ import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.query.Where;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.List;
 
-class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucket, WriteResult> {
+class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>, WriteResult> {
 
     private final PropellerDatabase propeller;
 
@@ -31,16 +33,17 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucket, Writ
     }
 
     @Override
-    protected WriteResult write(PropellerDatabase propeller, final ApiChartBucket input) {
-        clearTables();
+    protected WriteResult write(PropellerDatabase propeller, final List<ApiChartBucket> input) {
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                storeChartBucket(propeller, input.getGlobal(), Charts.BUCKET_TYPE_GLOBAL);
-                storeChartBucket(propeller, input.getFeaturedGenres(), Charts.BUCKET_TYPE_FEATURED_GENRE);
+                for (final ApiChartBucket apiChartBucket : input) {
+                    storeChartBucket(propeller, apiChartBucket.getCharts(), apiChartBucket.getBucketType());
+                }
             }
 
             private void storeChartBucket(PropellerDatabase propeller, List<ApiChart> bucket, int bucketType) {
+                clearBucket(bucketType);
                 for (final ApiChart apiChart : bucket) {
                     //Store the chart
                     final InsertResult chartInsert = propeller.insert(Charts.TABLE,
@@ -51,7 +54,7 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucket, Writ
                     for (ApiTrack track : apiChart.tracks()) {
                         writeTrack(propeller, track);
                         step(propeller.upsert(ChartTracks.TABLE,
-                                              buildChartTrackContentValues(track, chartInsert.getRowId())));
+                                              buildChartTrackContentValues(track, chartInsert.getRowId(), bucketType)));
                     }
                 }
             }
@@ -65,10 +68,11 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucket, Writ
         });
     }
 
-    private ContentValues buildChartTrackContentValues(TrackRecord chartTrack, long chartId) {
+    private ContentValues buildChartTrackContentValues(TrackRecord chartTrack, long chartId, int bucketType) {
         final ContentValues contentValues = new ContentValues();
         contentValues.put(ChartTracks.CHART_ID.name(), chartId);
         contentValues.put(ChartTracks.SOUND_ID.name(), chartTrack.getUrn().getNumericId());
+        contentValues.put(Charts.BUCKET_TYPE.name(), bucketType);
         return contentValues;
     }
 
@@ -82,6 +86,12 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<ApiChartBucket, Writ
         contentValues.put(Charts.CATEGORY.name(), apiChart.category().value());
         contentValues.put(Charts.BUCKET_TYPE.name(), bucketType);
         return contentValues;
+    }
+
+    private void clearBucket(int chartBucketType) {
+        final Where bucketOfType = filter().whereEq(Charts.BUCKET_TYPE, chartBucketType);
+        propeller.delete(ChartTracks.TABLE, bucketOfType);
+        propeller.delete(Charts.TABLE, bucketOfType);
     }
 
     public void clearTables() {

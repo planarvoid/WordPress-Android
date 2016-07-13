@@ -4,7 +4,6 @@ import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Lists;
@@ -17,14 +16,14 @@ import android.support.v4.app.Fragment;
 import javax.inject.Inject;
 import java.util.List;
 
-public class GenresPresenter extends RecyclerViewPresenter<List<ApiChart>, ChartListItem> {
+public class GenresPresenter extends RecyclerViewPresenter<List<Chart>, ChartListItem> {
 
-    private static final Func1<List<ApiChart>, List<ChartListItem>> TO_PRESENTATION_MODELS = new Func1<List<ApiChart>, List<ChartListItem>>() {
-        public List<ChartListItem> call(List<ApiChart> apiCharts) {
-            return Lists.transform(apiCharts, new Function<ApiChart, ChartListItem>() {
-                public ChartListItem apply(ApiChart input) {
-                    return new ChartListItem(input.tracks().getCollection(), input.genre(), input.displayName(),
-                                             ChartBucketType.FEATURED_GENRES, input.type());
+    private static final Func1<List<Chart>, List<ChartListItem>> TO_PRESENTATION_MODELS = new Func1<List<Chart>, List<ChartListItem>>() {
+        public List<ChartListItem> call(List<Chart> charts) {
+            return Lists.transform(charts, new Function<Chart, ChartListItem>() {
+                public ChartListItem apply(Chart input) {
+                    return new ChartListItem(input.trackArtworks(), input.genre(), input.displayName(),
+                                             input.bucketType(), input.type());
                 }
             });
         }
@@ -48,7 +47,7 @@ public class GenresPresenter extends RecyclerViewPresenter<List<ApiChart>, Chart
     }
 
     @Override
-    protected CollectionBinding<List<ApiChart>, ChartListItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<List<Chart>, ChartListItem> onBuildBinding(Bundle bundle) {
         final ChartCategory chartCategory = (ChartCategory) bundle.getSerializable(GenresFragment.EXTRA_CHART_CATEGORY);
         return CollectionBinding
                 .from(chartsOperations.genresByCategory(chartCategory), TO_PRESENTATION_MODELS)

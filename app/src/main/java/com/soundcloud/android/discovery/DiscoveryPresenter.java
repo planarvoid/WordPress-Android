@@ -197,7 +197,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         Observable<List<DiscoveryItem>> discoveryItems() {
             List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(4);
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
-                discoveryItems.add(chartsOperations.charts().map(TO_DISCOVERY_ITEM));
+                discoveryItems.add(chartsOperations.featuredCharts().map(TO_DISCOVERY_ITEM));
             }
 
             discoveryItems.add(recommendedStationsOperations.recommendedStations());
@@ -213,7 +213,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         Observable<List<DiscoveryItem>> refreshItems() {
             List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(4);
             if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
-                discoveryItems.add(chartsOperations.refreshCharts().map(TO_DISCOVERY_ITEM));
+                discoveryItems.add(chartsOperations.refreshFeaturedCharts().map(TO_DISCOVERY_ITEM));
             }
 
             discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());

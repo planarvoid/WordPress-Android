@@ -362,7 +362,8 @@ public interface Tables {
         public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type");
 
         public static final int BUCKET_TYPE_GLOBAL = 0;
-        public static final int BUCKET_TYPE_FEATURED_GENRE = 1;
+        public static final int BUCKET_TYPE_FEATURED_GENRES = 1;
+        public static final int BUCKET_TYPE_ALL_GENRES = 2;
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS Charts (" +
                 "_id INTEGER PRIMARY KEY," +
@@ -391,6 +392,7 @@ public interface Tables {
                 "_id INTEGER PRIMARY KEY," +
                 "chart_id INTEGER, " +
                 "sound_id INTEGER, " +
+                "bucket_type INTEGER," +
                 "FOREIGN KEY(chart_id) REFERENCES Charts(_id), " +
                 "FOREIGN KEY(sound_id) REFERENCES Sounds(_id) " +
                 ");";
