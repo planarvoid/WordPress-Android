@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.elements.ChartsBucketElement;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.TrackRecommendationsBucketElement;
 import com.soundcloud.android.view.SnappedTagView;
@@ -36,6 +37,10 @@ public class DiscoveryScreen extends Screen {
     public TrackRecommendationsBucketElement trackRecommendationsBucket() {
         return new TrackRecommendationsBucketElement(testDriver,
                                                      scrollToItem(With.id(R.id.track_recommendations_bucket)));
+    }
+
+    public ChartsBucketElement chartBucket() {
+        return new ChartsBucketElement(testDriver, With.id(R.id.charts_bucket));
     }
 
     public StationsBucketElement stationsRecommendationsBucket() {

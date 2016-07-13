@@ -42,6 +42,7 @@ android {
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
     }
 
     beta {
@@ -60,6 +61,7 @@ android {
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
     }
 
     release {
