@@ -11,7 +11,7 @@ expected_events:
     action: play
     player_type: Skippy
     consumer_subs_plan: (\w|-)+
-    page_name: collection:overview
+    page_name: collection:main
     in_playlist: soundcloud:playlists:[0-9]+
     user: soundcloud:users:50749473
     playlist_position: '2'
@@ -37,7 +37,7 @@ expected_events:
     action: pause
     player_type: Skippy
     consumer_subs_plan: (\w|-)+
-    page_name: collection:overview
+    page_name: collection:main
     in_playlist: soundcloud:playlists:[0-9]+
     user: soundcloud:users:50749473
     playlist_position: '2'
@@ -66,7 +66,7 @@ expected_events:
     action: play
     player_type: Skippy
     consumer_subs_plan: none
-    page_name: collection:overview
+    page_name: collection:main
     in_playlist: soundcloud:playlists:[0-9]+
     user: soundcloud:users:50749473
     playlist_position: '3'
@@ -94,7 +94,7 @@ expected_events:
     action: pause
     player_type: Skippy
     consumer_subs_plan: none
-    page_name: collection:overview
+    page_name: collection:main
     in_playlist: soundcloud:playlists:[0-9]+
     user: soundcloud:users:50749473
     playlist_position: '3'
