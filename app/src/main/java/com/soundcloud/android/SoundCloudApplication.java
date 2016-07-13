@@ -318,7 +318,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         accountOperations = operations;
     }
 
-    private static void setupStrictMode() {
+    private void setupStrictMode() {
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                                            .detectAll()
                                            .penaltyLog()
