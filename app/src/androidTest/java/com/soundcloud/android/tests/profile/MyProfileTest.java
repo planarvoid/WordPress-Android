@@ -7,11 +7,12 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
-import com.soundcloud.android.tests.ActivityTest;
 
-public class MyProfileTest extends ActivityTest<ResolveActivity> {
+public class MyProfileTest extends TrackingActivityTest<ResolveActivity> {
+    private String MY_PROFILE_PAGEVIEWS_SCENARIO = "my_profile_pageview_events";
 
     private ProfileScreen profileScreen;
 
@@ -82,5 +83,16 @@ public class MyProfileTest extends ActivityTest<ResolveActivity> {
         profileScreen.touchFollowersTab();
 
         assertTrue(profileScreen.clickUserAt(0).isVisible());
+    }
+
+    public void testPageViewEvents() {
+        startEventTracking();
+
+        profileScreen.touchInfoTab();
+        profileScreen.touchSoundsTab();
+        profileScreen.touchFollowersTab();
+        profileScreen.touchFollowingsTab();
+
+        finishEventTracking(MY_PROFILE_PAGEVIEWS_SCENARIO);
     }
 }

@@ -232,6 +232,12 @@ public class ProfileScreen extends Screen {
         return this;
     }
 
+    public ProfileScreen touchSoundsTab() {
+        tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_sounds))).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
     public ProfileScreen touchPlaylistsTab() {
         tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_playlists))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();

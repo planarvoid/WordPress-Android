@@ -64,8 +64,8 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
                 return UserDetailsFragment.create(userUrn);
             case TAB_SOUNDS:
                 return isLoggedInUser
-                       ? UserSoundsFragment.createForCurrentUser(userUrn, Screen.USER_SOUNDS, searchQuerySourceInfo)
-                       : UserSoundsFragment.create(userUrn, Screen.USER_SOUNDS, searchQuerySourceInfo);
+                       ? UserSoundsFragment.createForCurrentUser(userUrn, Screen.YOUR_MAIN, searchQuerySourceInfo)
+                       : UserSoundsFragment.create(userUrn, Screen.USER_MAIN, searchQuerySourceInfo);
             case TAB_FOLLOWINGS:
                 return isLoggedInUser
                        ? MyFollowingsFragment.create(Screen.YOUR_FOLLOWINGS, searchQuerySourceInfo)
@@ -73,7 +73,7 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
             case TAB_FOLLOWERS:
                 return isLoggedInUser
                        ?
-                       UserFollowersFragment.createForCurrentUser(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo)
+                       UserFollowersFragment.createForCurrentUser(userUrn, Screen.YOUR_FOLLOWERS, searchQuerySourceInfo)
                        :
                        UserFollowersFragment.create(userUrn, Screen.USER_FOLLOWERS, searchQuerySourceInfo);
             default:
