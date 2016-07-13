@@ -6,25 +6,17 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
-public class StationsBucketElement extends Element {
+public class StationsBucketElement {
     private final Han testDriver;
     private final ViewElement wrapped;
 
-    public StationsBucketElement(Han testDriver, With withMatcher) {
-        super(testDriver, withMatcher);
+    public StationsBucketElement(Han testDriver, ViewElement wrapped) {
         this.testDriver = testDriver;
-        this.wrapped = getRootViewElement();
+        this.wrapped = wrapped;
     }
 
     public StationElement getFirstStation() {
-        return new StationElement(testDriver, wrapped.findOnScreenElement(With.id(R.id.station_item)));
-    }
-
-    public StationElement findStation(String title) {
-        return new StationElement(testDriver, testDriver.scrollToItem(
-                With.id(R.id.station_item),
-                StationElement.WithTitle(testDriver, title))
-        );
+        return new StationElement(testDriver, testDriver.scrollToItem(With.id(R.id.station_item)));
     }
 
     public String getTitle() {
@@ -35,18 +27,4 @@ public class StationsBucketElement extends Element {
         return wrapped.isOnScreen();
     }
 
-    public static With WithTitle(final Han testDriver, final String title) {
-        return new With() {
-
-            @Override
-            public boolean apply(ViewElement view) {
-                return new StationsBucketElement(testDriver, this).getTitle().equals(title);
-            }
-
-            @Override
-            public String getSelector() {
-                return String.format("Stations bucket with title %s", title);
-            }
-        };
-    }
 }

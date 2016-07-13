@@ -40,11 +40,12 @@ public class DiscoveryScreen extends Screen {
     }
 
     public ChartsBucketElement chartBucket() {
-        return new ChartsBucketElement(testDriver, With.id(R.id.charts_bucket));
+        scrollToItem(With.id(R.id.charts_bucket));
+        return new ChartsBucketElement(testDriver);
     }
 
     public StationsBucketElement stationsRecommendationsBucket() {
-        return new StationsBucketElement(testDriver, With.id(R.id.stations_pager));
+        return new StationsBucketElement(testDriver, scrollToItem(With.id(R.id.stations_pager)));
     }
 
     public boolean isDisplayingTags() {

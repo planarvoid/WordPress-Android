@@ -6,11 +6,10 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.discovery.AllGenresScreen;
 
-public class ChartsBucketElement extends Element {
+public class ChartsBucketElement {
     private final Han testDriver;
 
-    public ChartsBucketElement(Han testDriver, With withMatcher) {
-        super(testDriver, withMatcher);
+    public ChartsBucketElement(Han testDriver) {
         this.testDriver = testDriver;
     }
 

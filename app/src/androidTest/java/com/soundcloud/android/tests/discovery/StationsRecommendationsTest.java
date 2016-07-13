@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.discovery;
 
-import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
@@ -30,7 +29,6 @@ public class StationsRecommendationsTest extends TrackingActivityTest<MainActivi
 
         final DiscoveryScreen discoveryScreen = mainNavHelper.goToDiscovery();
         final StationsBucketElement stationsBucketElement = discoveryScreen.stationsRecommendationsBucket();
-        assertThat(stationsBucketElement, is(visible()));
 
         final String title = stationsBucketElement.getFirstStation().getTitle();
         final VisualPlayerElement playerElement = stationsBucketElement.getFirstStation()
