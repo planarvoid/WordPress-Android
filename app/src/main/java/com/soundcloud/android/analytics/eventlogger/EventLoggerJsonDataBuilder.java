@@ -6,8 +6,8 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
-import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -59,7 +59,8 @@ public class EventLoggerJsonDataBuilder {
         try {
             return jsonTransformer.toJson(buildBaseEvent(PAGEVIEW_EVENT, event)
                                                   .pageName(event.getScreenTag())
-                                                  .queryUrn(event.getQueryUrn()));
+                                                  .queryUrn(event.getQueryUrn())
+                                                  .pageUrn(event.getPageUrn()));
         } catch (ApiMapperException e) {
             throw new IllegalArgumentException(e);
         }

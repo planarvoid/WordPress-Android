@@ -6,15 +6,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
-import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.content.Intent;
 
-public class OtherProfileTest extends ActivityTest<ResolveActivity> {
+public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
+    private String OTHER_PROFILE_PAGEVIEWS_SCENARIO = "other_profile_pageview_events";
 
     private ProfileScreen profileScreen;
 
@@ -57,5 +58,16 @@ public class OtherProfileTest extends ActivityTest<ResolveActivity> {
 
         String targetUsername = expectedUser.getUsername();
         assertEquals(expectedUser.click().getUserName(), targetUsername);
+    }
+
+    public void testPageViewEvents() {
+        startEventTracking();
+
+        profileScreen.touchInfoTab();
+        profileScreen.touchSoundsTab();
+        profileScreen.touchFollowersTab();
+        profileScreen.touchFollowingsTab();
+
+        finishEventTracking(OTHER_PROFILE_PAGEVIEWS_SCENARIO);
     }
 }

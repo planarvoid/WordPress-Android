@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -9,7 +10,9 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -135,6 +138,29 @@ public class ProfilePresenterTest extends AndroidUnitTest {
                          EntityStateChangedEvent.fromLike(Collections.singletonList(userProperties)));
 
         verifyZeroInteractions(profileOperations);
+    }
+
+    @Test
+    public void profilePresenterShouldTrackUserPageViewWhenTabSelected() throws Exception {
+        profilePresenter.onCreate(activity, null);
+        profilePresenter.onPageSelected(ProfilePagerAdapter.TAB_SOUNDS);
+
+        final ScreenEvent actual = (ScreenEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+
+        assertThat(actual.getScreenTag()).isEqualTo(Screen.USER_MAIN.get());
+        assertThat(actual.getPageUrn()).isEqualTo(USER_URN.toString());
+    }
+
+    @Test
+    public void profilePresenterShouldTrackYouPageViewWhenTabSelectedOnYourOwnProfile() throws Exception {
+        when(accountOperations.isLoggedInUser(USER_URN)).thenReturn(true);
+
+        profilePresenter.onCreate(activity, null);
+        profilePresenter.onPageSelected(ProfilePagerAdapter.TAB_SOUNDS);
+
+        final ScreenEvent actual = (ScreenEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+
+        assertThat(actual.getScreenTag()).isEqualTo(Screen.YOUR_MAIN.get());
     }
 
     private ProfileUser createProfileUser() {

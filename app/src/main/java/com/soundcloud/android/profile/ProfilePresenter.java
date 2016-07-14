@@ -1,12 +1,18 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileHeaderPresenter.ProfileHeaderPresenterFactory;
+import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWERS;
+import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_FOLLOWINGS;
+import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_INFO;
+import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_SOUNDS;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -27,7 +33,8 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
+class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity>
+        implements ViewPager.OnPageChangeListener {
 
     final @LightCycle ProfileScrollHelper scrollHelper;
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
@@ -77,8 +84,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         pager.setAdapter(new ProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
                                                  (SearchQuerySourceInfo) activity.getIntent()
                                                                                  .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
+        pager.addOnPageChangeListener(this);
         pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
-
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
@@ -90,6 +97,54 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity> {
         userUpdatedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                                           .filter(isProfileUser)
                                           .subscribe(new RefreshUserSubscriber());
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        eventBus.publish(EventQueue.TRACKING, accountOperations.isLoggedInUser(user)
+                                              ? ScreenEvent.create(getYourScreen(position))
+                                              : ScreenEvent.create(getOtherScreen(position),
+                                                                   Urn.forUser(user.getNumericId())));
+    }
+
+    private Screen getYourScreen(int position) {
+        switch (position) {
+            case TAB_INFO:
+                return Screen.YOUR_INFO;
+            case TAB_SOUNDS:
+                return Screen.YOUR_MAIN;
+            case TAB_FOLLOWINGS:
+                return Screen.YOUR_FOLLOWINGS;
+            case TAB_FOLLOWERS:
+                return Screen.YOUR_FOLLOWERS;
+            default:
+                return Screen.UNKNOWN;
+        }
+    }
+
+    private Screen getOtherScreen(int position) {
+        switch (position) {
+            case TAB_INFO:
+                return Screen.USER_INFO;
+            case TAB_SOUNDS:
+                return Screen.USER_MAIN;
+            case TAB_FOLLOWINGS:
+                return Screen.USER_FOLLOWINGS;
+            case TAB_FOLLOWERS:
+                return Screen.USER_FOLLOWERS;
+            default:
+                return Screen.UNKNOWN;
+        }
     }
 
     private Urn getUserUrnFromIntent(Intent intent) {

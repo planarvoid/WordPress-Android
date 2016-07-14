@@ -43,6 +43,7 @@ public enum Screen {
     YOUR_LIKES("you:likes"),
     YOUR_FOLLOWINGS("you:followings"),
     YOUR_FOLLOWERS("you:followers"),
+    YOUR_MAIN("you:main"),
 
     // other user's profiles
     USER_HEADER("users:header"),
@@ -50,7 +51,6 @@ public enum Screen {
     USER_INFO("users:info"),
     USER_FOLLOWINGS("users:followings"),
     USER_FOLLOWERS("users:followers"),
-    USER_SOUNDS("users:sounds"),
     USERS_REPOSTS("users:reposts"),
     USER_TRACKS("users:tracks"),
     USER_ALBUMS("users:albums"),
