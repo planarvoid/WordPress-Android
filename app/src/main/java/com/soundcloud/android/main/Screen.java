@@ -23,7 +23,7 @@ public enum Screen {
     STREAM("stream:main"),
 
     // collection
-    COLLECTIONS("collection:overview"),
+    COLLECTIONS("collection:main"),
     LIKES("collection:likes"),
     PLAYLISTS("collection:playlists"),
     OFFLINE_ONBOARDING("collection:offline_onboarding"),

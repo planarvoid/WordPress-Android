@@ -14,7 +14,7 @@ expected_events:
     user: soundcloud:users:147986827
     app_version: '[0-9]+'
     connection_type: wifi
-    page_name: collection:overview
+    page_name: collection:main
     page_urn: soundcloud:playlists:[0-9]+
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
@@ -28,7 +28,7 @@ expected_events:
     user: soundcloud:users:147986827
     app_version: '[0-9]+'
     connection_type: wifi
-    page_name: collection:overview
+    page_name: collection:main
     page_urn: soundcloud:playlists:[0-9]+
     click_category: consumer_subs
   version: '0'
