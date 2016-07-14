@@ -1,25 +1,9 @@
 package com.soundcloud.android;
 
-import android.os.Environment;
-
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 public final class Consts {
     public static final int NOT_SET = -1;
-
-    // this directory will be preserved across re-installs - e.g. used for recordings
-    public static final File EXTERNAL_STORAGE_DIRECTORY = new File(
-            Environment.getExternalStorageDirectory(), "SoundCloud");
-
-    // general purpose storage, removed on reinstall
-    public static final File FILES_PATH = new File(
-            Environment.getExternalStorageDirectory(),
-            "Android/data/" + BuildConfig.APPLICATION_ID + "/files");
-
-    // dot file to have it excluded from media scanning - also use .nomedia
-    public static final File OLD_EXTERNAL_CACHE_DIRECTORY = new File(FILES_PATH, ".cache");
-    public static final File EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY = new File(FILES_PATH, "stream");
 
     public static final int LIST_PAGE_SIZE = 30;
     public static final int CARD_PAGE_SIZE = 20;

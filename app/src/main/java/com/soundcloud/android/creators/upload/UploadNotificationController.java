@@ -142,7 +142,7 @@ public class UploadNotificationController {
 
     private void setDefaultOptions(NotificationCompat.Builder notificationBuilder, Recording recording) {
         notificationBuilder.setContentTitle(TextUtils.isEmpty(recording.title) ?
-                                            recording.sharingNote(resources) :
+                                            recording.sharingNote(context) :
                                             recording.title);
         notificationBuilder.setSmallIcon(R.drawable.ic_notification_cloud);
         notificationBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);

@@ -115,7 +115,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
         this.recording = recording;
 
-        trackTitle.setText(recording.sharingNote(uploadMonitorFragment.getResources()));
+        trackTitle.setText(recording.sharingNote(uploadMonitorFragment.getContext()));
         trackUsername.setText(accountOperations.getLoggedInUsername());
         trackDuration.setText(recording.formattedDuration());
 

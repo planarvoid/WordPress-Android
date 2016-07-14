@@ -5,8 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.soundcloud.android.Consts;
-import org.apache.http.HttpHost;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +13,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Proxy;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
@@ -47,6 +44,16 @@ public class IOUtils {
 
     @Inject
     public IOUtils() {
+    }
+
+    public static File getExternalStorageDir(Context context) {
+        return context.getExternalFilesDir(null);
+    }
+
+    public static File getExternalStorageDir(Context context, String dir) {
+        final File file = new File(getExternalStorageDir(context), dir);
+        file.mkdirs();
+        return file;
     }
 
     @NotNull
@@ -309,15 +316,16 @@ public class IOUtils {
         }
     }
 
-    public static void createCacheDirs(File streamCacheDirectory) {
+    public static void createCacheDirs(Context context, File streamCacheDirectory) {
         if (isSDCardAvailable()) {
             // create external storage directory
-            mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
-            mkdirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY);
+            final File externalStorageDirectory = getExternalStorageDir(context);
+            mkdirs(externalStorageDirectory);
             mkdirs(streamCacheDirectory);
 
             // ignore all media below files
-            nomedia(Consts.FILES_PATH);
+
+            nomedia(externalStorageDirectory);
         }
     }
 
@@ -340,34 +348,6 @@ public class IOUtils {
 
     public static String inMbFormatted(double bytes) {
         return new DecimalFormat("#.#").format(bytes / 1048576d);
-    }
-
-    /**
-     * @param context context
-     * @param info    current network info
-     * @return the proxy to be used for the given network, or null
-     */
-    public static String getProxy(Context context, NetworkInfo info) {
-        final String proxy;
-        if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
-            // adjust mobile proxy settings
-            String proxyHost = Proxy.getHost(context);
-            if (proxyHost == null) {
-                proxyHost = Proxy.getDefaultHost();
-            }
-            int proxyPort = Proxy.getPort(context);
-            if (proxyPort == -1) {
-                proxyPort = Proxy.getDefaultPort();
-            }
-            if (proxyHost != null && proxyPort > -1) {
-                proxy = new HttpHost(proxyHost, proxyPort).toURI();
-            } else {
-                proxy = null;
-            }
-        } else {
-            proxy = null;
-        }
-        return proxy;
     }
 
     public static boolean isConnected(Context context) {

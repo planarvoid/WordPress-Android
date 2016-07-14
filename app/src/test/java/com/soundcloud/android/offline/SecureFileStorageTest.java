@@ -8,12 +8,12 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.Encryptor;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,7 +39,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Before
     public void setUp() throws Exception {
-        storage = new SecureFileStorage(operations, settingsStorage);
+        storage = new SecureFileStorage(operations, settingsStorage, context());
         when(operations.generateHashForUrn(TRACK_URN)).thenReturn(TRACK_URN.toEncodedString());
     }
 
@@ -47,12 +47,12 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
     public void offlineTracksDirectoryIsCreated() throws IOException, EncryptionException {
         storage.storeTrack(TRACK_URN, inputStream, listener);
 
-        assertThat(storage.OFFLINE_DIR.exists()).isTrue();
+        assertThat(storage.offlineDir.exists()).isTrue();
     }
 
     @Test
     public void offlineTrackDirectoryIsReusedWhenAlreadyExists() throws IOException, EncryptionException {
-        final SecureFileStorage otherStorage = new SecureFileStorage(operations, settingsStorage);
+        final SecureFileStorage otherStorage = new SecureFileStorage(operations, settingsStorage, context());
 
         storage.storeTrack(TRACK_URN, inputStream, listener);
         otherStorage.storeTrack(Urn.forTrack(234L), inputStream, listener);
@@ -76,7 +76,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void storeTrackSavesDataToAFile() throws Exception {
-        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
+        final File file = new File(storage.offlineDir, TRACK_URN.toEncodedString() + ".enc");
 
         storage.storeTrack(TRACK_URN, inputStream, listener);
 
@@ -85,7 +85,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test(expected = EncryptionException.class)
     public void deletesFileWhenEncryptionFailed() throws IOException, EncryptionException {
-        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
+        final File file = new File(storage.offlineDir, TRACK_URN.toEncodedString() + ".enc");
 
         final EncryptionException ioException = new EncryptionException("Test encrypt exception", new Exception());
         doThrow(ioException).when(operations).encryptStream(eq(inputStream), any(OutputStream.class), same(listener));
@@ -97,7 +97,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test(expected = IOException.class)
     public void deletesFileWhenIOFailed() throws IOException, EncryptionException {
-        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
+        final File file = new File(storage.offlineDir, TRACK_URN.toEncodedString() + ".enc");
 
         final IOException ioException = new IOException("Test IOException");
         doThrow(ioException).when(operations).encryptStream(eq(inputStream), any(OutputStream.class), same(listener));
@@ -128,7 +128,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void shouldBeEnoughSpaceForTrackInStorageHappyCase() throws Exception {
-        storage.OFFLINE_DIR.mkdirs();
+        storage.offlineDir.mkdirs();
         when(settingsStorage.getStorageLimit()).thenReturn(1024L * 1024 * 1024);
 
         assertThat(storage.isEnoughSpace(1000)).isTrue();
@@ -136,8 +136,8 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void isEnoughSpaceShouldKeepSomeFreeSpaceOnDisk() throws Exception {
-        storage.OFFLINE_DIR.mkdirs();
-        final long freeSpace = Consts.FILES_PATH.getFreeSpace();
+        storage.offlineDir.mkdirs();
+        final long freeSpace = IOUtils.getExternalStorageDir(context()).getFreeSpace();
         when(settingsStorage.getStorageLimit()).thenReturn(freeSpace);
 
         assertThat(storage.isEnoughSpace(freeSpace)).isFalse();
@@ -145,7 +145,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void shouldNotBeEnoughSpaceForTrackInStorage() throws Exception {
-        storage.OFFLINE_DIR.mkdirs();
+        storage.offlineDir.mkdirs();
         when(settingsStorage.hasStorageLimit()).thenReturn(true);
         when(settingsStorage.getStorageLimit()).thenReturn(500L);
 
@@ -154,7 +154,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void isEnoughSpaceShouldReturnTrueUnderAbsoluteMaximumLimit() {
-        storage.OFFLINE_DIR.mkdirs();
+        storage.offlineDir.mkdirs();
         when(settingsStorage.hasStorageLimit()).thenReturn(true);
         when(settingsStorage.getStorageLimit()).thenReturn(500L);
 
@@ -163,8 +163,8 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void isEnoughSpaceShouldReturnFalseOverAbsoluteMaximumLimit() {
-        storage.OFFLINE_DIR.mkdirs();
-        final long freeSpace = Consts.FILES_PATH.getFreeSpace();
+        storage.offlineDir.mkdirs();
+        final long freeSpace = IOUtils.getExternalStorageDir(context()).getFreeSpace();
         when(settingsStorage.hasStorageLimit()).thenReturn(true);
         when(settingsStorage.getStorageLimit()).thenReturn(freeSpace);
 
@@ -178,7 +178,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
         storage.deleteAllTracks();
 
         assertThat(file.exists()).isFalse();
-        assertThat(storage.OFFLINE_DIR.exists()).isFalse();
+        assertThat(storage.offlineDir.exists()).isFalse();
     }
 
     @Test
@@ -196,7 +196,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void shouldBeEnoughMinimumSpaceWhenOnLimit() throws Exception {
-        storage.OFFLINE_DIR.mkdirs();
+        storage.offlineDir.mkdirs();
         when(settingsStorage.hasStorageLimit()).thenReturn(true);
         when(settingsStorage.getStorageLimit()).thenReturn(MINIMUM_SPACE);
 
@@ -205,7 +205,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void shouldBeNotEnoughMinimumSpaceWhenBelowLimit() throws Exception {
-        storage.OFFLINE_DIR.mkdirs();
+        storage.offlineDir.mkdirs();
         when(settingsStorage.hasStorageLimit()).thenReturn(true);
         when(settingsStorage.getStorageLimit()).thenReturn(MINIMUM_SPACE - 1);
 
@@ -213,14 +213,14 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
     }
 
     private File createOfflineFile() throws IOException {
-        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
-        storage.OFFLINE_DIR.mkdirs();
+        final File file = new File(storage.offlineDir, TRACK_URN.toEncodedString() + ".enc");
+        storage.offlineDir.mkdirs();
         file.createNewFile();
         assertThat(file.exists()).isTrue(); // just to ensure we have write permissions
         return file;
     }
 
     private File getEncryptedFile() {
-        return new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
+        return new File(storage.offlineDir, TRACK_URN.toEncodedString() + ".enc");
     }
 }

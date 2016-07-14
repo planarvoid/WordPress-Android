@@ -167,7 +167,7 @@ public class OnboardActivity extends FragmentActivity
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_SIGN_UP));
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.signUpPrompt());
 
-            if (!applicationProperties.isDevBuildRunningOnDevice() && SignupLog.shouldThrottleSignup()) {
+            if (!applicationProperties.isDevBuildRunningOnDevice() && SignupLog.shouldThrottleSignup(v.getContext())) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_site))));
                 finish();
             } else {
@@ -530,7 +530,7 @@ public class OnboardActivity extends FragmentActivity
         log(INFO, ONBOARDING_TAG, "auth task complete, via: " + via + ", was api signup task: " + wasApiSignupTask);
 
         if (wasApiSignupTask) {
-            SignupLog.writeNewSignupAsync();
+            SignupLog.writeNewSignupAsync(this);
             this.userUrn = user.getUrn();
             setState(OnboardingState.SIGN_UP_DETAILS);
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.AUTH_USER_DETAILS));

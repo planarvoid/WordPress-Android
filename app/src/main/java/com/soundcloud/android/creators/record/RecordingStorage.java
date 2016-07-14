@@ -12,6 +12,7 @@ import rx.Observable;
 import rx.Subscriber;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
 
@@ -36,35 +37,35 @@ public class RecordingStorage {
         this.durationHelper = durationHelper;
     }
 
-    public Observable<List<Recording>> cleanupRecordings(final File recordingDir) {
+    public Observable<List<Recording>> cleanupRecordings(final Context context, final File recordingDir) {
         return Observable.create(new Observable.OnSubscribe<List<Recording>>() {
             @Override
             public void call(Subscriber<? super List<Recording>> subscriber) {
-                List<Recording> recordings = cleanupRecordings(recordingDir, accountOperations.getLoggedInUserUrn());
+                List<Recording> recordings = cleanupRecordings(context, recordingDir, accountOperations.getLoggedInUserUrn());
                 subscriber.onNext(recordings);
                 subscriber.onCompleted();
             }
         });
     }
 
-    public static boolean delete(final Recording recording) {
+    public static boolean delete(Context context, final Recording recording) {
         boolean deleted = false;
-        if (!recording.external_upload || recording.isLegacyRecording() || recording.isUploadRecording()) {
+        if (!recording.external_upload || recording.isLegacyRecording(context) || recording.isUploadRecording(context)) {
             deleted = IOUtils.deleteFile(recording.audio_path);
         }
         IOUtils.deleteFile(recording.getEncodedFile());
         IOUtils.deleteFile(recording.getAmplitudeFile());
-        IOUtils.deleteFile(recording.getImageFile());
+        IOUtils.deleteFile(recording.getImageFile(context));
         return deleted;
     }
 
-    public Observable<Void> deleteStaleUploads(final File uploadsDirectory) {
+    public Observable<Void> deleteStaleUploads(final Context context, final File uploadsDirectory) {
         return Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
             public void call(Subscriber<? super Void> subscriber) {
                 final File[] list = IOUtils.nullSafeListFiles(uploadsDirectory, null);
                 for (File f : list) {
-                    RecordingStorage.delete(new Recording(f));
+                    RecordingStorage.delete(context, new Recording(f));
                 }
                 subscriber.onCompleted();
             }
@@ -72,7 +73,7 @@ public class RecordingStorage {
     }
 
     // this is poached from legacy code mostly. It's a bit ugly, but it is at least now tested
-    private List<Recording> cleanupRecordings(File directory, Urn loggedInUserUrn) {
+    private List<Recording> cleanupRecordings(Context context, File directory, Urn loggedInUserUrn) {
 
         Map<String, File> toCheck = new HashMap<>();
         final File[] list = IOUtils.nullSafeListFiles(directory, new Recording.RecordingFilter());
@@ -92,7 +93,7 @@ public class RecordingStorage {
                 recording.duration = durationHelper.getDuration(f);
 
                 if (recording.duration <= 0 || f.getName().contains(Recording.PROCESSED_APPEND)) {
-                    delete(recording);
+                    delete(context, recording);
                 } else {
                     unsavedRecordings.add(recording);
                 }

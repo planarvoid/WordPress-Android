@@ -216,7 +216,7 @@ public class SoundRecorderService extends Service {
     }
 
     private Notification createPlaynotification(Intent intent, Recording r) {
-        String title = r.sharingNote(getResources());
+        String title = r.sharingNote(getApplicationContext());
 
         PendingIntent clickIntent = PendingIntent.getActivity(
                 getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

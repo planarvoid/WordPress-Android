@@ -1,6 +1,5 @@
 package com.soundcloud.android.startup.migrations;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.playback.StreamCacheConfig;
 import com.soundcloud.android.utils.IOUtils;
 
@@ -17,7 +16,7 @@ class StreamCacheMigration implements Migration {
 
     @Override
     public void applyMigration() {
-        IOUtils.cleanDirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, streamCacheConfig.getStreamCacheDirectory());
+        IOUtils.cleanDirs(streamCacheConfig.getStreamCacheDirectory());
     }
 
     @Override

@@ -160,7 +160,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
         uncaughtExceptionHandlerController.reportSystemMemoryStats();
 
-        IOUtils.createCacheDirs(streamCacheDirectory);
+        IOUtils.createCacheDirs(this, streamCacheDirectory);
 
         analyticsEngine.onAppCreated(this);
 
@@ -235,14 +235,6 @@ public class SoundCloudApplication extends MultiDexApplication {
                     sharedPreferences.edit().remove(Consts.PrefKeys.C2DM_DEVICE_URL).apply();
                 }
             });
-            // delete old cache dir
-            AndroidUtils.doOnce(this, "delete.old.cache.dir", new Runnable() {
-                @Override
-                public void run() {
-                    IOUtils.deleteDir(Consts.OLD_EXTERNAL_CACHE_DIRECTORY);
-                }
-            });
-
             // sync current sets
             AndroidUtils.doOnce(this, "request.sets.sync", new Runnable() {
                 @Override

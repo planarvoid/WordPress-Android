@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.crypto.Encryptor;
@@ -9,6 +8,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.VisibleForTesting;
 
@@ -27,17 +27,17 @@ public class SecureFileStorage {
     private static final int FREE_SPACE_BUFFER = 100 * 1024 * 1024;
     private static final int MINIMUM_SPACE = 5 * 1024 * 1024; // 5MB
 
-    protected final File OFFLINE_DIR;
+    protected final File offlineDir;
 
     private final CryptoOperations cryptoOperations;
     private final OfflineSettingsStorage settingsStorage;
     private volatile boolean isRunningEncryption;
 
     @Inject
-    public SecureFileStorage(CryptoOperations operations, OfflineSettingsStorage settingsStorage) {
+    public SecureFileStorage(CryptoOperations operations, OfflineSettingsStorage settingsStorage, Context context) {
         this.cryptoOperations = operations;
         this.settingsStorage = settingsStorage;
-        this.OFFLINE_DIR = new File(Consts.FILES_PATH, DIRECTORY_NAME);
+        this.offlineDir = IOUtils.getExternalStorageDir(context, DIRECTORY_NAME);
     }
 
     public void tryCancelRunningEncryption() {
@@ -50,10 +50,10 @@ public class SecureFileStorage {
                            InputStream input,
                            Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
         if (!createDirectoryIfNeeded()) {
-            throw new IOException("Failed to create directory for " + OFFLINE_DIR.getAbsolutePath());
+            throw new IOException("Failed to create directory for " + offlineDir.getAbsolutePath());
         }
 
-        final File trackFile = new File(OFFLINE_DIR, generateFileName(urn));
+        final File trackFile = new File(offlineDir, generateFileName(urn));
         final OutputStream output = new FileOutputStream(trackFile);
         isRunningEncryption = true;
 
@@ -80,7 +80,7 @@ public class SecureFileStorage {
 
     public boolean deleteTrack(Urn urn) {
         try {
-            return deleteFile(new File(OFFLINE_DIR, generateFileName(urn)));
+            return deleteFile(new File(offlineDir, generateFileName(urn)));
         } catch (EncryptionException exception) {
             ErrorUtils.handleSilentException("Offline file deletion failed for track " + urn, exception);
             return false;
@@ -88,12 +88,12 @@ public class SecureFileStorage {
     }
 
     public void deleteAllTracks() {
-        IOUtils.deleteDir(OFFLINE_DIR);
+        IOUtils.deleteDir(offlineDir);
     }
 
     public Uri getFileUriForOfflineTrack(Urn urn) {
         try {
-            return Uri.fromFile(new File(OFFLINE_DIR, generateFileName(urn)));
+            return Uri.fromFile(new File(offlineDir, generateFileName(urn)));
         } catch (EncryptionException e) {
             Log.e(TAG, "Unable to generate file uri ", e);
         }
@@ -110,15 +110,15 @@ public class SecureFileStorage {
     }
 
     public long getStorageUsed() {
-        return IOUtils.getDirSize(OFFLINE_DIR);
+        return IOUtils.getDirSize(offlineDir);
     }
 
     public long getStorageAvailable() {
-        return Math.max(Consts.FILES_PATH.getFreeSpace() - FREE_SPACE_BUFFER, 0);
+        return Math.max(offlineDir.getFreeSpace() - FREE_SPACE_BUFFER, 0);
     }
 
     public long getStorageCapacity() {
-        return Consts.FILES_PATH.getTotalSpace();
+        return offlineDir.getTotalSpace();
     }
 
     private String generateFileName(Urn urn) throws EncryptionException {
@@ -127,7 +127,7 @@ public class SecureFileStorage {
 
     @VisibleForTesting
     protected final boolean createDirectoryIfNeeded() {
-        return OFFLINE_DIR.exists() || IOUtils.mkdirs(OFFLINE_DIR);
+        return offlineDir.exists() || IOUtils.mkdirs(offlineDir);
     }
 
 }

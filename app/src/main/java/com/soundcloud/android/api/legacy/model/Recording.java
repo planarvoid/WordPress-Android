@@ -3,7 +3,6 @@ package com.soundcloud.android.api.legacy.model;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.creators.record.AmplitudeData;
 import com.soundcloud.android.creators.record.AudioReader;
@@ -17,6 +16,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 
 public class Recording implements Comparable<Recording>, Parcelable {
 
-    public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
+    public static final String IMAGE_DIR = "recordings/images";
     public static final String EXTRA = "recording";
     public static final int MAX_WAVE_CACHE = 100 * 1024 * 1024; // 100 mb
     public static final String TAG_SOURCE_ANDROID_RECORD = "soundcloud:source=android-record";
@@ -106,8 +106,8 @@ public class Recording implements Comparable<Recording>, Parcelable {
         }
     }
 
-    public String getTitle(Resources r) {
-        return TextUtils.isEmpty(title) ? sharingNote(r) : title;
+    public String getTitle(Context context) {
+        return TextUtils.isEmpty(title) ? sharingNote(context) : title;
     }
 
     public File getFile() {
@@ -136,8 +136,8 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return new File(imageDir, IOUtils.changeExtension(audio_path, "bmp").getName());
     }
 
-    public File getImageFile() {
-        return getImageFile(IMAGE_DIR);
+    public File getImageFile(Context context) {
+        return getImageFile(IOUtils.getExternalStorageDir(context, IMAGE_DIR));
     }
 
     /**
@@ -208,16 +208,16 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return ENCODED_PATTERN.matcher(filename).matches();
     }
 
-    public String sharingNote(Resources res) {
+    public String sharingNote(Context context) {
         String note;
         if (!TextUtils.isEmpty(title)) {
             note = title;
         } else if (!TextUtils.isEmpty(original_filename)) {
             note = original_filename;
-        } else if (external_upload && !isLegacyRecording() && !isUploadRecording()) {
+        } else if (external_upload && !isLegacyRecording(context) && !isUploadRecording(context)) {
             note = audio_path.getName();
         } else {
-            note = defaultSharingNote(res);
+            note = defaultSharingNote(context.getResources());
         }
         return note;
     }
@@ -226,12 +226,12 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return res.getString(R.string.record_default_title_sounds_from_day_time_of_day, recordingDateString(res));
     }
 
-    public boolean isLegacyRecording() {
-        return (external_upload && audio_path.getParentFile().equals(SoundRecorder.RECORD_DIR));
+    public boolean isLegacyRecording(Context context) {
+        return (external_upload && audio_path.getParentFile().equals(SoundRecorder.recordingDir(context)));
     }
 
-    public boolean isUploadRecording() {
-        return (external_upload && audio_path.getParentFile().equals(SoundRecorder.UPLOAD_DIR));
+    public boolean isUploadRecording(Context context) {
+        return (external_upload && audio_path.getParentFile().equals(SoundRecorder.recordingDir(context)));
     }
 
     public String getStatusMessage(Resources resources) {
@@ -354,8 +354,8 @@ public class Recording implements Comparable<Recording>, Parcelable {
         upload_status = Status.UPLOADED;
     }
 
-    public static Recording create() {
-        File file = new File(SoundRecorder.RECORD_DIR,
+    public static Recording create(Context context) {
+        File file = new File(SoundRecorder.recordingDir(context),
                              System.currentTimeMillis()
                                      + "." + WavReader.EXTENSION);
         return new Recording(file);

@@ -6,7 +6,6 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
 import android.app.Activity;
@@ -57,10 +56,6 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.metadata, this);
         ButterKnife.bind(this, view);
-
-        if (!isInEditMode()) {
-            IOUtils.mkdirs(Recording.IMAGE_DIR);
-        }
     }
 
     public void setActivity(final FragmentActivity activity) {
@@ -89,7 +84,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     }
 
     private void showImagePickerDialog() {
-        ImageUtils.showImagePickerDialog(activity, recording.getImageFile());
+        ImageUtils.showImagePickerDialog(activity, recording.getImageFile(activity));
     }
 
     public void setRecording(Recording recording, boolean map) {
@@ -99,7 +94,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         }
 
         if (recording != null) {
-            titleText.setHint(recording.sharingNote(getResources()));
+            titleText.setHint(recording.sharingNote(titleText.getContext()));
             titleText.setText(recording.title);
             setImage(recording.artwork_path);
         }

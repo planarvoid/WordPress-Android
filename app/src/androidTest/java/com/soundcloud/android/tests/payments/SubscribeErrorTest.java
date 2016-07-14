@@ -31,7 +31,7 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testAlreadySubscribedError() {
-        PaymentStateHelper.resetTestAccount();
+        PaymentStateHelper.resetTestAccount(getActivity());
         subscribe();
         solo.goBack();
         PaymentErrorScreen errorScreen = settingsScreen

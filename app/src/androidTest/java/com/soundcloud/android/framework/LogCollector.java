@@ -2,7 +2,7 @@ package com.soundcloud.android.framework;
 
 import com.soundcloud.android.utils.IOUtils;
 
-import android.os.Environment;
+import android.content.Context;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,16 +14,16 @@ public class LogCollector {
     private Process logcat;
     private String testCaseName;
 
-    private LogCollector() {
-        logsDir = getLogsDir();
+    private LogCollector(Context context) {
+        logsDir = getLogsDir(context);
 
-        clearLogsDir();
+        clearLogsDir(context);
         IOUtils.mkdirs(logsDir);
     }
 
-    public static void startCollecting(String testCaseName) throws Exception {
+    public static void startCollecting(Context context, String testCaseName) throws Exception {
         if (instance == null) {
-            instance = new LogCollector();
+            instance = new LogCollector(context);
         }
         instance.setTestCaseName(testCaseName);
         instance.clearLogcat();
@@ -65,10 +65,10 @@ public class LogCollector {
         return new File(logsDir, testCaseName + ".log");
     }
 
-    private void clearLogsDir() {
+    private void clearLogsDir(Context context) {
         //http://stackoverflow.com/questions/11539657/open-failed-ebusy-device-or-resource-busy
-        File newLogsDir = new File(getLogsDir().getAbsolutePath() + "_old");
-        IOUtils.renameCaseSensitive(getLogsDir(), newLogsDir);
+        File newLogsDir = new File(getLogsDir(context).getAbsolutePath() + "_old");
+        IOUtils.renameCaseSensitive(getLogsDir(context), newLogsDir);
         IOUtils.deleteDir(newLogsDir);
     }
 
@@ -76,7 +76,7 @@ public class LogCollector {
         Runtime.getRuntime().exec("/system/bin/logcat -c");
     }
 
-    private File getLogsDir() {
-        return new File(Environment.getExternalStorageDirectory(), "RobotiumLogs");
+    private File getLogsDir(Context context) {
+        return IOUtils.getExternalStorageDir(context, "RobotiumLogs");
     }
 }

@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.ArrayRes;
 import android.support.v7.app.AlertDialog;
 
@@ -66,8 +65,9 @@ public class BugReporter {
     }
 
     private void sendLogs(Context context, String toEmail, String subject, String body, String chooserText) {
-        deletePreviousLogcatDump();
-        File outputFile = new File(Environment.getExternalStorageDirectory(), LOGCAT_FILE_NAME);
+        File outputFile = IOUtils.getExternalStorageDir(context, LOGCAT_FILE_NAME);
+        outputFile.delete();
+
         try {
             String writeLogcatToFileCommand = String.format("logcat -v time -df %s", outputFile.getAbsolutePath());
             Runtime.getRuntime().exec(writeLogcatToFileCommand);
@@ -85,10 +85,4 @@ public class BugReporter {
             AndroidUtils.showToast(context, R.string.feedback_unable_to_get_logs);
         }
     }
-
-    private void deletePreviousLogcatDump() {
-        File outputFile = new File(Environment.getExternalStorageDirectory(), LOGCAT_FILE_NAME);
-        outputFile.delete();
-    }
-
 }

@@ -43,7 +43,7 @@ public class UpgradeScreenTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testUserIsPresentedSubscribeOption() {
-        PaymentStateHelper.resetTestAccount();
+        PaymentStateHelper.resetTestAccount(getActivity());
         PaymentErrorScreen errorScreen = settingsScreen
                 .clickSubscribe()
                 .clickBuyForFailure();

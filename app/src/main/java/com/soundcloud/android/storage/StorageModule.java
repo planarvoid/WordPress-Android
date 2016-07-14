@@ -1,8 +1,8 @@
 package com.soundcloud.android.storage;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.crypto.Obfuscator;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -72,8 +72,8 @@ public class StorageModule {
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY)
-    public File provideStreamCacheDirectory() {
-        return new File(Consts.FILES_PATH, "skippy");
+    public File provideStreamCacheDirectory(Context context) {
+        return IOUtils.getExternalStorageDir(context, "skippy");
     }
 
     @Provides

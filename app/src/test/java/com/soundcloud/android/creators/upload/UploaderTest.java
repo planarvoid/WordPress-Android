@@ -65,7 +65,7 @@ public class UploaderTest extends AndroidUnitTest {
 
     @Test
     public void shouldThrowWhenFileIsEmpty() throws Exception {
-        Recording upload = Recording.create();
+        Recording upload = Recording.create(context());
 
         uploader(upload).run();
 

@@ -141,11 +141,12 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
 
     void checkForUnsavedRecordings() {
         // we may have a leftover recording, so defer state configuration until we check
-        cleanupRecordingsSubscription = recordingOperations.cleanupRecordings(SoundRecorder.RECORD_DIR)
+        final Context context = recordFragment.getContext();
+        cleanupRecordingsSubscription = recordingOperations.cleanupRecordings(context, SoundRecorder.recordingDir(context))
                                                            .observeOn(AndroidSchedulers.mainThread())
                                                            .subscribe(getCleanupRecordingsSubscriber());
 
-        fireAndForget(recordingOperations.deleteStaleUploads(SoundRecorder.UPLOAD_DIR));
+        fireAndForget(recordingOperations.deleteStaleUploads(context, SoundRecorder.uploadingDir(context)));
     }
 
     @NotNull
@@ -462,7 +463,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
 
     private boolean hasRecording() {
         Recording recording = recorder.getRecording();
-        return recording != null && !recording.isUploadRecording();
+        return recording != null && !recording.isUploadRecording(recordFragment.getContext());
     }
 
     @OnClick(R.id.btn_action)

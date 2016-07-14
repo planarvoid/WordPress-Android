@@ -2,7 +2,7 @@ package com.soundcloud.android.tests.payments;
 
 import com.soundcloud.android.utils.IOUtils;
 
-import android.os.Environment;
+import android.content.Context;
 import android.util.Base64;
 
 import java.io.BufferedReader;
@@ -29,17 +29,17 @@ class PaymentStateHelper {
     private PaymentStateHelper() {
     }
 
-    public static void resetTestAccount() {
+    public static void resetTestAccount(Context context) {
         try {
-            final Secrets secrets = loadSecretsFromDevice();
+            final Secrets secrets = loadSecretsFromDevice(context);
             buildDeleteSubscriptionConnection(secrets).getResponseCode();
         } catch (IOException e) {
             throw new IllegalStateException("Failed to reset test user subscription state: connection error", e);
         }
     }
 
-    private static Secrets loadSecretsFromDevice() {
-        final File keyFile = new File(Environment.getExternalStorageDirectory(), KEY_FILE);
+    private static Secrets loadSecretsFromDevice(Context context) {
+        final File keyFile = IOUtils.getExternalStorageDir(context, KEY_FILE);
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(keyFile));

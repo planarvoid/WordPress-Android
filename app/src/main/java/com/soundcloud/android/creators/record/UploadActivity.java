@@ -38,7 +38,7 @@ public class UploadActivity extends LoggedInActivity {
         Intent intent = getIntent();
         Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
-        operations.upload(SoundRecorder.UPLOAD_DIR, stream, intent.getType(), getContentResolver())
+        operations.upload(SoundRecorder.uploadingDir(this), stream, intent.getType(), getContentResolver())
                   .subscribe(uploadSubscriber(intent));
     }
 

@@ -3,7 +3,6 @@ package com.soundcloud.android.creators.record;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
@@ -36,12 +35,8 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
     public static final int PIXELS_PER_SECOND = hasFPUSupport() ? 30 : 15;
     public static final int MAX_PLAYBACK_READ_SIZE = 1024;
-    public static final File RECORD_DIR = IOUtils.ensureUpdatedDirectory(
-            new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings"),
-            new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
-    public static final File UPLOAD_DIR = IOUtils.ensureUpdatedDirectory(
-            new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "uploads"),
-            new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".rec"));
+    public static final String RECORD_DIR_NAME = "recordings";
+    public static final String UPLOAD_DIR_NAME = "uploads";
     public static final String NOTIFICATION_STATE = "com.soundcloud.android.notificationState";
     public static final String RECORD_STARTED = "com.soundcloud.android.recordstarted";
     public static final String RECORD_SAMPLE = "com.soundcloud.android.recordsample";
@@ -132,7 +127,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         });
         audioTrack.setPositionNotificationPeriod(this.audioConfig.sampleRate / 60);
         broadcastManager = LocalBroadcastManager.getInstance(context);
-        remainingTimeCalculator = audioConfig.createCalculator();
+        remainingTimeCalculator = audioConfig.createCalculator(context);
 
         valuesPerSecond = (int) (PIXELS_PER_SECOND * context.getResources().getDisplayMetrics().density);
         recBufferReadSize = (int) audioConfig.validBytePosition((long) (this.audioConfig.bytesPerSecond / valuesPerSecond));
@@ -175,7 +170,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
         if (recording != null) {
             if (deleteRecording) {
-                RecordingStorage.delete(recording);
+                RecordingStorage.delete(context, recording);
             }
             recording = null;
         }
@@ -215,7 +210,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         remainingTimeCalculator.reset();
         if (state != State.RECORDING) {
             if (recording == null) {
-                recording = Recording.create();
+                recording = Recording.create(context);
 
                 recordStream.setWriters(recording.getRawFile(),
                                         shouldEncodeWhileRecording() ? recording.getEncodedFile() : null);
@@ -381,12 +376,12 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
 
     public
     @Nullable
-    Recording saveState() {
+    Recording saveState(Context context) {
 
         if (recording != null) {
 
             if (shouldEncodeWhileRecording()) {
-                final long trimmed = Recording.trimWaveFiles(RECORD_DIR, recording);
+                final long trimmed = Recording.trimWaveFiles(recordingDir(context), recording);
                 if (trimmed > 0) {
                     Log.i(TAG, "Trimmed " + trimmed + " bytes of wav data");
                 }
@@ -398,6 +393,14 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
         }
         return null;
 
+    }
+
+    public static File recordingDir(Context context) {
+        return IOUtils.getExternalStorageDir(context, RECORD_DIR_NAME);
+    }
+
+    public static File uploadingDir(Context context) {
+        return IOUtils.getExternalStorageDir(context, UPLOAD_DIR_NAME);
     }
 
     // Used by the service to determine whether to show notifications or not
@@ -759,7 +762,7 @@ public class SoundRecorder implements AudioManager.OnAudioFocusChangeListener {
                                 playbackStream.reopen();
                                 playbackStream.resetBounds();
                             }
-                            saveState();
+                            saveState(context);
                             message = RECORD_FINISHED;
                         } catch (IOException e) {
                             state = SoundRecorder.State.ERROR;

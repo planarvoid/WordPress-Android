@@ -57,7 +57,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         networkManagerClient = new NetworkManagerClient(getInstrumentation().getContext());
 
         testCaseName = String.format("%s.%s", getClass().getName(), getName());
-        LogCollector.startCollecting(testCaseName);
+        LogCollector.startCollecting(getInstrumentation().getTargetContext(), testCaseName);
         Log.d("TESTSTART:", String.format("%s", testCaseName));
 
         networkManagerClient.bind();

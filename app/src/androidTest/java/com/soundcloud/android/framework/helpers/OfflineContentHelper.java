@@ -1,6 +1,5 @@
 package com.soundcloud.android.framework.helpers;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.framework.IntegrationTestsFixtures;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.IOUtils;
@@ -12,7 +11,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class OfflineContentHelper {
-    private static final File OFFLINE_DIR = new File(Consts.FILES_PATH, "offline");
+    private static final String OFFLINE_DIR = "offline";
 
     private final IntegrationTestsFixtures testsFixtures;
 
@@ -20,22 +19,22 @@ public class OfflineContentHelper {
         testsFixtures = new IntegrationTestsFixtures();
     }
 
-    public int offlineFilesCount() {
-        return IOUtils.nullSafeListFiles(OFFLINE_DIR, null).length;
+    public int offlineFilesCount(Context context) {
+        return IOUtils.nullSafeListFiles(IOUtils.getExternalStorageDir(context, OFFLINE_DIR), null).length;
     }
 
     public void clearOfflineContent(Context context) {
         // remove metadata - not sure how to do it differently
         testsFixtures.clearOfflineContent(context);
         // remove actual files
-        IOUtils.cleanDir(OFFLINE_DIR);
+        IOUtils.cleanDir(IOUtils.getExternalStorageDir(context, OFFLINE_DIR));
     }
 
     public void addFakeOfflineTrack(Context context, Urn track, int sizeInMB) throws IOException {
         testsFixtures.insertOfflineTrack(context, track);
-        IOUtils.mkdirs(OFFLINE_DIR);
 
-        final File file = new File(OFFLINE_DIR, track.toEncodedString());
+
+        final File file = new File(IOUtils.getExternalStorageDir(context, OFFLINE_DIR), track.toEncodedString());
         file.createNewFile();
 
         final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");

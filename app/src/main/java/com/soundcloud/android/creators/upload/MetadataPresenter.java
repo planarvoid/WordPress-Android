@@ -146,7 +146,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     }
 
     public void onArtworkSelected(Intent imageSelectionResult) {
-        final Uri artworkFileUri = Uri.fromFile(recording.getImageFile());
+        final Uri artworkFileUri = Uri.fromFile(recording.getImageFile(metadataFragment.getActivity()));
         if (imageSelectionResult != null) {
             ImageUtils.sendCropIntent(metadataFragment.getActivity(), imageSelectionResult.getData(), artworkFileUri);
         } else {
@@ -156,7 +156,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     }
 
     public void onSuccessfulCrop() {
-        recording.artwork_path = recording.getImageFile();
+        recording.artwork_path = recording.getImageFile(metadataFragment.getActivity());
         recordingMetadata.setImage(recording.artwork_path);
     }
 

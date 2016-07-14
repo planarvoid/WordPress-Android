@@ -28,7 +28,6 @@ import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -57,7 +56,7 @@ public class Uploader implements Runnable {
     private final ApiClient apiClient;
     private final Recording recording;
     private volatile boolean canceled;
-    private final Resources resources;
+    private final Context context;
     private final Subscription subscription;
 
     private final EventBus eventBus;
@@ -68,7 +67,7 @@ public class Uploader implements Runnable {
         this.recording = recording;
         this.storeTracksCommand = storeTracksCommand;
         this.storePostsCommand = storePostsCommand;
-        this.resources = context.getResources();
+        this.context = context;
         this.syncStateManager = syncStateManager;
         this.subscription = eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
         this.eventBus = eventBus;
@@ -112,7 +111,7 @@ public class Uploader implements Runnable {
 
             eventBus.publish(EventQueue.UPLOAD, UploadEvent.transferStarted(recording));
 
-            final ApiRequest request = buildUploadRequest(resources, recording);
+            final ApiRequest request = buildUploadRequest(context, recording);
             onUploadFinished(apiClient.fetchMappedResponse(request, PublicApiTrack.class));
         } catch (IOException | ApiMapperException | ApiRequestException e) {
             if (!isCancelled()) {
@@ -121,10 +120,10 @@ public class Uploader implements Runnable {
         }
     }
 
-    private ApiRequest buildUploadRequest(Resources resources, final Recording recording) {
+    private ApiRequest buildUploadRequest(Context context, final Recording recording) {
         final ApiRequest.Builder request = ApiRequest.post(ApiEndpoints.LEGACY_TRACKS.path()).forPublicApi();
 
-        final Map<String, ?> params = buildRecordingParamMap(resources, recording);
+        final Map<String, ?> params = buildRecordingParamMap(context, recording);
         addRecordingFields(request, params);
 
         final File recordingFile = recording.getUploadFile();
@@ -145,9 +144,9 @@ public class Uploader implements Runnable {
         return request.build();
     }
 
-    private Map<String, ?> buildRecordingParamMap(Resources resources, Recording recording) {
+    private Map<String, ?> buildRecordingParamMap(Context context, Recording recording) {
         Map<String, Object> data = new HashMap<>();
-        recording.title = recording.sharingNote(resources);
+        recording.title = recording.sharingNote(context);
 
         data.put(PARAM_TITLE, recording.title);
         data.put(PARAM_TYPE, "recording");

@@ -23,7 +23,6 @@ public class MainActivity extends PlayerActivity {
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle GcmManager gcmManager;
     @Inject @LightCycle FacebookInvitesController facebookInvitesController;
-    @Inject @LightCycle ExternalStorageReporter externalStorageReporter;
 
     protected void onCreate(Bundle savedInstanceState) {
         redirectToResolverIfNecessary(getIntent());

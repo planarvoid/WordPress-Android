@@ -1,8 +1,8 @@
 package com.soundcloud.android.framework.runner;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.IOUtils;
 
+import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
@@ -15,25 +15,24 @@ public class Runner extends RandomizingRunner {
     @Override
     public void onStart() {
         checkExternalStorage();
-        checkFreeSpace();
-        createDirs();
+        checkFreeSpace(getContext());
+        createDirs(getContext());
         super.onStart();
     }
 
-    public static void createDirs() {
-        File testDir = new File(Environment.getExternalStorageDirectory(), TEST_DIR);
-        IOUtils.deleteDir(Consts.EXTERNAL_STORAGE_DIRECTORY);
-        IOUtils.deleteDir(testDir);
+    public static void createDirs(Context context) {
+        File testDir = IOUtils.getExternalStorageDir(context, TEST_DIR);
+        IOUtils.cleanDir(IOUtils.getExternalStorageDir(context));
 
         if (!IOUtils.mkdirs(testDir)) {
             throw new AssertionError("Could not create " + testDir);
         }
     }
 
-    public static void checkFreeSpace() {
+    public static void checkFreeSpace(Context context) {
         checkExternalStorage();
 
-        final long bytesFree = IOUtils.getSpaceLeft(Environment.getExternalStorageDirectory());
+        final long bytesFree = IOUtils.getSpaceLeft(IOUtils.getExternalStorageDir(context));
         if (bytesFree < MIN_BYTES_FREE) {
             throw new AssertionError("not enough external storage: (" + bytesFree + "<" + MIN_BYTES_FREE + ")");
         }

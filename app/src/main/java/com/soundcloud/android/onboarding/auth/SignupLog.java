@@ -1,10 +1,11 @@
 package com.soundcloud.android.onboarding.auth;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
@@ -17,10 +18,10 @@ import java.io.ObjectOutputStream;
 public final class SignupLog {
     protected static final int THROTTLE_WINDOW = 60 * 60 * 1000;
     protected static final int THROTTLE_AFTER_ATTEMPT = 5;
-    private static final File SIGNUP_LOG = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, ".dr");
+    private static final String SIGNUP_LOG_NAME = ".dr";
 
-    public static boolean shouldThrottleSignup() {
-        final long[] signupLog = readLog();
+    public static boolean shouldThrottleSignup(Context context) {
+        final long[] signupLog = readLog(context);
         if (signupLog == null) {
             return false;
         } else {
@@ -34,19 +35,19 @@ public final class SignupLog {
         }
     }
 
-    public static Thread writeNewSignupAsync() {
+    public static Thread writeNewSignupAsync(final Context context) {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                writeNewSignup(System.currentTimeMillis());
+                writeNewSignup(context, System.currentTimeMillis());
             }
         });
         t.start();
         return t;
     }
 
-    static boolean writeNewSignup(long timestamp) {
-        long[] toWrite, current = readLog();
+    static boolean writeNewSignup(Context context, long timestamp) {
+        long[] toWrite, current = readLog(context);
         if (current == null) {
             toWrite = new long[1];
         } else {
@@ -54,14 +55,14 @@ public final class SignupLog {
             System.arraycopy(current, 0, toWrite, 0, current.length);
         }
         toWrite[toWrite.length - 1] = timestamp;
-        return writeLog(toWrite);
+        return writeLog(context, toWrite);
     }
 
-    static boolean writeLog(long[] toWrite) {
+    static boolean writeLog(Context context, long[] toWrite) {
         ObjectOutputStream out = null;
         try {
-            IOUtils.mkdirs(SIGNUP_LOG.getParentFile());
-            out = new ObjectOutputStream(new FileOutputStream(SIGNUP_LOG));
+
+            out = new ObjectOutputStream(new FileOutputStream(getSignupLog(context)));
             out.writeObject(toWrite);
             return true;
         } catch (IOException e) {
@@ -75,11 +76,12 @@ public final class SignupLog {
     }
 
     @Nullable
-    static long[] readLog() {
-        if (SIGNUP_LOG.exists()) {
+    static long[] readLog(Context context) {
+        final File signupLog = getSignupLog(context);
+        if (signupLog.exists()) {
             ObjectInputStream in = null;
             try {
-                in = new ObjectInputStream(new FileInputStream(SIGNUP_LOG));
+                in = new ObjectInputStream(new FileInputStream(signupLog));
                 return (long[]) in.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 Log.e(SoundCloudApplication.TAG, "Error reading sign up log ", e);
@@ -91,5 +93,10 @@ public final class SignupLog {
     }
 
     private SignupLog() {
+    }
+
+    @NonNull
+    private static File getSignupLog(Context context) {
+        return IOUtils.getExternalStorageDir(context, SIGNUP_LOG_NAME);
     }
 }

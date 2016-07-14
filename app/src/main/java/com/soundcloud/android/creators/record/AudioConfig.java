@@ -2,6 +2,7 @@ package com.soundcloud.android.creators.record;
 
 import org.jetbrains.annotations.NotNull;
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
@@ -108,8 +109,8 @@ public enum AudioConfig {
         return new WavHeader(WavHeader.FORMAT_PCM, (short) channels, sampleRate, (short) bitsPerSample, 0);
     }
 
-    public RemainingTimeCalculator createCalculator() {
-        return new RemainingTimeCalculator(bytesPerSecond);
+    public RemainingTimeCalculator createCalculator(Context context) {
+        return new RemainingTimeCalculator(context, bytesPerSecond);
     }
 
     public long msToByte(long ms) {

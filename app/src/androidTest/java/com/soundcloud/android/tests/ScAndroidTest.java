@@ -41,14 +41,14 @@ public abstract class ScAndroidTest extends AndroidTestCase {
         InputStream in = testAssets().open(name);
         assertNotNull(in);
 
-        File out = externalPath(name);
+        File out = externalPath(getContext(), name);
         IOUtils.copy(in, out);
         return out;
     }
 
-    protected File externalPath(String name) {
+    protected File externalPath(Context context, String name) {
         checkStorage();
-        File file = new File(new File(Environment.getExternalStorageDirectory(), Runner.TEST_DIR), name);
+        File file = new File(IOUtils.getExternalStorageDir(context, Runner.TEST_DIR), name);
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             fail("could not create " + file.getParentFile());
         }
