@@ -58,7 +58,7 @@ public class MyPlaylistsPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        fragmentRule.setFragmentArguments(MyPlaylistsFragment.createBundle(Screen.YOU,
+        fragmentRule.setFragmentArguments(MyPlaylistsFragment.createBundle(Screen.MORE,
                                                                            mock(SearchQuerySourceInfo.class)));
         when(factory.create(adapter, adapter.getTrackRenderer())).thenReturn(listUpdater);
 

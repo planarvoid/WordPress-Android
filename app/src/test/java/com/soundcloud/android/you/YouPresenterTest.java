@@ -198,7 +198,7 @@ public class YouPresenterTest extends AndroidUnitTest {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onExploreClicked(new View(context()));
 
-        verify(navigator).openExplore(context(), Screen.YOU);
+        verify(navigator).openExplore(context(), Screen.MORE);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class YouPresenterTest extends AndroidUnitTest {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onRecordClicked(new View(context()));
 
-        verify(navigator).openRecord(context(), Screen.YOU);
+        verify(navigator).openRecord(context(), Screen.MORE);
     }
 
     @Test

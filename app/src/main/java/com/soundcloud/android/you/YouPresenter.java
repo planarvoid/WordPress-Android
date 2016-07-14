@@ -165,7 +165,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment>
 
     @Override
     public void onExploreClicked(View view) {
-        navigator.openExplore(view.getContext(), Screen.YOU);
+        navigator.openExplore(view.getContext(), Screen.MORE);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment>
 
     @Override
     public void onRecordClicked(View view) {
-        navigator.openRecord(view.getContext(), Screen.YOU);
+        navigator.openRecord(view.getContext(), Screen.MORE);
     }
 
     @Override

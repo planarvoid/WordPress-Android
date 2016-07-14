@@ -12,10 +12,10 @@ import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.discovery.AllGenresActivity;
+import com.soundcloud.android.discovery.ChartActivity;
 import com.soundcloud.android.discovery.ChartTracksFragment;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
-import com.soundcloud.android.discovery.ChartActivity;
-import com.soundcloud.android.discovery.AllGenresActivity;
 import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
 import com.soundcloud.android.explore.ExploreActivity;
@@ -319,11 +319,11 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void opensExplore() {
-        navigator.openExplore(activityContext, Screen.YOU);
+        navigator.openExplore(activityContext, Screen.MORE);
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(ExploreActivity.class)
-                                   .containsScreen(Screen.YOU);
+                                   .containsScreen(Screen.MORE);
     }
 
     @Test
