@@ -7,6 +7,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.collection.playhistory.PlayHistoryController;
+import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
+import com.soundcloud.android.collection.playhistory.WritePlayHistoryCommand;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
@@ -106,11 +109,11 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                          TestPlayStates.wrap(new PlaybackStateTransition(playbackState,
-                                                     PlayStateReason.NONE,
-                                                     trackUrn,
-                                                     0,
-                                                     1000,
-                                                     dateProvider)));
+                                                                         PlayStateReason.NONE,
+                                                                         trackUrn,
+                                                                         0,
+                                                                         1000,
+                                                                         dateProvider)));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromNewQueue(item, collectionUrn, 0));
     }

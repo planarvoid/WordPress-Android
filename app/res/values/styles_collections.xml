@@ -32,12 +32,14 @@
         <item name="android:scaleType">centerCrop</item>
     </style>
 
-    <style name="Collections.PlaylistHeader" parent="ListItemText.PrimaryText">
+    <style name="Collections.PlaylistHeader">
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:lineSpacingMultiplier">1</item>
-        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/collections_recently_played_header</item>
+        <item name="android:paddingLeft">@dimen/collection_recently_played_default_margin</item>
+        <item name="android:paddingRight">@dimen/collection_recently_played_default_margin</item>
+        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="Collections.PlaylistKillFilterText" parent="ListItemText.PrimaryText">
@@ -117,11 +119,11 @@
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="Collections.RecentlyPlayedBucket">
+    <style name="Collections.Bucket">
         <item name="android:background">@color/white</item>
     </style>
 
-    <style name="Collections.RecentlyPlayedHeader">
+    <style name="Collections.BucketHeader">
         <item name="android:maxLines">1</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/collections_recently_played_header</item>
@@ -130,7 +132,7 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="Collections.RecentlyPlayedCarousel">
+    <style name="Collections.BucketCarousel">
         <item name="android:paddingLeft">@dimen/collection_recently_played_default_margin</item>
         <item name="android:layout_marginTop">@dimen/collection_recently_played_default_margin</item>
         <item name="android:layout_marginBottom">24dp</item>

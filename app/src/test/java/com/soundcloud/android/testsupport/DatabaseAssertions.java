@@ -105,7 +105,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiPromotedPlaylist;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
-import com.soundcloud.android.collection.PlayHistoryRecord;
+import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.CommentRecord;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;

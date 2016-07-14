@@ -1,5 +1,7 @@
 package com.soundcloud.android.collection;
 
+import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
+import com.soundcloud.android.collection.playhistory.WritePlayHistoryCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;

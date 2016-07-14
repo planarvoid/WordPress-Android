@@ -5,9 +5,6 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.collection.CollectionItem;
-import com.soundcloud.android.collection.RecentlyPlayedCollectionItem;
-import com.soundcloud.android.collection.RecentlyPlayedItem;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
@@ -24,17 +21,17 @@ import android.widget.TextView;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
-public class RecentlyPlayedPlaylistRenderer implements CellRenderer<CollectionItem> {
+class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedItem> {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
     private final boolean fixedWidth;
 
-    public RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
-                                          @Provided ImageOperations imageOperations,
-                                          @Provided Resources resources,
-                                          @Provided Navigator navigator) {
+    RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
+                                   @Provided ImageOperations imageOperations,
+                                   @Provided Resources resources,
+                                   @Provided Navigator navigator) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
@@ -52,9 +49,8 @@ public class RecentlyPlayedPlaylistRenderer implements CellRenderer<CollectionIt
     }
 
     @Override
-    public void bindItemView(int position, View view, List<CollectionItem> list) {
-        final RecentlyPlayedCollectionItem item = (RecentlyPlayedCollectionItem) list.get(position);
-        final RecentlyPlayedItem playlist = item.getRecentlyPlayedItem();
+    public void bindItemView(int position, View view, List<RecentlyPlayedItem> list) {
+        final RecentlyPlayedItem playlist = list.get(position);
 
         setImage(view, playlist);
         setTitle(view, playlist.getTitle());

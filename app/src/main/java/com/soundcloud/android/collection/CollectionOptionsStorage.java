@@ -24,7 +24,7 @@ public class CollectionOptionsStorage {
         this.preferences = preferences;
     }
 
-    void clear() {
+    public void clear() {
         preferences.edit().clear().apply();
     }
 
@@ -36,7 +36,7 @@ public class CollectionOptionsStorage {
         preferences.edit().putBoolean(ONBOARDING_DISABLED, true).apply();
     }
 
-    public PlaylistsOptions getLastOrDefault() {
+    PlaylistsOptions getLastOrDefault() {
         return PlaylistsOptions.builder()
                                .showLikes(preferences.getBoolean(KEY_SHOW_LIKES, false))
                                .showPosts(preferences.getBoolean(KEY_SHOW_POSTS, false))

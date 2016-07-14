@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
@@ -18,15 +19,13 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncActions;
-import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
@@ -51,7 +50,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     private CollectionOperations operations;
 
-    @Mock private FeatureFlags featureFlags;
     @Mock private SyncStateStorage syncStateStorage;
     @Mock private LegacySyncInitiator syncInitiator;
     @Mock private PlaylistPostStorage playlistPostStorage;
@@ -100,7 +98,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(
                 Urn.forTrackStation(123L))));
         when(stationsOperations.sync()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
-        when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
         postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
         postedPlaylist2 = getPostedPlaylist(Urn.forPlaylist(2L), new Date(3), "banana");
         likedPlaylist1 = getLikedPlaylist(Urn.forPlaylist(3L), new Date(2), "cherry");

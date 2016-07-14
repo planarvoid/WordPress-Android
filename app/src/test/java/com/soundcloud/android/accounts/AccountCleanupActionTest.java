@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.collection.CollectionOperations;
-import com.soundcloud.android.collection.PlayHistoryStorage;
+import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;

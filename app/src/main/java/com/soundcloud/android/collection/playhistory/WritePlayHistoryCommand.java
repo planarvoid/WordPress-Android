@@ -1,5 +1,6 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
+import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.propeller.ContentValuesBuilder;

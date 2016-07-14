@@ -10,9 +10,9 @@ import com.soundcloud.java.optional.Optional;
 import java.util.List;
 
 @AutoValue
-abstract class PreviewCollectionItem extends CollectionItem {
+public abstract class PreviewCollectionItem extends CollectionItem {
 
-    static CollectionItem forLikesAndPlaylists(LikesItem likes, List<PlaylistItem> playlistItems) {
+    public static CollectionItem forLikesAndPlaylists(LikesItem likes, List<PlaylistItem> playlistItems) {
         return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
                                                    likes,
                                                    Optional.<List<StationRecord>>absent(),

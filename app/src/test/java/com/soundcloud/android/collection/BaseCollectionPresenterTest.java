@@ -131,22 +131,22 @@ public class BaseCollectionPresenterTest extends AndroidUnitTest {
         }
 
         @Override
-        Observable<MyCollection> myCollection() {
+        public Observable<MyCollection> myCollection() {
             return collectionOperations.collections(null);
         }
 
         @Override
-        Observable<MyCollection> updatedMyCollection() {
+        public Observable<MyCollection> updatedMyCollection() {
             return collectionOperations.updatedCollections(null);
         }
 
         @Override
-        Observable<Object> onCollectionChanged() {
+        public Observable<Object> onCollectionChanged() {
             return collectionOperations.onCollectionChanged();
         }
 
         @Override
-        List<CollectionItem> buildCollectionItems(MyCollection myCollection) {
+        public List<CollectionItem> buildCollectionItems(MyCollection myCollection) {
             return Collections.emptyList();
         }
     }

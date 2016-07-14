@@ -1,5 +1,6 @@
 package com.soundcloud.android.collection;
 
+import com.soundcloud.android.collection.playhistory.PlayHistoryBucketRenderer;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketRenderer;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
@@ -10,7 +11,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem, RecyclerItemAdapter.ViewHolder>
-        implements CollectionHeaderRenderer.OnSettingsClickListener, CollectionPlaylistRemoveFilterRenderer.OnRemoveFilterListener {
+        implements CollectionPlaylistHeaderRenderer.OnSettingsClickListener, CollectionPlaylistRemoveFilterRenderer.OnRemoveFilterListener {
 
     private final OnboardingItemCellRenderer onboardingItemCellRenderer;
     private Listener listener;
@@ -24,23 +25,21 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
     @Inject
     public CollectionAdapter(OnboardingItemCellRenderer onboardingItemCellRenderer,
                              CollectionPreviewRenderer collectionPreviewRenderer,
-                             CollectionHeaderRenderer headerRenderer,
+                             CollectionPlaylistHeaderRenderer headerRenderer,
                              CollectionPlaylistRemoveFilterRenderer removeFilterRenderer,
                              CollectionEmptyPlaylistsRenderer emptyPlaylistsRenderer,
                              CollectionPlaylistItemRenderer playlistRenderer,
-                             CollectionTrackItemRenderer trackRenderer,
-                             CollectionViewAllRenderer viewAllRenderer,
-                             RecentlyPlayedBucketRenderer recentlyPlayedBucketRenderer) {
+                             RecentlyPlayedBucketRenderer recentlyPlayedBucketRenderer,
+                             PlayHistoryBucketRenderer playHistoryBucketRenderer) {
         super(
                 new CellRendererBinding<>(CollectionItem.TYPE_ONBOARDING, onboardingItemCellRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PREVIEW, collectionPreviewRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_HEADER, headerRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_HEADER, headerRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_REMOVE_FILTER, removeFilterRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_EMPTY, emptyPlaylistsRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAYLIST_ITEM, playlistRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_TRACK_ITEM, trackRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_VIEW_ALL, viewAllRenderer),
-                new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_BUCKET, recentlyPlayedBucketRenderer));
+                new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_BUCKET, recentlyPlayedBucketRenderer),
+                new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_BUCKET, playHistoryBucketRenderer));
         this.onboardingItemCellRenderer = onboardingItemCellRenderer;
 
         headerRenderer.setOnSettingsClickListener(this);

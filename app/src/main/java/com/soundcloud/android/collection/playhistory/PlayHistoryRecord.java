@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;

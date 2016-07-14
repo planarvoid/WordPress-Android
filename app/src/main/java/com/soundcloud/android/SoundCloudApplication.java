@@ -12,7 +12,7 @@ import com.soundcloud.android.analytics.crashlytics.FabricProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.cast.CastSessionController;
-import com.soundcloud.android.collection.PlayHistoryController;
+import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;

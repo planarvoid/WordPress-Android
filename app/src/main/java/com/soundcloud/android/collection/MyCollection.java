@@ -1,6 +1,7 @@
 package com.soundcloud.android.collection;
 
 import com.google.auto.value.AutoValue;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TrackItem;
@@ -33,12 +34,12 @@ public abstract class MyCollection {
 
     public abstract List<PlaylistItem> getPlaylistItems();
 
-    abstract List<StationRecord> getRecentStations();
+    public abstract List<StationRecord> getRecentStations();
 
-    abstract List<TrackItem> getPlayHistoryTrackItems();
+    public abstract List<TrackItem> getPlayHistoryTrackItems();
 
-    abstract List<RecentlyPlayedItem> getRecentlyPlayedItems();
+    public abstract List<RecentlyPlayedItem> getRecentlyPlayedItems();
 
-    abstract boolean hasError();
+    public abstract boolean hasError();
 
 }

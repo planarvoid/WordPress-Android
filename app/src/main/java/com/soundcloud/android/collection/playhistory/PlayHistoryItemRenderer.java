@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-class CollectionTrackItemRenderer implements CellRenderer<CollectionItem> {
+class PlayHistoryItemRenderer implements CellRenderer<TrackItem> {
 
     private final TrackItemRenderer trackItemRenderer;
     private final TrackItemView.Factory trackItemViewFactory;
@@ -24,10 +24,10 @@ class CollectionTrackItemRenderer implements CellRenderer<CollectionItem> {
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     @Inject
-    public CollectionTrackItemRenderer(TrackItemRenderer trackItemRenderer,
-                                       TrackItemView.Factory trackItemViewFactory,
-                                       PlayHistoryOperations playHistoryOperations,
-                                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+    public PlayHistoryItemRenderer(TrackItemRenderer trackItemRenderer,
+                                   TrackItemView.Factory trackItemViewFactory,
+                                   PlayHistoryOperations playHistoryOperations,
+                                   Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.trackItemRenderer = trackItemRenderer;
         this.trackItemViewFactory = trackItemViewFactory;
         this.playHistoryOperations = playHistoryOperations;
@@ -40,9 +40,8 @@ class CollectionTrackItemRenderer implements CellRenderer<CollectionItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<CollectionItem> items) {
-        final TrackCollectionItem collectionItem = (TrackCollectionItem) items.get(position);
-        final TrackItem trackItem = collectionItem.getTrackItem();
+    public void bindItemView(int position, View itemView, List<TrackItem> items) {
+        final TrackItem trackItem = items.get(position);
 
         itemView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.white));
         trackItemRenderer.bindTrackView(trackItem, itemView, position);

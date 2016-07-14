@@ -1,9 +1,10 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.tracks.TrackItemMapper.BASE_TRACK_FIELDS;
 import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns.SoundView;
@@ -39,13 +40,13 @@ public class PlayHistoryStorage {
         this.rxDatabase = new PropellerRx(database);
     }
 
-    Observable<TrackItem> fetchTracks(int limit) {
+    public Observable<TrackItem> fetchTracks(int limit) {
         return rxDatabase.query(fetchTracksQuery(limit))
                          .map(new TrackItemMapper())
                          .map(TrackItem.fromPropertySet());
     }
 
-    Observable<RecentlyPlayedItem> fetchContexts(int limit) {
+    public Observable<RecentlyPlayedItem> fetchContexts(int limit) {
         return rxDatabase.query(fetchContextsQuery(limit))
                          .map(new RecentlyPlayedItemMapper());
     }

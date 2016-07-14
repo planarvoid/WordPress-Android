@@ -46,5 +46,11 @@
         soundcloud:collectionTitle="@string/stations_collection_title_recent_stations"
         soundcloud:collectionPreviewOverlay="@drawable/stations_overlay_small"/>
 
+    <View style="@style/Divider.Section" />
+
+    <View
+        android:id="@+id/recommendation_separator"
+        style="@style/Divider.Background" />
+
 </LinearLayout>
 

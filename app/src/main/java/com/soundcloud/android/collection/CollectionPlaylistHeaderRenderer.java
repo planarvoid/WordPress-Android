@@ -1,6 +1,5 @@
 package com.soundcloud.android.collection;
 
-import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ViewUtils;
@@ -8,12 +7,11 @@ import com.soundcloud.android.utils.ViewUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.util.List;
 
-class CollectionHeaderRenderer implements CellRenderer<CollectionItem> {
+class CollectionPlaylistHeaderRenderer implements CellRenderer<CollectionItem> {
 
     private static final int EXTEND_OPTIONS_HIT_DP = 8;
 
@@ -33,7 +31,7 @@ class CollectionHeaderRenderer implements CellRenderer<CollectionItem> {
     }
 
     @Inject
-    public CollectionHeaderRenderer() {
+    CollectionPlaylistHeaderRenderer() {
     }
 
     @Override
@@ -48,17 +46,6 @@ class CollectionHeaderRenderer implements CellRenderer<CollectionItem> {
 
     @Override
     public void bindItemView(int position, View view, List<CollectionItem> list) {
-        HeaderCollectionItem item = (HeaderCollectionItem) list.get(position);
-        ButterKnife.findById(view, R.id.btn_collections_playlist_options).setVisibility(getOptionsVisibility(item));
-        ButterKnife.<TextView>findById(view, R.id.header_text).setText(getTextRes(item));
-    }
-
-    private int getTextRes(HeaderCollectionItem item) {
-        return item.getTitleResId();
-    }
-
-    private int getOptionsVisibility(HeaderCollectionItem item) {
-        return item.isWithFilterOptions() ? View.VISIBLE : View.GONE;
     }
 
     void setOnSettingsClickListener(OnSettingsClickListener onSettingsClickListener) {

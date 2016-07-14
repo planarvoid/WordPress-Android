@@ -1,7 +1,8 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
 
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -20,7 +21,7 @@ import java.util.List;
 public class PlayHistoryOperations {
 
     private static final int MAX_HISTORY_ITEMS = 1000;
-    @VisibleForTesting static final int MAX_RECENTLY_PLAYED = 500;
+    @VisibleForTesting  public static final int MAX_RECENTLY_PLAYED = 500;
 
     private static final Func1<TrackItem, Long> BY_TRACK_ID =
             new Func1<TrackItem, Long>() {
@@ -35,7 +36,7 @@ public class PlayHistoryOperations {
     private final Scheduler scheduler;
 
     @Inject
-    PlayHistoryOperations(PlaybackInitiator playbackInitiator,
+    public PlayHistoryOperations(PlaybackInitiator playbackInitiator,
                           PlayHistoryStorage playHistoryStorage,
                           @Named(HIGH_PRIORITY) Scheduler scheduler) {
         this.playbackInitiator = playbackInitiator;
@@ -49,7 +50,7 @@ public class PlayHistoryOperations {
 
     // We preload up to 2 x limit and remove duplicate tracks by track id
     // rather than having a distinct on all columns or a complex group by
-    Observable<List<TrackItem>> playHistory(int limit) {
+    public Observable<List<TrackItem>> playHistory(int limit) {
         return playHistoryStorage.fetchTracks(limit * 2)
                                  .distinct(BY_TRACK_ID)
                                  .take(limit)
@@ -57,12 +58,12 @@ public class PlayHistoryOperations {
                                  .subscribeOn(scheduler);
     }
 
-    public Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
+    Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
         return playbackInitiator.playTracks(getAllTracksForPlayback(), trackUrn, 0,
                                             new PlaySessionSource(screen));
     }
 
-    Observable<List<RecentlyPlayedItem>> recentlyPlayed(int limit) {
+    public Observable<List<RecentlyPlayedItem>> recentlyPlayed(int limit) {
         return playHistoryStorage.fetchContexts(limit)
                                  .toList()
                                  .subscribeOn(scheduler);
@@ -72,7 +73,6 @@ public class PlayHistoryOperations {
         return playHistoryStorage
                 .fetchContexts(MAX_RECENTLY_PLAYED)
                 .subscribeOn(scheduler);
-
     }
 
     private Observable<List<Urn>> getAllTracksForPlayback() {

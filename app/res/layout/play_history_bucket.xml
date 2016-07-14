@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/recently_played_bucket"
+<LinearLayout android:id="@+id/play_history_bucket"
     style="@style/Collections.Bucket"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -9,30 +9,26 @@
     <View style="@style/Divider.Section" />
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/recently_played_header"
         style="@style/Collections.BucketHeader"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:text="@string/collections_recently_played_header" />
+        android:text="@string/collections_play_history_header" />
 
     <View style="@style/Divider.Item" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recently_played_carousel"
-        style="@style/Collections.BucketCarousel"
+        android:id="@+id/play_history"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <View style="@style/Divider.Item" />
-
     <FrameLayout
-        android:id="@+id/recently_played_view_all"
+        android:id="@+id/play_history_view_all"
         style="@style/ViewAllContainer">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/sounds_view_all_text"
             style="@style/ViewAllText"
-            android:text="@string/collections_view_all_recently_played" />
+            android:text="@string/collections_view_all_tracks" />
 
     </FrameLayout>
 

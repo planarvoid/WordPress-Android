@@ -2,6 +2,7 @@ package com.soundcloud.android.collection;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
+import com.soundcloud.android.collection.playhistory.PlayHistoryCollectionPresenter;
 import com.soundcloud.android.collection.playhistory.PlayHistoryFragment;
 import com.soundcloud.android.collection.playlists.PlaylistsCollectionActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsCollectionFragment;

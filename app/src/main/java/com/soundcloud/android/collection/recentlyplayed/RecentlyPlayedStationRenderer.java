@@ -4,9 +4,6 @@ import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
-import com.soundcloud.android.collection.CollectionItem;
-import com.soundcloud.android.collection.RecentlyPlayedCollectionItem;
-import com.soundcloud.android.collection.RecentlyPlayedItem;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
@@ -24,14 +21,14 @@ import android.widget.TextView;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
-public class RecentlyPlayedStationRenderer implements CellRenderer<CollectionItem> {
+class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedItem> {
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final StartStationPresenter startStationPresenter;
 
-    public RecentlyPlayedStationRenderer(boolean fixedWidth,
+    RecentlyPlayedStationRenderer(boolean fixedWidth,
                                          @Provided ImageOperations imageOperations,
                                          @Provided Resources resources,
                                          @Provided StartStationPresenter startStationPresenter) {
@@ -52,9 +49,8 @@ public class RecentlyPlayedStationRenderer implements CellRenderer<CollectionIte
     }
 
     @Override
-    public void bindItemView(int position, View view, List<CollectionItem> list) {
-        final RecentlyPlayedCollectionItem item = (RecentlyPlayedCollectionItem) list.get(position);
-        final RecentlyPlayedItem station = item.getRecentlyPlayedItem();
+    public void bindItemView(int position, View view, List<RecentlyPlayedItem> list) {
+        final RecentlyPlayedItem station = list.get(position);
 
         setImage(view, station);
         setTitle(view, station.getTitle());

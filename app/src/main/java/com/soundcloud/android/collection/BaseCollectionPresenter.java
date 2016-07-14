@@ -29,7 +29,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem>
+public abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem>
         implements OnboardingItemCellRenderer.Listener {
 
     public static final String TAG = "CollectionPresenter";
@@ -55,7 +55,7 @@ abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollectio
     };
 
     @VisibleForTesting
-    final Func1<MyCollection, Iterable<CollectionItem>> toCollectionItems =
+    public final Func1<MyCollection, Iterable<CollectionItem>> toCollectionItems =
             new Func1<MyCollection, Iterable<CollectionItem>>() {
                 @Override
                 public List<CollectionItem> call(MyCollection myCollection) {
@@ -76,7 +76,7 @@ abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollectio
 
     private CompositeSubscription eventSubscriptions = new CompositeSubscription();
 
-    BaseCollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+    public BaseCollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                             EventBus eventBus,
                             CollectionAdapter adapter,
                             Resources resources,
@@ -90,13 +90,13 @@ abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCollectio
         adapter.setOnboardingListener(this);
     }
 
-    abstract Observable<MyCollection> myCollection();
+    protected abstract Observable<MyCollection> myCollection();
 
-    abstract Observable<MyCollection> updatedMyCollection();
+    protected abstract Observable<MyCollection> updatedMyCollection();
 
-    abstract Observable<Object> onCollectionChanged();
+    protected abstract Observable<Object> onCollectionChanged();
 
-    abstract List<CollectionItem> buildCollectionItems(MyCollection myCollection);
+    protected abstract List<CollectionItem> buildCollectionItems(MyCollection myCollection);
 
     @Override
     public void onCreate(Fragment fragment, Bundle bundle) {

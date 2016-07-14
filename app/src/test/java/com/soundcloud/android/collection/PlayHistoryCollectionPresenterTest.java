@@ -9,7 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketCollectionItem;
+import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
+import com.soundcloud.android.collection.playhistory.PlayHistoryCollectionPresenter;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -90,11 +93,8 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
 
         assertThat(collectionItems).containsExactly(
                 PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems()),
-                RecentlyPlayedBucketCollectionItem.create(RECENTLY_PLAYED),
-                ViewAllCollectionItem.forRecentlyPlayed(),
-                HeaderCollectionItem.forPlayHistory(),
-                TrackCollectionItem.create(PLAY_HISTORY.get(0)),
-                ViewAllCollectionItem.forPlayHistory()
+                RecentlyPlayedBucketItem.create(RECENTLY_PLAYED),
+                PlayHistoryBucketItem.create(PLAY_HISTORY)
         );
     }
 

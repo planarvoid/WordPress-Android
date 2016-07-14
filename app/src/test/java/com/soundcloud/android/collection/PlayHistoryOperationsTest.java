@@ -3,6 +3,9 @@ package com.soundcloud.android.collection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
+import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackInitiator;

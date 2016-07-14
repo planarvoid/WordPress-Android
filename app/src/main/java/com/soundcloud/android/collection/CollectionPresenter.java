@@ -43,17 +43,17 @@ public class CollectionPresenter extends BaseCollectionPresenter
     }
 
     @Override
-    Observable<MyCollection> myCollection() {
+    public Observable<MyCollection> myCollection() {
         return collectionOperations.collections(currentOptions);
     }
 
     @Override
-    Observable<MyCollection> updatedMyCollection() {
+    public Observable<MyCollection> updatedMyCollection() {
         return collectionOperations.updatedCollections(currentOptions);
     }
 
     @Override
-    Observable<Object> onCollectionChanged() {
+    public Observable<Object> onCollectionChanged() {
         return collectionOperations.onCollectionChanged();
     }
 
@@ -98,7 +98,7 @@ public class CollectionPresenter extends BaseCollectionPresenter
     protected List<CollectionItem> playlistCollectionItems(List<PlaylistItem> playlistItems) {
         List<CollectionItem> items = new ArrayList<>(playlistItems.size() + 2);
 
-        items.add(HeaderCollectionItem.forPlaylists());
+        items.add(PlaylistHeaderCollectionItem.create());
 
         for (PlaylistItem playlistItem : playlistItems) {
             items.add(PlaylistCollectionItem.create(playlistItem));

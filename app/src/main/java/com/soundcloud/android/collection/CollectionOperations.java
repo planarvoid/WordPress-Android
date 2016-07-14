@@ -7,6 +7,8 @@ import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
@@ -22,8 +24,8 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.LegacySyncContent;
+import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
@@ -263,21 +265,21 @@ public class CollectionOperations {
         this.playHistoryOperations = playHistoryOperations;
     }
 
-    Observable<Object> onCollectionChanged() {
+    public Observable<Object> onCollectionChanged() {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
                 eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_RECENT_STATIONS_SYNC_EVENT)
         );
     }
 
-    Observable<Object> onCollectionChangedWithPlayHistory() {
+    public Observable<Object> onCollectionChangedWithPlayHistory() {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
                 eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_ADDED)
         );
     }
 
-    Observable<MyCollection> collections(final PlaylistsOptions options) {
+    public Observable<MyCollection> collections(final PlaylistsOptions options) {
         return Observable.zip(
                 myPlaylists(options).materialize(),
                 likesItem().materialize(),
@@ -286,7 +288,7 @@ public class CollectionOperations {
         ).dematerialize();
     }
 
-    Observable<MyCollection> collectionsForPlayHistory() {
+    public Observable<MyCollection> collectionsForPlayHistory() {
         return Observable.zip(
                 myPlaylists().materialize(),
                 likesItem().materialize(),
@@ -356,7 +358,7 @@ public class CollectionOperations {
                 }).subscribeOn(scheduler);
     }
 
-    Observable<MyCollection> updatedCollections(final PlaylistsOptions options) {
+    public Observable<MyCollection> updatedCollections(final PlaylistsOptions options) {
         return Observable.zip(
                 refreshAndLoadPlaylists(options),
                 Observable.zip(refreshLikesAndLoadPreviews(),
@@ -367,7 +369,7 @@ public class CollectionOperations {
         );
     }
 
-    Observable<MyCollection> updatedCollectionsForPlayHistory() {
+    public Observable<MyCollection> updatedCollectionsForPlayHistory() {
         return Observable.zip(
                 refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL),
                 Observable.zip(refreshLikesAndLoadPreviews(),

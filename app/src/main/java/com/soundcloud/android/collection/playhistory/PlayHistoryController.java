@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
@@ -66,7 +66,7 @@ public class PlayHistoryController {
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    PlayHistoryController(EventBus eventBus,
+    public PlayHistoryController(EventBus eventBus,
                           WritePlayHistoryCommand storeCommand,
                           FeatureFlags featureFlags,
                           @Named(LOW_PRIORITY) Scheduler scheduler) {
@@ -119,7 +119,7 @@ public class PlayHistoryController {
         return new Action1<PlayHistoryRecord>() {
             @Override
             public void call(PlayHistoryRecord record) {
-                if(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
+                if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
                     eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(record.trackUrn()));
                 }
             }
