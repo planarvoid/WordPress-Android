@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.discovery;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.DiscoveryChartsTest;
 import com.soundcloud.android.main.MainActivity;
@@ -33,16 +34,16 @@ public class ChartsTest extends ActivityTest<MainActivity> {
 
     public void testPlayTrackFromGenreChart() {
         AllGenresScreen genresScreen = discoveryScreen.chartBucket().clickViewAll();
-        assertThat(genresScreen.getActionBarTitle(), equalTo("All genres"));
-        assertThat(genresScreen.activeTabTitle(), equalTo("Music"));
+        assertThat(genresScreen.getActionBarTitle(), equalTo(solo.getString(R.string.all_genres)));
+        assertThat(genresScreen.activeTabTitle(), equalTo(solo.getString(R.string.explore_genre_header_music)));
         genresScreen.swipeLeft();
-        assertThat(genresScreen.activeTabTitle(), equalTo("Audio"));
+        assertThat(genresScreen.activeTabTitle(), equalTo(solo.getString(R.string.explore_genre_header_audio)));
 
-        ChartsScreen chartsScreen = genresScreen.clickGenre("Audiobooks");
-        assertThat(chartsScreen.getActionBarTitle(), equalTo("Audiobooks"));
-        assertThat(chartsScreen.activeTabTitle(), equalTo("New & hot"));
+        ChartsScreen chartsScreen = genresScreen.clickGenre(solo.getString(R.string.charts_audiobooks));
+        assertThat(chartsScreen.getActionBarTitle(), equalTo(solo.getString(R.string.charts_audiobooks)));
+        assertThat(chartsScreen.activeTabTitle(), equalTo(solo.getString(R.string.charts_trending)));
         chartsScreen.swipeLeft();
-        assertThat(chartsScreen.activeTabTitle(), equalTo("Top 50"));
+        assertThat(chartsScreen.activeTabTitle(), equalTo(solo.getString(R.string.charts_top)));
 
         final String trackTitle = chartsScreen.firstTrackTitle();
         final VisualPlayerElement player = chartsScreen.clickFirstTrack();
