@@ -91,7 +91,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private long prepareStartTimeMs;
     private String currentStreamUrl = Strings.EMPTY;
 
-
     private Optional<VideoSource> currentVideoSource = Optional.absent();
 
     @Inject

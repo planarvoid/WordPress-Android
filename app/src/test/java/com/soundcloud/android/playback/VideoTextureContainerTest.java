@@ -51,7 +51,7 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
         when(textureView.getSurfaceTexture()).thenReturn(surfaceTexture);
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
-        textureContainer.attachSurfaceTexture(textureView);
+        textureContainer.reattachSurfaceTexture(textureView);
 
         verify(textureView, never()).setSurfaceTexture(surfaceTexture);
     }
@@ -61,7 +61,7 @@ public class VideoTextureContainerTest extends AndroidUnitTest {
         when(textureView.getSurfaceTexture()).thenReturn(surfaceTexture);
         textureContainer.onSurfaceTextureAvailable(surfaceTexture, 0, 0);
 
-        textureContainer.attachSurfaceTexture(textureView2);
+        textureContainer.reattachSurfaceTexture(textureView2);
 
         verify(textureView2).setSurfaceTexture(surfaceTexture);
     }

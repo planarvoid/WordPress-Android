@@ -114,8 +114,7 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
     }
 
     public TextureView getVideoTexture(View adView) {
-        final Holder holder = getViewHolder(adView);
-        return holder.videoTextureView;
+        return getViewHolder(adView).videoTextureView;
     }
 
     private void adjustLayoutForVideo(View adView, VideoPlayerAd playerAd, Holder holder) {
@@ -303,16 +302,9 @@ class VideoAdPresenter extends AdPagePresenter<VideoPlayerAd> implements View.On
 
             playerOverlayController = playerOverlayControllerFactory.create(videoOverlay);
 
-            List<View> clickViews = Arrays.asList(playButton,
-                                                  nextButton,
-                                                  previousButton,
-                                                  shrinkButton,
-                                                  fullscreenButton,
-                                                  videoOverlay,
-                    videoTextureView,
-                                                  ctaButton,
-                                                  whyAds,
-                                                  skipAd);
+            List<View> clickViews = Arrays.asList(playButton, nextButton, previousButton, shrinkButton,
+                                                  fullscreenButton, videoOverlay, videoTextureView,
+                                                  ctaButton, whyAds, skipAd);
 
             onClickViews = Iterables.filter(clickViews, presentInConfig);
         }

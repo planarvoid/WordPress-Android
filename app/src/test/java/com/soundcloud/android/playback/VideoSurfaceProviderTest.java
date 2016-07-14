@@ -4,6 +4,7 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 
 import org.junit.Before;
@@ -11,13 +12,16 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
 public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
-    @Mock VideoSurfaceProvider.VideoTextureContainerFactory containerFactory;
+    @Mock ApplicationProperties applicationProperties;
+    @Mock VideoTextureContainer.Factory containerFactory;
     @Mock VideoTextureContainer textureContainer;
     @Mock VideoSurfaceProvider.Listener listener;
     @Mock TextureView textureView;
@@ -30,10 +34,11 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        videoSurfaceProvider = new VideoSurfaceProvider(containerFactory);
+        videoSurfaceProvider = new VideoSurfaceProvider(applicationProperties, containerFactory);
         videoSurfaceProvider.setListener(listener);
 
         when(containerFactory.build(URN, textureView, listener)).thenReturn(textureContainer);
+        when(applicationProperties.canReattachSurfaceTexture()).thenReturn(true);
     }
 
     @Test
@@ -49,7 +54,18 @@ public class VideoSurfaceProviderTest extends AndroidUnitTest {
         videoSurfaceProvider.setTextureView(URN, textureView);
 
         verify(containerFactory).build(URN, textureView, listener);
-        verify(textureContainer).attachSurfaceTexture(textureView);
+        verify(textureContainer).reattachSurfaceTexture(textureView);
+    }
+
+    @Test
+    public void rebuildsTextureViewContainerForIceCreamSandwichIfContainerForUrnExists() {
+        when(applicationProperties.canReattachSurfaceTexture()).thenReturn(false);
+
+        videoSurfaceProvider.setTextureView(URN, textureView);
+        videoSurfaceProvider.setTextureView(URN, textureView);
+
+        verify(containerFactory, times(2)).build(URN, textureView, listener);
+        verify(textureContainer, never()).reattachSurfaceTexture(textureView);
     }
 
     @Test

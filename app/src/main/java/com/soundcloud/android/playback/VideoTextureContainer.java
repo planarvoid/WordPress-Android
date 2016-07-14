@@ -1,11 +1,15 @@
 package com.soundcloud.android.playback;
 
+import android.annotation.TargetApi;
 import android.graphics.SurfaceTexture;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
 
 import com.soundcloud.android.model.Urn;
+
+import javax.inject.Inject;
 
 // Inspired by: github.com/google/grafika/blob/master/src/com/android/grafika/DoubleDecodeActivity.java
 public class VideoTextureContainer implements TextureView.SurfaceTextureListener {
@@ -13,24 +17,29 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
     final private Urn urn;
     final private VideoSurfaceProvider.Listener listener;
 
-    private Surface surface;
-    private SurfaceTexture surfaceTexture;
-    private TextureView currentTextureView;
+    @Nullable private Surface surface;
+    @Nullable private SurfaceTexture surfaceTexture;
+    @Nullable private TextureView currentTextureView;
 
     public VideoTextureContainer(Urn videoUrn,
                                  TextureView textureView,
                                  VideoSurfaceProvider.Listener listener) {
         this.urn = videoUrn;
         this.listener = listener;
-        attachSurfaceTexture(textureView);
+        setTextureView(textureView);
     }
 
-    public void attachSurfaceTexture(TextureView textureView) {
-        currentTextureView = textureView;
-        currentTextureView.setSurfaceTextureListener(this);
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void reattachSurfaceTexture(TextureView textureView) {
+        setTextureView(textureView);
         if (surfaceTexture != null && !surfaceTextureAlreadyAttached(textureView)) {
             textureView.setSurfaceTexture(surfaceTexture);
         }
+    }
+
+    private void setTextureView(TextureView textureView) {
+        currentTextureView = textureView;
+        currentTextureView.setSurfaceTextureListener(this);
     }
 
     private boolean surfaceTextureAlreadyAttached(TextureView textureView) {
@@ -89,5 +98,14 @@ public class VideoTextureContainer implements TextureView.SurfaceTextureListener
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         // no-op
+    }
+
+    static class Factory {
+        @Inject
+        Factory() {}
+
+        VideoTextureContainer build(Urn urn, TextureView textureView, VideoSurfaceProvider.Listener listener) {
+            return new VideoTextureContainer(urn, textureView, listener);
+        }
     }
 }
