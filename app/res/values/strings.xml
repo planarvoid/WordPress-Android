@@ -412,6 +412,7 @@
     <string name="record_tap_to_record">Tap to start recording</string>
     <string name="record_tap_to_pause">Tap to pause recording</string>
     <string name="record_tap_to_resume">Tap to resume recording</string>
+    <string name="record_permission_rationale">Please grant SoundCloud access to your microphone so we can create a new recording.</string>
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Processing</string>

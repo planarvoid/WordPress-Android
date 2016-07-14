@@ -26,9 +26,9 @@ allprojects {
     resSrcDirs = 'res'
     assetsSrcDirs = 'assets'
 
-    androidCompileSdkVersion = 23
+    androidCompileSdkVersion = 24
     androidMinSdkVersion = 14
-    androidTargetSdkVersion = 22
+    androidTargetSdkVersion = 24
 
     androidNetworkManagerApplicationId = 'com.soundcloud.androidnetworkmanager'
 

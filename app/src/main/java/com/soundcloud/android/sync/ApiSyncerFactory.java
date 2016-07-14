@@ -36,7 +36,8 @@ public class ApiSyncerFactory {
                             Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
-                            Lazy<MyFollowingsSyncer> lazyMyFollowingsSyncerLazy, Lazy<TrackSyncer> lazyTrackSyncer,
+                            Lazy<MyFollowingsSyncer> lazyMyFollowingsSyncerLazy,
+                            Lazy<TrackSyncer> lazyTrackSyncer,
                             Lazy<MeSyncer> lazyMeSyncer,
                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory) {
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;

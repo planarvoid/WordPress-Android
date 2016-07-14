@@ -7,6 +7,7 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
+                RecordPermissionsActivity.class,
                 RecordActivity.class,
                 RecordFragment.class,
                 MetadataFragment.class,

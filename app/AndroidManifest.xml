@@ -16,9 +16,9 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" android:maxSdkVersion="22"/>
 
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
@@ -233,6 +233,10 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
+        <!-- this cannot be a no-history activity for callback purposes-->
+        <activity android:label="@string/app_name" android:name=".creators.record.RecordPermissionsActivity" />
+
         <activity android:label="@string/app_name" android:launchMode="singleTask" android:name=".creators.record.UploadActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>

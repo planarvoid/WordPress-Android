@@ -12,6 +12,7 @@ import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.discovery.AllGenresActivity;
 import com.soundcloud.android.discovery.ChartActivity;
 import com.soundcloud.android.discovery.ChartTracksFragment;
@@ -49,7 +50,9 @@ import com.soundcloud.java.optional.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.robolectric.Shadows;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.SearchManager;
@@ -278,7 +281,19 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void openRecordPermissions() {
+        Recording recording = new Recording();
+        navigator.openRecord(activityContext, recording);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(Recording.EXTRA, recording)
+                                   .containsFlag(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                   .opensActivity(RecordPermissionsActivity.class);
+    }
+
+    @Test
     public void openRecord() {
+        Shadows.shadowOf(activityContext.getApplication()).grantPermissions(new String[]{Manifest.permission.RECORD_AUDIO});
         Recording recording = new Recording();
         navigator.openRecord(activityContext, recording);
 

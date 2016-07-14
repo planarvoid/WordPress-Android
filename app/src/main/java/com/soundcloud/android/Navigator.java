@@ -12,6 +12,7 @@ import com.soundcloud.android.collection.playlists.PlaylistsCollectionActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
+import com.soundcloud.android.creators.record.RecordPermissionsActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.discovery.AllGenresActivity;
 import com.soundcloud.android.discovery.ChartActivity;
@@ -50,16 +51,19 @@ import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -242,17 +246,24 @@ public class Navigator {
         context.startActivity(new Intent(context, SettingsActivity.class));
     }
 
-    @Deprecated // use method that passes Screen, remove this after tabs
-    public void openRecord(Context context) {
-        context.startActivity(createRecordIntent(context, null));
-    }
-
     public void openRecord(Context context, Screen screen) {
-        context.startActivity(createRecordIntent(context, null, screen));
+        openRecord(context, null, screen);
     }
 
     public void openRecord(Context context, Recording recording) {
-        context.startActivity(createRecordIntent(context, recording));
+        openRecord(context, recording, Screen.UNKNOWN);
+    }
+
+    public void openRecord(Context context, Recording recording, Screen screen) {
+        if (hasMicrophonePermission(context)) {
+            context.startActivity(createRecordIntent(context, recording, screen));
+        } else {
+            context.startActivity(createRecordPermissionIntent(context, recording, screen));
+        }
+    }
+
+    private boolean hasMicrophonePermission(Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==  PackageManager.PERMISSION_GRANTED;
     }
 
     public void openOfflineSettings(Context context) {
@@ -464,14 +475,18 @@ public class Navigator {
         return intent;
     }
 
-    private Intent createRecordIntent(Context context, Recording recording) {
-        return new Intent(context, RecordActivity.class)
+    private Intent createRecordPermissionIntent(Context context, Recording recording, Screen screen) {
+        Intent intent = new Intent(context, RecordPermissionsActivity.class)
                 .putExtra(Recording.EXTRA, recording)
                 .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        screen.addToIntent(intent);
+        return intent;
     }
 
     private Intent createRecordIntent(Context context, Recording recording, Screen screen) {
-        Intent intent = createRecordIntent(context, recording);
+        Intent intent = new Intent(context, RecordActivity.class)
+                .putExtra(Recording.EXTRA, recording)
+                .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         screen.addToIntent(intent);
         return intent;
     }
