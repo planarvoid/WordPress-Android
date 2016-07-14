@@ -48,7 +48,7 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String RICH_MEDIA_STREAM_EVENT = "rich_media_stream";
     private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
 
-    private static final String BOOGALOO_VERSION = "v1.21.1";
+    private static final String BOOGALOO_VERSION = "v1.21.2";
 
     private final int appId;
     private final DeviceHelper deviceHelper;
