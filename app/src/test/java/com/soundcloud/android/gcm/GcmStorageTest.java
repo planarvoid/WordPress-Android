@@ -21,35 +21,61 @@ public class GcmStorageTest extends AndroidUnitTest{
     private GcmStorage gcmStorage;
 
     @Mock private FeatureFlags featureFlags;
+    private RoboSharedPreferences prefs;
 
     @Before
     public void setUp() throws Exception {
         final HashMap<String, Map<String, Object>> prefsContent = new HashMap<>();
-        final RoboSharedPreferences prefs = new RoboSharedPreferences(prefsContent, "prefs", Context.MODE_PRIVATE);
+        prefs = new RoboSharedPreferences(prefsContent, "prefs", Context.MODE_PRIVATE);
         gcmStorage = new GcmStorage(prefs, featureFlags);
     }
 
     @Test
     public void shouldRegisterIsTrueByDefault() {
-        when(featureFlags.isEnabled(Flag.ARCHER_GCM)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
         assertThat(gcmStorage.shouldRegister()).isTrue();
     }
 
     @Test
     public void shouldNotRegisterAfterMarkedAsRegistered() {
-        when(featureFlags.isEnabled(Flag.ARCHER_GCM)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
         gcmStorage.markAsRegistered("token");
 
         assertThat(gcmStorage.shouldRegister()).isFalse();
     }
 
     @Test
-    public void shouldRegisterAfterClearingRegistration() {
-        when(featureFlags.isEnabled(Flag.ARCHER_GCM)).thenReturn(true);
+    public void hasTokenAfterMarkedAsRegistered() {
+        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
         gcmStorage.markAsRegistered("token");
-        gcmStorage.clearHasRegistered();
+
+        assertThat(gcmStorage.getToken()).isNotEmpty();
+    }
+
+    @Test
+    public void shouldRegisterArcherWithExistingToken() {
+        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        prefs.edit().putString(GcmStorage.TOKEN_KEY, "gcm-token");
 
         assertThat(gcmStorage.shouldRegister()).isTrue();
+    }
+
+    @Test
+    public void shouldRegisterAfterClearingRegistration() {
+        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        gcmStorage.markAsRegistered("token");
+        gcmStorage.clearTokenForRefresh();
+
+        assertThat(gcmStorage.shouldRegister()).isTrue();
+    }
+
+    @Test
+    public void shouldNotHaveTokenAfterClearingRegisteration() {
+        when(featureFlags.isEnabled(Flag.ARCHER_PUSH)).thenReturn(true);
+        gcmStorage.markAsRegistered("token");
+        gcmStorage.clearTokenForRefresh();
+
+        assertThat(gcmStorage.getToken()).isNullOrEmpty();
     }
 
     @Test
@@ -67,7 +93,7 @@ public class GcmStorageTest extends AndroidUnitTest{
     @Test
     public void legacyShouldRegisterAfterClearingRegistration() {
         gcmStorage.markAsRegistered("token");
-        gcmStorage.clearHasRegistered();
+        gcmStorage.clearTokenForRefresh();
 
         assertThat(gcmStorage.shouldRegister()).isTrue();
     }

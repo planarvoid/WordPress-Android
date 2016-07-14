@@ -6,7 +6,7 @@ def FALSE = "false"
 
 enum Feature {
   PUBLISH_PLAY_EVENTS_TO_TPUB,
-  ARCHER_GCM,
+  ARCHER_PUSH,
   DISCOVERY_CHARTS,
   DISCOVERY_RECOMMENDATIONS,
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
@@ -22,7 +22,7 @@ android {
   defaultConfig {
     buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), FALSE
-    buildConfigField BOOLEAN, Feature.ARCHER_GCM.name(), FALSE
+    buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
@@ -36,6 +36,7 @@ android {
   buildTypes {
     alpha {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
@@ -47,6 +48,7 @@ android {
 
     beta {
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
+      buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
@@ -55,6 +57,7 @@ android {
 
     debug {
       buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
+      buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE

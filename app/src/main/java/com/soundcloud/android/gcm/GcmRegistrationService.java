@@ -1,8 +1,7 @@
 package com.soundcloud.android.gcm;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.appboy.AppboyWrapper;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -31,6 +30,7 @@ public class GcmRegistrationService extends IntentService {
     @Inject InstanceIdWrapper instanceId;
     @Inject Provider<AppboyWrapper> appboyWrapperProvider;
     @Inject FeatureFlags featureFlags;
+    @Inject AccountOperations accountOperations;
 
     public static void startGcmService(Context context){
         context.startService(new Intent(context, GcmRegistrationService.class));
@@ -46,42 +46,42 @@ public class GcmRegistrationService extends IntentService {
                            ApiClient apiClient,
                            InstanceIdWrapper instanceId,
                            Provider<AppboyWrapper> appboyWrapperProvider,
-                           FeatureFlags featureFlags) {
+                           FeatureFlags featureFlags,
+                           AccountOperations accountOperations) {
         super(TAG);
         this.gcmStorage = gcmStorage;
         this.apiClient = apiClient;
         this.instanceId = instanceId;
         this.appboyWrapperProvider = appboyWrapperProvider;
         this.featureFlags = featureFlags;
+        this.accountOperations = accountOperations;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (gcmStorage.shouldRegister()) {
-            doTokenRefresh();
+        if (accountOperations.isUserLoggedIn() && gcmStorage.shouldRegister()) {
+            doTokenRegistration();
         }
     }
 
-    private void doTokenRefresh() {
-        try {
-            String token = instanceId.getToken(this, getString(R.string.gcm_defaultSenderId),
-                                               GoogleCloudMessaging.INSTANCE_ID_SCOPE);
-
-            Log.d(TAG, "GCM Registration Token: " + token);
-
+    private void doTokenRegistration() {
+        final String token = getToken();
+        if (token != null) {
+            Log.d(TAG, "Push Registration Token: " + token);
             appboyWrapperProvider.get().handleRegistration(token);
 
-            if (featureFlags.isDisabled(Flag.ARCHER_GCM) || registerTokenWithApi(token).isSuccess()) {
+            if (featureFlags.isDisabled(Flag.ARCHER_PUSH) || registerTokenWithApi(token).isSuccess()) {
                 gcmStorage.markAsRegistered(token);
             }
-
-        } catch (Exception e) {
-            ErrorUtils.handleSilentException("Failed to register token", e);
-            gcmStorage.clearHasRegistered();
         }
     }
 
-    private ApiResponse registerTokenWithApi(String token){
+    private String getToken() {
+        final String storedToken = gcmStorage.getToken();
+        return storedToken == null ? instanceId.getToken() : storedToken;
+    }
+
+    private ApiResponse registerTokenWithApi(String token) {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.GCM_REGISTER.path())
                 .forPrivateApi()
                 .withContent(Collections.singletonMap("token", token))

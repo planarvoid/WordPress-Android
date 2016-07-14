@@ -15,6 +15,7 @@ import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.discovery.DiscoveryOperations;
+import com.soundcloud.android.gcm.GcmStorage;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesStorage;
@@ -59,6 +60,7 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private NotificationPreferencesStorage notificationPreferencesStorage;
     @Mock private PlayHistoryStorage playHistoryStorage;
+    @Mock private GcmStorage gcmStorage;
 
     @Before
     public void setup() {
@@ -78,7 +80,8 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
                                           soundStreamOperations,
                                           configurationOperations,
                                           notificationPreferencesStorage,
-                                          playHistoryStorage);
+                                          playHistoryStorage,
+                                          gcmStorage);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -222,6 +225,12 @@ public class AccountCleanupActionTest extends AndroidUnitTest {
     public void shouldRemovePlayHistory() {
         action.call();
         verify(playHistoryStorage).clear();
+    }
+
+    @Test
+    public void shouldClearGcmTokenOnLogout() {
+        action.call();
+        verify(gcmStorage).clearTokenForRefresh();
     }
 
 }

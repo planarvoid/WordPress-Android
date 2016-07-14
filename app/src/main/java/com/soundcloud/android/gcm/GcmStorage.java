@@ -3,6 +3,7 @@ package com.soundcloud.android.gcm;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.annotations.VisibleForTesting;
 
 import android.content.SharedPreferences;
 
@@ -14,7 +15,8 @@ public class GcmStorage {
     private final SharedPreferences sharedPreferences;
     private final FeatureFlags featureFlags;
 
-    private static final String TOKEN_KEY = "gcmToken";
+    @VisibleForTesting
+    static final String TOKEN_KEY = "gcmToken";
     private static final String HAS_REGISTERED_KEY = "hasRegistered";
 
     @Inject
@@ -25,7 +27,7 @@ public class GcmStorage {
     }
 
     public boolean shouldRegister(){
-        return featureFlags.isEnabled(Flag.ARCHER_GCM) ? !hasRegistered() : !hasToken();
+        return featureFlags.isEnabled(Flag.ARCHER_PUSH) ? !hasRegistered() : !hasToken();
     }
 
     private boolean hasRegistered() {
@@ -33,18 +35,16 @@ public class GcmStorage {
     }
 
     public void markAsRegistered(String token) {
-        if (featureFlags.isEnabled(Flag.ARCHER_GCM)) {
+        storeToken(token);
+        if (featureFlags.isEnabled(Flag.ARCHER_PUSH)) {
             setAsRegistered(true);
-        } else {
-            storeToken(token);
         }
     }
 
-    public void clearHasRegistered() {
-        if (featureFlags.isEnabled(Flag.ARCHER_GCM)) {
+    public void clearTokenForRefresh() {
+        clearToken();
+        if (featureFlags.isEnabled(Flag.ARCHER_PUSH)) {
             setAsRegistered(false);
-        } else {
-            clearToken();
         }
     }
 
@@ -52,7 +52,6 @@ public class GcmStorage {
         sharedPreferences.edit().putBoolean(HAS_REGISTERED_KEY, hasRegistered).apply();
     }
 
-    @Deprecated
     public String getToken() {
         return sharedPreferences.getString(TOKEN_KEY, null);
     }

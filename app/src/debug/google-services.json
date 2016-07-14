@@ -234,6 +234,73 @@
           "status": 1
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984739005367:android:0e43a8a177a5a902",
+        "android_client_info": {
+          "package_name": "com.soundcloud.android.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "984739005367-h401svqcbmsb11sb4l7bbob0bc6gmn2r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.soundcloud.android.debug",
+            "certificate_hash": "7D5D6015614DC1FB69287BFC15A7F33F86B68E29"
+          }
+        },
+        {
+          "client_id": "984739005367-kcbdv4vnaetaob9jjb4iin3cqse6vmt4.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "984739005367-ne90jos768g5u3fqffvtnith648mut0p.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "984739005367-aon0n17bi2co5cine8jud9pvhc7rio1m.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "984739005367-ff0kgckrtj5isppp8475e11hsdvta4en.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "984739005367.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlM77nvBJO3r4ZerRhOgu30wlXFmyYfuY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "984739005367-kcbdv4vnaetaob9jjb4iin3cqse6vmt4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "984739005367-4b7vrflrtb3ja84kkh9ulg0j7e3225iu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.soundcloud.Pulse"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
     }
   ],
   "configuration_version": "1"
