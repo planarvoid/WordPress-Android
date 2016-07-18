@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.snackbar;
 
-import com.soundcloud.android.events.Feedback;
+
+import com.soundcloud.android.feedback.Feedback;
 
 import android.view.View;
 

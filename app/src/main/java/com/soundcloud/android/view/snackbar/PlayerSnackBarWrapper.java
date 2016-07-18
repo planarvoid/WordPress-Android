@@ -2,7 +2,7 @@ package com.soundcloud.android.view.snackbar;
 
 import com.androidadvance.topsnackbar.TSnackbar;
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.Feedback;
+import com.soundcloud.android.feedback.Feedback;
 
 import android.graphics.Color;
 import android.support.design.widget.Snackbar;

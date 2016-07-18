@@ -19,8 +19,6 @@ public final class EventQueue {
         }
     };
 
-    public static final Queue<Feedback> SHOW_FEEDBACK = Queue.of(Feedback.class).onError(ON_ERROR).get();
-
     // playback
     public static final Queue<PlayStateEvent> PLAYBACK_STATE_CHANGED = Queue.of(PlayStateEvent.class)
                                                                             .onError(ON_ERROR)

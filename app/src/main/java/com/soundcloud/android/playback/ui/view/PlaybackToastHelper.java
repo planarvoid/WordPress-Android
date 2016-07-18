@@ -1,26 +1,24 @@
 package com.soundcloud.android.playback.ui.view;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackResult;
-
-import android.content.Context;
-import android.os.Handler;
-import android.widget.Toast;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 
 import javax.inject.Inject;
 
+
 public class PlaybackToastHelper {
 
-    private final Context context;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final Handler handler;
+    private final FeedbackController feedbackController;
 
     @Inject
-    public PlaybackToastHelper(Context context, PlaySessionStateProvider playSessionStateProvider) {
-        this.context = context;
+    public PlaybackToastHelper(PlaySessionStateProvider playSessionStateProvider,
+                               FeedbackController feedbackController) {
         this.playSessionStateProvider = playSessionStateProvider;
-        this.handler = new Handler(context.getMainLooper());
+        this.feedbackController = feedbackController;
     }
 
     public void showToastOnPlaybackError(PlaybackResult.ErrorReason errorReason) {
@@ -43,30 +41,25 @@ public class PlaybackToastHelper {
     }
 
     public void showUnskippableAdToast() {
-        Toast.makeText(context, playSessionStateProvider.isPlaying()
-                                ? R.string.ads_ad_in_progress
-                                : R.string.ads_resume_playing_ad_to_continue,
-                       Toast.LENGTH_SHORT).show();
+        final int stringId = playSessionStateProvider.isPlaying()
+                ? R.string.ads_ad_in_progress
+                : R.string.ads_resume_playing_ad_to_continue;
+        feedbackController.showFeedback(Feedback.create(stringId));
     }
 
     public void showTrackUnavailableOfflineToast() {
-        Toast.makeText(context, R.string.offline_track_not_available, Toast.LENGTH_SHORT).show();
+        feedbackController.showFeedback(Feedback.create(R.string.offline_track_not_available));
     }
 
     public void showMissingPlayableTracksToast() {
-        Toast.makeText(context, R.string.playback_missing_playable_tracks, Toast.LENGTH_SHORT).show();
+        feedbackController.showFeedback(Feedback.create(R.string.playback_missing_playable_tracks));
     }
 
     public void showConcurrentStreamingStoppedToast() {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, R.string.concurrent_streaming_stopped, Toast.LENGTH_LONG).show();
-            }
-        });
+        feedbackController.showFeedback(Feedback.create(R.string.concurrent_streaming_stopped));
     }
 
     private void showUnableToCastTrack() {
-        Toast.makeText(context, R.string.cast_unable_play_track, Toast.LENGTH_SHORT).show();
+        feedbackController.showFeedback(Feedback.create(R.string.cast_unable_play_track));
     }
 }

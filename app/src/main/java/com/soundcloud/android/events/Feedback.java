@@ -1,4 +1,4 @@
-package com.soundcloud.android.events;
+package com.soundcloud.android.feedback;
 
 import com.google.auto.value.AutoValue;
 

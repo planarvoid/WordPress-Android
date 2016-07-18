@@ -6,13 +6,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.Feedback;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.rx.eventbus.EventBus;
-import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -30,7 +27,6 @@ public class FeedbackControllerTest extends AndroidUnitTest {
     @Mock private FragmentActivity fragmentActivity;
     @Mock private FeatureFlags featureFlags;
 
-    private EventBus eventBus = new TestEventBus();
     private View playerSnackBarView = new View(context());
     private View activitySnackBarView = new View(context());
 
@@ -38,17 +34,14 @@ public class FeedbackControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        feedbackController = new FeedbackController(playerController,
-                                                    playerSnackBarWrapper,
-                                                    defaultSnackBarWrapper,
-                                                    eventBus,
-                                                    featureFlags);
+        feedbackController = new FeedbackController(playerSnackBarWrapper,
+                                                    defaultSnackBarWrapper);
         when(playerController.getSnackbarHolder()).thenReturn(playerSnackBarView);
     }
 
     @Test
     public void doesNotShowFeedbackWhenPaused() {
-        eventBus.publish(EventQueue.SHOW_FEEDBACK, feedback);
+        feedbackController.showFeedback(feedback);
 
         verify(playerSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
     }
@@ -57,9 +50,9 @@ public class FeedbackControllerTest extends AndroidUnitTest {
     public void showsPlayerSnackBarWhenPlayerExpandedAndResumed() {
         when(playerController.isExpanded()).thenReturn(true);
 
-        feedbackController.onResume(fragmentActivity);
+        feedbackController.register(fragmentActivity, playerController);
 
-        eventBus.publish(EventQueue.SHOW_FEEDBACK, feedback);
+        feedbackController.showFeedback(feedback);
 
         verify(playerSnackBarWrapper).show(playerSnackBarView, feedback);
         verify(defaultSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
@@ -69,10 +62,10 @@ public class FeedbackControllerTest extends AndroidUnitTest {
     public void doesNotShowsPlayerSnackBarWhenPlayerExpandedAndResumedThenPaused() {
         when(playerController.isExpanded()).thenReturn(true);
 
-        feedbackController.onResume(fragmentActivity);
-        feedbackController.onPause(fragmentActivity);
+        feedbackController.register(fragmentActivity, playerController);
+        feedbackController.clear();
 
-        eventBus.publish(EventQueue.SHOW_FEEDBACK, feedback);
+        feedbackController.showFeedback(feedback);
 
         verify(playerSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
         verify(defaultSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
@@ -82,9 +75,9 @@ public class FeedbackControllerTest extends AndroidUnitTest {
     public void showsActivitySnackBarWhenResumedAndPlayerNotExpanded() {
         when(fragmentActivity.findViewById(R.id.snackbar_holder)).thenReturn(activitySnackBarView);
 
-        feedbackController.onResume(fragmentActivity);
+        feedbackController.register(fragmentActivity, playerController);
 
-        eventBus.publish(EventQueue.SHOW_FEEDBACK, feedback);
+        feedbackController.showFeedback(feedback);
 
         verify(defaultSnackBarWrapper).show(activitySnackBarView, feedback);
         verify(playerSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));
@@ -94,9 +87,9 @@ public class FeedbackControllerTest extends AndroidUnitTest {
     public void showsActivitySnackBarWithContainerWhenResumedAndPlayerNotExpandedWithNoSnackBarHolderId() {
         when(fragmentActivity.findViewById(R.id.container)).thenReturn(activitySnackBarView);
 
-        feedbackController.onResume(fragmentActivity);
+        feedbackController.register(fragmentActivity, playerController);
 
-        eventBus.publish(EventQueue.SHOW_FEEDBACK, feedback);
+        feedbackController.showFeedback(feedback);
 
         verify(defaultSnackBarWrapper).show(activitySnackBarView, feedback);
         verify(playerSnackBarWrapper, never()).show(any(View.class), any(Feedback.class));

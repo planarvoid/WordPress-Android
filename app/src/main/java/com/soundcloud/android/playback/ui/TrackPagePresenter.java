@@ -12,6 +12,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
@@ -30,6 +31,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.view.JaggedTextView;
+import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
@@ -49,7 +51,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Checkable;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
@@ -60,6 +61,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
     private static final int SCRUB_TRANSITION_ALPHA_DURATION = 100;
 
+    private final FeedbackController feedbackController;
     private final WaveformOperations waveformOperations;
     private final FeatureOperations featureOperations;
     private final TrackPageListener listener;
@@ -80,7 +82,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
     @Inject
-    public TrackPagePresenter(WaveformOperations waveformOperations,
+    public TrackPagePresenter(FeedbackController feedbackController,
+                              WaveformOperations waveformOperations,
                               FeatureOperations featureOperations,
                               TrackPageListener listener,
                               LikeButtonPresenter likeButtonPresenter,
@@ -96,6 +99,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               ShareAsTextButtonExperiment shareExperiment,
                               PlayerUpsellCopyExperiment upsellCopyExperiment,
                               FeatureFlags featureFlags) {
+        this.feedbackController = feedbackController;
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
         this.listener = listener;
@@ -357,7 +361,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.menuController.setIsUserRepost(isReposted);
 
             if (trackChangedEvent.getKind() == EntityStateChangedEvent.REPOST) {
-                showRepostToast(trackPage.getContext(), isReposted);
+                showRepostMessage(isReposted);
             }
         }
     }
@@ -393,10 +397,11 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         viewHolder.waveformController.cancelProgressAnimations();
     }
 
-    private void showRepostToast(final Context context, final boolean isReposted) {
-        Toast.makeText(context, isReposted
-                                ? R.string.reposted_to_followers
-                                : R.string.unposted_to_followers, Toast.LENGTH_SHORT).show();
+    private void showRepostMessage(final boolean isReposted) {
+        final Feedback feedback = Feedback.create(isReposted
+                                                  ? R.string.reposted_to_followers
+                                                  : R.string.unposted_to_followers, Feedback.LENGTH_SHORT);
+        feedbackController.showFeedback(feedback);
     }
 
     private void updateLikeStatus(View likeToggle) {

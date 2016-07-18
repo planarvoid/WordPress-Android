@@ -1,47 +1,24 @@
 package com.soundcloud.android.comments;
 
 
-import com.cocosw.undobar.UndoBarController;
-import com.cocosw.undobar.UndoBarController.UndoBar;
-import com.cocosw.undobar.UndoBarStyle;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.PublicApiComment;
-import com.soundcloud.android.events.EntityMetadata;
-import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.events.PlayerUIEvent;
-import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.main.PlayerActivity;
+import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.rx.eventbus.EventBus;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
 public class AddCommentDialogFragment extends DialogFragment {
@@ -49,11 +26,6 @@ public class AddCommentDialogFragment extends DialogFragment {
     private static final String EXTRA_TRACK = "track";
     private static final String EXTRA_POSITION = "position";
     private static final String EXTRA_ORIGIN_SCREEN = "origin";
-
-    @Inject CommentsOperations commentsOperations;
-    @Inject EventBus eventBus;
-
-    private Subscription subscription = RxUtils.invalidSubscription();
 
     public static AddCommentDialogFragment create(PropertySet track, long position, String originScreen) {
         Bundle b = new Bundle();
@@ -72,8 +44,8 @@ public class AddCommentDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
-        final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION),
-                                                                 TimeUnit.MILLISECONDS);
+        final long position = getArguments().getLong(EXTRA_POSITION);
+        final String timeFormatted = ScTextUtils.formatTimestamp(position, TimeUnit.MILLISECONDS);
 
         final View dialogView = View.inflate(getActivity(), R.layout.comment_input, null);
         final TextView title = (TextView) dialogView.findViewById(R.id.custom_dialog_title);
@@ -89,7 +61,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         final String commentText = input.getText().toString();
                         if (Strings.isNotBlank(commentText)) {
-                            onAddComment(commentText);
+                            addComment(commentText, track, position);
                             dismiss();
                         }
                     }
@@ -98,87 +70,9 @@ public class AddCommentDialogFragment extends DialogFragment {
                 .create();
     }
 
-    @Override
-    public void onDestroyView() {
-        subscription.unsubscribe();
-        super.onDestroyView();
+    public void addComment(String commentText, PropertySet track, long position) {
+        final String originScreen = getArguments().getString(EXTRA_ORIGIN_SCREEN);
+        final PlayerActivity activity = (PlayerActivity) getActivity();
+        activity.addComment(AddCommentArguments.create(track, position, commentText, originScreen));
     }
-
-    private void onAddComment(String commentText) {
-        final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
-        final Urn trackUrn = track.get(TrackProperty.URN);
-        final long position = getArguments().getLong(EXTRA_POSITION);
-
-        final FragmentActivity activity = (FragmentActivity) getActivity();
-        subscription = commentsOperations.addComment(trackUrn, commentText, position)
-                                         .observeOn(AndroidSchedulers.mainThread())
-                                         .subscribe(new CommentAddedSubscriber(activity, trackUrn, eventBus));
-
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromComment(getEventContextMetadata(),
-                                                                  EntityMetadata.from(track)));
-    }
-
-    private EventContextMetadata getEventContextMetadata() {
-        return EventContextMetadata.builder().contextScreen(getArguments().getString(EXTRA_ORIGIN_SCREEN)).build();
-    }
-
-    @VisibleForTesting
-    static final class CommentAddedSubscriber extends DefaultSubscriber<PublicApiComment>
-            implements UndoBarController.UndoListener {
-
-        private final Activity activity;
-        private final Urn trackUrn;
-        private final EventBus eventBus;
-
-        CommentAddedSubscriber(Activity activity, Urn trackUrn, EventBus eventBus) {
-            this.activity = activity;
-            this.trackUrn = trackUrn;
-            this.eventBus = eventBus;
-        }
-
-        @Override
-        public void onNext(PublicApiComment comment) {
-            new UndoBar(activity)
-                    .message(R.string.comment_posted)
-                    .style(createViewCommentBarStyle())
-                    .listener(this)
-                    .show();
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            super.onError(e);
-            Toast.makeText(activity, activity.getString(R.string.comment_error), Toast.LENGTH_SHORT).show();
-        }
-
-        private UndoBarStyle createViewCommentBarStyle() {
-            return new UndoBarStyle(R.drawable.undobar_button, R.string.btn_view)
-                    .setAnim(AnimationUtils.loadAnimation(activity, android.R.anim.fade_in),
-                             AnimationUtils.loadAnimation(activity, android.R.anim.fade_out));
-        }
-
-        @Override
-        public void onUndo(Parcelable parcelable) {
-            subscribeToCollapsedEvent(activity);
-            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlayerClose());
-        }
-
-        private void subscribeToCollapsedEvent(Context context) {
-            eventBus.queue(EventQueue.PLAYER_UI)
-                    .first(PlayerUIEvent.PLAYER_IS_COLLAPSED)
-                    .subscribe(goToCommentsPage(context));
-        }
-
-        private DefaultSubscriber<PlayerUIEvent> goToCommentsPage(final Context context) {
-            return new DefaultSubscriber<PlayerUIEvent>() {
-                @Override
-                public void onNext(PlayerUIEvent args) {
-                    context.startActivity(new Intent(context, TrackCommentsActivity.class)
-                                                  .putExtra(TrackCommentsActivity.EXTRA_COMMENTED_TRACK_URN, trackUrn));
-                }
-            };
-        }
-    }
-
 }
