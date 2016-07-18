@@ -93,7 +93,6 @@
                 style="@style/ListItemText.HighTierTrack.Preview"
                 android:layout_alignTop="@+id/image"
                 android:layout_alignParentRight="true"
-                android:background="@drawable/list_high_tier_label_bg"
                 android:visibility="gone" />
 
             <com.soundcloud.android.view.CustomFontTextView
@@ -101,7 +100,6 @@
                 style="@style/ListItemText.HighTierTrack.Go"
                 android:layout_marginLeft="12dp"
                 android:layout_alignBaseline="@id/list_item_counter"
-                android:background="@drawable/list_high_tier_label_bg"
                 android:layout_toRightOf="@id/list_item_counter"
                 android:visibility="gone" />
 

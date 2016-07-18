@@ -46,6 +46,7 @@
         <item name="android:textSize">11sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/list_high_tier_label_bg</item>
     </style>
 
     <style name="ListItemText.HighTierTrack.Go">
