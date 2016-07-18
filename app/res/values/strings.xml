@@ -629,6 +629,10 @@
 
     <!-- __COLLECTION -->
     <string name="collections_playlists_header">Playlists &amp; Albums</string>
+    <plurals name="collections_playlists_header_plural">
+        <item quantity="one">Playlists &amp; Albums</item>
+        <item quantity="other">%d Playlists &amp; Albums</item>
+    </plurals>
     <string name="collections_your_liked_tracks">Liked tracks</string>
     <string name="track_likes_title">Liked tracks</string>
     <string name="collections_options_header_filters">Filters</string>

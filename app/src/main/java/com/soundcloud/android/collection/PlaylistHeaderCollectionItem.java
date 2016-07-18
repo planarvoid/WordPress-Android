@@ -5,8 +5,10 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 abstract class PlaylistHeaderCollectionItem extends CollectionItem {
 
-    static PlaylistHeaderCollectionItem create() {
-        return new AutoValue_PlaylistHeaderCollectionItem(CollectionItem.TYPE_PLAYLIST_HEADER);
+    static PlaylistHeaderCollectionItem create(int playlistCount) {
+        return new AutoValue_PlaylistHeaderCollectionItem(CollectionItem.TYPE_PLAYLIST_HEADER, playlistCount);
     }
+
+    abstract int getPlaylistCount();
 
 }

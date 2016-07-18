@@ -96,9 +96,10 @@ public class CollectionPresenter extends BaseCollectionPresenter
     }
 
     protected List<CollectionItem> playlistCollectionItems(List<PlaylistItem> playlistItems) {
+
         List<CollectionItem> items = new ArrayList<>(playlistItems.size() + 2);
 
-        items.add(PlaylistHeaderCollectionItem.create());
+        items.add(PlaylistHeaderCollectionItem.create(playlistItems.size()));
 
         for (PlaylistItem playlistItem : playlistItems) {
             items.add(PlaylistCollectionItem.create(playlistItem));
