@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.annotation.EventTrackingTest;
-import com.soundcloud.android.framework.annotation.Issue;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
@@ -72,7 +71,6 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
         finishEventTracking(LIKE_ENGAGEMENTS_FROM_STREAM);
     }
 
-    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/4503")
     public void testLikePlayingTrackFromStream() {
         startEventTracking();
 
@@ -89,7 +87,6 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
         finishEventTracking(LIKE_TRACK_PLAYING_FROM_STREAM);
     }
 
-    @Issue(ref = "https://github.com/soundcloud/SoundCloud-Android/issues/4503")
     public void testRepostPlayingTrackFromStream() {
         startEventTracking();
 
@@ -98,6 +95,9 @@ public class TrackingEngagementsTest extends TrackingActivityTest<MainActivity> 
 
         // toggle
         visualPlayerElement.clickMenu().toggleRepost();
+
+        // fake wait, so that the snackbar with reposted message disappears
+        visualPlayerElement.playForFiveSeconds();
 
         // and untoggle
         visualPlayerElement.clickMenu().toggleRepost();
