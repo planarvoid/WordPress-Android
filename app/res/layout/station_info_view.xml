@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:id="@+id/artwork_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.soundcloud.android.view.SquareImageView
+            android:id="@+id/artwork"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            tools:background="@color/ak_dark_gray" />
+
+        <ImageButton
+            android:id="@+id/btn_play"
+            style="@style/StationInfo.PlayButton"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+    <com.soundcloud.android.view.JaggedTextView
+        android:id="@+id/station_type"
+        style="@style/PlayerContext"
+        android:layout_above="@+id/title"
+        android:layout_marginLeft="@dimen/playlist_header_padding"
+        android:drawableLeft="@drawable/ic_stations_player_context"
+        android:enabled="false"
+        tools:text="track station" />
+
+    <com.soundcloud.android.view.JaggedTextView
+        android:id="@+id/title"
+        style="@style/ShrinkWrap.Primary.Medium"
+        android:layout_alignBottom="@id/artwork_container"
+        android:layout_marginBottom="@dimen/playlist_header_padding"
+        android:layout_marginLeft="@dimen/playlist_header_padding"
+        android:layout_marginRight="@dimen/playlist_header_padding"
+        android:layout_marginTop="4dp"
+        tools:text="seed name" />
+
+    <View
+        android:id="@+id/artwork_divider"
+        style="@style/Divider.Section"
+        android:layout_below="@id/artwork_container" />
+
+</RelativeLayout>

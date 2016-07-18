@@ -1,5 +1,6 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
@@ -27,7 +28,6 @@ import javax.inject.Inject;
 
 public class StartStationPresenter {
 
-
     private final DelayedLoadingDialogPresenter.Builder dialogBuilder;
     private final StationsOperations stationsOperations;
     private final PlaybackInitiator playbackInitiator;
@@ -37,13 +37,10 @@ public class StartStationPresenter {
     private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
-    public StartStationPresenter(
-            DelayedLoadingDialogPresenter.Builder dialogBuilder,
-            StationsOperations stationsOperations,
-            PlaybackInitiator playbackInitiator,
-            EventBus eventBus,
-            PlaybackToastHelper playbackToastHelper,
-            ScreenProvider screenProvider) {
+    public StartStationPresenter(DelayedLoadingDialogPresenter.Builder dialogBuilder,
+                                 StationsOperations stationsOperations, PlaybackInitiator playbackInitiator,
+                                 EventBus eventBus, PlaybackToastHelper playbackToastHelper,
+                                 ScreenProvider screenProvider) {
         this.dialogBuilder = dialogBuilder;
         this.stationsOperations = stationsOperations;
         this.playbackInitiator = playbackInitiator;
@@ -52,30 +49,28 @@ public class StartStationPresenter {
         this.screenProvider = screenProvider;
     }
 
-    public void startStationFromRecommendations(Context context, Urn stationUrn) {
-        startStation(context, stationsOperations.station(stationUrn), DiscoverySource.STATIONS_SUGGESTIONS);
+    void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
+        openStation(context, stationsOperations.station(stationUrn), discoverySource);
     }
 
-    public void startStation(Context context, Urn stationUrn) {
-        startStation(context, stationsOperations.station(stationUrn));
+    void startStation(Context context, Urn stationUrn) {
+        openStation(context, stationsOperations.station(stationUrn), STATIONS);
     }
 
-    public void startStationForUser(Context context, final Urn userUrn) {
-        final Urn stationUrn = Urn.forArtistStation(userUrn.getNumericId());
-        startStation(context, stationsOperations.station(stationUrn));
+    void startStationForTrack(Context context, final Urn seed) {
+        final Urn stationUrn = Urn.forTrackStation(seed.getNumericId());
+        openStation(context, stationsOperations.stationWithSeed(stationUrn, seed), STATIONS);
     }
 
-    public void startStationForTrack(Context context, final Urn seed) {
-        final Urn station = Urn.forTrackStation(seed.getNumericId());
-        startStation(context, stationsOperations.stationWithSeed(station, seed));
+    private void openStation(Context context, Observable<StationRecord> station, DiscoverySource discoverySource) {
+        subscription = station
+                .flatMap(toPlaybackResult(discoverySource))
+                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
+                                                                getLoadingDialogPresenter(context)));
     }
 
-    private void startStation(Context context, Observable<StationRecord> station) {
-        startStation(context, station, DiscoverySource.STATIONS);
-    }
-
-    private void startStation(Context context, Observable<StationRecord> station, DiscoverySource discoverySource) {
-        DelayedLoadingDialogPresenter delayedLoadingDialogPresenter = dialogBuilder
+    private DelayedLoadingDialogPresenter getLoadingDialogPresenter(Context context) {
+        return dialogBuilder
                 .setLoadingMessage(context.getString(R.string.stations_loading_station))
                 .setOnErrorToastText(context.getString(R.string.stations_unable_to_start_station))
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -86,13 +81,6 @@ public class StartStationPresenter {
                 })
                 .create()
                 .show(context);
-
-        subscription = station
-                .flatMap(toPlaybackResult(discoverySource))
-                .subscribe(new ExpandAndDismissDialogSubscriber(context,
-                                                                eventBus,
-                                                                playbackToastHelper,
-                                                                delayedLoadingDialogPresenter));
     }
 
     private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(final DiscoverySource discoverySource) {
@@ -116,10 +104,10 @@ public class StartStationPresenter {
         private final Context context;
         private final DelayedLoadingDialogPresenter delayedLoadingDialogPresenter;
 
-        public ExpandAndDismissDialogSubscriber(Context context,
-                                                EventBus eventBus,
-                                                PlaybackToastHelper playbackToastHelper,
-                                                DelayedLoadingDialogPresenter delayedLoadingDialogPresenter) {
+        ExpandAndDismissDialogSubscriber(Context context,
+                                         EventBus eventBus,
+                                         PlaybackToastHelper playbackToastHelper,
+                                         DelayedLoadingDialogPresenter delayedLoadingDialogPresenter) {
             super(eventBus, playbackToastHelper);
             this.context = context;
             this.delayedLoadingDialogPresenter = delayedLoadingDialogPresenter;

@@ -16,11 +16,10 @@ import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.share.ShareOperations;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -45,7 +44,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
     private PlayerTrackState track;
     private PlayerTrackState privateTrack;
 
-    @Mock private StartStationPresenter startStationPresenter;
+    @Mock private StartStationHandler stationHandler;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private RepostOperations repostOperations;
     @Mock private PopupMenuWrapper popupMenuWrapper;
@@ -73,7 +72,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
         controller = new TrackPageMenuController.Factory(playQueueManager,
                                                          repostOperations,
                                                          popupMenuWrapperFactory,
-                                                         startStationPresenter,
+                                                         stationHandler,
                                                          eventBus,
                                                          shareOperations)
                 .create(textView);
@@ -86,7 +85,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.onMenuItemClick(stationItem, activityContext);
 
-        verify(startStationPresenter).startStationForTrack(activityContext, track.getUrn());
+        verify(stationHandler).startStationFromPlayer(activityContext, track.getUrn(), false);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class TrackPageMenuControllerTest extends AndroidUnitTest {
 
         controller.onMenuItemClick(stationItem, activityContext);
 
-        verify(startStationPresenter).startStation(activityContext, Urn.forTrackStation(track.getUrn().getNumericId()));
+        verify(stationHandler).startStationFromPlayer(activityContext, track.getUrn(), true);
     }
 
     @Test

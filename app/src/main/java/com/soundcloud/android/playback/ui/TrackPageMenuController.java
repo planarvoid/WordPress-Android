@@ -19,7 +19,7 @@ import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.share.ShareOperations;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -44,7 +44,7 @@ public class TrackPageMenuController
     private final PopupMenuWrapper popupMenuWrapper;
     private final PlayQueueManager playQueueManager;
     private final RepostOperations repostOperations;
-    private final StartStationPresenter startStationPresenter;
+    private final StartStationHandler stationHandler;
     private final EventBus eventBus;
     private final ShareOperations shareOperations;
     private final String commentAtUnformatted;
@@ -58,14 +58,14 @@ public class TrackPageMenuController
                                     RepostOperations repostOperations,
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
-                                    StartStationPresenter startStationPresenter,
+                                    StartStationHandler stationHandler,
                                     EventBus eventBus,
                                     ShareOperations shareOperations) {
         this.playQueueManager = playQueueManager;
         this.repostOperations = repostOperations;
         this.activity = context;
         this.popupMenuWrapper = popupMenuWrapper;
-        this.startStationPresenter = startStationPresenter;
+        this.stationHandler = stationHandler;
         this.eventBus = eventBus;
         this.shareOperations = shareOperations;
         this.commentAtUnformatted = activity.getString(R.string.comment_at_time);
@@ -132,15 +132,15 @@ public class TrackPageMenuController
                 showAddToPlaylistDialog(track);
                 return true;
             case R.id.start_station:
-                if (track.isBlocked()) {
-                    startStationPresenter.startStation(context, Urn.forTrackStation(track.getUrn().getNumericId()));
-                } else {
-                    startStationPresenter.startStationForTrack(context, track.getUrn());
-                }
+                handleStartStation(context);
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void handleStartStation(Context context) {
+        stationHandler.startStationFromPlayer(context, track.getTrackUrn(), track.isBlocked());
     }
 
     public void handleShare(Context context) {
@@ -229,20 +229,20 @@ public class TrackPageMenuController
         private final RepostOperations repostOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
-        private final StartStationPresenter startStationPresenter;
+        private final StartStationHandler startStationHandler;
         private final ShareOperations shareOperations;
 
         @Inject
         Factory(PlayQueueManager playQueueManager,
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                StartStationPresenter startStationPresenter,
+                StartStationHandler startStationHandler,
                 EventBus eventBus,
                 ShareOperations shareOperations) {
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-            this.startStationPresenter = startStationPresenter;
+            this.startStationHandler = startStationHandler;
             this.eventBus = eventBus;
             this.shareOperations = shareOperations;
         }
@@ -254,7 +254,7 @@ public class TrackPageMenuController
                                                getFragmentActivity(anchorView),
                                                popupMenuWrapperFactory.build(getFragmentActivity(anchorView),
                                                                              anchorView),
-                                               startStationPresenter,
+                                               startStationHandler,
                                                eventBus,
                                                shareOperations);
         }

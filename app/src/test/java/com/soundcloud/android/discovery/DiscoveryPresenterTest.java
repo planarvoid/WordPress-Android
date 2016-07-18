@@ -12,10 +12,11 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -51,7 +52,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private Navigator navigator;
     @Mock private FeatureFlags featureFlags;
-    @Mock private StartStationPresenter startStationPresenter;
+    @Mock private StartStationHandler startStationHandler;
     @Mock private TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
     @Mock private List<DiscoveryItem> discoveryItems;
 
@@ -64,8 +65,9 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
         when(adapter.getItems()).thenReturn(discoveryItems);
         when(featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)).thenReturn(true);
         when(dataSource.discoveryItems()).thenReturn(Observable.<List<DiscoveryItem>>empty());
-        when(recommendationBucketRendererFactory.create(eq(true), any(DiscoveryPresenter.class))).thenReturn(
-                recommendationBucketRenderer);
+        when(recommendationBucketRendererFactory
+                     .create(eq(true), any(DiscoveryPresenter.class))).thenReturn(recommendationBucketRenderer);
+
         this.presenter = new DiscoveryPresenter(
                 dataSource,
                 swipeRefreshAttacher,
@@ -75,7 +77,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
                 navigator,
                 featureFlags,
                 eventBus,
-                startStationPresenter,
+                startStationHandler,
                 trackRecommendationPlaybackInitiator);
 
         presenter.onCreate(fragment, bundle);
@@ -90,7 +92,7 @@ public class DiscoveryPresenterTest extends AndroidUnitTest {
     public void clickOnRecommendedStationStartsPlayingStation() {
         presenter.onRecommendedStationClicked(context(), STATION);
 
-        verify(startStationPresenter).startStationFromRecommendations(context(), STATION.getUrn());
+        verify(startStationHandler).startStation(context(), STATION.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
     }
 
     @Test

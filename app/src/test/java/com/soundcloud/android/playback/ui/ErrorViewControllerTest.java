@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,32 +18,33 @@ import android.view.View;
 import android.view.ViewStub;
 import android.widget.TextView;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class ErrorViewControllerTest extends AndroidUnitTest {
 
     @Mock private WaveformViewController waveformViewController;
     @Mock private View trackPage;
     @Mock private ViewStub errorStub;
+    @Mock private StartStationHandler startStationHandler;
+
     private View hideOnError;
 
     private ErrorViewController errorViewController;
     private View errorLayout;
-    private StartStationPresenter startStationPresenter;
 
     @Before
     public void setUp() throws Exception {
         TrackPagePresenter.TrackPageHolder holder = new TrackPagePresenter.TrackPageHolder();
         holder.waveformController = waveformViewController;
         hideOnError = new View(context());
-        holder.hideOnErrorViews = Arrays.asList(hideOnError);
+        holder.hideOnErrorViews = Collections.singletonList(hideOnError);
 
         errorLayout = LayoutInflater.from(context()).inflate(R.layout.track_page_error, null);
         when(errorStub.inflate()).thenReturn(errorLayout);
 
         when(trackPage.findViewById(R.id.track_page_error_stub)).thenReturn(errorStub);
         when(trackPage.getTag()).thenReturn(holder);
-        errorViewController = new ErrorViewController(startStationPresenter, trackPage);
+        errorViewController = new ErrorViewController(startStationHandler, trackPage);
     }
 
     @Test

@@ -546,6 +546,9 @@
     <string name="stations_onboarding_stream_description">Just tap the three dots next to any track to get started.</string>
     <string name="recent_stations_empty_view_heading">Start a station to hear a series of similar tracks. It’s just like radio.</string>
     <string name="recent_stations_empty_view_message">Just tap the three dots next to any track to get started.</string>
+    <string name="stations_collection_title_station_page">Station</string>
+    <string name="stations_tracks_in_this_station">Tracks in this station</string>
+    <string name="stations_see_all_tracks">See all tracks</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>

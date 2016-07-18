@@ -1,10 +1,16 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItems;
+import static com.soundcloud.java.collections.Iterables.transform;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,24 +24,24 @@ public class StationFixtures {
         return getApiStation(Urn.forTrackStation(random.nextLong()));
     }
 
-    public static ApiStation getApiStation(Urn station) {
+    static ApiStation getApiStation(Urn station) {
         return getApiStation(station, 1);
     }
 
-    public static ApiStation getApiStation(Urn station, int size) {
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>(
-                ModelFixtures.create(ApiTrack.class, size),
-                null,
-                "soundcloud:radio:123123123"
-        );
-        return new ApiStation(getApiStationMetadata(station), tracks);
+    static ApiStation getApiStation(Urn station, int size) {
+        return getApiStation(station, ModelFixtures.create(ApiTrack.class, size));
     }
 
-    public static List<PropertySet> getRecentStationsToSync(PropertySet... stations) {
+    private static ApiStation getApiStation(Urn station, List<ApiTrack> tracks) {
+        return new ApiStation(getApiStationMetadata(station),
+                              new ModelCollection<>(tracks, null, "soundcloud:radio:123123123"));
+    }
+
+    static List<PropertySet> getRecentStationsToSync(PropertySet... stations) {
         return Arrays.asList(stations);
     }
 
-    public static PropertySet stationProperties() {
+    static PropertySet stationProperties() {
         return PropertySet.from(
                 StationProperty.URN.bind(Urn.forTrackStation(123L)),
                 StationProperty.UPDATED_LOCALLY_AT.bind(12345L),
@@ -43,14 +49,37 @@ public class StationFixtures {
         );
     }
 
+    static List<StationInfoTrack> getStationTracks(int size) {
+        return newArrayList(transform(trackItems(size), new Function<TrackItem, StationInfoTrack>() {
+            @Override
+            public StationInfoTrack apply(TrackItem trackItem) {
+                return StationInfoTrack.from(trackItem.getUrn(),
+                                            trackItem.getTitle(),
+                                            trackItem.getCreatorName(),
+                                            trackItem.getCreatorUrn(),
+                                            trackItem.getImageUrlTemplate());
+            }
+        }));
+    }
+
     private static ApiStationMetadata getApiStationMetadata(Urn station) {
         return new ApiStationMetadata(
                 station,
                 "stationWithSeed " + System.currentTimeMillis(),
                 "http://permalink",
-                "fixture-stations",
+                getStationType(station),
                 "https://i1.sndcdn.com/artworks-000056536728-bjjprz-{size}.jpg"
         );
+    }
+
+    private static String getStationType(Urn urn) {
+        if (urn.isTrackStation()) {
+            return "track";
+        } else if (urn.isArtistStation()) {
+            return "artist";
+        }
+
+        return "fixture-stations";
     }
 
     public static StationRecord getStation(Urn urn) {

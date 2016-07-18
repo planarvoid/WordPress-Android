@@ -7,7 +7,9 @@ import dagger.Module;
         addsTo = ApplicationModule.class,
         injects = {
                 RecentStationsActivity.class,
-                RecentStationsFragment.class
+                RecentStationsFragment.class,
+                StationInfoActivity.class,
+                StationInfoFragment.class
         }
 )
 public class StationsModule {

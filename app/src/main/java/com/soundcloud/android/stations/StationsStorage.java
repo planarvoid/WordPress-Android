@@ -7,6 +7,8 @@ import static com.soundcloud.propeller.query.Query.apply;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
@@ -21,6 +23,7 @@ import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -97,13 +100,27 @@ class StationsStorage {
         this.dateProvider = dateProvider;
     }
 
-    public Observable<StationTrack> loadPlayQueue(Urn station, int startPosition) {
+    Observable<StationInfoTrack> stationTracks(Urn stationUrn) {
+        // TODO: This is only temporary, I want to run a DB migration to change track_urn to store only ID instead of urn
+        final Query query = Query.from(Table.SoundView.name())
+                                 .select(TableColumns.SoundView._ID,
+                                         TableColumns.SoundView.TITLE,
+                                         TableColumns.SoundView.USERNAME,
+                                         TableColumns.SoundView.USER_ID,
+                                         TableColumns.SoundView.ARTWORK_URL)
+                                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                                 .limit(30);
+
+        return propellerRx.query(query)
+                          .map(new StationTrackMapper());
+    }
+
+    Observable<StationTrack> loadPlayQueue(Urn station, int startPosition) {
         return propellerRx
-                .query(Query
-                               .from(StationsPlayQueues.TABLE)
-                               .whereEq(StationsPlayQueues.STATION_URN, station.toString())
-                               .whereGe(StationsPlayQueues.POSITION, startPosition)
-                               .order(StationsPlayQueues.POSITION, Query.Order.ASC))
+                .query(Query.from(StationsPlayQueues.TABLE)
+                            .whereEq(StationsPlayQueues.STATION_URN, station.toString())
+                            .whereGe(StationsPlayQueues.POSITION, startPosition)
+                            .order(StationsPlayQueues.POSITION, Query.Order.ASC))
                 .map(TO_STATION_TRACK);
     }
 
@@ -111,17 +128,17 @@ class StationsStorage {
         return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                final Query isPlayQueueExpired = apply(exists(Query
-                                                                      .from(Stations.TABLE)
-                                                                      .whereEq(Stations.STATION_URN,
-                                                                               stationUrn.toString())
-                                                                      .whereLe(Stations.PLAY_QUEUE_UPDATED_AT,
-                                                                               dateProvider.getCurrentTime() - EXPIRE_DELAY)));
+                final Query isPlayQueueExpired =
+                        apply(exists(Query.from(Stations.TABLE)
+                                          .whereEq(Stations.STATION_URN,
+                                                   stationUrn.toString())
+                                          .whereLe(Stations.PLAY_QUEUE_UPDATED_AT,
+                                                   dateProvider.getCurrentTime() - EXPIRE_DELAY)));
 
                 if (propeller.query(isPlayQueueExpired).first(Boolean.class)) {
-                    step(propeller
-                                 .delete(StationsPlayQueues.TABLE, filter()
-                                         .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())));
+
+                    step(propeller.delete(StationsPlayQueues.TABLE, filter()
+                            .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())));
                     step(resetLastPlayedTrackPosition(stationUrn));
                 }
             }
@@ -142,18 +159,16 @@ class StationsStorage {
     }
 
     private Query buildStationsQuery(int collectionType) {
-        return Query
-                .from(StationsCollections.TABLE)
-                .whereEq(StationsCollections.COLLECTION_TYPE, collectionType)
-                .order(StationsCollections.UPDATED_LOCALLY_AT, Query.Order.DESC)
-                .order(StationsCollections.POSITION, Query.Order.ASC);
+        return Query.from(StationsCollections.TABLE)
+                    .whereEq(StationsCollections.COLLECTION_TYPE, collectionType)
+                    .order(StationsCollections.UPDATED_LOCALLY_AT, Query.Order.DESC)
+                    .order(StationsCollections.POSITION, Query.Order.ASC);
     }
 
     Observable<StationRecord> station(Urn stationUrn) {
         return Observable.zip(
-                propellerRx.query(Query
-                                          .from(Stations.TABLE)
-                                          .whereEq(Stations.STATION_URN, stationUrn))
+                propellerRx.query(Query.from(Stations.TABLE)
+                                       .whereEq(Stations.STATION_URN, stationUrn))
                            .map(TO_STATION_WITHOUT_TRACKS),
 
                 propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_STATION_TRACK).toList(),
@@ -174,11 +189,10 @@ class StationsStorage {
     }
 
     private Query buildTracksListQuery(Urn stationUrn) {
-        return Query
-                .from(StationsPlayQueues.TABLE)
-                .select(StationsPlayQueues.TRACK_URN, StationsPlayQueues.QUERY_URN)
-                .whereEq(StationsPlayQueues.STATION_URN, stationUrn)
-                .order(StationsPlayQueues.POSITION, Query.Order.ASC);
+        return Query.from(StationsPlayQueues.TABLE)
+                    .select(StationsPlayQueues.TRACK_URN, StationsPlayQueues.QUERY_URN)
+                    .whereEq(StationsPlayQueues.STATION_URN, stationUrn)
+                    .order(StationsPlayQueues.POSITION, Query.Order.ASC);
     }
 
     ChangeResult saveLastPlayedTrackPosition(Urn stationUrn, int position) {
@@ -200,8 +214,7 @@ class StationsStorage {
     ChangeResult saveUnsyncedRecentlyPlayedStation(Urn stationUrn) {
         return propellerDatabase.upsert(
                 StationsCollections.TABLE,
-                values()
-                        .put(StationsCollections.STATION_URN, stationUrn.toString())
+                values().put(StationsCollections.STATION_URN, stationUrn.toString())
                         .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
                         .put(StationsCollections.UPDATED_LOCALLY_AT, dateProvider.getCurrentTime())
                         .get()
@@ -210,10 +223,9 @@ class StationsStorage {
 
     List<PropertySet> getRecentStationsToSync() {
         return propellerDatabase
-                .query(Query
-                               .from(StationsCollections.TABLE)
-                               .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
-                               .whereNotNull(StationsCollections.UPDATED_LOCALLY_AT))
+                .query(Query.from(StationsCollections.TABLE)
+                            .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
+                            .whereNotNull(StationsCollections.UPDATED_LOCALLY_AT))
                 .toList(TO_RECENT_STATION);
     }
 
@@ -223,6 +235,20 @@ class StationsStorage {
 
     void disableOnboarding() {
         sharedPreferences.edit().putBoolean(ONBOARDING_DISABLED, true).apply();
+    }
+
+    private final class StationTrackMapper extends RxResultMapper<StationInfoTrack> {
+
+        @Override
+        public StationInfoTrack map(CursorReader reader) {
+            return StationInfoTrack.from(
+                    Urn.forTrack(reader.getLong(TableColumns.SoundView._ID)),
+                    reader.getString(TableColumns.SoundView.TITLE),
+                    reader.getString(TableColumns.SoundView.USERNAME),
+                    Urn.forUser(reader.getLong(TableColumns.SoundView.USER_ID)),
+                    Optional.fromNullable(reader.getString(TableColumns.SoundView.ARTWORK_URL))
+            );
+        }
     }
 
 }

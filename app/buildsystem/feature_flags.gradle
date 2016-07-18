@@ -15,7 +15,8 @@ enum Feature {
   LOCAL_PLAY_HISTORY_STORAGE,
   PLAY_QUEUE,
   NEW_SYNC_ADAPTER,
-  ALBUMS;
+  ALBUMS,
+  STATION_PAGE;
 }
 
 android {
@@ -31,6 +32,7 @@ android {
     buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), FALSE
     buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
     buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), FALSE
+    buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), FALSE
   }
 
   buildTypes {
@@ -64,6 +66,7 @@ android {
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
     }
 

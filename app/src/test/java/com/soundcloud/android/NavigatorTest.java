@@ -30,6 +30,7 @@ import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.payments.WebConversionActivity;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
@@ -42,6 +43,8 @@ import com.soundcloud.android.profile.UserTracksActivity;
 import com.soundcloud.android.search.SearchPremiumResultsActivity;
 import com.soundcloud.android.search.SearchType;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
+import com.soundcloud.android.stations.RecentStationsActivity;
+import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
@@ -566,5 +569,23 @@ public class NavigatorTest extends AndroidUnitTest {
 
         assertThat(activityContext).nextStartedIntent()
                                    .opensActivity(AllGenresActivity.class);
+    }
+
+    @Test
+    public void openRecentStations() {
+        navigator.openRecentStations(activityContext);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .opensActivity(RecentStationsActivity.class);
+    }
+
+    @Test
+    public void openStationInfo() {
+        final Urn someStation = Urn.forArtistStation(123L);
+        navigator.openStationInfo(activityContext, someStation, DiscoverySource.STATIONS);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(StationInfoActivity.EXTRA_URN, someStation)
+                                   .opensActivity(StationInfoActivity.class);
     }
 }

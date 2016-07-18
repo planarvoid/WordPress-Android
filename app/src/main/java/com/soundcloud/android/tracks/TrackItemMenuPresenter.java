@@ -28,7 +28,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
@@ -57,7 +57,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final ShareOperations shareOperations;
     private final PlaylistOperations playlistOperations;
     private final ScreenProvider screenProvider;
-    private final StartStationPresenter startStationPresenter;
+    private final StartStationHandler stationHandler;
     private final AccountOperations accountOperations;
     private final FeatureFlags featureFlags;
     private final PlayQueueManager playQueueManager;
@@ -89,7 +89,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            PlaylistOperations playlistOperations,
                            ScreenProvider screenProvider,
                            ShareOperations shareOperations,
-                           StartStationPresenter startStationPresenter,
+                           StartStationHandler stationHandler,
                            AccountOperations accountOperations,
                            FeatureFlags featureFlags,
                            PlayQueueManager playQueueManager,
@@ -103,7 +103,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.repostOperations = repostOperations;
         this.playlistOperations = playlistOperations;
         this.screenProvider = screenProvider;
-        this.startStationPresenter = startStationPresenter;
+        this.stationHandler = stationHandler;
         this.shareOperations = shareOperations;
         this.accountOperations = accountOperations;
         this.featureFlags = featureFlags;
@@ -209,7 +209,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                                   });
                 return true;
             case R.id.start_station:
-                startStationPresenter.startStationForTrack(context, track.getUrn());
+                stationHandler.startStationWithSeedTrack(context, track.getUrn());
                 return true;
             case R.id.play_next:
                 playNext(track.getUrn());

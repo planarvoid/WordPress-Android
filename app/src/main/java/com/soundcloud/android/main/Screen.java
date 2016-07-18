@@ -125,6 +125,7 @@ public enum Screen {
     // Stations
     STATIONS_SHOW_ALL("stations:show_all"),
     STATIONS_RECENT("stations:recent_stations"),
+    STATIONS_INFO("stations:main"),
 
     // PAYMENT
     CONVERSION("consumer-premium:main"),

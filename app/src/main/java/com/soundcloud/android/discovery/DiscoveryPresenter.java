@@ -6,6 +6,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -15,7 +16,7 @@ import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
 import com.soundcloud.android.stations.RecommendedStationsOperations;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.utils.EmptyThrowable;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -47,7 +48,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
     private final Navigator navigator;
     private final FeatureFlags featureFlags;
     private final EventBus eventBus;
-    private final StartStationPresenter startStationPresenter;
+    private final StartStationHandler startStationPresenter;
     private Subscription subscription;
 
     @Inject
@@ -59,7 +60,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                        Navigator navigator,
                        FeatureFlags featureFlags,
                        EventBus eventBus,
-                       StartStationPresenter startStationPresenter,
+                       StartStationHandler startStationPresenter,
                        TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator) {
         super(swipeRefreshAttacher, Options.defaults());
         this.dataSource = dataSource;
@@ -144,7 +145,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
 
     @Override
     public void onRecommendedStationClicked(Context context, StationRecord station) {
-        startStationPresenter.startStationFromRecommendations(context, station.getUrn());
+        startStationPresenter.startStation(context, station.getUrn(), DiscoverySource.STATIONS_SUGGESTIONS);
     }
 
     private class UpdatePlayingUrnSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {

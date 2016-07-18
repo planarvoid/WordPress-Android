@@ -6,7 +6,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -26,25 +26,25 @@ class ErrorViewController {
 
     private final TrackPageHolder holder;
     private final ViewStub errorStub;
-    private final StartStationPresenter startStationPresenter;
+    private final StartStationHandler stationHandler;
 
     private Urn urn;
     private View errorLayout;
 
     @Nullable private ErrorState currentError;
 
-    public ErrorViewController(@Provided StartStationPresenter startStationPresenter, View trackView) {
-        this.startStationPresenter = startStationPresenter;
+    ErrorViewController(@Provided StartStationHandler stationHandler, View trackView) {
+        this.stationHandler = stationHandler;
         this.trackView = trackView;
         this.holder = (TrackPageHolder) trackView.getTag();
         this.errorStub = (ViewStub) trackView.findViewById(R.id.track_page_error_stub);
     }
 
-    public boolean isShowingError() {
+    boolean isShowingError() {
         return currentError != null;
     }
 
-    public void showError(ErrorState error) {
+    void showError(ErrorState error) {
         this.currentError = error;
         holder.waveformController.hide();
         setGone(holder.hideOnErrorViews);
@@ -86,7 +86,7 @@ class ErrorViewController {
         stationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startStationPresenter.startStation(errorLayout.getContext(), Urn.forTrackStation(urn.getNumericId()));
+                stationHandler.startStation(errorLayout.getContext(), Urn.forTrackStation(urn.getNumericId()));
             }
         });
     }
@@ -119,7 +119,7 @@ class ErrorViewController {
         }
     }
 
-    public void hideError() {
+    void hideError() {
         if (isShowingError()) {
             holder.waveformController.show();
             setVisible(holder.hideOnErrorViews);
@@ -129,7 +129,7 @@ class ErrorViewController {
         }
     }
 
-    public void hideNonBlockedErrors() {
+    void hideNonBlockedErrors() {
         if (currentError != ErrorState.BLOCKED) {
             hideError();
         }

@@ -9,7 +9,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -26,16 +26,16 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedItem> 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final StartStationPresenter startStationPresenter;
+    private final StartStationHandler stationHandler;
 
     RecentlyPlayedStationRenderer(boolean fixedWidth,
-                                         @Provided ImageOperations imageOperations,
-                                         @Provided Resources resources,
-                                         @Provided StartStationPresenter startStationPresenter) {
+                                  @Provided ImageOperations imageOperations,
+                                  @Provided Resources resources,
+                                  @Provided StartStationHandler stationHandler) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.startStationPresenter = startStationPresenter;
+        this.stationHandler = stationHandler;
     }
 
     @Override
@@ -91,7 +91,7 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedItem> 
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startStationPresenter.startStation(view.getContext(), station.getUrn());
+                stationHandler.startStation(view.getContext(), station.getUrn());
             }
         };
     }

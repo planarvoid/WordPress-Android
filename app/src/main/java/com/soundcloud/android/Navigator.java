@@ -32,6 +32,7 @@ import com.soundcloud.android.offline.OfflineSettingsOnboardingActivity;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.payments.WebCheckoutActivity;
 import com.soundcloud.android.payments.WebConversionActivity;
+import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.profile.ProfileActivity;
@@ -47,6 +48,7 @@ import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
 import com.soundcloud.android.stations.RecentStationsActivity;
+import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
@@ -263,7 +265,8 @@ public class Navigator {
     }
 
     private boolean hasMicrophonePermission(Context context) {
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==  PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(context,
+                                                 Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
 
     public void openOfflineSettings(Context context) {
@@ -346,6 +349,19 @@ public class Navigator {
 
     public void openRecentStations(Context context) {
         context.startActivity(new Intent(context, RecentStationsActivity.class));
+    }
+
+    public void openStationInfo(Context context, Urn stationUrn, Urn seedTrack, DiscoverySource source) {
+        context.startActivity(new Intent(context, StationInfoActivity.class)
+                                      .putExtra(StationInfoActivity.EXTRA_SOURCE, source)
+                                      .putExtra(StationInfoActivity.EXTRA_URN, stationUrn)
+                                      .putExtra(StationInfoActivity.EXTRA_SEED_URN, seedTrack));
+    }
+
+    public void openStationInfo(Context context, Urn stationUrn, DiscoverySource source) {
+        context.startActivity(new Intent(context, StationInfoActivity.class)
+                                      .putExtra(StationInfoActivity.EXTRA_SOURCE, source)
+                                      .putExtra(StationInfoActivity.EXTRA_URN, stationUrn));
     }
 
     public void openTrackLikes(Context context) {

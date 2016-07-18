@@ -8,6 +8,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 import rx.functions.Func1;
@@ -61,6 +62,15 @@ public class TrackItem extends PlayableItem implements TieredTrack {
                     trackItems.add(from(source.toPropertySet()));
                 }
                 return trackItems;
+            }
+        };
+    }
+
+    public static Function<ApiTrack, TrackItem> fromApiTrack() {
+        return new Function<ApiTrack, TrackItem>() {
+            @Override
+            public TrackItem apply(ApiTrack input) {
+                return TrackItem.from(input);
             }
         };
     }

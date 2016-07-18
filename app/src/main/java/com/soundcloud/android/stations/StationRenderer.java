@@ -21,15 +21,15 @@ import java.util.List;
 class StationRenderer implements CellRenderer<StationViewModel> {
     private final ImageOperations imageOperations;
     private final Resources resources;
-    private final StartStationPresenter startStationPresenter;
+    private final StartStationHandler stationHandler;
 
     @Inject
     public StationRenderer(ImageOperations imageOperations,
                            Resources resources,
-                           StartStationPresenter startStationPresenter) {
+                           StartStationHandler stationHandler) {
         this.imageOperations = imageOperations;
         this.resources = resources;
-        this.startStationPresenter = startStationPresenter;
+        this.stationHandler = stationHandler;
     }
 
     @Override
@@ -69,7 +69,7 @@ class StationRenderer implements CellRenderer<StationViewModel> {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startStationPresenter.startStation(view.getContext(), station.getUrn());
+                stationHandler.startStation(view.getContext(), station.getUrn());
             }
         };
     }

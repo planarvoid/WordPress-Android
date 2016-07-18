@@ -50,8 +50,7 @@
         android:name="SoundCloudApplication"
         android:theme="@style/Theme.SoundCloud"
         tools:ignore="UnusedAttribute"
-        android:supportsRtl="false"
-        >
+        android:supportsRtl="false">
 
         <activity android:name=".main.LauncherActivity" android:noHistory="true" android:theme="@style/Theme.SoundCloud.NoActionBar">
             <intent-filter>
@@ -287,7 +286,8 @@
         <activity android:label="@string/discovery_search_title" android:name=".discovery.PlaylistDiscoveryActivity"/>
 
         <!-- stations -->
-        <activity android:name=".stations.RecentStationsActivity" />
+        <activity android:label="@string/stations_collection_title_recent_stations" android:name=".stations.RecentStationsActivity" />
+        <activity android:label="@string/stations_collection_title_station_page" android:name=".stations.StationInfoActivity" />
 
         <!-- for testing purposes -->
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>

@@ -21,8 +21,6 @@ public class RecentStationsActivity extends PlayerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.setTitle(R.string.stations_collection_title_recent_stations);
-
         if (savedInstanceState == null) {
             attachFragment();
         }

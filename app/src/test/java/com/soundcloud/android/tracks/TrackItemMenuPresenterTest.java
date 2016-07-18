@@ -26,7 +26,7 @@ import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.share.ShareOperations;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -58,7 +58,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock PlaybackInitiator playbackInitiator;
     @Mock PlaybackToastHelper playbackToastHelper;
     @Mock FeatureFlags featureFlags;
-    @Mock StartStationPresenter startStationPresenter;
+    @Mock StartStationHandler stationHandler;
     @Mock Context context;
     @Mock FragmentActivity activity;
     @Mock AccountOperations accountOperations;
@@ -94,7 +94,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
                                                playlistOperations,
                                                screenProvider,
                                                shareOperations,
-                                               startStationPresenter,
+                                               stationHandler,
                                                accountOperations,
                                                featureFlags,
                                                playQueueManager,

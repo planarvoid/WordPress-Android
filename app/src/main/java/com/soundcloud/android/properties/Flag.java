@@ -18,7 +18,8 @@ public enum Flag {
     LOCAL_PLAY_HISTORY(BuildConfig.LOCAL_PLAY_HISTORY),
     LOCAL_PLAY_HISTORY_STORAGE(BuildConfig.LOCAL_PLAY_HISTORY_STORAGE),
     ALBUMS(BuildConfig.ALBUMS),
-    PLAY_QUEUE(BuildConfig.PLAY_QUEUE);
+    PLAY_QUEUE(BuildConfig.PLAY_QUEUE),
+    STATION_INFO_PAGE(BuildConfig.STATION_PAGE);
 
     private final boolean value;
 

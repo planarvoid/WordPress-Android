@@ -10,9 +10,8 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.stations.StartStationPresenter;
+import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.ProfileToggleButton;
@@ -30,8 +29,7 @@ class ProfileHeaderPresenter {
 
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
-    private final FeatureFlags featureFlags;
-    private final StartStationPresenter startStationPresenter;
+    private final StartStationHandler stationHandler;
 
     @Bind(R.id.header_info_layout) View headerInfoLayout;
     @Bind(R.id.tab_indicator) View tabs;
@@ -46,15 +44,13 @@ class ProfileHeaderPresenter {
     public ProfileHeaderPresenter(ImageOperations imageOperations,
                                   CondensedNumberFormatter numberFormatter,
                                   AccountOperations accountOperations,
-                                  FeatureFlags featureFlags,
                                   final Urn user, final AppCompatActivity profileActivity,
                                   final FollowingOperations followingOperations,
                                   final EngagementsTracking engagementsTracking,
-                                  final StartStationPresenter startStationPresenter) {
+                                  final StartStationHandler stationHandler) {
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
-        this.featureFlags = featureFlags;
-        this.startStationPresenter = startStationPresenter;
+        this.stationHandler = stationHandler;
 
         ButterKnife.bind(this, profileActivity);
 
@@ -135,7 +131,7 @@ class ProfileHeaderPresenter {
                 @Override
                 public void onClick(View v) {
                     updateStationButton();
-                    startStationPresenter.startStationForUser(v.getContext(), user.getArtistStationUrn().get());
+                    stationHandler.startStation(v.getContext(), user.getArtistStationUrn().get());
                 }
             });
             stationButton.setVisibility(View.VISIBLE);
@@ -157,8 +153,7 @@ class ProfileHeaderPresenter {
         private final AccountOperations accountOperations;
         private final FollowingOperations followingOperations;
         private final EngagementsTracking engagementsTracking;
-        private final StartStationPresenter startStationPresenter;
-        private final FeatureFlags featureFlags;
+        private final StartStationHandler stationHandler;
 
         @Inject
         public ProfileHeaderPresenterFactory(ImageOperations imageOperations,
@@ -166,21 +161,19 @@ class ProfileHeaderPresenter {
                                              AccountOperations accountOperations,
                                              FollowingOperations followingOperations,
                                              EngagementsTracking engagementsTracking,
-                                             StartStationPresenter startStationPresenter,
-                                             FeatureFlags featureFlags) {
+                                             StartStationHandler stationHandler) {
             this.imageOperations = imageOperations;
             this.numberFormatter = numberFormatter;
             this.accountOperations = accountOperations;
             this.followingOperations = followingOperations;
             this.engagementsTracking = engagementsTracking;
-            this.startStationPresenter = startStationPresenter;
-            this.featureFlags = featureFlags;
+            this.stationHandler = stationHandler;
         }
 
         ProfileHeaderPresenter create(AppCompatActivity profileActivity, Urn user) {
             return new ProfileHeaderPresenter(imageOperations, numberFormatter, accountOperations,
-                                              featureFlags, user, profileActivity,
-                                              followingOperations, engagementsTracking, startStationPresenter);
+                                              user, profileActivity, followingOperations, engagementsTracking,
+                                              stationHandler);
         }
     }
 

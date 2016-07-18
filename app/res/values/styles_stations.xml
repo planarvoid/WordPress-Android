@@ -99,4 +99,43 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/recommendation_reason_text</item>
     </style>
+
+    <style name="StationInfo"/>
+
+    <style name="StationInfo.ViewAllText" parent="TextAppearance.SoundCloudRegularFont">
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/ak_dark_gray</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:drawableRight">@drawable/inset_chevron</item>
+        <item name="android:drawablePadding">@dimen/view_all_chevron_padding</item>
+    </style>
+
+    <style name="StationInfo.StationTracksCarousel">
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:overScrollMode">never</item>
+    </style>
+
+    <style name="StationInfo.TrackHeader">
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/collections_recently_played_header</item>
+        <item name="android:paddingLeft">@dimen/collection_recently_played_default_margin</item>
+        <item name="android:paddingRight">@dimen/collection_recently_played_default_margin</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="StationInfo.PlayButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@drawable/btn_header_play</item>
+    </style>
+
 </resources>
