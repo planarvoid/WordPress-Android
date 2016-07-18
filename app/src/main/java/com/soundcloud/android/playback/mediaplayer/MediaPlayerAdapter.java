@@ -12,6 +12,7 @@ import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.BufferUnderrunListener;
 import com.soundcloud.android.playback.PlayStateReason;
@@ -22,6 +23,8 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
+import com.soundcloud.android.playback.VideoSurfaceProvider;
+import com.soundcloud.android.playback.VideoTextureContainer;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -41,7 +44,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
-import android.view.SurfaceHolder;
+import android.view.Surface;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,7 +53,8 @@ import java.lang.ref.WeakReference;
 
 @Singleton
 public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener, SurfaceHolder.Callback {
+        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener,
+        VideoSurfaceProvider.Listener {
 
     private static final String TAG = "MediaPlayerAdapter";
     private static final int POS_NOT_SET = Consts.NOT_SET;
@@ -66,6 +70,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private final AccountOperations accountOperations;
     private final BufferUnderrunListener bufferUnderrunListener;
     private final VideoSourceProvider videoSourceProvider;
+    private final VideoSurfaceProvider videoSurfaceProvider;
     private final StreamUrlBuilder urlBuilder;
     private final CurrentDateProvider dateProvider;
 
@@ -80,13 +85,12 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private long resumePos = POS_NOT_SET;
 
     private volatile MediaPlayer mediaPlayer;
-    private Optional<SurfaceHolder> surfaceHolder = Optional.absent();
-    private double loadPercent;
-    @Nullable
-    private PlayerListener playerListener;
+    @Nullable private PlayerListener playerListener;
 
+    private double loadPercent;
     private long prepareStartTimeMs;
     private String currentStreamUrl = Strings.EMPTY;
+
     private Optional<VideoSource> currentVideoSource = Optional.absent();
 
     @Inject
@@ -96,6 +100,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                               AccountOperations accountOperations,
                               BufferUnderrunListener bufferUnderrunListener,
                               VideoSourceProvider videoSourceProvider,
+                              VideoSurfaceProvider videoSurfaceProvider,
                               StreamUrlBuilder urlBuilder,
                               CurrentDateProvider dateProvider) {
         this.bufferUnderrunListener = bufferUnderrunListener;
@@ -109,6 +114,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         this.networkConnectionHelper = networkConnectionHelper;
         this.accountOperations = accountOperations;
         this.videoSourceProvider = videoSourceProvider;
+        this.videoSurfaceProvider = videoSurfaceProvider;
+        this.videoSurfaceProvider.setListener(this);
     }
 
     @Override
@@ -145,7 +152,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
         try {
             setStreamUrl(playbackItem);
-            updateVideoView(surfaceHolder.orNull());
+            attemptToSetSurface(playbackItem.getUrn());
             mediaPlayer.setDataSource(currentStreamUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
@@ -266,7 +273,6 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
                 mp.release();
                 resetConnectionRetries();
                 mediaPlayer = null;
-                clearVideoView();
             }
         }
         return true;
@@ -358,8 +364,9 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     void onPlaybackEnded() {
-        resetConnectionRetries();
         setInternalState(PlaybackState.COMPLETED);
+        clearSurface();
+        resetConnectionRetries();
     }
 
     void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, long lastPosition) {
@@ -627,12 +634,12 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             // store times as they will not be accessible after release
             final long progress = getAdjustedProgress();
             final long duration = getDuration();
-            currentVideoSource = Optional.absent();
 
             if (internalState.isStoppable()) {
                 mediaPlayer.stop();
             }
 
+            clearSurface();
             mediaPlayerManager.stopAndReleaseAsync(mediaPlayer);
             this.mediaPlayer = null;
 
@@ -645,29 +652,19 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
         stop();
     }
 
-    private void clearVideoView() {
-        updateVideoView(null);
-    }
-
-    private void updateVideoView(SurfaceHolder holder) {
-        surfaceHolder = Optional.fromNullable(holder);
-        if (mediaPlayer != null) {
-            mediaPlayer.setDisplay(surfaceHolder.orNull());
+    public void attemptToSetSurface(Urn urn) {
+        if (isPlayingVideo()) {
+            final Surface surface = videoSurfaceProvider.getSurface(urn);
+            if (mediaPlayer != null && surface != null) {
+                mediaPlayer.setSurface(surface);
+            }
         }
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        updateVideoView(holder);
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        clearVideoView();
+    private void clearSurface() {
+        if (mediaPlayer != null) {
+            mediaPlayer.setSurface(null);
+        }
     }
 
     @VisibleForTesting

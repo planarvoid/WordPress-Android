@@ -106,23 +106,15 @@ public class ApplicationProperties {
         return isDebugBuild() && IS_RUNNING_ON_DEVICE;
     }
 
-    public boolean isRunningOnDevice() {
-        return IS_RUNNING_ON_DEVICE;
-    }
-
     public boolean isDevBuildRunningOnDevice() {
         return isDebugBuild() && IS_RUNNING_ON_DEVICE;
     }
 
-    public boolean shouldUseBigNotifications() {
+    public boolean canAccessCodecInformation() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
     }
 
-    public boolean shouldUseMediaStyleNotifications() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    }
-
-    public boolean canAccessCodecInformation() {
+    public boolean canReattachSurfaceTexture() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
     }
 

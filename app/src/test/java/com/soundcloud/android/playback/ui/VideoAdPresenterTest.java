@@ -44,7 +44,6 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     private static final int LETTERBOX_VIDEO_WIDTH = 250;
     private static final int LETTERBOX_VIDEO_HEIGHT = 100;
 
-    @Mock private MediaPlayerAdapter mediaPlayerAdapter;
     @Mock private ImageOperations imageOperations;
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdPageListener pageListener;
@@ -56,8 +55,7 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(mock(PlayerOverlayController.class));
         when(deviceHelper.isOrientation(ORIENTATION_PORTRAIT)).thenReturn(true);
 
-        presenter = new VideoAdPresenter(mediaPlayerAdapter,
-                                         imageOperations,
+        presenter = new VideoAdPresenter(imageOperations,
                                          pageListener,
                                          playerOverlayControllerFactory,
                                          deviceHelper,
@@ -188,6 +186,11 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
 
         assertThat(videoOverlayLayoutParams.height).isEqualTo(videoAdParams.height);
         assertThat(videoOverlayLayoutParams.width).isEqualTo(videoAdParams.width);
+    }
+
+    @Test
+    public void getVideoTextureReturnsTextureView() {
+        assertThat(presenter.getVideoTexture(adView)).isEqualTo(adView.findViewById(R.id.video_view));
     }
 
     @Test
