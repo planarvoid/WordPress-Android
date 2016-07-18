@@ -9,6 +9,7 @@ import com.soundcloud.android.collection.MyCollection;
 import com.soundcloud.android.collection.PreviewCollectionItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -27,15 +28,18 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
     private static final int FIXED_ITEMS = FIXED_PREVIEW_ITEMS + FIXED_RECENTLY_PLAYED_ITEMS + FIXED_PLAY_HISTORY_ITEMS;
 
     private final CollectionOperations collectionOperations;
+    private final PlayHistoryExperiment experiment;
 
     public PlayHistoryCollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                           CollectionOperations collectionOperations,
                                           CollectionOptionsStorage collectionOptionsStorage,
                                           CollectionAdapter adapter,
+                                          PlayHistoryExperiment experiment,
                                           Resources resources,
                                           EventBus eventBus) {
         super(swipeRefreshAttacher, eventBus, adapter, resources, collectionOptionsStorage);
         this.collectionOperations = collectionOperations;
+        this.experiment = experiment;
     }
 
     @Override
@@ -62,8 +66,15 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
         collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(),
                                                                        myCollection.getPlaylistItems()));
 
-        addRecentlyPlayed(recentlyPlayedItems, collectionItems);
-        addPlayHistory(playHistoryTrackItems, collectionItems);
+        if (experiment.showOnlyOnSearch()) {
+            addPlayHistory(playHistoryTrackItems, collectionItems);
+        } else if (experiment.showBelowListeningHistory()) {
+            addPlayHistory(playHistoryTrackItems, collectionItems);
+            addRecentlyPlayed(recentlyPlayedItems, collectionItems);
+        } else {
+            addRecentlyPlayed(recentlyPlayedItems, collectionItems);
+            addPlayHistory(playHistoryTrackItems, collectionItems);
+        }
 
         return collectionItems;
     }

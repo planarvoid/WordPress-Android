@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.collection.playhistory.WritePlayHistoryCommand;
+import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
@@ -18,8 +19,6 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -39,7 +38,7 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     private static final long START_EVENT = 12345678L;
 
     @Mock WritePlayHistoryCommand storeCommand;
-    @Mock FeatureFlags featureFlags;
+    @Mock PlayHistoryExperiment experiment;
 
     private TestScheduler scheduler = new TestScheduler();
     private TestDateProvider dateProvider = new TestDateProvider(START_EVENT);
@@ -47,8 +46,8 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
-        PlayHistoryController controller = new PlayHistoryController(eventBus, storeCommand, featureFlags, scheduler);
+        when(experiment.isEnabled()).thenReturn(true);
+        PlayHistoryController controller = new PlayHistoryController(eventBus, storeCommand, experiment, scheduler);
         controller.subscribe();
     }
 

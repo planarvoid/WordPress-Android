@@ -1,8 +1,12 @@
 package com.soundcloud.android.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.search.PlaylistDiscoveryOperations;
@@ -42,12 +46,16 @@ public class DiscoveryPresenterDataSourceTest {
     @Mock private RecommendedStationsOperations recommendedStationsOperations;
     @Mock private ChartsOperations chartsOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private PlayHistoryOperations playHistoryOperations;
+    @Mock private PlayHistoryExperiment playHistoryExperiment;
 
     @Before
     public void setUp() throws Exception {
         dataSource = new DiscoveryPresenter.DataSource(recommendedTracksOperations,
                                                        playlistDiscoveryOperations,
                                                        recommendedStationsOperations,
+                                                       playHistoryOperations,
+                                                       playHistoryExperiment,
                                                        chartsOperations,
                                                        featureFlags);
 
@@ -66,6 +74,8 @@ public class DiscoveryPresenterDataSourceTest {
         when(chartsOperations.featuredCharts()).thenReturn(Observable.just(chartsItem));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
+        List<RecentlyPlayedItem> recentlyPlayed = Collections.singletonList(mock(RecentlyPlayedItem.class));
+        when(playHistoryOperations.recentlyPlayed(10)).thenReturn(Observable.just(recentlyPlayed));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.<DiscoveryItem>just(playlistTagsItem));
     }
 
@@ -76,7 +86,6 @@ public class DiscoveryPresenterDataSourceTest {
 
         final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
 
-
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.ChartItem,
@@ -85,5 +94,24 @@ public class DiscoveryPresenterDataSourceTest {
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
+
+    @Test
+    public void loadsRecentlyPlayedWhenExperimentIsSet() {
+        when(playHistoryExperiment.showOnlyOnSearch()).thenReturn(true);
+        dataSource.discoveryItems().subscribe(subscriber);
+        subscriber.assertValueCount(1);
+
+        final List<DiscoveryItem> discoveryItems = subscriber.getOnNextEvents().get(0);
+
+        assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
+                DiscoveryItem.Kind.SearchItem,
+                DiscoveryItem.Kind.RecentlyPlayedItem,
+                DiscoveryItem.Kind.ChartItem,
+                DiscoveryItem.Kind.RecommendedStationsItem,
+                DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.PlaylistTagsItem
+        );
+    }
+
 
 }

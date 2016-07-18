@@ -30,14 +30,15 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private ChartsBucketItemRenderer chartsBucketItemRenderer;
     @Mock private RecommendationsFooterRenderer recommendationsFooterRenderer;
     @Mock private EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer;
-
     @Mock private RecommendedStationsBucketItem stationsBucketItem;
     @Mock private RecommendedTracksBucketItem tracksBucketItem;
+    @Mock private RecentlyPlayedDiscoveryBucketRenderer recentlyPlayedBucketItemRenderer;
     @Mock private PlaylistTagsItem playlistTagItem;
     @Mock private ChartsBucketItem chartsBucketItem;
 
     private DiscoveryItem searchItem = DiscoveryItem.forSearchItem();
     private DiscoveryAdapter adapter;
+
 
     @Before
     public void setUp() throws Exception {
@@ -53,6 +54,7 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                                        recommendedStationsBucketRenderer,
                                        chartsBucketItemRenderer,
                                        recommendationsFooterRenderer,
+                                       recentlyPlayedBucketItemRenderer,
                                        emptyDiscoveryItemRenderer);
     }
 

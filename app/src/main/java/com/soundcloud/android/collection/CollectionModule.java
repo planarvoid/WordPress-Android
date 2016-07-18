@@ -8,6 +8,7 @@ import com.soundcloud.android.collection.playlists.PlaylistsCollectionActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsCollectionFragment;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedFragment;
+import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -39,13 +40,14 @@ public class CollectionModule {
                                                        CollectionOptionsStorage collectionOptionsStorage,
                                                        CollectionAdapter adapter,
                                                        CollectionPlaylistOptionsPresenter optionsPresenter,
+                                                       PlayHistoryExperiment playHistoryExperiment,
                                                        Resources resources,
                                                        EventBus eventBus,
                                                        FeatureFlags featureFlags) {
         if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
             return new PlayHistoryCollectionPresenter(
                     swipeRefreshAttacher, collectionOperations, collectionOptionsStorage,
-                    adapter, resources, eventBus);
+                    adapter, playHistoryExperiment, resources, eventBus);
         } else {
             return new CollectionPresenter(
                     swipeRefreshAttacher, collectionOperations, collectionOptionsStorage,

@@ -27,6 +27,7 @@ public class DiscoveryItem {
         PlaylistTagsItem,
         SearchItem,
         ChartItem,
+        RecentlyPlayedItem,
         Empty
     }
 

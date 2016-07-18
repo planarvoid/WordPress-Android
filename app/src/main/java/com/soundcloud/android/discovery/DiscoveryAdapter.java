@@ -3,6 +3,7 @@ package com.soundcloud.android.discovery;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.ChartItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.Empty;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.PlaylistTagsItem;
+import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecentlyPlayedItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedStationsItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksFooterItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
@@ -41,6 +42,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
                      @Provided RecommendedStationsBucketRenderer stationsBucketRenderer,
                      @Provided ChartsBucketItemRenderer chartsBucketItemRenderer,
                      @Provided RecommendationsFooterRenderer recommendationsFooterRenderer,
+                     @Provided RecentlyPlayedDiscoveryBucketRenderer recentlyPlayedBucketRenderer,
                      @Provided EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer) {
         super(new CellRendererBinding<>(RecommendedTracksItem.ordinal(), recommendationBucketRenderer),
               new CellRendererBinding<>(PlaylistTagsItem.ordinal(), playlistTagRenderer),
@@ -48,6 +50,7 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
               new CellRendererBinding<>(RecommendedStationsItem.ordinal(), stationsBucketRenderer),
               new CellRendererBinding<>(ChartItem.ordinal(), chartsBucketItemRenderer),
               new CellRendererBinding<>(RecommendedTracksFooterItem.ordinal(), recommendationsFooterRenderer),
+              new CellRendererBinding<>(RecentlyPlayedItem.ordinal(), recentlyPlayedBucketRenderer),
               new CellRendererBinding<>(Empty.ordinal(), emptyDiscoveryItemRenderer)
         );
         this.playlistTagRenderer = playlistTagRenderer;

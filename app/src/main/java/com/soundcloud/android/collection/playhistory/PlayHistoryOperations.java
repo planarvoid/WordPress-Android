@@ -20,6 +20,7 @@ import java.util.List;
 
 public class PlayHistoryOperations {
 
+    public static final int CAROUSEL_ITEMS = 10;
     private static final int MAX_HISTORY_ITEMS = 1000;
     @VisibleForTesting  public static final int MAX_RECENTLY_PLAYED = 500;
 

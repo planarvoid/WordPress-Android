@@ -4,13 +4,12 @@ import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ads.AdUtils;
+import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Pair;
@@ -60,7 +59,7 @@ public class PlayHistoryController {
 
     private final EventBus eventBus;
     private final WritePlayHistoryCommand storeCommand;
-    private final FeatureFlags featureFlags;
+    private final PlayHistoryExperiment playHistoryExperiment;
     private final Scheduler scheduler;
 
     private Subscription subscription = RxUtils.invalidSubscription();
@@ -68,11 +67,11 @@ public class PlayHistoryController {
     @Inject
     public PlayHistoryController(EventBus eventBus,
                           WritePlayHistoryCommand storeCommand,
-                          FeatureFlags featureFlags,
+                          PlayHistoryExperiment playHistoryExperiment,
                           @Named(LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.storeCommand = storeCommand;
-        this.featureFlags = featureFlags;
+        this.playHistoryExperiment = playHistoryExperiment;
         this.scheduler = scheduler;
     }
 
@@ -119,7 +118,7 @@ public class PlayHistoryController {
         return new Action1<PlayHistoryRecord>() {
             @Override
             public void call(PlayHistoryRecord record) {
-                if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
+                if (playHistoryExperiment.isEnabled()) {
                     eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(record.trackUrn()));
                 }
             }

@@ -57,7 +57,6 @@ public class CollectionOperations {
 
     @VisibleForTesting static final int PLAYLIST_LIMIT = 1000; // Arbitrarily high, we don't want to worry about paging
     private static final int PLAY_HISTORY_LIMIT = 3;
-    private static final int RECENTLY_PLAYED_LIMIT = 10;
 
     private final EventBus eventBus;
     private final Scheduler scheduler;
@@ -293,13 +292,13 @@ public class CollectionOperations {
                 myPlaylists().materialize(),
                 likesItem().materialize(),
                 playHistoryItems().materialize(),
-                recentlyPlayed(RECENTLY_PLAYED_LIMIT).materialize(),
+                recentlyPlayed().materialize(),
                 TO_MY_COLLECTIONS_FOR_PLAY_HISTORY_OR_ERROR
         ).dematerialize();
     }
 
-    private Observable<List<RecentlyPlayedItem>> recentlyPlayed(int limit) {
-        return playHistoryOperations.recentlyPlayed(limit);
+    private Observable<List<RecentlyPlayedItem>> recentlyPlayed() {
+        return playHistoryOperations.recentlyPlayed(PlayHistoryOperations.CAROUSEL_ITEMS);
     }
 
     public Observable<List<PlaylistItem>> myPlaylists() {
@@ -376,7 +375,7 @@ public class CollectionOperations {
                                likedTracksOfflineState(),
                                TO_LIKES_ITEM),
                 playHistoryItems(),
-                recentlyPlayed(RECENTLY_PLAYED_LIMIT),
+                recentlyPlayed(),
                 TO_MY_COLLECTIONS_FOR_PLAY_HISTORY
         );
     }
