@@ -155,7 +155,7 @@ public class IntentResolver {
             public void onError(Throwable e) {
                 Optional<ResolveExceptionResult> result = resultFromResolveException(e);
                 Uri resolvedUri = result.isPresent() ? result.get().getUri() : uri;
-                DeepLink deepLink = DeepLink.fromUri(uri);
+                DeepLink deepLink = DeepLink.fromUri(resolvedUri);
 
                 if (DeepLink.WEB_VIEW.equals(deepLink)) {
                     startWebView(context, resolvedUri, referrer);
@@ -163,6 +163,7 @@ public class IntentResolver {
                     trackForegroundEvent(referrer);
                     launchApplicationWithMessage(context, R.string.error_loading_url);
                     if (result.isPresent() && !ErrorUtils.isNetworkError(result.get().getException())) {
+                        ErrorUtils.handleSilentException("unable to load deeplink:" + result.get().getUri(), result.get().getException());
                         reportFailedToResolveDeeplink(referrer);
                     }
                 }
