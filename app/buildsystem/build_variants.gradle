@@ -37,8 +37,8 @@ android {
   }
 
   buildTypes {
-    releaseNoProguard {
-      versionNameSuffix '-releaseNoProguard'
+    preRelease {
+      versionNameSuffix '-preRelease'
       debuggable false
       minifyEnabled false
       signingConfig signingConfigs.release
@@ -47,7 +47,7 @@ android {
       buildConfigField "String", "APP_ENVIRONMENT", "\"prod\""
     }
 
-    release.initWith(buildTypes.releaseNoProguard)
+    release.initWith(buildTypes.preRelease)
     release {
       versionNameSuffix '-release'
       minifyEnabled true

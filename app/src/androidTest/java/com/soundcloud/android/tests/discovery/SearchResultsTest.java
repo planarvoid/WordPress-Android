@@ -9,15 +9,16 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.lessThan;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.discovery.SearchResultsScreen;
 import com.soundcloud.android.screens.discovery.SearchScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.ActivityTest;
 
-public class SearchResultsTest extends ActivityTest<MainActivity> {
+public class SearchResultsTest extends TrackingActivityTest<MainActivity> {
+    private static final String ALBUMS_IN_SEARCH = "albums_in_search";
     private SearchScreen searchScreen;
 
     public SearchResultsTest() {
@@ -95,12 +96,16 @@ public class SearchResultsTest extends ActivityTest<MainActivity> {
     }
 
     public void testTappingAlbumOnAlbumsTabOpensAlbumDetails() {
+        startEventTracking();
+
         PlaylistDetailsScreen playlistDetailsScreen = searchScreen
                 .doSearch("clownstep")
                 .goToAlbumsTab()
                 .findAndClickFirstAlbumItem();
 
         assertThat("Album screen should be visible", playlistDetailsScreen, is(visible()));
+
+        finishEventTracking(ALBUMS_IN_SEARCH);
     }
 
     public void testOrderOfDisplayedTabsWithAlbums() {

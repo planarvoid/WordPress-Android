@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.tests.TestConsts;
 
@@ -27,7 +26,6 @@ public class AudioAdTest extends AdBaseTest {
         return TestConsts.AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI;
     }
 
-    @EventTrackingTest
     public void testQuartileEvents() {
         startEventTracking();
 

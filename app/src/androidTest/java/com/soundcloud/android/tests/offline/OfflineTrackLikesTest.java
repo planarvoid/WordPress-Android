@@ -7,7 +7,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
@@ -49,7 +48,6 @@ public class OfflineTrackLikesTest extends TrackingActivityTest<MainActivity> {
         assertThat(trackLikesScreen.offlineToggle(), is(visible()));
     }
 
-    @EventTrackingTest
     public void testOfflineSyncOfOfflineLikes() {
         enableOfflineContent(context);
 

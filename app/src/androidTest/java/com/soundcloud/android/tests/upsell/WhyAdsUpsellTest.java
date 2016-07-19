@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.screens.WhyAdsUpsellScreen;
@@ -16,7 +15,6 @@ import com.soundcloud.android.tests.player.ads.AdBaseTest;
 import android.net.Uri;
 
 @AdsTest
-@EventTrackingTest
 public class WhyAdsUpsellTest extends AdBaseTest {
 
     private static final String WHY_ADS_UPSELL_TEST_SCENARIO = "why-ads-upsell-tracking-test";

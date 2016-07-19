@@ -27,7 +27,7 @@ public class OtherProfileAlbumTest extends ActivityTest<ResolveActivity> {
 
     @Override
     protected void setUp() throws Exception {
-        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.OTHER_PROFILE_ALBUM_USER_URI));
+        setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(TestConsts.OTHER_PROFILE_USER_URI));
         super.setUp();
 
         profileScreen = new ProfileScreen(solo);

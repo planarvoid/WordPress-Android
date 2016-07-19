@@ -5,14 +5,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
 import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
-@EventTrackingTest
 public class StationsRecommendationsTest extends TrackingActivityTest<MainActivity> {
     private static final String RECOMMENDED_STATIONS_PLAYING_SPEC = "playing_recommended_station";
 

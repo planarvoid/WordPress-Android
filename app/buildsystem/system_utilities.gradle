@@ -9,7 +9,7 @@ def addLibrary(String lib) {
   dependencies.alphaCompile lib
   dependencies.betaCompile lib
   dependencies.releaseCompile lib
-  dependencies.releaseNoProguardCompile lib
+  dependencies.preReleaseCompile lib
   dependencies.releaseNonPlayStoreCompile lib
 }
 
@@ -22,7 +22,7 @@ def addDevLibraryWithStub(String lib, String stub) {
   dependencies.debugCompile lib
   dependencies.alphaCompile stub
   dependencies.betaCompile stub
+  dependencies.preReleaseCompile stub
   dependencies.releaseCompile stub
-  dependencies.releaseNoProguardCompile stub
   dependencies.releaseNonPlayStoreCompile stub
 }

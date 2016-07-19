@@ -37,13 +37,13 @@ task versionizeRelease {
 }
 versionizeRelease.mustRunAfter('clean')
 
-task versionizeReleaseNoProguard {
+task versionizePreRelease {
   doLast {
     // for testing HT, we need to versionize with the alphaVersionCode (1000) so all features are enabled
-    versionize('releaseNoProguard', project.('alphaVersionCode'))
+    versionize('preRelease', project.('alphaVersionCode'))
   }
 }
-versionizeReleaseNoProguard.mustRunAfter('clean')
+versionizePreRelease.mustRunAfter('clean')
 
 // *********************************************************************************************************************
 // HELPERS

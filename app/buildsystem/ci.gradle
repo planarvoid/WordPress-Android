@@ -73,13 +73,13 @@ slogFollowUpBeta.mustRunAfter('uploadFollowUpBeta')
 // RELEASE BUILDS
 // *********************************************************************************************************************
 
-task assembleReleaseNoProguardWrapper(dependsOn: 'assembleProdReleaseNoProguard')
+task assemblePreReleaseWrapper(dependsOn: 'assembleProdPreRelease')
 
-task buildReleaseNoProguard(dependsOn: ['clean', 'versionizeReleaseNoProguard', 'assembleReleaseNoProguardWrapper',
+task buildPreRelease(dependsOn: ['clean', 'versionizePreRelease', 'assemblePreReleaseWrapper',
                                         'staticAnalysis']) {
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
-assembleReleaseNoProguardWrapper.mustRunAfter('versionizeReleaseNoProguard')
+assemblePreReleaseWrapper.mustRunAfter('versionizePreRelease')
 
 task assembleReleaseWrapper(dependsOn: 'assembleProdRelease')
 

@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.EventTrackingTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
@@ -39,7 +38,6 @@ public class StreamUpsellTest extends TrackingActivityTest<MainActivity> {
         assertThat(player.clickUpgrade(), is(visible()));
     }
 
-    @EventTrackingTest
     public void testUserCanNavigateToSubscribePageFromUpsell() {
         final StreamScreen streamScreen = mainNavHelper.goToStream();
 
