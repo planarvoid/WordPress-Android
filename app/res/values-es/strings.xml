@@ -423,8 +423,6 @@
   <string name="suggested_stations">Emisoras sugeridas</string>
   <!--__DISCOVERY CHARTS-->
   <string name="charts_header">Lo más escuchado</string>
-  <string name="charts_new_and_hot">Novedades</string>
-  <string name="charts_top_fifty">Top 50</string>
   <string name="charts_new_and_hot_list_header">Pistas revelación de hoy.</string>
   <string name="charts_top_fifty_list_header">Las pistas más reproducidas en SoundCloud esta semana.</string>
   <string name="charts_genre_view_all">Explorar todos los géneros</string>
