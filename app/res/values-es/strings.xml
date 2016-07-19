@@ -31,6 +31,8 @@
   <string name="account_one_active">Solo puedes tener una cuenta activa</string>
   <string name="comments">Comentarios</string>
   <string name="display_name">Nombre</string>
+  <string name="updated_time">Actualizado el %s.</string>
+  <string name="posted_time">Publicado el %s</string>
   <string name="following_zero">Le sigues tú</string>
   <!--__ACCESSIBILITY-->
   <string name="accessibility_stats_user_liked">Te gusta</string>
@@ -86,7 +88,7 @@
   <string name="authentication_log_in_with_google">Conéctate con Google</string>
   <string name="error_google_sign_in_failed">No hemos podido iniciar tu sesión con Google+. Visita plus.google.com para activar tu cuenta de Google+ e inténtalo de nuevo.</string>
   <string name="auth_disclaimer_title">Un paso más</string>
-  <string name="auth_disclaimer_message">Al seleccionar \"Continuar\", aceptas las Condiciones de Uso y la Política de Privacidad de SoundCloud.</string>
+  <string name="auth_disclaimer_message">Al seleccionar \"Continuar\", aceptas las Condiciones de uso y la Política de privacidad de SoundCloud.</string>
   <string name="facebook_authentication_failed_message">Inténtalo de nuevo más tarde o inicia sesión con tu dirección de email y tu contraseña.</string>
   <string name="authentication_recover_password_msg">Introduce tu dirección de email y te enviaremos un enlace para cambiar tu contraseña. Si tienes alguna duda, visita nuestra Ayuda.</string>
   <string name="authentication_recover_password_visit_our_Help_Center">Visita nuestra Ayuda</string>
@@ -108,6 +110,8 @@
   <string name="list_empty_notification_secondary">Sigue a tus artistas favoritos, bandas y podcasts para escuchar sus últimas pistas.</string>
   <string name="list_empty_stream_action">ENCUENTRA GENTE A LA QUE SEGUIR</string>
   <string name="list_empty_stream_message">Sigue a tus artistas favoritos, bandas y podcasts para escuchar sus últimas pistas.</string>
+  <string name="custom_empty_playlist_title">%1$s vacía</string>
+  <string name="custom_empty_playlist_description">Esta %1$s aún no tiene pistas.</string>
   <string name="list_empty_you_sounds_message">Repostea pistas para compartirlas con tus seguidores.</string>
   <string name="list_empty_you_playlists_message">Crea listas para hacer mezclas de tus pistas favoritas.</string>
   <string name="list_empty_you_likes_message">Dale un me gusta a tus pistas favoritas para escucharlas de nuevo.</string>
@@ -279,6 +283,7 @@
   <string name="info">Info</string>
   <string name="uploaded_xtimeago">Se ha subido hace %s</string>
   <string name="track_info_no_description">No hay descripción disponible</string>
+  <string name="up_next">Siguiente</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">No se puede reproducir</string>
   <string name="playback_error_connection">Comprueba tu conexión y toca la pantalla para intentarlo de nuevo.</string>
@@ -417,6 +422,11 @@
   <!--__DISCOVERY STATIONS-->
   <string name="suggested_stations">Emisoras sugeridas</string>
   <!--__DISCOVERY CHARTS-->
+  <string name="charts_header">Lo más escuchado</string>
+  <string name="charts_new_and_hot">Novedades</string>
+  <string name="charts_top_fifty">Top 50</string>
+  <string name="charts_new_and_hot_list_header">Pistas revelación de hoy.</string>
+  <string name="charts_top_fifty_list_header">Las pistas más reproducidas en SoundCloud esta semana.</string>
   <string name="charts_genre_view_all">Explorar todos los géneros</string>
   <string name="charts_by_genre">Listas por género</string>
   <!--__SETTINGS-->
@@ -433,7 +443,7 @@
   <string name="pref_crashlogs">CrashLogs</string>
   <string name="pref_crashlogs_desc">Habilitar los registros de incidencias nos permite mejorar la aplicación de manera considerable. Consulta nuestra Política de privacidad para más detalles.</string>
   <string name="cache_clearing">Borrando caché</string>
-  <string name="cache_clearing_message">Eliminando archivos en caché...</string>
+  <string name="cache_clearing_message">Borrando archivos de caché...</string>
   <string name="cache_cleared">Caché borrada</string>
   <!--__SETTINGS SIGN OUT-->
   <string name="sign_out_title">¿Borrar datos de usuario?</string>
@@ -523,7 +533,7 @@
   <!--__FACEBOOK CREATOR INVITES-->
   <string name="facebook_creator_invites_title">Invita a tus amigos a escuchar tus pistas más recientes en SoundCloud</string>
   <!--__COLLECTION-->
-  <string name="collections_playlists_header">Listas</string>
+  <string name="collections_playlists_header">Listas y álbumes</string>
   <string name="collections_your_liked_tracks">Pistas con Me gusta</string>
   <string name="track_likes_title">Pistas con Me gusta</string>
   <string name="collections_options_header_filters">Filtros</string>
@@ -532,8 +542,8 @@
   <string name="collections_options_toggle_likes">Te gusta</string>
   <string name="collections_options_dialog_sort_by_creation">Reciente</string>
   <string name="collections_options_dialog_sort_by_title">Título</string>
-  <string name="collections_empty_playlists">Aquí verás las listas que has creado o que te gustan.</string>
-  <string name="collections_filters_active_message">No se muestran todas tus listas. Para verlas, debes quitar los filtros.</string>
+  <string name="collections_empty_playlists">Aquí verás las listas y álbumes que has creado o que te han gustado.</string>
+  <string name="collections_filters_active_message">No se muestran todas tus listas y álbumes. Para verlos, debes quitar los filtros.</string>
   <string name="collections_remove_filters">Quitar filtros</string>
   <string name="collections_loading_error">Hubo un problema al cargar tu colección.\nInténtalo de nuevo más tarde.</string>
   <string name="collections_options_toggle_offline">Sin conexión</string>
@@ -653,14 +663,14 @@
   <string name="go_onboarding_header">Bienvenido a SoundCloud Go</string>
   <string name="go_onboarding_subheader">Ahora puedes disfrutar de más música, sin conexión y sin anuncios.</string>
   <string name="go_onboarding_title">Guarda tu música sin conexión</string>
-  <string name="go_onboarding_subtext">Utiliza la flecha para guardar sin conexión\ntodos tus Me gusta o cualquiera de tus listas.</string>
+  <string name="go_onboarding_subtext">Utiliza la flecha para guardar sin conexión\ntodos tus Me gusta o cualquiera de tus listas y álbumes.</string>
   <string name="go_onboarding_start">De acuerdo</string>
   <string name="go_onboarding_retry">Error al cargar. ¿Volver a intentarlo?</string>
   <string name="go_onboarding_error_dialog_title">Algo ha ido mal</string>
   <string name="go_onboarding_error_dialog_msg">Hubo un problema al activar las funciones y los contenidos nuevos. Debes reiniciar la aplicación.</string>
   <string name="go_onboarding_error_dialog_button">Inténtalo de nuevo más tarde</string>
   <string name="go_onboarding_offline_settings_title">Guardar todo automáticamente</string>
-  <string name="go_onboarding_offline_settings_subtext">Al seleccionar esta opción se guardarán automáticamente tus listas y tus Me gusta actuales y futuros para escucharlos sin conexión.</string>
+  <string name="go_onboarding_offline_settings_subtext">Si lo seleccionas, se guardarán automáticamente tus listas, tus Me gusta y tus álbumes actuales y futuros para escucharlos sin conexión.</string>
   <string name="go_onboarding_offline_settings_continue">De acuerdo</string>
   <!--__GO OFFBOARDING-->
   <string name="go_offboarding_title">Tu suscripción a SoundCloud Go ha finalizado</string>
@@ -670,7 +680,7 @@
   <string name="go_offboarding_secondary_button_text">Continuar</string>
   <!--__OFFLINE SETTINGS-->
   <string name="pref_offline_offline_collection">Guardar automáticamente</string>
-  <string name="pref_offline_offline_collection_description_off">Activa esta opción para guardar tus listas y tus Me gusta actuales y futuros sin conexión.</string>
+  <string name="pref_offline_offline_collection_description_off">Activa esta opción para guardar tus listas, tus Me gusta y tus álbumes actuales y futuros sin conexión.</string>
   <string name="pref_offline_offline_collection_description_on">Desactiva esta opción para dejar de guardar pistas sin conexión automáticamente y eliminar todas las guardadas hasta ahora.</string>
   <string name="pref_offline_wifi_only_sync">Guardar solo con Wi-Fi</string>
   <string name="pref_offline_wifi_only_description">Cuando esta opción está activada, solo sincronizamos pistas sin conexión con una conexión Wi-Fi.</string>
@@ -686,12 +696,12 @@
   <string name="pref_offline_remove_all_offline_content_description">Esto borrará todo contenido almacenado en el dispositivo.</string>
   <string name="remove_offline_content_title">¿Eliminar todo el contenido sin conexión?</string>
   <string name="remove_offline_content_body_default">Estás a punto de eliminar todo el contenido sin conexión.</string>
-  <string name="remove_offline_content_body_sync_collection">Estás a punto de eliminar todo el contenido sin conexión. Además, tus  listas y tus Me gusta nuevos ya no se guardarán automáticamente.</string>
+  <string name="remove_offline_content_body_sync_collection">Estás a punto de eliminar todo el contenido sin conexión. Además, las pistas que te gusten, tus listas y tus álbumes ya no se guardarán automáticamente.</string>
   <string name="offline_cannot_set_limit_below_usage">No se puede fijar un límite inferior al almacenamiento actual.</string>
   <string name="sign_out_title_offline">Si cierras sesión se eliminarán todas las pistas sin conexión.</string>
   <string name="sign_out_description_offline">La próxima vez que inicies sesión podrás decidir qué pistas, listas y álbumes se guardarán.</string>
-  <string name="disable_offline_collection_title">¿Dejar de guardar automáticamente listas y Me gusta?</string>
-  <string name="disable_offline_collection_body">Tus listas y tus Me gusta nuevos dejarán de guardarse automáticamente y las pistas guardadas ya no se podrán escuchar sin conexión.</string>
+  <string name="disable_offline_collection_title">¿Dejar de guardar automáticamente?</string>
+  <string name="disable_offline_collection_body">Tus listas, tus Me gusta y tus álbumes nuevos dejarán de guardarse automáticamente y las pistas guardadas ya no se podrán escuchar sin conexión.</string>
   <string name="disable_offline_collection_from_context_title">¿Eliminar y no poder escuchar sin conexión?</string>
   <string name="disable_offline_collection_from_context_body">Estás a punto de eliminar este contenido sin conexión. Además, las listas que crees o que te gusten ya no se guardarán sin conexión automáticamente.</string>
   <!--offline playlist creation-->
@@ -743,11 +753,17 @@
   <string name="user_reposts_label">Reposts</string>
   <string name="user_albums_label">Álbumes</string>
   <string name="user_likes_label">Me gusta</string>
-  <!--Album Types-->
+  <!--Set Type Labels-->
+  <string name="set_type_default_label">Lista</string>
   <string name="set_type_album_label">Álbum</string>
   <string name="set_type_ep_label">EP</string>
   <string name="set_type_single_label">Single</string>
   <string name="set_type_compilation_label">Recopilación</string>
+  <string name="set_type_default_label_for_text">lista</string>
+  <string name="set_type_album_label_for_text">álbum</string>
+  <string name="set_type_ep_label_for_text">EP</string>
+  <string name="set_type_single_label_for_text">single</string>
+  <string name="set_type_compilation_label_for_text">recopilación</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Sin anuncios</string>
   <string name="upsell_stream_upgrade_button">Hazte con SoundCloud Go</string>
@@ -770,6 +786,8 @@
   <!--__PLAYER-->
   <string name="playback_error_blocked">No disponible\nen tu país</string>
   <string name="playback_upsell_button_1">Escuchar la pista entera</string>
+  <string name="playback_upsell_button_2">Canción completa</string>
+  <string name="playback_upsell_button_3">Escuchar la pista entera</string>
   <!--__SEARCH-->
   <plurals name="search_premium_content_results_count">
     <item quantity="one">Encontramos %1$d resultado de SoundCloud Go</item>
@@ -816,4 +834,6 @@
   <!--__KILL SWITCH-->
   <string name="kill_switch_message">Para seguir usando la aplicación de SoundCloud, actualiza a la versión más reciente.</string>
   <string name="kill_switch_confirm">Actualizar ahora</string>
+  <!--__PLAY QUEUE-->
+  <string name="play_next">Reproducir siguiente</string>
 </resources>
