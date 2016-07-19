@@ -1,6 +1,7 @@
 package com.soundcloud.android.discovery;
 
 import static com.soundcloud.android.storage.Tables.Recommendations;
+import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -19,7 +20,6 @@ import rx.observers.TestSubscriber;
 import android.content.ContentValues;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class RecommendationsStorageTest extends StorageIntegrationTest {
@@ -44,7 +44,7 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
 
         storage.firstSeed().subscribe(firstSeedSubscriber);
 
-        firstSeedSubscriber.assertReceivedOnNext(Collections.singletonList(first));
+        firstSeedSubscriber.assertReceivedOnNext(singletonList(first));
     }
 
     @Test
@@ -78,13 +78,12 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
         final TestSubscriber<List<PropertySet>> recommendedTracksSubscriber = new TestSubscriber<>();
         final long localSeedId = recommendation.get(RecommendationProperty.SEED_TRACK_LOCAL_ID);
         final Urn seedUrn = Urn.forTrack(localSeedId);
-        final List<PropertySet> recommendedTracksForSeed = Collections.singletonList(recommendedTrack(seedUrn,
-                                                                                                      recommendedTracks.get(
-                                                                                                              0)));
+        final List<PropertySet> recommendedTracksForSeed = singletonList(recommendedTrack(seedUrn,
+                                                                                          recommendedTracks.get(0)));
 
         storage.recommendedTracksForSeed(localSeedId).subscribe(recommendedTracksSubscriber);
 
-        recommendedTracksSubscriber.assertReceivedOnNext(Collections.singletonList(recommendedTracksForSeed));
+        recommendedTracksSubscriber.assertReceivedOnNext(singletonList(recommendedTracksForSeed));
         recommendedTracksSubscriber.assertCompleted();
     }
 
@@ -162,7 +161,9 @@ public class RecommendationsStorageTest extends StorageIntegrationTest {
                 TrackProperty.SNIPPET_DURATION.bind(recommendedTrack.getSnippetDuration()),
                 TrackProperty.PLAY_COUNT.bind(recommendedTrack.getPlaybackCount()),
                 PlayableProperty.LIKES_COUNT.bind(recommendedTrack.getLikesCount()),
-                PlayableProperty.CREATED_AT.bind(recommendedTrack.getCreatedAt())
+                PlayableProperty.CREATED_AT.bind(recommendedTrack.getCreatedAt()),
+                TrackProperty.SUB_HIGH_TIER.bind(recommendedTrack.isSubHighTier().get()),
+                TrackProperty.SNIPPED.bind(recommendedTrack.isSnipped())
         );
     }
 }

@@ -1,5 +1,8 @@
 package com.soundcloud.android.discovery;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import butterknife.ButterKnife;
@@ -56,6 +59,11 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         bindNowPlaying(view, viewModel.isPlaying());
         setOnClickListener(viewModel, view);
         setOverflowMenuClickListener(ButterKnife.<ImageView>findById(view, R.id.overflow_button), track, position);
+        showHighTierIndicator(view, track);
+    }
+
+    private void showHighTierIndicator(View view, TrackItem track) {
+        ButterKnife.findById(view, R.id.high_tier_label).setVisibility(isFullHighTierTrack(track) ? VISIBLE : GONE);
     }
 
     private void bindTrackTitle(View view, String title) {
@@ -66,10 +74,10 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         final TextView artist = ButterKnife.findById(view, R.id.recommendation_artist);
 
         if (isPlaying) {
-            artist.setVisibility(View.GONE);
+            artist.setVisibility(GONE);
         } else {
             artist.setText(creatorName);
-            artist.setVisibility(View.VISIBLE);
+            artist.setVisibility(VISIBLE);
             artist.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -80,7 +88,7 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
     }
 
     private void bindNowPlaying(View view, boolean isPlaying) {
-        ButterKnife.findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);
+        ButterKnife.findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? VISIBLE : GONE);
     }
 
     private void setOnClickListener(final Recommendation recommendation, View view) {

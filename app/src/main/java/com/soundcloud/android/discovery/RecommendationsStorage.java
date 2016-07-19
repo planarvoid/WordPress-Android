@@ -71,7 +71,9 @@ class RecommendationsStorage {
                                          TableColumns.SoundView.FULL_DURATION,
                                          TableColumns.SoundView.PLAYBACK_COUNT,
                                          TableColumns.SoundView.LIKES_COUNT,
-                                         TableColumns.SoundView.CREATED_AT)
+                                         TableColumns.SoundView.CREATED_AT,
+                                         TableColumns.SoundView.POLICIES_SUB_HIGH_TIER,
+                                         TableColumns.SoundView.POLICIES_SNIPPED)
 
                                  .innerJoin(RecommendationSeeds.TABLE, recommendationsJoin)
                                  .innerJoin(SoundView.name(), soundsViewJoin)
