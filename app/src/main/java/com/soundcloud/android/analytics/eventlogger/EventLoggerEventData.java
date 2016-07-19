@@ -247,7 +247,7 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData inOfflinePlaylist(Urn playlistUrn) {
+    public EventLoggerEventData inPlaylist(Urn playlistUrn) {
         addToPayload(IN_PLAYLIST, String.valueOf(playlistUrn));
         return this;
     }
@@ -373,8 +373,8 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData inOfflinePlaylist(boolean isPartOfPlaylist) {
-        addToPayload(IN_PLAYLIST, isPartOfPlaylist);
+    public EventLoggerEventData inOfflinePlaylist(boolean inOfflinePlaylist) {
+        addToPayload(IN_PLAYLIST, inOfflinePlaylist);
         return this;
     }
 

@@ -16,6 +16,7 @@ import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
+import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
@@ -38,6 +39,7 @@ import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -61,7 +63,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final String UUID = "uuid";
     private static final int APP_VERSION_CODE = 386;
     private static final int CLIENT_ID = 3152;
-    private static final String BOOGALOO_VERSION = "v1.21.1";
+    private static final String BOOGALOO_VERSION = "v1.21.2";
     private static final String PROTOCOL = "hls";
     private static final String PLAYER_TYPE = "PLAYA";
     private static final Urn TRACK_URN = Urn.forTrack(123L);
@@ -131,7 +133,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .playheadPosition(12L)
                                                .source("source")
                                                .sourceVersion("source-version")
-                                               .inOfflinePlaylist(PLAYLIST_URN)
+                                               .inPlaylist(PLAYLIST_URN)
                                                .playlistPosition(2)
                                                .protocol("hls")
                                                .playerType("PLAYA")
@@ -234,7 +236,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .playheadPosition(123L)
                                                .source("source")
                                                .sourceVersion("source-version")
-                                               .inOfflinePlaylist(PLAYLIST_URN)
+                                               .inPlaylist(PLAYLIST_URN)
                                                .playlistPosition(2)
                                                .protocol("hls")
                                                .playerType("PLAYA")
@@ -268,14 +270,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .playheadPosition(12L)
                                                .source("source")
                                                .sourceVersion("source-version")
-                                               .inOfflinePlaylist(PLAYLIST_URN)
+                                               .inPlaylist(PLAYLIST_URN)
                                                .playlistPosition(2)
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .uuid(UUID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
-
 
     @Test
     public void createsAudioPauseEventJsonForStationsForSeedTrack() throws ApiMapperException, CreateModelException {
@@ -352,90 +353,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createsAudioEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
-        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L),
-                                                                                    Urn.forUser(789L));
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
-                createArgs(audioAdTrack, trackSourceInfo, 12L, false));
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
-
-        jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
-
-        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
-                                               .trackLength(audioAdTrack.get(TrackProperty.FULL_DURATION))
-                                               .track(audioAdTrack.get(TrackProperty.URN))
-                                               .trackOwner(audioAdTrack.get(TrackProperty.CREATOR_URN))
-                                               .localStoragePlayback(false)
-                                               .consumerSubsPlan(CONSUMER_SUBS_PLAN)
-                                               .trigger("manual")
-                                               .action("play")
-                                               .policy("ALLOW")
-                                               .playheadPosition(12L)
-                                               .source("source")
-                                               .sourceVersion("source-version")
-                                               .inOfflinePlaylist(PLAYLIST_URN)
-                                               .playlistPosition(2)
-                                               .protocol("hls")
-                                               .playerType("PLAYA")
-                                               .uuid(UUID)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
-                                               .adUrn(audioAd.getAdUrn().toString())
-                                               .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
-                                               .monetizationType("audio_ad"));
-    }
-
-    @Test
-    public void createsAudioPauseEventJsonForAudioAdPlaybackEvent() throws ApiMapperException {
-        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L),
-                                                                                    Urn.forUser(789L));
-        final PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(createArgs(audioAdTrack,
-                                                                                                  trackSourceInfo,
-                                                                                                  0L,
-                                                                                                  true));
-        final PlaybackSessionEventArgs args = createArgs(audioAdTrack, trackSourceInfo, 12L, true);
-        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(playbackSessionEvent,
-                                                                        PlaybackSessionEvent.STOP_REASON_BUFFERING,
-                                                                        args);
-
-        trackSourceInfo.setSource("source", "source-version");
-        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
-        trackSourceInfo.setSearchQuerySourceInfo(searchQuerySourceInfo);
-
-        jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
-
-        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
-                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
-                                               .trackLength(audioAdTrack.get(TrackProperty.FULL_DURATION))
-                                               .track(audioAdTrack.get(TrackProperty.URN))
-                                               .trackOwner(audioAdTrack.get(TrackProperty.CREATOR_URN))
-                                               .localStoragePlayback(true)
-                                               .consumerSubsPlan(CONSUMER_SUBS_PLAN)
-                                               .action("pause")
-                                               .playheadPosition(12L)
-                                               .reason("buffer_underrun")
-                                               .trigger("manual")
-                                               .source("source")
-                                               .sourceVersion("source-version")
-                                               .inOfflinePlaylist(PLAYLIST_URN)
-                                               .playlistPosition(2)
-                                               .protocol("hls")
-                                               .playerType("PLAYA")
-                                               .uuid(UUID)
-                                               .adUrn(audioAd.getAdUrn().toString())
-                                               .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
-                                               .monetizationType("audio_ad")
-                                               .policy("ALLOW")
-                                               .queryUrn("some:search:urn")
-                                               .queryPosition(5)
-                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
-    }
-
-    @Test
     public void createAudioEventJsonWithAdMetadataForPromotedTrackPlay() throws Exception {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final PromotedSourceInfo promotedSource = new PromotedSourceInfo("ad:urn:123",
@@ -461,7 +378,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .playheadPosition(12L)
                                                .source("source")
                                                .sourceVersion("source-version")
-                                               .inOfflinePlaylist(PLAYLIST_URN)
+                                               .inPlaylist(PLAYLIST_URN)
                                                .playlistPosition(2)
                                                .protocol("hls")
                                                .playerType("PLAYA")
@@ -727,6 +644,65 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsJsonFromRichMediaStreamPlayEvent() throws ApiMapperException {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), UUID);
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(audioAd, eventArgs);
+
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
+
+        jsonDataBuilder.buildForAdSessionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("rich_media_stream", BOOGALOO_VERSION, event.getTimestamp())
+                .pageName(eventArgs.getTrackSourceInfo().getOriginScreen())
+                .trackLength(eventArgs.getDuration())
+                .trigger("manual")
+                .action("play")
+                .playheadPosition(0L)
+                .source("source")
+                .sourceVersion("source-version")
+                .inPlaylist(PLAYLIST_URN)
+                .playlistPosition(2)
+                .protocol("hls")
+                .playerType("player")
+                .uuid(UUID)
+                .adUrn(audioAd.getAdUrn().toString())
+                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
+                .monetizationType("audio_ad"));
+    }
+
+    @Test
+    public void createsJsonFromRichMediaStreamStopEvent() throws ApiMapperException {
+        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
+        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), UUID);
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(audioAd, eventArgs, PlaybackSessionEvent.STOP_REASON_BUFFERING);
+
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
+
+        jsonDataBuilder.buildForAdSessionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("rich_media_stream", BOOGALOO_VERSION, event.getTimestamp())
+                .action("pause")
+                .reason("buffer_underrun")
+                .pageName(eventArgs.getTrackSourceInfo().getOriginScreen())
+                .trackLength(eventArgs.getDuration())
+                .trigger("manual")
+                .playheadPosition(0L)
+                .source("source")
+                .sourceVersion("source-version")
+                .inPlaylist(PLAYLIST_URN)
+                .playlistPosition(2)
+                .protocol("hls")
+                .playerType("player")
+                .uuid(UUID)
+                .adUrn(audioAd.getAdUrn().toString())
+                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
+                .monetizationType("audio_ad"));
+    }
+
+    @Test
     public void createsJsonFromRichMediaPerformanceEvent() throws ApiMapperException {
         final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(321,
                                                                                    PlaybackProtocol.HTTPS,
@@ -924,8 +900,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdImpression() throws ApiMapperException {
-        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN),
-                                                                            trackSourceInfo);
+        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN), args);
 
         jsonDataBuilder.buildForAdImpression(event);
 
@@ -939,8 +915,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdFinish() throws ApiMapperException {
-        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN),
-                                                                            trackSourceInfo);
+        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(AdFixtures.getVideoAd(TRACK_URN), args, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         jsonDataBuilder.buildForAdFinished(event);
 

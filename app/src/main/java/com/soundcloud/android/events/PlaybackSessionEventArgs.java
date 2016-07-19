@@ -1,7 +1,6 @@
 package com.soundcloud.android.events;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -63,10 +62,6 @@ public abstract class PlaybackSessionEventArgs {
 
     private static String getPlayerType(PlaybackStateTransition stateTransition) {
         return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE);
-    }
-
-    private static String getConnectionType(PlaybackStateTransition stateTransition) {
-        return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE);
     }
 
     private static String getProtocol(PlaybackStateTransition stateTransition) {

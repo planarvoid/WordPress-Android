@@ -17,7 +17,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.UuidProvider;
@@ -33,7 +33,7 @@ import java.util.List;
 
 public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
-    private static final Urn TRACK_URN = Urn.forTrack(1L);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn CREATOR_URN = Urn.forUser(3L);
     private static final long PROGRESS = 1001L;
     private static final long DURATION = 2001L;
@@ -55,39 +55,36 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         PropertySet track = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN, "allow", DURATION);
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(false);
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
-        dispatcher = new AdSessionAnalyticsDispatcher(
-                eventBus, trackRepository, playQueueManager, adsOperations, stopReasonProvider,
+        dispatcher = new AdSessionAnalyticsDispatcher(eventBus, playQueueManager, adsOperations, stopReasonProvider,
                 uuidProvider);
     }
 
     @Test
-    public void quartileProgressEventsForPlayerAdsPublishesQuartileEvent() {
+    public void progressEventsTriggerQuartileEvents() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         playTransition();
         dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100),
                                                                 Urn.forAd("dfp", "809")));
 
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
-        assertThat(eventBus.firstEventOn(EventQueue.TRACKING)).isNotInstanceOf(AdPlaybackSessionEvent.class);
+        assertThat(eventBus.firstEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
         AdPlaybackSessionEvent adEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         assertThat(adEvent.get(PlayableTrackingKeys.KEY_QUARTILE_TYPE)).isEqualTo("ad::first_quartile");
     }
 
     @Test
-    public void duplicateQuartileProgressEventsAreNotPublished() {
+    public void duplicateQuartileEventsAreNotPublished() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
+        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         playTransition();
         dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100),
@@ -95,42 +92,33 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         dispatcher.onProgressEvent(PlaybackProgressEvent.create(new PlaybackProgress(25, 100),
                                                                 Urn.forAd("dfp", "809")));
 
-        assertThat(eventBus.firstEventOn(EventQueue.TRACKING)).isNotInstanceOf(AdPlaybackSessionEvent.class);
+        assertThat(eventBus.firstEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(AdPlaybackSessionEvent.class);
         assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(2);
     }
 
     @Test
-    public void videoAdStartPublishesEvent() {
-        Urn adTrackUrn = Urn.forTrack(123L);
-        when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(adTrackUrn)));
-        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
-                                                                         PlayStateReason.NONE,
-                                                                         adTrackUrn);
+    public void stateChangeEventForStartPublishesPlayEvent() {
+        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
-        dispatcher.onPlayTransition(wrap(transition), true);
+        PlaybackStateTransition playEvent = playTransition();
 
-        assertThat(eventBus.eventsOn(EventQueue.TRACKING).size()).isEqualTo(1);
-        AdPlaybackSessionEvent adEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(adEvent.getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
+        AdPlaybackSessionEvent playbackSessionEvent = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        assertCommonEventData(playEvent, playbackSessionEvent);
+        assertThat(playbackSessionEvent.getKind()).isNotEqualTo(AdPlaybackSessionEvent.EVENT_KIND_STOP);
+        assertThat(playbackSessionEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(playbackSessionEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
     }
 
     @Test
-    public void duplicateAdStartEventsReportFirstPlayStatus() {
+    public void duplicateStartEventsReportFalseForFirstPlay() {
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(
-                123L))));
-        PlaybackStateTransition start = new PlaybackStateTransition(PlaybackState.PLAYING,
-                                                                    PlayStateReason.NONE,
-                                                                    Urn.forTrack(123L));
-        PlaybackStateTransition stop = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                   PlayStateReason.NONE,
-                                                                   Urn.forTrack(123L));
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getVideoAd(Urn.forTrack(123L))));
 
-        dispatcher.onPlayTransition(wrap(start), true);
-        dispatcher.onStopTransition(wrap(stop), false);
-        dispatcher.onPlayTransition(wrap(start), false);
+        dispatcher.onPlayTransition(TestPlayStates.playing(), true);
+        dispatcher.onStopTransition(TestPlayStates.idle(), false);
+        dispatcher.onPlayTransition(TestPlayStates.playing(), false);
 
         final List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         final AdPlaybackSessionEvent first = (AdPlaybackSessionEvent) events.get(0);
@@ -142,29 +130,9 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     }
 
     @Test
-    public void stateChangeEventForPlayingAudioAdPublishesAdSpecificPlayEvent() {
+    public void stateChangeEventForFinishPublishesStopEvent() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-
-        PlaybackStateTransition playEvent = playTransition();
-
-        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        // track properties
-        expectCommonAudioEventData(playEvent, playbackSessionEvent);
-        assertThat(playbackSessionEvent.isStopEvent()).isFalse();
-        // ad specific properties
-        assertThat(playbackSessionEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
-        assertThat(playbackSessionEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn()
-                                                                                                              .toString());
-    }
-
-    @Test
-    public void stateChangeEventForFinishPlayingAudioAdPublishesAdSpecificStopEvent() {
-        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
-        when(playQueueManager.hasNextItem()).thenReturn(true);
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         playTransition();
         stopTransition(PlaybackState.BUFFERING, PlayStateReason.NONE); // make sure intermediate events don't matter
@@ -175,37 +143,34 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         when(stopReasonProvider.fromTransition(stateTransition)).thenReturn(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
-        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        verifyStopEvent(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
-        assertThat(playbackSessionEvent.hasTrackFinished()).isTrue();
-        // ad specific properties
-        assertThat(playbackSessionEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
-        assertThat(playbackSessionEvent.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn()
-                                                                                                              .toString());
+        AdPlaybackSessionEvent event = (AdPlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+
+        assertCommonEventData(stateTransition, event);
+        assertThat(event.getStopReason()).isEqualTo(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        assertThat(event.hasAdFinished()).isTrue();
+        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
+        assertThat(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(audioAd.getMonetizableTrackUrn().toString());
     }
 
     @Test
-    public void shouldPublishStopEventWithAdDataWhenUserSkipsBetweenTracksManually() {
+    public void publishesStopEventWhenUserSkipsBetweenTracksManually() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         playTransition();
         skipTransition();
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
-        assertThat(events.get(1)).isInstanceOf(PlaybackSessionEvent.class);
-        assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
-        assertThat(((PlaybackSessionEvent) events.get(1)).getTrackUrn()).isEqualTo(TRACK_URN);
+        assertThat(events.get(1)).isInstanceOf(AdPlaybackSessionEvent.class);
+        assertThat(events.get(1).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_STOP);
         assertThat(events.get(1).get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(audioAd.getAdUrn().toString());
     }
 
     @Test
     public void shouldPublishCheckpointEvent() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         final PlaybackStateTransition transition = playTransition();
         dispatcher.onProgressCheckpoint(wrap(transition),
@@ -214,16 +179,15 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
-        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayEvent()).isTrue();
-        assertThat(((PlaybackSessionEvent) events.get(1)).isCheckpointEvent()).isTrue();
-        assertThat(((PlaybackSessionEvent) events.get(1)).getProgress()).isEqualTo(3000L);
+        assertThat(events.get(0).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
+        assertThat(events.get(1).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT);
+        assertThat(((AdPlaybackSessionEvent) events.get(1)).getEventArgs().getProgress()).isEqualTo(3000L);
     }
 
     @Test
     public void shouldNotPublishCheckpointEventIfLastTransitionWasntPlayTransition() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         final PlaybackStateTransition transition = playTransition();
         stopTransition(PlaybackState.IDLE, PlayStateReason.NONE);
@@ -233,38 +197,25 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
-        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayEvent()).isTrue();
-        assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
+        assertThat(events.get(0).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
+        assertThat(events.get(1).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_STOP);
     }
 
     @Test
     public void shouldNotPublishCheckpointEventIfPlaybackProgressUrnDoesntMatchPlayTransition() {
         final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK_URN, audioAd));
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
 
         final PlaybackStateTransition transition = playTransition();
         dispatcher.onProgressCheckpoint(wrap(transition),
                                         PlaybackProgressEvent.create(new PlaybackProgress(3000, 30000),
                                                                      Urn.forTrack(101L)));
 
-        assertThat(((PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING)).isPlayEvent()).isTrue();
-    }
-
-    private void expectCommonAudioEventData(PlaybackStateTransition stateTransition,
-                                            PlaybackSessionEvent playbackSessionEvent) {
-        assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
-        assertThat(playbackSessionEvent.getCreatorUrn()).isEqualTo(CREATOR_URN);
-        assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(
-                PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
-        assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
-        assertThat(playbackSessionEvent.getUUID()).isEqualTo(UUID);
-        assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
-        assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
+        assertThat(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).isEqualTo(AdPlaybackSessionEvent.EVENT_KIND_PLAY);
     }
 
     private PlaybackStateTransition playTransition() {
-        return playTransitionForTrack(TRACK_URN);
+        return withExtras(playTransitionForTrack(TRACK_URN));
     }
 
     private PlaybackStateTransition playTransitionForTrack(Urn trackUrn) {
@@ -309,19 +260,15 @@ public class AdSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private static PlaybackStateTransition withExtras(PlaybackStateTransition transition) {
         return transition
                 .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, "play er")
-                .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls")
-                .addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, "6g");
+                .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls");
     }
 
-    private void verifyStopEvent(int stopReason) {
-        final PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
-        assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
-        assertThat(playbackSessionEvent.isStopEvent()).isTrue();
-        assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
+    private void assertCommonEventData(PlaybackStateTransition stateTransition, AdPlaybackSessionEvent playbackSessionEvent) {
+        assertThat(playbackSessionEvent.getEventArgs().getProtocol()).isEqualTo(stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
+        assertThat(playbackSessionEvent.trackSourceInfo).isSameAs(trackSourceInfo);
+        assertThat(playbackSessionEvent.getEventArgs().getUuid()).isEqualTo(UUID);
+        assertThat(playbackSessionEvent.getEventArgs().getProgress()).isEqualTo(PROGRESS);
+        assertThat(playbackSessionEvent.getEventArgs().getDuration()).isEqualTo(DURATION);
         assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
-        assertThat(playbackSessionEvent.getStopReason()).isEqualTo(stopReason);
-        assertThat(playbackSessionEvent.getDuration()).isEqualTo(DURATION);
     }
-
 }

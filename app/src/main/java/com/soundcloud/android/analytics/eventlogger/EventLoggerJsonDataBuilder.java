@@ -126,13 +126,13 @@ public class EventLoggerJsonDataBuilder {
 
     public String build(AdOverlayTrackingEvent event) {
         if (event.getKind().equals(AdOverlayTrackingEvent.KIND_CLICK)) {
-            return transform(getAudioAdClickThroughEvent(event));
+            return transform(getAdOverlayClickThroughEvent(event));
         } else {
-            return transform(getAudioAdImpressionEvent(event));
+            return transform(getAdOverlayImpressionEvent(event));
         }
     }
 
-    private EventLoggerEventData getAudioAdImpressionEvent(AdOverlayTrackingEvent event) {
+    private EventLoggerEventData getAdOverlayImpressionEvent(AdOverlayTrackingEvent event) {
         return buildBaseEvent(IMPRESSION_EVENT, event)
                 .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
                 .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
@@ -143,7 +143,7 @@ public class EventLoggerJsonDataBuilder {
                 .monetizationType(event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE));
     }
 
-    private EventLoggerEventData getAudioAdClickThroughEvent(AdOverlayTrackingEvent event) {
+    private EventLoggerEventData getAdOverlayClickThroughEvent(AdOverlayTrackingEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
                 .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
                 .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
@@ -168,34 +168,6 @@ public class EventLoggerJsonDataBuilder {
                 .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
                 .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL));
-    }
-
-    public String buildForAdFinished(PlaybackSessionEvent event) {
-        return transform(buildAudioAdFinishedEvent(event));
-    }
-
-    private EventLoggerEventData buildAudioAdFinishedEvent(PlaybackSessionEvent event) {
-        return buildBaseEvent(CLICK_EVENT, event)
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .clickObject(event.getTrackUrn().toString())
-                .clickName("ad::finish")
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
-    }
-
-    public String buildForAudioAdImpression(PlaybackSessionEvent event) {
-        return transform(buildAudioAdImpressionEvent(event));
-    }
-
-    private EventLoggerEventData buildAudioAdImpressionEvent(PlaybackSessionEvent event) {
-        return buildBaseEvent(IMPRESSION_EVENT, event)
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .pageName(event.getTrackSourceInfo().getOriginScreen())
-                .impressionName("audio_ad_impression")
-                .impressionObject(event.get(PlayableTrackingKeys.KEY_AD_TRACK_URN))
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
     }
 
     public String build(PromotedTrackingEvent event) {
@@ -333,10 +305,6 @@ public class EventLoggerJsonDataBuilder {
         return accountOperations.getLoggedInUserUrn().toString();
     }
 
-    private String getTrigger(TrackSourceInfo trackSourceInfo) {
-        return trackSourceInfo.getIsUserTriggered() ? "manual" : "auto";
-    }
-
     private String getPerformanceEventType(int type) {
         switch (type) {
             case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
@@ -358,33 +326,5 @@ public class EventLoggerJsonDataBuilder {
             default:
                 throw new IllegalArgumentException("Unexpected metric type " + type);
         }
-    }
-
-    private String getStopReason(PlaybackSessionEvent eventData) {
-        switch (eventData.getStopReason()) {
-            case PlaybackSessionEvent.STOP_REASON_PAUSE:
-                return "pause";
-            case PlaybackSessionEvent.STOP_REASON_BUFFERING:
-                return "buffer_underrun";
-            case PlaybackSessionEvent.STOP_REASON_SKIP:
-                return "skip";
-            case PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED:
-                return "track_finished";
-            case PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE:
-                return "end_of_content";
-            case PlaybackSessionEvent.STOP_REASON_NEW_QUEUE:
-                return "context_change";
-            case PlaybackSessionEvent.STOP_REASON_ERROR:
-                return "playback_error";
-            case PlaybackSessionEvent.STOP_REASON_CONCURRENT_STREAMING:
-                return "concurrent_streaming";
-            default:
-                throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
-        }
-    }
-
-    // EventLogger v0 requires us to pass URNs in the legacy format
-    private String getLegacyTrackUrn(String urn) {
-        return urn.replaceFirst(":tracks:", ":sounds:");
     }
 }

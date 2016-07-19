@@ -17,11 +17,19 @@ public class TestPlayerTransitions {
     }
 
     public static PlaybackStateTransition idle(PlayStateReason reason) {
-        return new PlaybackStateTransition(PlaybackState.IDLE, reason, URN);
+        return idle(0, 0, reason);
+    }
+
+    public static PlaybackStateTransition idle(long position, long duration) {
+        return idle(position, duration, PlayStateReason.NONE);
+    }
+
+    public static PlaybackStateTransition idle(long position, long duration, PlayStateReason reason) {
+        return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, reason, URN, position, duration));
     }
 
     public static PlaybackStateTransition buffering() {
-        return new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN);
+        return withExtras(new PlaybackStateTransition(PlaybackState.BUFFERING, PlayStateReason.NONE, URN));
     }
 
     public static PlaybackStateTransition playing() {
@@ -29,7 +37,7 @@ public class TestPlayerTransitions {
     }
 
     public static PlaybackStateTransition playing(Urn urn) {
-        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, urn);
+        return withExtras(new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, urn));
     }
 
     public static PlaybackStateTransition playing(long position, long duration) {
@@ -40,21 +48,27 @@ public class TestPlayerTransitions {
         return playing(urn, position, duration, new TestDateProvider());
     }
 
-
     public static PlaybackStateTransition playing(Urn urn, long position, long duration, DateProvider dateProvider) {
-        return new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, urn, position, duration, dateProvider);
+        return withExtras(new PlaybackStateTransition(PlaybackState.PLAYING, PlayStateReason.NONE, urn, position, duration, dateProvider));
     }
 
     public static PlaybackStateTransition playing(long position, long duration, CurrentDateProvider dateProvider) {
-        return new PlaybackStateTransition(PlaybackState.PLAYING,
+        return withExtras(new PlaybackStateTransition(PlaybackState.PLAYING,
                                                 PlayStateReason.NONE,
                                                 URN,
                                                 position,
                                                 duration,
-                                                dateProvider);
+                                                dateProvider));
     }
 
-    public static PlaybackStateTransition idle(long position, long duration) {
-        return new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.NONE, URN, position, duration);
+    public static PlaybackStateTransition complete(Urn urn) {
+        return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, urn));
+    }
+
+    private static PlaybackStateTransition withExtras(PlaybackStateTransition transition) {
+        return transition
+                .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, "player")
+                .addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL, "hls")
+                .addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE, "6g");
     }
 }
