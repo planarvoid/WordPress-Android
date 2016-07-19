@@ -72,12 +72,13 @@ expected_events:
   params:
     anonymous_id: (\w|-)+
     ts: '[0-9]+'
-    client_id: '3152'
+    app_version: '[0-9]+'
+    client_id: 3152
     monetized_object: soundcloud:tracks:163824437
     ad_urn: dfp:ads:110000021-12000000021
+    connection_type: wifi
     click_name: ad::finish
-    click_object: soundcloud:tracks:135376655
     page_name: deeplink
     user: soundcloud:users:18173653
     monetization_type: audio_ad
-  version: '0'
+  version: '1'
