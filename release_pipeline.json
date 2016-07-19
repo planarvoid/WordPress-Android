@@ -216,8 +216,8 @@
     }
   ],
   "settings": {
-    "default-name": "Android_Listeners_Release-MrLoggerLoggerTest",
-    "git-branch": "run-tracking-tests-against-release",
+    "default-name": "Android_Listeners_Release",
+    "git-branch": "release",
     "git-url": "git@github.com:soundcloud/SoundCloud-Android.git",
     "github-url": "https://github.com/soundcloud/SoundCloud-Android/",
     "jenkins-server": "http://mobile-jenkins.int.s-cloud.net",
