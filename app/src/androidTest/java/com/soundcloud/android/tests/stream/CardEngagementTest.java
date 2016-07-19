@@ -67,6 +67,9 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
 
         track.clickOverflowButton().toggleLike();
 
+        // Not cool -- wait for the UI thread to catch up with the test runner.
+        waiter.waitTwoSeconds();
+
         assertThat(track.isLiked(), is(!liked));
 
         final String likeToastMessage = getLikeToastMessage(liked);
