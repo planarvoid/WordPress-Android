@@ -13,6 +13,7 @@ import android.net.Uri;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+@Deprecated
 public class MyLikesSyncer implements SyncStrategy {
 
     private final Lazy<LikesSyncer<ApiTrack>> trackLikesSyncer;

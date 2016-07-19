@@ -29,8 +29,8 @@ public class StorePostsCommand extends DefaultWriteStorageCommand<Collection<Pro
     @Override
     protected WriteResult write(PropellerDatabase propeller, Collection<PropertySet> input) {
         List<ContentValues> values = new ArrayList<>(input.size());
-        for (PropertySet playlistPost : input) {
-            values.add(buildContentValuesForPost(playlistPost));
+        for (PropertySet post : input) {
+            values.add(buildContentValuesForPost(post));
         }
         return propeller.bulkInsert(Table.Posts, values, SQLiteDatabase.CONFLICT_REPLACE);
     }

@@ -7,6 +7,7 @@ import com.soundcloud.android.stations.RecentStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.sync.likes.PlaylistLikesSyncProvider;
 import com.soundcloud.android.sync.likes.TrackLikesSyncProvider;
+import com.soundcloud.android.sync.posts.TrackPostsSyncProvider;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ public class SyncerRegistry {
                           RecommendedStationsSyncProvider recommendedStationsSyncProvider,
                           RecommendedTracksSyncProvider recommendationsSyncProvider,
                           ChartsSyncProvider chartsSyncProvider,
+                          TrackPostsSyncProvider trackPostsSyncProvider,
                           TrackLikesSyncProvider trackLikesSyncProvider,
                           PlaylistLikesSyncProvider playlistLikesSyncProvider,
                           ChartGenresSyncProvider chartGenresSyncProvider) {
@@ -31,6 +33,7 @@ public class SyncerRegistry {
         registerSyncer(recommendedStationsSyncProvider);
         registerSyncer(recommendationsSyncProvider);
         registerSyncer(chartsSyncProvider);
+        registerSyncer(trackPostsSyncProvider);
         registerSyncer(trackLikesSyncProvider);
         registerSyncer(playlistLikesSyncProvider);
         registerSyncer(chartGenresSyncProvider);
@@ -44,6 +47,9 @@ public class SyncerRegistry {
         syncers.put(syncProvider.syncable, syncProvider);
     }
 
+    /**
+     * TODO
+     */
     public static abstract class SyncProvider {
         private final Syncable syncable;
 
@@ -55,12 +61,28 @@ public class SyncerRegistry {
             return syncable.name();
         }
 
+        /**
+         * TODO
+         * @return
+         */
         public abstract Callable<Boolean> syncer();
 
+        /**
+         * TODO
+         * @return
+         */
         public abstract Boolean isOutOfSync();
 
+        /**
+         * TODO
+         * @return
+         */
         public abstract long staleTime();
 
+        /**
+         * TODO
+         * @return
+         */
         public abstract boolean usePeriodicSync();
     }
 }
