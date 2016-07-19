@@ -239,6 +239,15 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
         expectCustomEvent("create_playlist", expectedProperties);
     }
 
+    @Test
+    public void shouldTrackStartStation() {
+        UIEvent event = UIEvent.fromStartStation();
+
+        eventHandler.handleEvent(event);
+
+        verify(appboy).logCustomEvent("start_station");
+    }
+
     private void expectCustomEvent(String eventName, AppboyProperties expectedProperties) {
         ArgumentCaptor<AppboyProperties> captor = ArgumentCaptor.forClass(AppboyProperties.class);
 

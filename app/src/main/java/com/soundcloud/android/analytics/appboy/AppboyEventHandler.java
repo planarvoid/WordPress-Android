@@ -68,6 +68,9 @@ class AppboyEventHandler {
             case UIEvent.KIND_CREATE_PLAYLIST:
                 tagEvent(AppboyEvents.CREATE_PLAYLIST, buildPlaylistProperties(event));
                 break;
+            case UIEvent.KIND_START_STATION:
+                tagEvent(AppboyEvents.START_STATION);
+                break;
             default:
                 break;
         }

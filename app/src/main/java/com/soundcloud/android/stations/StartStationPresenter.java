@@ -6,6 +6,8 @@ import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.DiscoverySource;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -62,11 +64,15 @@ public class StartStationPresenter {
         openStation(context, stationsOperations.stationWithSeed(stationUrn, seed), STATIONS);
     }
 
-    private void openStation(Context context, Observable<StationRecord> station, DiscoverySource discoverySource) {
+    private void openStation(Context context,
+                             Observable<StationRecord> station,
+                             DiscoverySource discoverySource) {
         subscription = station
                 .flatMap(toPlaybackResult(discoverySource))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
                                                                 getLoadingDialogPresenter(context)));
+
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
     }
 
     private DelayedLoadingDialogPresenter getLoadingDialogPresenter(Context context) {

@@ -49,6 +49,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_AUDIO_AD_CLICK = "audio_ad_click";
     public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
     public static final String KIND_SKIP_VIDEO_AD_CLICK = "skip_video_ad_click";
+    public static final String KIND_START_STATION = "start_station";
 
     public static UIEvent fromPlayerOpen() {
         return new UIEvent(KIND_PLAYER_OPEN);
@@ -160,6 +161,10 @@ public final class UIEvent extends TrackingEvent {
         return withBasicVideoAdAttributes(event, videoAd, trackSourceInfo)
                 .addPromotedTrackingUrls(CLICKTHROUGHS, videoAd.getClickUrls())
                 .put(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL, videoAd.getClickThroughUrl());
+    }
+
+    public static UIEvent fromStartStation() {
+        return new UIEvent(KIND_START_STATION);
     }
 
     private static UIEvent withBasicVideoAdAttributes(UIEvent adEvent,

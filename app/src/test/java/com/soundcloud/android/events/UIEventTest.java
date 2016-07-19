@@ -1069,6 +1069,13 @@ public class UIEventTest extends AndroidUnitTest {
         assertThat(event.get(EntityMetadata.KEY_PLAYABLE_URN)).isEqualTo(playlist.getUrn().toString());
     }
 
+    @Test
+    public void shouldCreateEventFromStartStation() {
+        UIEvent event = UIEvent.fromStartStation();
+
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_START_STATION);
+    }
+
     private EventContextMetadata.Builder eventContextBuilder() {
         return eventContextNoInvokerScreen().invokerScreen("invoker_screen");
     }
