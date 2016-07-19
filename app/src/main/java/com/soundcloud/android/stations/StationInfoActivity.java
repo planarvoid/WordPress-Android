@@ -25,8 +25,7 @@ public class StationInfoActivity extends PlayerActivity {
         if (savedInstanceState == null) {
             final Urn stationUrn = getIntent().getParcelableExtra(EXTRA_URN);
             final Urn seedTrackUrn = getIntent().getParcelableExtra(EXTRA_SEED_URN);
-            final String source = getIntent().getParcelableExtra(EXTRA_SOURCE);
-
+            final String source = getIntent().getStringExtra(EXTRA_SOURCE);
 
             final Fragment fragment = StationInfoFragment.create(stationUrn, seedTrackUrn, source);
             getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
