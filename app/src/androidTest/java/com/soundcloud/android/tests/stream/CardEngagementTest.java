@@ -63,10 +63,9 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
         startEventTracking();
 
         StreamCardElement track = streamScreen.scrollToFirstNotPromotedTrackCard();
-        TrackItemMenuElement menuElement = track.clickOverflowButton();
-        boolean liked = menuElement.isLiked();
+        boolean liked = track.isLiked();
 
-        menuElement.toggleLike();
+        track.clickOverflowButton().toggleLike();
 
         assertThat(track.isLiked(), is(!liked));
 
