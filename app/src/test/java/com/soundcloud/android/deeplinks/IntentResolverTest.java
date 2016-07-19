@@ -511,11 +511,6 @@ public class IntentResolverTest extends AndroidUnitTest {
         return captor.getValue();
     }
 
-    private void verifyTrackingEvent(Urn urn, Referrer referrer) {
-        ForegroundEvent event = captureForegroundEvent();
-        verifyTrackingEvent(event, urn, referrer);
-    }
-
     private void verifyTrackingEvent(ForegroundEvent event, Urn urn, Referrer referrer) {
         assertThat(event.getKind()).isEqualTo(ForegroundEvent.KIND_OPEN);
         assertThat(event.get(ForegroundEvent.KEY_REFERRER)).isEqualTo(referrer.value());

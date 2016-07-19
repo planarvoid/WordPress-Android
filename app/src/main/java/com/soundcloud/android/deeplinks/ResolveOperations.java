@@ -52,14 +52,14 @@ class ResolveOperations {
                     ApiResolvedResource resolvedResource = resolveResource(uri.toString());
                     final Urn urn = resolvedResource.getUrn();
                     if (Urn.NOT_SET.equals(urn)) {
-                        subscriber.onError(new OnErrorThrowable.OnNextValue(uri));
+                        subscriber.onError(new OnErrorThrowable.OnNextValue(ResolveExceptionResult.from(uri, null)));
                     } else {
                         storeResource(resolvedResource);
                         subscriber.onNext(urn);
                         subscriber.onCompleted();
                     }
                 } catch (ApiRequestException | IOException | ApiMapperException e) {
-                    subscriber.onError(new OnErrorThrowable.OnNextValue(uri));
+                    subscriber.onError(new OnErrorThrowable.OnNextValue(ResolveExceptionResult.from(uri, e)));
                 }
             }
         }).subscribeOn(scheduler);

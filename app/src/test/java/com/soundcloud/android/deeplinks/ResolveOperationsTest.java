@@ -29,6 +29,7 @@ import rx.schedulers.Schedulers;
 
 import android.net.Uri;
 
+import java.io.IOException;
 import java.util.Collections;
 
 public class ResolveOperationsTest extends AndroidUnitTest {
@@ -71,7 +72,23 @@ public class ResolveOperationsTest extends AndroidUnitTest {
 
         ArgumentCaptor<OnErrorThrowable.OnNextValue> captor = ArgumentCaptor.forClass(OnErrorThrowable.OnNextValue.class);
         verify(observer).onError(captor.capture());
-        assertThat(captor.getValue().getValue()).isEqualTo(uri);
+        assertThat(captor.getValue().getValue()).isEqualTo(ResolveExceptionResult.from(uri, null));
+    }
+
+    @Test
+    public void shouldReportExceptionWithError() throws Exception {
+        Uri uri = Uri.parse("http://soundcloud.com/exceptiontime");
+        final IOException ioException = new IOException();
+        when(apiClient.fetchMappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.RESOLVE_ENTITY.path()).withQueryParam("identifier", uri.toString())),
+                eq(ApiResolvedResource.class))).thenThrow(ioException);
+
+        operations.resolve(uri).subscribe(observer);
+
+        ArgumentCaptor<OnErrorThrowable.OnNextValue> captor = ArgumentCaptor.forClass(OnErrorThrowable.OnNextValue.class);
+        verify(observer).onError(captor.capture());
+        assertThat(captor.getValue().getValue()).isEqualTo(ResolveExceptionResult.from(uri, ioException));
+
     }
 
     @Test

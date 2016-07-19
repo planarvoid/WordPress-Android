@@ -16,6 +16,8 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.android.schedulers.AndroidSchedulers;
@@ -151,15 +153,18 @@ public class IntentResolver {
 
             @Override
             public void onError(Throwable e) {
-                Uri resolvedUri = uriFromResolveException(e, uri);
-                DeepLink deepLink = DeepLink.fromUri(resolvedUri);
+                Optional<ResolveExceptionResult> result = resultFromResolveException(e);
+                Uri resolvedUri = result.isPresent() ? result.get().getUri() : uri;
+                DeepLink deepLink = DeepLink.fromUri(uri);
 
                 if (DeepLink.WEB_VIEW.equals(deepLink)) {
                     startWebView(context, resolvedUri, referrer);
                 } else {
                     trackForegroundEvent(referrer);
-                    reportFailedToResolveDeeplink(referrer);
                     launchApplicationWithMessage(context, R.string.error_loading_url);
+                    if (result.isPresent() && !ErrorUtils.isNetworkError(result.get().getException())) {
+                        reportFailedToResolveDeeplink(referrer);
+                    }
                 }
             }
         };
@@ -302,14 +307,14 @@ public class IntentResolver {
         navigator.openOnboarding(context, urn, Screen.DEEPLINK);
     }
 
-    private Uri uriFromResolveException(Throwable e, Uri fallbackUri) {
+    private Optional<ResolveExceptionResult> resultFromResolveException(Throwable e) {
         if (e instanceof OnErrorThrowable.OnNextValue) {
-            Object context = ((OnErrorThrowable.OnNextValue) e).getValue();
-            if (context instanceof Uri) {
-                return (Uri) context;
+            Object emitted = ((OnErrorThrowable.OnNextValue) e).getValue();
+            if (emitted instanceof ResolveExceptionResult) {
+                return Optional.of((ResolveExceptionResult) emitted);
             }
         }
-        return fallbackUri;
+        return Optional.absent();
     }
 
     private void launchApplicationWithMessage(Context context, int messageId) {
