@@ -15,7 +15,6 @@
     <com.soundcloud.android.view.CustomFontToggleButton
         android:id="@+id/toggle_like"
         style="@style/EngagementAction.ToggleButton.LikeBase.Like"
-        android:layout_width="wrap_content"
         tools:text="1234" />
 
     <com.soundcloud.android.view.IconToggleButton
