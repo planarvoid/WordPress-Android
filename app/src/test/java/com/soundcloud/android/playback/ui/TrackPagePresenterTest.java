@@ -20,7 +20,6 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.feedback.Feedback;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.payments.PlayerUpsellImpressionController;
@@ -41,7 +40,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.android.view.snackbar.FeedbackController;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
@@ -50,6 +48,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.shadows.ShadowToast;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,7 +85,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private LikeButtonPresenter likeButtonPresenter;
     @Mock private ShareAsTextButtonExperiment shareExperiment;
     @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
-    @Mock private FeedbackController feedbackController;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -96,12 +94,10 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     private View trackView;
     private TestDateProvider dateProvider;
 
-
     @Before
     public void setUp() throws Exception {
         ViewGroup container = new FrameLayout(context());
-        presenter = new TrackPagePresenter(feedbackController,
-                                           waveformOperations,
+        presenter = new TrackPagePresenter(waveformOperations,
                                            featureOperations,
                                            listener,
                                            likeButtonPresenter,
@@ -390,21 +386,21 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void showMessageWhenUserRepostedATrack() {
+    public void showToastWhenUserRepostedATrack() {
         final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true);
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        verify(feedbackController).showFeedback(Feedback.create(R.string.reposted_to_followers, Feedback.LENGTH_SHORT));
+        assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(RuntimeEnvironment.application.getString(R.string.reposted_to_followers));
     }
 
     @Test
-    public void showMessageWhenUserUnpostedATrack() {
+    public void showToastWhenUserUnpostedATrack() {
         final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, false);
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
-        verify(feedbackController).showFeedback(Feedback.create(R.string.unposted_to_followers, Feedback.LENGTH_SHORT));
+        assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(RuntimeEnvironment.application.getString(R.string.unposted_to_followers));
     }
 
     @Test
