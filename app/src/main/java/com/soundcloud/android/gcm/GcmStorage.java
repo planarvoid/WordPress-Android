@@ -6,6 +6,7 @@ import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.annotations.VisibleForTesting;
 
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -52,6 +53,7 @@ public class GcmStorage {
         sharedPreferences.edit().putBoolean(HAS_REGISTERED_KEY, hasRegistered).apply();
     }
 
+    @Nullable
     public String getToken() {
         return sharedPreferences.getString(TOKEN_KEY, null);
     }
