@@ -9,6 +9,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
 import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -64,7 +65,8 @@ public class PlaylistOperations {
     private final AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     private final EditPlaylistCommand editPlaylistCommand;
-    private final LegacySyncInitiator syncInitiator;
+    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator legacySyncInitiator;
     private final EventBus eventBus;
 
     private final Func2<PropertySet, List<TrackItem>, PlaylistWithTracks> mergePlaylistWithTracks =
@@ -86,13 +88,15 @@ public class PlaylistOperations {
 
     @Inject
     PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                       LegacySyncInitiator syncInitiator,
+                       SyncInitiator syncInitiator,
                        PlaylistTracksStorage playlistTracksStorage,
                        PlaylistStorage playlistStorage,
                        Provider<LoadPlaylistTrackUrnsCommand> loadPlaylistTrackUrnsProvider,
                        AddTrackToPlaylistCommand addTrackToPlaylistCommand,
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
-                       EditPlaylistCommand editPlaylistCommand, EventBus eventBus) {
+                       EditPlaylistCommand editPlaylistCommand,
+                       LegacySyncInitiator legacySyncInitiator,
+                       EventBus eventBus) {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.playlistTracksStorage = playlistTracksStorage;
@@ -101,6 +105,7 @@ public class PlaylistOperations {
         this.addTrackToPlaylistCommand = addTrackToPlaylistCommand;
         this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
         this.editPlaylistCommand = editPlaylistCommand;
+        this.legacySyncInitiator = legacySyncInitiator;
         this.eventBus = eventBus;
     }
 
@@ -114,7 +119,7 @@ public class PlaylistOperations {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
                                     .doOnNext(publishPlaylistCreatedEvent)
                                     .subscribeOn(scheduler)
-                                    .doOnCompleted(syncInitiator.requestSystemSyncAction());
+                                    .doOnCompleted(legacySyncInitiator.requestSystemSyncAction());
     }
 
     Observable<PropertySet> editPlaylist(Urn playlistUrn, String title, boolean isPrivate, List<Urn> updatedTracklist) {
@@ -124,7 +129,7 @@ public class PlaylistOperations {
                                                                               updatedTracklist))
                                   .map(toEditedChangeSet(playlistUrn, title, isPrivate))
                                   .doOnNext(publishPlaylistEditedEvent)
-                                  .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                  .doOnCompleted(legacySyncInitiator.requestSystemSyncAction())
                                   .subscribeOn(scheduler);
     }
 
@@ -133,7 +138,7 @@ public class PlaylistOperations {
         return addTrackToPlaylistCommand.toObservable(params)
                                         .map(toChangeSet(playlistUrn))
                                         .doOnNext(publishTrackAddedToPlaylistEvent)
-                                        .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                        .doOnCompleted(legacySyncInitiator.requestSystemSyncAction())
                                         .subscribeOn(scheduler);
     }
 
@@ -142,7 +147,7 @@ public class PlaylistOperations {
         return removeTrackFromPlaylistCommand.toObservable(params)
                                              .map(toChangeSet(playlistUrn))
                                              .doOnNext(publishTrackRemovedFromPlaylistEvent)
-                                             .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                                             .doOnCompleted(legacySyncInitiator.requestSystemSyncAction())
                                              .subscribeOn(scheduler);
     }
 
@@ -232,7 +237,7 @@ public class PlaylistOperations {
             public Observable<PlaylistWithTracks> call(PlaylistWithTracks playlistWithTracks) {
 
                 if (playlistWithTracks.isLocalPlaylist()) {
-                    syncInitiator.syncLocalPlaylists();
+                    legacySyncInitiator.syncLocalPlaylists();
                     return Observable.just(playlistWithTracks);
 
                 } else if (playlistWithTracks.isMissingMetaData()) {

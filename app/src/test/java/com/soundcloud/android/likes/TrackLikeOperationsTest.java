@@ -4,7 +4,7 @@ import static com.soundcloud.android.likes.TrackLikeOperations.INITIAL_TIMESTAMP
 import static com.soundcloud.android.likes.TrackLikeOperations.PAGE_SIZE;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,11 +13,13 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.Pager.PagingFunction;
@@ -46,7 +48,8 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private LikedTrackStorage likedTrackStorage;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
-    @Mock private LegacySyncInitiator syncInitiator;
+    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator legacySyncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
 
@@ -59,10 +62,11 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
                 loadLikedTrackUrnsCommand,
                 likedTrackStorage,
                 syncInitiator,
+                legacySyncInitiator,
                 eventBus,
                 scheduler,
                 networkConnectionHelper);
-        when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
+        when(legacySyncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
     }
 
     @Test
@@ -71,7 +75,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE,
                                               INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
                                                                              Observable.just(likedTracks));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("action", false)));
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("action", false)));
 
         operations.likedTracks().subscribe(observer);
 
@@ -87,7 +91,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
                 Collections.<PropertySet>emptyList()));
 
         final PublishSubject<SyncJobResult> syncObservable = PublishSubject.create();
-        when(syncInitiator.syncTrackLikes()).thenReturn(syncObservable);
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(syncObservable);
 
         final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
         listPager.call(Collections.<PropertySet>emptyList()).subscribe(observer);
@@ -99,7 +103,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void likedTracksReturnsLikedTracksFromStorage() {
         List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
 
         operations.likedTracks().subscribe(observer);
 
@@ -111,41 +115,41 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void likedTracksRequestsUpdatesFromSyncer() {
         List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
         operations.likedTracks().subscribe(observer);
 
-        verify(syncInitiator).requestTracksSync(likedTracks);
+        verify(syncInitiator).batchSyncTracks(PropertySets.extractUrns(likedTracks));
     }
 
     @Test
     public void likedTracksDoesNotRequestsUpdatesFromSyncerWhenOffWifi() {
         List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
 
         operations.likedTracks().subscribe(observer);
 
-        verify(syncInitiator, never()).requestTracksSync(likedTracks);
+        verify(syncInitiator, never()).batchSyncTracks(any(ArrayList.class));
     }
 
     @Test
     public void likedTracksRequestsDoesNotUpdateEmptyListFromSyncer() {
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE,
                                               INITIAL_TIMESTAMP)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
 
         operations.likedTracks().subscribe(observer);
 
-        verify(syncInitiator, never()).requestTracksSync(anyList());
+        verify(syncInitiator, never()).batchSyncTracks(any(ArrayList.class));
     }
 
     @Test
     public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
         List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncJobResult>empty());
 
         final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
 
@@ -156,13 +160,13 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void updatedLikedTracksReloadsLikedTracksAfterSyncWithChange() {
         List<PropertySet> likedTracks = singletonList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP)).thenReturn(Observable.just(likedTracks));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("any intent action",
-                                                                                              true)));
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("any intent action",
+                                                                                                    true)));
 
         operations.updatedLikedTracks().subscribe(observer);
 
-        InOrder inOrder = Mockito.inOrder(observer, syncInitiator);
-        inOrder.verify(syncInitiator).syncTrackLikes();
+        InOrder inOrder = Mockito.inOrder(observer, legacySyncInitiator);
+        inOrder.verify(legacySyncInitiator).syncTrackLikes();
         inOrder.verify(observer).onNext(likedTracks);
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
@@ -172,7 +176,7 @@ public class TrackLikeOperationsTest extends AndroidUnitTest {
     public void syncAndLoadEmptyTrackLikesResults() {
         when(likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP))
                 .thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("action", false)));
+        when(legacySyncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncJobResult.success("action", false)));
 
         operations.likedTracks().subscribe(observer);
 

@@ -2,6 +2,7 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.sync.SyncIntentHelper.getSyncable;
 import static com.soundcloud.android.sync.SyncIntentHelper.getSyncables;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
@@ -15,6 +16,7 @@ import dagger.Lazy;
 
 import android.content.Intent;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -55,6 +57,8 @@ class SyncRequestFactory {
     }
 
     SyncRequest create(Intent intent) {
+        // TODO : Ideally, this should be gone, and we should always just have an array of syncables, and a MultiJobRequest
+        // https://soundcloud.atlassian.net/browse/CC-254
         if (intent.hasExtra(ApiSyncService.EXTRA_SYNCABLE)) {
             return createSingleJobRequest(intent);
         } else if (intent.hasExtra(ApiSyncService.EXTRA_SYNCABLES)) {
@@ -66,8 +70,40 @@ class SyncRequestFactory {
 
     private SyncRequest createSingleJobRequest(Intent intent) {
         final Syncable syncable = getSyncable(intent);
-        final SyncerRegistry.SyncProvider syncProvider = syncerRegistry.get(syncable);
+        switch (syncable) {
+            case PLAYLIST:
+                return createPlaylistSyncRequest(intent);
+            case TRACKS:
+            case PLAYLISTS:
+            case USERS:
+                return createEntitySyncRequest(intent, syncable);
+            default:
+                return createDefaultSingleJobRequest(intent, syncable);
+        }
+    }
 
+    private SyncRequest createEntitySyncRequest(Intent intent, Syncable syncable) {
+        final List<Urn> syncEntities = SyncIntentHelper.getSyncEntities(intent);
+        return entitySyncRequestFactory.create(syncable,
+                                               syncEntities, getReceiverFromIntent(intent));
+    }
+
+    @NonNull
+    private SyncRequest createPlaylistSyncRequest(Intent intent) {
+        final List<Urn> requestEntities = SyncIntentHelper.getSyncEntities(intent);
+        checkArgument(requestEntities.size() == 1, "Expected 1 playlist urn to sync, received " + requestEntities.size());
+
+        final Urn playlistUrn = requestEntities.get(0);
+        return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
+                                            Syncable.PLAYLIST.name(),
+                                            true,
+                                            getReceiverFromIntent(intent),
+                                            eventBus,
+                                            playlistUrn);
+    }
+
+    private SyncRequest createDefaultSingleJobRequest(Intent intent, Syncable syncable) {
+        final SyncerRegistry.SyncProvider syncProvider = syncerRegistry.get(syncable);
         return singleJobRequestFactory.create(syncable,
                                               syncProvider,
                                               getReceiverFromIntent(intent),
@@ -79,7 +115,6 @@ class SyncRequestFactory {
         final List<SyncJob> syncJobs = createSyncJobs(syncables);
         final ResultReceiver resultReceiver = getReceiverFromIntent(intent);
         final boolean isHighPriority = getIsHighPriorityFromIntent(intent);
-
         return multiJobRequestFactory.create(syncJobs, resultReceiver, isHighPriority);
     }
 
@@ -92,27 +127,14 @@ class SyncRequestFactory {
     }
 
     private SyncRequest createLegacyRequest(Intent intent) {
-        if (SyncActions.SYNC_TRACK_LIKES.equals(intent.getAction())) {
+        if (LegacySyncActions.SYNC_TRACK_LIKES.equals(intent.getAction())) {
             return new SingleJobRequest(lazySyncTrackLikesJob.get(), intent.getAction(),
                                         true, getReceiverFromIntent(intent), eventBus);
 
-        } else if (SyncActions.SYNC_PLAYLIST_LIKES.equals(intent.getAction())) {
+        } else if (LegacySyncActions.SYNC_PLAYLIST_LIKES.equals(intent.getAction())) {
             return new SingleJobRequest(lazySyncPlaylistLikesJob.get(), intent.getAction(), true,
                                         getReceiverFromIntent(intent), eventBus);
 
-        } else if (SyncActions.SYNC_TRACKS.equals(intent.getAction())
-                || SyncActions.SYNC_PLAYLISTS.equals(intent.getAction())
-                || SyncActions.SYNC_USERS.equals(intent.getAction())) {
-            return entitySyncRequestFactory.create(intent, getReceiverFromIntent(intent));
-
-        } else if (SyncActions.SYNC_PLAYLIST.equals(intent.getAction())) {
-            final Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);
-            return new SinglePlaylistJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
-                                                intent.getAction(),
-                                                true,
-                                                getReceiverFromIntent(intent),
-                                                eventBus,
-                                                playlistUrn);
         }
         return syncIntentFactory.create(intent);
     }

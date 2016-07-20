@@ -12,6 +12,7 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -43,7 +44,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Mock private PostsStorage postStorage;
     @Mock private SyncStateStorage syncStateStorage;
-    @Mock private LegacySyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator legacySyncInitiator;
+    @Mock private SyncInitiator syncInitiator;
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private LikesStorage likesStorage;
@@ -58,8 +60,9 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
                                              postStorage,
                                              playlistPostStorage,
                                              syncStateStorage,
-                                             syncInitiator,
+                                             legacySyncInitiator,
                                              networkConnectionHelper,
+                                             syncInitiator,
                                              userAssociationStorage,
                                              scheduler);
 
@@ -89,7 +92,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         operations.pagedPostItems().subscribe(subscriber);
 
         subscriber.assertValues(posts);
-        verify(syncInitiator, never()).refreshPosts();
+        verify(legacySyncInitiator, never()).refreshPosts();
     }
 
     @Test
@@ -101,7 +104,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         operations.pagedPostItems().subscribe(subscriber);
 
         subscriber.assertValues(emptyList);
-        verify(syncInitiator, never()).refreshPosts();
+        verify(legacySyncInitiator, never()).refreshPosts();
     }
 
     @Test
@@ -109,7 +112,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final List<PropertySet> firstPage = createPageOfPostedTracks(PAGE_SIZE);
         when(syncStateStorage.hasSyncedMyPostsBefore()).thenReturn(Observable.just(false));
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
-        when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshPosts()).thenReturn(Observable.just(true));
 
         operations.pagedPostItems().subscribe(subscriber);
 
@@ -121,7 +124,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final List<PropertySet> emptyList = Collections.emptyList();
         when(syncStateStorage.hasSyncedMyPostsBefore()).thenReturn(Observable.just(false));
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(emptyList));
-        when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshPosts()).thenReturn(Observable.just(true));
 
         operations.pagedPostItems().subscribe(subscriber);
 
@@ -149,7 +152,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     @Test
     public void updatedPostsReloadsPostedPostsAfterSyncWithChange() {
         when(postStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(posts));
-        when(syncInitiator.refreshPosts()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshPosts()).thenReturn(Observable.just(true));
 
         operations.updatedPosts().subscribe(subscriber);
 
@@ -162,7 +165,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(likesStorage.loadLikes(PAGE_SIZE,
                                     Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
                                                                 Observable.just(firstPage));
-        when(syncInitiator.refreshLikes()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshLikes()).thenReturn(Observable.just(true));
 
         operations.pagedLikes().subscribe(subscriber);
 
@@ -173,7 +176,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void syncAndLoadEmptyLikesResultsWithEmptyResults() {
         when(likesStorage.loadLikes(PAGE_SIZE,
                                     Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiator.refreshLikes()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshLikes()).thenReturn(Observable.just(true));
 
         operations.pagedLikes().subscribe(subscriber);
 
@@ -185,7 +188,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final List<PropertySet> pageOfLikes = createPageOfLikes(2);
 
         when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(pageOfLikes));
-        when(syncInitiator.refreshLikes()).thenReturn(Observable.<Boolean>empty());
+        when(legacySyncInitiator.refreshLikes()).thenReturn(Observable.<Boolean>empty());
 
         operations.pagedLikes().subscribe(subscriber);
 
@@ -198,7 +201,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final long time = firstPage.get(PAGE_SIZE - 1).get(LikeProperty.CREATED_AT).getTime();
         when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(likesStorage.loadLikes(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
-        when(syncInitiator.refreshLikes()).thenReturn(Observable.<Boolean>empty());
+        when(legacySyncInitiator.refreshLikes()).thenReturn(Observable.<Boolean>empty());
 
         operations.likesPagingFunction().call(firstPage);
 
@@ -214,7 +217,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void updatedLikesReloadsLikesAfterSyncWithChange() {
         final List<PropertySet> pageOfLikes = createPageOfLikes(2);
         when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(pageOfLikes));
-        when(syncInitiator.refreshLikes()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshLikes()).thenReturn(Observable.just(true));
 
         operations.updatedLikes().subscribe(subscriber);
 
@@ -227,7 +230,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE,
                                                      Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
                                                                                  Observable.just(firstPage));
-        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.pagedPlaylistItems().subscribe(subscriber);
 
@@ -238,7 +241,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void syncAndLoadEmptyPlaylistsResultsWithEmptyResults() {
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE,
                                                      Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.pagedPlaylistItems().subscribe(subscriber);
 
@@ -249,7 +252,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void pagedPlaylistItemsReturnsPlaylistItemsFromStorage() {
         final List<PropertySet> playlists = createPageOfPlaylists(2);
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
-        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
+        when(legacySyncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.pagedPlaylistItems().subscribe(subscriber);
 
@@ -264,7 +267,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, time)).thenReturn(Observable.just(secondPage));
-        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
+        when(legacySyncInitiator.refreshMyPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.playlistPagingFunction().call(firstPage).subscribe(subscriber);
 
@@ -281,7 +284,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
     public void updatedPostedPlaylistsReloadsPostedPlaylistsAfterSyncWithChange() {
         final List<PropertySet> playlists = createPageOfPlaylists(2);
         when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
-        when(syncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshMyPlaylists()).thenReturn(Observable.just(true));
 
         operations.updatedPlaylists().subscribe(subscriber);
 
@@ -298,9 +301,9 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUsers(PAGE_SIZE,
                                                   Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
                                                                               Observable.just(firstPage));
-        when(syncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
-        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
-                                                                                                      true)));
+        when(legacySyncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
+        when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
+                                                                                                            true)));
 
         operations.pagedFollowings().subscribe(subscriber);
 
@@ -313,7 +316,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
                                                      Consts.NOT_SET)).thenReturn(Observable.just(Collections.<Urn>emptyList()));
         when(userAssociationStorage.followedUsers(PAGE_SIZE,
                                                   Consts.NOT_SET)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
+        when(legacySyncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
 
         operations.pagedFollowings().subscribe(subscriber);
 
@@ -327,8 +330,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(urns));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
                 pageOfFollowings));
-        when(syncInitiator.refreshFollowings()).thenReturn(Observable.<Boolean>empty());
-        when(syncInitiator.syncUsers(urns)).thenReturn(Observable.just(SyncJobResult.success("success", true)));
+        when(legacySyncInitiator.refreshFollowings()).thenReturn(Observable.<Boolean>empty());
+        when(syncInitiator.batchSyncUsers(urns)).thenReturn(Observable.just(SyncJobResult.success("success", true)));
 
         operations.pagedFollowings().subscribe(subscriber);
 
@@ -345,8 +348,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, position)).thenReturn(Observable.just(followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, position)).thenReturn(Observable.just(secondPage));
 
-        when(syncInitiator.refreshFollowings()).thenReturn(Observable.<Boolean>empty());
-        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
+        when(legacySyncInitiator.refreshFollowings()).thenReturn(Observable.<Boolean>empty());
+        when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
                                                                                                       true)));
 
         operations.followingsPagingFunction().call(firstPage).subscribe(subscriber);
@@ -369,8 +372,8 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
                 followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
                 pageOfFollowings));
-        when(syncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
-        when(syncInitiator.syncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
+        when(legacySyncInitiator.refreshFollowings()).thenReturn(Observable.just(true));
+        when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
                                                                                                       true)));
 
         operations.updatedFollowings().subscribe(subscriber);

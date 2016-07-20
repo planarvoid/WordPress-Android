@@ -10,11 +10,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
@@ -39,7 +41,8 @@ public class MyProfileOperations {
 
     private final NetworkConnectionHelper networkConnectionHelper;
     private final SyncStateStorage syncStateStorage;
-    private final LegacySyncInitiator syncInitiator;
+    private final LegacySyncInitiator legacySyncInitiator;
+    private final SyncInitiator syncInitiator;
 
     private final PlaylistPostStorage playlistPostStorage;
     private final UserAssociationStorage userAssociationStorage;
@@ -82,7 +85,7 @@ public class MyProfileOperations {
         @Override
         public void call(List<PropertySet> propertySets) {
             if (networkConnectionHelper.isWifiConnected() && !propertySets.isEmpty()) {
-                syncInitiator.requestPlaylistSync(propertySets);
+                syncInitiator.syncPlaylists(PropertySets.extractUrns(propertySets));
             }
         }
     };
@@ -93,8 +96,9 @@ public class MyProfileOperations {
             PostsStorage postsStorage,
             PlaylistPostStorage playlistPostStorage,
             SyncStateStorage syncStateStorage,
-            LegacySyncInitiator syncInitiator,
+            LegacySyncInitiator legacySyncInitiator,
             NetworkConnectionHelper networkConnectionHelper,
+            SyncInitiator syncInitiator,
             UserAssociationStorage userAssociationStorage,
             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
 
@@ -102,8 +106,9 @@ public class MyProfileOperations {
         this.postsStorage = postsStorage;
         this.playlistPostStorage = playlistPostStorage;
         this.syncStateStorage = syncStateStorage;
-        this.syncInitiator = syncInitiator;
+        this.legacySyncInitiator = legacySyncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
+        this.syncInitiator = syncInitiator;
         this.userAssociationStorage = userAssociationStorage;
         this.scheduler = scheduler;
     }
@@ -130,8 +135,8 @@ public class MyProfileOperations {
     }
 
     Observable<List<PropertySet>> updatedFollowings() {
-        return syncInitiator.refreshFollowings()
-                            .flatMap(loadInitialFollowings);
+        return legacySyncInitiator.refreshFollowings()
+                                  .flatMap(loadInitialFollowings);
     }
 
     private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {
@@ -149,8 +154,8 @@ public class MyProfileOperations {
                 if (urns.isEmpty()) {
                     return Observable.just(Collections.<PropertySet>emptyList());
                 } else {
-                    return syncInitiator.syncUsers(urns)
-                                        .flatMap(loadFollowings(pageSize, fromPosition));
+                    return syncInitiator.batchSyncUsers(urns)
+                                              .flatMap(loadFollowings(pageSize, fromPosition));
                 }
             }
         };
@@ -192,8 +197,8 @@ public class MyProfileOperations {
     }
 
     Observable<List<PropertySet>> updatedLikes() {
-        return syncInitiator.refreshLikes()
-                            .flatMap(loadInitialLikes);
+        return legacySyncInitiator.refreshLikes()
+                                  .flatMap(loadInitialLikes);
     }
 
     Observable<List<PropertySet>> pagedLikes() {
@@ -222,8 +227,8 @@ public class MyProfileOperations {
     }
 
     Observable<List<PropertySet>> updatedPosts() {
-        return syncInitiator.refreshPosts()
-                            .flatMap(loadInitialPosts);
+        return legacySyncInitiator.refreshPosts()
+                                  .flatMap(loadInitialPosts);
     }
 
     private Observable<List<PropertySet>> postedItems(final long beforeTime) {
@@ -266,8 +271,8 @@ public class MyProfileOperations {
     }
 
     Observable<List<PropertySet>> updatedPlaylists() {
-        return syncInitiator.refreshMyPlaylists()
-                            .flatMap(loadInitialPlaylistPosts);
+        return legacySyncInitiator.refreshMyPlaylists()
+                                  .flatMap(loadInitialPlaylistPosts);
     }
 
     private Observable<List<PropertySet>> initialPlaylistPage() {

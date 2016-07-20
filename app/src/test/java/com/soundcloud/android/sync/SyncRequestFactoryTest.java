@@ -19,6 +19,9 @@ import org.mockito.Mock;
 
 import android.content.Intent;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class SyncRequestFactoryTest extends AndroidUnitTest {
 
     private SyncRequestFactory syncRequestFactory;
@@ -50,7 +53,7 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
 
     @Test
     public void returnsSingleRequestJobWithTrackLikesJob() throws Exception {
-        SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_TRACK_LIKES)
+        SyncRequest syncRequest = syncRequestFactory.create(new Intent(LegacySyncActions.SYNC_TRACK_LIKES)
                                                                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
                                                                               resultReceiverAdapter));
         assertThat(syncRequest.getPendingJobs()).hasSize(1);
@@ -59,41 +62,50 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
 
     @Test
     public void returnsSingleRequestJobWithPlaylistLikesJob() throws Exception {
-        SyncRequest syncRequest = syncRequestFactory.create(new Intent(SyncActions.SYNC_PLAYLIST_LIKES));
+        SyncRequest syncRequest = syncRequestFactory.create(new Intent(LegacySyncActions.SYNC_PLAYLIST_LIKES));
         assertThat(syncRequest.getPendingJobs()).hasSize(1);
         assertThat(syncRequest.getPendingJobs().contains(syncPlaylistLikesJob)).isTrue();
     }
 
     @Test
-    public void createSyncResourcesRequestFromSyncTracksIntent() throws Exception {
-        final Intent intent = new Intent(SyncActions.SYNC_TRACKS)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
-        syncRequestFactory.create(intent);
-        verify(entitySyncRequestFactory).create(intent, resultReceiverAdapter);
-    }
-
-    @Test
-    public void createSyncResourcesRequestFromSyncPlaylistsIntent() throws Exception {
-        final Intent intent = new Intent(SyncActions.SYNC_PLAYLISTS)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
-        syncRequestFactory.create(intent);
-        verify(entitySyncRequestFactory).create(intent, resultReceiverAdapter);
-    }
-
-    @Test
-    public void createSyncResourcesRequestFromSyncUsersIntent() {
-        final Intent intent = new Intent(SyncActions.SYNC_USERS)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
-        syncRequestFactory.create(intent);
-        verify(entitySyncRequestFactory).create(intent, resultReceiverAdapter);
-    }
-
-    @Test
     public void createSyncSinglePlaylistRequestFromSyncPlaylistIntent() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        final Intent intent = new Intent(SyncActions.SYNC_PLAYLIST).putExtra(SyncExtras.URN, playlistUrn);
+        final ArrayList<Urn> entities = new ArrayList<>(Arrays.asList(playlistUrn));
+        final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.PLAYLIST)
+                                          .putExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities)
+                                          .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
         syncRequestFactory.create(intent);
         verify(singlePlaylistSyncerFactory).create(playlistUrn);
+    }
+
+    @Test
+    public void createSyncTrackEntitesRequestFromSyncableTracksIntent() throws Exception {
+        final ArrayList<Urn> entities = new ArrayList<>(Arrays.asList(Urn.forTrack(123L)));
+        final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.TRACKS)
+                                          .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities)
+                                          .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
+        syncRequestFactory.create(intent);
+        verify(entitySyncRequestFactory).create(Syncable.TRACKS, entities, resultReceiverAdapter);
+    }
+
+    @Test
+    public void createSyncPlaylistEntitesRequestFromSyncablePlaylistsIntent() throws Exception {
+        final ArrayList<Urn> entities = new ArrayList<>(Arrays.asList(Urn.forPlaylist(123L)));
+        final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.PLAYLISTS)
+                                          .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities)
+                                          .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
+        syncRequestFactory.create(intent);
+        verify(entitySyncRequestFactory).create(Syncable.PLAYLISTS, entities, resultReceiverAdapter);
+    }
+
+    @Test
+    public void createSyncUserEntitesRequestFromSyncableUsersIntent() throws Exception {
+        final ArrayList<Urn> entities = new ArrayList<>(Arrays.asList(Urn.forUser(123L)));
+        final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.USERS)
+                                          .putParcelableArrayListExtra(ApiSyncService.EXTRA_SYNCABLE_ENTITIES, entities)
+                                          .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
+        syncRequestFactory.create(intent);
+        verify(entitySyncRequestFactory).create(Syncable.USERS, entities, resultReceiverAdapter);
     }
 
     @Test

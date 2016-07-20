@@ -25,5 +25,6 @@ public class SinglePlaylistJobRequest extends SingleJobRequest {
         resultEvent = exception == null ?
                       SyncJobResult.success(action, syncJob.resultedInAChange(), playlistUrn)
                                         : SyncJobResult.failure(action, exception);
+
     }
 }

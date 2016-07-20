@@ -26,7 +26,6 @@ public class ApiSyncerFactory {
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
     private final Lazy<MyFollowingsSyncer> lazyMyFollowingsSyncerLazy;
-    private final Lazy<TrackSyncer> lazyTrackSyncer;
     private final Lazy<MeSyncer> lazyMeSyncer;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
 
@@ -37,7 +36,6 @@ public class ApiSyncerFactory {
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
                             Lazy<MyFollowingsSyncer> lazyMyFollowingsSyncerLazy,
-                            Lazy<TrackSyncer> lazyTrackSyncer,
                             Lazy<MeSyncer> lazyMeSyncer,
                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory) {
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
@@ -46,7 +44,6 @@ public class ApiSyncerFactory {
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
         this.lazyMyFollowingsSyncerLazy = lazyMyFollowingsSyncerLazy;
-        this.lazyTrackSyncer = lazyTrackSyncer;
         this.lazyMeSyncer = lazyMeSyncer;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
     }
@@ -76,9 +73,6 @@ public class ApiSyncerFactory {
 
             case ME_SOUNDS:
                 return lazyMyPostsSyncer.get();
-
-            case TRACK:
-                return lazyTrackSyncer.get();
 
             case ME:
                 return lazyMeSyncer.get();

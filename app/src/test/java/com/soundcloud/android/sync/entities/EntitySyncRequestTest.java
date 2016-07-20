@@ -1,18 +1,15 @@
 package com.soundcloud.android.sync.entities;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.SyncActions;
-import com.soundcloud.android.sync.SyncExtras;
 import com.soundcloud.android.sync.SyncJob;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
@@ -21,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.Intent;
 import android.os.ResultReceiver;
 
 import java.util.Collections;
@@ -31,6 +27,7 @@ public class EntitySyncRequestTest extends AndroidUnitTest {
 
     private static final Urn URN = Urn.forTrack(123L);
     private static final String ACTION = "action";
+    private static final Syncable SYNCABLE = Syncable.TRACKS;
 
     private EntitySyncRequest entitySyncRequest;
 
@@ -39,13 +36,11 @@ public class EntitySyncRequestTest extends AndroidUnitTest {
     @Mock private ResultReceiver resultReceiver;
 
     private TestEventBus eventBus = new TestEventBus();
-    private Intent intent;
+
 
     @Before
     public void setUp() throws Exception {
-        intent = new Intent(SyncActions.SYNC_TRACKS);
-        intent.putParcelableArrayListExtra(SyncExtras.URNS, newArrayList(URN));
-        entitySyncRequest = new EntitySyncRequest(entitySyncJob, intent, eventBus, ACTION, resultReceiver);
+        entitySyncRequest = new EntitySyncRequest(entitySyncJob, SYNCABLE, eventBus, resultReceiver);
     }
 
     @Test
@@ -56,7 +51,6 @@ public class EntitySyncRequestTest extends AndroidUnitTest {
     @Test
     public void createsPendingSync() throws Exception {
         assertThat(entitySyncRequest.getPendingJobs()).hasSize(1);
-        verify(entitySyncJob).setUrns(singletonList(URN));
     }
 
     @Test

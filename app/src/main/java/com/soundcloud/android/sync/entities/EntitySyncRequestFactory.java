@@ -1,14 +1,17 @@
 package com.soundcloud.android.sync.entities;
 
-import com.soundcloud.android.sync.SyncActions;
+import static com.soundcloud.java.checks.Preconditions.checkArgument;
+
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
 
-import android.content.Intent;
 import android.os.ResultReceiver;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.List;
 
 public class EntitySyncRequestFactory {
     private final Lazy<EntitySyncJob> tracksSyncJob;
@@ -27,20 +30,23 @@ public class EntitySyncRequestFactory {
         this.eventBus = eventBus;
     }
 
-    public EntitySyncRequest create(Intent intent, ResultReceiver resultReceiver) {
-        switch (intent.getAction()) {
-            case SyncActions.SYNC_TRACKS:
-                return new EntitySyncRequest(tracksSyncJob.get(), intent, eventBus, intent.getAction(), resultReceiver);
-            case SyncActions.SYNC_USERS:
-                return new EntitySyncRequest(usersSyncJob.get(), intent, eventBus, intent.getAction(), resultReceiver);
-            case SyncActions.SYNC_PLAYLISTS:
-                return new EntitySyncRequest(playlistSyncJob.get(),
-                                             intent,
-                                             eventBus,
-                                             intent.getAction(),
-                                             resultReceiver);
+    public EntitySyncRequest create(Syncable syncable, List<Urn> entities, ResultReceiver resultReceiver) {
+        checkArgument(entities != null, "Requested a resource sync without providing urns...");
+        EntitySyncJob syncJob = getEntitySyncJob(syncable);
+        syncJob.setUrns(entities);
+        return new EntitySyncRequest(syncJob, syncable, eventBus, resultReceiver);
+    }
+
+    private EntitySyncJob getEntitySyncJob(Syncable syncable) {
+        switch (syncable) {
+            case TRACKS:
+                return tracksSyncJob.get();
+            case USERS:
+                return usersSyncJob.get();
+            case PLAYLIST_LIKES:
+                return playlistSyncJob.get();
             default:
-                throw new IllegalArgumentException("Unexpected action : " + intent.getAction());
+                throw new IllegalArgumentException("Unexpected syncable : " + syncable);
         }
     }
 }

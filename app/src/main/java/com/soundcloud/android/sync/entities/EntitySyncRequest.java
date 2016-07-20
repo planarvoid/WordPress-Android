@@ -1,55 +1,40 @@
 package com.soundcloud.android.sync.entities;
 
-import static com.soundcloud.java.checks.Preconditions.checkArgument;
-
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.ResultReceiverAdapter;
-import com.soundcloud.android.sync.SyncExtras;
 import com.soundcloud.android.sync.SyncJob;
-import com.soundcloud.android.sync.SyncRequest;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.sync.SyncRequest;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 class EntitySyncRequest implements SyncRequest {
 
     private final EntitySyncJob entitySyncJob;
     private final EventBus eventBus;
-    private final String action;
+    private final Syncable syncable;
     private SyncJobResult resultEvent;
     @Nullable private final ResultReceiver resultReceiver;
 
     EntitySyncRequest(EntitySyncJob entitySyncJob,
-                      Intent intent,
+                      Syncable syncable,
                       EventBus eventBus,
-                      String action,
                       @Nullable ResultReceiver resultReceiver) {
         this.entitySyncJob = entitySyncJob;
         this.eventBus = eventBus;
-        this.action = action;
+        this.syncable = syncable;
         this.resultReceiver = resultReceiver;
-        setUrnsFromIntent(intent);
     }
-
-    private void setUrnsFromIntent(Intent intent) {
-        final List<Urn> urnsToSync = intent.getParcelableArrayListExtra(SyncExtras.URNS);
-        checkArgument(urnsToSync != null,
-                      "Requested a resource sync without providing urns...");
-        entitySyncJob.setUrns(urnsToSync);
-    }
-
 
     @Override
     public boolean isHighPriority() {
@@ -72,8 +57,8 @@ class EntitySyncRequest implements SyncRequest {
         if (syncJob.equals(entitySyncJob)) {
             Exception exception = syncJob.getException();
             resultEvent = exception == null ?
-                          SyncJobResult.success(action, syncJob.resultedInAChange())
-                                            : SyncJobResult.failure(action, syncJob.getException());
+                          SyncJobResult.success(syncable.name(), syncJob.resultedInAChange())
+                                            : SyncJobResult.failure(syncable.name(), syncJob.getException());
         }
     }
 

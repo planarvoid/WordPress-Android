@@ -17,8 +17,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
-import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.LegacySyncActions;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -49,7 +50,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     private PlaylistOperations operations;
 
     @Mock private Observer<PlaylistWithTracks> playlistInfoObserver;
-    @Mock private LegacySyncInitiator syncInitiator;
+    @Mock private SyncInitiator syncInitiator;
+    @Mock private LegacySyncInitiator legacySyncInitiator;
     @Mock private PlaylistTracksStorage tracksStorage;
     @Mock private PlaylistStorage playlistStorage;
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
@@ -69,6 +71,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     private final List<Urn> newTrackList = Arrays.asList(trackUrn);
     private TestEventBus eventBus;
 
+
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
@@ -80,8 +83,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             addTrackToPlaylistCommand,
                                             removeTrackFromPlaylistCommand,
                                             editPlaylistCommand,
-                                            eventBus);
-        when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
+                                            legacySyncInitiator, eventBus);
+        when(legacySyncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
 
     }
 
@@ -113,8 +116,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedPlaylistSyncsThenLoadsFromStorage() {
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
-                                                                                                             true)));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(
+                LegacySyncActions.SYNC_PLAYLIST,
+                true)));
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
                 track1,
                 track2)));
@@ -130,8 +134,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingIfPlaylistMetaDataMissing() {
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
-                                                                                                             true)));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(
+                LegacySyncActions.SYNC_PLAYLIST,
+                true)));
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
                 track1,
                 track2)));
@@ -148,8 +153,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingAPlaylistMissingExceptionIfPlaylistMetaDataStillMissing() {
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
-                                                                                                             true)));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(
+                LegacySyncActions.SYNC_PLAYLIST,
+                true)));
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(newArrayList(
                 track1,
                 track2)));
@@ -167,8 +173,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     public void loadsPlaylistAndEmitsAgainAfterSyncIfNoTracksAvailable() {
         final List<PropertySet> emptyTrackList = Collections.emptyList();
         final List<PropertySet> trackList = Arrays.asList(track1, track2);
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
-                                                                                                             true)));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncJobResult.success(
+                LegacySyncActions.SYNC_PLAYLIST,
+                true)));
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.just(emptyTrackList),
                                                                          Observable.just(trackList));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlist.toPropertySet()));
@@ -196,8 +203,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
-        InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
-        inOrder.verify(syncInitiator).syncLocalPlaylists();
+        InOrder inOrder = Mockito.inOrder(legacySyncInitiator, playlistInfoObserver);
+        inOrder.verify(legacySyncInitiator).syncLocalPlaylists();
         inOrder.verify(playlistInfoObserver)
                .onNext(new PlaylistWithTracks(playlistProperties, TrackItem.fromPropertySets().call(trackList)));
         inOrder.verify(playlistInfoObserver).onCompleted();

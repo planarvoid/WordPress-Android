@@ -9,8 +9,10 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -34,7 +36,8 @@ public class TrackLikeOperations {
     private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     private final LikedTrackStorage likedTrackStorage;
     private final Scheduler scheduler;
-    private final LegacySyncInitiator syncInitiator;
+    private final SyncInitiator syncInitiator;
+    private final LegacySyncInitiator legacySyncInitiator;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
 
@@ -42,7 +45,7 @@ public class TrackLikeOperations {
         @Override
         public void call(List<PropertySet> propertySets) {
             if (networkConnectionHelper.isWifiConnected() && !propertySets.isEmpty()) {
-                syncInitiator.requestTracksSync(propertySets);
+                syncInitiator.batchSyncTracks(PropertySets.extractUrns(propertySets));
             }
         }
     };
@@ -64,12 +67,14 @@ public class TrackLikeOperations {
     @Inject
     public TrackLikeOperations(LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
                                LikedTrackStorage likedTrackStorage,
-                               LegacySyncInitiator syncInitiator,
+                               SyncInitiator syncInitiator,
+                               LegacySyncInitiator legacySyncInitiator,
                                EventBus eventBus,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                NetworkConnectionHelper networkConnectionHelper) {
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
         this.likedTrackStorage = likedTrackStorage;
+        this.legacySyncInitiator = legacySyncInitiator;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
@@ -106,7 +111,7 @@ public class TrackLikeOperations {
     }
 
     Observable<List<PropertySet>> updatedLikedTracks() {
-        return syncInitiator
+        return legacySyncInitiator
                 .syncTrackLikes()
                 .observeOn(scheduler)
                 .flatMap(loadInitialLikedTracks)

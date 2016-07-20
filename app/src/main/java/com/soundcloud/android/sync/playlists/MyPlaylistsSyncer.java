@@ -18,7 +18,7 @@ import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
 import com.soundcloud.android.sync.LegacySyncResult;
-import com.soundcloud.android.sync.SyncActions;
+import com.soundcloud.android.sync.LegacySyncActions;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.android.sync.posts.PostsSyncModule;
@@ -109,7 +109,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
         final boolean hasUpdatedPlaylists = !updatedOfflinePlaylists.isEmpty();
         if (hasUpdatedPlaylists) {
             eventBus.publish(EventQueue.SYNC_RESULT,
-                             SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true, updatedOfflinePlaylists));
+                             SyncJobResult.success(LegacySyncActions.SYNC_PLAYLIST, true, updatedOfflinePlaylists));
         }
         return hasUpdatedPlaylists;
     }

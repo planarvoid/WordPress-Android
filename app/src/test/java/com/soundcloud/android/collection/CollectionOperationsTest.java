@@ -25,7 +25,6 @@ import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
@@ -396,16 +395,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.RECENT_STATIONS.name(), true));
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
-    }
-
-    @Test
-    public void onCollectionChangedShouldNotSendAnEventWhenNoChange() {
-        final TestSubscriber<Object> subscriber = new TestSubscriber<>();
-        operations.onCollectionChanged().subscribe(subscriber);
-
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_PLAYLISTS, false));
-
-        subscriber.assertNoValues();
     }
 
     @Test

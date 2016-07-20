@@ -8,7 +8,8 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
@@ -19,6 +20,8 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
+
+import android.support.annotation.NonNull;
 
 public class TrackRepositoryTest extends AndroidUnitTest {
 
@@ -35,7 +38,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Mock private TrackStorage trackStorage;
     @Mock private AccountOperations accountOperations;
-    @Mock private LegacySyncInitiator syncInitiator;
+    @Mock private SyncInitiator syncInitiator;
 
     private TestObserver<PropertySet> observer = new TestObserver<>();
 
@@ -53,7 +56,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void trackReturnsTrackPropertySetByUrnWithLoggedInUserUrn() throws Exception {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(getSuccessResult()));
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
 
         trackRepository.track(trackUrn).subscribe(observer);
@@ -61,10 +64,15 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         assertThat(observer.getOnNextEvents()).containsExactly(track);
     }
 
+    @NonNull
+    private SyncJobResult getSuccessResult() {
+        return SyncJobResult.success("action", true);
+    }
+
     @Test
     public void trackUsesSyncerToBackfillMissingTrack() {
         final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(getSuccessResult()));
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(PropertySet.create()),
                                                           Observable.just(syncedTrack));
 
@@ -77,7 +85,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Test
     public void trackUsesSyncerToBackfillErrorOnLoad() {
         final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(getSuccessResult()));
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.<PropertySet>error(new NullPointerException()),
                                                           Observable.just(syncedTrack));
 
@@ -89,7 +97,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void fullTrackWithUpdateReturnsTrackDetailsFromStorage() {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.<Boolean>empty());
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.<SyncJobResult>empty());
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(trackDescription));
 
@@ -103,7 +111,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
 
     @Test
     public void fullTrackWithUpdateEmitsTrackFromStorageTwice() throws CreateModelException {
-        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(getSuccessResult()));
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(trackDescription));
 

@@ -7,5 +7,9 @@ public enum Syncable {
     RECOMMENDED_STATIONS,
     RECOMMENDED_TRACKS,
     CHARTS,
-    CHART_GENRES
+    CHART_GENRES,
+    TRACKS,
+    PLAYLISTS,
+    USERS,
+    PLAYLIST
 }

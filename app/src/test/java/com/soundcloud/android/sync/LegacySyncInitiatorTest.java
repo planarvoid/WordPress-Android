@@ -6,15 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,7 +25,6 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 public class LegacySyncInitiatorTest extends AndroidUnitTest {
 
@@ -130,54 +122,12 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateIntentForSyncingSinglePlaylist() throws Exception {
-        final Urn playlistUrn = Urn.forPlaylist(1L);
-        initiator.syncPlaylist(playlistUrn).subscribe(syncSubscriber);
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_PLAYLIST);
-        assertThat(intent.getParcelableExtra(SyncExtras.URN)).isEqualTo(playlistUrn);
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
-    }
-
-    @Test
-    public void syncPlaylistSyncsMyPlaylistsIfPlaylistIsLocal() throws Exception {
-        final Urn playlistUrn = Urn.forPlaylist(-1L);
-        initiator.syncPlaylist(playlistUrn).subscribe(syncSubscriber);
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isSameAs(Content.ME_PLAYLISTS.uri);
-        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
-
-        final LegacyResultReceiverAdapter resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
-        final Bundle resultData = new Bundle();
-        resultData.putBoolean(Content.ME_PLAYLISTS.uri.toString(), true);
-        resultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
-
-        assertThat(syncSubscriber.getOnNextEvents()).containsExactly(SyncJobResult.success(SyncActions.SYNC_PLAYLIST,
-                                                                                           true));
-    }
-
-    @Test
-    public void shouldCreateIntentForSyncingSingleTrack() throws Exception {
-        initiator.syncTrack(Urn.forTrack(1L)).subscribe(legacySyncSubscriber);
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isEqualTo(Content.TRACK.forId(1L));
-        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
-    }
-
-    @Test
     public void syncTrackLikesShouldRequestTrackLikesSync() throws Exception {
         initiator.syncTrackLikes().subscribe(syncSubscriber);
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_TRACK_LIKES);
+        assertThat(intent.getAction()).isEqualTo(LegacySyncActions.SYNC_TRACK_LIKES);
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
     }
 
@@ -195,7 +145,7 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
 
         Intent intent = ShadowApplication.getInstance().getNextStartedService();
         assertThat(intent).isNotNull();
-        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_PLAYLIST_LIKES);
+        assertThat(intent.getAction()).isEqualTo(LegacySyncActions.SYNC_PLAYLIST_LIKES);
         assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
     }
 
@@ -206,29 +156,6 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
         sendSyncChangedToUri();
         verify(syncStateManager).resetSyncMissesAsync(uri);
     }
-
-    @Test
-    public void requestTracksSyncShouldRequestTracksSync() throws Exception {
-        final PropertySet propertySet = TestPropertySets.fromApiTrack();
-        initiator.requestTracksSync(Collections.singletonList(propertySet));
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_TRACKS);
-        assertThat(intent.getParcelableArrayListExtra(SyncExtras.URNS)).containsExactly(propertySet.get(TrackProperty.URN));
-    }
-
-    @Test
-    public void requestPlaylistsSyncShouldRequestPlaylistsSync() throws Exception {
-        final PropertySet propertySet = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
-        initiator.requestPlaylistSync(Collections.singletonList(propertySet));
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getAction()).isEqualTo(SyncActions.SYNC_PLAYLISTS);
-        assertThat(intent.getParcelableArrayListExtra(SyncExtras.URNS)).containsExactly(propertySet.get(PlaylistProperty.URN));
-    }
-
 
     @Test
     public void refreshCollectionsSendsCollectionSyncIntent() {

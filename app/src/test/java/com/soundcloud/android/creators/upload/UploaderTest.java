@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
@@ -77,7 +76,7 @@ public class UploaderTest extends AndroidUnitTest {
     public void shouldSetSuccessAfterFileUpload() throws Exception {
         PublicApiTrack apiTrack = ModelFixtures.create(PublicApiTrack.class);
         when(apiClient.fetchMappedResponse(
-                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
+                argThat(isPublicApiRequestTo("POST", Uploader.LEGACY_TRACKS_PATH)), eq(PublicApiTrack.class)))
                 .thenReturn(apiTrack);
 
         uploader(recording).run();
@@ -102,7 +101,7 @@ public class UploaderTest extends AndroidUnitTest {
 
         final File transcodedFile = new File(recording.audio_path.getAbsolutePath().replaceAll(".wav", ".ogg"));
         verify(apiClient).fetchMappedResponse(
-                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())
+                argThat(isPublicApiRequestTo("POST", Uploader.LEGACY_TRACKS_PATH)
                                 .withFormParts(
                                         StringPart.from(Uploader.PARAM_TITLE, recording.title),
                                         StringPart.from(Uploader.PARAM_TYPE, "recording"),
@@ -120,7 +119,7 @@ public class UploaderTest extends AndroidUnitTest {
     @Test
     public void shouldNotSetSuccessAfterFailedUpload() throws Exception {
         when(apiClient.fetchMappedResponse(
-                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
+                argThat(isPublicApiRequestTo("POST", Uploader.LEGACY_TRACKS_PATH)), eq(PublicApiTrack.class)))
                 .thenThrow(ApiRequestException.unexpectedResponse(null, new ApiResponse(null, 499, "error")));
 
         uploader(recording).run();
@@ -138,7 +137,7 @@ public class UploaderTest extends AndroidUnitTest {
     @Test
     public void shouldNotSetSuccessAfterFailedUploadIOException() throws Exception {
         when(apiClient.fetchMappedResponse(
-                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
+                argThat(isPublicApiRequestTo("POST", Uploader.LEGACY_TRACKS_PATH)), eq(PublicApiTrack.class)))
                 .thenThrow(new IOException("network error"));
         uploader(recording).run();
         assertThat(recording.isUploaded()).isFalse();
@@ -147,7 +146,7 @@ public class UploaderTest extends AndroidUnitTest {
     @Test
     public void shouldNotSetSuccessIfTaskCanceled() throws Exception {
         when(apiClient.fetchMappedResponse(
-                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
+                argThat(isPublicApiRequestTo("POST", Uploader.LEGACY_TRACKS_PATH)), eq(PublicApiTrack.class)))
                 .thenReturn(ModelFixtures.create(PublicApiTrack.class));
         final Uploader uploader = uploader(recording);
         uploader.cancel();

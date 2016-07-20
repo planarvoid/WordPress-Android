@@ -16,8 +16,9 @@ import com.soundcloud.android.events.PolicyUpdateEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.PlaylistWithTracks;
-import com.soundcloud.android.sync.SyncActions;
+import com.soundcloud.android.sync.LegacySyncActions;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -92,7 +93,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_TRACK_LIKES, true));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(LegacySyncActions.SYNC_TRACK_LIKES, true));
 
         startServiceSubscriber.assertNoValues();
     }
@@ -121,7 +122,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
     public void doesNotStartOfflineSyncWhenLikeSyncingDidNotUpdateTheLiked() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_TRACK_LIKES, false));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(LegacySyncActions.SYNC_TRACK_LIKES, false));
 
         startServiceSubscriber.assertNoValues();
     }
@@ -204,7 +205,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), true, PLAYLIST));
 
         startServiceSubscriber.assertValueCount(1);
     }
@@ -215,7 +216,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_PLAYLIST, false, PLAYLIST));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(LegacySyncActions.SYNC_PLAYLIST, false, PLAYLIST));
 
         startServiceSubscriber.assertNoValues();
     }
@@ -225,7 +226,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
 
         controller.subscribe();
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(LegacySyncActions.SYNC_PLAYLIST, true, PLAYLIST));
 
         startServiceSubscriber.assertNoValues();
     }
@@ -322,7 +323,7 @@ public class OfflineContentControllerTest extends AndroidUnitTest {
         when(offlineContentOperations.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
 
         controller.subscribe();
-        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(SyncActions.SYNC_PLAYLIST, true, PLAYLIST));
+        eventBus.publish(EventQueue.SYNC_RESULT, SyncJobResult.success(Syncable.PLAYLIST.name(), true, PLAYLIST));
 
         startServiceSubscriber.assertValueCount(1);
     }

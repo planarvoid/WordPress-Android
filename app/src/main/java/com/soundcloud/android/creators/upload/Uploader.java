@@ -48,6 +48,7 @@ public class Uploader implements Runnable {
     static final String PARAM_GENRE = "track[genre]";
     static final String PARAM_ASSET_DATA = "track[asset_data]";
     static final String PARAM_ARTWORK_DATA = "track[artwork_data]";
+    static final String LEGACY_TRACKS_PATH = "/tracks";
 
     private final StoreTracksCommand storeTracksCommand;
     private final StorePostsCommand storePostsCommand;
@@ -121,7 +122,7 @@ public class Uploader implements Runnable {
     }
 
     private ApiRequest buildUploadRequest(Context context, final Recording recording) {
-        final ApiRequest.Builder request = ApiRequest.post(ApiEndpoints.LEGACY_TRACKS.path()).forPublicApi();
+        final ApiRequest.Builder request = ApiRequest.post(LEGACY_TRACKS_PATH).forPublicApi();
 
         final Map<String, ?> params = buildRecordingParamMap(context, recording);
         addRecordingFields(request, params);

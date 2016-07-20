@@ -130,10 +130,7 @@ public enum ApiEndpoints {
     CURRENT_USER("/me"),
     MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
-    LEGACY_TRACKS("/tracks"),
-    LEGACY_TRACK("/tracks/%s"),
     LEGACY_USERS("/users"),
-    LEGACY_USER("/users/%s"),
     TRACK_COMMENTS("/tracks/%s/comments"),
 
     LEGACY_USER_PLAYLISTS("/users/%s/playlists"),

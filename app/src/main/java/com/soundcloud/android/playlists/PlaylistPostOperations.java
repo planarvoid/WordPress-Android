@@ -10,7 +10,9 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.rx.Pager;
@@ -34,7 +36,8 @@ class PlaylistPostOperations {
 
     private final PlaylistPostStorage playlistPostStorage;
     private final Scheduler scheduler;
-    private final LegacySyncInitiator syncInitiator;
+    private final LegacySyncInitiator legacySyncInitiator;
+    private final SyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final EventBus eventBus;
 
@@ -51,9 +54,9 @@ class PlaylistPostOperations {
 
     private final Action1<List<PropertySet>> requestPlaylistsSyncAction = new Action1<List<PropertySet>>() {
         @Override
-        public void call(List<PropertySet> propertySets) {
-            if (networkConnectionHelper.isWifiConnected() && !propertySets.isEmpty()) {
-                syncInitiator.requestPlaylistSync(propertySets);
+        public void call(List<PropertySet> playlists) {
+            if (networkConnectionHelper.isWifiConnected() && !playlists.isEmpty()) {
+                syncInitiator.batchSyncPlaylists(PropertySets.extractUrns(playlists));
             }
         }
     };
@@ -70,19 +73,21 @@ class PlaylistPostOperations {
     private final Action1<WriteResult> requestSystemSync = new Action1<WriteResult>() {
         @Override
         public void call(WriteResult changeResult) {
-            syncInitiator.requestSystemSync();
+            legacySyncInitiator.requestSystemSync();
         }
     };
 
     @Inject
     PlaylistPostOperations(PlaylistPostStorage playlistPostStorage,
-                           LegacySyncInitiator syncInitiator,
+                           LegacySyncInitiator legacySyncInitiator,
                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                           SyncInitiator syncInitiator,
                            NetworkConnectionHelper networkConnectionHelper,
                            EventBus eventBus) {
         this.playlistPostStorage = playlistPostStorage;
-        this.syncInitiator = syncInitiator;
+        this.legacySyncInitiator = legacySyncInitiator;
         this.scheduler = scheduler;
+        this.syncInitiator = syncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
         this.eventBus = eventBus;
     }
@@ -96,7 +101,7 @@ class PlaylistPostOperations {
     }
 
     Observable<Boolean> sync() {
-        return syncInitiator.refreshMyPlaylists();
+        return legacySyncInitiator.refreshMyPlaylists();
     }
 
     PagingFunction<List<PropertySet>> pagingFunction() {

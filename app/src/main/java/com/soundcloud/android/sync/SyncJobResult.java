@@ -26,16 +26,7 @@ public final class SyncJobResult implements Parcelable, UrnEvent {
     public static final Func1<SyncJobResult, Boolean> IS_SINGLE_PLAYLIST_SYNCED_FILTER = new Func1<SyncJobResult, Boolean>() {
         @Override
         public Boolean call(SyncJobResult syncJobResult) {
-            return SyncActions.SYNC_PLAYLIST.equals(syncJobResult.getAction())
-                    && syncJobResult.wasChanged()
-                    && syncJobResult.hasChangedEntities();
-        }
-    };
-
-    public static final Func1<SyncJobResult, Boolean> ARE_PLAYLISTS_SYNCED_FILTER = new Func1<SyncJobResult, Boolean>() {
-        @Override
-        public Boolean call(SyncJobResult syncJobResult) {
-            return SyncActions.SYNC_PLAYLISTS.equals(syncJobResult.getAction())
+            return Syncable.PLAYLIST.name().equals(syncJobResult.getAction())
                     && syncJobResult.wasChanged()
                     && syncJobResult.hasChangedEntities();
         }
