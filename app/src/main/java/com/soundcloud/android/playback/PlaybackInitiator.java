@@ -7,11 +7,11 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stations.StationTrack;
 import com.soundcloud.android.stations.Stations;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -119,7 +119,6 @@ public class PlaybackInitiator {
                                                          final PlaySessionSource playSessionSource,
                                                          boolean offlineTrackPriority) {
         return trackUrnsObservable
-                .filter(RxUtils.IS_NOT_EMPTY_LIST)
                 .flatMap(toShuffledPlayQueue(playSessionSource, offlineTrackPriority))
                 .flatMap(toPlaybackResult(0, playSessionSource))
                 .observeOn(AndroidSchedulers.mainThread());
