@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync.posts;
 
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.SyncerRegistry;
 
@@ -12,11 +13,14 @@ import java.util.concurrent.TimeUnit;
 public class PlaylistPostsSyncProvider extends SyncerRegistry.SyncProvider {
 
     private final Provider<PostsSyncer> playlistPostsSyncer;
+    private final PlaylistStorage playlistStorage;
 
     @Inject
-    public PlaylistPostsSyncProvider(@Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER) Provider<PostsSyncer> playlistPostsSyncer) {
+    public PlaylistPostsSyncProvider(@Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER) Provider<PostsSyncer> playlistPostsSyncer,
+                                     PlaylistStorage playlistStorage) {
         super(Syncable.PLAYLIST_POSTS);
         this.playlistPostsSyncer = playlistPostsSyncer;
+        this.playlistStorage = playlistStorage;
     }
 
     @SuppressWarnings("unchecked")
@@ -27,7 +31,7 @@ public class PlaylistPostsSyncProvider extends SyncerRegistry.SyncProvider {
 
     @Override
     public Boolean isOutOfSync() {
-        return false;
+        return playlistStorage.hasLocalChanges();
     }
 
     @Override
