@@ -40,7 +40,7 @@ public class ChartsTest extends ActivityTest<MainActivity> {
         assertThat(genresScreen.activeTabTitle(), equalTo(solo.getString(R.string.explore_genre_header_audio)));
 
         ChartsScreen chartsScreen = genresScreen.clickGenre(solo.getString(R.string.charts_audiobooks));
-        assertThat(chartsScreen.getActionBarTitle(), equalTo(solo.getString(R.string.charts_audiobooks)));
+        assertThat(chartsScreen.getActionBarTitle(), equalTo("Audiobooks charts"));
         assertThat(chartsScreen.activeTabTitle(), equalTo(solo.getString(R.string.charts_trending)));
         chartsScreen.swipeLeft();
         assertThat(chartsScreen.activeTabTitle(), equalTo(solo.getString(R.string.charts_top)));
