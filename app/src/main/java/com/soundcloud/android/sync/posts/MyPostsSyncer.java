@@ -10,6 +10,7 @@ import android.net.Uri;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+@Deprecated
 public class MyPostsSyncer implements SyncStrategy {
 
     private final PostsSyncer trackPostsSyncer;

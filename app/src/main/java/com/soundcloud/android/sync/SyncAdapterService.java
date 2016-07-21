@@ -75,6 +75,7 @@ public class SyncAdapterService extends Service {
         }
     }
 
+    @Deprecated
     public AbstractThreadedSyncAdapter createLegacySyncAdapter() {
         return new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;

@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import com.google.auto.factory.AutoFactory;
 import com.soundcloud.android.utils.Log;
 
 import android.accounts.Account;
@@ -14,7 +13,6 @@ import android.os.Looper;
 
 import javax.inject.Inject;
 
-@AutoFactory
 public class NewSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final String TAG = "NewSyncAdapter";
@@ -48,7 +46,7 @@ public class NewSyncAdapter extends AbstractThreadedSyncAdapter {
         looper = Looper.myLooper();
 
         final BackgroundSyncResultReceiver resultReceiver = receiverFactory.create(new SyncCleanupRunnable(looper),
-                                                                                   syncResult);
+                syncResult);
         final BackgroundSyncer backgroundSyncer = backgroundSyncerFactory.create(getContext(), resultReceiver);
 
         switch (backgroundSyncer.sync(manual)) {

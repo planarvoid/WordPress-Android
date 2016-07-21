@@ -42,7 +42,8 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
                        StorePostsCommand storePostsCommand,
                        RemovePostsCommand removePostsCommand,
                        BulkFetchCommand<ApiModel> fetchPostResources,
-                       WriteStorageCommand storePostResources, EventBus eventBus) {
+                       WriteStorageCommand storePostResources,
+                       EventBus eventBus) {
         this.loadLocalPosts = loadLocalPosts;
         this.fetchRemotePosts = fetchRemotePosts;
         this.storePostsCommand = storePostsCommand;
