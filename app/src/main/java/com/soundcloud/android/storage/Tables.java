@@ -126,21 +126,21 @@ public interface Tables {
         public static final StationsPlayQueues TABLE = new StationsPlayQueues();
 
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
-        public static final Column TRACK_URN = Column.create(TABLE, "track_urn");
+        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
         public static final Column QUERY_URN = Column.create(TABLE, "query_urn");
         public static final Column POSITION = Column.create(TABLE, "position");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS StationsPlayQueues (" +
                 "station_urn TEXT," +
-                "track_urn TEXT," +
+                "track_id INTEGER," +
                 "query_urn TEXT," +
                 "position INTEGER DEFAULT 0," +
-                "PRIMARY KEY(station_urn, track_urn, position) ON CONFLICT REPLACE," +
+                "PRIMARY KEY(station_urn, track_id, position) ON CONFLICT REPLACE," +
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
 
         protected StationsPlayQueues() {
-            super("StationsPlayQueues", PrimaryKey.of("station_urn", "track_urn", "position"));
+            super("StationsPlayQueues", PrimaryKey.of("station_urn", "track_id", "position"));
         }
     }
 

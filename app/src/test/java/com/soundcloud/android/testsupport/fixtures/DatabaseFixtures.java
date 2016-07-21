@@ -453,6 +453,7 @@ public class DatabaseFixtures {
         for (int i = 0; i < stationTracks.size(); i++) {
             final StationTrack track = stationTracks.get(i);
             insertInto(StationsPlayQueues.TABLE, getTrackContentValues(i, station, track));
+            insertTrack((ApiTrack) station.getTrackRecords().get(i));
         }
     }
 
@@ -471,7 +472,7 @@ public class DatabaseFixtures {
 
         trackContentValues.put(StationsPlayQueues.POSITION, position);
         trackContentValues.put(StationsPlayQueues.STATION_URN, stationInfo.getUrn().toString());
-        trackContentValues.put(StationsPlayQueues.TRACK_URN, track.getTrackUrn().toString());
+        trackContentValues.put(StationsPlayQueues.TRACK_ID, track.getTrackUrn().getNumericId());
         trackContentValues.put(StationsPlayQueues.QUERY_URN, track.getQueryUrn().toString());
 
         return trackContentValues.get();

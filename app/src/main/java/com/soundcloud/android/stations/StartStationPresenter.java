@@ -25,6 +25,7 @@ import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -49,6 +50,11 @@ public class StartStationPresenter {
         this.eventBus = eventBus;
         this.playbackToastHelper = playbackToastHelper;
         this.screenProvider = screenProvider;
+    }
+
+    void startStationFromPosition(Context context, Urn stationUrn, int position) {
+        //TODO: play station from given position
+        Toast.makeText(context, "Start " + stationUrn + " from " + position, Toast.LENGTH_SHORT).show();
     }
 
     void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {

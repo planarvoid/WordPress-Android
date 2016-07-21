@@ -1,12 +1,17 @@
 package com.soundcloud.android.stations;
 
+import static butterknife.ButterKnife.findById;
+
 import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,23 +19,36 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.List;
 
+@AutoFactory(allowSubclasses = true)
 class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
 
     private final Navigator navigator;
     private final ImageOperations imageOperations;
+    private final StationInfoClickListener clickListener;
 
-    @Inject
-    public StationTrackRenderer(Navigator navigator, ImageOperations imageOperations) {
+    private final View.OnClickListener onTrackClicked = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            clickListener.onTrackClicked(view.getContext(), (int) view.getTag());
+        }
+    };
+
+    StationTrackRenderer(StationInfoClickListener clickListener,
+                         @Provided Navigator navigator,
+                         @Provided ImageOperations imageOperations) {
+        this.clickListener = clickListener;
         this.navigator = navigator;
         this.imageOperations = imageOperations;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.recommendation_item, parent, false);
+        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recommendation_item, parent, false);
+        view.setOnClickListener(onTrackClicked);
+
+        return view;
     }
 
     @Override
@@ -39,7 +57,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
 
         loadTrackArtwork(view, track);
         bindTrackTitle(view, track.getTitle());
-        bindTrackArtist(view, track.getCreator(), track.getCreatorUrn(), false);
+        bindTrackArtist(view, track.getCreator(), track.getCreatorUrn(), track.isPlaying());
     }
 
     private void bindTrackTitle(View view, String title) {
@@ -47,7 +65,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
     }
 
     private void bindTrackArtist(View view, String creatorName, final Urn creatorUrn, boolean isPlaying) {
-        final TextView artist = ButterKnife.findById(view, R.id.recommendation_artist);
+        final TextView artist = findById(view, R.id.recommendation_artist);
 
         if (isPlaying) {
             artist.setVisibility(View.GONE);
@@ -61,6 +79,8 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
                 }
             });
         }
+
+        findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);
     }
 
     private void loadTrackArtwork(View view, StationInfoTrack track) {

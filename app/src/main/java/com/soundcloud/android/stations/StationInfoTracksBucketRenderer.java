@@ -1,26 +1,36 @@
 package com.soundcloud.android.stations;
 
-import butterknife.ButterKnife;
-import com.soundcloud.android.R;
-import com.soundcloud.android.presentation.CellRenderer;
+import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 
-import android.content.Context;
+import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
+
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
 import java.util.List;
 
+@AutoFactory(allowSubclasses = true)
 class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksBucket> {
 
-    private final StationTracksAdapter adapter;
+    private final StationTrackRendererFactory rendererFactory;
+    private final StationInfoClickListener stationTrackClickListener;
 
-    @Inject
-    public StationInfoTracksBucketRenderer(StationTracksAdapter adapter) {
-        this.adapter = adapter;
+    private StationTracksAdapter adapter;
+    private RecyclerView recyclerView;
+
+    StationInfoTracksBucketRenderer(StationInfoClickListener stationTrackClickListener,
+                                    @Provided StationTrackRendererFactory rendererFactory) {
+        this.stationTrackClickListener = stationTrackClickListener;
+        this.rendererFactory = rendererFactory;
     }
 
     @Override
@@ -31,21 +41,35 @@ class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksB
         return view;
     }
 
-    private void initCarousel(final RecyclerView recyclerView) {
-        final Context context = recyclerView.getContext();
+    void updateNowPlaying(Urn currentlyPlayingUrn) {
+        if (adapter != null) {
+            for (int i = 0; i < adapter.getItemCount(); i++) {
+                final StationInfoTrack track = adapter.getItem(i);
+                final boolean isCurrent = track.getUrn().equals(currentlyPlayingUrn);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                if (track.isPlaying() || isCurrent) {
+                    track.setIsPlaying(isCurrent);
+                    adapter.notifyItemChanged(i);
+                }
+
+                if (isCurrent) {
+                    recyclerView.smoothScrollToPosition(i);
+                }
+            }
+        }
+    }
+
+    private void initCarousel(final RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+        this.adapter = new StationTracksAdapter(rendererFactory.create(stationTrackClickListener));
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext(), HORIZONTAL, false));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<StationInfoTracksBucket> items) {
-        bindCarousel(adapter, items.get(position));
-    }
-
-    private void bindCarousel(StationTracksAdapter adapter, StationInfoTracksBucket tracksBucket) {
-        final List<StationInfoTrack> tracks = tracksBucket.stationTracks();
+        final List<StationInfoTrack> tracks = items.get(position).stationTracks();
 
         adapter.clear();
 
@@ -54,4 +78,5 @@ class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksB
         }
         adapter.notifyDataSetChanged();
     }
+
 }

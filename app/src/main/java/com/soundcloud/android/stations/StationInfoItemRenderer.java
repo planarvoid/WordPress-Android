@@ -3,10 +3,14 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.stations.StationTypes.getHumanReadableType;
 
 import butterknife.ButterKnife;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -15,16 +19,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
 import java.util.List;
 
+@AutoFactory
 class StationInfoItemRenderer implements CellRenderer<StationInfo> {
 
+    private final StationInfoClickListener clickListener;
     private final ImageOperations imageOperations;
     private final Resources resources;
 
-    @Inject
-    StationInfoItemRenderer(Resources resources, ImageOperations imageOperations) {
+    StationInfoItemRenderer(StationInfoClickListener listener,
+                            @Provided Resources resources,
+                            @Provided ImageOperations imageOperations) {
+        this.clickListener = listener;
         this.imageOperations = imageOperations;
         this.resources = resources;
     }
@@ -40,12 +47,18 @@ class StationInfoItemRenderer implements CellRenderer<StationInfo> {
 
         bindArtwork(info, itemView);
         bindTextViews(info, itemView);
-        bindPlayButton(itemView);
+        bindPlayButton(itemView, info.getUrn());
     }
 
-    private void bindPlayButton(View itemView) {
-        // TODO: Add Station Play Click listener
-        ButterKnife.findById(itemView, R.id.btn_play).setVisibility(View.VISIBLE);
+    private void bindPlayButton(View itemView, final Urn stationUrn) {
+        final View playButton = ButterKnife.findById(itemView, R.id.btn_play);
+        playButton.setVisibility(View.VISIBLE);
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickListener.onPlayButtonClicked(view.getContext(), stationUrn);
+            }
+        });
     }
 
     private void bindTextViews(StationInfo info, View itemView) {

@@ -32,7 +32,7 @@ public class StationFixtures {
         return getApiStation(station, ModelFixtures.create(ApiTrack.class, size));
     }
 
-    private static ApiStation getApiStation(Urn station, List<ApiTrack> tracks) {
+    static ApiStation getApiStation(Urn station, List<ApiTrack> tracks) {
         return new ApiStation(getApiStationMetadata(station),
                               new ModelCollection<>(tracks, null, "soundcloud:radio:123123123"));
     }
@@ -53,7 +53,7 @@ public class StationFixtures {
         return newArrayList(transform(trackItems(size), new Function<TrackItem, StationInfoTrack>() {
             @Override
             public StationInfoTrack apply(TrackItem trackItem) {
-                return StationInfoTrack.from(trackItem.getUrn(),
+                return new StationInfoTrack(trackItem.getUrn(),
                                             trackItem.getTitle(),
                                             trackItem.getCreatorName(),
                                             trackItem.getCreatorUrn(),

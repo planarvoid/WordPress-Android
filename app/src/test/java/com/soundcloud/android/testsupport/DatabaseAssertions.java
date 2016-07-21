@@ -93,7 +93,6 @@ import static com.soundcloud.android.storage.Tables.Stations.STATION_URN;
 import static com.soundcloud.android.storage.Tables.Stations.TYPE;
 import static com.soundcloud.android.storage.Tables.StationsCollections.COLLECTION_TYPE;
 import static com.soundcloud.android.storage.Tables.StationsCollections.UPDATED_LOCALLY_AT;
-import static com.soundcloud.android.storage.Tables.StationsPlayQueues.TRACK_URN;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.TABLE;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_AT;
@@ -268,7 +267,7 @@ public class DatabaseAssertions {
     public void assertStationPlayQueueInserted(StationRecord station) {
         assertThat(select(from(StationsPlayQueues.TABLE)
                                   .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())
-                                  .whereIn(TRACK_URN, Lists.transform(station.getTracks(), StationTrack.TO_URN))
+                                  .whereIn(TRACK_ID, Lists.transform(station.getTracks(), StationTrack.TO_TRACK_IDS))
         )).counts(station.getTracks().size());
     }
 
@@ -306,7 +305,8 @@ public class DatabaseAssertions {
 
     public void assertStationPlayQueueContains(Urn stationUrn, List<StationTrack> stationTracks) {
         assertThat(
-                select(from(StationsPlayQueues.TABLE).whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())))
+                select(from(StationsPlayQueues.TABLE)
+                               .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())))
                 .counts(stationTracks.size());
 
         for (int position = 0; position < stationTracks.size(); position++) {
@@ -315,7 +315,7 @@ public class DatabaseAssertions {
                     select(from(StationsPlayQueues.TABLE)
                                    .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
                                    .whereEq(StationsPlayQueues.POSITION, position)
-                                   .whereEq(StationsPlayQueues.TRACK_URN, stationTrack.getTrackUrn().toString())
+                                   .whereEq(StationsPlayQueues.TRACK_ID, stationTrack.getTrackUrn().getNumericId())
                                    .whereEq(StationsPlayQueues.QUERY_URN, stationTrack.getQueryUrn().toString())))
                     .counts(1);
         }

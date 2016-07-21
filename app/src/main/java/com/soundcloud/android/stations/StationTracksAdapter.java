@@ -5,12 +5,9 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 
 import android.view.View;
 
-import javax.inject.Inject;
-
 class StationTracksAdapter extends PagingRecyclerItemAdapter<StationInfoTrack, RecyclerItemAdapter.ViewHolder> {
 
-    @Inject
-    public StationTracksAdapter(StationTrackRenderer cellRenderer) {
+    StationTracksAdapter(StationTrackRenderer cellRenderer) {
         super(cellRenderer);
     }
 

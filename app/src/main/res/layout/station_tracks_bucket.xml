@@ -26,7 +26,8 @@
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/see_all_tracks"
         style="@style/StationInfo.ViewAllText"
-        android:text="@string/stations_see_all_tracks" />
+        android:text="@string/stations_see_all_tracks"
+        android:visibility="gone" />
 
     <View style="@style/Divider.Section" />
 

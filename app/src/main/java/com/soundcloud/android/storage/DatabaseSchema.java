@@ -261,7 +261,7 @@ final class DatabaseSchema {
             ",TrackPolicies." + TableColumns.TrackPolicies.POLICY + " as " + TableColumns.SoundView.POLICIES_POLICY +
             ",TrackPolicies." + TableColumns.TrackPolicies.SYNCABLE + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +
             ",TrackPolicies." + TableColumns.TrackPolicies.SUB_MID_TIER + " as " + TableColumns.SoundView.POLICIES_SUB_MID_TIER +
-            ",TrackPolicies." + TableColumns.TrackPolicies.SUB_HIGH_TIER + " as " + TableColumns.SoundView.POLICIES_SUB_HIGH_TIER +
+            ",TrackPolicies." + TableColumns.TrackPolicies.SUB_HIGH_TIER+ " as " + TableColumns.SoundView.POLICIES_SUB_HIGH_TIER +
             ",TrackPolicies." + TableColumns.TrackPolicies.MONETIZATION_MODEL + " as " + TableColumns.SoundView.POLICIES_MONETIZATION_MODEL +
             ",Users." + TableColumns.Users._ID + " as " + TableColumns.SoundView.USER_ID +
             ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +

@@ -6,9 +6,9 @@ import com.soundcloud.java.functions.Function;
 
 @AutoValue
 public abstract class StationTrack {
-    public static Function<StationTrack, Urn> TO_URN = new Function<StationTrack, Urn>() {
-        public Urn apply(StationTrack track) {
-            return track.getTrackUrn();
+    public static Function<StationTrack, Long> TO_TRACK_IDS = new Function<StationTrack, Long>() {
+        public Long apply(StationTrack track) {
+            return track.getTrackUrn().getNumericId();
         }
     };
 

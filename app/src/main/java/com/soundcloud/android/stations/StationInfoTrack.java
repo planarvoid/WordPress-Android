@@ -1,17 +1,26 @@
 package com.soundcloud.android.stations;
 
-import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
-@AutoValue
-abstract class StationInfoTrack implements ListItem {
+class StationInfoTrack implements ListItem {
 
-    static StationInfoTrack from(Urn urn, String title, String creator, Urn creatorUrn,
-                                 Optional<String> imageUrlTemplate) {
-        return new AutoValue_StationInfoTrack(urn, title, creator, creatorUrn, imageUrlTemplate);
+    private Urn urn;
+    private String title;
+    private String creator;
+    private Urn creatorUrn;
+    private Optional<String> imageUrlTemplate;
+    private boolean isPlaying;
+
+    StationInfoTrack(Urn urn, String title, String creator, Urn creatorUrn, Optional<String> imageUrlTemplate) {
+        this.urn = urn;
+        this.title = title;
+        this.creator = creator;
+        this.creatorUrn = creatorUrn;
+        this.imageUrlTemplate = imageUrlTemplate;
     }
 
     @Override
@@ -21,15 +30,49 @@ abstract class StationInfoTrack implements ListItem {
     }
 
     @Override
-    public abstract Urn getUrn();
+    public Urn getUrn() {
+        return urn;
+    }
 
-    public abstract String getTitle();
+    public String getTitle() {
+        return title;
+    }
 
-    public abstract String getCreator();
+    public String getCreator() {
+        return creator;
+    }
 
-    public abstract Urn getCreatorUrn();
+    public Urn getCreatorUrn() {
+        return creatorUrn;
+    }
 
     @Override
-    public abstract Optional<String> getImageUrlTemplate();
+    public Optional<String> getImageUrlTemplate() {
+        return imageUrlTemplate;
+    }
 
+    public void setIsPlaying(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StationInfoTrack that = (StationInfoTrack) o;
+        return MoreObjects.equal(urn, that.urn) &&
+                MoreObjects.equal(title, that.title) &&
+                MoreObjects.equal(creator, that.creator) &&
+                MoreObjects.equal(creatorUrn, that.creatorUrn) &&
+                MoreObjects.equal(imageUrlTemplate, that.imageUrlTemplate);
+    }
+
+    @Override
+    public int hashCode() {
+        return MoreObjects.hashCode(urn, title, creator, creatorUrn, imageUrlTemplate);
+    }
 }

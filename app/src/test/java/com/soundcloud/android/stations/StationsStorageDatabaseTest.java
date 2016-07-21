@@ -3,8 +3,10 @@ package com.soundcloud.android.stations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.util.Lists;
@@ -178,5 +180,28 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         );
 
         assertThat(recentStationsToSync).containsExactly(expectedProperties);
+    }
+
+    @Test
+    public void shouldReturnStationTracks() {
+        final TestSubscriber<StationInfoTrack> subscriber = new TestSubscriber<>();
+        final List<ApiTrack> apiTracks = ModelFixtures.create(ApiTrack.class, 10);
+        final ApiStation station = StationFixtures.getApiStation(stationUrn, apiTracks);
+        testFixtures().insertStation(station);
+
+        storage.stationTracks(stationUrn).subscribe(subscriber);
+
+        List<StationInfoTrack> receivedTracks = subscriber.getOnNextEvents();
+        assertReceivedStationInfoTracks(receivedTracks, apiTracks);
+        subscriber.assertCompleted();
+    }
+
+    private void assertReceivedStationInfoTracks(List<StationInfoTrack> receivedTracks, List<ApiTrack> apiTracks) {
+        for (int i = 0; i < apiTracks.size(); i++) {
+            final ApiTrack apiTrack = apiTracks.get(i);
+            assertThat(new StationInfoTrack(apiTrack.getUrn(), apiTrack.getTitle(), apiTrack.getUserName(),
+                                            apiTrack.getUser().getUrn(), apiTrack.getImageUrlTemplate()))
+                    .isEqualTo(receivedTracks.get(i));
+        }
     }
 }

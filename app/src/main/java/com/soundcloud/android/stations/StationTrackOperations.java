@@ -21,7 +21,7 @@ class StationTrackOperations {
         this.scheduler = scheduler;
     }
 
-    Observable<List<StationInfoTrack>> initialStationTracks(Urn stationUrn) {
+    Observable<List<StationInfoTrack>> stationTracks(Urn stationUrn) {
         return stationsStorage.stationTracks(stationUrn).toList()
                               .subscribeOn(scheduler);
     }

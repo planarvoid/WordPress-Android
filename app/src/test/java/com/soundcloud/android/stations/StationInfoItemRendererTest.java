@@ -25,6 +25,7 @@ import android.widget.TextView;
 public class StationInfoItemRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
+    @Mock private StationInfoAdapter.StationInfoClickListener listener;
 
     private View itemView;
     private StationInfoItemRenderer renderer;
@@ -33,7 +34,7 @@ public class StationInfoItemRendererTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         itemView = LayoutInflater.from(context()).inflate(
                 R.layout.station_info_view, new FrameLayout(context()), false);
-        renderer = new StationInfoItemRenderer(resources(), imageOperations);
+        renderer = new StationInfoItemRenderer(listener, resources(), imageOperations);
     }
 
     @Test

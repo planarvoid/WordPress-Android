@@ -54,7 +54,7 @@ class StoreStationCommand extends DefaultWriteStorageCommand<StationRecord, Writ
         return ContentValuesBuilder
                 .values()
                 .put(StationsPlayQueues.STATION_URN, station.getUrn().toString())
-                .put(StationsPlayQueues.TRACK_URN, stationTrack.getTrackUrn().toString())
+                .put(StationsPlayQueues.TRACK_ID, stationTrack.getTrackUrn().getNumericId())
                 .put(StationsPlayQueues.QUERY_URN, stationTrack.getQueryUrn().toString())
                 .put(StationsPlayQueues.POSITION, trackPosition)
                 .get();

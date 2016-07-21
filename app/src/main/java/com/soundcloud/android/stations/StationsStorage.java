@@ -61,7 +61,7 @@ class StationsStorage {
         @Override
         public StationTrack call(CursorReader cursorReader) {
             return StationTrack.create(
-                    new Urn(cursorReader.getString(StationsPlayQueues.TRACK_URN)),
+                    Urn.forTrack(cursorReader.getLong(StationsPlayQueues.TRACK_ID)),
                     new Urn(cursorReader.getString(StationsPlayQueues.QUERY_URN))
             );
         }
@@ -101,18 +101,19 @@ class StationsStorage {
     }
 
     Observable<StationInfoTrack> stationTracks(Urn stationUrn) {
-        // TODO: This is only temporary, I want to run a DB migration to change track_urn to store only ID instead of urn
         final Query query = Query.from(Table.SoundView.name())
+                                 .innerJoin(StationsPlayQueues.TABLE.name(),
+                                            TableColumns.SoundView._ID,
+                                            StationsPlayQueues.TRACK_ID.name())
                                  .select(TableColumns.SoundView._ID,
                                          TableColumns.SoundView.TITLE,
                                          TableColumns.SoundView.USERNAME,
                                          TableColumns.SoundView.USER_ID,
                                          TableColumns.SoundView.ARTWORK_URL)
                                  .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                                 .limit(30);
-
-        return propellerRx.query(query)
-                          .map(new StationTrackMapper());
+                                 .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
+                                 .order(StationsPlayQueues.POSITION, Query.Order.ASC);
+        return propellerRx.query(query).map(new StationTrackMapper());
     }
 
     Observable<StationTrack> loadPlayQueue(Urn station, int startPosition) {
@@ -190,7 +191,7 @@ class StationsStorage {
 
     private Query buildTracksListQuery(Urn stationUrn) {
         return Query.from(StationsPlayQueues.TABLE)
-                    .select(StationsPlayQueues.TRACK_URN, StationsPlayQueues.QUERY_URN)
+                    .select(StationsPlayQueues.TRACK_ID, StationsPlayQueues.QUERY_URN)
                     .whereEq(StationsPlayQueues.STATION_URN, stationUrn)
                     .order(StationsPlayQueues.POSITION, Query.Order.ASC);
     }
@@ -241,7 +242,7 @@ class StationsStorage {
 
         @Override
         public StationInfoTrack map(CursorReader reader) {
-            return StationInfoTrack.from(
+            return new StationInfoTrack(
                     Urn.forTrack(reader.getLong(TableColumns.SoundView._ID)),
                     reader.getString(TableColumns.SoundView.TITLE),
                     reader.getString(TableColumns.SoundView.USERNAME),
