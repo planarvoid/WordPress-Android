@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class RecentStationsSyncProvider extends SyncerRegistry.SyncProvider {
+
     private final Provider<RecentStationsSyncer> syncerProvider;
     private final StationsStorage stationsStorage;
 
