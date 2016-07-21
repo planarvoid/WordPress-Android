@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
@@ -14,6 +15,7 @@ import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
+import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.CollectionEvent;
@@ -637,6 +639,23 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .inOfflineLikes(true)
                                                .eventStage("complete")
         );
+    }
+
+    @Test
+    public void createsJsonFromRichMediaErrorEvent() throws ApiMapperException {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd, TestPlayerTransitions.buffering(), videoAd.getFirstSource());
+
+        jsonDataBuilder.buildForAdPlaybackErrorEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("rich_media_stream_error", BOOGALOO_VERSION, event.getTimestamp())
+                                            .mediaType("video")
+                                            .errorName("failToBuffer")
+                                            .host("http://videourl.com/video.mp4")
+                                            .format("mp4")
+                                            .bitrate(1001)
+                                            .playerType("player")
+                                            .protocol("hls"));
     }
 
     @Test

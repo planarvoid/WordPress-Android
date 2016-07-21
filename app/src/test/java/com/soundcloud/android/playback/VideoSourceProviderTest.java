@@ -11,6 +11,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.optional.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -171,6 +172,20 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, VERTICAL_1080P);
+    }
+
+    @Test
+    public void getCurrentSourceReturnsNothingIfNoSourceSelected() {
+       assertThat(videoSourceProvider.getCurrentSource()).isEqualTo(Optional.absent());
+    }
+
+    @Test
+    public void getCurrentSourceReturnsLastSelectedSourceWhenASourceWasPreviouslySelected() {
+        when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
+        when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_720P);
+
+        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        assertThat(videoSourceProvider.getCurrentSource()).isEqualTo(Optional.of(videoSource));
     }
 
     private void assertVideoSource(VideoSource videoSource, ApiVideoSource apiVideoSource) {

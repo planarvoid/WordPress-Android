@@ -14,6 +14,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
+import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -45,6 +46,9 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
+
+    // Ads specific events
+    private static final String RICH_MEDIA_ERROR_EVENT = "rich_media_stream_error";
     private static final String RICH_MEDIA_STREAM_EVENT = "rich_media_stream";
     private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
 
@@ -188,6 +192,17 @@ public class EventLoggerV1JsonDataBuilder {
                                  .bitrate(event.getBitrate())
                                  .metric(getRichMediaPerformanceEventType(event.getMetric()), event.getMetricValue())
                                  .host(event.getCdnHost()));
+    }
+
+    public String buildForAdPlaybackErrorEvent(AdPlaybackErrorEvent eventData) {
+        return transform(buildBaseEvent(RICH_MEDIA_ERROR_EVENT, eventData)
+                .mediaType(eventData.getMediaType())
+                .protocol(eventData.getProtocol())
+                .playerType(eventData.getPlayerType())
+                .format(getRichMediaFormatName(eventData.getFormat()))
+                .bitrate(eventData.getBitrate())
+                .errorName(eventData.getKind())
+                .host(eventData.getHost()));
     }
 
     private String getRichMediaFormatName(String format) {

@@ -6,16 +6,19 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
+import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -51,6 +54,7 @@ public class AdsController {
     private final AdsOperations adsOperations;
     private final VisualAdImpressionOperations visualAdImpressionOperations;
     private final AdOverlayImpressionOperations adOverlayImpressionOperations;
+    private final VideoSourceProvider videoSourceProvider;
     private final PlayQueueManager playQueueManager;
     private final TrackRepository trackRepository;
     private final Scheduler scheduler;
@@ -126,35 +130,38 @@ public class AdsController {
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
+                         VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository) {
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             playQueueManager, trackRepository, AndroidSchedulers.mainThread());
+             videoSourceProvider, playQueueManager, trackRepository, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
+                         VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
                          Scheduler scheduler) {
 
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-             playQueueManager, trackRepository, scheduler, DEFAULT_OPERATION_STALE_TIME);
+             videoSourceProvider, playQueueManager, trackRepository, scheduler, DEFAULT_OPERATION_STALE_TIME);
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
+                         VideoSourceProvider videoSourceProvider,
                          PlayQueueManager playQueueManager,
                          TrackRepository trackRepository,
                          Scheduler scheduler,
                          long fetchOperationStaleTime) {
-
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.visualAdImpressionOperations = visualAdImpressionOperations;
         this.adOverlayImpressionOperations = adOverlayImpressionOperations;
+        this.videoSourceProvider = videoSourceProvider;
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.scheduler = scheduler;
@@ -347,14 +354,23 @@ public class AdsController {
                                                      public void onNext(Long args) {
                                                          Log.i(ADS_TAG,
                                                                "Skipping ad after waiting " + FAILED_AD_WAIT_SECS + " seconds for it to load.");
-                                                         final AdFailedToBufferEvent event =
-                                                                 new AdFailedToBufferEvent(state.getPlayingItemUrn(),
-                                                                                           state.getProgress(),
-                                                                                           FAILED_AD_WAIT_SECS);
-                                                         eventBus.publish(EventQueue.TRACKING, event);
+                                                         eventBus.publish(EventQueue.TRACKING, createErrorEvent(state));
                                                          playQueueManager.autoMoveToNextPlayableItem();
                                                      }
                                                  });
+        }
+
+        private TrackingEvent createErrorEvent(PlayStateEvent state) {
+            final AdData adData = adsOperations.getCurrentTrackAdData().get();
+            if (adData instanceof VideoAd && videoSourceProvider.getCurrentSource().isPresent()) {
+                return AdPlaybackErrorEvent.failToBuffer(adData,
+                                                         state.getTransition(),
+                                                         videoSourceProvider.getCurrentSource().get());
+            } else {
+                return new AdFailedToBufferEvent(state.getPlayingItemUrn(),
+                                                 state.getProgress(),
+                                                 FAILED_AD_WAIT_SECS);
+            }
         }
     }
 
