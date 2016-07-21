@@ -51,7 +51,7 @@ class ChartListItemRenderer implements CellRenderer<ChartListItem> {
             @Override
             public void onClick(View view) {
                 navigator.openChart(view.getContext(), chartListItem.getGenre(), chartListItem.getChartType(),
-                                    headingFor(chartListItem, view, "header"));
+                                    appendCharts(headingFor(chartListItem, view, "soundcloud")));
             }
         });
     }
@@ -62,6 +62,10 @@ class ChartListItemRenderer implements CellRenderer<ChartListItem> {
         final String headingKey = toResourceKey("charts_", suffix);
         final int headingResourceId = resources.getIdentifier(headingKey, "string", view.getContext().getPackageName());
         return (headingResourceId != 0) ? resources.getString(headingResourceId) : chartListItem.getDisplayName();
+    }
+
+    private String appendCharts(String heading) {
+        return resources.getString(R.string.charts_page_header, heading);
     }
 
 }

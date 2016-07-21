@@ -279,7 +279,7 @@
 
         <!-- discovery -->
         <activity android:label="@string/activity_title_view_all_recommendations" android:name=".discovery.ViewAllRecommendedTracksActivity"/>
-        <activity android:label="@string/charts_header" android:name=".discovery.ChartActivity"/>
+        <activity android:name=".discovery.ChartActivity"/>
         <activity android:label="@string/all_genres" android:name=".discovery.AllGenresActivity"/>
         <activity android:windowSoftInputMode="stateAlwaysHidden" android:name=".discovery.SearchActivity" android:theme="@style/Theme.SoundCloud.Translucent"/>
         <activity android:name=".search.SearchPremiumResultsActivity"/>

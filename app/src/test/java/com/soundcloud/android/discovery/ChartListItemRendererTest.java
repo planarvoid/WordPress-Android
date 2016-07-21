@@ -66,7 +66,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigator).openChart(context(), genre, ChartType.TOP, "Rock");
+        verify(navigator).openChart(context(), genre, ChartType.TOP, "Rock charts");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigator).openChart(context(), genre, ChartType.TOP, "Charts");
+        verify(navigator).openChart(context(), genre, ChartType.TOP, "SoundCloud charts");
     }
 
     private ChartListItem createChartListItem(ChartBucketType chartBucketType, Urn genre) {
