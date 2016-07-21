@@ -4,14 +4,11 @@ import static com.soundcloud.android.storage.Tables.ChartTracks;
 import static com.soundcloud.android.storage.Tables.Charts;
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.sync.charts.ApiChartBucket;
-import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -42,36 +39,31 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>
                 }
             }
 
-            private void storeChartBucket(PropellerDatabase propeller, List<ApiChart> bucket, int bucketType) {
+            private void storeChartBucket(PropellerDatabase propeller, List<ApiChart<ApiImageResource>> bucket, int bucketType) {
                 clearBucket(bucketType);
-                for (final ApiChart apiChart : bucket) {
+                for (final ApiChart<ApiImageResource> apiChart : bucket) {
                     //Store the chart
                     final InsertResult chartInsert = propeller.insert(Charts.TABLE,
                                                                       buildChartContentValues(apiChart, bucketType));
                     step(chartInsert);
 
                     //Store chart tracks
-                    for (ApiTrack track : apiChart.tracks()) {
-                        writeTrack(propeller, track);
+                    for (ImageResource track : apiChart.tracks()) {
                         step(propeller.upsert(ChartTracks.TABLE,
                                               buildChartTrackContentValues(track, chartInsert.getRowId(), bucketType)));
                     }
                 }
             }
-
-            //TODO: Create a way of sharing the track writing logic, with a base class (e.g. WriteTrackTransaction)
-            private void writeTrack(PropellerDatabase propeller, ApiTrack seedTrack) {
-                step(propeller.upsert(Table.Users, StoreUsersCommand.buildUserContentValues(seedTrack.getUser())));
-                step(propeller.upsert(Table.Sounds, StoreTracksCommand.buildTrackContentValues(seedTrack)));
-                step(propeller.upsert(Table.TrackPolicies, StoreTracksCommand.buildPolicyContentValues(seedTrack)));
-            }
         });
     }
 
-    private ContentValues buildChartTrackContentValues(TrackRecord chartTrack, long chartId, int bucketType) {
+    private ContentValues buildChartTrackContentValues(ImageResource chartTrack, long chartId, int bucketType) {
         final ContentValues contentValues = new ContentValues();
         contentValues.put(ChartTracks.CHART_ID.name(), chartId);
-        contentValues.put(ChartTracks.SOUND_ID.name(), chartTrack.getUrn().getNumericId());
+        contentValues.put(ChartTracks.TRACK_ID.name(), chartTrack.getUrn().getNumericId());
+        if (chartTrack.getImageUrlTemplate().isPresent()) {
+            contentValues.put(ChartTracks.TRACK_ARTWORK.name(), chartTrack.getImageUrlTemplate().get());
+        }
         contentValues.put(Charts.BUCKET_TYPE.name(), bucketType);
         return contentValues;
     }

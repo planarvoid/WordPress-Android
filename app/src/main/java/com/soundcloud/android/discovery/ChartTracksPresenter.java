@@ -12,6 +12,7 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Iterables;
@@ -29,7 +30,7 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-class ChartTracksPresenter extends RecyclerViewPresenter<PagedChartTracks, ChartTrackListItem> {
+class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, ChartTrackListItem> {
 
     private static final Predicate<ChartTrackListItem> IS_TRACK = new Predicate<ChartTrackListItem>() {
         public boolean apply(ChartTrackListItem input) {
@@ -45,23 +46,18 @@ class ChartTracksPresenter extends RecyclerViewPresenter<PagedChartTracks, Chart
         };
     }
 
-    private static final Func1<PagedChartTracks, Iterable<ChartTrackListItem>> TO_PRESENTATION_MODELS =
-            new Func1<PagedChartTracks, Iterable<ChartTrackListItem>>() {
+    private static final Func1<ApiChart<ApiTrack>, Iterable<ChartTrackListItem>> TO_PRESENTATION_MODELS =
+            new Func1<ApiChart<ApiTrack>, Iterable<ChartTrackListItem>>() {
                 @Override
-                public Iterable<ChartTrackListItem> call(final PagedChartTracks pagedChartTracks) {
+                public Iterable<ChartTrackListItem> call(final ApiChart<ApiTrack> apiChart) {
 
-                    final List<ChartTrackListItem> chartTrackListItems = new ArrayList<>(pagedChartTracks.items()
-                                                                                                         .getCollection()
-                                                                                                         .size() + 2);
-                    if (pagedChartTracks.firstPage()) {
-                        chartTrackListItems.add(ChartTrackListItem.forHeader(pagedChartTracks.chartType()));
-                    }
+                    final List<ChartTrackListItem> chartTrackListItems = new ArrayList<>(apiChart.tracks()
+                                                                                                 .getCollection()
+                                                                                                 .size() + 2);
+                    chartTrackListItems.add(ChartTrackListItem.forHeader(apiChart.type()));
                     Iterables.addAll(chartTrackListItems,
-                                     transform(pagedChartTracks.items(),
-                                               toChartTrackListItem(pagedChartTracks.chartType())));
-                    if (pagedChartTracks.lastPage()) {
-                        chartTrackListItems.add(ChartTrackListItem.forFooter(pagedChartTracks.lastUpdated()));
-                    }
+                                     transform(apiChart.tracks(), toChartTrackListItem(apiChart.type())));
+                    chartTrackListItems.add(ChartTrackListItem.forFooter(apiChart.lastUpdated()));
                     return chartTrackListItems;
                 }
             };
@@ -103,13 +99,12 @@ class ChartTracksPresenter extends RecyclerViewPresenter<PagedChartTracks, Chart
     }
 
     @Override
-    protected CollectionBinding<PagedChartTracks, ChartTrackListItem> onBuildBinding(Bundle bundle) {
+    protected CollectionBinding<ApiChart<ApiTrack>, ChartTrackListItem> onBuildBinding(Bundle bundle) {
         final ChartType chartType = (ChartType) bundle.getSerializable(ChartTracksFragment.EXTRA_TYPE);
         final Urn chartUrn = bundle.getParcelable(ChartTracksFragment.EXTRA_GENRE_URN);
         return CollectionBinding
-                .from(chartsOperations.firstPagedTracks(chartType, chartUrn.getStringId()), TO_PRESENTATION_MODELS)
+                .from(chartsOperations.tracks(chartType, chartUrn.getStringId()), TO_PRESENTATION_MODELS)
                 .withAdapter(chartTracksAdapter)
-                .withPager(chartsOperations.nextPagedTracks())
                 .build();
     }
 

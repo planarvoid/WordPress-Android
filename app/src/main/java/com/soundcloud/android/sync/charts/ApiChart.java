@@ -1,27 +1,29 @@
 package com.soundcloud.android.sync.charts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
 
-public class ApiChart {
+import java.util.Date;
+
+public class ApiChart<T extends ImageResource> {
 
     private final String displayName;
     private final Urn genre;
     private final ChartType type;
     private final ChartCategory category;
-    private final Long lastUpdated;
-    private final ModelCollection<ApiTrack> tracks;
+    private final Date lastUpdated;
+    private final ModelCollection<T> tracks;
 
     public ApiChart(@JsonProperty("displayName") String displayName,
                     @JsonProperty("genre") final Urn genre,
                     @JsonProperty("type") ChartType type,
                     @JsonProperty("category") ChartCategory category,
-                    @JsonProperty("last_updated") Long lastUpdated,
-                    @JsonProperty("tracks") ModelCollection<ApiTrack> tracks) {
+                    @JsonProperty("last_updated") Date lastUpdated,
+                    @JsonProperty("tracks") ModelCollection<T> tracks) {
         this.displayName = displayName;
         this.genre = genre;
         this.type = type;
@@ -46,11 +48,11 @@ public class ApiChart {
         return category;
     }
 
-    public Long lastUpdated() {
+    public Date lastUpdated() {
         return lastUpdated;
     }
 
-    public ModelCollection<ApiTrack> tracks() {
+    public ModelCollection<T> tracks() {
         return tracks;
     }
 }

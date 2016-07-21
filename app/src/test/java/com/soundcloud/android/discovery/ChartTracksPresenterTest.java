@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -17,9 +18,9 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.rx.Pager;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ChartTracksPresenterTest extends AndroidUnitTest {
@@ -37,7 +39,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem(1);
     final ChartTrackListItem.Track SECOND_TRACK_ITEM = createChartTrackListItem(2);
     final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3);
-    final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.forFooter(1);
+    final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.forFooter(new Date(10));
     final List<ChartTrackListItem> CHART_TRACK_ITEMS = Lists.newArrayList(HEADER,
                                                                           FIRST_TRACK_ITEM,
                                                                           SECOND_TRACK_ITEM,
@@ -61,8 +63,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
                                                         chartTracksAdapter,
                                                         playbackInitiator,
                                                         providerOf(expandPlayerSubscriber));
-        when(chartsOperations.firstPagedTracks(TOP, genre)).thenReturn(Observable.<PagedChartTracks>empty());
-        when(chartsOperations.nextPagedTracks()).thenReturn(mock(Pager.PagingFunction.class));
+        when(chartsOperations.tracks(TOP, genre)).thenReturn(Observable.<ApiChart<ApiTrack>>empty());
         chartTracksPresenter.onBuildBinding(getChartArguments());
     }
 

@@ -13,6 +13,7 @@ import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.sync.charts.ApiChartBucket;
+import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.propeller.WriteResult;
 
@@ -37,16 +38,16 @@ class ChartGenresSyncer implements Callable<Boolean> {
         final ApiRequest request = ApiRequest.get(ApiEndpoints.CHARTS_GENRES.path())
                                              .addQueryParam("type", ChartType.TRENDING.value())
                                              .forPrivateApi().build();
-        final ModelCollection<ApiChart> apiCharts = getApiCharts(request);
+        final ModelCollection<ApiChart<ApiImageResource>> apiCharts = getApiCharts(request);
         final List<ApiChartBucket> apiChartBuckets = singletonList(new ApiChartBucket(apiCharts.getCollection(),
                                                                                       BUCKET_TYPE_ALL_GENRES));
         final WriteResult writeResult = storeChartsCommand.call(apiChartBuckets);
         return writeResult.success();
     }
 
-    private ModelCollection<ApiChart> getApiCharts(ApiRequest request)
+    private ModelCollection<ApiChart<ApiImageResource>> getApiCharts(ApiRequest request)
             throws IOException, ApiRequestException, ApiMapperException {
-        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiChart>>() {
+        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiChart<ApiImageResource>>>() {
         });
     }
 }

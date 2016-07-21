@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
-import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncOperations;
@@ -16,7 +14,6 @@ import com.soundcloud.android.sync.SyncOperations.Result;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.java.optional.Optional;
 import org.assertj.core.util.Lists;
@@ -30,19 +27,16 @@ import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class ChartsOperationsTest extends AndroidUnitTest {
     private static final String GENRE = "all-music";
     private static final ChartType TYPE = ChartType.TOP;
-    private static final String NEXT_PAGE_LINK = "http://link";
 
     private final PublishSubject<Result> syncSubject = PublishSubject.create();
     private final TestSubscriber<ChartBucket> subscriber = new TestSubscriber<>();
-    private final TestSubscriber<PagedChartTracks> chartTrackSubscriber = new TestSubscriber<>();
+    private final TestSubscriber<ApiChart<ApiTrack>> chartTrackSubscriber = new TestSubscriber<>();
     private final TestSubscriber<List<Chart>> genresSubscriber = new TestSubscriber<>();
     private final Chart musicChart = createGenreChart(1L, ChartCategory.MUSIC);
     private final Chart audioChart = createGenreChart(2L, ChartCategory.AUDIO);
@@ -115,46 +109,20 @@ public class ChartsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void returnsChartsFirstPageFromApi() {
-        final ApiChart apiChart = createApiChart(Optional.of(NEXT_PAGE_LINK), ChartCategory.MUSIC);
+    public void returnsApiChartFromApi() {
+        final ApiChart<ApiTrack> apiChart = ChartsFixtures.createApiChart(GENRE, TYPE);
         when(chartsApi.chartTracks(TYPE, GENRE)).thenReturn(Observable.just(apiChart));
 
-        operations.firstPagedTracks(TYPE, GENRE).subscribe(chartTrackSubscriber);
+        operations.tracks(TYPE, GENRE).subscribe(chartTrackSubscriber);
 
         chartTrackSubscriber.assertValueCount(1);
-        final PagedChartTracks chartTrackItems = chartTrackSubscriber.getOnNextEvents().get(0);
+        final ApiChart<ApiTrack> chartTrackItems = chartTrackSubscriber.getOnNextEvents().get(0);
 
-        assertThat(chartTrackItems.items().getNextLink().get().getHref()).isEqualTo(NEXT_PAGE_LINK);
-
-        assertThat(chartTrackItems.firstPage()).isTrue();
-        assertThat((chartTrackItems.items().getCollection().get(0)).getUrn()).isEqualTo(apiChart.tracks()
-                                                                                                .getCollection()
-                                                                                                .get(0)
-                                                                                                .getUrn());
-        verify(storeTracksCommand).toAction1().call(apiChart.tracks());
-    }
-
-    @Test
-    public void returnsChartsNextAndLastPageFromApi() {
-        final ApiChart apiChart = createApiChart(Optional.of(NEXT_PAGE_LINK), ChartCategory.MUSIC);
-        final ApiChart nextChart = createApiChart(Optional.<String>absent(), ChartCategory.MUSIC);
-        final PagedChartTracks page1 = new PagedChartTracks(false, apiChart);
-        when(chartsApi.chartTracks(NEXT_PAGE_LINK)).thenReturn(Observable.just(nextChart));
-
-        operations.nextPagedTracks().call(page1).subscribe(chartTrackSubscriber);
-
-        chartTrackSubscriber.assertValueCount(1);
-        final PagedChartTracks chartTrackItems = chartTrackSubscriber.getOnNextEvents().get(0);
-
-        assertThat(chartTrackItems.items().getNextLink()).isEqualTo(Optional.absent());
-
-        assertThat(chartTrackItems.lastPage()).isTrue();
-
-        assertThat((chartTrackItems.items().getCollection().get(0)).getUrn()).isEqualTo(nextChart.tracks()
+        assertThat((chartTrackItems.tracks().getCollection().get(0)).getUrn()).isEqualTo(apiChart.tracks()
                                                                                                  .getCollection()
                                                                                                  .get(0)
                                                                                                  .getUrn());
-        verify(storeTracksCommand).toAction1().call(nextChart.tracks());
+        verify(storeTracksCommand).toAction1().call(apiChart.tracks());
     }
 
     @Test
@@ -220,20 +188,6 @@ public class ChartsOperationsTest extends AndroidUnitTest {
                             new Urn("soundcloud:chart"),
                             chartBucketType,
                             Collections.singletonList(trackArtwork));
-    }
-
-    private ApiChart createApiChart(Optional<String> nextPageLink, ChartCategory chartCategory) {
-        ApiTrack chartTrack = ModelFixtures.create(ApiTrack.class);
-        Map<String, Link> links = new HashMap<>();
-        if (nextPageLink.isPresent()) {
-            links.put(ModelCollection.NEXT_LINK_REL, new Link(nextPageLink.get()));
-        }
-        return new ApiChart("title",
-                            new Urn("soundcloud:chart:"+ GENRE),
-                            TYPE,
-                            chartCategory,
-                            12345L,
-                            new ModelCollection<>(Collections.singletonList(chartTrack), links));
     }
 
     private void initChartsWithTracks(ChartBucket charts) {

@@ -10,6 +10,7 @@ import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.discovery.Chart;
 import com.soundcloud.android.discovery.ChartBucketType;
+import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
@@ -397,7 +398,7 @@ public class DatabaseFixtures {
         return station;
     }
 
-    public Chart insertChart(ApiChart apiChart, int bucketType) {
+    public Chart insertChart(ApiChart<ApiImageResource> apiChart, int bucketType) {
         final ContentValues cv = new ContentValues();
         cv.put(Tables.Charts.DISPLAY_NAME.name(), apiChart.displayName());
         if (apiChart.genre() != null) {
@@ -408,11 +409,10 @@ public class DatabaseFixtures {
         cv.put(Tables.Charts.BUCKET_TYPE.name(), bucketType);
         long chartLocalId = insertInto(Tables.Charts.TABLE, cv);
 
-        final ApiUser user = insertUser();
-        final List<ApiTrack> apiChartTracks = apiChart.tracks().getCollection();
+        final List<ApiImageResource> apiChartTracks = apiChart.tracks().getCollection();
         final List<TrackArtwork> trackArtworks = new ArrayList<>(apiChartTracks.size());
-        for (final ApiTrack track : apiChartTracks) {
-            trackArtworks.add(insertChartTrack(track, user, chartLocalId));
+        for (final ApiImageResource track : apiChartTracks) {
+            trackArtworks.add(insertChartTrack(track, chartLocalId));
         }
         return Chart.create(chartLocalId,
                             apiChart.type(),
@@ -432,13 +432,15 @@ public class DatabaseFixtures {
         }
     }
 
-    private TrackArtwork insertChartTrack(ApiTrack seedTrack, ApiUser apiUser, long chartLocalId) {
-        insertTrackWithUser(seedTrack, apiUser);
+    private TrackArtwork insertChartTrack(ApiImageResource imageResource, long chartLocalId) {
         final ContentValues cv = new ContentValues();
         cv.put(Tables.ChartTracks.CHART_ID.name(), chartLocalId);
-        cv.put(Tables.ChartTracks.SOUND_ID.name(), seedTrack.getUrn().getNumericId());
+        cv.put(Tables.ChartTracks.TRACK_ID.name(), imageResource.getUrn().getNumericId());
+        if (imageResource.getImageUrlTemplate().isPresent()) {
+            cv.put(Tables.ChartTracks.TRACK_ARTWORK.name(), imageResource.getImageUrlTemplate().get());
+        }
         insertInto(Tables.ChartTracks.TABLE, cv);
-        return TrackArtwork.create(seedTrack.getUrn(), seedTrack.getImageUrlTemplate());
+        return TrackArtwork.create(imageResource.getUrn(), imageResource.getImageUrlTemplate());
     }
 
     private ContentValues getStationContentValues(StationRecord station, long createdAt, int lastPlayedPosition) {

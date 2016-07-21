@@ -386,15 +386,16 @@ public interface Tables {
         // columns
         public static final Column _ID = Column.create(TABLE, "_id");
         public static final Column CHART_ID = Column.create(TABLE, "chart_id");
-        public static final Column SOUND_ID = Column.create(TABLE, "sound_id");
+        public static final Column TRACK_ID = Column.create(TABLE, "track_id");
+        public static final Column TRACK_ARTWORK = Column.create(TABLE, "track_artwork");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS ChartTracks (" +
                 "_id INTEGER PRIMARY KEY," +
                 "chart_id INTEGER, " +
-                "sound_id INTEGER, " +
+                "track_id INTEGER, " +
+                "track_artwork TEXT, " +
                 "bucket_type INTEGER," +
-                "FOREIGN KEY(chart_id) REFERENCES Charts(_id), " +
-                "FOREIGN KEY(sound_id) REFERENCES Sounds(_id) " +
+                "FOREIGN KEY(chart_id) REFERENCES Charts(_id) " +
                 ");";
 
         protected ChartTracks() {

@@ -2,13 +2,15 @@ package com.soundcloud.android.discovery;
 
 import com.soundcloud.android.api.model.ChartType;
 
+import java.util.Date;
+
 abstract class ChartTrackListItem {
 
     static ChartTrackListItem.Header forHeader(ChartType chartType) {
         return new Header(chartType);
     }
 
-    static ChartTrackListItem.Footer forFooter(long lastUpdatedAt) {
+    static ChartTrackListItem.Footer forFooter(Date lastUpdatedAt) {
         return new Footer(lastUpdatedAt);
     }
 
@@ -49,9 +51,9 @@ abstract class ChartTrackListItem {
     }
 
     static class Footer extends ChartTrackListItem {
-        final long lastUpdatedAt;
+        final Date lastUpdatedAt;
 
-        private Footer(long lastUpdatedAt) {
+        private Footer(Date lastUpdatedAt) {
             super(Kind.ChartFooter);
             this.lastUpdatedAt = lastUpdatedAt;
         }

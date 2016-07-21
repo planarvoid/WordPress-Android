@@ -1,11 +1,7 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.storage.Table.SoundView;
-import static com.soundcloud.android.storage.TableColumns.SoundView.ARTWORK_URL;
-import static com.soundcloud.android.storage.TableColumns.SoundView._ID;
 import static com.soundcloud.android.storage.Tables.Charts;
 import static com.soundcloud.java.collections.Lists.newArrayList;
-import static com.soundcloud.propeller.query.Field.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.api.model.ChartCategory;
@@ -85,7 +81,6 @@ class ChartsStorage {
 
     @NonNull
     private Query chartsWithTracksQuery() {
-        final Where soundsViewJoin = filter().whereEq(ChartTracks.SOUND_ID, SoundView.field(_ID));
         return Query.from(Charts.TABLE)
                     .select(Charts._ID,
                             Charts.TYPE,
@@ -93,10 +88,9 @@ class ChartsStorage {
                             Charts.CATEGORY,
                             Charts.GENRE,
                             Charts.BUCKET_TYPE,
-                            ChartTracks.SOUND_ID,
-                            field(SoundView.field(ARTWORK_URL)).as(ARTWORK_URL))
-                    .innerJoin(ChartTracks.TABLE, Charts._ID, ChartTracks.CHART_ID)
-                    .innerJoin(SoundView.name(), soundsViewJoin);
+                            ChartTracks.TRACK_ID,
+                            ChartTracks.TRACK_ARTWORK)
+                    .innerJoin(ChartTracks.TABLE, Charts._ID, ChartTracks.CHART_ID);
     }
 
     private Func1<List<Chart>, ChartBucket> toChartBucket() {
@@ -130,9 +124,9 @@ class ChartsStorage {
                                              cursorReader.getString(Charts.DISPLAY_NAME),
                                              new Urn(genre),
                                              toChartBucketType(cursorReader.getInt(Charts.BUCKET_TYPE)));
-            final TrackArtwork trackArtwork = TrackArtwork.create(Urn.forTrack(cursorReader.getLong(ChartTracks.SOUND_ID)),
-                                                                  Optional.fromNullable(cursorReader.getString(
-                                                                          ARTWORK_URL)));
+            final TrackArtwork trackArtwork = TrackArtwork.create(
+                    Urn.forTrack(cursorReader.getLong(ChartTracks.TRACK_ID)),
+                    Optional.fromNullable(cursorReader.getString(ChartTracks.TRACK_ARTWORK)));
             return new Pair<>(chart, trackArtwork);
         }
 

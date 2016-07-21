@@ -11,8 +11,8 @@ public class ApiFeaturedCharts {
 
     private final List<ApiChartBucket> apiChartBuckets;
 
-    public ApiFeaturedCharts(@JsonProperty("global") ModelCollection<ApiChart> global,
-                             @JsonProperty("featuredGenres") ModelCollection<ApiChart> featuredGenres) {
+    public ApiFeaturedCharts(@JsonProperty("global") ModelCollection<ApiChart<ApiImageResource>> global,
+                             @JsonProperty("featuredGenres") ModelCollection<ApiChart<ApiImageResource>> featuredGenres) {
         apiChartBuckets = new ArrayList<>(2);
         apiChartBuckets.add(new ApiChartBucket(global.getCollection(), Tables.Charts.BUCKET_TYPE_GLOBAL));
         apiChartBuckets.add(new ApiChartBucket(featuredGenres.getCollection(),
