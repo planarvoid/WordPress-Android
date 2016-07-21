@@ -35,7 +35,7 @@ class PlaylistsCollectionPresenter extends CollectionPresenter {
     protected List<CollectionItem> buildCollectionItems(MyCollection myCollection) {
         List<PlaylistItem> playlistItems = myCollection.getPlaylistItems();
         List<CollectionItem> collectionItems = new ArrayList<>(playlistItems.size() + 2);
-        collectionItems.addAll(playlistCollectionItems(playlistItems));
+        collectionItems.addAll(playlistCollectionItems(playlistItems, true));
         return collectionItems;
     }
 

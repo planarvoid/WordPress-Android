@@ -6,6 +6,10 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <View
+        android:id="@+id/header_top_separator"
+        style="@style/Divider.Background" />
+
     <View style="@style/Divider.Section" />
 
     <RelativeLayout

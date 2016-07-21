@@ -90,16 +90,16 @@ public class CollectionPresenter extends BaseCollectionPresenter
 
         collectionItems.add(PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(),
                                                                       myCollection.getRecentStations()));
-        collectionItems.addAll(playlistCollectionItems(playlistItems));
+        collectionItems.addAll(playlistCollectionItems(playlistItems, false));
 
         return collectionItems;
     }
 
-    protected List<CollectionItem> playlistCollectionItems(List<PlaylistItem> playlistItems) {
+    protected List<CollectionItem> playlistCollectionItems(List<PlaylistItem> playlistItems, boolean withTopSpacing) {
 
         List<CollectionItem> items = new ArrayList<>(playlistItems.size() + 2);
 
-        items.add(PlaylistHeaderCollectionItem.create(playlistItems.size()));
+        items.add(PlaylistHeaderCollectionItem.create(playlistItems.size(), withTopSpacing));
 
         for (PlaylistItem playlistItem : playlistItems) {
             items.add(PlaylistCollectionItem.create(playlistItem));
