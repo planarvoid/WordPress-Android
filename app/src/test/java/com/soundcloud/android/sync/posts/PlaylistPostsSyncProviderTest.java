@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playlists.PlaylistStorage;
+import com.soundcloud.android.sync.Syncable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,11 @@ public class PlaylistPostsSyncProviderTest {
     @Before
     public void setUp() {
         this.syncProvider = new PlaylistPostsSyncProvider(postsSyncerProvider, playlistStorage);
+    }
+
+    @Test
+    public void shouldSyncCorrectEntityType() {
+        assertThat(syncProvider.id()).isEqualTo(Syncable.PLAYLIST_POSTS.name());
     }
 
     @Test
