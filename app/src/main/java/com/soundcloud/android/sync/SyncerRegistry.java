@@ -79,17 +79,15 @@ public class SyncerRegistry {
         public abstract Boolean isOutOfSync();
 
         /**
-         * Makes this content eligible for background syncing.
-         * It will be synced periodically by the value determined by staleTime(),
-         * but will also sync more infrequently if the syncer indicates the
-         * collection does not change.
+         * Returns a value that tells the syncer how often the data should be synced.
          */
         public abstract long staleTime();
 
         /**
-         * Provides a value that tells the syncing service whether should
-         * use periodic sync schedules: syncing time configuration is
-         * returned by {@link SyncProvider#staleTime()} method.
+         * Makes this content eligible for background syncing.
+         * It will be synced periodically by the value determined by staleTime(),
+         * but will also sync more infrequently if the syncer indicates the
+         * collection does not change.
          */
         public abstract boolean usePeriodicSync();
     }
