@@ -32,7 +32,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     public interface Listener {
 
-        void trackItemClicked(Urn urn);
+        void trackItemClicked(Urn urn, int position);
 
     }
 
@@ -90,7 +90,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    listener.trackItemClicked(track.getUrn());
+                    listener.trackItemClicked(track.getUrn(), position);
                 }
             });
         }

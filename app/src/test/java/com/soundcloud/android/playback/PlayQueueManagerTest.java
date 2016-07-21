@@ -1374,6 +1374,55 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
     }
 
+    @Test
+    public void setCurrentPlayQueueItemWithPositionSetsOnlyForTracks() {
+        final PlayQueueItem playlistItem = new PlaylistQueueItem.Builder(Urn.forPlaylist(245L)).build();
+        final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(Arrays.asList(playlistItem, trackItem));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
+
+        playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L), 0);
+
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+    }
+
+    @Test
+    public void setCurrentPlayQueueItemWithPositionFallbacksToUrn() {
+        final PlayQueueItem playlistItem = new PlaylistQueueItem.Builder(Urn.forPlaylist(245L)).build();
+        final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(Arrays.asList(playlistItem, trackItem));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
+
+        playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L), -1);
+
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+    }
+
+    @Test
+    public void setCurrentPlayQueueItemWithSameTrackMultipleTimes() {
+        final PlayQueueItem playlistItem = new PlaylistQueueItem.Builder(Urn.forPlaylist(245L)).build();
+        final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).build();
+        final List<PlayQueueItem> playQueueItems = Arrays.asList(playlistItem, trackItem, trackItem, playlistItem, trackItem);
+        final SimplePlayQueue playQueue = new SimplePlayQueue(playQueueItems);
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
+
+        playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L), 1);
+
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(2);
+    }
+
+    @Test
+    public void getCurrentPositionForTrackSkipsNonTracks() {
+        final PlayQueueItem playlistItem = new PlaylistQueueItem.Builder(Urn.forPlaylist(245L)).build();
+        final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).build();
+        final SimplePlayQueue playQueue = new SimplePlayQueue(Arrays.asList(playlistItem, trackItem));
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
+
+        playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L));
+
+        assertThat(playQueueManager.getCurrentTrackPosition()).isEqualTo(0);
+    }
+
     private void assertPlayQueueSaved(PlayQueue expected) {
         ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
         verify(playQueueOperations).saveQueue(playQueueCaptor.capture());

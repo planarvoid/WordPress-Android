@@ -36,10 +36,21 @@ public class TracksRecyclerItemAdapter extends RecyclerItemAdapter<TrackItem, Tr
         for (int position = 0; position < getItemCount(); position++) {
             TrackItem item = getItem(position);
             boolean isCurrent = item.getUrn().equals(currentlyPlayingUrn);
-            if (item.isPlaying() || isCurrent) {
-                item.setIsPlaying(isCurrent);
-                notifyItemChanged(position);
-            }
+            updateNowPlayingItem(position, item, isCurrent);
+        }
+    }
+
+    public void updateNowPlaying(int currentPosition) {
+        for (int position = 0; position < getItemCount(); position++) {
+            boolean isCurrent = currentPosition == position;
+            updateNowPlayingItem(position, getItem(position), isCurrent);
+        }
+    }
+
+    private void updateNowPlayingItem(int position, TrackItem item, boolean isCurrent) {
+        if (item.isPlaying() || isCurrent) {
+            item.setIsPlaying(isCurrent);
+            notifyItemChanged(position);
         }
     }
 

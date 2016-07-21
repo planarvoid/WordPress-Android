@@ -13,8 +13,8 @@ import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
-import com.soundcloud.android.playback.playqueue.PlayQueueItemAnimator.Mode;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.playback.playqueue.PlayQueueItemAnimator.Mode;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -136,9 +136,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     @Override
-    public void trackItemClicked(Urn urn) {
-        playQueueManager.setCurrentPlayQueueItem(urn);
-        adapter.updateNowPlaying(urn);
+    public void trackItemClicked(Urn urn, int position) {
+        playQueueManager.setCurrentPlayQueueItem(urn, position);
+        adapter.updateNowPlaying(position);
     }
 
     private void setupRepeatButton(View view) {
@@ -236,7 +236,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
             }
             adapter.notifyDataSetChanged();
             recyclerView.scrollToPosition(getScrollPosition());
-            adapter.updateNowPlaying(playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet());
+            adapter.updateNowPlaying(playQueueManager.getCurrentTrackPosition());
         }
     }
 

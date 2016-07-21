@@ -139,6 +139,41 @@ public class PlayQueueManager implements OriginProvider {
         setPositionInternal(playQueue.indexOfTrackUrn(urn), true);
     }
 
+    public void setCurrentPlayQueueItem(Urn urn, int trackPosition) {
+        int queuePosition = getQueuePositionFromTrack(trackPosition);
+        PlayQueueItem playQueueItem = getPlayQueueItemAtPosition(queuePosition);
+
+        if (!playQueueItem.isEmpty() && playQueueItem.getUrn().equals(urn)) {
+            setPositionInternal(queuePosition, true);
+        } else {
+            setCurrentPlayQueueItem(urn);
+        }
+    }
+
+    private int getQueuePositionFromTrack(int position) {
+        for (int queuePosition = 0, trackPosition = 0; queuePosition < playQueue.size(); queuePosition++) {
+            if (getPlayQueueItemAtPosition(queuePosition).getUrn().isTrack()) {
+                if (trackPosition == position) {
+                    return queuePosition;
+                }
+                trackPosition++;
+            }
+        }
+        return Consts.NOT_SET;
+    }
+
+    public int getCurrentTrackPosition() {
+        for (int queuePosition = 0, trackPosition = 0; queuePosition < playQueue.size(); queuePosition++) {
+            if (getPlayQueueItemAtPosition(queuePosition).getUrn().isTrack()) {
+                if (queuePosition == currentPosition) {
+                    return trackPosition;
+                }
+                trackPosition++;
+            }
+        }
+        return Consts.NOT_SET;
+    }
+
     public List<PlayQueueItem> getPlayQueueItems(Predicate<PlayQueueItem> predicate) {
         return Lists.newArrayList(Iterables.filter(playQueue, predicate));
     }
