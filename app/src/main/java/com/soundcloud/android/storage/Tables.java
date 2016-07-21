@@ -388,6 +388,7 @@ public interface Tables {
         public static final Column CHART_ID = Column.create(TABLE, "chart_id");
         public static final Column TRACK_ID = Column.create(TABLE, "track_id");
         public static final Column TRACK_ARTWORK = Column.create(TABLE, "track_artwork");
+        public static final Column BUCKET_TYPE = Column.create(TABLE, "bucket_type");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS ChartTracks (" +
                 "_id INTEGER PRIMARY KEY," +

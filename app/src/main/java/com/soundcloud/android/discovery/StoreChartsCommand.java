@@ -12,7 +12,6 @@ import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.propeller.query.Where;
 
 import android.content.ContentValues;
 
@@ -64,7 +63,7 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>
         if (chartTrack.getImageUrlTemplate().isPresent()) {
             contentValues.put(ChartTracks.TRACK_ARTWORK.name(), chartTrack.getImageUrlTemplate().get());
         }
-        contentValues.put(Charts.BUCKET_TYPE.name(), bucketType);
+        contentValues.put(ChartTracks.BUCKET_TYPE.name(), bucketType);
         return contentValues;
     }
 
@@ -81,9 +80,8 @@ class StoreChartsCommand extends DefaultWriteStorageCommand<List<ApiChartBucket>
     }
 
     private void clearBucket(int chartBucketType) {
-        final Where bucketOfType = filter().whereEq(Charts.BUCKET_TYPE, chartBucketType);
-        propeller.delete(ChartTracks.TABLE, bucketOfType);
-        propeller.delete(Charts.TABLE, bucketOfType);
+        propeller.delete(ChartTracks.TABLE, filter().whereEq(ChartTracks.BUCKET_TYPE, chartBucketType));
+        propeller.delete(Charts.TABLE, filter().whereEq(Charts.BUCKET_TYPE, chartBucketType));
     }
 
     public void clearTables() {

@@ -17,8 +17,14 @@ import java.util.List;
 public class ChartsFixtures {
 
     static ApiChart<ApiImageResource> createChartWithImageResources(ChartType type, ChartCategory chartCategory) {
+        return createChartWithImageResourcesWithTrackUrn(type, chartCategory, Urn.forTrack(1L));
+    }
+
+    static ApiChart<ApiImageResource> createChartWithImageResourcesWithTrackUrn(ChartType type,
+                                                                                ChartCategory chartCategory,
+                                                                                Urn trackUrn) {
         final List<ApiImageResource> apiImageResources = Lists.newArrayList();
-        apiImageResources.add(ApiImageResource.create(Urn.forTrack(1), null));
+        apiImageResources.add(ApiImageResource.create(trackUrn, "artwork:url"));
         final ModelCollection<ApiImageResource> chartTracks = new ModelCollection<>(apiImageResources);
         return new ApiChart<>("title", new Urn("soundcloud:genre:all"), type, chartCategory, new Date(12345L), chartTracks);
     }
