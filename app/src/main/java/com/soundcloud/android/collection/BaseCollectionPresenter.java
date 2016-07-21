@@ -23,7 +23,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
@@ -109,16 +108,10 @@ public abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCo
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        final int itemMargin = view.getResources().getDimensionPixelSize(R.dimen.collection_default_margin);
         final int spanCount = resources.getInteger(R.integer.collection_grid_span_count);
         final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
         layoutManager.setSpanSizeLookup(createSpanSizeLookup(spanCount));
-
-        RecyclerView recyclerView = getRecyclerView();
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.addItemDecoration(new CollectionItemDecoration(itemMargin));
-        recyclerView.setPadding(itemMargin, 0, 0, 0);
-        recyclerView.setClipToPadding(false);
+        getRecyclerView().setLayoutManager(layoutManager);
     }
 
     @Override

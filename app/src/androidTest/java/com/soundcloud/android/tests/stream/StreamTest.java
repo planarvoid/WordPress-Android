@@ -54,8 +54,6 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
     }
 
     public void testPlayAndPauseTrackFromStream() {
-        final StreamScreen streamScreens = new StreamScreen(solo);
-
         startEventTracking();
 
         final VisualPlayerElement playerElement =
@@ -72,8 +70,6 @@ public class StreamTest extends TrackingActivityTest<LauncherActivity> {
     }
 
     public void testPlayAndPausePlaylistTrackFromStream() {
-        final StreamScreen streamScreen = new StreamScreen(solo);
-
         startEventTracking();
 
         final VisualPlayerElement playerElement =

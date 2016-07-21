@@ -27,16 +27,19 @@ public class GcmMessageHandler {
     private final GcmDecryptor gcmDecryptor;
     private final ConcurrentPlaybackOperations concurrentPlaybackOperations;
     private final AccountOperations accountOperations;
+    private final GcmStorage gcmStorage;
 
     @Inject
     public GcmMessageHandler(Resources resources,
                              GcmDecryptor gcmDecryptor,
                              ConcurrentPlaybackOperations concurrentPlaybackOperations,
-                             AccountOperations accountOperations) {
+                             AccountOperations accountOperations,
+                             GcmStorage gcmStorage) {
         this.resources = resources;
         this.gcmDecryptor = gcmDecryptor;
         this.concurrentPlaybackOperations = concurrentPlaybackOperations;
         this.accountOperations = accountOperations;
+        this.gcmStorage = gcmStorage;
     }
 
     public void handleMessage(RemoteMessage remoteMessage) {
@@ -56,7 +59,7 @@ public class GcmMessageHandler {
             final String decryptedString = gcmDecryptor.decrypt(payload);
             logScMessage(decryptedString);
             final JSONObject jsonPayload = new JSONObject(decryptedString);
-            if (isStopAction(jsonPayload) && isLoggedInUser(jsonPayload)) {
+            if (isStopAction(jsonPayload) && isLoggedInUser(jsonPayload) && isNotSelfTriggered(jsonPayload)) {
                 if (!jsonPayload.optBoolean("stealth")) {
                     concurrentPlaybackOperations.pauseIfPlaying();
                 }
@@ -76,5 +79,10 @@ public class GcmMessageHandler {
 
     private boolean isStopAction(JSONObject jsonPayload) throws JSONException {
         return SC_ACTION_STOP.equals(jsonPayload.getString("action"));
+    }
+
+    private boolean isNotSelfTriggered(JSONObject jsonPayload) throws JSONException {
+        final String token = gcmStorage.getToken();
+        return token == null || !token.equals(jsonPayload.getString("token"));
     }
 }

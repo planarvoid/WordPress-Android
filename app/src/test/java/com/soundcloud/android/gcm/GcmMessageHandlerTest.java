@@ -27,10 +27,15 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
     @Mock private GcmDecryptor decryptor;
     @Mock private ConcurrentPlaybackOperations concurrentPlaybackOperations;
     @Mock private AccountOperations accountOperations;
+    @Mock private GcmStorage gcmStorage;
 
     @Before
     public void setUp() throws Exception {
-        handler = new GcmMessageHandler(resources(), decryptor, concurrentPlaybackOperations, accountOperations);
+        handler = new GcmMessageHandler(resources(),
+                                        decryptor,
+                                        concurrentPlaybackOperations,
+                                        accountOperations,
+                                        gcmStorage);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(123L));
     }
 
@@ -65,6 +70,16 @@ public class GcmMessageHandlerTest extends AndroidUnitTest {
     @Test
     public void doesNotStopPlaybackForOtherActionType() throws UnsupportedEncodingException, EncryptionException {
         when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"blah\"}, \"user_id\":123}");
+
+        handler.handleMessage(getRemoteMessage());
+
+        verify(concurrentPlaybackOperations, never()).pauseIfPlaying();
+    }
+
+    @Test
+    public void doesNotStopPlaybackForMyToken() throws UnsupportedEncodingException, EncryptionException {
+        when(gcmStorage.getToken()).thenReturn("token");
+        when(decryptor.decrypt(ENCRYPTED_DATA)).thenReturn("{\"action\":\"stop\", \"user_id\":123, \"token\":\"token\"}");
 
         handler.handleMessage(getRemoteMessage());
 

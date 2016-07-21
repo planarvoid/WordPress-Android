@@ -54,7 +54,7 @@
         <item name="android:gravity">center</item>
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
-        <item name="android:background">@drawable/ic_toggle_player_like_states</item>
+        <item name="android:drawableLeft">@drawable/ic_toggle_player_like_states</item>
     </style>
 
     <style name="EngagementAction.ToggleButton.LikeBase.Like" />

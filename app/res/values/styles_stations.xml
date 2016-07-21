@@ -125,8 +125,8 @@
         <item name="android:maxLines">1</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/collections_recently_played_header</item>
-        <item name="android:paddingLeft">@dimen/collection_default_margin</item>
-        <item name="android:paddingRight">@dimen/collection_default_margin</item>
+        <item name="android:paddingLeft">@dimen/collection_recently_played_default_margin</item>
+        <item name="android:paddingRight">@dimen/collection_recently_played_default_margin</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 

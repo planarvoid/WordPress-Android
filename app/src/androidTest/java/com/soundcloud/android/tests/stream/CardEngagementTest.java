@@ -45,6 +45,9 @@ public class CardEngagementTest extends TrackingActivityTest<MainActivity> {
 
         track.toggleRepost();
 
+        // Not cool -- wait for the UI thread to catch up with the test runner.
+        waiter.waitTwoSeconds();
+
         assertThat(streamScreen, is(visible()));
         assertThat(track.isReposted(), is(not(reposted)));
 
