@@ -64,18 +64,25 @@ public class SyncerRegistry {
 
         /**
          * Provides a {@link Callable} that will perform the syncing task.
+         *
+         * The return value indicates that there were actual updates performed.
+         * A return of true will reset the periodic sync time to the actual stale time
+         * if periodic sync is used. A return of false will increase the delay until
+         * the next sync, so we are not frequently syncing collections that do not change.
          */
         public abstract Callable<Boolean> syncer();
 
         /**
-         * Provides a value that tells the syncing service when the data
-         * is out of synchronization in order to schedule a sync job.
+         * Tells the service whether a sync should be performed outside of the normal scheduling.
+         * An example would be when we have some local state to push.
          */
         public abstract Boolean isOutOfSync();
 
         /**
-         * Returns a value that tells the syncer how often the data should be synced.
-         * It has no effect if {@link SyncProvider#usePeriodicSync()} is False.
+         * Makes this content eligible for background syncing.
+         * It will be synced periodically by the value determined by staleTime(),
+         * but will also sync more infrequently if the syncer indicates the
+         * collection does not change.
          */
         public abstract long staleTime();
 
