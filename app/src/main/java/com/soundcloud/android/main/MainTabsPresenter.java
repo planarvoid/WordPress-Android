@@ -178,6 +178,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     private void addToToolbar(TabLayout tabBar) {
         Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
         toolbar.setContentInsetsAbsolute(0, 0);
+        toolbar.setPadding(0, 0, 0, 0);
         toolbar.addView(tabBar);
     }
 

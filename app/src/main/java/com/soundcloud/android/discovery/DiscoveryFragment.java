@@ -31,7 +31,7 @@ public class DiscoveryFragment extends LightCycleSupportFragment<DiscoveryFragme
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        final View fragmentView = inflater.inflate(R.layout.recyclerview_with_refresh_and_page_bg, container, false);
+        final View fragmentView = inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
         fragmentView.setBackgroundColor(getResources().getColor(R.color.page_background));
         adjustProgressViewPosition(fragmentView);
 
