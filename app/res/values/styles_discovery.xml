@@ -103,9 +103,6 @@
 
     <style name="Recommendation.RecommendationArtwork">
         <item name="android:scaleType">centerCrop</item>
-        <item name="android:cropToPadding">true</item>
-        <item name="android:background">@drawable/artwork_border</item>
-        <item name="android:padding">@dimen/artwork_border_width</item>
     </style>
 
     <style name="Recommendation.RecommendationTitle">

@@ -19,7 +19,8 @@
         <com.soundcloud.android.view.ParallaxImageView
             android:id="@+id/image"
             style="@style/GridItemImageView"
-            sc:focalPoint=".45" />
+            sc:focalPoint=".45"
+            sc:foreground="@drawable/artwork_border" />
 
         <com.soundcloud.android.view.JaggedTextView
             android:id="@+id/username"

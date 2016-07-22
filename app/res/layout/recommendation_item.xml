@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    android:id="@+id/recommendation_item"
+<FrameLayout android:id="@+id/recommendation_item"
     style="@style/Recommendation.RecommendationItem"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/recommendation_item_size"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    xmlns:ForegroundImageView="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="4dp">
 
-        <com.soundcloud.android.view.SquareImageView
+        <com.soundcloud.android.view.ForegroundImageView
             android:id="@+id/recommendation_artwork"
             style="@style/Recommendation.RecommendationArtwork"
+            ForegroundImageView:foregroundDrawable="@drawable/artwork_border"
+            ForegroundImageView:square="true"
             android:layout_width="@dimen/recommendation_item_size"
             android:layout_height="@dimen/recommendation_item_size"
             android:layout_marginBottom="8dp" />

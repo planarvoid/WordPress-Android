@@ -3,10 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:sc="http://schemas.android.com/apk/res-auto"
     tools:showIn="@layout/stream_playlist_card">
 
     <com.soundcloud.android.view.ParallaxImageView
         android:id="@id/image"
+        sc:foreground="@drawable/artwork_border"
         style="@style/Cards.Image.Playlist" />
 
     <com.soundcloud.android.view.JaggedTextView

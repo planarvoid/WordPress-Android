@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout android:id="@+id/track_list_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/track_list_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:ignore="UnknownIdInLayout">
+    tools:ignore="UnknownIdInLayout"
+    xmlns:ForegroundImageView="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         style="@style/ListItemLayout"
         android:paddingTop="0dp">
 
-        <ImageView
+        <com.soundcloud.android.view.ForegroundImageView
             android:id="@+id/image"
-            style="@style/ListItemImage.Artwork"
+            style="@style/ListItemImage"
+            ForegroundImageView:foregroundDrawable="@drawable/artwork_border"
+            ForegroundImageView:square="true"
             android:layout_marginTop="16dp" />
 
         <com.soundcloud.android.offline.DownloadImageView

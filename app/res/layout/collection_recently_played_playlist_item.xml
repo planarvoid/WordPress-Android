@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?attr/selectableItemBackground">
+    android:foreground="?attr/selectableItemBackground"
+    xmlns:ForegroundImageView="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -13,13 +14,12 @@
         android:clipToPadding="false"
         tools:ignore="UselessParent">
 
-        <com.soundcloud.android.view.SquareImageView
+        <com.soundcloud.android.view.ForegroundImageView
             android:id="@+id/artwork"
-            style="@style/ArtworkBorder"
+            ForegroundImageView:foregroundDrawable="@drawable/artwork_border"
+            ForegroundImageView:square="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="1dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="wrap_content" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/track_count"

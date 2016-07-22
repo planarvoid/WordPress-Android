@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ForegroundImageView="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <com.soundcloud.android.view.ForegroundImageView
         android:id="@+id/image"
-        style="@style/ListItemImage.Artwork"
+        style="@style/ListItemImage"
+        ForegroundImageView:foregroundDrawable="@drawable/artwork_border"
+        ForegroundImageView:square="true"
         android:layout_marginTop="16dp" />
 
     <com.soundcloud.android.offline.DownloadImageView

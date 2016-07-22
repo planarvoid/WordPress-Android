@@ -3,9 +3,6 @@
 
     <style name="GridItemImageView" parent="GridItemImageViewBase">
         <item name="movement">-8dp</item>
-        <item name="android:cropToPadding">true</item>
-        <item name="android:background">@drawable/artwork_border</item>
-        <item name="android:padding">@dimen/artwork_border_width</item>
     </style>
 
     <style name="PlayerTrackArtworkHolder">

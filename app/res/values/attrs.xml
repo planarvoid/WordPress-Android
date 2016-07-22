@@ -31,6 +31,7 @@
     <declare-styleable name="ParallaxImageView">
         <attr name="movement" format="dimension" />
         <attr name="focalPoint" format="float" />
+        <attr name="foreground" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="OptimisedImageView">
@@ -90,6 +91,11 @@
         <attr name="textOn" format="string" />
         <attr name="textOff" format="string" />
         <attr name="textPaddingRight" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="ForegroundImageView">
+        <attr name="square" format="boolean" />
+        <attr name="foregroundDrawable" format="reference" />
     </declare-styleable>
 
 </resources>
