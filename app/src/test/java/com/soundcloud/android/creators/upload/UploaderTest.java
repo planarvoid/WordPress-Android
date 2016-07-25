@@ -29,11 +29,13 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.robolectric.annotation.Config;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+@Config(sdk = 18)
 public class UploaderTest extends AndroidUnitTest {
     private Recording recording;
     private TestEventBus eventBus = new TestEventBus();
