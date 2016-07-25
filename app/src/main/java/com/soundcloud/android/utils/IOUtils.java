@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -18,6 +17,8 @@ import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.os.StatFs;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import javax.inject.Inject;
@@ -46,8 +47,10 @@ public class IOUtils {
     public IOUtils() {
     }
 
+    @Nullable
     public static File getExternalStorageDir(Context context) {
-        return context.getExternalFilesDir(null);
+        final File[] externalFilesDirs = ContextCompat.getExternalFilesDirs(context, null);
+        return externalFilesDirs == null || externalFilesDirs.length == 0 ? null : externalFilesDirs[0];
     }
 
     public static File getExternalStorageDir(Context context, String dir) {

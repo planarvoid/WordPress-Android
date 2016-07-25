@@ -17,6 +17,7 @@ import com.soundcloud.android.utils.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.robolectric.annotation.Config;
 
 import android.net.Uri;
 
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@Config(sdk = 18)
 public class SecureFileStorageTest extends AndroidUnitTest { // just because of logging
 
     @Mock private CryptoOperations operations;
@@ -39,6 +41,7 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Before
     public void setUp() throws Exception {
+
         storage = new SecureFileStorage(operations, settingsStorage, context());
         when(operations.generateHashForUrn(TRACK_URN)).thenReturn(TRACK_URN.toEncodedString());
     }
