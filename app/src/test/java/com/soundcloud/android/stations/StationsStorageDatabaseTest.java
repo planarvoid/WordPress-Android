@@ -124,6 +124,18 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void shouldLoadLastPlayedTrackPosition() {
+        TestSubscriber<Integer> subscriber = new TestSubscriber<>();
+        final int position = 20;
+        final Urn station = testFixtures().insertStation(0).getUrn();
+
+        storage.saveLastPlayedTrackPosition(station, position);
+        storage.loadLastPlayedPosition(station).subscribe(subscriber);
+
+        subscriber.assertValue(position);
+    }
+
+    @Test
     public void shouldSaveRecentlyPlayedStation() {
         storage.saveUnsyncedRecentlyPlayedStation(stationUrn);
 
@@ -199,9 +211,8 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     private void assertReceivedStationInfoTracks(List<StationInfoTrack> receivedTracks, List<ApiTrack> apiTracks) {
         for (int i = 0; i < apiTracks.size(); i++) {
             final ApiTrack apiTrack = apiTracks.get(i);
-            assertThat(new StationInfoTrack(apiTrack.getUrn(), apiTrack.getTitle(), apiTrack.getUserName(),
-                                            apiTrack.getUser().getUrn(), apiTrack.getImageUrlTemplate()))
-                    .isEqualTo(receivedTracks.get(i));
+            assertThat(apiTrack.getUrn()).isEqualTo(receivedTracks.get(i).getUrn());
+            assertThat(apiTrack.getImageUrlTemplate()).isEqualTo(receivedTracks.get(i).getImageUrlTemplate());
         }
     }
 }

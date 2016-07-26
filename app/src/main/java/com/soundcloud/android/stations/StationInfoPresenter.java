@@ -1,10 +1,14 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
 import static com.soundcloud.android.stations.StationInfo.FROM_STATION_RECORD;
-import static com.soundcloud.android.stations.StationInfoTracksBucket.FROM_TRACK_ITEM_LIST;
+import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_SOURCE;
+import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_URN;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.DiscoverySource;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -16,6 +20,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Func2;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -32,9 +37,26 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     private final StartStationPresenter stationPresenter;
     private final StationsOperations stationOperations;
     private final StationInfoAdapter adapter;
+    private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
 
+    private final Func2<List<StationInfoTrack>, Integer, StationInfoItem> toViewModel =
+            new Func2<List<StationInfoTrack>, Integer, StationInfoItem>() {
+                @Override
+                public StationInfoTracksBucket call(List<StationInfoTrack> trackItems, Integer lastPlayedPosition) {
+                    final Urn nowPlayingCollection = playQueueManager.getCollectionUrn();
+                    final Urn nowPlayingUrn = playQueueManager.getCurrentPlayQueueItem().getUrnOrNotSet();
+
+                    if (nowPlayingCollection.equals(stationUrn) && !Urn.NOT_SET.equals(nowPlayingUrn)) {
+                        return StationInfoTracksBucket.from(trackItems, lastPlayedPosition, nowPlayingUrn);
+                    } else {
+                        return StationInfoTracksBucket.from(trackItems, lastPlayedPosition);
+                    }
+                }
+            };
+
     private Subscription subscription = RxUtils.invalidSubscription();
+    private DiscoverySource discoverySource;
     private Urn stationUrn;
 
     @Inject
@@ -44,11 +66,13 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
                                 StationsOperations stationOperations,
                                 StartStationPresenter stationPresenter,
                                 StationInfoTracksBucketRendererFactory bucketRendererFactory,
+                                PlayQueueManager playQueueManager,
                                 EventBus eventBus) {
         super(swipeRefreshAttacher);
         this.stationTrackOperations = stationsTrackOperations;
         this.stationOperations = stationOperations;
         this.stationPresenter = stationPresenter;
+        this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
         this.adapter = adapterFactory.create(this, bucketRendererFactory.create(this));
     }
@@ -70,7 +94,8 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
 
     @Override
     protected CollectionBinding<List<StationInfoItem>, StationInfoItem> onBuildBinding(Bundle fragmentArgs) {
-        stationUrn = fragmentArgs.getParcelable(StationInfoFragment.EXTRA_URN);
+        discoverySource = getDiscoverySource(fragmentArgs);
+        stationUrn = fragmentArgs.getParcelable(EXTRA_URN);
 
         return CollectionBinding.from(getStationInfo(stationUrn)
                                               .concatWith(getStationTracks(stationUrn))
@@ -78,12 +103,17 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
                                 .withAdapter(adapter).build();
     }
 
+    private DiscoverySource getDiscoverySource(Bundle fragmentArgs) {
+        return DiscoverySource.from(fragmentArgs.getString(EXTRA_SOURCE, STATIONS.value()));
+    }
+
     private Observable<StationInfoItem> getStationInfo(Urn stationUrn) {
         return stationOperations.station(stationUrn).map(FROM_STATION_RECORD);
     }
 
     private Observable<StationInfoItem> getStationTracks(Urn stationUrn) {
-        return stationTrackOperations.stationTracks(stationUrn).map(FROM_TRACK_ITEM_LIST);
+        return stationTrackOperations.stationTracks(stationUrn)
+                                     .zipWith(stationOperations.lastPlayedPosition(stationUrn), toViewModel);
     }
 
     @Override
@@ -98,7 +128,9 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
 
     @Override
     public void onTrackClicked(Context context, int position) {
-        stationPresenter.startStationFromPosition(context, stationUrn, position);
+        stationPresenter.startStation(context,
+                                      stationOperations.station(stationUrn),
+                                      discoverySource, position);
     }
 
 }

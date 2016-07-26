@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import static butterknife.ButterKnife.findById;
+import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
@@ -12,6 +13,9 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemMenuPresenter;
+import com.soundcloud.java.collections.Pair;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +31,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
     private final Navigator navigator;
     private final ImageOperations imageOperations;
     private final StationInfoClickListener clickListener;
+    private final TrackItemMenuPresenter menuPresenter;
 
     private final View.OnClickListener onTrackClicked = new View.OnClickListener() {
         @Override
@@ -35,29 +40,42 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
         }
     };
 
+    private final View.OnClickListener onOverflowMenuClicked = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            final Pair<TrackItem, Integer> pair = (Pair<TrackItem, Integer>) view.getTag();
+            menuPresenter.show(getFragmentActivity(view.getContext()), view, pair.first(), pair.second());
+        }
+    };
+
     StationTrackRenderer(StationInfoClickListener clickListener,
                          @Provided Navigator navigator,
-                         @Provided ImageOperations imageOperations) {
+                         @Provided ImageOperations imageOperations,
+                         @Provided TrackItemMenuPresenter menuPresenter) {
         this.clickListener = clickListener;
         this.navigator = navigator;
         this.imageOperations = imageOperations;
+        this.menuPresenter = menuPresenter;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
         final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recommendation_item, parent, false);
         view.setOnClickListener(onTrackClicked);
-
+        view.findViewById(R.id.overflow_button).setOnClickListener(onOverflowMenuClicked);
         return view;
     }
 
     @Override
     public void bindItemView(int position, View view, List<StationInfoTrack> items) {
-        final StationInfoTrack track = items.get(position);
+        final TrackItem track = items.get(position).getTrack();
 
         loadTrackArtwork(view, track);
         bindTrackTitle(view, track.getTitle());
-        bindTrackArtist(view, track.getCreator(), track.getCreatorUrn(), track.isPlaying());
+        bindTrackArtist(view, track.getCreatorName(), track.getCreatorUrn(), track.isPlaying());
+
+        view.findViewById(R.id.overflow_button).setTag(Pair.of(track, position));
+        view.setTag(position);
     }
 
     private void bindTrackTitle(View view, String title) {
@@ -83,7 +101,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
         findById(view, R.id.recommendation_now_playing).setVisibility(isPlaying ? View.VISIBLE : View.GONE);
     }
 
-    private void loadTrackArtwork(View view, StationInfoTrack track) {
+    private void loadTrackArtwork(View view, TrackItem track) {
         imageOperations.displayInAdapterView(track, ApiImageSize.getFullImageSize(view.getResources()),
                                              ButterKnife.<ImageView>findById(view, R.id.recommendation_artwork)
         );

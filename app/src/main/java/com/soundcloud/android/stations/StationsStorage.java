@@ -1,21 +1,28 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.model.PlayableProperty.CREATOR_NAME;
+import static com.soundcloud.android.model.PlayableProperty.CREATOR_URN;
+import static com.soundcloud.android.model.PlayableProperty.IMAGE_URL_TEMPLATE;
+import static com.soundcloud.android.model.PlayableProperty.TITLE;
+import static com.soundcloud.android.model.PlayableProperty.URN;
+import static com.soundcloud.java.optional.Optional.fromNullable;
 import static com.soundcloud.propeller.ContentValuesBuilder.values;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.apply;
+import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.TableColumns.SoundView;
 import com.soundcloud.android.storage.Tables.Stations;
 import com.soundcloud.android.storage.Tables.StationsCollections;
 import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -53,7 +60,7 @@ class StationsStorage {
                     cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION)
                     ? com.soundcloud.android.stations.Stations.NEVER_PLAYED
                     : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
-                    Optional.fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
+                    fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
         }
     };
 
@@ -98,22 +105,6 @@ class StationsStorage {
         this.propellerDatabase = propellerDatabase;
         this.propellerRx = new PropellerRx(propellerDatabase);
         this.dateProvider = dateProvider;
-    }
-
-    Observable<StationInfoTrack> stationTracks(Urn stationUrn) {
-        final Query query = Query.from(Table.SoundView.name())
-                                 .innerJoin(StationsPlayQueues.TABLE.name(),
-                                            TableColumns.SoundView._ID,
-                                            StationsPlayQueues.TRACK_ID.name())
-                                 .select(TableColumns.SoundView._ID,
-                                         TableColumns.SoundView.TITLE,
-                                         TableColumns.SoundView.USERNAME,
-                                         TableColumns.SoundView.USER_ID,
-                                         TableColumns.SoundView.ARTWORK_URL)
-                                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                                 .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
-                                 .order(StationsPlayQueues.POSITION, Query.Order.ASC);
-        return propellerRx.query(query).map(new StationTrackMapper());
     }
 
     Observable<StationTrack> loadPlayQueue(Urn station, int startPosition) {
@@ -189,6 +180,22 @@ class StationsStorage {
         );
     }
 
+    Observable<StationInfoTrack> stationTracks(Urn stationUrn) {
+        final Query query = Query.from(Table.SoundView.name())
+                                 .innerJoin(StationsPlayQueues.TABLE.name(),
+                                            SoundView._ID,
+                                            StationsPlayQueues.TRACK_ID.name())
+                                 .select(SoundView._ID,
+                                         SoundView.TITLE,
+                                         SoundView.USERNAME,
+                                         SoundView.USER_ID,
+                                         SoundView.ARTWORK_URL)
+                                 .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                                 .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
+                                 .order(StationsPlayQueues.POSITION, Query.Order.ASC);
+        return propellerRx.query(query).map(new StationTrackMapper());
+    }
+
     private Query buildTracksListQuery(Urn stationUrn) {
         return Query.from(StationsPlayQueues.TABLE)
                     .select(StationsPlayQueues.TRACK_ID, StationsPlayQueues.QUERY_URN)
@@ -198,6 +205,13 @@ class StationsStorage {
 
     ChangeResult saveLastPlayedTrackPosition(Urn stationUrn, int position) {
         return updateStation(stationUrn, values().put(Stations.LAST_PLAYED_TRACK_POSITION, position).get());
+    }
+
+    Observable<Integer> loadLastPlayedPosition(Urn stationUrn) {
+        return propellerRx.query(Query.from(Stations.TABLE)
+                                      .select(Stations.LAST_PLAYED_TRACK_POSITION)
+                                      .whereEq(Stations.STATION_URN, stationUrn.toString()))
+                          .map(scalar(Integer.class));
     }
 
     private ChangeResult resetLastPlayedTrackPosition(Urn stationUrn) {
@@ -242,12 +256,14 @@ class StationsStorage {
 
         @Override
         public StationInfoTrack map(CursorReader reader) {
-            return new StationInfoTrack(
-                    Urn.forTrack(reader.getLong(TableColumns.SoundView._ID)),
-                    reader.getString(TableColumns.SoundView.TITLE),
-                    reader.getString(TableColumns.SoundView.USERNAME),
-                    Urn.forUser(reader.getLong(TableColumns.SoundView.USER_ID)),
-                    Optional.fromNullable(reader.getString(TableColumns.SoundView.ARTWORK_URL))
+            return StationInfoTrack.from(
+                    PropertySet.from(
+                            URN.bind(Urn.forTrack(reader.getLong(SoundView._ID))),
+                            TITLE.bind(reader.getString(SoundView.TITLE)),
+                            CREATOR_NAME.bind(reader.getString(SoundView.USERNAME)),
+                            CREATOR_URN.bind(Urn.forUser(reader.getLong(SoundView.USER_ID))),
+                            IMAGE_URL_TEMPLATE.bind(fromNullable(reader.getString(SoundView.ARTWORK_URL)))
+                    )
             );
         }
     }

@@ -5,10 +5,12 @@ import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
+import com.soundcloud.android.tracks.TrackItem;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,16 +23,13 @@ import java.util.List;
 @AutoFactory(allowSubclasses = true)
 class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksBucket> {
 
-    private final StationTrackRendererFactory rendererFactory;
-    private final StationInfoClickListener stationTrackClickListener;
-
     private StationTracksAdapter adapter;
     private RecyclerView recyclerView;
+    private LinearLayoutManager layout;
 
     StationInfoTracksBucketRenderer(StationInfoClickListener stationTrackClickListener,
                                     @Provided StationTrackRendererFactory rendererFactory) {
-        this.stationTrackClickListener = stationTrackClickListener;
-        this.rendererFactory = rendererFactory;
+        this.adapter = new StationTracksAdapter(rendererFactory.create(stationTrackClickListener));
     }
 
     @Override
@@ -42,35 +41,51 @@ class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksB
     }
 
     void updateNowPlaying(Urn currentlyPlayingUrn) {
-        if (adapter != null) {
-            for (int i = 0; i < adapter.getItemCount(); i++) {
-                final StationInfoTrack track = adapter.getItem(i);
-                final boolean isCurrent = track.getUrn().equals(currentlyPlayingUrn);
+        for (int i = 0; i < adapter.getItemCount(); i++) {
+            final TrackItem track = adapter.getItem(i).getTrack();
+            final boolean isCurrent = track.getUrn().equals(currentlyPlayingUrn);
 
-                if (track.isPlaying() || isCurrent) {
-                    track.setIsPlaying(isCurrent);
-                    adapter.notifyItemChanged(i);
-                }
+            if (track.isPlaying() || isCurrent) {
+                track.setIsPlaying(isCurrent);
+                adapter.notifyItemChanged(i);
+            }
 
-                if (isCurrent) {
-                    recyclerView.smoothScrollToPosition(i);
-                }
+            if (isCurrent) {
+                recyclerView.smoothScrollToPosition(i);
             }
         }
     }
 
     private void initCarousel(final RecyclerView recyclerView) {
         this.recyclerView = recyclerView;
-        this.adapter = new StationTracksAdapter(rendererFactory.create(stationTrackClickListener));
-        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext(), HORIZONTAL, false));
+        this.layout = new LinearLayoutManager(recyclerView.getContext(), HORIZONTAL, false);
+        recyclerView.setLayoutManager(layout);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void bindItemView(int position, View itemView, List<StationInfoTracksBucket> items) {
-        final List<StationInfoTrack> tracks = items.get(position).stationTracks();
+        final StationInfoTracksBucket stationInfoTracksBucket = items.get(position);
+        final List<StationInfoTrack> tracks = stationInfoTracksBucket.stationTracks();
 
+        addTracksToAdapter(tracks);
+        scrollToLastPlayedPosition(itemView, stationInfoTracksBucket);
+    }
+
+    private void scrollToLastPlayedPosition(View itemView, StationInfoTracksBucket bucket) {
+        final int lastPlayedPosition = bucket.lastPlayedPosition();
+        final TrackItem lastPlayedTrack = bucket.stationTracks().get(lastPlayedPosition).getTrack();
+
+        if (lastPlayedTrack.isPlaying()) {
+            layout.scrollToPositionWithOffset(lastPlayedPosition, itemView.getWidth());
+
+        } else if (lastPlayedPosition != Consts.NOT_SET) {
+            layout.scrollToPositionWithOffset(lastPlayedPosition + 1, itemView.getWidth());
+        }
+    }
+
+    private void addTracksToAdapter(List<StationInfoTrack> tracks) {
         adapter.clear();
 
         for (StationInfoTrack track : tracks) {

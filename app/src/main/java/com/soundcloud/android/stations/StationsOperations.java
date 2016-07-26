@@ -122,6 +122,10 @@ public class StationsOperations {
         return stationsStorage.saveLastPlayedTrackPosition(collectionUrn, position);
     }
 
+    Observable<Integer> lastPlayedPosition(Urn stationUrn) {
+        return stationsStorage.loadLastPlayedPosition(stationUrn);
+    }
+
     public Observable<SyncJobResult> sync() {
         return syncInitiator.sync(Syncable.RECENT_STATIONS);
     }

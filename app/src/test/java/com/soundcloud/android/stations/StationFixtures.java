@@ -53,11 +53,7 @@ public class StationFixtures {
         return newArrayList(transform(trackItems(size), new Function<TrackItem, StationInfoTrack>() {
             @Override
             public StationInfoTrack apply(TrackItem trackItem) {
-                return new StationInfoTrack(trackItem.getUrn(),
-                                            trackItem.getTitle(),
-                                            trackItem.getCreatorName(),
-                                            trackItem.getCreatorUrn(),
-                                            trackItem.getImageUrlTemplate());
+                return StationInfoTrack.from(trackItem);
             }
         }));
     }

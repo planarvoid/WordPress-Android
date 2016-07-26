@@ -44,19 +44,19 @@ public class StartStationHandler {
         }
     }
 
-    public void startStationWithSeedTrack(Context context, Urn seedTrack) {
-        if (featureFlags.isEnabled(Flag.STATION_INFO_PAGE)) {
-            navigator.openStationInfo(context, Urn.forTrackStation(seedTrack.getNumericId()), seedTrack, STATIONS);
-        } else {
-            stationPresenter.startStationForTrack(context, seedTrack);
-        }
-    }
-
     public void startStation(Context context, Urn stationUrn) {
         if (featureFlags.isEnabled(Flag.STATION_INFO_PAGE)) {
             navigator.openStationInfo(context, stationUrn, STATIONS);
         } else {
             stationPresenter.startStation(context, stationUrn, STATIONS);
+        }
+    }
+
+    public void startStationWithSeedTrack(Context context, Urn seedTrack) {
+        if (featureFlags.isEnabled(Flag.STATION_INFO_PAGE)) {
+            navigator.openStationInfo(context, Urn.forTrackStation(seedTrack.getNumericId()), seedTrack, STATIONS);
+        } else {
+            stationPresenter.startStationForTrack(context, seedTrack);
         }
     }
 

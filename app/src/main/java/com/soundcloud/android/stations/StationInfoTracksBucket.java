@@ -1,22 +1,22 @@
 package com.soundcloud.android.stations;
 
 import com.google.auto.value.AutoValue;
-import rx.functions.Func1;
+import com.soundcloud.android.model.Urn;
 
 import java.util.List;
 
 @AutoValue
 abstract class StationInfoTracksBucket extends StationInfoItem {
 
-    static final Func1<List<StationInfoTrack>, StationInfoItem> FROM_TRACK_ITEM_LIST = new Func1<List<StationInfoTrack>, StationInfoItem>() {
-        @Override
-        public StationInfoItem call(List<StationInfoTrack> trackItems) {
-            return StationInfoTracksBucket.from(trackItems);
-        }
-    };
+    public static StationInfoTracksBucket from(List<StationInfoTrack> tracks, int lastPlayed) {
+        return new AutoValue_StationInfoTracksBucket(tracks, lastPlayed);
+    }
 
-    public static StationInfoItem from(List<StationInfoTrack> stationTracks) {
-        return new AutoValue_StationInfoTracksBucket(stationTracks);
+    public static StationInfoTracksBucket from(List<StationInfoTrack> tracks, int lastPlayed, Urn nowPlaying) {
+        for (StationInfoTrack stationInfo : tracks) {
+            stationInfo.getTrack().setIsPlaying(nowPlaying.equals(stationInfo.getUrn()));
+        }
+        return new AutoValue_StationInfoTracksBucket(tracks, lastPlayed);
     }
 
     StationInfoTracksBucket() {
@@ -24,4 +24,6 @@ abstract class StationInfoTracksBucket extends StationInfoItem {
     }
 
     abstract List<StationInfoTrack> stationTracks();
+
+    abstract int lastPlayedPosition();
 }

@@ -4,6 +4,7 @@ import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
@@ -25,7 +26,6 @@ import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -52,29 +52,31 @@ public class StartStationPresenter {
         this.screenProvider = screenProvider;
     }
 
-    void startStationFromPosition(Context context, Urn stationUrn, int position) {
-        //TODO: play station from given position
-        Toast.makeText(context, "Start " + stationUrn + " from " + position, Toast.LENGTH_SHORT).show();
-    }
-
     void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
-        openStation(context, stationsOperations.station(stationUrn), discoverySource);
+        startStation(context, stationsOperations.station(stationUrn), discoverySource);
     }
 
     void startStation(Context context, Urn stationUrn) {
-        openStation(context, stationsOperations.station(stationUrn), STATIONS);
+        startStation(context, stationsOperations.station(stationUrn), STATIONS);
     }
 
     void startStationForTrack(Context context, final Urn seed) {
         final Urn stationUrn = Urn.forTrackStation(seed.getNumericId());
-        openStation(context, stationsOperations.stationWithSeed(stationUrn, seed), STATIONS);
+        startStation(context, stationsOperations.stationWithSeed(stationUrn, seed), STATIONS);
     }
 
-    private void openStation(Context context,
-                             Observable<StationRecord> station,
-                             DiscoverySource discoverySource) {
+    private void startStation(Context context,
+                              Observable<StationRecord> station,
+                              DiscoverySource discoverySource) {
+        startStation(context, station, discoverySource, Consts.NOT_SET);
+    }
+
+    void startStation(Context context,
+                      Observable<StationRecord> station,
+                      DiscoverySource discoverySource,
+                      int playPosition) {
         subscription = station
-                .flatMap(toPlaybackResult(discoverySource))
+                .flatMap(toPlaybackResult(discoverySource, playPosition))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
                                                                 getLoadingDialogPresenter(context)));
 
@@ -95,18 +97,21 @@ public class StartStationPresenter {
                 .show(context);
     }
 
-    private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(final DiscoverySource discoverySource) {
+    private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(
+            final DiscoverySource discoverySource, final int playPosition) {
         return new Func1<StationRecord, Observable<PlaybackResult>>() {
             @Override
             public Observable<PlaybackResult> call(StationRecord station) {
                 checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
+
+                final int position = playPosition != Consts.NOT_SET ? playPosition - 1 : station.getPreviousPosition();
                 final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
                                                                        station.getUrn(),
                                                                        discoverySource);
                 return playbackInitiator.playStation(station.getUrn(),
                                                      station.getTracks(),
                                                      playSessionSource,
-                                                     station.getPreviousPosition());
+                                                     position);
             }
         };
     }
