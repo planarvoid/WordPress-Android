@@ -19,7 +19,7 @@ public class RecommendedTracksSyncProvider extends SyncerRegistry.SyncProvider {
     }
 
     @Override
-    public Callable<Boolean> syncer() {
+    public Callable<Boolean> syncer(String action) {
         return recommendedTracksSyncerProvider.get();
     }
 

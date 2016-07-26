@@ -24,6 +24,9 @@ import java.util.List;
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 public class SyncInitiator {
 
+    public static final String ACTION_APPEND = ApiSyncService.ACTION_APPEND;
+    public static final String ACTION_HARD_REFRESH = ApiSyncService.ACTION_HARD_REFRESH;
+
     private static final Func1<Boolean, SyncJobResult> LEGACY_PLAYLIST_RESULT_TO_SYNC_RESULT = new Func1<Boolean, SyncJobResult>() {
         @Override
         public SyncJobResult call(Boolean resultedInChange) {
@@ -44,6 +47,10 @@ public class SyncInitiator {
 
     public Observable<SyncJobResult> sync(Syncable syncable) {
         return getSyncObservable(createIntent(syncable));
+    }
+
+    public Observable<SyncJobResult> sync(Syncable syncable, String action) {
+        return getSyncObservable(createIntent(syncable).setAction(action));
     }
 
     public Observable<SyncJobResult> syncTrack(Urn trackUrn) {

@@ -15,14 +15,39 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class SoundStreamSyncer extends TimelineSyncer<ApiStreamItem> {
-    @Inject
+
     public SoundStreamSyncer(ApiClient apiClient,
                              StoreSoundStreamCommand storeSoundStreamCommand,
                              ReplaceSoundStreamCommand replaceSoundStreamCommand,
-                             @Named(SOUND_STREAM_SYNC_STORAGE) TimelineSyncStorage timelineSyncStorage) {
+                             TimelineSyncStorage timelineSyncStorage,
+                             String action) {
         super(ApiEndpoints.STREAM, Content.ME_SOUND_STREAM.uri, apiClient, storeSoundStreamCommand,
               replaceSoundStreamCommand, timelineSyncStorage,
               new TypeToken<ModelCollection<ApiStreamItem>>() {
-              });
+              }, action);
+    }
+
+    // AutoFactory does not support named dependencies : https://github.com/google/auto/issues/174
+    public static class SoundStreamSyncerFactory {
+        private final ApiClient apiClient;
+        private final StoreSoundStreamCommand storeSoundStreamCommand;
+        private final ReplaceSoundStreamCommand replaceSoundStreamCommand;
+        private final TimelineSyncStorage timelineSyncStorage;
+
+        @Inject
+        public SoundStreamSyncerFactory(ApiClient apiClient,
+                                 StoreSoundStreamCommand storeSoundStreamCommand,
+                                 ReplaceSoundStreamCommand replaceSoundStreamCommand,
+                                 @Named(SOUND_STREAM_SYNC_STORAGE) TimelineSyncStorage timelineSyncStorage) {
+
+            this.apiClient = apiClient;
+            this.storeSoundStreamCommand = storeSoundStreamCommand;
+            this.replaceSoundStreamCommand = replaceSoundStreamCommand;
+            this.timelineSyncStorage = timelineSyncStorage;
+        }
+
+        public SoundStreamSyncer create(String action) {
+            return new SoundStreamSyncer(apiClient, storeSoundStreamCommand, replaceSoundStreamCommand, timelineSyncStorage, action);
+        }
     }
 }

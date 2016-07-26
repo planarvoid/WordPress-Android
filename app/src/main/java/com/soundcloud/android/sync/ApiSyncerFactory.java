@@ -2,15 +2,13 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.activities.ActivitiesSyncer;
 import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer;
 import com.soundcloud.android.sync.entities.MeSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
 import com.soundcloud.android.sync.playlists.LegacySinglePlaylistSyncer;
-import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.sync.playlists.MyPlaylistsSyncer;
+import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.sync.posts.MyPostsSyncer;
-import com.soundcloud.android.sync.stream.SoundStreamSyncer;
 import dagger.Lazy;
 
 import android.net.Uri;
@@ -20,8 +18,6 @@ import javax.inject.Inject;
 @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // remove this once we use playlist syncer
 public class ApiSyncerFactory {
 
-    private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
-    private final Lazy<ActivitiesSyncer> lazyActivitiesSyncer;
     private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
@@ -30,16 +26,12 @@ public class ApiSyncerFactory {
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
 
     @Inject
-    public ApiSyncerFactory(Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
-                            Lazy<ActivitiesSyncer> lazyActivitiesSyncer,
-                            Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
+    public ApiSyncerFactory(Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
                             Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
                             Lazy<MyFollowingsSyncer> lazyMyFollowingsSyncerLazy,
                             Lazy<MeSyncer> lazyMeSyncer,
                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory) {
-        this.lazySoundStreamSyncer = lazySoundStreamSyncer;
-        this.lazyActivitiesSyncer = lazyActivitiesSyncer;
         this.lazyPlaylistsSyncer = lazyPlaylistsSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
@@ -52,12 +44,6 @@ public class ApiSyncerFactory {
 
     public SyncStrategy forContentUri(Uri contentUri) {
         switch (Content.match(contentUri)) {
-            case ME_SOUND_STREAM:
-                return lazySoundStreamSyncer.get();
-
-            case ME_ACTIVITIES:
-                return lazyActivitiesSyncer.get();
-
             case ME_LIKES:
                 return lazyMyLikesSyncer.get();
 

@@ -51,6 +51,22 @@ public class SyncInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void syncCreatesObservableForSyncableWithAction() {
+        syncInitiator.sync(Syncable.CHARTS, "action").subscribe(syncSubscriber);
+
+        Intent intent = ShadowApplication.getInstance().getNextStartedService();
+        assertThat(intent).isNotNull();
+        assertThat(intent.getAction()).isEqualTo("action");
+        assertThat(SyncIntentHelper.getSyncable(intent)).isEqualTo(Syncable.CHARTS);
+        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiverAdapter.class);
+
+        syncSubscriber.assertNoValues();
+        final SyncJobResult result = sendSyncChangedToReceiver(intent);
+        syncSubscriber.assertReceivedOnNext(Arrays.asList(result));
+        syncSubscriber.assertCompleted();
+    }
+
+    @Test
     public void batchSyncTrackCreatesObservableForTrackSync() {
         final List<Urn> entities = Arrays.asList(Urn.forTrack(123));
         syncInitiator.batchSyncTracks(entities).subscribe(syncSubscriber);

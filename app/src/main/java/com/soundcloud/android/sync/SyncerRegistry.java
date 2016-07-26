@@ -1,14 +1,18 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.activities.ActivitiesSyncProvider;
 import com.soundcloud.android.discovery.ChartGenresSyncProvider;
 import com.soundcloud.android.discovery.ChartsSyncProvider;
 import com.soundcloud.android.discovery.RecommendedTracksSyncProvider;
 import com.soundcloud.android.stations.RecentStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
+import com.soundcloud.android.stream.SoundStreamSyncProvider;
 import com.soundcloud.android.sync.likes.PlaylistLikesSyncProvider;
 import com.soundcloud.android.sync.likes.TrackLikesSyncProvider;
 import com.soundcloud.android.sync.posts.PlaylistPostsSyncProvider;
 import com.soundcloud.android.sync.posts.TrackPostsSyncProvider;
+
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -20,7 +24,9 @@ public class SyncerRegistry {
     private final Map<Syncable, SyncProvider> syncers;
 
     @Inject
-    public SyncerRegistry(RecentStationsSyncProvider recentStationsSyncerProvider,
+    public SyncerRegistry(SoundStreamSyncProvider soundStreamSyncProvider,
+                          ActivitiesSyncProvider activitiesSyncProvider,
+                          RecentStationsSyncProvider recentStationsSyncerProvider,
                           RecommendedStationsSyncProvider recommendedStationsSyncProvider,
                           RecommendedTracksSyncProvider recommendationsSyncProvider,
                           ChartsSyncProvider chartsSyncProvider,
@@ -30,6 +36,9 @@ public class SyncerRegistry {
                           PlaylistLikesSyncProvider playlistLikesSyncProvider,
                           ChartGenresSyncProvider chartGenresSyncProvider) {
         this.syncers = new HashMap<>();
+
+        registerSyncer(soundStreamSyncProvider);
+        registerSyncer(activitiesSyncProvider);
 
         registerSyncer(recentStationsSyncerProvider);
         registerSyncer(recommendedStationsSyncProvider);
@@ -67,13 +76,15 @@ public class SyncerRegistry {
 
         /**
          * Provides a {@link Callable} that will perform the syncing task.
-         *
-         * The return value indicates that there were actual updates performed.
+
+         * @param action a specific action for this sync. If a syncer can perform multiple types of syncs,
+         *               this action specify that type. See {@link com.soundcloud.android.sync.stream.SoundStreamSyncer}
+         * @return The return value indicates that there were actual updates performed.
          * A return of true will reset the periodic sync time to the actual stale time
          * if periodic sync is used. A return of false will increase the delay until
          * the next sync, so we are not frequently syncing collections that do not change.
          */
-        public abstract Callable<Boolean> syncer();
+        public abstract Callable<Boolean> syncer(@Nullable String action);
 
         /**
          * Tells the service whether a sync should be performed outside of the normal scheduling.

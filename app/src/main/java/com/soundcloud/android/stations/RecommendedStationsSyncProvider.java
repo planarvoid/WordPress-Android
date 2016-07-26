@@ -19,7 +19,7 @@ public class RecommendedStationsSyncProvider extends SyncerRegistry.SyncProvider
     }
 
     @Override
-    public Callable<Boolean> syncer() {
+    public Callable<Boolean> syncer(String action) {
         return syncerProvider.get();
     }
 

@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -68,54 +67,6 @@ public class LegacySyncInitiator {
         } else {
             return false;
         }
-    }
-
-    public Observable<Boolean> syncNewTimelineItems(LegacySyncContent syncContent) {
-        return explicitSync(syncContent, null);
-    }
-
-    public Observable<Boolean> refreshTimelineItems(LegacySyncContent syncContent) {
-        return explicitSync(syncContent, ApiSyncService.ACTION_HARD_REFRESH);
-    }
-
-    public Observable<Boolean> backfillTimelineItems(LegacySyncContent syncContent) {
-        return backfillSync(syncContent);
-    }
-
-    private Observable<Boolean> explicitSync(LegacySyncContent syncContent, @Nullable final String syncAction) {
-        final Uri contentUri = syncContent.content.uri;
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                context.startService(new Intent(context, ApiSyncService.class)
-                                             .setAction(syncAction)
-                                             .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                                                       new LegacyResultReceiverAdapter(subscriber, contentUri))
-                                             .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                                             .setData(contentUri));
-            }
-        }).doOnNext(resetSyncMissesLegacy(contentUri));
-    }
-
-    /**
-     * Triggers a backfill sync for the given URI.
-     * <p>
-     * This is a sync that will retrieve N more sound stream items /older/ than the oldest locally
-     * available item. Used to lazily pull in more items when paging in the stream reverse chronologically.
-     */
-    private Observable<Boolean> backfillSync(final LegacySyncContent syncContent) {
-        final Uri contentUri = syncContent.content.uri;
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                context.startService(new Intent(context, ApiSyncService.class)
-                                             .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER,
-                                                       new LegacyResultReceiverAdapter(subscriber, contentUri))
-                                             .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                                             .setData(contentUri)
-                                             .setAction(ApiSyncService.ACTION_APPEND));
-            }
-        });
     }
 
     public Observable<Boolean> refreshFollowings() {

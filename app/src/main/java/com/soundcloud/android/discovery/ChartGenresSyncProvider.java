@@ -18,7 +18,7 @@ public class ChartGenresSyncProvider extends SyncerRegistry.SyncProvider {
     }
 
     @Override
-    public Callable<Boolean> syncer() {
+    public Callable<Boolean> syncer(String action) {
         return genresSyncerProvider.get();
     }
 

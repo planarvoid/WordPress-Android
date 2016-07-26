@@ -24,18 +24,6 @@ public class SingleJobRequest implements SyncRequest {
     protected final String action;
     protected SyncJobResult resultEvent;
 
-    public SingleJobRequest(Syncable syncable,
-                            SyncerRegistry.SyncProvider syncProvider,
-                            ResultReceiver resultReceiver,
-                            boolean isHighPriority,
-                            @Provided EventBus eventBus) {
-        this(new DefaultSyncJob(syncProvider.syncer(), syncable),
-             syncProvider.id(),
-             isHighPriority,
-             resultReceiver,
-             eventBus);
-    }
-
     public SingleJobRequest(DefaultSyncJob syncJob,
                             String action,
                             boolean isHighPriority,

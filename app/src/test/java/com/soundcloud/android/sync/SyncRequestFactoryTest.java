@@ -8,13 +8,17 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
+import com.soundcloud.android.sync.likes.DefaultSyncJob;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.TestSyncer;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import android.content.Intent;
@@ -112,14 +116,20 @@ public class SyncRequestFactoryTest extends AndroidUnitTest {
     public void createsSingleRequestJobForSyncable() throws Exception {
         final Intent intent = new Intent().putExtra(ApiSyncService.EXTRA_SYNCABLE, Syncable.CHARTS)
                                           .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter)
-                                          .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
+                                          .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true).setAction("action");
 
         final SingleJobRequest request = mock(SingleJobRequest.class);
         final SyncerRegistry.SyncProvider syncProvider = TestSyncData.get(Syncable.CHARTS);
+        final ArgumentCaptor<DefaultSyncJob> defaultSyncJobArgumentCaptor = ArgumentCaptor.forClass(DefaultSyncJob.class);
+
         when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(syncProvider);
-        when(singleJobRequestFactory.create(Syncable.CHARTS, syncProvider, resultReceiverAdapter, true)).thenReturn(
-                request);
+        when(singleJobRequestFactory.create(defaultSyncJobArgumentCaptor.capture(),
+                                            Matchers.eq(Syncable.CHARTS.name()), Matchers.eq(true), Matchers.same(resultReceiverAdapter))).thenReturn(request);
 
         assertThat(syncRequestFactory.create(intent)).isSameAs(request);
+
+        final DefaultSyncJob syncJob = defaultSyncJobArgumentCaptor.getValue();
+        syncJob.run();
+        assertThat(((TestSyncer) syncProvider.syncer("action")).hasRun()).isTrue();
     }
 }

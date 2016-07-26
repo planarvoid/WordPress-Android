@@ -1,6 +1,8 @@
 package com.soundcloud.android.sync;
 
 public enum Syncable {
+    SOUNDSTREAM,
+    ACTIVITIES,
     TRACK_LIKES,
     PLAYLIST_LIKES,
     TRACK_POSTS,

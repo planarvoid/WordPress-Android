@@ -8,7 +8,6 @@ import static com.soundcloud.android.stream.StreamItem.Kind.UPSELL;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
@@ -21,9 +20,9 @@ import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.stream.StreamItem.Kind;
-import com.soundcloud.android.sync.LegacySyncContent;
-import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.java.collections.PropertySet;
@@ -139,17 +138,16 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     };
 
     @Inject
-    SoundStreamOperations(SoundStreamStorage soundStreamStorage, LegacySyncInitiator syncInitiator,
-                          ContentStats contentStats, RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand,
+    SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
+                          RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand,
                           MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           FacebookInvitesOperations facebookInvites,
                           StationsOperations stationsOperations, UpsellOperations upsellOperations,
                           SyncStateStorage syncStateStorage) {
-        super(LegacySyncContent.MySoundStream,
+        super(Syncable.SOUNDSTREAM,
               soundStreamStorage,
               syncInitiator,
-              contentStats,
               scheduler,
               syncStateStorage);
         this.soundStreamStorage = soundStreamStorage;

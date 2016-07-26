@@ -5,11 +5,12 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.Timestamped;
-import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.LegacySyncContent;
+import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.Pager;
@@ -34,24 +35,21 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
-    private final LegacySyncContent syncContent;
+    private final Syncable syncable;
     private final TimelineStorage storage;
-    private final LegacySyncInitiator syncInitiator;
-    private final ContentStats contentStats;
+    private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
     private final SyncStateStorage syncStateStorage;
     private final List<ItemT> noMorePagesSentinel = Collections.emptyList();
 
-    public TimelineOperations(LegacySyncContent syncContent,
+    public TimelineOperations(Syncable syncable,
                               TimelineStorage storage,
-                              LegacySyncInitiator syncInitiator,
-                              ContentStats contentStats,
+                              SyncInitiator syncInitiator,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                               SyncStateStorage syncStateStorage) {
-        this.syncContent = syncContent;
+        this.syncable = syncable;
         this.storage = storage;
         this.syncInitiator = syncInitiator;
-        this.contentStats = contentStats;
         this.scheduler = scheduler;
         this.syncStateStorage = syncStateStorage;
     }
@@ -64,7 +62,7 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
     }
 
     protected Observable<List<ItemT>> updatedTimelineItems() {
-        return syncInitiator.refreshTimelineItems(syncContent)
+        return syncInitiator.sync(syncable, SyncInitiator.ACTION_HARD_REFRESH)
                             .flatMap(handleSyncResult(INITIAL_TIMESTAMP));
     }
 
@@ -78,7 +76,6 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
                 if (isEmptyResult(result)) {
                     return handleEmptyLocalResult(timestamp, syncCompleted);
                 } else {
-                    updateLastSeenTimestamp(result);
                     return Observable.just(result);
                 }
             }
@@ -87,14 +84,6 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
 
     protected abstract boolean isEmptyResult(List<ItemT> result);
 
-    private void updateLastSeenTimestamp(List<ItemT> result) {
-        final Date newestItemTimestamp = getFirstItemTimestamp(result);
-
-        if (newestItemTimestamp != null) {
-            contentStats.setLastSeen(syncContent.content, newestItemTimestamp.getTime());
-        }
-    }
-
     private Observable<List<ItemT>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {
         if (syncCompleted) {
             Log.d(TAG, "No items after previous sync, return empty page");
@@ -102,20 +91,20 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
         } else {
             if (timestamp == INITIAL_TIMESTAMP) {
                 Log.d(TAG, "First page; triggering full sync");
-                return syncInitiator.syncNewTimelineItems(syncContent).flatMap(handleSyncResult(timestamp));
+                return syncInitiator.sync(syncable).flatMap(handleSyncResult(timestamp));
             } else {
                 Log.d(TAG, "Not on first page; triggering backfill sync");
-                return syncInitiator.backfillTimelineItems(syncContent).flatMap(handleSyncResult(timestamp));
+                return syncInitiator.sync(syncable, ApiSyncService.ACTION_APPEND).flatMap(handleSyncResult(timestamp));
             }
         }
     }
 
-    private Func1<Boolean, Observable<List<ItemT>>> handleSyncResult(final long currentTimestamp) {
-        return new Func1<Boolean, Observable<List<ItemT>>>() {
+    private Func1<SyncJobResult, Observable<List<ItemT>>> handleSyncResult(final long currentTimestamp) {
+        return new Func1<SyncJobResult, Observable<List<ItemT>>>() {
             @Override
-            public Observable<List<ItemT>> call(Boolean newItemsAvailable) {
-                Log.d(TAG, "Sync finished; new items? => " + newItemsAvailable);
-                if (newItemsAvailable) {
+            public Observable<List<ItemT>> call(SyncJobResult syncJobResult) {
+                Log.d(TAG, "Sync finished; new items? => " + syncJobResult);
+                if (syncJobResult.wasChanged()) {
                     if (currentTimestamp == INITIAL_TIMESTAMP) {
                         // we're coming from page 1, just load from local storage
                         return initialTimelineItems(true);
@@ -181,11 +170,11 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
     }
 
     public Observable<Long> lastSyncTime() {
-        return syncStateStorage.lastSyncOrAttemptTime(syncContent.content.uri);
+        return Observable.just(syncStateStorage.lastSyncTime(syncable));
     }
 
     private Observable<Boolean> hasSyncedBefore() {
-        return syncStateStorage.hasSyncedBefore(syncContent.content.uri);
+        return Observable.just(syncStateStorage.hasSyncedBefore(syncable));
     }
 
     public Observable<List<ItemT>> updatedTimelineItemsForStart() {

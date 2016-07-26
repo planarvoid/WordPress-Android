@@ -4,7 +4,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistStorage;
@@ -165,10 +164,6 @@ public class SyncAdapterService extends Service {
             return false;
         }
 
-        // for first sync set all last seen flags to "now"
-        setContentStatsIfNeverSeen(app, Content.ME_SOUND_STREAM);
-        setContentStatsIfNeverSeen(app, Content.ME_ACTIVITIES);
-
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, userAssociationStorage,
                                                 playlistStorage, myLikesStateProvider, syncConfig);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
@@ -189,13 +184,6 @@ public class SyncAdapterService extends Service {
             return true;
         } else {
             return false;
-        }
-    }
-
-    private static void setContentStatsIfNeverSeen(SoundCloudApplication app, Content content) {
-        if (ContentStats.getLastSeen(app, content) <= 0) {
-            ContentStats.setLastSeen(app, content, System.currentTimeMillis());
-            ContentStats.setLastNotified(app, content, System.currentTimeMillis());
         }
     }
 

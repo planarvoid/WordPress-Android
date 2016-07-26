@@ -60,49 +60,6 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateIntentForSyncingNewTimelineContent() {
-        initiator.syncNewTimelineItems(LegacySyncContent.MySoundStream).subscribe(legacySyncSubscriber);
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isSameAs(LegacySyncContent.MySoundStream.contentUri());
-        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
-    }
-
-    @Test
-    public void shouldCreateIntentForRefreshingTimelineContent() {
-        initiator.refreshTimelineItems(LegacySyncContent.MySoundStream).subscribe(legacySyncSubscriber);
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isEqualTo(LegacySyncContent.MySoundStream.contentUri());
-        assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_HARD_REFRESH);
-        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
-    }
-
-    @Test
-    public void shouldResetTimelineSyncMissesOnChangedSync() {
-        initiator.refreshTimelineItems(LegacySyncContent.MySoundStream).subscribe(legacySyncSubscriber);
-        final Uri uri = LegacySyncContent.MySoundStream.contentUri();
-        sendSyncChangedLegacyToUri(uri);
-        verify(syncStateManager).resetSyncMissesAsync(uri);
-    }
-
-    @Test
-    public void shouldCreateIntentForSyncingOlderActivityItems() {
-        initiator.backfillTimelineItems(LegacySyncContent.MySoundStream).subscribe(legacySyncSubscriber);
-
-        Intent intent = ShadowApplication.getInstance().getNextStartedService();
-        assertThat(intent).isNotNull();
-        assertThat(intent.getData()).isSameAs(LegacySyncContent.MySoundStream.contentUri());
-        assertThat(intent.getAction()).isEqualTo(ApiSyncService.ACTION_APPEND);
-        assertThat(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).isTrue();
-        assertThat(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).isInstanceOf(ResultReceiver.class);
-    }
-
-    @Test
     public void shouldCreateIntentForSyncingLocalPlaylists() throws Exception {
         initiator.syncLocalPlaylists();
 

@@ -20,9 +20,12 @@ public class TestSyncData {
                                                    final boolean usePeriodicSync) {
 
         return new SyncerRegistry.SyncProvider(syncable) {
+
+            private TestSyncer testSyncer = new TestSyncer();
+
             @Override
-            public Callable<Boolean> syncer() {
-                return new TestSyncer();
+            public Callable<Boolean> syncer(String action) {
+                return testSyncer;
             }
 
             @Override

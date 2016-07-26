@@ -103,11 +103,10 @@ class SyncRequestFactory {
     }
 
     private SyncRequest createDefaultSingleJobRequest(Intent intent, Syncable syncable) {
-        final SyncerRegistry.SyncProvider syncProvider = syncerRegistry.get(syncable);
-        return singleJobRequestFactory.create(syncable,
-                                              syncProvider,
-                                              getReceiverFromIntent(intent),
-                                              getIsHighPriorityFromIntent(intent));
+        return singleJobRequestFactory.create(new DefaultSyncJob(syncerRegistry.get(syncable).syncer(intent.getAction()), syncable),
+                                              syncable.name(),
+                                              getIsHighPriorityFromIntent(intent),
+                                              getReceiverFromIntent(intent));
     }
 
     private SyncRequest createMultiJobRequest(Intent intent) {
@@ -121,7 +120,8 @@ class SyncRequestFactory {
     private List<SyncJob> createSyncJobs(List<Syncable> syncables) {
         final List<SyncJob> syncJobs = new ArrayList<>(syncables.size());
         for (Syncable syncable : syncables) {
-            syncJobs.add(new DefaultSyncJob(syncerRegistry.get(syncable).syncer(), syncable));
+            final DefaultSyncJob syncJob = new DefaultSyncJob(syncerRegistry.get(syncable).syncer(null), syncable);
+            syncJobs.add(syncJob);
         }
         return syncJobs;
     }

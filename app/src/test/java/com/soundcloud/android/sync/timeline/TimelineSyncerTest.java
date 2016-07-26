@@ -1,8 +1,8 @@
 package com.soundcloud.android.sync.timeline;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static junit.framework.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -17,7 +17,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
@@ -44,8 +43,8 @@ public class TimelineSyncerTest extends AndroidUnitTest {
     private static final String NEXT_NEXT_URL = "next-next-url";
     private static final String FUTURE_URL = "future-url";
     private static final ApiEndpoints ENDPOINT = ApiEndpoints.STREAM;
-
-    private TimelineSyncer timelineSyncer;
+    private static final String ACTION_REFRESH = ApiSyncService.ACTION_HARD_REFRESH;
+    private static final String ACTION_APPEND = ApiSyncService.ACTION_APPEND;
 
     @Mock private Context context;
     @Mock private ApiClient apiClient;
@@ -66,10 +65,13 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.remove(anyString())).thenReturn(sharedPreferencesEditor);
+    }
 
-        timelineSyncer = new TimelineSyncer<>(ENDPOINT, CONTENT_URI, apiClient, insertCommand, replaceCommand,
+    private TimelineSyncer<Object> createTimelineSyncer(String action) {
+        return new TimelineSyncer<>(ENDPOINT, CONTENT_URI, apiClient, insertCommand, replaceCommand,
                                               timelineSyncStorage, new TypeToken<ModelCollection<Object>>() {
-        });
+        }, action);
+
     }
 
     @Test
@@ -77,7 +79,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ENDPOINT.path())), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
-        timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_HARD_REFRESH);
+        createTimelineSyncer(ACTION_REFRESH).call();
 
         verify(replaceCommand).call(iterableArgumentCaptor.capture());
         assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
@@ -88,7 +90,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ENDPOINT.path())), isA(TypeToken.class)))
                 .thenReturn(itemsWithNextLink());
 
-        timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_HARD_REFRESH);
+        createTimelineSyncer(ACTION_REFRESH).call();
 
         verify(timelineSyncStorage).storeNextPageUrl(Optional.of(new Link(NEXT_URL)));
     }
@@ -98,7 +100,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ENDPOINT.path())), isA(TypeToken.class)))
                 .thenReturn(itemsWithFutureLink());
 
-        timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_HARD_REFRESH);
+        createTimelineSyncer(ACTION_REFRESH).call();
 
         verify(timelineSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
     }
@@ -108,10 +110,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ENDPOINT.path())), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
-        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI,
-                                                                             ApiSyncService.ACTION_HARD_REFRESH);
-        assertThat(legacySyncResult.success).isTrue();
-        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.CHANGED);
+        assertThat(createTimelineSyncer(ACTION_REFRESH).call()).isTrue();
     }
 
     @Test
@@ -121,7 +120,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
-        timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
+        createTimelineSyncer(ACTION_APPEND).call();
 
         verify(insertCommand).call(iterableArgumentCaptor.capture());
         assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
@@ -134,11 +133,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
-        timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-
-        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-        assertThat(legacySyncResult.success).isTrue();
-        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.CHANGED);
+        assertThat(createTimelineSyncer(ACTION_APPEND).call()).isTrue();
     }
 
     @Test
@@ -148,11 +143,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(new ModelCollection<>(new ArrayList<>()));
 
-        timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-
-        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-        assertThat(legacySyncResult.success).isTrue();
-        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.UNCHANGED);
+        assertThat(createTimelineSyncer(ACTION_APPEND).call()).isFalse();
     }
 
     @Test
@@ -161,11 +152,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
-        timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-
-        final LegacySyncResult legacySyncResult = timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
-        assertThat(legacySyncResult.success).isTrue();
-        assertThat(legacySyncResult.change).isEqualTo(LegacySyncResult.UNCHANGED);
+        assertThat(createTimelineSyncer(ACTION_APPEND).call()).isFalse();
     }
 
     @Test
@@ -175,7 +162,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", NEXT_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithNextLink(NEXT_NEXT_URL));
 
-        timelineSyncer.syncContent(CONTENT_URI, ApiSyncService.ACTION_APPEND);
+        createTimelineSyncer(ACTION_APPEND).call();
 
         verify(timelineSyncStorage).storeNextPageUrl(Optional.of(new Link(NEXT_NEXT_URL)));
     }
@@ -188,7 +175,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
                 .thenThrow(ApiRequestException.badRequest(null, null, null));
 
         try {
-            timelineSyncer.syncContent(CONTENT_URI, null);
+            createTimelineSyncer(null).call();
             fail("Expected exception after API 400");
         } catch (ApiRequestException e) {
             assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.BAD_REQUEST);
@@ -205,7 +192,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
                 .thenThrow(ApiRequestException.notFound(null, null));
 
         try {
-            timelineSyncer.syncContent(CONTENT_URI, null);
+            createTimelineSyncer(null).call();
             fail("Expected exception after API 404");
         } catch (ApiRequestException e) {
             assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.NOT_FOUND);
@@ -222,7 +209,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
                 .thenThrow(ApiRequestException.serverError(null, null));
 
         try {
-            timelineSyncer.syncContent(CONTENT_URI, null);
+            createTimelineSyncer(null).call();
             fail("Expected exception after API 500");
         } catch (ApiRequestException e) {
             assertThat(e.reason()).isEqualTo(ApiRequestException.Reason.SERVER_ERROR);
@@ -237,7 +224,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ENDPOINT.path())), isA(TypeToken.class)))
                 .thenReturn(itemsWithFutureLink());
 
-        timelineSyncer.syncContent(CONTENT_URI, null);
+        createTimelineSyncer(null).call();
 
         verify(timelineSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
     }
@@ -250,7 +237,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithoutLinks());
 
-        timelineSyncer.syncContent(CONTENT_URI, null);
+        createTimelineSyncer(null).call();
 
         verify(insertCommand).call(iterableArgumentCaptor.capture());
         assertThat(iterableArgumentCaptor.getValue()).containsExactly(streamItem1, streamItem2);
@@ -264,7 +251,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithFutureLink());
 
-        timelineSyncer.syncContent(CONTENT_URI, null);
+        createTimelineSyncer(null).call();
 
         verify(timelineSyncStorage).storeFuturePageUrl(new Link(FUTURE_URL));
     }
@@ -277,7 +264,7 @@ public class TimelineSyncerTest extends AndroidUnitTest {
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
                 .thenReturn(itemsWithNextLink());
 
-        timelineSyncer.syncContent(CONTENT_URI, null);
+        createTimelineSyncer(null).call();
 
         verify(replaceCommand).call(iterableArgumentCaptor.capture());
         verifyZeroInteractions(insertCommand);

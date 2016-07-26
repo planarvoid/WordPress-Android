@@ -1,25 +1,25 @@
-package com.soundcloud.android.discovery;
+package com.soundcloud.android.activities;
 
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.SyncerRegistry;
+import com.soundcloud.android.sync.activities.ActivitiesSyncer.ActivitiesSyncerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-public class ChartsSyncProvider extends SyncerRegistry.SyncProvider {
-    private final Provider<ChartsSyncer> chartsSyncerProvider;
+public class ActivitiesSyncProvider extends SyncerRegistry.SyncProvider {
+    private final ActivitiesSyncerFactory syncerFactory;
 
     @Inject
-    protected ChartsSyncProvider(Provider<ChartsSyncer> chartsSyncerProvider) {
-        super(Syncable.CHARTS);
-        this.chartsSyncerProvider = chartsSyncerProvider;
+    public ActivitiesSyncProvider(ActivitiesSyncerFactory syncerFactory) {
+        super(Syncable.ACTIVITIES);
+        this.syncerFactory = syncerFactory;
     }
 
     @Override
     public Callable<Boolean> syncer(String action) {
-        return chartsSyncerProvider.get();
+        return syncerFactory.create(action);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ChartsSyncProvider extends SyncerRegistry.SyncProvider {
 
     @Override
     public long staleTime() {
-        return TimeUnit.DAYS.toMillis(1);
+        return TimeUnit.MINUTES.toMillis(10);
     }
 
     @Override

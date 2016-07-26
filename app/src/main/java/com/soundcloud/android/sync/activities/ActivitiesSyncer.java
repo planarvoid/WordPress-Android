@@ -15,13 +15,39 @@ import javax.inject.Named;
 
 public class ActivitiesSyncer extends TimelineSyncer<ApiActivityItem> {
 
-    @Inject
     public ActivitiesSyncer(ApiClient apiClient,
                             StoreActivitiesCommand storeItemsCommand,
                             ReplaceActivitiesCommand replaceItemsCommand,
-                            @Named(ACTIVITIES_SYNC_STORAGE) TimelineSyncStorage timelineSyncStorage) {
+                            TimelineSyncStorage timelineSyncStorage,
+                            String action) {
         super(ApiEndpoints.ACTIVITIES, Content.ME_ACTIVITIES.uri, apiClient, storeItemsCommand, replaceItemsCommand,
               timelineSyncStorage, new TypeToken<ModelCollection<ApiActivityItem>>() {
-                });
+                }, action);
+    }
+
+    // AutoFactory does not support named dependencies : https://github.com/google/auto/issues/174
+    public static class ActivitiesSyncerFactory {
+
+        private final ApiClient apiClient;
+        private final StoreActivitiesCommand storeActivitiesCommand;
+        private final ReplaceActivitiesCommand replaceActivitiesCommand;
+        private final TimelineSyncStorage timelineSyncStorage;
+
+        @Inject
+        public ActivitiesSyncerFactory(ApiClient apiClient,
+                                        StoreActivitiesCommand storeActivitiesCommand,
+                                        ReplaceActivitiesCommand replaceActivitiesCommand,
+                                        @Named(ACTIVITIES_SYNC_STORAGE) TimelineSyncStorage timelineSyncStorage) {
+
+            this.apiClient = apiClient;
+            this.storeActivitiesCommand = storeActivitiesCommand;
+            this.replaceActivitiesCommand = replaceActivitiesCommand;
+            this.timelineSyncStorage = timelineSyncStorage;
+        }
+
+        public ActivitiesSyncer create(String action) {
+            return new ActivitiesSyncer(apiClient,
+                                         storeActivitiesCommand, replaceActivitiesCommand, timelineSyncStorage, action);
+        }
     }
 }

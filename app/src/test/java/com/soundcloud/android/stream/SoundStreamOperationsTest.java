@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.testsupport.fixtures.TestSyncJobResults.successWithChange;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
@@ -7,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.from;
 
-import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.FacebookInvitesEvent;
@@ -16,16 +16,14 @@ import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.LegacySyncInitiator;
-import com.soundcloud.android.sync.LegacySyncContent;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -53,8 +51,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem, SoundStreamStorage> {
 
-    private static final LegacySyncContent SYNC_CONTENT = LegacySyncContent.MySoundStream;
-
     private SoundStreamOperations operations;
 
     @Mock private SoundStreamStorage soundStreamStorage;
@@ -80,11 +76,10 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
 
     @Override
     protected TimelineOperations<StreamItem> buildOperations(SoundStreamStorage storage,
-                                                             LegacySyncInitiator syncInitiator,
-                                                             ContentStats contentStats,
+                                                             SyncInitiator syncInitiator,
                                                              Scheduler scheduler,
                                                              SyncStateStorage syncStateStorage) {
-        return new SoundStreamOperations(storage, syncInitiator, contentStats, removeStalePromotedItemsCommand,
+        return new SoundStreamOperations(storage, syncInitiator, removeStalePromotedItemsCommand,
                                          markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
                                          stationsOperations, upsellOperations, syncStateStorage);
     }
@@ -95,24 +90,8 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     }
 
     @Override
-    protected LegacySyncContent provideSyncContent() {
-        return SYNC_CONTENT;
-    }
-
-    @Test
-    public void initialStreamIgnoresPromotedItemWhenItSetsLastSeenTimestamp() {
-        final List<PropertySet> items = createItems(PAGE_SIZE - 1, 123L);
-        final long ignoredDate = Long.MAX_VALUE - 1;
-        items.add(0, PropertySet.from(
-                PlayableProperty.URN.bind(Urn.forTrack(12345L)),
-                PromotedItemProperty.AD_URN.bind("adswizz:ad:123"),
-                PlayableProperty.CREATED_AT.bind(new Date(ignoredDate))));
-
-        when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-
-        operations.initialStreamItems().subscribe(observer);
-
-        verify(contentStats).setLastSeen(Content.ME_SOUND_STREAM, FIRST_ITEM_TIMESTAMP);
+    protected Syncable provideSyncable() {
+        return Syncable.SOUNDSTREAM;
     }
 
     @Test
@@ -122,13 +101,13 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.just(promotedTrackProperties));
         // returning true means successful sync
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         operations.initialStreamItems().subscribe(observer);
 
         InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).timelineItems(PAGE_SIZE);
-        inOrder.verify(syncInitiator).syncNewTimelineItems(SYNC_CONTENT);
+        inOrder.verify(syncInitiator).sync(Syncable.SOUNDSTREAM);
         inOrder.verify(soundStreamStorage).timelineItems(PAGE_SIZE);
         inOrder.verify(observer).onNext(Collections.<StreamItem>emptyList());
         inOrder.verify(observer).onCompleted();
@@ -163,7 +142,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.from(itemsWithPromoted));
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         operations.initialStreamItems().subscribe(observer);
 
@@ -174,8 +153,8 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
 
     @Test
     public void updatedItemsStreamWithPromotedTrackTriggersPromotedTrackImpression() {
-        when(syncInitiator.refreshTimelineItems(SYNC_CONTENT))
-                .thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH))
+                .thenReturn(Observable.just(successWithChange()));
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         items.add(0, promotedTrackProperties);
 
@@ -225,7 +204,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.<PropertySet>empty());
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         assertInitialStreamEmpty();
     }
@@ -236,7 +215,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.just(promotedTrackProperties));
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         assertInitialStreamEmpty();
     }
@@ -250,7 +229,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.from(itemsWithPromoted));
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         assertInitialStreamFirstItemUrn(FacebookInvitesItem.LISTENER_URN);
     }
@@ -270,7 +249,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.<PropertySet>empty());
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         assertInitialStreamEmpty();
     }
@@ -281,7 +260,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.just(promotedTrackProperties));
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         assertInitialStreamEmpty();
     }
@@ -295,7 +274,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.from(itemsWithPromoted));
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
 
         assertInitialStreamFirstItemUrn(StationOnboardingStreamItem.URN);
     }
@@ -390,9 +369,9 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         final List<StreamItem> viewModels = viewModelsFromPropertySets(items);
 
-        when(syncStateStorage.hasSyncedBefore(SYNC_CONTENT.content.uri)).thenReturn(Observable.just(true));
-        when(syncInitiator.syncNewTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
-        when(syncInitiator.refreshTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncStateStorage.hasSyncedBefore(Syncable.SOUNDSTREAM)).thenReturn(true);
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Observable.just(successWithChange()));
         when(storage.timelineItems(PAGE_SIZE)).thenReturn(from(items));
 
         operations.updatedTimelineItemsForStart().subscribe(subscriber);
@@ -402,8 +381,8 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
 
     @Test
     public void shouldNotUpdateStreamForStartWhenNeverSyncedBefore() {
-        when(syncStateStorage.hasSyncedBefore(SYNC_CONTENT.content.uri)).thenReturn(Observable.just(false));
-        when(syncInitiator.refreshTimelineItems(SYNC_CONTENT)).thenReturn(Observable.just(true));
+        when(syncStateStorage.hasSyncedBefore(Syncable.SOUNDSTREAM)).thenReturn(false);
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM, SyncInitiator.ACTION_HARD_REFRESH)).thenReturn(Observable.just(successWithChange()));
 
         operations.updatedTimelineItemsForStart().subscribe(subscriber);
 

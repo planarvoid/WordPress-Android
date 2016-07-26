@@ -84,7 +84,15 @@ public class SyncStateStorage {
 
     public boolean hasSyncedWithin(String entity, long timeInMs) {
         long threshold = dateProvider.getCurrentTime() - timeInMs;
-        return preferences.getLong(entity, Consts.NOT_SET) >= threshold;
+        return lastSyncTime(entity) >= threshold;
+    }
+
+    public long lastSyncTime(Syncable syncable) {
+        return lastSyncTime(syncable.name());
+    }
+
+    private long lastSyncTime(String entity) {
+        return preferences.getLong(entity, Consts.NOT_SET);
     }
 
     public boolean hasSyncedBefore(String entity) {

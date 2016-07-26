@@ -14,6 +14,7 @@ import javax.inject.Named;
 
 @Module(complete = false,
         injects = {ApiSyncService.class, SyncAdapterService.class},
+        library = true,
         includes = {
                 LikesSyncModule.class,
                 EntitySyncModule.class,
@@ -26,13 +27,13 @@ public class SyncModule {
 
     @Provides
     @Named(SOUND_STREAM_SYNC_STORAGE)
-    TimelineSyncStorage soundStreamSyncStorage(@Named(StorageModule.STREAM_SYNC) SharedPreferences preferences) {
+    public TimelineSyncStorage soundStreamSyncStorage(@Named(StorageModule.STREAM_SYNC) SharedPreferences preferences) {
         return new TimelineSyncStorage(preferences);
     }
 
     @Provides
     @Named(ACTIVITIES_SYNC_STORAGE)
-    TimelineSyncStorage activitiesSyncStorage(@Named(StorageModule.ACTIVITIES_SYNC) SharedPreferences preferences) {
+    public TimelineSyncStorage activitiesSyncStorage(@Named(StorageModule.ACTIVITIES_SYNC) SharedPreferences preferences) {
         return new TimelineSyncStorage(preferences);
     }
 }

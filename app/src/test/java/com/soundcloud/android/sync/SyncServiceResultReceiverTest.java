@@ -5,7 +5,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -24,7 +23,6 @@ public class SyncServiceResultReceiverTest extends AndroidUnitTest {
     private SyncServiceResultReceiver syncServiceResultReceiver;
 
     @Mock private SyncStateManager syncStateManager;
-    @Mock private ContentStats contentStats;
     @Mock private SyncServiceResultReceiver.OnResultListener onResultListener;
     @Mock private SyncConfig syncConfig;
 

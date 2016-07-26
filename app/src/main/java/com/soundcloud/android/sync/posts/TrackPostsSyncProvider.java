@@ -19,9 +19,11 @@ public class TrackPostsSyncProvider extends SyncerRegistry.SyncProvider {
         this.trackPostsSyncer = trackPostsSyncer;
     }
 
+
+
     @SuppressWarnings("unchecked")
     @Override
-    public Callable<Boolean> syncer() {
+    public Callable<Boolean> syncer(String action) {
         return trackPostsSyncer.get();
     }
 
