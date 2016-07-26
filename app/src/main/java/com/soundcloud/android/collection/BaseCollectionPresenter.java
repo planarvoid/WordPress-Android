@@ -2,8 +2,6 @@ package com.soundcloud.android.collection;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PullToRefreshEvent;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -131,10 +129,7 @@ public abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCo
     @Override
     protected CollectionBinding<MyCollection, CollectionItem> onRefreshBinding() {
         final Observable<MyCollection> collections =
-                updatedMyCollection()
-                        .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING,
-                                                               new PullToRefreshEvent(Screen.COLLECTIONS)))
-                        .observeOn(AndroidSchedulers.mainThread());
+                updatedMyCollection().observeOn(AndroidSchedulers.mainThread());
         return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext),
                                       toCollectionItems)
                                 .withAdapter(adapter)

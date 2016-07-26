@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
-import static com.soundcloud.android.main.Screen.PLAYLIST_DETAILS;
 import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -15,7 +14,6 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PullToRefreshEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -249,10 +247,6 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     public void onRefresh() {
         playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations.updatedPlaylistInfo(getPlaylistUrn())
-                                                 // Experiment: track pull to refresh counts
-                                                 .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING,
-                                                                                        new PullToRefreshEvent(
-                                                                                                PLAYLIST_DETAILS)))
                                                  .observeOn(mainThread())
                                                  .subscribe(new RefreshSubscriber());
     }

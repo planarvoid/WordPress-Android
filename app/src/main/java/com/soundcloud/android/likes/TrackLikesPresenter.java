@@ -7,7 +7,6 @@ import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PullToRefreshEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -16,10 +15,10 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
+import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.CollapsingScrollHelper;
@@ -101,9 +100,7 @@ class TrackLikesPresenter extends RecyclerViewPresenter<List<PropertySet>, Track
     @Override
     protected CollectionBinding<List<PropertySet>, TrackItem> onRefreshBinding() {
         return CollectionBinding.from(
-                likeOperations.updatedLikedTracks()
-                              .doOnSubscribe(eventBus.publishAction0(EventQueue.TRACKING,
-                                                                     new PullToRefreshEvent(Screen.LIKES))),
+                likeOperations.updatedLikedTracks(),
                 TrackItem.fromPropertySets())
                                 .withAdapter(adapter)
                                 .withPager(likeOperations.pagingFunction())
