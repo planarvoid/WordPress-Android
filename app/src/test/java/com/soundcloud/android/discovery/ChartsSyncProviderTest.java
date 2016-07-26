@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.posts;
+package com.soundcloud.android.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,26 +13,26 @@ import javax.inject.Provider;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TrackPostsSyncProviderTest {
+public class ChartsSyncProviderTest {
 
-    private TrackPostsSyncProvider syncProvider;
+    private ChartsSyncProvider syncProvider;
 
-    @Mock private Provider<PostsSyncer> postsSyncerProvider;
+    @Mock private Provider<ChartsSyncer> chartsSyncerProvider;
 
     @Before
     public void setUp() {
-        this.syncProvider = new TrackPostsSyncProvider(postsSyncerProvider);
+        this.syncProvider = new ChartsSyncProvider(chartsSyncerProvider);
     }
 
     @Test
     public void shouldSyncCorrectEntityType() {
-        assertThat(syncProvider.id()).isEqualTo(Syncable.TRACK_POSTS.name());
+        assertThat(syncProvider.id()).isEqualTo(Syncable.CHARTS.name());
     }
 
     @Test
-    public void shouldAlwaysSync() {
-        assertThat(syncProvider.usePeriodicSync()).isTrue();
-        assertThat(syncProvider.staleTime()).isEqualTo(TimeUnit.HOURS.toMillis(1));
+    public void shouldNeverSync() {
+        assertThat(syncProvider.usePeriodicSync()).isFalse();
+        assertThat(syncProvider.staleTime()).isEqualTo(TimeUnit.DAYS.toMillis(1));
         assertThat(syncProvider.isOutOfSync()).isFalse();
     }
 }

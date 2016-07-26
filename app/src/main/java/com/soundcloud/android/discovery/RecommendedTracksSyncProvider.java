@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class RecommendedTracksSyncProvider extends SyncerRegistry.SyncProvider {
+
     private final Provider<RecommendedTracksSyncer> recommendedTracksSyncerProvider;
 
     @Inject
