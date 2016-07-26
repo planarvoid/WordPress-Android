@@ -58,7 +58,7 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
         super.onViewCreated(fragment, view, savedInstanceState);
 
         final int spanCount = resources.getInteger(R.integer.collection_grid_span_count);
-        final int itemMargin = view.getResources().getDimensionPixelSize(R.dimen.collection_recently_played_default_margin);
+        final int itemMargin = view.getResources().getDimensionPixelSize(R.dimen.collection_default_margin);
         final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
         RecyclerView recyclerView = getRecyclerView();
 
