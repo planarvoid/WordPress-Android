@@ -12,7 +12,7 @@ import com.soundcloud.android.screens.elements.StationsBucketElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class StationsRecommendationsTest extends TrackingActivityTest<MainActivity> {
-    private static final String RECOMMENDED_STATIONS_PLAYING_SPEC = "playing_recommended_station";
+    private static final String RECOMMENDED_STATIONS_PLAYING_SPEC = "playing_recommended_station2";
 
     public StationsRecommendationsTest() {
         super(MainActivity.class);
@@ -25,13 +25,14 @@ public class StationsRecommendationsTest extends TrackingActivityTest<MainActivi
 
     public void testStartSuggestedStationFromDiscovery() {
 
+        startEventTracking();
         final DiscoveryScreen discoveryScreen = mainNavHelper.goToDiscovery();
         final StationsBucketElement stationsBucketElement = discoveryScreen.stationsRecommendationsBucket();
 
         final String title = stationsBucketElement.getFirstStation().getTitle();
         final VisualPlayerElement playerElement = stationsBucketElement.getFirstStation()
                                                                        .click()
-                                                                       .waitForExpandedPlayer()
+                                                                       .waitForExpandedPlayerToStartPlaying()
                                                                        .clickArtwork();
 
         assertThat(playerElement.isExpanded(), is(true));
@@ -40,19 +41,6 @@ public class StationsRecommendationsTest extends TrackingActivityTest<MainActivi
         playerElement.pressBackToCollapse().waitForCollapsedPlayer();
         assertThat(playerElement.isCollapsed(), is(true));
         assertThat(stationsBucketElement.getFirstStation().isPlaying(), is(true));
-    }
-
-    public void testStartSuggestedStationTracking() {
-        final VisualPlayerElement player = mainNavHelper
-                .goToDiscovery()
-                .stationsRecommendationsBucket()
-                .getFirstStation()
-                .click()
-                .waitForExpandedPlayerToStartPlaying();
-
-        startEventTracking();
-        // pause
-        player.clickArtwork();
 
         finishEventTracking(RECOMMENDED_STATIONS_PLAYING_SPEC);
     }
