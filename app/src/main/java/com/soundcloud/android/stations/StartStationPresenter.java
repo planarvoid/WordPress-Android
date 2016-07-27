@@ -4,7 +4,6 @@ import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
 import static com.soundcloud.android.playback.PlaySessionSource.forStation;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
@@ -53,30 +52,62 @@ public class StartStationPresenter {
     }
 
     void startStation(Context context, Urn stationUrn, DiscoverySource discoverySource) {
-        startStation(context, stationsOperations.station(stationUrn), discoverySource);
+        playStation(context, stationsOperations.station(stationUrn), discoverySource);
     }
 
     void startStation(Context context, Urn stationUrn) {
-        startStation(context, stationsOperations.station(stationUrn), STATIONS);
+        playStation(context, stationsOperations.station(stationUrn), STATIONS);
     }
 
     void startStationForTrack(Context context, final Urn seed) {
         final Urn stationUrn = Urn.forTrackStation(seed.getNumericId());
-        startStation(context, stationsOperations.stationWithSeed(stationUrn, seed), STATIONS);
-    }
-
-    private void startStation(Context context,
-                              Observable<StationRecord> station,
-                              DiscoverySource discoverySource) {
-        startStation(context, station, discoverySource, Consts.NOT_SET);
+        playStation(context, stationsOperations.stationWithSeed(stationUrn, seed), STATIONS);
     }
 
     void startStation(Context context,
                       Observable<StationRecord> station,
                       DiscoverySource discoverySource,
-                      int playPosition) {
+                      int trackPosition) {
+        playStation(context, station, discoverySource, trackPosition);
+    }
+
+    private void playStation(Context context,
+                             final Observable<StationRecord> station,
+                             final DiscoverySource discoverySource,
+                             final int position) {
         subscription = station
-                .flatMap(toPlaybackResult(discoverySource, playPosition))
+                .flatMap(toPlaybackResult(discoverySource, position))
+                .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
+                                                                getLoadingDialogPresenter(context)));
+
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromStartStation());
+    }
+
+    private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(final DiscoverySource discoverySource,
+                                                                              final int position) {
+        return new Func1<StationRecord, Observable<PlaybackResult>>() {
+            @Override
+            public Observable<PlaybackResult> call(StationRecord stationRecord) {
+                checkArgument(!stationRecord.getTracks().isEmpty(), "The station does not have any tracks.");
+
+                final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
+                                                                       stationRecord.getUrn(),
+                                                                       discoverySource);
+                return playbackInitiator.playStation(stationRecord.getUrn(),
+                                                     stationRecord.getTracks(),
+                                                     playSessionSource,
+                                                     stationRecord.getTracks().get(position).getTrackUrn(),
+                                                     position);
+            }
+
+        };
+    }
+
+    void playStation(Context context,
+                     final Observable<StationRecord> station,
+                     final DiscoverySource discoverySource) {
+        subscription = station
+                .flatMap(toPlaybackResult(discoverySource))
                 .subscribe(new ExpandAndDismissDialogSubscriber(context, eventBus, playbackToastHelper,
                                                                 getLoadingDialogPresenter(context)));
 
@@ -97,20 +128,26 @@ public class StartStationPresenter {
                 .show(context);
     }
 
-    private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(
-            final DiscoverySource discoverySource, final int playPosition) {
+    private Func1<StationRecord, Observable<PlaybackResult>> toPlaybackResult(final DiscoverySource source) {
         return new Func1<StationRecord, Observable<PlaybackResult>>() {
             @Override
             public Observable<PlaybackResult> call(StationRecord station) {
                 checkArgument(!station.getTracks().isEmpty(), "The station does not have any tracks.");
 
-                final int position = playPosition != Consts.NOT_SET ? playPosition - 1 : station.getPreviousPosition();
+                Urn trackToPlay = Urn.NOT_SET;
+                int position = 0;
+
+                if (station.getPreviousPosition() != Stations.NEVER_PLAYED) {
+                    trackToPlay = station.getTracks().get(station.getPreviousPosition()).getTrackUrn();
+                    position = (station.getPreviousPosition() + 1) % station.getTracks().size();
+                }
                 final PlaySessionSource playSessionSource = forStation(screenProvider.getLastScreenTag(),
                                                                        station.getUrn(),
-                                                                       discoverySource);
+                                                                       source);
                 return playbackInitiator.playStation(station.getUrn(),
                                                      station.getTracks(),
                                                      playSessionSource,
+                                                     trackToPlay,
                                                      position);
             }
         };

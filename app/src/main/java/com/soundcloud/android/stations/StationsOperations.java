@@ -10,6 +10,7 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import rx.Observable;
 import rx.Scheduler;
@@ -69,6 +70,11 @@ public class StationsOperations {
         return station(station, prependSeed(seed));
     }
 
+    Observable<StationRecord> stationWithSeed(Urn station, final Optional<Urn> seed) {
+        return station(station,
+                       seed.isPresent() ? prependSeed(seed.get()) : UtilityFunctions.<StationRecord>identity());
+    }
+
     private Observable<StationRecord> station(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return stationsStorage
                 .clearExpiredPlayQueue(station)
@@ -108,6 +114,11 @@ public class StationsOperations {
             collection = syncAndLoadStationsCollection(type);
         }
         return collection.subscribeOn(scheduler);
+    }
+
+    Observable<List<StationInfoTrack>> stationTracks(Urn stationUrn) {
+        return stationsStorage.stationTracks(stationUrn).toList()
+                              .subscribeOn(scheduler);
     }
 
     private Observable<StationRecord> loadStationsCollection(final int type) {

@@ -5,7 +5,6 @@ import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import butterknife.ButterKnife;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -70,19 +69,21 @@ class StationInfoTracksBucketRenderer implements CellRenderer<StationInfoTracksB
         final List<StationInfoTrack> tracks = stationInfoTracksBucket.stationTracks();
 
         addTracksToAdapter(tracks);
-        scrollToLastPlayedPosition(itemView, stationInfoTracksBucket);
+        layout.scrollToPositionWithOffset(scrollPosition(stationInfoTracksBucket), itemView.getWidth());
     }
 
-    private void scrollToLastPlayedPosition(View itemView, StationInfoTracksBucket bucket) {
+    private int scrollPosition(StationInfoTracksBucket bucket) {
         final int lastPlayedPosition = bucket.lastPlayedPosition();
-        final TrackItem lastPlayedTrack = bucket.stationTracks().get(lastPlayedPosition).getTrack();
+        final List<StationInfoTrack> tracksList = bucket.stationTracks();
 
-        if (lastPlayedTrack.isPlaying()) {
-            layout.scrollToPositionWithOffset(lastPlayedPosition, itemView.getWidth());
-
-        } else if (lastPlayedPosition != Consts.NOT_SET) {
-            layout.scrollToPositionWithOffset(lastPlayedPosition + 1, itemView.getWidth());
+        if (lastPlayedPosition >= 0 && tracksList.get(lastPlayedPosition).getTrack().isPlaying()) {
+            return lastPlayedPosition;
         }
+
+        final boolean isLastTrack = lastPlayedPosition + 1 == tracksList.size();
+        final boolean wasNeverPlayed = lastPlayedPosition == Stations.NEVER_PLAYED;
+
+        return wasNeverPlayed || isLastTrack ? 0 : lastPlayedPosition + 1;
     }
 
     private void addTracksToAdapter(List<StationInfoTrack> tracks) {

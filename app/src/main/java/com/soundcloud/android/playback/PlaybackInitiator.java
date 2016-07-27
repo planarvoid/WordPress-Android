@@ -9,7 +9,6 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.stations.StationTrack;
-import com.soundcloud.android.stations.Stations;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import rx.Observable;
@@ -90,29 +89,16 @@ public class PlaybackInitiator {
     public Observable<PlaybackResult> playStation(Urn stationUrn,
                                                   List<StationTrack> stationTracks,
                                                   final PlaySessionSource playSessionSource,
-                                                  final int previousPosition) {
-        // TODO : once we land the playback operations refactoring #3876
-        // move this code to a proper stations builder.
-        final int nextPosition;
-        final Urn previousTrackUrn;
-        if (previousPosition == Stations.NEVER_PLAYED) {
-            previousTrackUrn = Urn.NOT_SET;
-            nextPosition = 0;
-        } else {
-            previousTrackUrn = stationTracks.get(previousPosition).getTrackUrn();
-            nextPosition = (previousPosition + 1) % stationTracks.size();
-        }
+                                                  final Urn clickedTrack, final int playQueuePosition) {
 
-        if (isCurrentPlayQueueOrRecommendationState(previousTrackUrn, playSessionSource)) {
+        if (isCurrentPlayQueueOrRecommendationState(clickedTrack, playSessionSource)) {
             return Observable.just(PlaybackResult.success());
         }
 
-        DiscoverySource discoverySource = playSessionSource.getDiscoverySource();
+        final DiscoverySource discoverySource = playSessionSource.getDiscoverySource();
+        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks, discoverySource);
 
-        final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, stationTracks,
-                                                              discoverySource);
-
-        return playNewQueue(playQueue, playQueue.getUrn(nextPosition), nextPosition, playSessionSource);
+        return playNewQueue(playQueue, playQueue.getUrn(playQueuePosition), playQueuePosition, playSessionSource);
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,

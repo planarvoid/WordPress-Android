@@ -82,8 +82,12 @@ public class StationFixtures {
         return getStation(urn, 1);
     }
 
+    public static StationRecord getStation(Urn urn, int size, int previouslyPlayedPosition) {
+        return getStation(getApiStation(urn, size), previouslyPlayedPosition);
+    }
+
     public static StationRecord getStation(Urn urn, int size) {
-        return getStation(getApiStation(urn, size));
+        return getStation(getApiStation(urn, size), Stations.NEVER_PLAYED);
     }
 
     public static StationRecord getStation(ApiStation apiStation) {
@@ -94,6 +98,17 @@ public class StationFixtures {
                 apiStation.getTracks(),
                 apiStation.getPermalink(),
                 apiStation.getPreviousPosition(),
+                apiStation.getImageUrlTemplate());
+    }
+
+    public static StationRecord getStation(ApiStation apiStation, int position) {
+        return new Station(
+                apiStation.getUrn(),
+                apiStation.getTitle(),
+                apiStation.getType(),
+                apiStation.getTracks(),
+                apiStation.getPermalink(),
+                position,
                 apiStation.getImageUrlTemplate());
     }
 

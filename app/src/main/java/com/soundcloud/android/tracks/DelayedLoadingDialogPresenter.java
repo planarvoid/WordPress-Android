@@ -118,7 +118,7 @@ public class DelayedLoadingDialogPresenter {
         private DialogInterface.OnCancelListener onCancelListener;
 
         @Inject
-        Builder() {
+        public Builder() {
         }
 
         public DelayedLoadingDialogPresenter create() {

@@ -17,6 +17,7 @@ import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListen
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
@@ -33,7 +34,6 @@ import java.util.List;
 class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, StationInfoItem>
         implements StationInfoClickListener {
 
-    private final StationTrackOperations stationTrackOperations;
     private final StartStationPresenter stationPresenter;
     private final StationsOperations stationOperations;
     private final StationInfoAdapter adapter;
@@ -57,11 +57,11 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
 
     private Subscription subscription = RxUtils.invalidSubscription();
     private DiscoverySource discoverySource;
+    private Optional<Urn> seedTrack;
     private Urn stationUrn;
 
     @Inject
-    public StationInfoPresenter(StationTrackOperations stationsTrackOperations,
-                                SwipeRefreshAttacher swipeRefreshAttacher,
+    public StationInfoPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                 StationInfoAdapterFactory adapterFactory,
                                 StationsOperations stationOperations,
                                 StartStationPresenter stationPresenter,
@@ -69,7 +69,6 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
                                 PlayQueueManager playQueueManager,
                                 EventBus eventBus) {
         super(swipeRefreshAttacher);
-        this.stationTrackOperations = stationsTrackOperations;
         this.stationOperations = stationOperations;
         this.stationPresenter = stationPresenter;
         this.playQueueManager = playQueueManager;
@@ -95,6 +94,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     @Override
     protected CollectionBinding<List<StationInfoItem>, StationInfoItem> onBuildBinding(Bundle fragmentArgs) {
         discoverySource = getDiscoverySource(fragmentArgs);
+        seedTrack = getSeedTrackUrn(fragmentArgs);
         stationUrn = fragmentArgs.getParcelable(EXTRA_URN);
 
         return CollectionBinding.from(getStationInfo(stationUrn)
@@ -107,13 +107,17 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
         return DiscoverySource.from(fragmentArgs.getString(EXTRA_SOURCE, STATIONS.value()));
     }
 
+    private Optional<Urn> getSeedTrackUrn(Bundle fragmentArgs) {
+        return Optional.fromNullable((Urn)fragmentArgs.getParcelable(StationInfoFragment.EXTRA_SEED_TRACk));
+    }
+
     private Observable<StationInfoItem> getStationInfo(Urn stationUrn) {
-        return stationOperations.station(stationUrn).map(FROM_STATION_RECORD);
+        return stationOperations.stationWithSeed(stationUrn, seedTrack).map(FROM_STATION_RECORD);
     }
 
     private Observable<StationInfoItem> getStationTracks(Urn stationUrn) {
-        return stationTrackOperations.stationTracks(stationUrn)
-                                     .zipWith(stationOperations.lastPlayedPosition(stationUrn), toViewModel);
+        return stationOperations.stationTracks(stationUrn)
+                                .zipWith(stationOperations.lastPlayedPosition(stationUrn), toViewModel);
     }
 
     @Override

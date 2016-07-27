@@ -5,12 +5,12 @@ import static com.soundcloud.android.model.PlayableProperty.CREATOR_URN;
 import static com.soundcloud.android.model.PlayableProperty.IMAGE_URL_TEMPLATE;
 import static com.soundcloud.android.model.PlayableProperty.TITLE;
 import static com.soundcloud.android.model.PlayableProperty.URN;
+import static com.soundcloud.android.stations.Stations.NEVER_PLAYED;
 import static com.soundcloud.java.optional.Optional.fromNullable;
 import static com.soundcloud.propeller.ContentValuesBuilder.values;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.apply;
-import static com.soundcloud.propeller.rx.RxResultMapper.scalar;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.StorageModule;
@@ -57,12 +57,15 @@ class StationsStorage {
                     cursorReader.getString(Stations.TYPE),
                     Collections.<StationTrack>emptyList(),
                     cursorReader.getString(Stations.PERMALINK),
-                    cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION)
-                    ? com.soundcloud.android.stations.Stations.NEVER_PLAYED
-                    : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
+                    mapLastPosition(cursorReader),
                     fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
         }
     };
+
+    private static int mapLastPosition(CursorReader cursorReader) {
+        return cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION) ?
+               NEVER_PLAYED : cursorReader.getInt(Stations.LAST_PLAYED_TRACK_POSITION);
+    }
 
     private static final Func1<CursorReader, StationTrack> TO_STATION_TRACK = new Func1<CursorReader, StationTrack>() {
         @Override
@@ -211,7 +214,12 @@ class StationsStorage {
         return propellerRx.query(Query.from(Stations.TABLE)
                                       .select(Stations.LAST_PLAYED_TRACK_POSITION)
                                       .whereEq(Stations.STATION_URN, stationUrn.toString()))
-                          .map(scalar(Integer.class));
+                          .map(new Func1<CursorReader, Integer>() {
+                              @Override
+                              public Integer call(CursorReader cursorReader) {
+                                  return mapLastPosition(cursorReader);
+                              }
+                          });
     }
 
     private ChangeResult resetLastPlayedTrackPosition(Urn stationUrn) {

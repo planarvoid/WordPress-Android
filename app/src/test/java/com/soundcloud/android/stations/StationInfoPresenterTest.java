@@ -17,6 +17,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,7 +39,6 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
 
     private StationInfoPresenter presenter;
 
-    @Mock StationTrackOperations stationTrackOperations;
     @Mock SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock StationsOperations stationOperations;
     @Mock StationInfoAdapterFactory adapterFactory;
@@ -61,14 +61,13 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
         when(stationOperations.lastPlayedPosition(TRACK_STATION)).thenReturn(Observable.just(Consts.NOT_SET));
-        when(stationOperations.station(TRACK_STATION)).thenReturn(Observable.just(stationRecord));
-        when(stationTrackOperations.stationTracks(TRACK_STATION)).thenReturn(Observable.just(stationTracks));
+        when(stationOperations.stationWithSeed(TRACK_STATION, Optional.<Urn>absent())).thenReturn(Observable.just(stationRecord));
+        when(stationOperations.stationTracks(TRACK_STATION)).thenReturn(Observable.just(stationTracks));
 
         when(rendererFactory.create(any(StationInfoPresenter.class))).thenReturn(bucketRenderer);
         when(adapterFactory.create(any(StationInfoClickListener.class), eq(bucketRenderer))).thenReturn(adapter);
 
-        presenter = new StationInfoPresenter(stationTrackOperations,
-                                             swipeRefreshAttacher,
+        presenter = new StationInfoPresenter(swipeRefreshAttacher,
                                              adapterFactory,
                                              stationOperations,
                                              stationPresenter,
