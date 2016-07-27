@@ -43,6 +43,7 @@
   </plurals>
   <!--__ADS-->
   <string name="ads_advertisement">Publicité</string>
+  <string name="ads_companionless">Le titre suivant va bientôt démarrer.</string>
   <string name="ads_call_to_action">EN SAVOIR PLUS</string>
   <string name="ads_why_ads">Pourquoi des publicités ?</string>
   <string name="ads_why_ads_dialog_message">À chaque fois que vous voyez ou entendez une publicité, les artistes touchent des revenus. Les publicités occasionnelles nous permettent de continuer à soutenir les artistes et à conserver la gratuité de  SoundCloud.</string>
@@ -385,6 +386,7 @@
   <string name="record_tap_to_record">Appuyer ici pour commencer l\'enregistrement</string>
   <string name="record_tap_to_pause">Appuyer ici pour mettre l\'enregistrement en pause</string>
   <string name="record_tap_to_resume">Appuyer ici pour reprendre l\'enregistrement</string>
+  <string name="record_permission_rationale">Veuillez autoriser l\'accès à votre microphone à SoundCloud afin de pouvoir créer un nouvel enregistrement.</string>
   <!--__UPLOAD-->
   <string name="uploader_event_processing">Traitement en cours</string>
   <string name="uploader_event_processing_your_sound">Traitement de votre titre</string>
@@ -428,10 +430,55 @@
   <string name="suggested_stations">Stations suggérées</string>
   <!--__DISCOVERY CHARTS-->
   <string name="charts_header">Charts</string>
+  <string name="charts_trending">Nouveautés</string>
+  <string name="charts_top">Top 50</string>
   <string name="charts_new_and_hot_list_header">Titres disponibles et à venir aujourd\'hui.</string>
   <string name="charts_top_fifty_list_header">Titres les plus écoutés sur SoundCloud cette semaine.</string>
   <string name="charts_genre_view_all">Parcourir tous les genres</string>
   <string name="charts_by_genre">Charts par genre</string>
+  <string name="all_genres">Tous les genres</string>
+  <string tools:ignore="UnusedResources" name="charts_alternativerock">Rock alternatif</string>
+  <string tools:ignore="UnusedResources" name="charts_ambient">Ambiance</string>
+  <string tools:ignore="UnusedResources" name="charts_classical">Classique</string>
+  <string tools:ignore="UnusedResources" name="charts_country">Country</string>
+  <string tools:ignore="UnusedResources" name="charts_danceedm">Dance &amp; EDM</string>
+  <string tools:ignore="UnusedResources" name="charts_dancehall">Dancehall</string>
+  <string tools:ignore="UnusedResources" name="charts_deephouse">Deep House</string>
+  <string tools:ignore="UnusedResources" name="charts_disco">Disco</string>
+  <string tools:ignore="UnusedResources" name="charts_drumbass">Drum &amp; Bass</string>
+  <string tools:ignore="UnusedResources" name="charts_dubstep">Dubstep</string>
+  <string tools:ignore="UnusedResources" name="charts_electronic">Electro</string>
+  <string tools:ignore="UnusedResources" name="charts_folksingersongwriter">Folk &amp; Auteur-compositeur</string>
+  <string tools:ignore="UnusedResources" name="charts_hiphoprap">Hip-hop &amp; Rap</string>
+  <string tools:ignore="UnusedResources" name="charts_house">House</string>
+  <string tools:ignore="UnusedResources" name="charts_indie">Indie</string>
+  <string tools:ignore="UnusedResources" name="charts_jazzblues">Jazz &amp; Blues</string>
+  <string tools:ignore="UnusedResources" name="charts_latin">Latin</string>
+  <string tools:ignore="UnusedResources" name="charts_metal">Metal</string>
+  <string tools:ignore="UnusedResources" name="charts_piano">Piano</string>
+  <string tools:ignore="UnusedResources" name="charts_pop">Pop</string>
+  <string tools:ignore="UnusedResources" name="charts_rbsoul">R&amp;B &amp; Soul</string>
+  <string tools:ignore="UnusedResources" name="charts_reggae">Reggae</string>
+  <string tools:ignore="UnusedResources" name="charts_reggaeton">Reggaeton</string>
+  <string tools:ignore="UnusedResources" name="charts_rock">Rock</string>
+  <string tools:ignore="UnusedResources" name="charts_soundtrack">Musiques de films</string>
+  <string tools:ignore="UnusedResources" name="charts_speech">Discours</string>
+  <string tools:ignore="UnusedResources" name="charts_techno">Techno</string>
+  <string tools:ignore="UnusedResources" name="charts_trance">Trance</string>
+  <string tools:ignore="UnusedResources" name="charts_trap">Trap</string>
+  <string tools:ignore="UnusedResources" name="charts_triphop">Triphop</string>
+  <string tools:ignore="UnusedResources" name="charts_world">World</string>
+  <string tools:ignore="UnusedResources" name="charts_audiobooks">Livres audio</string>
+  <string tools:ignore="UnusedResources" name="charts_business">Business</string>
+  <string tools:ignore="UnusedResources" name="charts_comedy">Comédie</string>
+  <string tools:ignore="UnusedResources" name="charts_entertainment">Entertainment</string>
+  <string tools:ignore="UnusedResources" name="charts_learning">Éducation</string>
+  <string tools:ignore="UnusedResources" name="charts_newspolitics">Actualités &amp; politique</string>
+  <string tools:ignore="UnusedResources" name="charts_religionspirituality">Religion &amp; spiritualité</string>
+  <string tools:ignore="UnusedResources" name="charts_science">Science</string>
+  <string tools:ignore="UnusedResources" name="charts_sports">Sports</string>
+  <string tools:ignore="UnusedResources" name="charts_storytelling">Storytelling</string>
+  <string tools:ignore="UnusedResources" name="charts_technology">Technologie</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Vider le cache de l\'application</string>
   <string name="pref_clear_cache_desc">Videz le cache de l\'application pour libérer de la mémoire sur votre appareil</string>
@@ -465,6 +512,9 @@
   <string name="stations_onboarding_stream_description">Appuyez sur les trois points à côté d\'un titre pour commencer.</string>
   <string name="recent_stations_empty_view_heading">Pour écouter une série de titres similaires, démarrez une station.</string>
   <string name="recent_stations_empty_view_message">Appuyez sur les trois points en regard d\'un titre pour commencer.</string>
+  <string name="stations_collection_title_station_page">Station</string>
+  <string name="stations_tracks_in_this_station">Titres de cette station</string>
+  <string name="stations_see_all_tracks">Voir tous les titres</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d s</string>
   <string name="format_abbreviated_minutes">%d min.</string>
@@ -556,6 +606,7 @@
   <string name="collections_play_history_header">Historique d\'écoute</string>
   <string name="collections_recently_played_header">Récemment écouté</string>
   <string name="collections_view_all_tracks">Voir plus</string>
+  <string name="collections_view_all_recently_played">Voir tous les titres récemment écoutés</string>
   <string name="dialog_playlist_delete_title">Supprimer la playlist?</string>
   <string name="dialog_playlist_delete_message">Cette action supprimera définitivement cette playlist. Êtes-vous certain de vouloir continuer?</string>
   <string name="collections_recently_played_track_station">station du titre</string>
@@ -771,8 +822,8 @@
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Abonnez-vous</string>
   <string name="upsell_stream_upgrade_button">Obtenez SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_title">Passez à SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_description">Bénéficiez d\'un catalogue complet hors connexion et sans publicités.</string>
+  <string name="upsell_stream_upgrade_title">Déverrouillez les aperçus avec SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_description">Bénéficiez d\'un catalogue complet hors connexion et sans publicité.</string>
   <string name="upsell_track_preview">Aperçu</string>
   <string name="upsell_track_geo_blocked">Non disponible dans votre pays</string>
   <!--__STATIONS-->
