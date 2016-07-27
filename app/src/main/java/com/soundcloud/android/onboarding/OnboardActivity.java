@@ -11,7 +11,7 @@ import static com.soundcloud.android.utils.ErrorUtils.log;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
-import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.common.AccountPicker;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -68,7 +68,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.animation.Animation;
@@ -437,24 +436,9 @@ public class OnboardActivity extends FragmentActivity
     @Override
     public void onGooglePlusAuth() {
         log(INFO, ONBOARDING_TAG, "on Google+ auth");
-
-        final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
-        if (names.length == 0) {
-            final boolean allowUserFeedback = true;
-            onError(getString(R.string.authentication_no_google_accounts), allowUserFeedback);
-        } else if (names.length == 1) {
-            onGoogleAccountSelected(names[0]);
-        } else {
-            ContextThemeWrapper cw = new ContextThemeWrapper(this, R.style.Theme_ScDialog);
-            final AlertDialog.Builder builder = new AlertDialog.Builder(cw).setTitle(R.string.dialog_select_google_account);
-            builder.setItems(names, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    onGoogleAccountSelected(names[which]);
-                }
-            });
-            builder.show();
-        }
+        Intent intent = AccountPicker.newChooseAccountIntent(null, null, new String[]{"com.google"},
+                                                             false, null, null, null, null);
+        startActivityForResult(intent, RequestCodes.PICK_GOOGLE_ACCOUNT);
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.googleAuthEvent());
     }
 
@@ -678,6 +662,13 @@ public class OnboardActivity extends FragmentActivity
 
             case RequestCodes.RECOVER_FROM_PLAY_SERVICES_ERROR: {
                 onGoogleActivityResult(resultCode);
+                break;
+            }
+
+            case RequestCodes.PICK_GOOGLE_ACCOUNT: {
+                if (resultCode == RESULT_OK) {
+                    onGoogleAccountSelected(intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
+                }
                 break;
             }
         }
