@@ -12,7 +12,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.annotations.VisibleForTesting;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,14 +22,6 @@ public class PlayHistoryOperations {
     public static final int CAROUSEL_ITEMS = 10;
     private static final int MAX_HISTORY_ITEMS = 1000;
     @VisibleForTesting  public static final int MAX_RECENTLY_PLAYED = 500;
-
-    private static final Func1<TrackItem, Long> BY_TRACK_ID =
-            new Func1<TrackItem, Long>() {
-                @Override
-                public Long call(TrackItem trackItem) {
-                    return trackItem.getUrn().getNumericId();
-                }
-            };
 
     private final PlaybackInitiator playbackInitiator;
     private final PlayHistoryStorage playHistoryStorage;
@@ -49,12 +40,8 @@ public class PlayHistoryOperations {
         return playHistory(MAX_HISTORY_ITEMS);
     }
 
-    // We preload up to 2 x limit and remove duplicate tracks by track id
-    // rather than having a distinct on all columns or a complex group by
     public Observable<List<TrackItem>> playHistory(int limit) {
-        return playHistoryStorage.fetchTracks(limit * 2)
-                                 .distinct(BY_TRACK_ID)
-                                 .take(limit)
+        return playHistoryStorage.fetchTracks(limit)
                                  .toList()
                                  .subscribeOn(scheduler);
     }

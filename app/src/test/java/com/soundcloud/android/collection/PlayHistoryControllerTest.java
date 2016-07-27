@@ -1,15 +1,13 @@
 package com.soundcloud.android.collection;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.collection.playhistory.WritePlayHistoryCommand;
+import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -26,85 +24,75 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.schedulers.TestScheduler;
+import rx.Scheduler;
+import rx.schedulers.Schedulers;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class PlayHistoryControllerTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(234L);
     private static final Urn COLLECTION_URN = Urn.forArtistStation(987L);
     private static final long START_EVENT = 12345678L;
+    public static final PlayHistoryRecord RECORD2 = PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN);
+    public static final PlayHistoryRecord RECORD = PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN);
 
-    @Mock WritePlayHistoryCommand storeCommand;
+    @Mock WritePlayHistoryCommand playHistoryStoreCommand;
+    @Mock WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
     @Mock PlayHistoryExperiment experiment;
 
-    private TestScheduler scheduler = new TestScheduler();
+    private Scheduler scheduler = Schedulers.immediate();
     private TestDateProvider dateProvider = new TestDateProvider(START_EVENT);
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
         when(experiment.isEnabled()).thenReturn(true);
-        PlayHistoryController controller = new PlayHistoryController(eventBus, storeCommand, experiment, scheduler);
+        PlayHistoryController controller = new PlayHistoryController(eventBus, playHistoryStoreCommand,
+                                                                     recentlyPlayedStoreCommand,
+                                                                     experiment, scheduler);
         controller.subscribe();
     }
 
     @Test
-    public void storesLongPlaysAfterInterval() {
-        publishStateEvents(TRACK_URN, COLLECTION_URN, true);
+    public void storesPlayHistory() {
+        publishStateEvents(RECORD);
 
-        scheduler.advanceTimeBy(1000, TimeUnit.MILLISECONDS);
-
-        verify(storeCommand, times(1)).call(PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN));
+        verify(playHistoryStoreCommand).call(RECORD);
     }
 
     @Test
-    public void doesNotStoreShortPlays() {
-        publishStateEvents(TRACK_URN, COLLECTION_URN, true);
+    public void storesPlayContexts() {
+        publishStateEvents(RECORD);
 
-        scheduler.advanceTimeBy(500, TimeUnit.MILLISECONDS);
-
-        verify(storeCommand, never()).call(PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN));
-    }
-
-    @Test
-    public void resetsOnNewTrack() {
-        publishStateEvents(TRACK_URN, COLLECTION_URN, true);
-        scheduler.advanceTimeBy(500, TimeUnit.MILLISECONDS);
-
-        publishStateEvents(TRACK_URN2, COLLECTION_URN, true);
-        scheduler.advanceTimeBy(1000, TimeUnit.MILLISECONDS);
-
-        verify(storeCommand, times(1)).call(PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN));
+        verify(recentlyPlayedStoreCommand).call(RECORD);
     }
 
     @Test
     public void emitsMultipleTimes() {
-        publishStateEvents(TRACK_URN, COLLECTION_URN, true);
-        scheduler.advanceTimeBy(500, TimeUnit.MILLISECONDS);
+        publishStateEvents(RECORD);
+        publishStateEvents(RECORD2);
 
-        publishStateEvents(TRACK_URN2, COLLECTION_URN, true);
-        scheduler.advanceTimeBy(1000, TimeUnit.MILLISECONDS);
-
-        verify(storeCommand, times(1)).call(PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN));
+        verify(playHistoryStoreCommand).call(RECORD);
+        verify(recentlyPlayedStoreCommand).call(RECORD);
+        verify(playHistoryStoreCommand).call(RECORD2);
+        verify(recentlyPlayedStoreCommand).call(RECORD2);
     }
 
     @Test
     public void publishesPlayHistoryAddedEvent() {
-        publishStateEvents(TRACK_URN, COLLECTION_URN, true);
-
-        scheduler.advanceTimeBy(1000, TimeUnit.MILLISECONDS);
+        publishStateEvents(RECORD);
 
         List<PlayHistoryEvent> playHistoryEvents = eventBus.eventsOn(EventQueue.PLAY_HISTORY);
         assertThat(playHistoryEvents.size()).isEqualTo(1);
         assertThat(playHistoryEvents.get(0)).isEqualTo(PlayHistoryEvent.fromAdded(TRACK_URN));
     }
 
-    private void publishStateEvents(Urn trackUrn, Urn collectionUrn, boolean playing) {
+    private void publishStateEvents(PlayHistoryRecord record) {
+        final Urn trackUrn = record.trackUrn();
+        final Urn collectionUrn = record.contextUrn();
         final TrackQueueItem item = new TrackQueueItem.Builder(trackUrn).build();
-        final PlaybackState playbackState = playing ? PlaybackState.PLAYING : PlaybackState.IDLE;
+        final PlaybackState playbackState = PlaybackState.PLAYING;
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED,
                          TestPlayStates.wrap(new PlaybackStateTransition(playbackState,

@@ -408,23 +408,43 @@ public interface Tables {
         public static final PlayHistory TABLE = new PlayHistory();
 
         public static final Column TRACK_ID = Column.create(TABLE, "track_id");
-        public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type");
-        public static final Column CONTEXT_ID = Column.create(TABLE, "context_id");
         public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS PlayHistory (" +
-                "track_id INTEGER NOT NULL," +
-                "context_type INTEGER NOT NULL," +
-                "context_id INTEGER NOT NULL," +
                 "timestamp INTEGER NOT NULL," +
-                "PRIMARY KEY (track_id, context_type, context_id)" +
+                "track_id INTEGER NOT NULL," +
+                "synced BOOLEAN DEFAULT 0," +
+                "PRIMARY KEY (timestamp, track_id)" +
                 ");";
 
-        static final String INDEX =
-                "CREATE INDEX IF NOT EXISTS PlayHistoryTimestamp ON PlayHistory (timestamp);";
-
         PlayHistory() {
-            super("PlayHistory", PrimaryKey.of("track_id", "context_type", "context_id"));
+            super("PlayHistory", PrimaryKey.of("timestamp", "track_id"));
         }
     }
+
+    class RecentlyPlayed extends BaseTable {
+        public static final RecentlyPlayed TABLE = new RecentlyPlayed();
+
+        public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
+        public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type");
+        public static final Column CONTEXT_ID = Column.create(TABLE, "context_id");
+
+        static final String SQL = "CREATE TABLE IF NOT EXISTS RecentlyPlayed (" +
+                "timestamp INTEGER NOT NULL," +
+                "context_type INTEGER NOT NULL," +
+                "context_id INTEGER NOT NULL," +
+                "synced BOOLEAN DEFAULT 0," +
+                "PRIMARY KEY (timestamp, context_type, context_id)" +
+                ");";
+
+        static final String MIGRATE_SQL = "INSERT OR IGNORE INTO RecentlyPlayed " +
+                "(timestamp, context_type, context_id) " +
+                "SELECT timestamp, context_type, context_id " +
+                "FROM PlayHistory WHERE context_type != 0;";
+
+        RecentlyPlayed() {
+            super("RecentlyPlayed", PrimaryKey.of("timestamp", "context_type", "context_id"));
+        }
+    }
+
 }

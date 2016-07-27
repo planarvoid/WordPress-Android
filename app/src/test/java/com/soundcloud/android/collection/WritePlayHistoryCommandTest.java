@@ -18,7 +18,7 @@ public class WritePlayHistoryCommandTest extends StorageIntegrationTest {
 
     @Test
     public void insertsNewPlayHistory() {
-        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.forArtistStation(234L));
+        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.NOT_SET);
 
         command.call(record);
 
@@ -26,27 +26,25 @@ public class WritePlayHistoryCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void updatesTimestampForPlayHistoryWithSameTrackAndContext() {
-        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.forArtistStation(234L));
+    public void insertsMultipleTimesTheSamePlayHistoryWithDifferentTimestamp() {
+        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.NOT_SET);
         command.call(record);
 
-        PlayHistoryRecord record2 = PlayHistoryRecord.create(2000L, Urn.forTrack(123L), Urn.forArtistStation(234L));
-        command.call(record2);
-
-        databaseAssertions().assertNoPlayHistory(record);
-        databaseAssertions().assertPlayHistory(record2);
-    }
-
-    @Test
-    public void insertsMultiplePlayHistoryForDifferentContextsAndSameTrack() {
-        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.forArtistStation(1L));
-        command.call(record);
-
-        PlayHistoryRecord record2 = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.forArtistStation(2L));
+        PlayHistoryRecord record2 = PlayHistoryRecord.create(2000L, Urn.forTrack(123L), Urn.NOT_SET);
         command.call(record2);
 
         databaseAssertions().assertPlayHistory(record);
         databaseAssertions().assertPlayHistory(record2);
     }
+
+    @Test
+    public void insertsOnlyOnceWhenTimestampAlreadyExistsForSameTrack() {
+        PlayHistoryRecord record = PlayHistoryRecord.create(1000L, Urn.forTrack(123L), Urn.NOT_SET);
+        command.call(record);
+        command.call(record);
+
+        databaseAssertions().assertPlayHistory(record, 1);
+    }
+
 
 }

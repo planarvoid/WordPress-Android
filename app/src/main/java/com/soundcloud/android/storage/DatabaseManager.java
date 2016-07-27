@@ -26,7 +26,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 85;
+    public static final int DATABASE_VERSION = 86;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -64,7 +64,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.execSQL(Tables.Charts.SQL);
             db.execSQL(Tables.ChartTracks.SQL);
             db.execSQL(Tables.PlayHistory.SQL);
-            db.execSQL(Tables.PlayHistory.INDEX);
+            db.execSQL(Tables.RecentlyPlayed.SQL);
 
             // legacy tables
             for (Table t : Table.values()) {
@@ -97,6 +97,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         dropTable(Tables.Charts.TABLE.name(), db);
         dropTable(Tables.ChartTracks.TABLE.name(), db);
         dropTable(Tables.PlayHistory.TABLE.name(), db);
+        dropTable(Tables.RecentlyPlayed.TABLE.name(), db);
 
         // legacy tables
         for (Table t : Table.values()) {
@@ -271,6 +272,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 85:
                             success = upgradeTo85(db, oldVersion);
+                            break;
+                        case 86:
+                            success = upgradeTo86(db, oldVersion);
                             break;
                         default:
                             break;
@@ -888,7 +892,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static boolean upgradeTo77(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.PlayHistory.SQL);
-            db.execSQL(Tables.PlayHistory.INDEX);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 77);
@@ -1011,6 +1014,32 @@ public class DatabaseManager extends SQLiteOpenHelper {
             handleUpgradeException(exception, oldVersion, 85);
         }
         return false;
+    }
+
+    /**
+     * Split PlayHistory (tracks+context) into PlayHistory (tracks)
+     * and RecentlyPlayed (context)
+     */
+
+    private boolean upgradeTo86(SQLiteDatabase db, int oldVersion) {
+        try {
+            db.execSQL(Tables.RecentlyPlayed.SQL);
+            tryMigratePlayHistory(db);
+            SchemaMigrationHelper.alterColumns(Tables.PlayHistory.TABLE.name(), Tables.PlayHistory.SQL, db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 86);
+        }
+
+        return false;
+    }
+
+    private void tryMigratePlayHistory(SQLiteDatabase db) {
+        try {
+            db.execSQL(Tables.RecentlyPlayed.MIGRATE_SQL);
+        } catch (SQLException exception) {
+            // ignore migration errors when already on new table schema
+        }
     }
 
     private static void migratePolicies(SQLiteDatabase db) {

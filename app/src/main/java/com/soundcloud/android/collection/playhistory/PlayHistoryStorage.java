@@ -11,6 +11,7 @@ import com.soundcloud.android.storage.TableColumns.SoundView;
 import com.soundcloud.android.storage.TableColumns.Sounds;
 import com.soundcloud.android.storage.Tables;
 import com.soundcloud.android.storage.Tables.PlayHistory;
+import com.soundcloud.android.storage.Tables.RecentlyPlayed;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMapper;
 import com.soundcloud.java.optional.Optional;
@@ -77,27 +78,28 @@ public class PlayHistoryStorage {
                     .innerJoin(Table.SoundView, filter()
                             .whereEq(Sounds._ID, PlayHistory.TRACK_ID)
                             .whereEq(Sounds._TYPE, Sounds.TYPE_TRACK))
+                    .groupBy(PlayHistory.TRACK_ID)
                     .order(PlayHistory.TIMESTAMP, Query.Order.DESC)
                     .limit(limit);
     }
 
     private String fetchContextsQuery(int limit) {
         return "SELECT " +
-                "    ph.context_type as " + PlayHistory.CONTEXT_TYPE.name() + "," +
-                "    ph.context_id as " + PlayHistory.CONTEXT_ID.name() + "," +
+                "    rp.context_type as " + RecentlyPlayed.CONTEXT_TYPE.name() + "," +
+                "    rp.context_id as " + RecentlyPlayed.CONTEXT_ID.name() + "," +
                 "    coalesce(playlists.title, artist_stations.title, track_stations.title, users.username) as " + RecentlyPlayedItemMapper.COLUMN_TITLE + "," +
                 "    coalesce(playlists.artwork_url, artist_stations.artwork_url_template, artist_stations.artwork_url_template, users.avatar_url, ptv.artwork_url) as " + RecentlyPlayedItemMapper.COLUMN_ARTWORK_URL + "," +
                 "    coalesce(playlists.track_count, 0) as " + RecentlyPlayedItemMapper.COLUMN_COLLECTION_COUNT + "," +
                 "    coalesce(playlists.is_album, 0) as " + RecentlyPlayedItemMapper.COLUMN_COLLECTION_ALBUM +
-                "  FROM " + PlayHistory.TABLE.name() + " as ph" +
-                "  LEFT JOIN " + Table.SoundView.name() + " as playlists ON ph.context_type = " + PlayHistoryRecord.CONTEXT_PLAYLIST + " AND playlists._type = " + Sounds.TYPE_PLAYLIST + " AND playlists._id = ph.context_id" +
-                "  LEFT JOIN " + Tables.Stations.TABLE.name() + " as track_stations ON ph.context_type = " + PlayHistoryRecord.CONTEXT_TRACK_STATION + " AND track_stations.station_urn = '" + TRACK_STATIONS_URN_PREFIX + "' || ph.context_id" +
-                "  LEFT JOIN " + Tables.Stations.TABLE.name() + " as artist_stations ON ph.context_type = " + PlayHistoryRecord.CONTEXT_ARTIST_STATION + " AND artist_stations.station_urn = '" + ARTIST_STATIONS_URN_PREFIX + "' || ph.context_id" +
-                "  LEFT JOIN " + Table.Users.name() + " as users ON ph.context_type = " + PlayHistoryRecord.CONTEXT_ARTIST + " AND users._id = ph.context_id" +
+                "  FROM " + RecentlyPlayed.TABLE.name() + " as rp" +
+                "  LEFT JOIN " + Table.SoundView.name() + " as playlists ON rp.context_type = " + PlayHistoryRecord.CONTEXT_PLAYLIST + " AND playlists._type = " + Sounds.TYPE_PLAYLIST + " AND playlists._id = rp.context_id" +
+                "  LEFT JOIN " + Tables.Stations.TABLE.name() + " as track_stations ON rp.context_type = " + PlayHistoryRecord.CONTEXT_TRACK_STATION + " AND track_stations.station_urn = '" + TRACK_STATIONS_URN_PREFIX + "' || rp.context_id" +
+                "  LEFT JOIN " + Tables.Stations.TABLE.name() + " as artist_stations ON rp.context_type = " + PlayHistoryRecord.CONTEXT_ARTIST_STATION + " AND artist_stations.station_urn = '" + ARTIST_STATIONS_URN_PREFIX + "' || rp.context_id" +
+                "  LEFT JOIN " + Table.Users.name() + " as users ON rp.context_type = " + PlayHistoryRecord.CONTEXT_ARTIST + " AND users._id = rp.context_id" +
                 "  LEFT JOIN " + Table.PlaylistTracksView.name() + " as ptv ON ptv.playlist_id = playlists._ID AND playlist_position = 0" +
-                "  WHERE ph.context_type != " + PlayHistoryRecord.CONTEXT_OTHER + " AND " + RecentlyPlayedItemMapper.COLUMN_TITLE + " IS NOT NULL" +
-                "  GROUP BY ph.context_type, ph.context_id" +
-                "  ORDER BY ph.timestamp DESC" +
+                "  WHERE rp.context_type != " + PlayHistoryRecord.CONTEXT_OTHER + " AND " + RecentlyPlayedItemMapper.COLUMN_TITLE + " IS NOT NULL" +
+                "  GROUP BY rp.context_type, rp.context_id" +
+                "  ORDER BY rp.timestamp DESC" +
                 "  LIMIT " + limit;
     }
 
@@ -116,8 +118,8 @@ public class PlayHistoryStorage {
         @Override
         public RecentlyPlayedItem map(CursorReader reader) {
             Urn urn = PlayHistoryRecord.contextUrnFor(
-                    reader.getInt(PlayHistory.CONTEXT_TYPE.name()),
-                    reader.getLong(PlayHistory.CONTEXT_ID.name()));
+                    reader.getInt(RecentlyPlayed.CONTEXT_TYPE.name()),
+                    reader.getLong(RecentlyPlayed.CONTEXT_ID.name()));
 
             return RecentlyPlayedItem.create(
                     urn,
