@@ -27,11 +27,13 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.timeline.TimelinePresenter;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.upsell.UpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.NewItemsIndicator;
@@ -43,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -51,11 +54,11 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implements
+public class SoundStreamPresenter extends TimelinePresenter<TypedListItem> implements
         FacebookListenerInvitesItemRenderer.Listener,
         StationsOnboardingStreamItemRenderer.Listener,
         FacebookCreatorInvitesItemRenderer.Listener,
-        UpsellNotificationItemRenderer.Listener,
+        UpsellItemRenderer.Listener,
         NewItemsIndicator.Listener {
 
     private static final Func1<StreamEvent, Boolean> FILTER_STREAM_REFRESH_EVENTS = new Func1<StreamEvent, Boolean>() {
@@ -116,7 +119,7 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
     }
 
     @Override
-    protected CollectionBinding<List<StreamItem>, StreamItem> onBuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<List<TypedListItem>, TypedListItem> onBuildBinding(Bundle fragmentArgs) {
         return CollectionBinding.from(streamOperations.initialStreamItems())
                                 .withAdapter(adapter)
                                 .withPager(streamOperations.pagingFunction())
@@ -124,7 +127,7 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
     }
 
     @Override
-    protected CollectionBinding<List<StreamItem>, StreamItem> onRefreshBinding() {
+    protected CollectionBinding<List<TypedListItem>, TypedListItem> onRefreshBinding() {
         newItemsIndicator.hideAndReset();
         return CollectionBinding.from(streamOperations.updatedStreamItems())
                                 .withAdapter(adapter)
@@ -248,7 +251,7 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
 
     @Nullable
     private FacebookInvitesItem getInvitesItemAtPosition(int position) {
-        StreamItem item = adapter.getItem(position);
+        TypedListItem item = adapter.getItem(position);
         if (item instanceof FacebookInvitesItem) {
             return (FacebookInvitesItem) item;
         } else {
@@ -269,7 +272,7 @@ public class SoundStreamPresenter extends TimelinePresenter<StreamItem> implemen
     }
 
     @Override
-    public void onUpsellItemClicked() {
+    public void onUpsellItemClicked(Context context) {
         navigator.openUpgrade(fragment.getActivity());
         eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forStreamClick());
     }

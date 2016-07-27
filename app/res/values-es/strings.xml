@@ -764,7 +764,7 @@
   <string name="set_type_compilation_label_for_text">recopilación</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Sin anuncios</string>
-  <string name="upsell_stream_upgrade_button">Hazte con SoundCloud Go</string>
+  <string name="upsell_upgrade_button">Hazte con SoundCloud Go</string>
   <string name="upsell_stream_upgrade_title">Pásate a SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Accede a un catálogo completo, sin conexión y sin anuncios.</string>
   <string name="upsell_track_preview">Vista previa</string>

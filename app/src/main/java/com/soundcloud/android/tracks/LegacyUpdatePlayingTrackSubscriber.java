@@ -1,6 +1,5 @@
 package com.soundcloud.android.tracks;
 
-
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.presentation.ItemAdapter;

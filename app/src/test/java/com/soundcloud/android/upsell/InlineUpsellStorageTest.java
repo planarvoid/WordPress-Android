@@ -1,6 +1,5 @@
-package com.soundcloud.android.stream;
+package com.soundcloud.android.upsell;
 
-import static com.soundcloud.android.stream.UpsellStorage.UPSELL_DISMISSED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
@@ -21,20 +20,22 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressLint("CommitPrefEdits")
 @RunWith(MockitoJUnitRunner.class)
-public class UpsellStorageTest {
+public class InlineUpsellStorageTest {
 
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor editor;
 
-    private UpsellStorage upsellStorage;
+    private InlineUpsellStorage upsellStorage;
     private CurrentDateProvider dateProvider = new TestDateProvider();
+
+    private String prefId = InlineUpsellStorage.upsellIdToPrefId("stream");
 
     @Before
     public void setUp() {
         when(sharedPreferences.edit()).thenReturn(editor);
         when(editor.clear()).thenReturn(editor);
 
-        upsellStorage = new UpsellStorage(sharedPreferences, dateProvider);
+        upsellStorage = new InlineUpsellStorage(sharedPreferences, dateProvider);
     }
 
     @Test
@@ -48,37 +49,37 @@ public class UpsellStorageTest {
 
     @Test
     public void shouldBeAbleToDisplayUpsellIfNeverDismissed() {
-        when(sharedPreferences.contains(UPSELL_DISMISSED)).thenReturn(false);
+        when(sharedPreferences.contains(prefId)).thenReturn(false);
 
-        assertThat(upsellStorage.canDisplayUpsell());
+        assertThat(upsellStorage.canDisplayUpsell("stream")).isTrue();
     }
 
     @Test
     public void shouldNotBeAbleToDisplayUpsellIfDismissedLessThan48hAgo() {
-        when(sharedPreferences.contains(UPSELL_DISMISSED)).thenReturn(true);
-        when(sharedPreferences.getLong(UPSELL_DISMISSED, dateProvider.getCurrentTime()))
+        when(sharedPreferences.contains(prefId)).thenReturn(true);
+        when(sharedPreferences.getLong(prefId, dateProvider.getCurrentTime()))
                 .thenReturn(yesterday());
 
-        assertThat(upsellStorage.canDisplayUpsell()).isFalse();
+        assertThat(upsellStorage.canDisplayUpsell("stream")).isFalse();
     }
 
     @Test
     public void shouldBeAbleToDisplayUpsellIfDismissedMoreThan48hAgo() {
-        when(sharedPreferences.contains(UPSELL_DISMISSED)).thenReturn(true);
-        when(sharedPreferences.getLong(UPSELL_DISMISSED, dateProvider.getCurrentTime()))
+        when(sharedPreferences.contains(prefId)).thenReturn(true);
+        when(sharedPreferences.getLong(prefId, dateProvider.getCurrentTime()))
                 .thenReturn(theDayBeforeYesterday());
 
-        assertThat(upsellStorage.canDisplayUpsell());
+        assertThat(upsellStorage.canDisplayUpsell("stream")).isTrue();
     }
 
     @Test
     public void shouldWriteToPreferencesWhenUpsellDismissed() {
-        when(editor.putLong(UPSELL_DISMISSED, dateProvider.getCurrentTime())).thenReturn(editor);
+        when(editor.putLong(prefId, dateProvider.getCurrentTime())).thenReturn(editor);
 
-        upsellStorage.setUpsellDismissed();
+        upsellStorage.setUpsellDismissed("stream");
 
         InOrder inOrder = inOrder(editor);
-        inOrder.verify(editor).putLong(UPSELL_DISMISSED, dateProvider.getCurrentTime());
+        inOrder.verify(editor).putLong(prefId, dateProvider.getCurrentTime());
         inOrder.verify(editor).apply();
     }
 

@@ -14,6 +14,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -24,6 +25,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -65,6 +67,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     private Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider = providerOf(mock(ExpandPlayerSubscriber.class));
     @Mock private PlaylistOperations operations;
+    @Mock private PlaylistUpsellOperations upsellOperations;
     @Mock private SwipeRefreshAttacher swipeAttacher;
     @Mock private CollapsingScrollHelper profileScrollHelper;
     @Mock private PlaylistHeaderPresenter headerPresenter;
@@ -87,16 +90,23 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         fragmentRule.setFragmentArguments(args);
 
         when(operations.playlist(PLAYLIST_URN)).thenReturn(Observable.just(playlistWithTracks));
+        when(upsellOperations.toListItems(playlistWithTracks)).thenReturn(listItems());
         when(adapterFactory.create(any(OnStartDragListener.class))).thenReturn(adapter);
 
+        createPresenter();
+    }
+
+    private void createPresenter() {
         presenter = new PlaylistPresenter(operations,
-                                          swipeAttacher,
-                                          headerPresenter,
-                                          playlistContentPresenter,
-                                          adapterFactory,
-                                          playbackInitiator,
-                                          expandPlayerSubscriberProvider,
-                                          eventBus);
+                upsellOperations,
+                swipeAttacher,
+                headerPresenter,
+                playlistContentPresenter,
+                adapterFactory,
+                playbackInitiator,
+                expandPlayerSubscriberProvider,
+                navigator,
+                eventBus);
     }
 
     @Test
@@ -128,7 +138,6 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         final Bundle fragmentArgs = fragmentRule.getFragment().getArguments();
         assertThat(fragmentArgs.get(PlaylistDetailFragment.EXTRA_URN)).isEqualTo(UPDATED_PLAYLIST_URN);
-
     }
 
     @Test
@@ -184,14 +193,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         when(mockEventBus.queue(any(Queue.class))).thenReturn(queueSubject);
         when(mockEventBus.subscribe(any(Queue.class), any(Observer.class))).thenReturn(mock(Subscription.class));
-        presenter = new PlaylistPresenter(operations,
-                                          swipeAttacher,
-                                          headerPresenter,
-                                          playlistContentPresenter,
-                                          adapterFactory,
-                                          playbackInitiator,
-                                          expandPlayerSubscriberProvider,
-                                          eventBus);
+        createPresenter();
 
         presenter.onCreate(fragmentRule.getFragment(), args);
         presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
@@ -205,7 +207,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         final PublishSubject<PropertySet> editPlaylistOperation = PublishSubject.create();
         final List<Urn> tracks = Arrays.asList(track1.get(EntityProperty.URN), track2.get(EntityProperty.URN));
         final List<TrackItem> trackItems = Arrays.asList(TrackItem.from(track1), TrackItem.from(track2));
-        when(adapter.getItems()).thenReturn(trackItems);
+        when(adapter.getTracks()).thenReturn(trackItems);
         when(operations.editPlaylist(playlistWithTracks.getUrn(),
                                      playlistWithTracks.getTitle(),
                                      playlistWithTracks.isPrivate(),
@@ -237,8 +239,47 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
         assertThat(fragmentRule.getActivity().getTitle()).isEqualTo("EP · 2010");
     }
 
-    private List<TrackItem> listItems() {
-        return Arrays.asList(TrackItem.from(track1), TrackItem.from(track2));
+    @Test
+    public void onUpsellItemDismissedUpsellsGetDisabled() {
+        presenter.onUpsellItemDismissed(0);
+
+        verify(upsellOperations).disableUpsell();
+    }
+
+    @Test
+    public void onUpsellItemClickedOpensUpgradeScreen() {
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onUpsellItemClicked(context());
+
+        verify(navigator).openUpgrade(context());
+    }
+
+    @Test
+    public void onUpsellItemCreatedSendsUpsellTrackingEvent() {
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression();
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onUpsellItemCreated();
+
+        UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
+        assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+    }
+
+    @Test
+    public void onUpsellItemClickedSendsUpsellTrackingEvent() {
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick();
+
+        presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onUpsellItemClicked(context());
+
+        UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
+        assertThat(trackingEvent.getKind()).isEqualTo(expectedEvent.getKind());
+        assertThat(trackingEvent.getAttributes()).isEqualTo(expectedEvent.getAttributes());
+    }
+
+    private List<TypedListItem> listItems() {
+        return Arrays.<TypedListItem>asList(TrackItem.from(track1), TrackItem.from(track2));
     }
 
     private PlaylistWithTracks createAlbumPlaylist(String type, String releaseDate) {
@@ -249,4 +290,5 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
         return new PlaylistWithTracks(propertySet, Arrays.asList(TrackItem.from(track1), TrackItem.from(track2)));
     }
+
 }

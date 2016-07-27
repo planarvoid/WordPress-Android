@@ -2,15 +2,19 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT_CHANGED;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.LegacyUpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
+import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
+import com.soundcloud.android.upsell.UpsellItemRenderer;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
@@ -19,18 +23,20 @@ import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 
 import javax.inject.Inject;
 
-
-abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMenuPresenter.RemoveTrackListener {
+abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMenuPresenter.RemoveTrackListener, UpsellItemRenderer.Listener {
 
     private final PlaylistTrackItemRenderer trackRenderer;
-    private final ListItemAdapter<TrackItem> adapter;
+    private final ListItemAdapter<TypedListItem> adapter;
+    private final PlaylistUpsellOperations upsellOperations;
     private final EventBus eventBus;
+    private final Navigator navigator;
 
     private Subscription eventSubscriptions = RxUtils.invalidSubscription();
     private Urn playlistUrn = Urn.NOT_SET;
@@ -42,8 +48,8 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         eventSubscriptions.unsubscribe();
         trackRenderer.setPlaylistInformation(promotedSourceInfo, playlist.getUrn());
         adapter.clear();
-        for (TrackItem track : playlist.getTracks()) {
-            adapter.addItem(track);
+        for (TypedListItem listItem : upsellOperations.toListItems(playlist)) {
+            adapter.addItem(listItem);
         }
         adapter.notifyDataSetChanged();
         subscribeToContentUpdate();
@@ -53,11 +59,18 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         void onPlaylistContentChanged();
     }
 
-    protected PlaylistDetailsController(PlaylistTrackItemRenderer trackRenderer, ListItemAdapter<TrackItem> adapter,
-                                        EventBus eventBus) {
+    protected PlaylistDetailsController(PlaylistTrackItemRenderer trackRenderer,
+                                        PlaylistUpsellItemRenderer upsellItemRenderer,
+                                        ListItemAdapter<TypedListItem> adapter,
+                                        PlaylistUpsellOperations upsellOperations,
+                                        EventBus eventBus,
+                                        Navigator navigator) {
         this.trackRenderer = trackRenderer;
         this.adapter = adapter;
+        this.upsellOperations = upsellOperations;
         this.eventBus = eventBus;
+        this.navigator = navigator;
+        upsellItemRenderer.setListener(this);
         trackRenderer.setRemoveTrackListener(this);
     }
 
@@ -81,7 +94,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         return playlistUrn;
     }
 
-    ListItemAdapter<TrackItem> getAdapter() {
+    ListItemAdapter<TypedListItem> getAdapter() {
         return adapter;
     }
 
@@ -102,8 +115,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
 
     private void subscribeToContentUpdate() {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                                   new LegacyUpdatePlayingTrackSubscriber(adapter, trackRenderer)),
+                eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new LegacyUpdatePlayingTrackSubscriber(adapter, trackRenderer)),
                 eventBus.subscribe(OFFLINE_CONTENT_CHANGED, new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
@@ -111,6 +123,24 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
 
     public void onDestroyView() {
         eventSubscriptions.unsubscribe();
+    }
+
+    @Override
+    public void onUpsellItemDismissed(int position) {
+        upsellOperations.disableUpsell();
+        adapter.removeItem(position);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onUpsellItemClicked(Context context) {
+        navigator.openUpgrade(context);
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick());
+    }
+
+    @Override
+    public void onUpsellItemCreated() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksImpression());
     }
 
     public static class Provider {

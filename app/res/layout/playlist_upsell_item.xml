@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/stream_upsell"
+    android:id="@+id/playlist_upsell"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout style="@style/OnboardingListItemNotificationLayout">
+    <LinearLayout style="@style/OnboardingListItemNotificationLayout.Inline">
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
             style="@style/OnboardingListItemNotification.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/upsell_stream_upgrade_title" />
+            android:text="@string/upsell_playlist_upgrade_title" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/description"
             style="@style/OnboardingListItemNotification.Description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/upsell_stream_upgrade_description" />
+            android:text="@string/upsell_playlist_upgrade_description" />
 
         <com.soundcloud.android.playback.ui.view.RoundedColorButton
             android:id="@+id/action_button"

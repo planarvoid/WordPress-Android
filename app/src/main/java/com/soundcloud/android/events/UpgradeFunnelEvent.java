@@ -22,6 +22,7 @@ public final class UpgradeFunnelEvent extends TrackingEvent {
     public static final String ID_PLAYLIST_ITEM = "playlist_item";
     public static final String ID_PLAYLIST_PAGE = "playlist_page";
     public static final String ID_STREAM = "stream";
+    public static final String ID_PLAYLIST_TRACKS = "playlist_tracks";
     public static final String ID_UPGRADE_BUTTON = "upgrade_button";
     public static final String ID_RESUBSCRIBE_BUTTON = "resubscribe_button";
 
@@ -140,6 +141,16 @@ public final class UpgradeFunnelEvent extends TrackingEvent {
     public static UpgradeFunnelEvent forStreamClick() {
         return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_STREAM)
                 .put(KEY_PAGE_NAME, Screen.STREAM.get());
+    }
+
+    public static UpgradeFunnelEvent forPlaylistTracksImpression() {
+        return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_PLAYLIST_TRACKS)
+                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get());
+    }
+
+    public static UpgradeFunnelEvent forPlaylistTracksClick() {
+        return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYLIST_TRACKS)
+                .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get());
     }
 
     public static UpgradeFunnelEvent forUpgradeButtonImpression() {

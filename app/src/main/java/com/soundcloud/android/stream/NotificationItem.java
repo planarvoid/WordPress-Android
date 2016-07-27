@@ -1,15 +1,16 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.stream.StreamItem.Kind.NOTIFICATION;
+import static com.soundcloud.android.presentation.TypedListItem.Kind.NOTIFICATION;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
-public class NotificationItem implements StreamItem {
+public class NotificationItem implements TypedListItem {
 
     private final Date CREATED_AT = new Date();
 

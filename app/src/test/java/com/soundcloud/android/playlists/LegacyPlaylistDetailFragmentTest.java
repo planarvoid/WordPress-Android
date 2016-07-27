@@ -32,6 +32,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -79,7 +80,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
     @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private LegacyPlaylistEngagementsPresenter playlistEngagementsPresenter;
-    @Mock private ListItemAdapter<TrackItem> adapter;
+    @Mock private ListItemAdapter<TypedListItem> adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;

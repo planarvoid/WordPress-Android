@@ -1,10 +1,10 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.stream.StreamItem.Kind.NOTIFICATION;
-import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
-import static com.soundcloud.android.stream.StreamItem.Kind.PROMOTED;
-import static com.soundcloud.android.stream.StreamItem.Kind.UPSELL;
+import static com.soundcloud.android.presentation.TypedListItem.Kind.NOTIFICATION;
+import static com.soundcloud.android.presentation.TypedListItem.Kind.PLAYABLE;
+import static com.soundcloud.android.presentation.TypedListItem.Kind.PROMOTED;
+import static com.soundcloud.android.presentation.TypedListItem.Kind.UPSELL;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.ApplicationModule;
@@ -17,14 +17,17 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.presentation.TypedListItem;
+import com.soundcloud.android.upsell.UpsellListItem;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.stream.StreamItem.Kind;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.presentation.TypedListItem.Kind;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.tracks.TieredTrack;
+import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -44,22 +47,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
-public class SoundStreamOperations extends TimelineOperations<StreamItem> {
+public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
 
     private final SoundStreamStorage soundStreamStorage;
     private final EventBus eventBus;
     private final FacebookInvitesOperations facebookInvites;
     private final StationsOperations stationsOperations;
-    private final UpsellOperations upsellOperations;
+    private final InlineUpsellOperations upsellOperations;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
 
-    private static final Func1<List<PropertySet>, List<StreamItem>> TO_STREAM_ITEMS =
-            new Func1<List<PropertySet>, List<StreamItem>>() {
+    private static final Func1<List<PropertySet>, List<TypedListItem>> TO_STREAM_ITEMS =
+            new Func1<List<PropertySet>, List<TypedListItem>>() {
                 @Override
-                public List<StreamItem> call(List<PropertySet> bindings) {
-                    final List<StreamItem> items = new ArrayList<>(bindings.size());
+                public List<TypedListItem> call(List<PropertySet> bindings) {
+                    final List<TypedListItem> items = new ArrayList<>(bindings.size());
 
                     for (PropertySet source : bindings) {
                         if (source.get(EntityProperty.URN).isPlayable()) {
@@ -70,10 +73,10 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
                 }
             };
 
-    private final Action1<List<StreamItem>> promotedImpressionAction = new Action1<List<StreamItem>>() {
+    private final Action1<List<TypedListItem>> promotedImpressionAction = new Action1<List<TypedListItem>>() {
         @Override
-        public void call(List<StreamItem> streamItems) {
-            Optional<StreamItem> promotedListItemOpt = getFirstOfKind(streamItems, PROMOTED);
+        public void call(List<TypedListItem> streamItems) {
+            Optional<TypedListItem> promotedListItemOpt = getFirstOfKind(streamItems, PROMOTED);
 
             if (promotedListItemOpt.isPresent()) {
                 PromotedListItem promotedListItem = (PromotedListItem) promotedListItemOpt.get();
@@ -87,10 +90,10 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
         }
     };
 
-    private final Func1<List<StreamItem>, List<StreamItem>> prependStationsOnboardingItem = new Func1<List<StreamItem>, List<StreamItem>>() {
+    private final Func1<List<TypedListItem>, List<TypedListItem>> prependStationsOnboardingItem = new Func1<List<TypedListItem>, List<TypedListItem>>() {
 
         @Override
-        public List<StreamItem> call(List<StreamItem> streamItems) {
+        public List<TypedListItem> call(List<TypedListItem> streamItems) {
             if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems,
                                                                                                    NOTIFICATION)) {
                 streamItems.add(0, new StationOnboardingStreamItem());
@@ -99,22 +102,22 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
         }
     };
 
-    private final Func1<List<StreamItem>, List<StreamItem>> appendUpsellAfterSnippet = new Func1<List<StreamItem>, List<StreamItem>>() {
+    private final Func1<List<TypedListItem>, List<TypedListItem>> appendUpsellAfterSnippet = new Func1<List<TypedListItem>, List<TypedListItem>>() {
         @Override
-        public List<StreamItem> call(List<StreamItem> streamItems) {
-            if (upsellOperations.canDisplayUpsellInStream() && canAddDistinctItemOfKind(streamItems, UPSELL)) {
-                Optional<StreamItem> upsellable = getFirstUpsellable(streamItems);
+        public List<TypedListItem> call(List<TypedListItem> streamItems) {
+            if (upsellOperations.shouldDisplayInStream() && canAddDistinctItemOfKind(streamItems, UPSELL)) {
+                Optional<TypedListItem> upsellable = getFirstUpsellable(streamItems);
                 if (upsellable.isPresent()) {
-                    streamItems.add(streamItems.indexOf(upsellable.get()) + 1, new UpsellNotificationItem());
+                    streamItems.add(streamItems.indexOf(upsellable.get()) + 1, UpsellListItem.forStream());
                 }
             }
             return streamItems;
         }
     };
 
-    private final Func1<List<StreamItem>, List<StreamItem>> prependFacebookListenerInvites = new Func1<List<StreamItem>, List<StreamItem>>() {
+    private final Func1<List<TypedListItem>, List<TypedListItem>> prependFacebookListenerInvites = new Func1<List<TypedListItem>, List<TypedListItem>>() {
         @Override
-        public List<StreamItem> call(List<StreamItem> streamItems) {
+        public List<TypedListItem> call(List<TypedListItem> streamItems) {
             if (facebookInvites.canShowForListeners() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
                 streamItems.add(0, new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN));
             }
@@ -122,9 +125,9 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
         }
     };
 
-    private final Func2<List<StreamItem>, Optional<FacebookInvitesItem>, List<StreamItem>> prependFacebookCreatorInvites = new Func2<List<StreamItem>, Optional<FacebookInvitesItem>, List<StreamItem>>() {
+    private final Func2<List<TypedListItem>, Optional<FacebookInvitesItem>, List<TypedListItem>> prependFacebookCreatorInvites = new Func2<List<TypedListItem>, Optional<FacebookInvitesItem>, List<TypedListItem>>() {
         @Override
-        public List<StreamItem> call(List<StreamItem> streamItems, Optional<FacebookInvitesItem> notification) {
+        public List<TypedListItem> call(List<TypedListItem> streamItems, Optional<FacebookInvitesItem> notification) {
             if (notification.isPresent() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
                 streamItems.add(0, notification.get());
                 publishCreatorFacebookInvitesShown();
@@ -143,7 +146,7 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
                           MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand, EventBus eventBus,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           FacebookInvitesOperations facebookInvites,
-                          StationsOperations stationsOperations, UpsellOperations upsellOperations,
+                          StationsOperations stationsOperations, InlineUpsellOperations upsellOperations,
                           SyncStateStorage syncStateStorage) {
         super(Syncable.SOUNDSTREAM,
               soundStreamStorage,
@@ -161,16 +164,16 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     }
 
     @Override
-    protected Func1<List<PropertySet>, List<StreamItem>> toViewModels() {
+    protected Func1<List<PropertySet>, List<TypedListItem>> toViewModels() {
         return TO_STREAM_ITEMS;
     }
 
-    public Observable<List<StreamItem>> initialStreamItems() {
+    public Observable<List<TypedListItem>> initialStreamItems() {
         return initialTimelineItems(false).doOnNext(promotedImpressionAction);
     }
 
     @Override
-    protected Observable<List<StreamItem>> initialTimelineItems(boolean syncCompleted) {
+    protected Observable<List<TypedListItem>> initialTimelineItems(boolean syncCompleted) {
         return removeStalePromotedItemsCommand.toObservable(null)
                                               .subscribeOn(scheduler)
                                               .flatMap(continueWith(super.initialTimelineItems(syncCompleted)))
@@ -180,11 +183,11 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
                                               .map(prependStationsOnboardingItem);
     }
 
-    private boolean canAddDistinctItemOfKind(List<StreamItem> streamItems, Kind kind) {
+    private boolean canAddDistinctItemOfKind(List<TypedListItem> streamItems, Kind kind) {
         return streamItems.size() > 0 && !getFirstOfKind(streamItems, kind).isPresent();
     }
 
-    public Observable<List<StreamItem>> updatedStreamItems() {
+    public Observable<List<TypedListItem>> updatedStreamItems() {
         return super.updatedTimelineItems()
                     .subscribeOn(scheduler)
                     .doOnNext(promotedImpressionAction);
@@ -198,7 +201,7 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     }
 
     void disableUpsell() {
-        upsellOperations.disableUpsell();
+        upsellOperations.disableInStream();
     }
 
     public void clearData() {
@@ -206,17 +209,17 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     }
 
     @Override
-    protected boolean isEmptyResult(List<StreamItem> result) {
+    protected boolean isEmptyResult(List<TypedListItem> result) {
         return result.isEmpty() || containsOnlyPromotedTrack(result);
     }
 
-    private boolean containsOnlyPromotedTrack(List<StreamItem> result) {
+    private boolean containsOnlyPromotedTrack(List<TypedListItem> result) {
         return result.size() == 1 && result.get(0).getKind() == PROMOTED;
     }
 
     @NonNull
-    private Optional<StreamItem> getFirstOfKind(List<StreamItem> streamItems, Kind kind) {
-        for (StreamItem streamItem : streamItems) {
+    private Optional<TypedListItem> getFirstOfKind(List<TypedListItem> streamItems, Kind kind) {
+        for (TypedListItem streamItem : streamItems) {
             if (kind.equals(streamItem.getKind())) {
                 return Optional.of(streamItem);
             }
@@ -225,10 +228,10 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
     }
 
     @NonNull
-    private Optional<StreamItem> getLastOfKind(List<StreamItem> streamItems, Kind kind) {
-        final ListIterator<StreamItem> iterator = streamItems.listIterator(streamItems.size());
+    private Optional<TypedListItem> getLastOfKind(List<TypedListItem> streamItems, Kind kind) {
+        final ListIterator<TypedListItem> iterator = streamItems.listIterator(streamItems.size());
         while (iterator.hasPrevious()) {
-            final StreamItem streamItem = iterator.previous();
+            final TypedListItem streamItem = iterator.previous();
             if (kind.equals(streamItem.getKind())) {
                 return Optional.of(streamItem);
             }
@@ -238,16 +241,16 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
     @Nullable
     @Override
-    public Date getFirstItemTimestamp(List<StreamItem> items) {
-        final Optional<StreamItem> streamItem = getFirstOfKind(items, PLAYABLE);
+    public Date getFirstItemTimestamp(List<TypedListItem> items) {
+        final Optional<TypedListItem> streamItem = getFirstOfKind(items, PLAYABLE);
         if (streamItem.isPresent()) {
             return streamItem.get().getCreatedAt();
         }
         return null;
     }
 
-    private Optional<StreamItem> getFirstUpsellable(List<StreamItem> streamItems) {
-        for (StreamItem streamItem : streamItems) {
+    private Optional<TypedListItem> getFirstUpsellable(List<TypedListItem> streamItems) {
+        for (TypedListItem streamItem : streamItems) {
             if (streamItem instanceof TieredTrack && isHighTierPreview((TieredTrack) streamItem)) {
                 return Optional.of(streamItem);
             }
@@ -257,8 +260,8 @@ public class SoundStreamOperations extends TimelineOperations<StreamItem> {
 
     @Nullable
     @Override
-    protected Date getLastItemTimestamp(List<StreamItem> items) {
-        final Optional<StreamItem> streamItem = getLastOfKind(items, PLAYABLE);
+    protected Date getLastItemTimestamp(List<TypedListItem> items) {
+        final Optional<TypedListItem> streamItem = getLastOfKind(items, PLAYABLE);
         if (streamItem.isPresent()) {
             return streamItem.get().getCreatedAt();
         }

@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.stream.StreamItem.Kind.PROMOTED;
+import static com.soundcloud.android.presentation.TypedListItem.Kind.PROMOTED;
 
 import com.soundcloud.android.model.PromotedItemProperty;
 import com.soundcloud.android.model.Urn;

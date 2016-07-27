@@ -73,6 +73,10 @@ public class AdjustAnalyticsProvider extends DefaultAnalyticsProvider {
                 break;
             case UpgradeFunnelEvent.ID_SETTINGS_UPGRADE:
                 adjustWrapper.trackEvent(AdjustEventToken.OFFLINE_SETTINGS);
+                break;
+            case UpgradeFunnelEvent.ID_PLAYLIST_TRACKS:
+                adjustWrapper.trackEvent(AdjustEventToken.PLAYLIST_TRACKS_UPSELL);
+                break;
             default:
                 // Not all funnel events go to Adjust
                 break;

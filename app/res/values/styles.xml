@@ -229,6 +229,10 @@
         <item name="android:paddingBottom">12dp</item>
     </style>
 
+    <style name="OnboardingListItemNotificationLayout.Inline">
+        <item name="android:background">@color/page_background</item>
+    </style>
+
     <style name="OnboardingListItemNotification.Title" parent="OnboardingListItemNotificationCenteredText">
         <item name="android:textSize">16sp</item>
         <item name="android:layout_marginBottom">16dp</item>

@@ -1,6 +1,6 @@
 package com.soundcloud.android.presentation;
 
-import static com.soundcloud.android.stream.StreamItem.Kind.PLAYABLE;
+import static com.soundcloud.android.presentation.TypedListItem.Kind.PLAYABLE;
 
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -10,7 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.stream.SoundStreamProperty;
-import com.soundcloud.android.stream.StreamItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -20,7 +19,7 @@ import com.soundcloud.java.strings.Strings;
 
 import java.util.Date;
 
-public abstract class PlayableItem implements StreamItem {
+public abstract class PlayableItem implements TypedListItem {
 
     protected final PropertySet source;
 

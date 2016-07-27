@@ -40,7 +40,7 @@ public class StorageModule {
     public static final String COLLECTIONS = "collections";
     public static final String STATIONS = "stations";
     public static final String SYNCER = "syncer";
-    public static final String STREAM = "stream";
+    public static final String UPSELL = "upsell";
     public static final String NOTIFICATION_PREFERENCES = "NotificationPreferences";
     public static final String IMAGE_CONFIG = "ImageConfiguration";
     public static final String PLAY_SESSION_STATE = "PlaySessionState";
@@ -63,7 +63,7 @@ public class StorageModule {
     private static final String PREFS_COLLECTIONS = "collections";
     private static final String PREFS_STATIONS = "stations";
     private static final String PREFS_SYNCER = "syncer";
-    private static final String PREFS_STREAM = "stream";
+    private static final String PREFS_UPSELL = "upsell";
     private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String PREFS_CONFIGURATION_SETTINGS = "device_config_settings";
     private static final String PREFS_IMAGE_CONFIG = "image_configuration";
@@ -156,9 +156,9 @@ public class StorageModule {
     }
 
     @Provides
-    @Named(STREAM)
+    @Named(UPSELL)
     public SharedPreferences provideStreamPrefs(Context context) {
-        return context.getSharedPreferences(PREFS_STREAM, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFS_UPSELL, Context.MODE_PRIVATE);
     }
 
     @Provides

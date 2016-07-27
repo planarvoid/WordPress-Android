@@ -3,12 +3,14 @@ package com.soundcloud.android.playlists;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
+import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -25,16 +27,20 @@ public class DefaultControllerTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlaylistTrackItemRenderer trackRenderer;
+    @Mock private PlaylistUpsellItemRenderer upsellItemRenderer;
+    @Mock private PlaylistUpsellOperations playlistUpsellOperations;
     @Mock private InlinePlaylistTracksAdapter adapter;
     @Mock private ListView listView;
     @Mock private Resources resources;
     @Mock private View layout;
+    @Mock private Navigator navigator;
 
     @Before
     public void setUp() throws Exception {
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
         when(adapter.getPlaylistItemRenderer()).thenReturn(trackRenderer);
-        controller = new DefaultController(adapter, eventBus);
+        when(adapter.getUpsellItemRenderer()).thenReturn(upsellItemRenderer);
+        controller = new DefaultController(adapter, playlistUpsellOperations, eventBus, navigator);
         controller.onViewCreated(layout, null);
     }
 

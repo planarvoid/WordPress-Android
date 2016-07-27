@@ -770,7 +770,7 @@
   <string name="set_type_compilation_label_for_text">compilation</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Abonnez-vous</string>
-  <string name="upsell_stream_upgrade_button">Obtenez SoundCloud Go</string>
+  <string name="upsell_upgrade_button">Obtenez SoundCloud Go</string>
   <string name="upsell_stream_upgrade_title">Passez à SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Bénéficiez d\'un catalogue complet hors connexion et sans publicités.</string>
   <string name="upsell_track_preview">Aperçu</string>

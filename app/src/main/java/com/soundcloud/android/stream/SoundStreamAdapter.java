@@ -6,9 +6,13 @@ import com.soundcloud.android.facebookinvites.FacebookListenerInvitesItemRendere
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOnboardingStreamItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.upsell.StreamUpsellItemRenderer;
+import com.soundcloud.android.upsell.UpsellItemRenderer;
+import com.soundcloud.android.upsell.UpsellListItem;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +21,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 class SoundStreamAdapter
-        extends PagingRecyclerItemAdapter<StreamItem, SoundStreamAdapter.SoundStreamViewHolder>
+        extends PagingRecyclerItemAdapter<TypedListItem, SoundStreamAdapter.SoundStreamViewHolder>
         implements PlayingTrackAware {
 
     private static final int TRACK_ITEM_TYPE = 0;
@@ -30,7 +34,7 @@ class SoundStreamAdapter
     private final FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer;
     private final StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer;
     private final FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer;
-    private final UpsellNotificationItemRenderer upsellNotificationItemRenderer;
+    private final StreamUpsellItemRenderer upsellItemRenderer;
 
     @Inject
     public SoundStreamAdapter(StreamTrackItemRenderer trackItemRenderer,
@@ -38,22 +42,22 @@ class SoundStreamAdapter
                               FacebookListenerInvitesItemRenderer facebookListenerInvitesItemRenderer,
                               StationsOnboardingStreamItemRenderer stationsOnboardingStreamItemRenderer,
                               FacebookCreatorInvitesItemRenderer facebookCreatorInvitesItemRenderer,
-                              UpsellNotificationItemRenderer upsellNotificationItemRenderer) {
+                              StreamUpsellItemRenderer upsellItemRenderer) {
         super(new CellRendererBinding<>(TRACK_ITEM_TYPE, trackItemRenderer),
               new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistItemRenderer),
               new CellRendererBinding<>(FACEBOOK_INVITES_ITEM_TYPE, facebookListenerInvitesItemRenderer),
               new CellRendererBinding<>(STATIONS_ONBOARDING_STREAM_ITEM_TYPE, stationsOnboardingStreamItemRenderer),
               new CellRendererBinding<>(FACEBOOK_CREATOR_INVITES_ITEM_TYPE, facebookCreatorInvitesItemRenderer),
-              new CellRendererBinding<>(STREAM_UPSELL_ITEM_TYPE, upsellNotificationItemRenderer));
+              new CellRendererBinding<>(STREAM_UPSELL_ITEM_TYPE, upsellItemRenderer));
         this.facebookListenerInvitesItemRenderer = facebookListenerInvitesItemRenderer;
         this.facebookCreatorInvitesItemRenderer = facebookCreatorInvitesItemRenderer;
         this.stationsOnboardingStreamItemRenderer = stationsOnboardingStreamItemRenderer;
-        this.upsellNotificationItemRenderer = upsellNotificationItemRenderer;
+        this.upsellItemRenderer = upsellItemRenderer;
     }
 
     @Override
     public int getBasicItemViewType(int position) {
-        StreamItem item = getItem(position);
+        TypedListItem item = getItem(position);
         Urn urn = item.getUrn();
 
         if (urn.isTrack()) {
@@ -66,7 +70,7 @@ class SoundStreamAdapter
             return FACEBOOK_CREATOR_INVITES_ITEM_TYPE;
         } else if (urn.equals(StationOnboardingStreamItem.URN)) {
             return STATIONS_ONBOARDING_STREAM_ITEM_TYPE;
-        } else if (urn.equals(UpsellNotificationItem.URN)) {
+        } else if (urn.equals(UpsellListItem.STREAM_UPSELL_URN)) {
             return STREAM_UPSELL_ITEM_TYPE;
         } else {
             throw new IllegalArgumentException("unknown item type: " + item);
@@ -75,7 +79,7 @@ class SoundStreamAdapter
 
     @Override
     public void updateNowPlaying(Urn currentlyPlayingUrn) {
-        for (StreamItem viewModel : getItems()) {
+        for (TypedListItem viewModel : getItems()) {
             if (viewModel instanceof TrackItem) {
                 final TrackItem trackModel = (TrackItem) viewModel;
                 trackModel.setIsPlaying(trackModel.getUrn().equals(currentlyPlayingUrn));
@@ -107,8 +111,8 @@ class SoundStreamAdapter
         this.stationsOnboardingStreamItemRenderer.setListener(listener);
     }
 
-    void setOnUpsellClickListener(UpsellNotificationItemRenderer.Listener listener) {
-        this.upsellNotificationItemRenderer.setListener(listener);
+    void setOnUpsellClickListener(UpsellItemRenderer.Listener listener) {
+        this.upsellItemRenderer.setListener(listener);
     }
 
 }

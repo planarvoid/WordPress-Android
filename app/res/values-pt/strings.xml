@@ -766,7 +766,7 @@ vão aparecer aqui.</string>
   <string name="set_type_compilation_label_for_text">compilação</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Retirar anúncios</string>
-  <string name="upsell_stream_upgrade_button">Obter SoundCloud Go</string>
+  <string name="upsell_upgrade_button">Obter SoundCloud Go</string>
   <string name="upsell_stream_upgrade_title">Fazer upgrade para o SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Obtenha um catálogo expandido, sem escuta offline e sem anúncios.</string>
   <string name="upsell_track_preview">Pré-vizualização</string>

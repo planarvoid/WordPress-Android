@@ -14,6 +14,7 @@ class TrackingCode {
     private static final int UPSELL_PLAYER = 1017;
     private static final int UPSELL_SEARCH_RESULTS = 1025;
     private static final int UPSELL_SEARCH_PREMIUM_RESULTS = 1026;
+    private static final int UPSELL_PLAYLIST_TRACKS = 1042;
     private static final int UPGRADE_BUTTON = 3002;
     private static final int RESUBSCRIBE_BUTTON = 4002;
 
@@ -39,6 +40,8 @@ class TrackingCode {
                 return toUrn(UPSELL_PLAYLIST_PAGE);
             case UpgradeFunnelEvent.ID_STREAM:
                 return toUrn(UPSELL_STREAM);
+            case UpgradeFunnelEvent.ID_PLAYLIST_TRACKS:
+                return toUrn(UPSELL_PLAYLIST_TRACKS);
             case UpgradeFunnelEvent.ID_UPGRADE_BUTTON:
                 return toUrn(UPGRADE_BUTTON);
             case UpgradeFunnelEvent.ID_RESUBSCRIBE_BUTTON:

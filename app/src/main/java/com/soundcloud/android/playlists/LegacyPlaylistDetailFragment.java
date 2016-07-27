@@ -23,6 +23,7 @@ import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -191,7 +192,8 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     }
 
     private void playFromBeginning() {
-        playTracksAtPosition(0, expandPlayerSubscriberProvider.get());
+        final TrackItem first = (TrackItem) controller.getAdapter().getItem(0);
+        playTracksAtPosition(first, 0, expandPlayerSubscriberProvider.get());
     }
 
     private void addLifeCycleComponents() {
@@ -337,12 +339,15 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final int trackPosition = position - listView.getHeaderViewsCount();
-        playTracksAtPosition(trackPosition, expandPlayerSubscriberProvider.get());
+        // Ignore clicks for upsell items
+        final TypedListItem item = controller.getAdapter().getItem(trackPosition);
+        if (item instanceof TrackItem) {
+            playTracksAtPosition((TrackItem) item, trackPosition, expandPlayerSubscriberProvider.get());
+        }
     }
 
-    private void playTracksAtPosition(int trackPosition, Subscriber<PlaybackResult> playbackSubscriber) {
+    private void playTracksAtPosition(TrackItem initialTrack, int position, Subscriber<PlaybackResult> playbackSubscriber) {
         final PlaySessionSource playSessionSource = getPlaySessionSource();
-        final TrackItem initialTrack = controller.getAdapter().getItem(trackPosition);
 
         PromotedSourceInfo promotedSourceInfo = getPromotedSourceInfo();
         SearchQuerySourceInfo searchQuerySourceInfo = getSearchQuerySourceInfo();
@@ -354,7 +359,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
         }
 
         playbackInitiator.playTracks(playlistOperations.trackUrnsForPlayback(playlistWithTracks.getUrn()),
-                                     initialTrack.getUrn(), trackPosition, playSessionSource)
+                                     initialTrack.getUrn(), position, playSessionSource)
                          .subscribe(playbackSubscriber);
     }
 

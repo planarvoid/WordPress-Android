@@ -1,43 +1,35 @@
-package com.soundcloud.android.stream;
+package com.soundcloud.android.upsell;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.TypedListItem;
 
-import android.view.LayoutInflater;
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
 import java.util.List;
 
-class UpsellNotificationItemRenderer implements CellRenderer<StreamItem> {
+public abstract class UpsellItemRenderer implements CellRenderer<TypedListItem> {
 
-    interface Listener {
+    public interface Listener {
         void onUpsellItemDismissed(int position);
-
-        void onUpsellItemClicked();
-
+        void onUpsellItemClicked(Context context);
         void onUpsellItemCreated();
     }
 
     private Listener listener;
-
-    @Inject
-    public UpsellNotificationItemRenderer() {
-        // no - op
-    }
 
     @Override
     public View createItemView(ViewGroup parent) {
         if (listener != null) {
             listener.onUpsellItemCreated();
         }
-        return LayoutInflater.from(parent.getContext())
-                             .inflate(R.layout.stream_upsell_card, parent, false);
+        return parent;
     }
 
     @Override
-    public void bindItemView(final int position, View itemView, List<StreamItem> items) {
+    public void bindItemView(final int position, final View itemView, final List<TypedListItem> items) {
         itemView.setEnabled(false);
         if (listener != null) {
             itemView.findViewById(R.id.close_button).setOnClickListener(new View.OnClickListener() {
@@ -51,7 +43,7 @@ class UpsellNotificationItemRenderer implements CellRenderer<StreamItem> {
 
                 @Override
                 public void onClick(View v) {
-                    listener.onUpsellItemClicked();
+                    listener.onUpsellItemClicked(itemView.getContext());
                 }
             });
         }

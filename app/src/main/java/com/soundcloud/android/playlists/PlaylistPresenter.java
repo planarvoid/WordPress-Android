@@ -9,10 +9,13 @@ import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.java.checks.Preconditions.checkState;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionSource;
@@ -20,10 +23,12 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.presentation.TypedListItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.upsell.PlaylistUpsellItemRenderer;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
@@ -41,6 +46,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -57,9 +63,9 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackItem> implements OnStartDragListener {
+class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TypedListItem> implements OnStartDragListener, PlaylistUpsellItemRenderer.Listener {
 
-    private final Func1<EntityStateChangedEvent, Boolean> IS_CURRENT_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
+    private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistDeleted = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.getKind() == EntityStateChangedEvent.ENTITY_DELETED
@@ -67,7 +73,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
         }
     };
 
-    private final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_PUSHED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+    private final Func1<EntityStateChangedEvent, Boolean> isCurrentPlaylistPushed = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.getKind() == EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER
@@ -82,20 +88,23 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
         }
     };
 
-    private final PlaybackInitiator playbackInitiator;
-    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final PlaylistOperations playlistOperations;
-    private final EventBus eventBus;
-    private final PlaylistAdapter adapter;
-    private static final Func1<PlaylistWithTracks, Iterable<TrackItem>> TO_LIST_ITEMS = new Func1<PlaylistWithTracks, Iterable<TrackItem>>() {
+    private final Func1<PlaylistWithTracks, Iterable<TypedListItem>> toListItems = new Func1<PlaylistWithTracks, Iterable<TypedListItem>>() {
         @Override
-        public Iterable<TrackItem> call(PlaylistWithTracks playlistWithTracks) {
-            return new ArrayList<TrackItem>(playlistWithTracks.getTracks());
+        public Iterable<TypedListItem> call(PlaylistWithTracks playlistWithTracks) {
+            return upsellOperations.toListItems(playlistWithTracks);
         }
     };
 
     @LightCycle final PlaylistHeaderPresenter headerPresenter;
     @LightCycle final PlaylistContentPresenter playlistContentPresenter;
+
+    private final PlaybackInitiator playbackInitiator;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final PlaylistOperations playlistOperations;
+    private final PlaylistUpsellOperations upsellOperations;
+    private final Navigator navigator;
+    private final EventBus eventBus;
+    private final PlaylistAdapter adapter;
 
     private PlaySessionSource playSessionSource;
     private Fragment fragment;
@@ -106,22 +115,28 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
 
     @Inject
     public PlaylistPresenter(PlaylistOperations playlistOperations,
+                             PlaylistUpsellOperations upsellOperations,
                              SwipeRefreshAttacher swipeRefreshAttacher,
                              PlaylistHeaderPresenter headerPresenter,
                              PlaylistContentPresenter playlistContentPresenter,
-                             PlaylistAdapterFactory adapter,
+                             PlaylistAdapterFactory adapterFactory,
                              PlaybackInitiator playbackInitiator,
                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                             Navigator navigator,
                              EventBus eventBus) {
         super(swipeRefreshAttacher);
         this.playlistOperations = playlistOperations;
+        this.upsellOperations = upsellOperations;
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
         this.headerPresenter = headerPresenter;
         this.playlistContentPresenter = playlistContentPresenter;
-        this.adapter = adapter.create(this);
+        this.navigator = navigator;
+        this.adapter = adapterFactory.create(this);
         headerPresenter.setPlaylistPresenter(this);
+
+        adapter.setOnUpsellClickListener(this);
     }
 
     @Override
@@ -145,11 +160,11 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
         subscription = new CompositeSubscription(
                 eventBus
                         .queue(ENTITY_STATE_CHANGED)
-                        .filter(IS_CURRENT_PLAYLIST_DELETED)
+                        .filter(isCurrentPlaylistDeleted)
                         .subscribe(new GoBackSubscriber()),
                 eventBus
                         .queue(ENTITY_STATE_CHANGED)
-                        .filter(IS_PLAYLIST_PUSHED_FILTER)
+                        .filter(isCurrentPlaylistPushed)
                         .subscribe(new PlaylistPushedSubscriber()),
                 eventBus.subscribe(CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
@@ -208,7 +223,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
         checkState(playlistWithTracks.isPresent(), "The playlist must be loaded to be saved");
 
         final PlaylistWithTracks playlist = playlistWithTracks.get();
-        final List<Urn> tracks = Lists.transform(adapter.getItems(), TrackItem.TO_URN);
+        final List<Urn> tracks = Lists.transform(adapter.getTracks(), TrackItem.TO_URN);
         fireAndForget(playlistOperations.editPlaylist(playlist.getUrn(),
                                                       playlist.getTitle(),
                                                       playlist.isPrivate(),
@@ -226,9 +241,8 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
     }
 
     @Override
-    protected CollectionBinding<PlaylistWithTracks, TrackItem> onBuildBinding(Bundle fragmentArgs) {
-
-        return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)), TO_LIST_ITEMS)
+    protected CollectionBinding<PlaylistWithTracks, TypedListItem> onBuildBinding(Bundle fragmentArgs) {
+        return CollectionBinding.from(loadPlaylistObservable(getPlaylistUrn(fragmentArgs)), toListItems)
                                 .withAdapter(adapter).build();
     }
 
@@ -256,16 +270,16 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
     }
 
     @Override
-    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, TrackItem> collectionBinding,
+    protected void onSubscribeBinding(CollectionBinding<PlaylistWithTracks, TypedListItem> collectionBinding,
                                       CompositeSubscription viewLifeCycle) {
         collectionBinding.source().subscribe(new PlaylistSubscriber());
     }
 
     @Override
-    protected CollectionBinding<PlaylistWithTracks, TrackItem> onRefreshBinding() {
+    protected CollectionBinding<PlaylistWithTracks, TypedListItem> onRefreshBinding() {
         final Urn playlistUrn = getPlaylistUrn(fragment.getArguments());
 
-        return CollectionBinding.from(playlistOperations.updatedPlaylistInfo(playlistUrn), TO_LIST_ITEMS)
+        return CollectionBinding.from(playlistOperations.updatedPlaylistInfo(playlistUrn), toListItems)
                                 .withAdapter(adapter)
                                 .build();
     }
@@ -281,7 +295,7 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
 
     void reloadPlaylist() {
         retryWith(CollectionBinding
-                          .from(loadPlaylistObservable(getPlaylistUrn()), TO_LIST_ITEMS)
+                          .from(loadPlaylistObservable(getPlaylistUrn()), toListItems)
                           .withAdapter(adapter).build());
     }
 
@@ -331,6 +345,24 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TrackI
             final PropertySet updatedPlaylist = args.getNextChangeSet();
             fragment.getArguments().putParcelable(EXTRA_URN, updatedPlaylist.get(PlaylistProperty.URN));
         }
+    }
+
+    @Override
+    public void onUpsellItemDismissed(int position) {
+        upsellOperations.disableUpsell();
+        adapter.removeItem(position);
+        adapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onUpsellItemClicked(Context context) {
+        navigator.openUpgrade(context);
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick());
+    }
+
+    @Override
+    public void onUpsellItemCreated() {
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksImpression());
     }
 
 }

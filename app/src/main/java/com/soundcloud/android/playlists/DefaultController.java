@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
@@ -16,8 +17,16 @@ class DefaultController extends PlaylistDetailsController {
     private final InlinePlaylistTracksAdapter adapter;
 
     @Inject
-    DefaultController(InlinePlaylistTracksAdapter itemAdapter, EventBus eventBus) {
-        super(itemAdapter.getPlaylistItemRenderer(), itemAdapter, eventBus);
+    DefaultController(InlinePlaylistTracksAdapter itemAdapter,
+                      PlaylistUpsellOperations playlistUpsellOperations,
+                      EventBus eventBus,
+                      Navigator navigator) {
+        super(itemAdapter.getPlaylistItemRenderer(),
+              itemAdapter.getUpsellItemRenderer(),
+              itemAdapter,
+              playlistUpsellOperations,
+              eventBus,
+              navigator);
         this.adapter = itemAdapter;
     }
 

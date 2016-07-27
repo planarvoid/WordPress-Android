@@ -19,6 +19,8 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.presentation.TypedListItem;
+import com.soundcloud.android.upsell.UpsellListItem;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -29,6 +31,7 @@ import com.soundcloud.android.sync.timeline.TimelineOperationsTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.upsell.InlineUpsellOperations;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -49,17 +52,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem, SoundStreamStorage> {
+public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListItem, SoundStreamStorage> {
 
     private SoundStreamOperations operations;
 
     @Mock private SoundStreamStorage soundStreamStorage;
-    @Mock private Observer<List<StreamItem>> observer;
+    @Mock private Observer<List<TypedListItem>> observer;
     @Mock private RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     @Mock private MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     @Mock private FacebookInvitesOperations facebookInvitesOperations;
     @Mock private StationsOperations stationsOperations;
-    @Mock private UpsellOperations upsellOperations;
+    @Mock private InlineUpsellOperations upsellOperations;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -75,7 +78,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     }
 
     @Override
-    protected TimelineOperations<StreamItem> buildOperations(SoundStreamStorage storage,
+    protected TimelineOperations<TypedListItem> buildOperations(SoundStreamStorage storage,
                                                              SyncInitiator syncInitiator,
                                                              Scheduler scheduler,
                                                              SyncStateStorage syncStateStorage) {
@@ -109,7 +112,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         inOrder.verify(soundStreamStorage).timelineItems(PAGE_SIZE);
         inOrder.verify(syncInitiator).sync(Syncable.SOUNDSTREAM);
         inOrder.verify(soundStreamStorage).timelineItems(PAGE_SIZE);
-        inOrder.verify(observer).onNext(Collections.<StreamItem>emptyList());
+        inOrder.verify(observer).onNext(Collections.<TypedListItem>emptyList());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
@@ -137,7 +140,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
 
-        final List<StreamItem> streamItemsWithPromoted = viewModelsFromPropertySets(itemsWithPromoted);
+        final List<TypedListItem> streamItemsWithPromoted = viewModelsFromPropertySets(itemsWithPromoted);
 
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
@@ -158,7 +161,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         items.add(0, promotedTrackProperties);
 
-        final List<StreamItem> streamItemsWithPromoted = viewModelsFromPropertySets(items);
+        final List<TypedListItem> streamItemsWithPromoted = viewModelsFromPropertySets(items);
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
 
@@ -285,17 +288,17 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         final List<PropertySet> streamItems = createItems(PAGE_SIZE, 123L);
         streamItems.add(upsellableItemIndex, upsellableTrackProperties);
 
-        when(upsellOperations.canDisplayUpsellInStream()).thenReturn(true);
+        when(upsellOperations.shouldDisplayInStream()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 
-        assertStreamItemAtPosition(UpsellNotificationItem.URN, upsellableItemIndex + 1);
+        assertStreamItemAtPosition(UpsellListItem.STREAM_UPSELL_URN, upsellableItemIndex + 1);
     }
 
     @Test
     public void shouldNotShowUpsellWhenNoUpsellableTrackIsPresent() {
         final List<PropertySet> streamItems = createItems(PAGE_SIZE, 123L);
 
-        when(upsellOperations.canDisplayUpsellInStream()).thenReturn(true);
+        when(upsellOperations.shouldDisplayInStream()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 
         assertNoUpsellInStream();
@@ -307,7 +310,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
         final List<PropertySet> streamItems = createItems(PAGE_SIZE, 123L);
         streamItems.add(upsellableItemIndex, upsellableTrackProperties);
 
-        when(upsellOperations.canDisplayUpsellInStream()).thenReturn(false);
+        when(upsellOperations.shouldDisplayInStream()).thenReturn(false);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 
         assertNoUpsellInStream();
@@ -323,7 +326,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
 
         final Urn trackUrnAfterSecondUpsellable = streamItems.get(secondUpsellableTrackIndex + 1)
                                                              .get(TrackProperty.URN);
-        when(upsellOperations.canDisplayUpsellInStream()).thenReturn(true);
+        when(upsellOperations.shouldDisplayInStream()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(streamItems));
 
         assertStreamItemAtPosition(trackUrnAfterSecondUpsellable, secondUpsellableTrackIndex + 2);
@@ -333,7 +336,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     public void shouldDisableUpsell() {
         operations.disableUpsell();
 
-        verify(upsellOperations).disableUpsell();
+        verify(upsellOperations).disableInStream();
     }
 
     @Test
@@ -367,7 +370,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     @Test
     public void shouldUpdateStreamForStartWhenSyncedBefore() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        final List<StreamItem> viewModels = viewModelsFromPropertySets(items);
+        final List<TypedListItem> viewModels = viewModelsFromPropertySets(items);
 
         when(syncStateStorage.hasSyncedBefore(Syncable.SOUNDSTREAM)).thenReturn(true);
         when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
@@ -390,8 +393,8 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     }
 
     @Override
-    protected List<StreamItem> viewModelsFromPropertySets(List<PropertySet> propertySets) {
-        final List<StreamItem> items = new ArrayList<>(propertySets.size());
+    protected List<TypedListItem> viewModelsFromPropertySets(List<PropertySet> propertySets) {
+        final List<TypedListItem> items = new ArrayList<>(propertySets.size());
         for (PropertySet source : propertySets) {
             if (source.get(EntityProperty.URN).isPlayable()) {
                 items.add(PlayableItem.from(source));
@@ -408,8 +411,8 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     }
 
     private void assertInitialStreamEmpty() {
-        final TestSubscriber<List<StreamItem>> subscriber = subscribeToInitialStream();
-        subscriber.assertValue(Collections.<StreamItem>emptyList());
+        final TestSubscriber<List<TypedListItem>> subscriber = subscribeToInitialStream();
+        subscriber.assertValue(Collections.<TypedListItem>emptyList());
     }
 
     private void assertInitialStreamFirstItemUrn(Urn urn) {
@@ -417,21 +420,21 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<StreamItem
     }
 
     private void assertStreamItemAtPosition(Urn urn, int index) {
-        final TestSubscriber<List<StreamItem>> subscriber = subscribeToInitialStream();
-        final StreamItem firstItem = subscriber.getOnNextEvents().get(0).get(index);
+        final TestSubscriber<List<TypedListItem>> subscriber = subscribeToInitialStream();
+        final TypedListItem firstItem = subscriber.getOnNextEvents().get(0).get(index);
         assertThat(firstItem.getUrn()).isEqualTo(urn);
     }
 
     private void assertNoUpsellInStream() {
-        final TestSubscriber<List<StreamItem>> subscriber = subscribeToInitialStream();
-        final List<StreamItem> stream = subscriber.getOnNextEvents().get(0);
-        for (StreamItem item : stream) {
-            assertThat(item.getKind()).isNotEqualTo(StreamItem.Kind.UPSELL);
+        final TestSubscriber<List<TypedListItem>> subscriber = subscribeToInitialStream();
+        final List<TypedListItem> stream = subscriber.getOnNextEvents().get(0);
+        for (TypedListItem item : stream) {
+            assertThat(item.getKind()).isNotEqualTo(TypedListItem.Kind.UPSELL);
         }
     }
 
-    private TestSubscriber<List<StreamItem>> subscribeToInitialStream() {
-        final TestSubscriber<List<StreamItem>> subscriber = new TestSubscriber<>();
+    private TestSubscriber<List<TypedListItem>> subscribeToInitialStream() {
+        final TestSubscriber<List<TypedListItem>> subscriber = new TestSubscriber<>();
         operations.initialStreamItems().subscribe(subscriber);
         return subscriber;
     }

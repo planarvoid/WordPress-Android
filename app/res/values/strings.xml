@@ -898,9 +898,11 @@
 
     <!-- __UPSELL -->
     <string name="upsell_remove_ads">Go ad-free</string>
-    <string name="upsell_stream_upgrade_button">Get SoundCloud Go</string>
+    <string name="upsell_upgrade_button">Get SoundCloud Go</string>
     <string name="upsell_stream_upgrade_title">Unlock Previews with SoundCloud Go</string>
     <string name="upsell_stream_upgrade_description">Get full access to the world’s largest music and audio streaming catalog, with ad-free and offline listening.</string>
+    <string name="upsell_playlist_upgrade_title">Play full tracks with SoundCloud Go</string>
+    <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
     <string name="upsell_track_preview">Preview</string>
     <string name="upsell_track_geo_blocked">Not available in your country</string>
 

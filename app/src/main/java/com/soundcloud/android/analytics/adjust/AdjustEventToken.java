@@ -12,5 +12,6 @@ public interface AdjustEventToken {
     String HIGH_TIER_SEARCH_RESULTS = "n3mdeg";
     String STREAM_UPSELL = "a7r5gy";
     String OFFLINE_SETTINGS = "396cnm";
+    String PLAYLIST_TRACKS_UPSELL = "8a8hir";
 
 }

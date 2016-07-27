@@ -18,8 +18,8 @@ public class InlinePlaylistTracksAdapterTest extends AndroidUnitTest {
     @Mock private EmptyPlaylistTracksRenderer emptyRowRenderer;
 
     @Test
-    public void reports2DifferentItemTypes() {
-        assertThat(adapter.getViewTypeCount()).isEqualTo(2);
+    public void reports3DifferentItemTypes() {
+        assertThat(adapter.getViewTypeCount()).isEqualTo(3);
     }
 
     @Test

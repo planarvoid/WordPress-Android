@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SearchUpsellItemTest {
+public class SearchUpsellListItemTest {
 
     private SearchUpsellItem searchUpsellItem;
 

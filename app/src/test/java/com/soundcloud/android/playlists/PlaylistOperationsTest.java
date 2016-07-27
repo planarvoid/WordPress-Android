@@ -71,7 +71,6 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
     private final List<Urn> newTrackList = Arrays.asList(trackUrn);
     private TestEventBus eventBus;
 
-
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
@@ -83,9 +82,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             addTrackToPlaylistCommand,
                                             removeTrackFromPlaylistCommand,
                                             editPlaylistCommand,
-                                            legacySyncInitiator, eventBus);
+                                            legacySyncInitiator,
+                                            eventBus);
         when(legacySyncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
-
     }
 
     @Test
