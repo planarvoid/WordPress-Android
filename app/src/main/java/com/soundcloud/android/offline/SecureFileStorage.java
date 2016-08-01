@@ -10,6 +10,7 @@ import com.soundcloud.android.utils.Log;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ public class SecureFileStorage {
     private static final int FREE_SPACE_BUFFER = 100 * 1024 * 1024;
     private static final int MINIMUM_SPACE = 5 * 1024 * 1024; // 5MB
 
+    @Nullable
     protected final File offlineDir;
 
     private final CryptoOperations cryptoOperations;
@@ -50,7 +52,7 @@ public class SecureFileStorage {
                            InputStream input,
                            Encryptor.EncryptionProgressListener listener) throws IOException, EncryptionException {
         if (!createDirectoryIfNeeded()) {
-            throw new IOException("Failed to create directory for " + offlineDir.getAbsolutePath());
+            throw new IOException("Failed to create directory for " + offlineDir);
         }
 
         final File trackFile = new File(offlineDir, generateFileName(urn));
@@ -80,7 +82,7 @@ public class SecureFileStorage {
 
     public boolean deleteTrack(Urn urn) {
         try {
-            return deleteFile(new File(offlineDir, generateFileName(urn)));
+            return offlineDir != null && deleteFile(new File(offlineDir, generateFileName(urn)));
         } catch (EncryptionException exception) {
             ErrorUtils.handleSilentException("Offline file deletion failed for track " + urn, exception);
             return false;
@@ -88,21 +90,26 @@ public class SecureFileStorage {
     }
 
     public void deleteAllTracks() {
-        IOUtils.deleteDir(offlineDir);
+        if (offlineDir != null) {
+            IOUtils.deleteDir(offlineDir);
+        }
     }
 
     public Uri getFileUriForOfflineTrack(Urn urn) {
-        try {
-            return Uri.fromFile(new File(offlineDir, generateFileName(urn)));
-        } catch (EncryptionException e) {
-            Log.e(TAG, "Unable to generate file uri ", e);
+        if (offlineDir != null) {
+            try {
+                return Uri.fromFile(new File(offlineDir, generateFileName(urn)));
+            } catch (EncryptionException e) {
+                Log.e(TAG, "Unable to generate file uri ", e);
+            }
         }
         return Uri.EMPTY;
     }
 
     public boolean isEnoughSpace(long sizeInBytes) {
         long dirSizeWithFile = getStorageUsed() + sizeInBytes;
-        return getStorageAvailable() >= sizeInBytes && isWithinStorageLimit(dirSizeWithFile);
+        final long storageAvailable = getStorageAvailable();
+        return storageAvailable > 0 && storageAvailable >= sizeInBytes && isWithinStorageLimit(dirSizeWithFile);
     }
 
     private boolean isWithinStorageLimit(long dirSizeWithTrack) {
@@ -110,15 +117,15 @@ public class SecureFileStorage {
     }
 
     public long getStorageUsed() {
-        return IOUtils.getDirSize(offlineDir);
+        return offlineDir == null ? 0 : IOUtils.getDirSize(offlineDir);
     }
 
     public long getStorageAvailable() {
-        return Math.max(offlineDir.getFreeSpace() - FREE_SPACE_BUFFER, 0);
+        return offlineDir == null ? 0 : Math.max(offlineDir.getFreeSpace() - FREE_SPACE_BUFFER, 0);
     }
 
     public long getStorageCapacity() {
-        return offlineDir.getTotalSpace();
+        return offlineDir == null ? 0 : offlineDir.getTotalSpace();
     }
 
     private String generateFileName(Urn urn) throws EncryptionException {
@@ -127,7 +134,7 @@ public class SecureFileStorage {
 
     @VisibleForTesting
     protected final boolean createDirectoryIfNeeded() {
-        return offlineDir.exists() || IOUtils.mkdirs(offlineDir);
+        return offlineDir != null && (offlineDir.exists() || IOUtils.mkdirs(offlineDir));
     }
 
 }

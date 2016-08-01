@@ -41,7 +41,6 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Before
     public void setUp() throws Exception {
-
         storage = new SecureFileStorage(operations, settingsStorage, context());
         when(operations.generateHashForUrn(TRACK_URN)).thenReturn(TRACK_URN.toEncodedString());
     }

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 public class SkippyFactory {
@@ -57,12 +58,13 @@ public class SkippyFactory {
 
     @NonNull
     private Skippy.Configuration getConfiguration(int bufferDurationMs) {
+        final File streamCacheDirectory = cacheConfig.getStreamCacheDirectory();
         return new Skippy.Configuration(
                 PROGRESS_INTERVAL_MS,
                 bufferDurationMs,
                 cacheConfig.getStreamCacheSize(),
                 cacheConfig.getStreamCacheMinFreeSpaceAvailablePercentage(),
-                cacheConfig.getStreamCacheDirectory().getAbsolutePath(),
+                streamCacheDirectory == null ? null : streamCacheDirectory.getAbsolutePath(),
                 cryptoOperations.getKeyOrGenerateAndStore(KEY_PREFERENCE_NAME),
                 !applicationProperties.isReleaseBuild(),
                 USE_CACHE_ALWAYS

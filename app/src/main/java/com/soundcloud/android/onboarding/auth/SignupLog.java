@@ -5,7 +5,6 @@ import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
@@ -61,8 +60,11 @@ public final class SignupLog {
     static boolean writeLog(Context context, long[] toWrite) {
         ObjectOutputStream out = null;
         try {
+            final File signupLog = getSignupLog(context);
 
-            out = new ObjectOutputStream(new FileOutputStream(getSignupLog(context)));
+            if (signupLog == null) return false;
+
+            out = new ObjectOutputStream(new FileOutputStream(signupLog));
             out.writeObject(toWrite);
             return true;
         } catch (IOException e) {
@@ -95,7 +97,6 @@ public final class SignupLog {
     private SignupLog() {
     }
 
-    @NonNull
     private static File getSignupLog(Context context) {
         return IOUtils.getExternalStorageDir(context, SIGNUP_LOG_NAME);
     }

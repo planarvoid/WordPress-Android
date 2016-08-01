@@ -6,6 +6,8 @@ import com.soundcloud.android.utils.TelphonyBasedCountryProvider;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.strings.Strings;
 
+import android.support.annotation.Nullable;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
@@ -19,6 +21,7 @@ public class StreamCacheConfig {
     static final int STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE = 1;
 
     private final TelphonyBasedCountryProvider countryProvider;
+    @Nullable
     private final File streamCacheDirectory;
     private final IOUtils ioUtils;
 
@@ -43,6 +46,7 @@ public class StreamCacheConfig {
         }
     }
 
+    @Nullable
     public File getStreamCacheDirectory() {
         return streamCacheDirectory;
     }
@@ -52,10 +56,14 @@ public class StreamCacheConfig {
     }
 
     public long getRemainingCacheSpace() {
-        final double usableDiskPercentLeft = (((double) streamCacheDirectory.getUsableSpace()) / streamCacheDirectory.getTotalSpace()) * 100;
-        final long spaceRemainingUnderPercentCeiling = (long) ((usableDiskPercentLeft - STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE) * streamCacheDirectory
-                .getTotalSpace());
-        final long spaceRemainingUnderSizeCeiling = getStreamCacheSize() - ioUtils.dirSize(streamCacheDirectory);
-        return Math.max(0, Math.min(spaceRemainingUnderPercentCeiling, spaceRemainingUnderSizeCeiling));
+        if (streamCacheDirectory == null) {
+            return 0;
+        } else {
+            final double usableDiskPercentLeft = (((double) streamCacheDirectory.getUsableSpace()) / streamCacheDirectory.getTotalSpace()) * 100;
+            final long spaceRemainingUnderPercentCeiling = (long) ((usableDiskPercentLeft - STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE) * streamCacheDirectory
+                    .getTotalSpace());
+            final long spaceRemainingUnderSizeCeiling = getStreamCacheSize() - ioUtils.dirSize(streamCacheDirectory);
+            return Math.max(0, Math.min(spaceRemainingUnderPercentCeiling, spaceRemainingUnderSizeCeiling));
+        }
     }
 }
