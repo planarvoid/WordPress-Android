@@ -12,6 +12,8 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.AccountPicker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -50,6 +52,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -436,6 +439,34 @@ public class OnboardActivity extends FragmentActivity
     @Override
     public void onGooglePlusAuth() {
         log(INFO, ONBOARDING_TAG, "on Google+ auth");
+
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if (result == ConnectionResult.SUCCESS) {
+            showGoogleAccountPicker();
+        } else {
+            final boolean isNotResolvable = !googleAPI.isUserResolvableError(result);
+            if (isNotResolvable || !tryToShowResolveDialog(googleAPI, result)) {
+                showGooglePlayServicesInstallError();
+            }
+        }
+    }
+
+    private boolean tryToShowResolveDialog(GoogleApiAvailability googleAPI, int result) {
+        return googleAPI.showErrorDialogFragment(this, result, RequestCodes.PLAY_SERVICES_INSTALLED);
+    }
+
+    private void showGooglePlayServicesInstallError() {
+        ErrorUtils.handleSilentException(new IllegalStateException("Unable to install Google Play Services during login"));
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.authentication_error_title)
+                .setMessage(R.string.authentication_error_unable_to_use_google_play_services)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    private void showGoogleAccountPicker() {
         Intent intent = AccountPicker.newChooseAccountIntent(null, null, new String[]{"com.google"},
                                                              false, null, null, null, null);
         startActivityForResult(intent, RequestCodes.PICK_GOOGLE_ACCOUNT);
@@ -651,6 +682,15 @@ public class OnboardActivity extends FragmentActivity
                                            error == null ?
                                            getString(R.string.authentication_recover_password_failure) :
                                            getString(R.string.authentication_recover_password_failure_reason, error));
+                }
+                break;
+            }
+
+            case RequestCodes.PLAY_SERVICES_INSTALLED: {
+                if (resultCode != RESULT_OK) {
+                    showGooglePlayServicesInstallError();
+                } else {
+                    showGoogleAccountPicker();
                 }
                 break;
             }
