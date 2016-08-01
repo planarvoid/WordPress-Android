@@ -93,9 +93,7 @@ public class CollectionScreen extends Screen {
     }
 
     public int visiblePlaylistsCount() {
-        final int size = testDriver.findOnScreenElements(With.id(R.id.collections_playlist_item)).size();
-        System.out.println("size" + size);
-        return size;
+        return testDriver.findOnScreenElements(With.id(R.id.collections_playlist_item)).size();
     }
 
     @Override
