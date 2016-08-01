@@ -31,7 +31,7 @@ expected_events:
     action: play
     policy: ALLOW
     player_type: Skippy
-    consumer_subs_plan: high_tier
+    consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: NOT_APPLICABLE
     user: soundcloud:users:[0-9]+
@@ -58,7 +58,7 @@ expected_events:
     action: pause
     policy: ALLOW
     player_type: Skippy
-    consumer_subs_plan: high_tier
+    consumer_subs_plan: (high_tier|none)
     page_name: personal-recommended:main
     monetization_model: NOT_APPLICABLE
     user: soundcloud:users:[0-9]+
