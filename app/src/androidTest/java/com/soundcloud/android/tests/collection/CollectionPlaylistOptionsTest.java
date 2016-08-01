@@ -30,30 +30,31 @@ public class CollectionPlaylistOptionsTest extends ActivityTest<MainActivity> {
 
     public void testFiltersPlaylists() {
         navigateToCollections();
+        collectionScreen.scrollToFirstPlaylist();
 
-        int unfilteredCount = collectionScreen.getLoadedItemCount();
+        int unfilteredCount = collectionScreen.visiblePlaylistsCount();
 
         collectionScreen.clickPlaylistOptions()
                         .clickCreated()
                         .clickDone();
 
-        assertThat(collectionScreen.getLoadedItemCount(), is(lessThan(unfilteredCount)));
+        assertThat(collectionScreen.visiblePlaylistsCount(), is(lessThan(unfilteredCount)));
 
         collectionScreen.clickPlaylistOptions()
                         .clickLiked()
                         .clickDone();
 
-        assertThat(collectionScreen.getLoadedItemCount(), is(equalTo(unfilteredCount)));
+        assertThat(collectionScreen.visiblePlaylistsCount(), is(equalTo(unfilteredCount)));
 
         collectionScreen.clickPlaylistOptions()
                         .clickCreated()
                         .clickDone();
 
-        assertThat(collectionScreen.getLoadedItemCount(), is(lessThan(unfilteredCount)));
+        assertThat(collectionScreen.visiblePlaylistsCount(), is(lessThan(unfilteredCount)));
 
         collectionScreen.removeFilters();
 
-        assertThat(collectionScreen.getLoadedItemCount(), is(equalTo(unfilteredCount)));
+        assertThat(collectionScreen.visiblePlaylistsCount(), is(equalTo(unfilteredCount)));
     }
 
     public void testSortsPlaylists() {
