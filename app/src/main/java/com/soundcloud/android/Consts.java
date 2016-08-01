@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import java.util.concurrent.TimeUnit;
-
 public final class Consts {
     public static final int NOT_SET = -1;
 
@@ -19,13 +17,6 @@ public final class Consts {
 
     public static final class GeneralIntents {
         public static final String UNAUTHORIZED = SoundCloudApplication.class.getSimpleName() + ".unauthorized";
-    }
-
-    public static final class ResourceStaleTimes {
-        public static final long USER = TimeUnit.DAYS.toMillis(1);
-        public static final long TRACK = TimeUnit.HOURS.toMillis(4);
-        public static final long PLAYLIST = TimeUnit.HOURS.toMillis(4);
-        public static final long ACTIVITY = TimeUnit.MINUTES.toMillis(20);
     }
 
     public static final class PrefKeys {
