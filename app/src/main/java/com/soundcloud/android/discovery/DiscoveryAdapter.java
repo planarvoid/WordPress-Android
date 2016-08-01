@@ -8,6 +8,7 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedSta
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksFooterItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
+import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -17,6 +18,8 @@ import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.search.PlaylistTagsPresenter;
 import com.soundcloud.android.stations.RecommendedStationsBucketRenderer;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Predicate;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -90,6 +93,24 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
                 notifyItemChanged(position);
             }
         }
+    }
+
+    void updateItem(DiscoveryItem item) {
+        final int position = findItemIndex(item.getKind());
+        checkState(position >= 0, item.getKind() + " must exist to be updated");
+
+        getItems().remove(position);
+        getItems().add(position, item);
+        notifyItemChanged(position);
+    }
+
+    private int findItemIndex(final DiscoveryItem.Kind kind) {
+        return Iterables.indexOf(getItems(), new Predicate<DiscoveryItem>() {
+            @Override
+            public boolean apply(DiscoveryItem input) {
+                return input.getKind() == kind;
+            }
+        });
     }
 
     void updateNowPlayingWithCollection(Urn collectionUrn, Urn trackUrn) {

@@ -7,6 +7,7 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedSta
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -115,5 +116,16 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
 
         verify(tracksBucketItem).updateNowPlaying(nowPlayingTrack);
         verify(stationsBucketItem, never()).updateNowPlaying(nowPlayingTrack);
+    }
+
+    @Test
+    public void updateItem() {
+        final DiscoveryItem initialItem = DiscoveryItem.forSearchItem();
+        final DiscoveryItem updatedItem = DiscoveryItem.forSearchItem();
+        adapter.onNext(singletonList(initialItem));
+
+        adapter.updateItem(updatedItem);
+
+        assertThat(adapter.getItems()).containsExactly(updatedItem);
     }
 }
