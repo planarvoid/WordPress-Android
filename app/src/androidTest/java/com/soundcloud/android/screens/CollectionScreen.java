@@ -92,6 +92,12 @@ public class CollectionScreen extends Screen {
         return testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.stations_collection_title_recent_stations)));
     }
 
+    public int visiblePlaylistsCount() {
+        final int size = testDriver.findOnScreenElements(With.id(R.id.collections_playlist_item)).size();
+        System.out.println("size" + size);
+        return size;
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
