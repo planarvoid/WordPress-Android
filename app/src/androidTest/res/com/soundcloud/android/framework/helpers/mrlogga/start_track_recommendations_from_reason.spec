@@ -12,7 +12,7 @@ expected_events:
     action: play
     policy: ALLOW
     player_type: Skippy|MediaPlayer
-    consumer_subs_plan: high_tier
+    consumer_subs_plan: (high_tier|none)
     page_name: search:main
     monetization_model: (\w|-)+
     user: soundcloud:users:[0-9]+
@@ -39,7 +39,7 @@ expected_events:
     action: pause
     policy: ALLOW
     player_type: Skippy|MediaPlayer
-    consumer_subs_plan: high_tier
+    consumer_subs_plan: (high_tier|none)
     page_name: search:main
     monetization_model: (\w|-)+
     user: soundcloud:users:[0-9]+
