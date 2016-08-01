@@ -25,7 +25,7 @@ public class TrackRecommendationsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override

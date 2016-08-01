@@ -14,7 +14,7 @@ public class TrackRecommendationsTrackingTest extends TrackingActivityTest<MainA
 
     @Override
     protected void logInHelper() {
-        TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
     }
 
     public void testStartPlaybackFromReasonOnDiscoveryScreen() {
