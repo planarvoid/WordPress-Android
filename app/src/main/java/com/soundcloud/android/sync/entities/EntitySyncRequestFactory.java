@@ -43,7 +43,7 @@ public class EntitySyncRequestFactory {
                 return tracksSyncJob.get();
             case USERS:
                 return usersSyncJob.get();
-            case PLAYLIST_LIKES:
+            case PLAYLIST:
                 return playlistSyncJob.get();
             default:
                 throw new IllegalArgumentException("Unexpected syncable : " + syncable);
