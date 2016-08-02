@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
@@ -219,7 +218,4 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return marketablePlay;
     }
 
-    public boolean isThirdPartyAd() {
-        return AdUtils.isThirdPartyAudioAd(trackUrn);
-    }
 }

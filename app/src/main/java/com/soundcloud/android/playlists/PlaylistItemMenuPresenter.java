@@ -86,10 +86,6 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         this.navigator = navigator;
     }
 
-    public void show(View button, PlaylistItem playlist) {
-        show(button, playlist, OverflowMenuOptions.builder().build());
-    }
-
     public void show(View button, PlaylistItem playlist, OverflowMenuOptions menuOptions) {
         this.playlist = playlist;
         this.menuOptions = menuOptions;

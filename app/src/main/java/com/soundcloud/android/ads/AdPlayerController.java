@@ -17,12 +17,10 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func2;
 
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.lang.ref.WeakReference;
 
 @Singleton
 public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActivity> {
@@ -79,7 +77,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
                         eventBus.queue(EventQueue.PLAYER_UI),
                         toPlayerState)
                 .doOnNext(setAdHasBeenSeen)
-                .subscribe(new PlayQueueSubscriber(activity));
+                .subscribe(new PlayQueueSubscriber());
     }
 
     @Override
@@ -91,12 +89,6 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     private final class PlayQueueSubscriber extends DefaultSubscriber<PlayerState> {
-
-        final WeakReference<Activity> currentActivityRef;
-
-        PlayQueueSubscriber(Activity activity) {
-            currentActivityRef = new WeakReference<>(activity);
-        }
 
         @Override
         public void onNext(PlayerState event) {

@@ -8,7 +8,6 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 
 import android.content.Context;
-import android.support.annotation.StringRes;
 import android.view.View;
 import android.view.ViewGroup;
 

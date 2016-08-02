@@ -8,7 +8,6 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 
 import org.junit.Before;

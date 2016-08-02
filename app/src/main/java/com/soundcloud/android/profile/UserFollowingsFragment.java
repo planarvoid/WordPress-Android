@@ -17,6 +17,9 @@ import javax.inject.Inject;
 
 public class UserFollowingsFragment extends ScrollableProfileFragment {
 
+    static final String USER_URN_KEY = "user_urn_key";
+    static final String SCREEN_KEY = "screen_key";
+    static final String SEARCH_QUERY_SOURCE_INFO_KEY = "search_query_source_info_key";
     @Inject @LightCycle UserFollowingsPresenter presenter;
 
     public static UserFollowingsFragment create(Urn userUrn,

@@ -1,7 +1,5 @@
 package com.soundcloud.android.tests.auth.signup;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import com.soundcloud.android.screens.elements.SignUpSpamDialogElement;
 import com.soundcloud.android.tests.auth.SignUpTest;
 

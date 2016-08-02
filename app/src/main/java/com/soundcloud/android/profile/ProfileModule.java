@@ -9,11 +9,7 @@ import dagger.Provides;
 @Module(addsTo = ApplicationModule.class,
         injects = {
                 ProfileActivity.class,
-                MyPostsFragment.class,
-                MyPlaylistsFragment.class,
-                MyLikesFragment.class,
                 MyFollowingsFragment.class,
-                UserPostsFragment.class,
                 UserPlaylistsActivity.class,
                 UserPlaylistsFragment.class,
                 UserLikesActivity.class,

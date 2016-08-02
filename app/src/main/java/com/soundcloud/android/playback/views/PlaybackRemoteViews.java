@@ -12,8 +12,6 @@ public abstract class PlaybackRemoteViews extends RemoteViews {
     private int playBtnId;
     private int pauseBtnId;
 
-    protected boolean isPlaying;
-
     public PlaybackRemoteViews(String packageName, int layoutId, int playBtnId, int pauseBtnId) {
         super(packageName, layoutId);
         this.playBtnId = playBtnId;

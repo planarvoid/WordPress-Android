@@ -2,12 +2,9 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.VideoSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.java.optional.Optional;
 
 import org.junit.Before;
 import org.junit.Test;

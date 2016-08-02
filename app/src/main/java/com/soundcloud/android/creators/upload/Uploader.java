@@ -4,7 +4,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static java.util.Collections.singletonList;
 
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;

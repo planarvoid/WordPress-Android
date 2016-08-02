@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.view.Surface;
 import android.view.TextureView;
 

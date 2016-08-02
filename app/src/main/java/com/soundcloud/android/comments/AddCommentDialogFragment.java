@@ -4,7 +4,6 @@ package com.soundcloud.android.comments;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
-import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.java.collections.PropertySet;

@@ -57,7 +57,7 @@ class UserFollowingsPresenter extends RecyclerViewPresenter<PagedRemoteCollectio
 
     @Override
     protected CollectionBinding<PagedRemoteCollection, UserItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn userUrn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
+        final Urn userUrn = fragmentArgs.getParcelable(UserFollowingsFragment.USER_URN_KEY);
         return CollectionBinding.from(profileOperations.pagedFollowings(userUrn), pageTransformer)
                                 .withAdapter(adapter)
                                 .withPager(profileOperations.followingsPagingFunction())

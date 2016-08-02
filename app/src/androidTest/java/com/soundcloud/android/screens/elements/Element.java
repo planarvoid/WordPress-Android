@@ -21,10 +21,6 @@ public abstract class Element {
         return getRootViewElement().isOnScreen();
     }
 
-    public boolean isFullyVisible() {
-        return getRootViewElement().isFullyOnScreen();
-    }
-
     public ViewElement getRootViewElement() {
         return testDriver.findOnScreenElement(matcher);
     }

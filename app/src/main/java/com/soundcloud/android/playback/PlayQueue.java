@@ -231,8 +231,6 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
 
     abstract void addAllPlayQueueItems(Iterable<PlayQueueItem> somePlayQueueItems);
 
-    abstract List<Integer> getQueueHashes();
-
     abstract ShuffledPlayQueue shuffle(int start);
 
     abstract boolean isShuffled();

@@ -31,7 +31,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -41,7 +40,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 
 public final class ImageUtils {
     private static final String TAG = ImageUtils.class.getSimpleName();
@@ -267,12 +265,6 @@ public final class ImageUtils {
         return (resources.getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
-    public static boolean checkIconShouldLoad(String url) {
-        return !(TextUtils.isEmpty(url)
-                || url.toLowerCase(Locale.US).equals("null")
-                || url.contains("default_avatar"));
-    }
-
     public static File createTempAvatarFile() {
         try {
             return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp");
@@ -348,39 +340,6 @@ public final class ImageUtils {
     /*
     http://developer.android.com/training/displaying-bitmaps/load-bitmap.html
      */
-
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-            if (width > height) {
-                inSampleSize = Math.round((float) height / (float) reqHeight);
-            } else {
-                inSampleSize = Math.round((float) width / (float) reqWidth);
-            }
-        }
-        return inSampleSize;
-    }
-
-    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-                                                         int reqWidth, int reqHeight) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
-    }
 
     public static TransitionDrawable createTransitionDrawable(Drawable from, Drawable to) {
         return new OneShotTransitionDrawable(

@@ -9,8 +9,4 @@ public class NonFatalRuntimeException extends RuntimeException {
         super(message, cause);
     }
 
-    public NonFatalRuntimeException(Throwable cause) {
-        super(cause);
-    }
-
 }

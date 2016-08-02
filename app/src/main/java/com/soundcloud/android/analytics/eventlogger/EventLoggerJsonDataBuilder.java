@@ -10,7 +10,6 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
@@ -18,7 +17,6 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 
 import android.content.res.Resources;

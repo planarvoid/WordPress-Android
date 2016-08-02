@@ -8,7 +8,6 @@ import static com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView.OnW
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;

@@ -9,7 +9,6 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.GoogleAccountTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.matcher.view.IsVisible;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TestConsts;

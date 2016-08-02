@@ -253,15 +253,6 @@ public class PlaybackService extends Service
         return fadeOffset <= fadeDuration && fadeOffset >= -LONG_FADE_PRELOAD_MS;
     }
 
-    private static PlaybackStateTransition correctUnknownDuration(PlaybackStateTransition stateTransition,
-                                                                  PlaybackItem playbackItem) {
-        final PlaybackProgress progress = stateTransition.getProgress();
-        if (!progress.isDurationValid()) {
-            progress.setDuration(playbackItem.getDuration());
-        }
-        return stateTransition;
-    }
-
     public void togglePlayback() {
         Log.d(TAG, "Toggling playback");
         if (streamPlayer.isPlaying()) {
@@ -375,7 +366,6 @@ public class PlaybackService extends Service
         String POSITION = "seek_position";
         String PLAYBACK_ITEM = "playback_item";
         String PRELOAD_ITEM = "preload_item";
-        String URN = "urn";
     }
 
     private static final class DelayedStopHandler extends Handler {

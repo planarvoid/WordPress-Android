@@ -61,8 +61,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.PowerManager;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.TextureView;
 
 import java.io.IOException;
 import java.util.Date;

@@ -35,14 +35,6 @@ public class LegacySyncResult {
         this.uri = uri;
     }
 
-    @Deprecated //Use static factory methods (or add your own)
-    public void setSyncData(boolean success, long synced_at, int new_size, int change) {
-        this.success = success;
-        this.synced_at = synced_at;
-        this.new_size = new_size;
-        this.change = change;
-    }
-
     public void setSyncData(long synced_at, int new_size) {
         this.synced_at = synced_at;
         this.new_size = new_size;

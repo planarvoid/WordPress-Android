@@ -75,10 +75,7 @@ public enum ApiEndpoints {
     // profile
     MY_DOB("/you/profile/dob"),
     USER_POSTS("/users/%s/posted_and_reposted_tracks_and_playlists"),
-    USER_POSTED_PLAYLISTS("/users/%s/posted_playlists"),
 
-    // tracks
-    TRACKS("/tracks/%s"),
     TRACKS_FETCH("/tracks/fetch"),
 
     // playlist
@@ -113,9 +110,6 @@ public enum ApiEndpoints {
     HTTP_STREAM("/tracks/%s/streams/http"),
     HTTPS_STREAM("/tracks/%s/streams/https"),
 
-    // other
-    SUBSCRIPTIONS("/subscriptions"),
-    LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
     CONFIGURATION("/configuration/android"),
     DEVICE_REGISTRATION("/device/registration"),

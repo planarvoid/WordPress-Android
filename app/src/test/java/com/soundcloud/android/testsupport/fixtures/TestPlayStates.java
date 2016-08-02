@@ -3,11 +3,9 @@ package com.soundcloud.android.testsupport.fixtures;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlayStateReason;
-import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.android.utils.TestDateProvider;
 
 import android.support.annotation.NonNull;
 

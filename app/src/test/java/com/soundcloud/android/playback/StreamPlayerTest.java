@@ -16,7 +16,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.skippy.SkippyAdapter;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;

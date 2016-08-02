@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 import java.text.DateFormat;
 import java.text.FieldPosition;
-import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,18 +30,6 @@ public class ApiDateFormat extends StdDateFormat {
             threadLocal.set(fmt);
         }
         return fmt;
-    }
-
-    public static Date fromString(String s) {
-        try {
-            return instance().parse(s);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static long toTime(String s) {
-        return fromString(s).getTime();
     }
 
     public static String formatDate(long tstamp) {

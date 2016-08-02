@@ -10,7 +10,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -67,11 +66,6 @@ public final class AndroidUtils {
     public static void showToast(Context c, CharSequence text) {
         Toast toast = Toast.makeText(c, text, Toast.LENGTH_LONG);
         toast.show();
-    }
-
-    public static boolean isTaskFinished(AsyncTask lt) {
-        return lt == null || lt.getStatus() == AsyncTask.Status.FINISHED;
-
     }
 
     @SuppressWarnings("UnusedDeclaration")

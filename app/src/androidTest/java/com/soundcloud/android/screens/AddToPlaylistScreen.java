@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class AddToPlaylistScreen extends Screen {
@@ -37,7 +36,4 @@ public class AddToPlaylistScreen extends Screen {
         return new VisualPlayerElement(testDriver);
     }
 
-    private ListElement playlists() {
-        return testDriver.findOnScreenElement(With.id(R.id.select_dialog_listview)).toListView();
-    }
 }

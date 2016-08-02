@@ -23,16 +23,6 @@ public abstract class PlaybackSessionEventArgs {
                                                       protocol, playerType, isOfflineTrack, marketablePlay, uuid);
     }
 
-    public static PlaybackSessionEventArgs create(PropertySet trackData,
-                                                  TrackSourceInfo trackSourceInfo,
-                                                  PlaybackStateTransition transition,
-                                                  boolean marketablePlay,
-                                                  String uuid) {
-        return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, transition.getProgress().getPosition(),
-                                               getProtocol(transition), getPlayerType(transition),
-                                               isLocalStoragePlayback(transition), marketablePlay, uuid);
-    }
-
     public static PlaybackSessionEventArgs createWithProgress(PropertySet trackData,
                                                               TrackSourceInfo trackSourceInfo,
                                                               PlaybackProgress progress,

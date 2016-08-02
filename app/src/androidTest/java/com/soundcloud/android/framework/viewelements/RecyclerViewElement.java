@@ -1,11 +1,9 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.AdapterElement;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 public class RecyclerViewElement extends AdapterElement {

@@ -8,10 +8,6 @@ package com.soundcloud.android.api.legacy;
 public interface Endpoints {
     String TOKEN = "/oauth2/token";
 
-    String TRACKS = "/tracks";
-
-    String PLAYLISTS = "/playlists";
-
     String MY_DETAILS = "/me";
     String MY_FOLLOWINGS = "/me/followings";
     String MY_FOLLOWING = "/me/followings/%d";

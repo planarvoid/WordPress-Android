@@ -25,7 +25,6 @@ import com.soundcloud.android.screens.profile.UserRepostsScreen;
 import com.soundcloud.android.screens.profile.UserTracksScreen;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.java.strings.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import android.support.v7.widget.RecyclerView;
@@ -41,7 +40,6 @@ public class ProfileScreen extends Screen {
      * is why we have this duplication here.
      */
     public enum Bucket {
-        SPOTLIGHT("Spotlight"),
         TRACKS("Tracks"),
         PLAYLISTS("Playlists"),
         ALBUMS("Albums"),
@@ -99,24 +97,9 @@ public class ProfileScreen extends Screen {
                 .clickOverflowButton();
     }
 
-    public PlaylistDetailsScreen clickFirstPlaylistWithTracks() {
-        final List<PlaylistElement> playlists = scrollToPlaylists();
-        for (PlaylistElement playlistElement : playlists) {
-            final String trackCount = playlistElement.getTrackCount();
-            if (Strings.isNotBlank(trackCount) && !trackCount.equalsIgnoreCase("0 tracks")) {
-                return playlistElement.click();
-            }
-        }
-        throw new IllegalStateException("Could not find playlist with a valid track count");
-    }
-
     public PlaylistElement scrollToFirstPlaylist() {
         return PlaylistElement.forListItem(testDriver, scrollToItem(
                 With.id(R.id.playlist_list_item)));
-    }
-
-    public ViewElement getSpotlightTitle() {
-        return scrollToItem(With.text(R.string.user_profile_sounds_header_spotlight));
     }
 
     public ViewElement tracksHeader() {
@@ -181,25 +164,8 @@ public class ProfileScreen extends Screen {
         return getTracks().get(0).getTitle();
     }
 
-    public void scrollToBottomAndLoadMoreItems() {
-        currentRecyclerView().scrollToBottom();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-    }
-
     public int currentItemCount() {
         return currentRecyclerView().getItemCount();
-    }
-
-    public VisualPlayerElement clickFirstRepostedTrack() {
-        final ViewElement viewElement = scrollToItem(
-                With.id(R.id.track_list_item),
-                TrackItemElement.WithReposter(testDriver)
-        );
-
-        viewElement.click();
-        VisualPlayerElement visualPlayer = new VisualPlayerElement(testDriver);
-        visualPlayer.waitForExpandedPlayer();
-        return visualPlayer;
     }
 
     private RecyclerViewElement currentRecyclerView() {
@@ -222,10 +188,6 @@ public class ProfileScreen extends Screen {
         return new TextElement(testDriver.findOnScreenElement(With.id(R.id.myspace_name)));
     }
 
-    public String emptyViewMessage() {
-        return emptyView().message();
-    }
-
     public ProfileScreen touchInfoTab() {
         tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_info))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
@@ -234,12 +196,6 @@ public class ProfileScreen extends Screen {
 
     public ProfileScreen touchSoundsTab() {
         tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_sounds))).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return this;
-    }
-
-    public ProfileScreen touchPlaylistsTab() {
-        tabs().getTabWith(text(testDriver.getString(R.string.tab_title_user_playlists))).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return this;
     }
@@ -321,10 +277,6 @@ public class ProfileScreen extends Screen {
 
     public void waitToBeFollowing() {
         waiter.waitForElementTextToChange(new TextElement(followButton()), getActionFollowText());
-    }
-
-    public boolean isFollowButtonVisible() {
-        return followButton().isOnScreen();
     }
 
     public boolean showsEmptySoundsMessage() {

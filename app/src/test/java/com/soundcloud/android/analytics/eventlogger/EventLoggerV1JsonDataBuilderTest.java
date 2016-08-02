@@ -7,7 +7,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -86,9 +85,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = createTrackSourceInfo();
     private EventContextMetadata eventContextMetadata = createEventContextMetadata();
-    private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"),
-                                                                                          5,
-                                                                                          new Urn("some:click:urn"));
     private final EntityMetadata entityMetadata = EntityMetadata.from(PropertySet.create());
 
     @Before

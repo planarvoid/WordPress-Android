@@ -9,7 +9,6 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.utils.ErrorUtils;
 
 import android.app.IntentService;
 import android.content.Context;

@@ -284,19 +284,6 @@ public class IOUtils {
         }
     }
 
-    public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
-        mkdirs(newDir);
-        if (deprecatedDir.exists()) {
-            for (File f : nullSafeListFiles(deprecatedDir, null)) {
-                if (!f.renameTo(new File(newDir, f.getName()))) {
-                    Log.w(TAG, "could not rename " + f);
-                }
-            }
-            deleteDir(deprecatedDir);
-        }
-        return newDir;
-    }
-
     public static boolean renameCaseSensitive(File oldFile, File newFile) {
         if (oldFile.equals(newFile)) {
             return oldFile.renameTo(newFile);

@@ -26,7 +26,6 @@ class EventLoggerParam {
     // subs
     static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";
     static final String CONSUMER_SUBS_PLAN = "consumer_subs_plan";
-    static final String EVENT_TYPE = "event_type";
     static final String OFFLINE_EVENT_STAGE = "event_stage";
     static final String APP_VERSION = "app_version";
     static final String IN_LIKES = "in_likes";

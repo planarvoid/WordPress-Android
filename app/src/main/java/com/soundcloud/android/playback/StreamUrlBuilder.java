@@ -11,7 +11,6 @@ import javax.inject.Inject;
 
 public class StreamUrlBuilder {
 
-    private final static String TAG = StreamUrlBuilder.class.getSimpleName();
     private final AccountOperations accountOperations;
     private final ApiUrlBuilder urlBuilder;
 

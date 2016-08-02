@@ -10,8 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.checks.Preconditions;
 import com.soundcloud.java.collections.Iterables;
-import com.soundcloud.java.collections.Lists;
-import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
@@ -24,13 +22,6 @@ import java.util.Locale;
 
 class SimplePlayQueue extends PlayQueue {
     private final List<PlayQueueItem> playQueueItems;
-
-    private final Function<PlayQueueItem, Integer> toHashes = new Function<PlayQueueItem, Integer>() {
-        @Override
-        public Integer apply(PlayQueueItem playQueueItem) {
-            return playQueueItem.hashCode();
-        }
-    };
 
     SimplePlayQueue(List<PlayQueueItem> playQueueItems) {
         this.playQueueItems = playQueueItems;
@@ -232,11 +223,6 @@ class SimplePlayQueue extends PlayQueue {
     @Override
     public void addAllPlayQueueItems(Iterable<PlayQueueItem> somePlayQueueItems) {
         Iterables.addAll(playQueueItems, somePlayQueueItems);
-    }
-
-    @Override
-    public List<Integer> getQueueHashes() {
-        return Lists.transform(playQueueItems, toHashes);
     }
 
     @Override

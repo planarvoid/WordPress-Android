@@ -85,9 +85,9 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(playableListUpdaterFactory.create(adapter, trackRenderer)).thenReturn(playableListUpdater);
 
-        arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
-        arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);
-        arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
+        arguments.putParcelable(UserFollowingsFragment.USER_URN_KEY, user);
+        arguments.putSerializable(UserFollowingsFragment.SCREEN_KEY, screen);
+        arguments.putParcelable(UserFollowingsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         createPresenter();
         presenter.onCreate(fragment, null);
     }

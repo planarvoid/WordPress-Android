@@ -23,7 +23,6 @@ import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -246,7 +245,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         adsOperations.applyAdToUpcomingTrack(adsWithOnlyAudioAd);
 
-        verifyAudioAdInserted(adsWithOnlyAudioAd, Optional.of(expectedLeavebehding));
+        verifyAudioAdInserted(adsWithOnlyAudioAd);
     }
 
     @Test
@@ -285,7 +284,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         adsOperations.applyAdToUpcomingTrack(noInterstitial);
 
-        verifyAudioAdInserted(noInterstitial, Optional.of(expectedLeaveBehind));
+        verifyAudioAdInserted(noInterstitial);
     }
 
     @Test
@@ -295,7 +294,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
 
         adsOperations.applyAdToUpcomingTrack(ads);
 
-        verifyAudioAdInserted(ads, Optional.<LeaveBehindAd>absent());
+        verifyAudioAdInserted(ads);
     }
 
     @Test
@@ -363,7 +362,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
                                                 TestPlayQueueItem.createTrack(TRACK_URN)));
     }
 
-    private void verifyAudioAdInserted(ApiAdsForTrack adsForTrack, Optional<LeaveBehindAd> leaveBehindAdOptional) {
+    private void verifyAudioAdInserted(ApiAdsForTrack adsForTrack) {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
 
         final AudioAd audioAdData = AudioAd.create(adsForTrack.audioAd().get(), TRACK_URN);

@@ -44,10 +44,6 @@ public class PlaylistQueueItem extends PlayableQueueItem {
             super(track);
         }
 
-        public Builder(Urn playable, Urn reposter) {
-            super(playable, reposter);
-        }
-
         @Override
         protected Builder getThis() {
             return this;
