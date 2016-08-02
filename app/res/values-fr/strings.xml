@@ -83,9 +83,7 @@
   <string name="authentication_your_email_address">Votre adresse e-mail</string>
   <string name="authentication_your_password">Votre mot de passe</string>
   <string name="authentication_clear_image">Garder enfoncé pour effacer l\'image</string>
-  <string name="dialog_select_google_account">Sélectionnez un compte Google à utiliser pour vous connecter.</string>
   <string name="authentication_login_error_message">Nous n\'avons pas réussi à vous connecter. Veuillez réessayer.</string>
-  <string name="authentication_no_google_accounts">Créez un compte Google au préalable.</string>
   <string name="authentication_log_in_with_google">Se connecter avec Google</string>
   <string name="error_google_sign_in_failed">Nous n\'avons pas réussi à vous connecter avec Google+. Pour activer votre compte Google+ et réessayer, accédez à plus.google.com.</string>
   <string name="auth_disclaimer_title">Plus qu\'une étape</string>
@@ -821,7 +819,6 @@
   <string name="set_type_compilation_label_for_text">compilation</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Abonnez-vous</string>
-  <string name="upsell_stream_upgrade_button">Obtenez SoundCloud Go</string>
   <string name="upsell_stream_upgrade_title">Déverrouillez les aperçus avec SoundCloud Go</string>
   <string name="upsell_stream_upgrade_description">Bénéficiez d\'un catalogue complet hors connexion et sans publicité.</string>
   <string name="upsell_track_preview">Aperçu</string>

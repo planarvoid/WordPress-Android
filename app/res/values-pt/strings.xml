@@ -83,9 +83,7 @@
   <string name="authentication_your_email_address">Seu endereço de email</string>
   <string name="authentication_your_password">Sua senha</string>
   <string name="authentication_clear_image">Mantenha pressionado para excluir a imagem</string>
-  <string name="dialog_select_google_account">Selecione uma conta do Google para fazer login.</string>
   <string name="authentication_login_error_message">Não foi possível fazer login. Tente novamente.</string>
-  <string name="authentication_no_google_accounts">Configure uma conta do Google primeiro.</string>
   <string name="authentication_log_in_with_google">Logar com Google</string>
   <string name="error_google_sign_in_failed">Não conseguimos iniciar sua sessão com o Google+. Para ativar sua conta do Google+ e tentar novamente, acesse plus.google.com.</string>
   <string name="auth_disclaimer_title">Mais um passo</string>
