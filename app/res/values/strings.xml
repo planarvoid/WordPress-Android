@@ -107,6 +107,7 @@
     <string name="authentication_email_taken_message">That email address is already associated with an account. Enter a different email address or try signing in.</string>
     <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
     <string name="authentication_email_other_error_message">Sorry we couldn’t create an account for you with the details you provided.</string>
+    <string name="authentication_error_unable_to_use_google_play_services">Google+ sign in cannot be used without Google Play Services. Please try another sign in method.</string>
 
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please sign in to open this link.</string>

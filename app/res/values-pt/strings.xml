@@ -43,6 +43,7 @@
   </plurals>
   <!--__ADS-->
   <string name="ads_advertisement">Anúncio</string>
+  <string name="ads_companionless">A faixa a seguir vai começar em breve.</string>
   <string name="ads_call_to_action">SAIBA MAIS</string>
   <string name="ads_why_ads">Por que anúncios?</string>
   <string name="ads_why_ads_dialog_message">Sempre que vir ou ouvir um anúncio, os artistas são pagos. Os anúncios ocasionais nos permitem continuar a apoiar os artistas e a manter a SoundCloud gratuita para os ouvintes.</string>
@@ -423,10 +424,54 @@
   <string name="suggested_stations">Estações sugeridas</string>
   <!--__DISCOVERY CHARTS-->
   <string name="charts_header">Paradas</string>
+  <string name="charts_trending">Novo e irado</string>
+  <string name="charts_top">50 principais</string>
   <string name="charts_new_and_hot_list_header">Faixas que vão bombar hoje.</string>
   <string name="charts_top_fifty_list_header">As faixas mais tocadas na SoundCloud esta semana.</string>
   <string name="charts_genre_view_all">Procurar todos os gêneros</string>
   <string name="charts_by_genre">Gráficos por gênero</string>
+  <string tools:ignore="UnusedResources" name="charts_alternativerock">Rock alternativo</string>
+  <string tools:ignore="UnusedResources" name="charts_ambient">Ambiente</string>
+  <string tools:ignore="UnusedResources" name="charts_classical">Clássica</string>
+  <string tools:ignore="UnusedResources" name="charts_country">Country</string>
+  <string tools:ignore="UnusedResources" name="charts_danceedm">Dance e EDM</string>
+  <string tools:ignore="UnusedResources" name="charts_dancehall">Dancehall</string>
+  <string tools:ignore="UnusedResources" name="charts_deephouse">Deep House</string>
+  <string tools:ignore="UnusedResources" name="charts_disco">Disco</string>
+  <string tools:ignore="UnusedResources" name="charts_drumbass">Drum e Bass</string>
+  <string tools:ignore="UnusedResources" name="charts_dubstep">Dubstep</string>
+  <string tools:ignore="UnusedResources" name="charts_electronic">Eletrônica</string>
+  <string tools:ignore="UnusedResources" name="charts_folksingersongwriter">Folk e Singer-Songwriter</string>
+  <string tools:ignore="UnusedResources" name="charts_hiphoprap">Hip-hop e Rap</string>
+  <string tools:ignore="UnusedResources" name="charts_house">House</string>
+  <string tools:ignore="UnusedResources" name="charts_indie">Indie</string>
+  <string tools:ignore="UnusedResources" name="charts_jazzblues">Jazz e Blues</string>
+  <string tools:ignore="UnusedResources" name="charts_latin">Latin</string>
+  <string tools:ignore="UnusedResources" name="charts_metal">Metal</string>
+  <string tools:ignore="UnusedResources" name="charts_piano">Piano</string>
+  <string tools:ignore="UnusedResources" name="charts_pop">Pop</string>
+  <string tools:ignore="UnusedResources" name="charts_rbsoul">R&amp;B e Soul</string>
+  <string tools:ignore="UnusedResources" name="charts_reggae">Reggae</string>
+  <string tools:ignore="UnusedResources" name="charts_reggaeton">Reggaeton</string>
+  <string tools:ignore="UnusedResources" name="charts_rock">Rock</string>
+  <string tools:ignore="UnusedResources" name="charts_soundtrack">Faixa</string>
+  <string tools:ignore="UnusedResources" name="charts_speech">Velocidade</string>
+  <string tools:ignore="UnusedResources" name="charts_techno">Techno</string>
+  <string tools:ignore="UnusedResources" name="charts_trance">Trance</string>
+  <string tools:ignore="UnusedResources" name="charts_trap">Trap</string>
+  <string tools:ignore="UnusedResources" name="charts_triphop">Triphop</string>
+  <string tools:ignore="UnusedResources" name="charts_world">Música do Mundo</string>
+  <string tools:ignore="UnusedResources" name="charts_audiobooks">Audiobooks</string>
+  <string tools:ignore="UnusedResources" name="charts_business">Negócio</string>
+  <string tools:ignore="UnusedResources" name="charts_comedy">Comédia</string>
+  <string tools:ignore="UnusedResources" name="charts_entertainment">Entertenimento</string>
+  <string tools:ignore="UnusedResources" name="charts_learning">Aprendizado</string>
+  <string tools:ignore="UnusedResources" name="charts_newspolitics">Notícias e política</string>
+  <string tools:ignore="UnusedResources" name="charts_religionspirituality">Religião e espiritualidade</string>
+  <string tools:ignore="UnusedResources" name="charts_science">Ciência</string>
+  <string tools:ignore="UnusedResources" name="charts_sports">Desportos</string>
+  <string tools:ignore="UnusedResources" name="charts_storytelling">Narração</string>
+  <string tools:ignore="UnusedResources" name="charts_technology">Tecnologia</string>
   <!--__SETTINGS-->
   <string name="pref_clear_cache">Limpar cache do aplicativo</string>
   <string name="pref_clear_cache_desc">Limpe o cache do app para liberar memória no dispositivo</string>
@@ -460,6 +505,7 @@
   <string name="stations_onboarding_stream_description">Basta tocar nos três pontos perto de qualquer faixa para começar.</string>
   <string name="recent_stations_empty_view_heading">Inicie uma estação para ouvir uma série de faixas semelhantes. É como se fosse rádio.</string>
   <string name="recent_stations_empty_view_message">Basta tocar nos três pontos perto de qualquer faixa para começar.</string>
+  <string name="stations_collection_title_station_page">Estação</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d s</string>
   <string name="format_abbreviated_minutes">%d min.</string>

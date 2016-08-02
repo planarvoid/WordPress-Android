@@ -90,4 +90,9 @@ public class StreamCacheConfigTest {
 
         assertThat(cacheConfig.getRemainingCacheSpace()).isEqualTo(1);
     }
+
+    @Test
+    public void getsRemainingCacheSpaceReturnsZeroIfCacheDirNull() {
+        assertThat( new StreamCacheConfig(countryProvider, null, ioUtils).getRemainingCacheSpace()).isEqualTo(0);
+    }
 }

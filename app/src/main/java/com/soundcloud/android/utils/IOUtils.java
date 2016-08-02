@@ -53,10 +53,17 @@ public class IOUtils {
         return externalFilesDirs == null || externalFilesDirs.length == 0 ? null : externalFilesDirs[0];
     }
 
+    @Nullable
     public static File getExternalStorageDir(Context context, String dir) {
-        final File file = new File(getExternalStorageDir(context), dir);
-        file.mkdirs();
-        return file;
+        final File externalStorageDir = getExternalStorageDir(context);
+        if (externalStorageDir != null) {
+            final File file = new File(externalStorageDir, dir);
+            file.mkdirs();
+            return file;
+        } else {
+            return null;
+        }
+
     }
 
     @NotNull
@@ -321,14 +328,20 @@ public class IOUtils {
 
     public static void createCacheDirs(Context context, File streamCacheDirectory) {
         if (isSDCardAvailable()) {
+            if (streamCacheDirectory != null) {
+                mkdirs(streamCacheDirectory);
+            }
+
             // create external storage directory
             final File externalStorageDirectory = getExternalStorageDir(context);
-            mkdirs(externalStorageDirectory);
-            mkdirs(streamCacheDirectory);
+            if (externalStorageDirectory != null) {
+                mkdirs(externalStorageDirectory);
+                // ignore all media below files
+                nomedia(externalStorageDirectory);
+            } else {
+                ErrorUtils.handleSilentException(new IllegalStateException("External storage directory not available"));
+            }
 
-            // ignore all media below files
-
-            nomedia(externalStorageDirectory);
         }
     }
 

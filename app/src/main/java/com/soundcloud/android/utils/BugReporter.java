@@ -66,6 +66,9 @@ public class BugReporter {
 
     private void sendLogs(Context context, String toEmail, String subject, String body, String chooserText) {
         File outputFile = IOUtils.getExternalStorageDir(context, LOGCAT_FILE_NAME);
+
+        if (outputFile == null) return;
+
         outputFile.delete();
 
         try {

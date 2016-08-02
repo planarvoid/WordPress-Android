@@ -13,6 +13,8 @@ public final class Consts {
         public static final int RECOVER_PASSWORD_CODE = 8002;
         public static final int SIGNUP_VIA_GOOGLE = 8003;
         public static final int RECOVER_FROM_PLAY_SERVICES_ERROR = 8004;
+        public static final int PICK_GOOGLE_ACCOUNT = 8005;
+        public static final int PLAY_SERVICES_INSTALLED = 8006;
     }
 
     public static final class GeneralIntents {

@@ -1,6 +1,8 @@
 
 package com.soundcloud.android.creators.record;
 
+import com.soundcloud.android.utils.IOUtils;
+
 import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
@@ -54,7 +56,7 @@ public class RemainingTimeCalculator {
      * @param bytesPerSecond the estimated bps rate of the audio stream to be recorded
      */
     public RemainingTimeCalculator(Context context, int bytesPerSecond) {
-        sdCardDirectory = context.getExternalFilesDir(null);
+        sdCardDirectory = IOUtils.getExternalStorageDir(context);
         this.bytesPerSecond = bytesPerSecond;
     }
 
@@ -138,7 +140,7 @@ public class RemainingTimeCalculator {
      * @return if some diskspace is available
      */
     public boolean isDiskSpaceAvailable() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (sdCardDirectory != null && IOUtils.isSDCardAvailable()) {
             StatFs fs = new StatFs(sdCardDirectory.getAbsolutePath());
             // keep some free block
             return fs.getAvailableBlocks() > KEEP_BLOCKS;

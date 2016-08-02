@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import javax.inject.Inject;
+import java.io.File;
 
 public class ClearCacheDialog extends DialogFragment {
 
@@ -65,7 +66,10 @@ public class ClearCacheDialog extends DialogFragment {
             public void call(Subscriber<? super Void> subscriber) {
                 waveformOperations.clearWaveforms();
                 imageOperations.clearDiskCache();
-                IOUtils.cleanDirs(streamCacheConfig.getStreamCacheDirectory());
+                final File streamCacheDirectory = streamCacheConfig.getStreamCacheDirectory();
+                if (streamCacheDirectory != null) {
+                    IOUtils.cleanDirs(streamCacheDirectory);
+                }
                 subscriber.onCompleted();
             }
         });
