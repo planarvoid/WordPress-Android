@@ -219,12 +219,27 @@ public class PlayQueueManager implements OriginProvider {
         publishQueueUpdate();
     }
 
+    public void insertNext(List<Urn> trackUrns) {
+        if (!playQueue.isEmpty()) {
+            for (int i = 0; i < trackUrns.size(); i++) {
+                TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrns.get(i)).build();
+                playQueue.insertPlayQueueItem(currentPosition + (i + 1), queueItem);
+            }
+            publishQueueUpdate();
+            saveQueue();
+        } else {
+            throw new IllegalStateException("It is not possible to insert when the play queue is empty");
+        }
+    }
+
     public void insertNext(Urn trackUrn) {
         if (!playQueue.isEmpty()) {
             TrackQueueItem queueItem = new TrackQueueItem.Builder(trackUrn).build();
             playQueue.insertPlayQueueItem(currentPosition + 1, queueItem);
             publishQueueUpdate();
             saveQueue();
+        } else {
+            throw new IllegalStateException("It is not possible to insert when the play queue is empty");
         }
     }
 

@@ -4,6 +4,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadStateView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.ui.LikeButtonPresenter;
@@ -37,6 +38,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
 
     private PopupMenuWrapper popupMenuWrapper;
     private OnEngagementListener listener;
+    private PlaylistHeaderItem playlistHeaderItem;
 
     @Bind(R.id.toggle_like)
     ToggleButton likeToggle;
@@ -65,6 +67,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     public void bindView(View view, PlaylistHeaderItem item, boolean isEditMode) {
+        this.playlistHeaderItem = item;
         final String playlistInfoText = getPlaylistInfoText(item);
         bindEngagementBar(view, isEditMode);
         setInfoText(playlistInfoText);
@@ -81,6 +84,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setOnMenuItemClickListener(this);
         downloadStateView.onViewCreated(bar);
         bar.setVisibility(isEditMode ? View.GONE : View.VISIBLE);
+        configurePlayNext();
     }
 
     private void bindEditBar(View view, String playlistInfoText, boolean isEditMode) {
@@ -182,6 +186,10 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.delete_playlist, false);
     }
 
+    void configurePlayNext() {
+        popupMenuWrapper.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
+    }
+
     public void updateLikeItem(int likesCount, boolean likedByUser) {
         updateToggleButton(likeToggle,
                            R.string.accessibility_like_action,
@@ -211,6 +219,9 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     @Override
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
+            case R.id.play_next:
+                getListener().onPlayNext(playlistHeaderItem.getUrn());
+                return true;
             case R.id.repost:
                 getListener().onToggleRepost(true, true);
                 return true;
@@ -269,6 +280,9 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
     }
 
     public interface OnEngagementListener {
+
+        void onPlayNext(Urn playlistUrn);
+
         void onToggleLike(boolean isLiked);
 
         void onToggleRepost(boolean isReposted, boolean showResultToast);

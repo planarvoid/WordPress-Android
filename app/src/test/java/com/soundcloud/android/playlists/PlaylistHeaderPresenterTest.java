@@ -21,6 +21,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
@@ -41,6 +42,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -89,6 +91,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistHeaderView playlistHeaderView;
     @Mock private PlaylistHeaderListener headerListener;
     @Mock private PlaylistHeaderView headerView;
+    @Mock private PlayQueueHelper playQueueHelper;
+    @Mock private ScreenProvider screenProvider;
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
 
@@ -126,7 +130,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
                 repostOperations,
                 shareOperations,
                 offlineSettings,
-                connectionHelper);
+                connectionHelper,
+                playQueueHelper);
     }
 
     @Test
@@ -592,6 +597,13 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         presenter.onCreate(fragmentRule.getFragment(), null);
 
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
+    @Test
+    public void shouldPlayNext() {
+        presenter.onPlayNext(Urn.forPlaylist(1));
+
+        verify(playQueueHelper, times(1)).playNext(Urn.forPlaylist(1));
     }
 
     private void setPlaylistInfo() {

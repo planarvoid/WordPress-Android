@@ -33,6 +33,7 @@ import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -1165,7 +1166,58 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertNextAddsToQueue() throws Exception {
+    public void insertMultipleUrnsAddsToQueue() {
+        final List<Urn> playlistUrns = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final List<Urn> tracksUrns = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrns, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(playlistUrns);
+
+        assertThat(playQueueManager.getUpcomingPlayQueueItems(5)).isEqualTo(playlistUrns);
+    }
+
+    @Test
+    public void insertMultipleUrnsSavesToQueue() {
+        final List<Urn> playlistUrns = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final List<Urn> tracksUrns = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrns, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(playlistUrns);
+
+        assertThat(playQueueManager.getUpcomingPlayQueueItems(5)).isEqualTo(playlistUrns);
+    }
+
+    @Test
+    public void insertMultipleUrnsNextPublishesQueueUpdate() {
+        final List<Urn> playlistUrns = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(playlistUrns);
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
+                PlayQueueEvent.fromNewQueue(Urn.NOT_SET),
+                PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET)
+        );
+    }
+
+    @Test
+    public void insertMultipleUrnsNextAllowsContiguousRepeatedTracks() {
+        final List<Urn> playlistUrns = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
+
+        playQueueManager.insertNext(playlistUrns);
+
+        assertThat(playQueueManager.getNextPlayQueueItem().getUrn()).isEqualTo(Urn.forTrack(1L));
+    }
+
+    @Test
+    public void insertNextAddsToQueue() {
         final Urn nextTrackUrn = Urn.forTrack(100L);
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
         final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
@@ -1177,7 +1229,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertNextSavesQueue() throws Exception {
+    public void insertNextSavesQueue()  {
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
         final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
         playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
@@ -1190,7 +1242,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertNextPublishesQueueUpdate() throws Exception {
+    public void insertNextPublishesQueueUpdate()  {
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
         final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
         playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
@@ -1204,16 +1256,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertNextDoesNothingWhenQueueIsEmpty() throws Exception {
-        playQueueManager.insertNext(Urn.forTrack(100L));
-
-        assertThat(playQueueManager.isQueueEmpty()).isTrue();
-        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).isEmpty();
-        verify(playQueueOperations, never()).saveQueue(any(PlayQueue.class));
-    }
-
-    @Test
-    public void insertNextAllowsRepeatedTracks() throws Exception {
+    public void insertNextAllowsRepeatedTracks() {
         final Urn nextTrackUrn = Urn.forTrack(1L);
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
         final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
@@ -1225,7 +1268,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertNextAllowsContiguousRepeatedTracks() throws Exception {
+    public void insertNextAllowsContiguousRepeatedTracks() {
         final Urn nextTrackUrn = Urn.forTrack(3L);
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
         final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
@@ -1421,6 +1464,18 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setCurrentPlayQueueItem(Urn.forTrack(123L));
 
         assertThat(playQueueManager.getCurrentTrackPosition()).isEqualTo(0);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowExceptionOnInsert1() {
+        playQueueManager.setNewPlayQueue(PlayQueue.empty(), PlaySessionSource.EMPTY);
+        playQueueManager.insertNext(Urn.NOT_SET);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowExceptionOnInsertMany() {
+        playQueueManager.setNewPlayQueue(PlayQueue.empty(), PlaySessionSource.EMPTY);
+        playQueueManager.insertNext(Lists.newArrayList(Urn.NOT_SET, Urn.NOT_SET));
     }
 
     private void assertPlayQueueSaved(PlayQueue expected) {

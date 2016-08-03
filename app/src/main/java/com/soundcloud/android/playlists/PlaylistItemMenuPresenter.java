@@ -22,6 +22,9 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.share.ShareOperations;
@@ -54,6 +57,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final Navigator navigator;
+    private final FeatureFlags featureFlags;
+    private final PlayQueueHelper playQueueHelper;
 
     private PlaylistItem playlist;
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
@@ -71,7 +76,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                                      ScreenProvider screenProvider,
                                      FeatureOperations featureOperations,
                                      OfflineContentOperations offlineContentOperations,
-                                     Navigator navigator) {
+                                     Navigator navigator,
+                                     FeatureFlags featureFlags,
+                                     PlayQueueHelper playQueueHelper) {
         this.appContext = appContext;
         this.eventBus = eventBus;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -84,6 +91,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.navigator = navigator;
+        this.featureFlags = featureFlags;
+        this.playQueueHelper = playQueueHelper;
     }
 
     public void show(View button, PlaylistItem playlist, OverflowMenuOptions menuOptions) {
@@ -104,6 +113,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     @Override
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
+            case R.id.play_next:
+                handlePlayNext();
+                return true;
             case R.id.add_to_likes:
                 handleLike();
                 return true;
@@ -131,6 +143,11 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             default:
                 return false;
         }
+    }
+
+    private void handlePlayNext() {
+        Urn playlistUrn = playlist.getUrn();
+        playQueueHelper.playNext(playlistUrn);
     }
 
     private static FragmentManager toFragmentManager(Context context) {
@@ -233,7 +250,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         updateLikeActionTitle(menu, playlist.isLiked());
         configureAdditionalEngagementsOptions(menu);
         configureInitialOfflineOptions(menu);
-
+        configurePlayNextOption(menu);
         menu.show();
         return menu;
     }
@@ -323,6 +340,10 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         menu.setItemVisible(R.id.upsell_offline_content, false);
     }
 
+    private void configurePlayNextOption(PopupMenuWrapper menu) {
+        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
+    }
+
     // this is really ugly. We should introduce a PlaylistRepository.
     // https://github.com/soundcloud/SoundCloud-Android/issues/2942
     private void loadPlaylist(PopupMenuWrapper menu) {
@@ -350,4 +371,5 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
             configureOfflineOptions(menu, playlist.isMarkedForOffline());
         }
     }
+
 }

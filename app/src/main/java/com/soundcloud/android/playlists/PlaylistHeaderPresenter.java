@@ -26,6 +26,7 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
+import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -69,6 +70,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private final ShareOperations shareOperations;
     private final OfflineSettingsOperations offlineSettings;
     private final NetworkConnectionHelper connectionHelper;
+    private final PlayQueueHelper playQueueHelper;
 
     @LightCycle final PlaylistHeaderScrollHelper playlistHeaderScrollHelper;
 
@@ -98,7 +100,8 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                             RepostOperations repostOperations,
                             ShareOperations shareOperations,
                             OfflineSettingsOperations offlineSettings,
-                            NetworkConnectionHelper connectionHelper) {
+                            NetworkConnectionHelper connectionHelper,
+                            PlayQueueHelper playQueueHelper) {
         this.eventBus = eventBus;
         this.playlistDetailsViewFactory = playlistDetailsViewFactory;
         this.navigator = navigator;
@@ -115,6 +118,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         this.shareOperations = shareOperations;
         this.offlineSettings = offlineSettings;
         this.connectionHelper = connectionHelper;
+        this.playQueueHelper = playQueueHelper;
     }
 
     @Override
@@ -352,6 +356,11 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     @Override
+    public void onPlayNext(Urn playlistUrn) {
+        playQueueHelper.playNext(playlistUrn);
+    }
+
+    @Override
     public void onToggleLike(boolean addLike) {
         if (headerItem != null) {
             eventBus.publish(EventQueue.TRACKING,
@@ -444,4 +453,5 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
             }
         }
     }
+
 }

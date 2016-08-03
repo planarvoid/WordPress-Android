@@ -43,6 +43,7 @@ import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -93,6 +94,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private ShareOperations shareOperations;
+    @Mock private PlayQueueHelper playQueueHelper;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     private OnEngagementListener onEngagementListener;
@@ -119,7 +121,8 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
                                                             connectionHelper,
                                                             offlineSettings,
                                                             navigator,
-                                                            shareOperations);
+                                                            shareOperations,
+                                                            playQueueHelper);
 
         controller.bindView(fragmentRule.getView());
         controller.onResume(fragmentRule.getFragment());
@@ -633,6 +636,13 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         controller.onCreate(fragmentRule.getFragment(), null);
 
         eventBus.verifyNoEventsOn(EventQueue.TRACKING);
+    }
+
+    @Test
+    public void shouldPlayNext() {
+        controller.onPlayNext(Urn.NOT_SET);
+
+        verify(playQueueHelper, times(1)).playNext(eq(Urn.NOT_SET));
     }
 
     private PlaylistWithTracks createPlaylistInfoWithSharing(Sharing sharing) {

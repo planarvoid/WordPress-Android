@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +24,9 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.annotations.Issue;
@@ -30,6 +34,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -42,6 +47,8 @@ import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
+
+import java.util.List;
 
 public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
 
@@ -59,6 +66,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private Navigator navigator;
     @Mock private MenuItem menuItem;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private PlayQueueHelper playQueueHelper;
+
     private View button;
 
     private final TestEventBus eventBus = new TestEventBus();
@@ -72,6 +82,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.<PlaylistWithTracks>empty());
+        when(playlistOperations.trackUrnsForPlayback(any(Urn.class)))
+                .thenReturn(Observable.<List<Urn>>just(Lists.newArrayList(Urn.NOT_SET)));
+
 
         when(offlineOperations.makePlaylistAvailableOffline(any(Urn.class))).thenReturn(Observable.<Void>empty());
         when(offlineOperations.makePlaylistUnavailableOffline(any(Urn.class))).thenReturn(Observable.<Void>empty());
@@ -92,7 +105,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   screenProvider,
                                                   featureOperations,
                                                   offlineOperations,
-                                                  navigator);
+                                                  navigator,
+                                                  featureFlags,
+                                                  playQueueHelper);
 
         button = new View(new FragmentActivity());
     }
@@ -273,6 +288,34 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlist, menuOptions);
 
         verify(popupMenuWrapper).setItemVisible(R.id.delete_playlist, false);
+    }
+
+    @Test
+    public void doNotShowPlaylist() {
+        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(false);
+
+        presenter.show(button, playlist, menuOptions);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.play_next, false);
+    }
+
+    @Test
+    public void showPlaylist() {
+        when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
+
+        presenter.show(button, playlist, menuOptions);
+
+        verify(popupMenuWrapper).setItemVisible(R.id.play_next, true);
+    }
+
+    @Test
+    public void shouldPlayNext() {
+        when(menuItem.getItemId()).thenReturn(R.id.play_next);
+
+        presenter.show(button, playlist, menuOptions);
+        presenter.onMenuItemClick(menuItem, context);
+
+        verify(playQueueHelper, times(1)).playNext(any(Urn.class));
     }
 
     private PlaylistItem createPlaylistItem() {

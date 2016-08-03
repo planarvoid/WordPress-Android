@@ -27,6 +27,7 @@ import com.soundcloud.android.offline.OfflineSettingsOperations;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
+import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -74,9 +75,12 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     private final ShareOperations shareOperations;
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsOperations offlineSettings;
+    private final PlayQueueHelper playQueueHelper;
 
     private Subscription foregroundSubscription = RxUtils.invalidSubscription();
     private Subscription offlineStateSubscription = RxUtils.invalidSubscription();
+
+    private View rootView;
 
     @Inject
     public LegacyPlaylistEngagementsPresenter(EventBus eventBus,
@@ -92,7 +96,8 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
                                               NetworkConnectionHelper connectionHelper,
                                               OfflineSettingsOperations offlineSettings,
                                               Navigator navigator,
-                                              ShareOperations shareOperations) {
+                                              ShareOperations shareOperations,
+                                              PlayQueueHelper playQueueHelper) {
         this.eventBus = eventBus;
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
@@ -107,6 +112,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         this.offlineSettings = offlineSettings;
         this.navigator = navigator;
         this.shareOperations = shareOperations;
+        this.playQueueHelper = playQueueHelper;
     }
 
     @Override
@@ -132,9 +138,9 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     void bindView(View rootView, OriginProvider originProvider) {
+        this.rootView = rootView;
         this.context = rootView.getContext();
         this.originProvider = originProvider;
-        playlistEngagementsView.bindView(rootView);
         playlistEngagementsView.setOnEngagementListener(this);
     }
 
@@ -163,6 +169,8 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
 
     void setPlaylistInfo(@NotNull final PlaylistHeaderItem playlistHeaderItem) {
         this.playlistHeaderItem = playlistHeaderItem;
+
+        playlistEngagementsView.bindView(rootView, playlistHeaderItem, false);
 
         final String trackCount = context.getResources().getQuantityString(
                 R.plurals.number_of_sounds, this.playlistHeaderItem.getTrackCount(),
@@ -311,6 +319,11 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     }
 
     @Override
+    public void onPlayNext(Urn playlistUrn) {
+        playQueueHelper.playNext(playlistUrn);
+    }
+
+    @Override
     public void onToggleLike(boolean addLike) {
         if (playlistHeaderItem != null) {
             eventBus.publish(EventQueue.TRACKING,
@@ -403,5 +416,6 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
             playlistEngagementsView.showNoConnection();
         }
     }
+
 
 }
