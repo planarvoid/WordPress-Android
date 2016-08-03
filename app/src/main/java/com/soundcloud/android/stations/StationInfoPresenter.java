@@ -108,7 +108,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     }
 
     private Optional<Urn> getSeedTrackUrn(Bundle fragmentArgs) {
-        return Optional.fromNullable((Urn)fragmentArgs.getParcelable(StationInfoFragment.EXTRA_SEED_TRACk));
+        return Optional.fromNullable((Urn) fragmentArgs.getParcelable(StationInfoFragment.EXTRA_SEED_TRACk));
     }
 
     private Observable<StationInfoItem> getStationInfo(Urn stationUrn) {
@@ -126,8 +126,8 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     }
 
     @Override
-    public void onPlayButtonClicked(Context context, Urn stationUrn) {
-        stationPresenter.startStation(context, stationUrn);
+    public void onPlayButtonClicked(Context context) {
+        stationPresenter.startStation(context, stationUrn, discoverySource);
     }
 
     @Override

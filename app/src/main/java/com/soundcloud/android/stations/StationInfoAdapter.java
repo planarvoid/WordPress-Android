@@ -21,7 +21,7 @@ class StationInfoAdapter extends PagingRecyclerItemAdapter<StationInfoItem, Stat
     private final StationInfoTracksBucketRenderer bucketRenderer;
 
     interface StationInfoClickListener {
-        void onPlayButtonClicked(Context context, Urn stationUrn);
+        void onPlayButtonClicked(Context context);
 
         void onTrackClicked(Context context, int position);
     }

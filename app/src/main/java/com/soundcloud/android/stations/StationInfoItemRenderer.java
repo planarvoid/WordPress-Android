@@ -8,7 +8,6 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 
@@ -47,16 +46,16 @@ class StationInfoItemRenderer implements CellRenderer<StationInfo> {
 
         bindArtwork(info, itemView);
         bindTextViews(info, itemView);
-        bindPlayButton(itemView, info.getUrn());
+        bindPlayButton(itemView);
     }
 
-    private void bindPlayButton(View itemView, final Urn stationUrn) {
+    private void bindPlayButton(View itemView) {
         final View playButton = ButterKnife.findById(itemView, R.id.btn_play);
         playButton.setVisibility(View.VISIBLE);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clickListener.onPlayButtonClicked(view.getContext(), stationUrn);
+                clickListener.onPlayButtonClicked(view.getContext());
             }
         });
     }
