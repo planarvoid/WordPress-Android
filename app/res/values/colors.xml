@@ -7,6 +7,10 @@
     <color name="translucent_status_bar">#0cffffff</color>
     <color name="translucent_white">#ccffffff</color>
 
+    <color name="playqueue_now_playing_background">#33000000</color>
+    <color name="playqueue_ripple">#33ffffff</color>
+    <color name="playqueue_background_touch">#1Cffffff</color>
+
     <color name="primary">@color/white</color>
     <color name="primary_dark">#bbbbbb</color>
     <color name="primary_darker">#1d1d1d</color>

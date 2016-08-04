@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/playqueue_ripple">
+    <item android:drawable="@color/playqueue_now_playing_background" />
+    <item
+        android:id="@android:id/mask"
+        android:drawable="@color/white" />
+</ripple>

@@ -1,13 +1,9 @@
 package com.soundcloud.android.playback.playqueue;
 
-import static com.soundcloud.android.ApplicationModule.LIGHT_TRACK_ITEM_RENDERER;
-
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.TracksRecyclerItemAdapter;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,8 +13,8 @@ class PlayQueueRecyclerItemAdapter extends TracksRecyclerItemAdapter {
     private final List<Long> uniqueID = new ArrayList<>();
 
     @Inject
-    public PlayQueueRecyclerItemAdapter(@Named(LIGHT_TRACK_ITEM_RENDERER) TrackItemRenderer trackItemRenderer) {
-        super(trackItemRenderer);
+    public PlayQueueRecyclerItemAdapter(PlayQueueItemRenderer playQueueItemRenderer) {
+        super(playQueueItemRenderer);
         setHasStableIds(true);
     }
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.soundcloud.android.view.CustomFontTextView android:id="@+id/track_list_item_geo_blocked_text"
+    style="@style/ListItemText.TertiaryText"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_marginTop="0dp"
+    android:drawableLeft="@drawable/geo_list_item"
+    android:text="@string/upsell_not_avaliable"
+    android:textColor="@color/ak_light_gray" />

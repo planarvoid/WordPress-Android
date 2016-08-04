@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/queue_item_background"
+    android:clickable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+
+    <LinearLayout
+        android:id="@+id/text_holder"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:orientation="horizontal">
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/creator"
+                style="@style/ListItemText.PrimaryText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="0dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/ak_medium_dark_gray"
+                android:textSize="15sp" />
+            <!--remove the 12dp from styles-->
+
+            <FrameLayout
+                android:id="@+id/status_place_holder"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginTop="0dp" />
+
+        </LinearLayout>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/ListItemText.SecondaryText"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginLeft="0dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/ak_light_gray"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <com.soundcloud.android.view.OverflowAnchorImageView
+        android:id="@+id/overflow_button"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:background="@drawable/queue_item_background"
+        android:padding="4dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/playqueue_track_item_overflow" />
+
+</LinearLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.soundcloud.android.view.CustomFontTextView android:id="@+id/track_list_item_preview_label"
+    style="@style/ListItemText.HighTierTrack.Preview"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_marginTop="0dp"
+    android:textColor="@color/white" />

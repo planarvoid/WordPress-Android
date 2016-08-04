@@ -904,6 +904,7 @@
     <string name="upsell_playlist_upgrade_description">No more previews. Listen to every second of every track.</string>
     <string name="upsell_track_preview">Preview</string>
     <string name="upsell_track_geo_blocked">Not available in your country</string>
+    <string name="upsell_not_avaliable">Not available</string>
 
     <!-- __STATIONS -->
     <string name="station_type_track">Track station</string>

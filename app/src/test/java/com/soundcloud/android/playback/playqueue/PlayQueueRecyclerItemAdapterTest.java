@@ -5,14 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemRenderer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
 
-    @Mock private TrackItemRenderer renderer;
+    @Mock private PlayQueueItemRenderer renderer;
     private PlayQueueRecyclerItemAdapter adapter;
 
     @Before

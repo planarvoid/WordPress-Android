@@ -70,7 +70,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         this.artworkController = playerArtworkController;
         this.swipeToRemoveHelper = swipeToRemoveHelper;
         this.eventBus = eventBus;
-        adapter.setTrackItemListener(this);
     }
 
     @Override

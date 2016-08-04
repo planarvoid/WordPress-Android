@@ -8,16 +8,13 @@ import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
 import com.soundcloud.android.cast.NoOpCastConnectionHelper;
 import com.soundcloud.android.collection.CollectionNavigationTarget;
-import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
 import com.soundcloud.android.image.ImageProcessorJB;
@@ -39,9 +36,6 @@ import com.soundcloud.android.search.DiscoveryNavigationTarget;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.stream.StreamNavigationTarget;
 import com.soundcloud.android.sync.SyncModule;
-import com.soundcloud.android.tracks.TrackItemMenuPresenter;
-import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
@@ -320,21 +314,6 @@ public class ApplicationModule {
     @Named(CURRENT_DATE_PROVIDER)
     public DateProvider provideCurrentDateProvider() {
         return new CurrentDateProvider();
-    }
-
-
-    @Provides
-    @Named(LIGHT_TRACK_ITEM_RENDERER)
-    public TrackItemRenderer provideLightTrackItemRenderer(ImageOperations imageOperations,
-                                                           CondensedNumberFormatter numberFormatter,
-                                                           TrackItemMenuPresenter trackItemMenuPresenter,
-                                                           EventBus eventBus,
-                                                           ScreenProvider screenProvider,
-                                                           Navigator navigator, FeatureOperations featureOperations) {
-        return new TrackItemRenderer(
-                imageOperations, numberFormatter, trackItemMenuPresenter, eventBus,
-                screenProvider, navigator, featureOperations,
-                new TrackItemView.Factory(R.layout.track_list_light_item, R.color.list_disabled, R.color.white));
     }
 
 }

@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.tracks.TrackItemView;
 
 import android.animation.Animator;
@@ -96,11 +97,16 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
 
     private void startAlphaAnimation(final RecyclerView.ViewHolder viewHolder, float newAlpha) {
         View target = viewHolder.itemView;
-        ObjectAnimator animator = ObjectAnimator.ofFloat(target, "alpha", target.getAlpha(), newAlpha);
+        View image = target.findViewById(R.id.image);
+        View textHolder = target.findViewById(R.id.text_holder);
+        ObjectAnimator imageAnimator = ObjectAnimator.ofFloat(image, "alpha", image.getAlpha(), newAlpha);
+        ObjectAnimator textAnimator = ObjectAnimator.ofFloat(textHolder, "alpha", textHolder.getAlpha(), newAlpha);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(imageAnimator, textAnimator);
 
-        animator.setDuration(ALPHA_ANIMATION_DURATION);
-        animator.setInterpolator(new DecelerateInterpolator());
-        animator.addListener(new Animator.AnimatorListener() {
+        animatorSet.setDuration(ALPHA_ANIMATION_DURATION);
+        animatorSet.setInterpolator(new DecelerateInterpolator());
+        animatorSet.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
                 dispatchAnimationStarted(viewHolder);
@@ -119,7 +125,7 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
             public void onAnimationRepeat(Animator animation) {
             }
         });
-        animator.start();
+        animatorSet.start();
     }
 
     @Override
@@ -164,14 +170,18 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
         } else if (mode == Mode.REPEAT) {
 
             final View view = newHolder.itemView;
-            final float postAlpha = view.getAlpha();
+            final View imageView = view.findViewById(R.id.image);
+            final View textView = view.findViewById(R.id.text_holder);
+            final float postAlpha = imageView.getAlpha();
             final float preAlpha = postAlpha == TrackItemView.ALPHA_ENABLED ?
                                    TrackItemView.ALPHA_DISABLED :
                                    TrackItemView.ALPHA_ENABLED;
 
-            ViewCompat.setAlpha(view, preAlpha);
+            ViewCompat.setAlpha(imageView, preAlpha);
+            ViewCompat.setAlpha(textView, preAlpha);
             alphaAnimations.add(new ChangeHolder(newHolder, postAlpha));
-            view.setAlpha(preAlpha);
+            imageView.setAlpha(preAlpha);
+            textView.setAlpha(preAlpha);
             return true;
         } else {
             dispatchAnimationFinished(newHolder);
@@ -372,7 +382,10 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
 
         for (int i = alphaAnimations.size() - 1; i >= 0; i--) {
             final View view = alphaAnimations.get(i).viewHolder.itemView;
-            ViewCompat.animate(view).cancel();
+            View imageView = view.findViewById(R.id.image);
+            View textView = view.findViewById(R.id.text_holder);
+            ViewCompat.animate(imageView).cancel();
+            ViewCompat.animate(textView).cancel();
         }
 
         dispatchAnimationsFinished();
