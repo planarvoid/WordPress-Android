@@ -80,7 +80,7 @@ public final class SignupLog {
     @Nullable
     static long[] readLog(Context context) {
         final File signupLog = getSignupLog(context);
-        if (signupLog.exists()) {
+        if (signupLog != null && signupLog.exists()) {
             ObjectInputStream in = null;
             try {
                 in = new ObjectInputStream(new FileInputStream(signupLog));
@@ -97,6 +97,7 @@ public final class SignupLog {
     private SignupLog() {
     }
 
+    @Nullable
     private static File getSignupLog(Context context) {
         return IOUtils.getExternalStorageDir(context, SIGNUP_LOG_NAME);
     }
