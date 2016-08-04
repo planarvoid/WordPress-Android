@@ -53,6 +53,7 @@ import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -65,6 +66,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentActivity;
@@ -711,6 +713,15 @@ public class OnboardActivity extends FragmentActivity
                 }
                 break;
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (IOUtils.isExternalStoragePermissionGranted(requestCode, grantResults) && signUpDetailsLayout != null) {
+            signUpDetailsLayout.onStoragePermissionGranted(this);
         }
     }
 

@@ -5,14 +5,15 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.PlaceholderGenerator;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ViewHelper;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
@@ -23,6 +24,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -94,6 +96,12 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
         super.onPause(fragment);
     }
 
+    public void onRequestPermissionsResult(int requestCode, int[] grantResults) {
+        if (IOUtils.isExternalStoragePermissionGranted(requestCode, grantResults)) {
+            recordingMetadata.showImagePickerDialog();
+        }
+    }
+
     private void restoreRecording() {
         this.recording = recorder.getRecording();
 
@@ -126,7 +134,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
             recordingMetadata.onRestoreInstanceState(savedInstanceState);
         }
 
-        recordingMetadata.setActivity(metadataFragment.getActivity());
+        recordingMetadata.setFragment(metadataFragment);
     }
 
     @Override
@@ -146,12 +154,14 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
     }
 
     public void onArtworkSelected(Intent imageSelectionResult) {
-        final Uri artworkFileUri = Uri.fromFile(recording.getImageFile(metadataFragment.getActivity()));
+        final FragmentActivity activity = metadataFragment.getActivity();
+        final Uri artworkFileUri = Uri.fromFile(recording.getImageFile(activity));
+
         if (imageSelectionResult != null) {
-            ImageUtils.sendCropIntent(metadataFragment.getActivity(), imageSelectionResult.getData(), artworkFileUri);
+            ImageUtils.sendCropIntent(activity, imageSelectionResult.getData(), artworkFileUri);
         } else {
             // we supplied the artworkFileUri
-            ImageUtils.sendCropIntent(metadataFragment.getActivity(), artworkFileUri);
+            ImageUtils.sendCropIntent(activity, artworkFileUri);
         }
     }
 
@@ -184,6 +194,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
                 }
                 break;
             }
+
             default:
                 throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
         }

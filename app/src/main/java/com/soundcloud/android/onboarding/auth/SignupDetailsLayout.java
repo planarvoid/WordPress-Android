@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -144,6 +145,10 @@ public class SignupDetailsLayout extends RelativeLayout {
         }
     }
 
+    public void onStoragePermissionGranted(FragmentActivity activity) {
+        showImagePicker(activity);
+    }
+
     @Override
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     protected void onFinishInflate() {
@@ -181,8 +186,9 @@ public class SignupDetailsLayout extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
-                ImageUtils.showImagePickerDialog(activity, generateTempAvatarFile());
-
+                if (IOUtils.checkReadExternalStoragePermission(activity)) {
+                    showImagePicker(activity);
+                }
             }
         });
 
@@ -203,6 +209,10 @@ public class SignupDetailsLayout extends RelativeLayout {
                 return true;
             }
         });
+    }
+
+    private void showImagePicker(FragmentActivity activity) {
+        ImageUtils.showImagePickerDialog(activity, generateTempAvatarFile());
     }
 
     private void resetAvatarFile() {
