@@ -53,6 +53,7 @@ public class TabbedSearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        searchTracker.init();
         searchTracker.trackResultsScreenEvent(SearchType.ALL);
     }
 

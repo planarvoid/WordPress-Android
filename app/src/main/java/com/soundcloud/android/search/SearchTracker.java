@@ -28,8 +28,8 @@ public class SearchTracker {
 
     private final EventBus eventBus;
     private final SearchTypes searchTypes;
-    private final Map<SearchType, ScreenData> screenDataMap;
     private final FeatureOperations featureOperations;
+    private Map<SearchType, ScreenData> screenDataMap;
 
     @Inject
     public SearchTracker(EventBus eventBus,
@@ -37,8 +37,12 @@ public class SearchTracker {
                          SearchTypes searchTypes) {
         this.eventBus = eventBus;
         this.searchTypes = searchTypes;
-        this.screenDataMap = new EnumMap<>(SearchType.class);
         this.featureOperations = featureOperations;
+        init();
+    }
+
+    public void init() {
+        this.screenDataMap = new EnumMap<>(SearchType.class);
         initializeScreenQueryUrnMap();
     }
 
