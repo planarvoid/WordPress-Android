@@ -1478,6 +1478,20 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.insertNext(Lists.newArrayList(Urn.NOT_SET, Urn.NOT_SET));
     }
 
+    @Test
+    public void removeItemAtPositionPublishPlayQueueUpdate() {
+        final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
+        final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
+
+        playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 0);
+        playQueueManager.removeItemAtPosition(0);
+
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
+                PlayQueueEvent.fromNewQueue(Urn.NOT_SET),
+                PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET)
+        );
+    }
+
     private void assertPlayQueueSaved(PlayQueue expected) {
         ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
         verify(playQueueOperations).saveQueue(playQueueCaptor.capture());

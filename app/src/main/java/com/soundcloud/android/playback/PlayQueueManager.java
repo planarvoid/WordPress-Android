@@ -683,4 +683,10 @@ public class PlayQueueManager implements OriginProvider {
             }
         }
     }
+
+    public void removeItemAtPosition(int position) {
+        playQueue.removeItemAtPosition(position);
+        publishQueueUpdate();
+    }
+
 }

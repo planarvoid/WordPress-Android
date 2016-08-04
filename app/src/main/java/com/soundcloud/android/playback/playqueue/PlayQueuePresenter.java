@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
@@ -47,6 +48,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private final PlayQueueOperations playQueueOperations;
     private final PlayQueueArtworkController artworkController;
 
+    private final SwipeTrackToRemoveHelper swipeToRemoveHelper;
     private final EventBus eventBus;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private Subscription updateSubscription = RxUtils.invalidSubscription();
@@ -60,11 +62,13 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
                               PlayQueueManager playQueueManager,
                               PlayQueueOperations playQueueOperations,
                               PlayQueueArtworkController playerArtworkController,
+                              SwipeTrackToRemoveHelper swipeToRemoveHelper,
                               EventBus eventBus) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.artworkController = playerArtworkController;
+        this.swipeToRemoveHelper = swipeToRemoveHelper;
         this.eventBus = eventBus;
         adapter.setTrackItemListener(this);
     }
@@ -73,16 +77,23 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     public void onViewCreated(final Fragment fragment, final View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         ButterKnife.bind(this, view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        recyclerView.setAdapter(adapter);
-        recyclerView.setHasFixedSize(false);
-        animator = new PlayQueueItemAnimator();
-        recyclerView.setItemAnimator(animator);
+        initRecyclerView(view);
 
         playQueueDrawer.setVisibility(View.VISIBLE);
         artworkController.bind(ButterKnife.<PlayerTrackArtworkView>findById(view, R.id.artwork_view));
         subscribeToEvents();
         refreshPlayQueue();
+    }
+
+    private void initRecyclerView(View view) {
+        animator = new PlayQueueItemAnimator();
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setAdapter(adapter);
+        recyclerView.setHasFixedSize(false);
+        recyclerView.setItemAnimator(animator);
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToRemoveCallback(swipeToRemoveHelper));
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     private void subscribeToEvents() {
@@ -248,4 +259,51 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         }
     }
 
+    static class SwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
+
+        private final SwipeTrackToRemoveHelper swipeToRemoveHelper;
+
+        public SwipeToRemoveCallback(SwipeTrackToRemoveHelper swipeToRemoveHelper) {
+            super(0, ItemTouchHelper.RIGHT);
+            this.swipeToRemoveHelper = swipeToRemoveHelper;
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView,
+                              RecyclerView.ViewHolder viewHolder,
+                              RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            if (swipeToRemoveHelper.isRemovable(viewHolder.getAdapterPosition())) {
+                return super.getMovementFlags(recyclerView, viewHolder);
+            }
+            return ItemTouchHelper.ACTION_STATE_IDLE;
+        }
+
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+            swipeToRemoveHelper.remove(viewHolder.getAdapterPosition());
+        }
+    }
+
+    static class SwipeTrackToRemoveHelper {
+        private final PlayQueueManager playQueueManager;
+
+        @Inject
+        SwipeTrackToRemoveHelper(PlayQueueManager playQueueManager) {
+            this.playQueueManager = playQueueManager;
+        }
+
+        public boolean isRemovable(int position) {
+            return position > playQueueManager.getCurrentTrackPosition();
+        }
+
+        public void remove(int position) {
+            playQueueManager.removeItemAtPosition(position);
+        }
+    }
 }
