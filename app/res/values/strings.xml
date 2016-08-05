@@ -146,6 +146,7 @@
     <string name="connection_list_error">There seems to be a connection problem. Please try again soon.</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oops! We couldn’t sign you up\nTry updating the app or sign up at SoundCloud.com.</string>
+    <string name="crop_external_permission_rationale">Please grant SoundCloud access to read your external storage to access your image.</string>
 
     <string name="follow_blocked_title">Follow blocked</string>
     <string name="follow_blocked_content_username">%s has blocked you.</string>

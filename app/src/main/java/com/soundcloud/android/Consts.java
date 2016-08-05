@@ -9,6 +9,7 @@ public final class Consts {
     public static final class RequestCodes {
         public static final int GALLERY_IMAGE_PICK = 9000;
         public static final int GALLERY_IMAGE_TAKE = 9001;
+        public static final int REQUEST_EXTERNAL_STORAGE_PERMISSION = 9002;
 
         public static final int RECOVER_PASSWORD_CODE = 8002;
         public static final int SIGNUP_VIA_GOOGLE = 8003;

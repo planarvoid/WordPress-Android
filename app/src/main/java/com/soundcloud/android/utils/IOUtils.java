@@ -5,20 +5,31 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 import org.jetbrains.annotations.NotNull;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import javax.inject.Inject;
@@ -497,4 +508,68 @@ public class IOUtils {
         }
         return errorList;
     }
+
+    public static boolean checkReadExternalStoragePermission(final Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+                        .setMessage(R.string.crop_external_permission_rationale)
+                        .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                requestExternalStoragePermission(activity);
+                            }
+                        });
+                builder.show();
+            } else {
+                requestExternalStoragePermission(activity);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean checkReadExternalStoragePermission(final Fragment fragment) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && ContextCompat.checkSelfPermission(fragment.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (fragment.shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getContext())
+                        .setMessage(R.string.crop_external_permission_rationale)
+                        .setPositiveButton(R.string.ok_got_it, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                requestExternalStoragePermission(fragment);
+                            }
+                        });
+                builder.show();
+            } else {
+                requestExternalStoragePermission(fragment);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @TargetApi(16)
+    private static void requestExternalStoragePermission(Activity activity) {
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                          Consts.RequestCodes.REQUEST_EXTERNAL_STORAGE_PERMISSION);
+    }
+
+    @TargetApi(16)
+    private static void requestExternalStoragePermission(Fragment fragment) {
+        fragment.requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                    Consts.RequestCodes.REQUEST_EXTERNAL_STORAGE_PERMISSION);
+    }
+
+    public static boolean isExternalStoragePermissionGranted(int requestCode, int[] grantResults) {
+        return requestCode == Consts.RequestCodes.REQUEST_EXTERNAL_STORAGE_PERMISSION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+    }
+
+
 }

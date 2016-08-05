@@ -6,14 +6,14 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -29,7 +29,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
     private Recording recording;
     private Drawable placeholder;
-    private Activity activity;
+    private Fragment fragment;
 
     @Bind(R.id.title) EditText titleText;
     @Bind(R.id.artwork) ImageView artwork;
@@ -58,19 +58,23 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         ButterKnife.bind(this, view);
     }
 
-    public void setActivity(final FragmentActivity activity) {
-        this.activity = activity;
+    public void setFragment(final Fragment fragment) {
+        this.fragment = fragment;
     }
 
     @OnClick(R.id.artwork_button)
     void onArtworkButtonClick() {
-        showImagePickerDialog();
+        if (IOUtils.checkReadExternalStoragePermission(fragment)) {
+            showImagePickerDialog();
+        }
     }
 
     @OnClick(R.id.artwork)
     void onArtworkClick() {
         if (!hasImage()) {
-            showImagePickerDialog();
+            if (IOUtils.checkReadExternalStoragePermission(fragment)) {
+                showImagePickerDialog();
+            }
         } else {
             Toast.makeText(getContext(), R.string.cloud_upload_clear_artwork, Toast.LENGTH_LONG).show();
         }
@@ -83,8 +87,8 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         return true;
     }
 
-    private void showImagePickerDialog() {
-        ImageUtils.showImagePickerDialog(activity, recording.getImageFile(activity));
+    void showImagePickerDialog() {
+        ImageUtils.showImagePickerDialog(fragment.getActivity(), recording.getImageFile(fragment.getContext()));
     }
 
     public void setRecording(Recording recording, boolean map) {
