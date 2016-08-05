@@ -15,7 +15,7 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'com.soundcloud.mobiletestrunner:client:88-17-ed43c59'
+    classpath 'com.soundcloud.mobiletestrunner:client:94-19-2feb244'
   }
 }
 
