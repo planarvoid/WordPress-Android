@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ChartCategory;
 
 import android.content.res.Resources;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -23,8 +22,7 @@ class GenresPagerAdapter extends FragmentPagerAdapter {
         return GenresFragment.create(getCategory(position));
     }
 
-    @NonNull
-    private ChartCategory getCategory(int position) {
+    ChartCategory getCategory(int position) {
         return position == ChartCategory.MUSIC.ordinal() ? ChartCategory.MUSIC : ChartCategory.AUDIO;
     }
 

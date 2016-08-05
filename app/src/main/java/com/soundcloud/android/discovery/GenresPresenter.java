@@ -22,8 +22,12 @@ public class GenresPresenter extends RecyclerViewPresenter<List<Chart>, ChartLis
         public List<ChartListItem> call(List<Chart> charts) {
             return Lists.transform(charts, new Function<Chart, ChartListItem>() {
                 public ChartListItem apply(Chart input) {
-                    return new ChartListItem(input.trackArtworks(), input.genre(), input.displayName(),
-                                             input.bucketType(), input.type());
+                    return new ChartListItem(input.trackArtworks(),
+                                             input.genre(),
+                                             input.displayName(),
+                                             input.bucketType(),
+                                             input.type(),
+                                             input.category());
                 }
             });
         }

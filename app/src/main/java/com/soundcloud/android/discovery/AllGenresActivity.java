@@ -14,7 +14,7 @@ public class AllGenresActivity extends PlayerActivity {
 
     @Override
     public Screen getScreen() {
-        return Screen.ALL_GENRES;
+        return presenter.getScreen();
     }
 
     @Override

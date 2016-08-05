@@ -27,7 +27,7 @@ class ChartPagerAdapter extends FragmentPagerAdapter {
     }
 
     @NonNull
-    private ChartType getType(int position) {
+    ChartType getType(int position) {
         return position == ChartType.TRENDING.ordinal() ? ChartType.TRENDING : ChartType.TOP;
     }
 

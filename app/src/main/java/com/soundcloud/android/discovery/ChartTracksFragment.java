@@ -19,6 +19,7 @@ import javax.inject.Inject;
 public class ChartTracksFragment extends LightCycleSupportFragment<ChartTracksFragment> implements RefreshableScreen {
 
     public static final String EXTRA_TYPE = "chartType";
+    public static final String EXTRA_CATEGORY = "chartCategory";
     public static final String EXTRA_GENRE_URN = "chartGenreUrn";
 
     @Inject @LightCycle ChartTracksPresenter presenter;

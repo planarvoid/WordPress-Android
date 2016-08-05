@@ -50,7 +50,10 @@ class ChartListItemRenderer implements CellRenderer<ChartListItem> {
         chartListItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.openChart(view.getContext(), chartListItem.getGenre(), chartListItem.getChartType(),
+                navigator.openChart(view.getContext(),
+                                    chartListItem.getGenre(),
+                                    chartListItem.getChartType(),
+                                    chartListItem.getChartCategory(),
                                     appendCharts(headingFor(chartListItem, view, "soundcloud")));
             }
         });

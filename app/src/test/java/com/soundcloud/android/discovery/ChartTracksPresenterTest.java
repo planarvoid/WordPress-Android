@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -35,12 +36,15 @@ import java.util.Date;
 import java.util.List;
 
 public class ChartTracksPresenterTest extends AndroidUnitTest {
-    final ChartTrackListItem.Header HEADER = ChartTrackListItem.forHeader(TOP);
-    final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem(1);
-    final ChartTrackListItem.Track SECOND_TRACK_ITEM = createChartTrackListItem(2);
-    final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3);
-    final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.forFooter(new Date(10));
-    final List<ChartTrackListItem> CHART_TRACK_ITEMS = Lists.newArrayList(HEADER,
+    private static final ChartTrackListItem.Header HEADER = ChartTrackListItem.forHeader(TOP);
+    private static final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem(1);
+    private static final ChartTrackListItem.Track SECOND_TRACK_ITEM = createChartTrackListItem(2);
+    private static final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3);
+    private static final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.forFooter(new Date(10));
+    private static final ChartType CHART_TYPE = TOP;
+    private static final String GENRE = "all-music";
+    private static final ApiChart<ApiTrack> API_CHART = ChartsFixtures.createApiChart(GENRE, CHART_TYPE);
+    private static final List<ChartTrackListItem> CHART_TRACK_ITEMS = Lists.newArrayList(HEADER,
                                                                           FIRST_TRACK_ITEM,
                                                                           SECOND_TRACK_ITEM,
                                                                           THIRD_TRACK_ITEM,
@@ -51,10 +55,10 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     @Mock private ChartTracksAdapter chartTracksAdapter;
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
+    @Mock private ChartsTracker chartsTracker;
+    @Mock private Fragment fragment;
 
     private ChartTracksPresenter chartTracksPresenter;
-    private ChartType chartType = TOP;
-    private String genre = "all-music";
 
     @Before
     public void setup() {
@@ -62,15 +66,18 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
                                                         chartsOperations,
                                                         chartTracksAdapter,
                                                         playbackInitiator,
-                                                        providerOf(expandPlayerSubscriber));
-        when(chartsOperations.tracks(TOP, genre)).thenReturn(Observable.<ApiChart<ApiTrack>>empty());
-        chartTracksPresenter.onBuildBinding(getChartArguments());
+                                                        providerOf(expandPlayerSubscriber),
+                                                        chartsTracker);
+        when(chartsOperations.tracks(TOP, GENRE)).thenReturn(Observable.just(API_CHART));
+        final Bundle bundle = getChartArguments();
+        when(fragment.getArguments()).thenReturn(bundle);
+        chartTracksPresenter.onCreate(fragment, bundle);
     }
 
     private Bundle getChartArguments() {
         Bundle bundle = new Bundle();
-        bundle.putSerializable(ChartTracksFragment.EXTRA_TYPE, chartType);
-        final Urn urn = new Urn("soundcloud:genre:" + genre);
+        bundle.putSerializable(ChartTracksFragment.EXTRA_TYPE, CHART_TYPE);
+        final Urn urn = new Urn("soundcloud:genre:" + GENRE);
         bundle.putParcelable(ChartTracksFragment.EXTRA_GENRE_URN, urn);
         return bundle;
     }
@@ -103,7 +110,15 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
         verifyZeroInteractions(playbackInitiator);
     }
 
-    private ChartTrackListItem.Track createChartTrackListItem(int position) {
+    @Test
+    public void trackChartOnNext() {
+        verify(chartsTracker).chartDataLoaded(API_CHART.tracks().getQueryUrn().get(),
+                                              API_CHART.type(),
+                                              API_CHART.category(),
+                                              API_CHART.genre());
+    }
+
+    private static ChartTrackListItem.Track createChartTrackListItem(int position) {
         return ChartTrackListItem.forTrack(new ChartTrackItem(
                 ChartType.TOP,
                 PropertySet.create().put(PlayableProperty.URN, Urn.forTrack(position)),

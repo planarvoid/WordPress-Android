@@ -80,9 +80,12 @@ public enum Screen {
     RECOMMENDATIONS_MAIN("personal-recommended:main"),
 
     // charts
-    TOP_CHARTS("charts:top"),
-    TRENDING_CHARTS("charts:trending"),
-    ALL_GENRES("charts:all"),
+    MUSIC_GENRES("charts:music_genres"),
+    AUDIO_GENRES("charts:audio_genres"),
+    MUSIC_TRENDING("charts:music_trending:%s"),
+    AUDIO_TRENDING("charts:audio_trending:%s"),
+    MUSIC_TOP_50("charts:music_top_50:%s"),
+    AUDIO_TOP_50("charts:audio_top_50:%s"),
 
     // creators
     RECORD_MAIN("record:main"),

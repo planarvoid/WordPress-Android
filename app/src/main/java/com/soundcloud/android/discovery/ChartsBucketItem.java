@@ -16,8 +16,12 @@ import java.util.List;
 abstract class ChartsBucketItem extends DiscoveryItem {
     private static final Function<Chart, ChartListItem> TO_PRESENTATION_MODEL = new Function<Chart, ChartListItem>() {
         public ChartListItem apply(Chart chart) {
-            return new ChartListItem(chart.trackArtworks(), chart.genre(), chart.displayName(), chart.bucketType(),
-                                     chart.type());
+            return new ChartListItem(chart.trackArtworks(),
+                                     chart.genre(),
+                                     chart.displayName(),
+                                     chart.bucketType(),
+                                     chart.type(),
+                                     chart.category());
         }
     };
 

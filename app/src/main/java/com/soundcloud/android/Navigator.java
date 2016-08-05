@@ -5,6 +5,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
@@ -336,10 +337,11 @@ public class Navigator {
         context.startActivity(new Intent(context, ViewAllRecommendedTracksActivity.class));
     }
 
-    public void openChart(Context context, Urn genre, ChartType type, String header) {
+    public void openChart(Context context, Urn genre, ChartType type, ChartCategory category, String header) {
         context.startActivity(new Intent(context, ChartActivity.class)
                                       .putExtra(ChartTracksFragment.EXTRA_GENRE_URN, genre)
                                       .putExtra(ChartTracksFragment.EXTRA_TYPE, type)
+                                      .putExtra(ChartTracksFragment.EXTRA_CATEGORY, category)
                                       .putExtra(ChartActivity.EXTRA_HEADER, header));
     }
 

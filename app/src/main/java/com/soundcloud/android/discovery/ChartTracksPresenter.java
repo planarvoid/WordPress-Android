@@ -19,6 +19,7 @@ import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
 import org.jetbrains.annotations.Nullable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.os.Bundle;
@@ -62,22 +63,35 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
                 }
             };
 
+    private final Action1<ApiChart<ApiTrack>> trackChart = new Action1<ApiChart<ApiTrack>>() {
+        @Override
+        public void call(ApiChart<ApiTrack> apiTrackApiChart) {
+            chartsTracker.chartDataLoaded(apiTrackApiChart.tracks().getQueryUrn().or(Urn.NOT_SET),
+                                          apiTrackApiChart.type(),
+                                          apiTrackApiChart.category(),
+                                          apiTrackApiChart.genre());
+        }
+    };
+
     private final ChartsOperations chartsOperations;
     private final ChartTracksAdapter chartTracksAdapter;
     private final PlaybackInitiator playbackInitiator;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final ChartsTracker chartsTracker;
 
     @Inject
     ChartTracksPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                          ChartsOperations chartsOperations,
                          ChartTracksAdapter chartTracksAdapter,
                          PlaybackInitiator playbackInitiator,
-                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                         ChartsTracker chartsTracker) {
         super(swipeRefreshAttacher);
         this.chartsOperations = chartsOperations;
         this.chartTracksAdapter = chartTracksAdapter;
         this.playbackInitiator = playbackInitiator;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.chartsTracker = chartsTracker;
     }
 
     @Override
@@ -103,7 +117,8 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
         final ChartType chartType = (ChartType) bundle.getSerializable(ChartTracksFragment.EXTRA_TYPE);
         final Urn chartUrn = bundle.getParcelable(ChartTracksFragment.EXTRA_GENRE_URN);
         return CollectionBinding
-                .from(chartsOperations.tracks(chartType, chartUrn.getStringId()), TO_PRESENTATION_MODELS)
+                .from(chartsOperations.tracks(chartType, chartUrn.getStringId()).doOnNext(trackChart),
+                      TO_PRESENTATION_MODELS)
                 .withAdapter(chartTracksAdapter)
                 .build();
     }

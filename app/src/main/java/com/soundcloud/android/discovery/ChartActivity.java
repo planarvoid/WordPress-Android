@@ -24,7 +24,11 @@ public class ChartActivity extends PlayerActivity {
 
     @Override
     public Screen getScreen() {
-        return Screen.TOP_CHARTS;
+        return Screen.UNKNOWN;
+    }
+
+    public boolean isEnteringScreen() {
+        return screenTracker.isEnteringScreen();
     }
 
     @Override

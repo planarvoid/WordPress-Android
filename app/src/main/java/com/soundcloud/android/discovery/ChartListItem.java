@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
@@ -12,17 +13,19 @@ class ChartListItem {
     private final String displayName;
     private final ChartBucketType chartBucketType;
     private final ChartType chartType;
+    private final ChartCategory chartCategory;
 
     ChartListItem(List<? extends ImageResource> trackArtworks,
-                         Urn genre,
-                         String displayName,
-                         ChartBucketType chartBucketType,
-                         ChartType chartType) {
+                  Urn genre,
+                  String displayName,
+                  ChartBucketType chartBucketType,
+                  ChartType chartType, ChartCategory chartCategory) {
         this.trackArtworks = trackArtworks;
         this.genre = genre;
         this.displayName = displayName;
         this.chartBucketType = chartBucketType;
         this.chartType = chartType;
+        this.chartCategory = chartCategory;
     }
 
     List<? extends ImageResource> getTrackArtworks() {
@@ -43,5 +46,9 @@ class ChartListItem {
 
     ChartType getChartType() {
         return chartType;
+    }
+
+    ChartCategory getChartCategory() {
+        return chartCategory;
     }
 }

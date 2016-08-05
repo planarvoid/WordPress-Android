@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
@@ -554,7 +555,8 @@ public class NavigatorTest extends AndroidUnitTest {
         final Urn genreUrn = new Urn("soundcloud:genre:123");
         final ChartType chartType = ChartType.TOP;
         final String header = "header";
-        navigator.openChart(activityContext, genreUrn, chartType, header);
+        final ChartCategory chartCategory = ChartCategory.AUDIO;
+        navigator.openChart(activityContext, genreUrn, chartType, chartCategory, header);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ChartTracksFragment.EXTRA_GENRE_URN, genreUrn)

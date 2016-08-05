@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -66,7 +67,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigator).openChart(context(), genre, ChartType.TOP, "Rock charts");
+        verify(navigator).openChart(context(), genre, ChartType.TOP, ChartCategory.MUSIC, "Rock charts");
     }
 
     @Test
@@ -76,7 +77,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                                                 genre);
         renderer.bindChartListItem(itemView, chartListItem, R.id.chart_list_item);
         itemView.findViewById(R.id.chart_list_item).callOnClick();
-        verify(navigator).openChart(context(), genre, ChartType.TOP, "SoundCloud charts");
+        verify(navigator).openChart(context(), genre, ChartType.TOP, ChartCategory.MUSIC, "SoundCloud charts");
     }
 
     private ChartListItem createChartListItem(ChartBucketType chartBucketType, Urn genre) {
@@ -84,6 +85,7 @@ public class ChartListItemRendererTest extends AndroidUnitTest {
                                  genre,
                                  DEFAULT_DISPLAY_NAME,
                                  chartBucketType,
-                                 ChartType.TOP);
+                                 ChartType.TOP,
+                                 ChartCategory.MUSIC);
     }
 }

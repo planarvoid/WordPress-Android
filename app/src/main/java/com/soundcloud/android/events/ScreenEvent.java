@@ -22,7 +22,10 @@ public final class ScreenEvent extends TrackingEvent {
     }
 
     public static ScreenEvent create(String screen, SearchQuerySourceInfo searchQuerySourceInfo) {
-        return new ScreenEvent(screen).put(KEY_QUERY_URN, searchQuerySourceInfo.getQueryUrn().toString());
+        return ScreenEvent.create(screen, searchQuerySourceInfo.getQueryUrn());
+    }
+    public static ScreenEvent create(String screen, Urn queryUrn) {
+        return new ScreenEvent(screen).put(KEY_QUERY_URN, queryUrn.toString());
     }
 
     public static ScreenEvent create(String screen, ExploreGenre genre) {
