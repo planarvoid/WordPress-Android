@@ -7,6 +7,7 @@ import com.soundcloud.mobiletestrunner.client.model.Package
 import com.soundcloud.mobiletestrunner.client.model.Session
 import com.soundcloud.mobiletestrunner.client.model.TestResult
 import com.soundcloud.mobiletestrunner.client.model.Test
+import com.soundcloud.mobiletestrunner.client.model.Run
 import groovy.lang.Closure
 
 buildscript {
@@ -212,8 +213,8 @@ class TestResultListener implements TestStatusNotifier {
   }
 
   @Override
-  void runFinished() {
     println "Run finished"
+  void runFinished(Run run) {
     if (runIdentifier != null) {
       htmlReportBuilder.createReport(runIdentifier)
       logHandler.copyLogs(runIdentifier)
