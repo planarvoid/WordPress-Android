@@ -213,8 +213,8 @@ class TestResultListener implements TestStatusNotifier {
   }
 
   @Override
-    println "Run finished"
   void runFinished(Run run) {
+    println "Run finished"
     if (runIdentifier != null) {
       htmlReportBuilder.createReport(runIdentifier)
       logHandler.copyLogs(runIdentifier)
