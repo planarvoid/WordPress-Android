@@ -31,6 +31,7 @@ public class OfflineLikesDialog extends DialogFragment implements DialogInterfac
     @Inject ScreenProvider screenProvider;
     @Inject EventBus eventBus;
 
+    @Inject
     public OfflineLikesDialog() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }

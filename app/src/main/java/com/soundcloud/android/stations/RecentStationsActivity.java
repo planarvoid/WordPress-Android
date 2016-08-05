@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -10,7 +11,12 @@ import android.os.Bundle;
 import javax.inject.Inject;
 
 public class RecentStationsActivity extends PlayerActivity {
+
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    public RecentStationsActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void setActivityContentView() {

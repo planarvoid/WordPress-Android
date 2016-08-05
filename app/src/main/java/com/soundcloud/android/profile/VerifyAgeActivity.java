@@ -1,5 +1,6 @@
 package com.soundcloud.android.profile;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -21,6 +22,10 @@ public class VerifyAgeActivity extends LoggedInActivity {
 
     public static Intent getIntent(Context context, Urn userToFollowUrn) {
         return new Intent(context, VerifyAgeActivity.class).putExtra(EXTRA_USER_TO_FOLLOW_URN, userToFollowUrn);
+    }
+
+    public VerifyAgeActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override

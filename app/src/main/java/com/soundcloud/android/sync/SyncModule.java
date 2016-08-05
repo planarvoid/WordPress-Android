@@ -12,14 +12,12 @@ import android.content.SharedPreferences;
 
 import javax.inject.Named;
 
-@Module(complete = false,
-        injects = {ApiSyncService.class, SyncAdapterService.class},
-        library = true,
-        includes = {
-                LikesSyncModule.class,
-                EntitySyncModule.class,
-                PostsSyncModule.class
-        })
+@Module(
+    includes = {
+        LikesSyncModule.class,
+        EntitySyncModule.class,
+        PostsSyncModule.class
+    })
 public class SyncModule {
 
     public static final String SOUND_STREAM_SYNC_STORAGE = "SoundStreamSyncStorage";

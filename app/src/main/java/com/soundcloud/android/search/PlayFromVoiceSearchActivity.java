@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.lightcycle.LightCycle;
@@ -10,6 +11,10 @@ import javax.inject.Inject;
 @SuppressWarnings({"PMD.AccessorClassGeneration"})
 public class PlayFromVoiceSearchActivity extends RootActivity {
     @Inject @LightCycle PlayFromVoiceSearchPresenter presenter;
+
+    public PlayFromVoiceSearchActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void setActivityContentView() {

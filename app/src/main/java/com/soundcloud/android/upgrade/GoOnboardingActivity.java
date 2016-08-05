@@ -1,6 +1,7 @@
 package com.soundcloud.android.upgrade;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.lightcycle.LightCycle;
@@ -10,6 +11,10 @@ import javax.inject.Inject;
 public class GoOnboardingActivity extends LoggedInActivity {
 
     @Inject @LightCycle GoOnboardingPresenter presenter;
+
+    public GoOnboardingActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void setActivityContentView() {

@@ -1,38 +1,11 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.associations.AssociationsModule;
-import com.soundcloud.android.search.PlayFromVoiceSearchActivity;
-import com.soundcloud.android.search.PlaylistResultsFragment;
-import com.soundcloud.android.search.SearchPremiumResultsActivity;
-import com.soundcloud.android.search.SearchPremiumResultsFragment;
-import com.soundcloud.android.search.SearchResultsFragment;
-import com.soundcloud.android.search.TabbedSearchFragment;
-import com.soundcloud.android.search.suggestions.SearchSuggestionsFragment;
 import dagger.Module;
 import dagger.Provides;
 
 import java.util.Random;
 
-@Module(addsTo = ApplicationModule.class,
-        injects = {
-                DiscoveryFragment.class,
-                ViewAllRecommendedTracksActivity.class,
-                ViewAllRecommendedTracksFragment.class,
-                SearchActivity.class,
-                SearchPremiumResultsActivity.class,
-                PlaylistDiscoveryActivity.class,
-                TabbedSearchFragment.class,
-                SearchResultsFragment.class,
-                SearchSuggestionsFragment.class,
-                PlaylistResultsFragment.class,
-                PlayFromVoiceSearchActivity.class,
-                SearchPremiumResultsFragment.class,
-                ChartActivity.class,
-                ChartTracksFragment.class,
-                AllGenresActivity.class,
-                GenresFragment.class
-        }, includes = AssociationsModule.class)
+@Module
 public class DiscoveryModule {
 
     @Provides

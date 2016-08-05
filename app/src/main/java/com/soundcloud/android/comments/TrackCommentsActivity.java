@@ -3,6 +3,7 @@ package com.soundcloud.android.comments;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.PlayerActivity;
@@ -41,6 +42,10 @@ public class TrackCommentsActivity extends PlayerActivity {
     @Bind(R.id.header_artwork) ImageView artwork;
 
     private Subscription trackSubscription;
+
+    public TrackCommentsActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public void onCreate(Bundle bundle) {

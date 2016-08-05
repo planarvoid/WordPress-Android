@@ -7,7 +7,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
-import com.soundcloud.android.analytics.AnalyticsModule;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.analytics.appboy.AppboyPlaySessionState;
 import com.soundcloud.android.analytics.crashlytics.FabricProvider;
@@ -18,9 +17,7 @@ import com.soundcloud.android.collection.playhistory.PlayHistoryController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.crypto.CryptoOperations;
-import com.soundcloud.android.gcm.GcmModule;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.LegacyModule;
 import com.soundcloud.android.offline.TrackOfflineStateProvider;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
@@ -28,12 +25,10 @@ import com.soundcloud.android.playback.PlayPublisher;
 import com.soundcloud.android.playback.PlayQueueExtender;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackServiceModule;
 import com.soundcloud.android.playback.PlaylistExploder;
 import com.soundcloud.android.playback.StreamPreloader;
 import com.soundcloud.android.playback.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
-import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.policies.DailyUpdateScheduler;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -52,7 +47,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
-import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
@@ -118,19 +112,14 @@ public class SoundCloudApplication extends MultiDexApplication {
     // even if it appears to be unused
     @Inject @SuppressWarnings("unused") AnalyticsEngine analyticsEngine;
 
-    protected ObjectGraph objectGraph;
+    protected ApplicationComponent objectGraph;
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        objectGraph = ObjectGraph.create(
-                new ApplicationModule(this),
-                new AnalyticsModule(),
-                new WidgetModule(),
-                new LegacyModule(),
-                new FeaturesModule(),
-                new PlaybackServiceModule(),
-                new GcmModule());
+        objectGraph = DaggerApplicationComponent.builder()
+                .applicationModule(new ApplicationModule(this))
+                .build();
     }
 
     @Override
@@ -259,7 +248,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     @NotNull
-    public static ObjectGraph getObjectGraph() {
+    public static ApplicationComponent getObjectGraph() {
         if (instance == null || instance.objectGraph == null) {
             throw new IllegalStateException(
                     "Cannot access the app graph before the application has been created");

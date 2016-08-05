@@ -1,13 +1,14 @@
 package com.soundcloud.android.profile;
 
-import android.os.Bundle;
-
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+
+import android.os.Bundle;
 
 import javax.inject.Inject;
 
@@ -17,6 +18,10 @@ public class UserPlaylistsActivity extends PlayerActivity {
     public static final String EXTRA_SEARCH_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    public UserPlaylistsActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void setActivityContentView() {

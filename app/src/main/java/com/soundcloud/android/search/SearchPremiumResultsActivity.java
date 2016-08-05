@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.main.PlayerActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
@@ -23,6 +24,10 @@ public class SearchPremiumResultsActivity extends PlayerActivity {
     public static final String EXTRA_PREMIUM_CONTENT_NEXT_HREF = "searchPremiumNextHref";
 
     @Inject BaseLayoutHelper baseLayoutHelper;
+
+    public SearchPremiumResultsActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

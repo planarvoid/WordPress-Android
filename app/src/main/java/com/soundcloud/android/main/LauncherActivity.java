@@ -2,6 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -12,6 +13,10 @@ public class LauncherActivity extends RootActivity {
     @Inject AccountOperations accountOperations;
     @Inject EventBus eventBus;
     @Inject Navigator navigator;
+
+    public LauncherActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
 
     @Override
     public Screen getScreen() {

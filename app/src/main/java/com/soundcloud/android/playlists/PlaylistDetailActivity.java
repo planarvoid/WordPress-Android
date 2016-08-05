@@ -5,6 +5,7 @@ import static com.soundcloud.java.checks.Preconditions.checkNotNull;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.main.PlayerActivity;
@@ -55,6 +56,10 @@ public class PlaylistDetailActivity extends PlayerActivity {
                 .putExtra(EXTRA_AUTO_PLAY, autoPlay)
                 .putExtra(EXTRA_QUERY_SOURCE_INFO, queryInfo)
                 .putExtra(EXTRA_PROMOTED_SOURCE_INFO, promotedInfo);
+    }
+
+    public PlaylistDetailActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @Override

@@ -31,13 +31,18 @@ import java.lang.ref.WeakReference;
 @SuppressWarnings({"PMD.ExcessiveParameterList"})
 public class PlaybackService extends Service
         implements Player.PlayerListener, VolumeController.Listener, MediaSessionController.Listener {
+
     public static final String TAG = "PlaybackService";
+
     private static final int IDLE_DELAY = 180 * 1000;  // interval after which we stop the service when idle
     private static final int SHORT_FADE_DURATION_MS = 600;
     private static final int LONG_FADE_DURATION_MS = 2000;
     private static final int LONG_FADE_PRELOAD_MS = 1000; // interval to start fade before fade duration
-    @Nullable static PlaybackService instance;
+
     private final Handler delayedStopHandler = new DelayedStopHandler(this);
+
+    @Nullable static PlaybackService instance;
+
     @Inject EventBus eventBus;
     @Inject AccountOperations accountOperations;
     @Inject StreamPlayer streamPlayer;
@@ -50,6 +55,7 @@ public class PlaybackService extends Service
 
     private Optional<PlaybackItem> currentPlaybackItem = Optional.absent();
     private boolean pauseRequested;
+
     // audio focus related
     private FocusLossState focusLossState = FocusLossState.NONE;
     private PlaybackReceiver playbackReceiver;
