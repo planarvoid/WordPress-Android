@@ -102,7 +102,7 @@ def createSession(systemProperties) {
 }
 
 def createRunConfiguration(label, excludeAnnotations, classFilter, Test[] tests) {
-  return new RunConfiguration(label, project.ext.testInstrumentationRunner, null, excludeAnnotations, classFilter, null, tests)
+  return new RunConfiguration(label, project.ext.testInstrumentationRunner, 2, false, null, excludeAnnotations, classFilter, null, tests)
 }
 
 def createExecution(label, excludeAnnotations, systemProperties, classFilter, Test[] tests) {
