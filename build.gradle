@@ -35,6 +35,7 @@ allprojects {
     mobileTestRunnerUser = "mobile"
     mobileTestRunnerHost = 'chaos-slave.mobile.s-cloud.net'
     mobileTestRunnerUrl = "http://$mobileTestRunnerHost:5000"
+    mobileTestRunnerReportUrl = "http://mobile-jenkins.int.s-cloud.net:84"
   }
   repositories {
     mavenLocal()

@@ -16,7 +16,7 @@ buildscript {
     maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
   dependencies {
-    classpath 'com.soundcloud.mobiletestrunner:client:94-19-2feb244'
+    classpath 'com.soundcloud.mobiletestrunner:client:96-20-94e3b5c'
   }
 }
 
@@ -88,7 +88,8 @@ task runLollipopTestsRelease << {
 
 def runTests(label, excludeAnnotations, systemProperties, classFilter, Test[] tests) {
   def factory = new TestRunnerFactory()
-  def listener = new TestResultListener(new LogHandler(project, executeGet), new TestResultPrinter(), new HTMLReportBuilder(project))
+  def listener = new TestResultListener(new LogHandler(project, executeGet), new TestResultPrinter(),
+          new HTMLReportBuilder(project), project.('mobileTestRunnerReportUrl'))
 
   def testRunner = factory.create(project.ext.mobileTestRunnerUrl, project.ext.mobileTestRunnerUser, project.ext.mobileTestRunnerHost, listener)
   testRunner.run(createExecution(label, excludeAnnotations, systemProperties, classFilter, tests))
@@ -194,14 +195,15 @@ class HTMLReportBuilder {
   }
 }
 
-class TestResultListener implements TestStatusNotifier {
+class TestResultListener extends TestStatusNotifier {
   private final LogHandler logHandler
   private final TestResultPrinter testResultPrinter
   private final HTMLReportBuilder htmlReportBuilder
   private UUID runIdentifier
   private int numFailedTests = 0
 
-  public TestResultListener(LogHandler logHandler, TestResultPrinter testResultPrinter, HTMLReportBuilder htmlReportBuilder) {
+  public TestResultListener(LogHandler logHandler, TestResultPrinter testResultPrinter, HTMLReportBuilder htmlReportBuilder, String reportUrl) {
+    super(reportUrl)
     this.logHandler = logHandler
     this.testResultPrinter = testResultPrinter
     this.htmlReportBuilder = htmlReportBuilder
@@ -209,12 +211,13 @@ class TestResultListener implements TestStatusNotifier {
 
   @Override
   void runStarted() {
-    println "Run has been initiated"
+    println "A new Mobile Test Runner Run has been initiated"
   }
 
   @Override
   void runFinished(Run run) {
-    println "Run finished"
+    println "\nRun finished!"
+    println "\nTest Result Report: " + this.getFullReportUrl(run)
     if (runIdentifier != null) {
       htmlReportBuilder.createReport(runIdentifier)
       logHandler.copyLogs(runIdentifier)
