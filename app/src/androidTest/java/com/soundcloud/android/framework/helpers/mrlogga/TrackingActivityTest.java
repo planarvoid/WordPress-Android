@@ -17,7 +17,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
     private MrLoggaVerifier verifier;
     private MrLoggaRecorder recorder;
     private boolean recordMode;
-    private static boolean isRecording = true;
+    private static boolean isRecording = false;
 
     public TrackingActivityTest(Class<T> activityClass) {
         super(activityClass);

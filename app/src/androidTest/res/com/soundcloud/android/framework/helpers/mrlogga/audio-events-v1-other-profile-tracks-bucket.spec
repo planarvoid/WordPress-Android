@@ -3,7 +3,7 @@ expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
-    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    anonymous_id: (\w|-)+
     track_owner: soundcloud:users:218682740
     client_id: 3152
     action: play
@@ -13,21 +13,21 @@ expected_events:
     page_name: users:main
     monetization_model: NOT_APPLICABLE
     user: soundcloud:users:151499536
-    playhead_position: 0
-    track_length: 304092
+    playhead_position: '[0-9]+'
+    track_length: '[0-9]+'
     protocol: hls
-    ts: 1462890723890
-    app_version: '410'
+    ts: '[0-9]+'
+    app_version: '[0-9]+'
     track: soundcloud:tracks:263398924
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    client_event_id: fe968aae-20ab-4f21-845b-7126e2a00828
+    client_event_id: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
-    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
+    anonymous_id: (\w|-)+
     track_owner: soundcloud:users:218682740
     client_id: 3152
     action: pause
@@ -37,16 +37,17 @@ expected_events:
     page_name: users:main
     monetization_model: NOT_APPLICABLE
     user: soundcloud:users:151499536
-    playhead_position: 8280
-    track_length: 304092
+    playhead_position: '[0-9]+'
+    track_length: '[0-9]+'
     protocol: hls
     pause_reason: pause
-    ts: 1462890731752
-    app_version: '410'
+    ts: '[0-9]+'
+    app_version: '[0-9]+'
     track: soundcloud:tracks:263398924
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    client_event_id: fc58c89c-5e64-45d1-a90d-eb1ba48c735e
+    client_event_id: (\w|-)+
   version: '1'
-whitelisted_events: all
+whitelisted_events:
+- audio

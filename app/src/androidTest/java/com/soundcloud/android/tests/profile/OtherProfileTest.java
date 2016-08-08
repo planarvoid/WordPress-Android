@@ -8,7 +8,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.annotation.ProfileAlbumTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -35,7 +34,6 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     private static final String TEST_SCENARIO_LIKES_LIST = "audio-events-v1-other-profile-likes-list";
     private static final String TEST_SCENARIO_REPOSTS_LIST = "audio-events-v1-other-profile-reposts-list";
     private static final String TEST_SCENARIO_PLAYLISTS_LIST = "audio-events-v1-other-profile-playlists-list";
-    private static final String TEST_SCENARIO_ALBUMS_LIST = "audio-events-v1-other-profile-albums-list";
 
     // Have to do this because Java can't do import aliasing ;_;
     private static Matcher<Screen> isScreenVisible() {
@@ -90,7 +88,7 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testPlayAndPauseFromTracksBucket() {
-        startScenario(TEST_SCENARIO_TRACKS_BUCKET);
+        startEventTracking();
 
         final VisualPlayerElement playerElement = profileScreen.scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.TRACKS);
 
@@ -100,22 +98,21 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testOpenPlaylistFromPlaylistsBucket() {
-        startScenario(TEST_SCENARIO_PLAYLISTS_BUCKET);
+        startEventTracking();
 
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToBucketAndClickFirstPlaylist(
-                ProfileScreen.Bucket.PLAYLISTS);
+        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
+                .scrollToBucketAndClickFirstPlaylist(ProfileScreen.Bucket.PLAYLISTS);
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
         endScenario(TEST_SCENARIO_PLAYLISTS_BUCKET);
     }
 
-    @ProfileAlbumTest
     public void testOpenPlaylistFromAlbumsBucket() {
-        startScenario(TEST_SCENARIO_ALBUMS_BUCKET);
+        startEventTracking();
 
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToBucketAndClickFirstPlaylist(
-                ProfileScreen.Bucket.ALBUMS);
+        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
+                .scrollToBucketAndClickFirstPlaylist(ProfileScreen.Bucket.ALBUMS);
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
@@ -123,9 +120,10 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testPlayAndPauseFromRepostsBucket() {
-        startScenario(TEST_SCENARIO_REPOSTS_BUCKET);
+        startEventTracking();
 
-        final VisualPlayerElement playerElement = profileScreen.scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.REPOSTS);
+        final VisualPlayerElement playerElement = profileScreen
+                .scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.REPOSTS);
 
         assertPlayAndPause(playerElement);
 
@@ -133,22 +131,22 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testPlayAndPauseFromLikesBucket() {
-        startScenario(TEST_SCENARIO_LIKES_BUCKET);
+        startEventTracking();
 
-        final VisualPlayerElement playerElement = profileScreen.scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.LIKES);
+        final VisualPlayerElement playerElement = profileScreen
+                .scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.LIKES);
 
         assertPlayAndPause(playerElement);
 
         endScenario(TEST_SCENARIO_LIKES_BUCKET);
     }
 
-    // Testing from full list views
-
     public void testPlayAndPauseFromTracksList() {
-        startScenario(TEST_SCENARIO_TRACKS_LIST);
+        startEventTracking();
 
-        final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllTracks()
-                                                               .clickFirstTrack();
+        final VisualPlayerElement playerElement = profileScreen
+                .scrollToAndClickViewAllTracks()
+                .clickFirstTrack();
 
         assertPlayAndPause(playerElement);
 
@@ -156,33 +154,23 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testOpenPlaylistFromPlaylistsList() {
-        startScenario(TEST_SCENARIO_PLAYLISTS_LIST);
+        startEventTracking();
 
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToAndClickViewAllPlaylists()
-                                                                         .clickFirstPlaylist();
+        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen
+                .scrollToAndClickViewAllPlaylists()
+                .clickFirstPlaylist();
 
         assertThat(playlistDetailsScreen, isScreenVisible());
 
         endScenario(TEST_SCENARIO_PLAYLISTS_LIST);
     }
 
-    @ProfileAlbumTest
-    public void testOpenPlaylistFromAlbumsList() {
-        startScenario(TEST_SCENARIO_ALBUMS_LIST);
-
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToAndClickViewAllAlbums()
-                                                                         .clickFirstPlaylist();
-
-        assertThat(playlistDetailsScreen, isScreenVisible());
-
-        endScenario(TEST_SCENARIO_ALBUMS_LIST);
-    }
-
     public void testPlayAndPauseFromRepostsList() {
-        startScenario(TEST_SCENARIO_REPOSTS_LIST);
+        startEventTracking();
 
-        final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllReposts()
-                                                               .clickFirstTrack();
+        final VisualPlayerElement playerElement = profileScreen
+                .scrollToAndClickViewAllReposts()
+                .clickFirstTrack();
 
         assertPlayAndPause(playerElement);
 
@@ -190,10 +178,11 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     }
 
     public void testPlayAndPauseFromLikesList() {
-        startScenario(TEST_SCENARIO_LIKES_LIST);
+        startEventTracking();
 
-        final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllLikes()
-                                                               .clickFirstTrack();
+        final VisualPlayerElement playerElement = profileScreen
+                .scrollToAndClickViewAllLikes()
+                .clickFirstTrack();
 
         assertPlayAndPause(playerElement);
 

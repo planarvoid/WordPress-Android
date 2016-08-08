@@ -3,17 +3,17 @@ expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: pageview
   params:
-    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
-    ts: '1462890749627'
+    anonymous_id: (\w|-)+
+    ts: '[0-9]+'
     client_id: '3152'
     page_name: users:tracks
-    user: soundcloud:users:151499536
+    user: soundcloud:users:[0-9]+
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
-    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
-    track_owner: soundcloud:users:218682740
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:[0-9]+
     client_id: 3152
     action: play
     policy: ALLOW
@@ -21,23 +21,23 @@ expected_events:
     consumer_subs_plan: none
     page_name: users:tracks
     monetization_model: NOT_APPLICABLE
-    user: soundcloud:users:151499536
-    playhead_position: 8280
-    track_length: 304092
+    user: soundcloud:users:[0-9]+
+    playhead_position: '[0-9]+'
+    track_length: '[0-9]+'
     protocol: hls
-    ts: 1462890751984
-    app_version: '410'
-    track: soundcloud:tracks:263398924
+    ts: '[0-9]+'
+    app_version: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    client_event_id: 917ddfd6-6d0b-4e16-9daa-afe575cfff5f
+    client_event_id: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
-    anonymous_id: e118936fa8fbffdef8117a5a46b09d19
-    track_owner: soundcloud:users:218682740
+    anonymous_id: (\w|-)+
+    track_owner: soundcloud:users:[0-9]+
     client_id: 3152
     action: pause
     policy: ALLOW
@@ -45,17 +45,19 @@ expected_events:
     consumer_subs_plan: none
     page_name: users:tracks
     monetization_model: NOT_APPLICABLE
-    user: soundcloud:users:151499536
-    playhead_position: 16620
-    track_length: 304092
+    user: soundcloud:users:[0-9]+
+    playhead_position: '[0-9]+'
+    track_length: '[0-9]+'
     protocol: hls
     pause_reason: pause
-    ts: 1462890759837
-    app_version: '410'
-    track: soundcloud:tracks:263398924
+    ts: '[0-9]+'
+    app_version: '[0-9]+'
+    track: soundcloud:tracks:[0-9]+
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    client_event_id: 0938962a-d3e9-48c9-ac3c-58980e600c1b
+    client_event_id: (\w|-)+
   version: '1'
-whitelisted_events: all
+whitelisted_events:
+- pageview
+- audio
