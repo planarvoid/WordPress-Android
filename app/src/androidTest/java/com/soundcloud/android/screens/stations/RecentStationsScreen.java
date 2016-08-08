@@ -1,8 +1,9 @@
-package com.soundcloud.android.screens;
+package com.soundcloud.android.screens.stations;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.StationElement;
 import com.soundcloud.android.stations.RecentStationsActivity;
 

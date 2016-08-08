@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.stations.StationHomeScreen;
 
 public class StationElement {
     private final Han testDriver;
@@ -26,6 +27,11 @@ public class StationElement {
     public VisualPlayerElement click() {
         wrapped.click();
         return new VisualPlayerElement(testDriver);
+    }
+
+    public StationHomeScreen open() {
+        wrapped.click();
+        return new StationHomeScreen(testDriver);
     }
 
     static With WithTitle(final Han testDriver, final String title) {

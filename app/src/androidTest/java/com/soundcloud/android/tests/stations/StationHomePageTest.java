@@ -3,24 +3,30 @@ package com.soundcloud.android.tests.stations;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.StationsHomeTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.stations.StationHomeScreen;
 
-public class StartStationTest extends TrackingActivityTest<LauncherActivity> {
-    private static final String START_STATION_FROM_PLAYLIST = "audio-events-v1-start_station_from_playlist";
+/**
+ * This test tests exactly the same functionality as StartStationTest, the only difference is that it takes
+ * into account the station home page. StartStationTest should be replaces by StationsHomeTest after StationHome
+ * (StationInfoPage) is released
+ */
+@StationsHomeTest
+public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> {
+
+    private static final String START_STATION_FROM_PLAYLIST = "audio-events-v1-open_station_from_playlist";
 
     private PlaylistDetailsScreen playlistDetailsScreen;
 
-    public StartStationTest() {
+    public StationHomePageTest() {
         super(LauncherActivity.class);
     }
 
@@ -42,7 +48,11 @@ public class StartStationTest extends TrackingActivityTest<LauncherActivity> {
     public void testStartStationFromTrackItem() {
         startEventTracking();
 
-        final VisualPlayerElement player = playlistDetailsScreen.startStationFromFirstTrack();
+        final VisualPlayerElement player = playlistDetailsScreen
+                .findAndClickFirstTrackOverflowButton()
+                .clickStation()
+                .clickPlay()
+                .waitForExpandedPlayerToStartPlaying();
 
         assertThat(player, is(visible()));
         assertTrue(player.isExpandedPlayerPlaying());
@@ -54,39 +64,27 @@ public class StartStationTest extends TrackingActivityTest<LauncherActivity> {
     }
 
     public void testStartStationFromPlayer() {
-        final VisualPlayerElement player = playlistDetailsScreen.clickFirstTrack();
+        VisualPlayerElement player = playlistDetailsScreen.clickFirstTrack();
         final String originalTitle = player.getTrackTitle();
 
-        player.clickMenu().clickStartStation();
-        player.swipeNext();
+        final StationHomeScreen stationHomeScreen = player.clickMenu()
+                                                          .clickOpenStation();
+        assertTrue(stationHomeScreen.isVisible());
+
+        player = stationHomeScreen
+                .clickPlay()
+                .waitForExpandedPlayerToStartPlaying()
+                .swipeNext();
 
         assertThat(player.getTrackPageContext(), containsString(originalTitle));
     }
 
-    public void testStartArtistStation() {
-        final ProfileScreen profile = playlistDetailsScreen.clickArtist();
-        final String artistName = profile.getUserName();
-
-        assertTrue(profile.artistStationButton().isOnScreen());
-
-        final VisualPlayerElement player = profile.clickArtistStationButton();
-        assertThat(player.getTrackPageContext(), containsString(artistName));
-    }
-
-    public void testStartStationVisibleButDisabledWhenUserHasNoNetworkConnectivity() {
-        toastObserver.observe();
-        networkManagerClient.switchWifiOff();
-
-        final VisualPlayerElement playerElement = playlistDetailsScreen.startStationFromFirstTrack();
-
-        assertThat(playerElement, is(not(visible())));
-        assertFalse(toastObserver.wasToastObserved(solo.getString(R.string.stations_unable_to_start_station)));
-
-        networkManagerClient.switchWifiOn();
-    }
-
     public void testStartStationShouldResume() {
-        final VisualPlayerElement player = playlistDetailsScreen.startStationFromFirstTrack();
+        final VisualPlayerElement player = playlistDetailsScreen
+                .findAndClickFirstTrackOverflowButton()
+                .clickStation()
+                .clickPlay()
+                .waitForExpandedPlayerToStartPlaying();
 
         // We swipe next twice in order to ensure the database is correctly
         // persisting the last played track position
@@ -97,19 +95,22 @@ public class StartStationTest extends TrackingActivityTest<LauncherActivity> {
         player.swipePrevious();
         assertThat(waiter.waitForPlaybackToBePlaying(), is(true));
         player.pressBackToCollapse();
+        solo.goBack();
 
         // Start a new play queue
         playlistDetailsScreen.clickFirstTrack();
         assertThat(waiter.waitForPlaybackToBePlaying(), is(true));
         player.pressBackToCollapse();
 
-        final String resumedTrackTitle = playlistDetailsScreen.startStationFromFirstTrack().getTrackTitle();
+        final StationHomeScreen stationHomeScreen = playlistDetailsScreen.findAndClickFirstTrackOverflowButton()
+                                                                         .clickStation();
+        final String resumedTrackTitle = stationHomeScreen.clickPlay().getTrackTitle();
         assertThat(expectedTitle, is(equalTo(resumedTrackTitle)));
 
         // If you play the same station, it should simply expand the player without changing tracks
         player.pressBackToCollapse();
-        final String resumeCurrentlyPlayingStationTitle = playlistDetailsScreen.startStationFromFirstTrack()
-                                                                               .getTrackTitle();
+        final String resumeCurrentlyPlayingStationTitle = stationHomeScreen.clickPlay().getTrackTitle();
         assertThat(resumedTrackTitle, is(equalTo(resumeCurrentlyPlayingStationTitle)));
     }
+
 }

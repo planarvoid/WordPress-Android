@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.AddCommentScreen;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.TrackInfoScreen;
+import com.soundcloud.android.screens.stations.StationHomeScreen;
 
 public class PlayerMenuElement extends PopupMenuElement {
 
@@ -36,6 +37,16 @@ public class PlayerMenuElement extends PopupMenuElement {
 
     public void clickStartStation() {
         startStation().click();
+    }
+
+    public StationHomeScreen clickOpenStation() {
+        openStation().click();
+        return new StationHomeScreen(testDriver);
+    }
+
+    private ViewElement openStation() {
+        return findOnScreenElement(With.text(testDriver.getString(R.string.stations_open_station)))
+                .findAncestor(getRootViewElement(), With.classSimpleName("ListMenuItemView"));
     }
 
     private ViewElement addToPlaylistItem() {

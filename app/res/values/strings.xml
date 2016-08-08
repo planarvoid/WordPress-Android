@@ -541,6 +541,7 @@
     <!-- __STATIONS -->
     <string name="stations_start_track_station">Start track station</string>
     <string name="stations_start_user_station">Start station</string>
+    <string name="stations_open_station">Open station</string>
     <string name="stations_unable_to_start_station">We’re unable to start this station. Try again in a few minutes.</string>
     <string name="stations_loading_station">Loading station. Stay tuned.</string>
     <string name="stations_collection_title_recent_stations">Recent stations</string>

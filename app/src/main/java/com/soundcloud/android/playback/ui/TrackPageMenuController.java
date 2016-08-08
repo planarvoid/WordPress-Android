@@ -18,6 +18,8 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.tracks.TrackInfoFragment;
@@ -46,6 +48,7 @@ public class TrackPageMenuController
     private final RepostOperations repostOperations;
     private final StartStationHandler stationHandler;
     private final EventBus eventBus;
+    private final FeatureFlags featureFlags;
     private final ShareOperations shareOperations;
     private final String commentAtUnformatted;
 
@@ -59,7 +62,7 @@ public class TrackPageMenuController
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
                                     StartStationHandler stationHandler,
-                                    EventBus eventBus,
+                                    EventBus eventBus, FeatureFlags featureFlags,
                                     ShareOperations shareOperations) {
         this.playQueueManager = playQueueManager;
         this.repostOperations = repostOperations;
@@ -67,6 +70,7 @@ public class TrackPageMenuController
         this.popupMenuWrapper = popupMenuWrapper;
         this.stationHandler = stationHandler;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
         this.shareOperations = shareOperations;
         this.commentAtUnformatted = activity.getString(R.string.comment_at_time);
         setupMenu();
@@ -107,6 +111,10 @@ public class TrackPageMenuController
     }
 
     private void initStationsOption() {
+        popupMenuWrapper.findItem(R.id.start_station)
+                        .setTitle(featureFlags.isEnabled(Flag.STATION_INFO_PAGE) ?
+                                  activity.getText(R.string.stations_open_station) :
+                                  activity.getText(R.string.stations_start_track_station));
         popupMenuWrapper.setItemEnabled(R.id.start_station, IOUtils.isConnected(activity));
     }
 
@@ -230,6 +238,7 @@ public class TrackPageMenuController
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
         private final StartStationHandler startStationHandler;
+        private final FeatureFlags featureFlags;
         private final ShareOperations shareOperations;
 
         @Inject
@@ -237,26 +246,26 @@ public class TrackPageMenuController
                 RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 StartStationHandler startStationHandler,
-                EventBus eventBus,
+                EventBus eventBus, FeatureFlags featureFlags,
                 ShareOperations shareOperations) {
             this.playQueueManager = playQueueManager;
             this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.startStationHandler = startStationHandler;
             this.eventBus = eventBus;
+            this.featureFlags = featureFlags;
             this.shareOperations = shareOperations;
         }
 
         TrackPageMenuController create(View anchorView) {
-
-            return new TrackPageMenuController(playQueueManager,
-                                               repostOperations,
-                                               getFragmentActivity(anchorView),
-                                               popupMenuWrapperFactory.build(getFragmentActivity(anchorView),
-                                                                             anchorView),
-                                               startStationHandler,
-                                               eventBus,
-                                               shareOperations);
+            return new TrackPageMenuController(
+                    playQueueManager,
+                    repostOperations,
+                    getFragmentActivity(anchorView),
+                    popupMenuWrapperFactory.build(getFragmentActivity(anchorView), anchorView),
+                    startStationHandler,
+                    eventBus, featureFlags,
+                    shareOperations);
         }
     }
 

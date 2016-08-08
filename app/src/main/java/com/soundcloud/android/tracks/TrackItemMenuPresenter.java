@@ -140,13 +140,21 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         menu.setItemEnabled(R.id.add_to_likes, false);
         menu.setItemVisible(R.id.add_to_playlist, !isOwnedPlaylist());
         menu.setItemVisible(R.id.remove_from_playlist, isOwnedPlaylist());
-        menu.setItemEnabled(R.id.start_station, IOUtils.isConnected(button.getContext()));
-        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
 
+        configureStationOptions(button.getContext(), menu);
         configureAdditionalEngagementsOptions(menu);
         configurePlayNext(menu);
+
         menu.show();
         return menu;
+    }
+
+    private void configureStationOptions(Context context, PopupMenuWrapper menu) {
+        menu.findItem(R.id.start_station)
+            .setTitle(featureFlags.isEnabled(Flag.STATION_INFO_PAGE) ?
+                      context.getText(R.string.stations_open_station) :
+                      context.getText(R.string.stations_start_track_station));
+        menu.setItemEnabled(R.id.start_station, IOUtils.isConnected(context));
     }
 
     private void configureAdditionalEngagementsOptions(PopupMenuWrapper menu) {
@@ -155,6 +163,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void configurePlayNext(PopupMenuWrapper menu) {
+        menu.setItemVisible(R.id.play_next, featureFlags.isEnabled(Flag.PLAY_QUEUE));
         menu.setItemEnabled(R.id.play_next, canPlayNext(track));
     }
 

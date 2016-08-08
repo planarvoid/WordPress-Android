@@ -9,6 +9,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.CollectionsPlaylistOptionsDialogElement;
 import com.soundcloud.android.screens.elements.LikedTracksPreviewElement;
 import com.soundcloud.android.screens.elements.PlaylistElement;
+import com.soundcloud.android.screens.stations.RecentStationsScreen;
 
 import android.support.v7.widget.RecyclerView;
 

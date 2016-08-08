@@ -10,6 +10,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.stations.StationHomeScreen;
 
 public class TrackItemMenuElement extends PopupMenuElement {
 
@@ -63,5 +64,10 @@ public class TrackItemMenuElement extends PopupMenuElement {
     public VisualPlayerElement clickStartStation() {
         clickItemWithText(testDriver.getString(R.string.stations_start_track_station));
         return new VisualPlayerElement(testDriver);
+    }
+
+    public StationHomeScreen clickStation() {
+        clickItemWithText(testDriver.getString(R.string.stations_open_station));
+        return new StationHomeScreen(testDriver);
     }
 }

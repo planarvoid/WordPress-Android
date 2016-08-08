@@ -245,12 +245,21 @@ public class ProfileScreen extends Screen {
         return testDriver.findOnScreenElement(With.id(R.id.image));
     }
 
-    Tabs tabs() {
+    private Tabs tabs() {
         return testDriver.findOnScreenElement(With.id(R.id.tab_indicator)).toTabs();
     }
 
     private ViewElement followButton() {
         return testDriver.findOnScreenElement(With.id(R.id.toggle_btn_follow));
+    }
+
+    public ViewElement artistStationButton() {
+        return testDriver.findOnScreenElement(With.id(R.id.btn_station));
+    }
+
+    public VisualPlayerElement clickArtistStationButton() {
+        artistStationButton().click();
+        return new VisualPlayerElement(testDriver);
     }
 
     private ViewElement userName() {
