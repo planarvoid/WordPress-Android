@@ -27,13 +27,13 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     private static final String TEST_SCENARIO_TRACKS_BUCKET = "audio-events-v1-other-profile-tracks-bucket";
     private static final String TEST_SCENARIO_LIKES_BUCKET = "audio-events-v1-other-profile-likes-bucket";
     private static final String TEST_SCENARIO_REPOSTS_BUCKET = "audio-events-v1-other-profile-reposts-bucket";
-    private static final String TEST_SCENARIO_PLAYLISTS_BUCKET = "audio-events-v1-other-profile-playlists-bucket";
-    private static final String TEST_SCENARIO_ALBUMS_BUCKET = "audio-events-v1-other-profile-albums-bucket";
+    private static final String TEST_SCENARIO_PLAYLISTS_BUCKET = "other-profile-playlists-bucket";
+    private static final String TEST_SCENARIO_ALBUMS_BUCKET = "other-profile-albums-bucket";
 
     private static final String TEST_SCENARIO_TRACKS_LIST = "audio-events-v1-other-profile-tracks-list";
     private static final String TEST_SCENARIO_LIKES_LIST = "audio-events-v1-other-profile-likes-list";
     private static final String TEST_SCENARIO_REPOSTS_LIST = "audio-events-v1-other-profile-reposts-list";
-    private static final String TEST_SCENARIO_PLAYLISTS_LIST = "audio-events-v1-other-profile-playlists-list";
+    private static final String TEST_SCENARIO_PLAYLISTS_LIST = "other-profile-playlists-list";
 
     // Have to do this because Java can't do import aliasing ;_;
     private static Matcher<Screen> isScreenVisible() {
