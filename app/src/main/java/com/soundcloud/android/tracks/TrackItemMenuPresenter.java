@@ -67,7 +67,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private FragmentActivity activity;
     private TrackItem track;
     private PromotedSourceInfo promotedSourceInfo;
-    private Urn pageUrn;
+    private Urn playlistUrn;
+    private Urn ownerUrn;
     private int positionInAdapter;
     private Subscription trackSubscription = RxUtils.invalidSubscription();
 
@@ -75,8 +76,6 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
     public interface RemoveTrackListener {
         void onPlaylistTrackRemoved(int position);
-
-        Urn getPlaylistUrn();
     }
 
     @Inject
@@ -114,21 +113,22 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
         if (track instanceof PromotedTrackItem) {
-            show(activity, button, track, position, Urn.NOT_SET, null,
+            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null,
                  PromotedSourceInfo.fromItem((PromotedTrackItem) track));
         } else {
-            show(activity, button, track, position, Urn.NOT_SET, null, null);
+            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null, null);
         }
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, Urn pageUrn,
-                     RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo) {
+    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, Urn playlistUrn,
+                     Urn ownerUrn, RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo) {
         this.activity = activity;
         this.track = track;
         this.positionInAdapter = positionInAdapter;
         this.removeTrackListener = removeTrackListener;
         this.promotedSourceInfo = promotedSourceInfo;
-        this.pageUrn = pageUrn;
+        this.playlistUrn = playlistUrn;
+        this.ownerUrn = ownerUrn;
         loadTrack(setupMenu(button));
     }
 
@@ -208,7 +208,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                 return true;
             case R.id.remove_from_playlist:
                 checkState(isOwnedPlaylist());
-                playlistOperations.removeTrackFromPlaylist(removeTrackListener.getPlaylistUrn(), track.getUrn())
+                playlistOperations.removeTrackFromPlaylist(playlistUrn, track.getUrn())
                                   .observeOn(AndroidSchedulers.mainThread())
                                   .subscribe(new DefaultSubscriber<PropertySet>() {
                                       @Override
@@ -276,7 +276,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                                    .invokerScreen(ScreenElement.LIST.get())
                                    .contextScreen(screenProvider.getLastScreenTag())
                                    .pageName(screenProvider.getLastScreenTag())
-                                   .pageUrn(pageUrn)
+                                   .pageUrn(playlistUrn)
                                    .isFromOverflow(true)
                                    .build();
     }
@@ -338,7 +338,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private boolean isOwnedPlaylist() {
-        return removeTrackListener != null && !removeTrackListener.getPlaylistUrn().equals(Urn.NOT_SET);
+        return removeTrackListener != null
+                && ownerUrn.equals(accountOperations.getLoggedInUserUrn());
     }
 
     private PromotedSourceInfo getPromotedSource() {

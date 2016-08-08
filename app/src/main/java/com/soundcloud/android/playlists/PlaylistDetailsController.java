@@ -47,7 +47,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
     void setContent(PlaylistWithTracks playlist, PromotedSourceInfo promotedSourceInfo) {
         playlistUrn = playlist.getUrn();
         eventSubscriptions.unsubscribe();
-        trackRenderer.setPlaylistInformation(promotedSourceInfo, playlist.getUrn());
+        trackRenderer.setPlaylistInformation(promotedSourceInfo, playlist.getUrn(), playlist.getCreatorUrn());
         adapter.clear();
         for (TypedListItem listItem : upsellOperations.toListItems(playlist)) {
             adapter.addItem(listItem);
