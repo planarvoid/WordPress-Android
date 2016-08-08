@@ -55,7 +55,7 @@ class MrLoggaLoggaClient {
                 .url(buildIsScenarioCompletedUrl(scenarioId))
                 .get()
                 .build();
-        return executeRequest(request).responseBody.equals(IS_FINISHED_LOGGING);
+        return IS_FINISHED_LOGGING.equals(executeRequest(request).responseBody);
     }
 
     MrLoggaResponse stopLogging() {
