@@ -2,7 +2,6 @@ package com.soundcloud.android.tests.profile;
 
 import static com.soundcloud.android.framework.TestUser.profileEntryUser;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -34,11 +33,5 @@ public class OtherProfileAlbumTest extends ActivityTest<ResolveActivity> {
 
     public void testHasAlbumsBucket() {
         assertTrue(profileScreen.albumsHeader().hasVisibility());
-    }
-
-    public void testViewAllAlbums() {
-        profileScreen.clickViewAllAlbums();
-        assertEquals(profileScreen.getActionBarTitle(),
-                     ressourceString(R.string.user_profile_sounds_header_albums));
     }
 }

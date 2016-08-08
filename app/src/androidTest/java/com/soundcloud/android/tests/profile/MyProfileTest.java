@@ -150,12 +150,6 @@ public class MyProfileTest extends TrackingActivityTest<ResolveActivity> {
         assertThat(playlistDetailsScreen, isScreenVisible());
     }
 
-    public void testOpenPlaylistFromMyAlbumsList() {
-        final PlaylistDetailsScreen playlistDetailsScreen = profileScreen.scrollToAndClickViewAllAlbums()
-                                                                         .clickFirstPlaylist();
-        assertThat(playlistDetailsScreen, isScreenVisible());
-    }
-
     public void testPlayAndPauseFromMyRepostsList() {
         final VisualPlayerElement playerElement = profileScreen.scrollToAndClickViewAllReposts()
                                                                .clickFirstTrack();
