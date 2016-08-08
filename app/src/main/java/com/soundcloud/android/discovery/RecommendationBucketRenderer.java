@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,8 +21,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @AutoFactory(allowSubclasses = true)
 class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBucketItem> {
@@ -31,6 +34,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBuck
     private final Navigator navigator;
 
     private final TrackRecommendationListener listener;
+    private final Map<Long, Parcelable> scrollingState = new HashMap<>();
 
     RecommendationBucketRenderer(
             boolean isViewAllBucket,
@@ -68,7 +72,7 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBuck
 
         bindViewAllViews(bucketView);
         bindReasonView(bucketView, recommendedTracksItem);
-        bindCarousel((RecommendationsAdapter) bucketView.getTag(), recommendedTracksItem);
+        bindCarousel(bucketView, recommendedTracksItem);
     }
 
     private void bindViewAllViews(View bucketView) {
@@ -96,13 +100,21 @@ class RecommendationBucketRenderer implements CellRenderer<RecommendedTracksBuck
         reasonView.setOnClickListener(buildOnReasonClickListener(bucket));
     }
 
-    private void bindCarousel(RecommendationsAdapter adapter, RecommendedTracksBucketItem recommendationBucket) {
-        final List<Recommendation> viewModels = recommendationBucket.getRecommendations();
-        adapter.clear();
-        for (int i = 0; i < viewModels.size(); i++) {
-            adapter.addItem(viewModels.get(i));
+    private void bindCarousel(View bucketView, RecommendedTracksBucketItem recommendedTracksItem) {
+        final RecommendationsAdapter adapter = (RecommendationsAdapter) bucketView.getTag();
+        final RecyclerView recyclerView = ButterKnife.findById(bucketView, R.id.recommendations_carousel);
+        if (adapter.hasBucketItem()) {
+            //Save previous scrolling state
+            scrollingState.put(adapter.bucketId(), recyclerView.getLayoutManager().onSaveInstanceState());
         }
-        adapter.notifyDataSetChanged();
+        //Set new content
+        adapter.setRecommendedTracksBucketItem(recommendedTracksItem);
+        if (scrollingState.containsKey(adapter.bucketId())) {
+            //Apply previous scrolling state
+            recyclerView.getLayoutManager().onRestoreInstanceState(scrollingState.get(adapter.bucketId()));
+        } else {
+            recyclerView.scrollToPosition(0);
+        }
     }
 
     private Spannable getReasonText(RecommendedTracksBucketItem recommendationBucket, Context context) {

@@ -10,9 +10,26 @@ class RecommendationsAdapter extends RecyclerItemAdapter<Recommendation, Recomme
         implements PlayingTrackAware {
 
     private static final int RECOMMENDATION_TYPE = 0;
+    private static final long DEFAULT_ID = -1;
+    private long bucketId;
 
     public RecommendationsAdapter(RecommendationRenderer recommendationRenderer) {
         super(recommendationRenderer);
+        bucketId = DEFAULT_ID;
+    }
+
+    boolean hasBucketItem() {
+        return bucketId != DEFAULT_ID;
+    }
+
+    void setRecommendedTracksBucketItem(RecommendedTracksBucketItem recommendationBucket) {
+        clear();
+        bucketId = recommendationBucket.getSeedTrackLocalId();
+        onNext(recommendationBucket.getRecommendations());
+    }
+
+    long bucketId() {
+        return bucketId;
     }
 
     @Override
