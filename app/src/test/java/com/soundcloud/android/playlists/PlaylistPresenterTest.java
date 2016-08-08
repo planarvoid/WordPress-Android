@@ -249,6 +249,7 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
     @Test
     public void onUpsellItemClickedOpensUpgradeScreen() {
         presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
         presenter.onUpsellItemClicked(context());
 
         verify(navigator).openUpgrade(context());
@@ -256,9 +257,10 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellItemCreatedSendsUpsellTrackingEvent() {
-        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression();
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression(playlist.getUrn());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
         presenter.onUpsellItemCreated();
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
@@ -268,9 +270,10 @@ public class PlaylistPresenterTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellItemClickedSendsUpsellTrackingEvent() {
-        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick();
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick(playlist.getUrn());
 
         presenter.onCreate(fragmentRule.getFragment(), null);
+        presenter.onViewCreated(fragmentRule.getFragment(), fragmentRule.getView(), args);
         presenter.onUpsellItemClicked(context());
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);

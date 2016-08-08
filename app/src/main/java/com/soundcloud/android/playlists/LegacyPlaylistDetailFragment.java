@@ -383,7 +383,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
 
     protected void refreshMetaData(PlaylistWithTracks playlistWithTracks) {
         if (playlistWithTracks.isOwnedBy(accountOperations.getLoggedInUserUrn())) {
-            controller.showTrackRemovalOptions(playlistWithTracks.getUrn(), this);
+            controller.showTrackRemovalOptions(this);
         }
 
         this.playlistWithTracks = playlistWithTracks;

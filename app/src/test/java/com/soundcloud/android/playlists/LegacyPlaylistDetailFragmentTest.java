@@ -148,8 +148,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithoutTracks));
         createFragmentView();
 
-        verify(controller).showTrackRemovalOptions(eq(playlistWithoutTracks.getUrn()),
-                                                   any(PlaylistDetailsController.Listener.class));
+        verify(controller).showTrackRemovalOptions(any(PlaylistDetailsController.Listener.class));
     }
 
     @Test
@@ -161,7 +160,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         createFragmentView();
 
         ArgumentCaptor<PlaylistDetailsController.Listener> captor = ArgumentCaptor.forClass(PlaylistDetailsController.Listener.class);
-        verify(controller).showTrackRemovalOptions(same(playlistWithTracks.getUrn()), captor.capture());
+        verify(controller).showTrackRemovalOptions(captor.capture());
 
         captor.getValue().onPlaylistContentChanged();
 
@@ -178,8 +177,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithoutTracks));
         createFragmentView();
 
-        verify(controller, never()).showTrackRemovalOptions(any(Urn.class),
-                                                            any(PlaylistDetailsController.Listener.class));
+        verify(controller, never()).showTrackRemovalOptions(any(PlaylistDetailsController.Listener.class));
     }
 
     @Test

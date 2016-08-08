@@ -357,12 +357,14 @@ class PlaylistPresenter extends RecyclerViewPresenter<PlaylistWithTracks, TypedL
     @Override
     public void onUpsellItemClicked(Context context) {
         navigator.openUpgrade(context);
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick());
+        eventBus.publish(EventQueue.TRACKING,
+                UpgradeFunnelEvent.forPlaylistTracksClick(playlistWithTracks.get().getUrn()));
     }
 
     @Override
     public void onUpsellItemCreated() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksImpression());
+        eventBus.publish(EventQueue.TRACKING,
+                UpgradeFunnelEvent.forPlaylistTracksImpression(playlistWithTracks.get().getUrn()));
     }
 
 }

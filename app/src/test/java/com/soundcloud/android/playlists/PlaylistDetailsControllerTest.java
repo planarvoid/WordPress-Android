@@ -87,8 +87,9 @@ public class PlaylistDetailsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellItemCreatedSendsUpsellTrackingEvent() {
-        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression();
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksImpression(playlist.getUrn());
 
+        controller.setContent(playlist, null);
         controller.onUpsellItemCreated();
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
@@ -98,8 +99,9 @@ public class PlaylistDetailsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onUpsellItemClickedSendsUpsellTrackingEvent() {
-        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick();
+        UpgradeFunnelEvent expectedEvent = UpgradeFunnelEvent.forPlaylistTracksClick(playlist.getUrn());
 
+        controller.setContent(playlist, null);
         controller.onUpsellItemClicked(context());
 
         UpgradeFunnelEvent trackingEvent = eventBus.lastEventOn(EventQueue.TRACKING, UpgradeFunnelEvent.class);
