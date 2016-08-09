@@ -219,7 +219,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void trackAdSessionEvent(AdPlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdSessionEvent(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForRichMediaSessionEvent(eventData));
     }
 
     private void trackAdProgressQuartile(AdPlaybackSessionEvent eventData) {
@@ -227,7 +227,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handleAdPlaybackErrorEvent(AdPlaybackErrorEvent eventData) {
-        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForAdPlaybackErrorEvent(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilderV1.get().buildForRichMediaErrorEvent(eventData));
     }
 
     private void trackAudioSessionEvent(PlaybackSessionEvent eventData) {

@@ -145,7 +145,7 @@ public class EventLoggerV1JsonDataBuilder {
                                  .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
 
-    public String buildForAdSessionEvent(AdPlaybackSessionEvent eventData) {
+    public String buildForRichMediaSessionEvent(AdPlaybackSessionEvent eventData) {
         EventLoggerEventData data = buildBaseEvent(RICH_MEDIA_STREAM_EVENT, eventData)
                 .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
                 .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
@@ -194,7 +194,7 @@ public class EventLoggerV1JsonDataBuilder {
                                  .host(event.getCdnHost()));
     }
 
-    public String buildForAdPlaybackErrorEvent(AdPlaybackErrorEvent eventData) {
+    public String buildForRichMediaErrorEvent(AdPlaybackErrorEvent eventData) {
         return transform(buildBaseEvent(RICH_MEDIA_ERROR_EVENT, eventData)
                 .mediaType(eventData.getMediaType())
                 .protocol(eventData.getProtocol())

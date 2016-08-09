@@ -646,7 +646,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd, TestPlayerTransitions.buffering(), videoAd.getFirstSource());
 
-        jsonDataBuilder.buildForAdPlaybackErrorEvent(event);
+        jsonDataBuilder.buildForRichMediaErrorEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("rich_media_stream_error", BOOGALOO_VERSION, event.getTimestamp())
                                             .mediaType("video")
@@ -667,7 +667,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
 
-        jsonDataBuilder.buildForAdSessionEvent(event);
+        jsonDataBuilder.buildForRichMediaSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("rich_media_stream", BOOGALOO_VERSION, event.getTimestamp())
                 .pageName(eventArgs.getTrackSourceInfo().getOriginScreen())
@@ -696,7 +696,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
 
-        jsonDataBuilder.buildForAdSessionEvent(event);
+        jsonDataBuilder.buildForRichMediaSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("rich_media_stream", BOOGALOO_VERSION, event.getTimestamp())
                 .action("pause")
