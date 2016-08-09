@@ -45,8 +45,9 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
     private Listener listener;
 
     void setContent(PlaylistWithTracks playlist, PromotedSourceInfo promotedSourceInfo) {
+        playlistUrn = playlist.getUrn();
         eventSubscriptions.unsubscribe();
-        trackRenderer.setPlaylistInformation(promotedSourceInfo, playlist.getUrn());
+        trackRenderer.setPlaylistInformation(promotedSourceInfo, playlist.getUrn(), playlist.getCreatorUrn());
         adapter.clear();
         for (TypedListItem listItem : upsellOperations.toListItems(playlist)) {
             adapter.addItem(listItem);
@@ -74,8 +75,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         trackRenderer.setRemoveTrackListener(this);
     }
 
-    public void showTrackRemovalOptions(final Urn urn, Listener listener) {
-        this.playlistUrn = urn;
+    public void showTrackRemovalOptions(Listener listener) {
         this.listener = listener;
     }
 
@@ -135,12 +135,12 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
     @Override
     public void onUpsellItemClicked(Context context) {
         navigator.openUpgrade(context);
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksClick(playlistUrn));
     }
 
     @Override
     public void onUpsellItemCreated() {
-        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksImpression());
+        eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forPlaylistTracksImpression(playlistUrn));
     }
 
     public static class Provider {

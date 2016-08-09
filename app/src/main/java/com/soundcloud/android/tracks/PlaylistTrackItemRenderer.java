@@ -21,7 +21,8 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
 
     private RemoveTrackListener removeTrackListener;
     private PromotedSourceInfo promotedSourceInfo;
-    private Urn pageUrn = Urn.NOT_SET;
+    private Urn playlistUrn = Urn.NOT_SET;
+    private Urn ownerUrn = Urn.NOT_SET;
 
     @Inject
     public PlaylistTrackItemRenderer(ImageOperations imageOperations, CondensedNumberFormatter numberFormatter,
@@ -36,14 +37,15 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
         this.removeTrackListener = removeTrackListener;
     }
 
-    public void setPlaylistInformation(PromotedSourceInfo promotedSourceInfo, Urn pageUrn) {
+    public void setPlaylistInformation(PromotedSourceInfo promotedSourceInfo, Urn playlistUrn, Urn ownerUrn) {
         this.promotedSourceInfo = promotedSourceInfo;
-        this.pageUrn = pageUrn;
+        this.playlistUrn = playlistUrn;
+        this.ownerUrn = ownerUrn;
     }
 
     @Override
     protected void showTrackItemMenu(View button, TrackItem track, int position) {
-        trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position, pageUrn,
+        trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position, playlistUrn, ownerUrn,
                                     removeTrackListener, promotedSourceInfo);
     }
 

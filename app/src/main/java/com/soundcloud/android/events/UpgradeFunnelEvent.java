@@ -143,13 +143,15 @@ public final class UpgradeFunnelEvent extends TrackingEvent {
                 .put(KEY_PAGE_NAME, Screen.STREAM.get());
     }
 
-    public static UpgradeFunnelEvent forPlaylistTracksImpression() {
+    public static UpgradeFunnelEvent forPlaylistTracksImpression(Urn playlistUrn) {
         return new UpgradeFunnelEvent(KIND_UPSELL_IMPRESSION, ID_PLAYLIST_TRACKS)
+                .put(KEY_PAGE_URN, playlistUrn.toString())
                 .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get());
     }
 
-    public static UpgradeFunnelEvent forPlaylistTracksClick() {
+    public static UpgradeFunnelEvent forPlaylistTracksClick(Urn playlistUrn) {
         return new UpgradeFunnelEvent(KIND_UPSELL_CLICK, ID_PLAYLIST_TRACKS)
+                .put(KEY_PAGE_URN, playlistUrn.toString())
                 .put(KEY_PAGE_NAME, Screen.PLAYLIST_DETAILS.get());
     }
 
