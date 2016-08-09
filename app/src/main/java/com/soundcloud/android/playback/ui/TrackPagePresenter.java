@@ -669,7 +669,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             }
         });
 
-        holder.populateViewSets();
+        holder.populateViewSets(featureFlags);
         trackView.setTag(holder);
 
         holder.errorViewController = errorControllerFactory.create(trackView);
@@ -779,7 +779,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             }
         };
 
-        public void populateViewSets() {
+        public void populateViewSets(FeatureFlags featureFlags) {
             List<View> hideOnScrub = Arrays.asList(title,
                                                    user,
                                                    trackContext,
@@ -790,7 +790,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                    bottomClose,
                                                    highTierLabel,
                                                    upsellButton,
-                                                   playQueueButton);
+                                                   getPlayQueueButtonOrNull(featureFlags));
             List<View> hideOnError = Arrays.asList(playButton, timestamp);
             List<View> clickViews = Arrays.asList(artworkView,
                                                   closeIndicator,
@@ -800,8 +800,15 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   footerPlayToggle,
                                                   profileLink,
                                                   upsellButton,
-                                                  playQueueButton);
-
+                                                  getPlayQueueButtonOrNull(featureFlags));
+            List<View> trackViews = Arrays.asList(close,
+                                                  more,
+                                                  likeToggle,
+                                                  title,
+                                                  user,
+                                                  timestamp,
+                                                  castDeviceName,
+                                                  getPlayQueueButtonOrNull(featureFlags));
             fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder);
             fullScreenAdViews = singletonList(interstitialHolder);
             fullScreenErrorViews = Arrays.asList(title, user, trackContext, close, interstitialHolder);
@@ -809,18 +816,16 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
-            hideOnAdViews = Arrays.asList(close,
-                                          more,
-                                          likeToggle,
-                                          title,
-                                          user,
-                                          timestamp,
-                                          castDeviceName,
-                                          playQueueButton);
+            hideOnAdViews = Iterables.filter(trackViews, PRESENT_IN_CONFIG);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController,
                                                                    artworkController,
                                                                    timestamp,
                                                                    menuController);
+        }
+
+        @Nullable
+        private View getPlayQueueButtonOrNull(FeatureFlags featureFlags) {
+            return featureFlags.isEnabled(Flag.PLAY_QUEUE) ? playQueueButton : null;
         }
 
         private boolean hasNextButton() {
