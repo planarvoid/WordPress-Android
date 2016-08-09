@@ -338,8 +338,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private boolean isOwnedPlaylist() {
-        return removeTrackListener != null
-                && ownerUrn.equals(accountOperations.getLoggedInUserUrn());
+        return removeTrackListener != null && accountOperations.isLoggedInUser(ownerUrn);
     }
 
     private PromotedSourceInfo getPromotedSource() {
