@@ -15,6 +15,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdFailedToBufferEvent;
+import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -28,6 +29,7 @@ import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -73,6 +75,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Mock private TrackRepository trackRepository;
     @Mock private AccountOperations accountOperations;
     @Mock private VisualAdImpressionOperations visualAdImpressionOperations;
+    @Mock private VideoSourceProvider videoSourceProvider;
     @Mock private AdOverlayImpressionOperations adOverlayImpressionOperations;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -95,6 +98,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                                           adsOperations,
                                           visualAdImpressionOperations,
                                           adOverlayImpressionOperations,
+                                          videoSourceProvider,
                                           playQueueManager,
                                           trackRepository,
                                           scheduler);
@@ -472,6 +476,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                                           adsOperations,
                                           visualAdImpressionOperations,
                                           adOverlayImpressionOperations,
+                                          videoSourceProvider,
                                           playQueueManager,
                                           trackRepository,
                                           scheduler,
@@ -499,6 +504,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void playStateChangedEventWhenBufferingAndAdAutoAdvancesTrackAfterTimeout() {
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getAudioAd(Urn.forTrack(123L))));
         adsController.subscribe();
 
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
@@ -511,6 +517,7 @@ public class AdsControllerTest extends AndroidUnitTest {
     @Test
     public void playStateChangedEventWhenBufferingAnAudioAdAutoLogATrackingEvent() {
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(AdFixtures.getAudioAd(Urn.forTrack(123L))));
         adsController.subscribe();
 
         final Urn trackUrn = Urn.forTrack(123L);
@@ -532,13 +539,16 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void playStateChangedEventWhenBufferingAVideoAdAutoLogATrackingEvent() {
+        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
+        final VideoSource source = videoAd.getFirstSource();
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
-        adsController.subscribe();
+        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(videoAd));
+        when(videoSourceProvider.getCurrentSource()).thenReturn(Optional.of(source));
 
-        final Urn videoAdUrn = Urn.forAd("dfp", "video-ad");
+        adsController.subscribe();
         final PlaybackStateTransition stateTransition = new PlaybackStateTransition(PlaybackState.BUFFERING,
                                                                                     PlayStateReason.NONE,
-                                                                                    videoAdUrn,
+                                                                                    Urn.forAd("dfp", "video-ad"),
                                                                                     12,
                                                                                     1200);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.wrap(stateTransition));
@@ -546,10 +556,10 @@ public class AdsControllerTest extends AndroidUnitTest {
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
-        final AdFailedToBufferEvent event = (AdFailedToBufferEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
-        assertThat(event.getAttributes().get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(videoAdUrn.toString());
-        assertThat(event.getAttributes().get(AdFailedToBufferEvent.PLAYBACK_POSITION)).isEqualTo("12");
-        assertThat(event.getAttributes().get(AdFailedToBufferEvent.WAIT_PERIOD)).isEqualTo("6");
+        final AdPlaybackErrorEvent event = (AdPlaybackErrorEvent) eventBus.eventsOn(EventQueue.TRACKING).get(0);
+        assertThat(event.getKind()).isEqualTo(AdPlaybackErrorEvent.KIND_FAIL_TO_BUFFER);
+        assertThat(event.getBitrate()).isEqualTo(source.getBitRateKbps());
+        assertThat(event.getHost()).isEqualTo(source.getUrl());
     }
 
     @Test

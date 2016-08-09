@@ -1,66 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ADS_RECEIVED;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_ENDPOINT;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_MADE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_REQUEST_SUCCESS;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_SELECTION_OPTIMIZED;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_CATEGORY;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_NAME;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_OBJECT;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_TARGET;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLIENT_ID;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONNECTION_TYPE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CONSUMER_SUBS_PLAN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ERROR_CODE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.EXTERNAL_MEDIA;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.FORMAT;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.HOST;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_CATEGORY;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_NAME;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPRESSION_OBJECT;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_FOREGROUND;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_LIKES;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LOCAL_STORAGE_PLAYBACK;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MEDIA_TYPE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.METRIC_NAME;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.METRIC_VALUE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_MODEL;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OFFLINE_EVENT_STAGE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_VISIBLE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYHEAD_POSITION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.POLICY;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROMOTED_BY;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_URN;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TIMESTAMP;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRACK;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRACK_LENGTH;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRACK_OWNER;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TRIGGER;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.TYPE;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.URL;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.USER;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.configuration.Plan;
@@ -324,6 +264,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData errorName(String errorName) {
+        addToPayload(ERROR_NAME, errorName);
+        return this;
+    }
+
     public EventLoggerEventData errorCode(String errorCode) {
         addToPayload(ERROR_CODE, errorCode);
         return this;
@@ -452,6 +397,5 @@ class EventLoggerEventData {
                           .add("version", version)
                           .add("payload", payload).toString();
     }
-
 
 }

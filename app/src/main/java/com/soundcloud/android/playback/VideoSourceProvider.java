@@ -8,6 +8,7 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.MoreCollections;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import static android.media.CamcorderProfile.QUALITY_1080P;
 import static android.media.CamcorderProfile.QUALITY_480P;
@@ -28,6 +30,7 @@ import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_36
 import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_480P;
 import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_720P;
 
+@Singleton
 public class VideoSourceProvider {
 
     private static final List<String> SUPPORTED_FORMATS = Collections.singletonList(PlaybackConstants.MIME_TYPE_MP4);
@@ -43,6 +46,8 @@ public class VideoSourceProvider {
     private final MediaCodecInfoProvider mediaCodecInfoProvider;
     private final NetworkConnectionHelper networkConnectionHelper;
 
+    private Optional<VideoSource> currentSource = Optional.absent();
+
     @Inject
     public VideoSourceProvider(ApplicationProperties applicationProperties,
                                DeviceHelper deviceHelper,
@@ -52,6 +57,10 @@ public class VideoSourceProvider {
         this.deviceHelper = deviceHelper;
         this.mediaCodecInfoProvider = mediaCodecInfoProvider;
         this.networkConnectionHelper = networkConnectionHelper;
+    }
+
+    public Optional<VideoSource> getCurrentSource() {
+        return currentSource;
     }
 
     public VideoSource selectOptimalSource(VideoAdPlaybackItem videoPlaybackItem) {
@@ -65,10 +74,11 @@ public class VideoSourceProvider {
                                                                                               new SupportedResolutionPredicate(
                                                                                                       maxResolutionForDevice()));
             if (supportedResolutionSources.isEmpty()) {
-                return Iterables.getFirst(supportedFormatSources, null);
+                currentSource = Optional.of(Iterables.getFirst(supportedFormatSources, null));
             } else {
-                return selectSuitableBitrate(supportedResolutionSources);
+                currentSource = Optional.of(selectSuitableBitrate(supportedResolutionSources));
             }
+            return currentSource.get();
         } else {
             throw new IllegalArgumentException("VideoAdPlaybackItem has no supported video source formats");
         }
