@@ -149,9 +149,14 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         return playableItem instanceof TieredTrack && isHighTierPreview((TieredTrack) playableItem);
     }
 
-    public void togglePreviewIndicator(boolean isUpsellable) {
+    private void togglePreviewIndicator(boolean isUpsellable) {
         if (previewIndicator != null) {
-            previewIndicator.setVisibility(isUpsellable ? View.VISIBLE : View.GONE);
+            if (isUpsellable) {
+                previewIndicator.setText(R.string.upsell_track_preview);
+                previewIndicator.setVisibility(View.VISIBLE);
+            } else {
+                previewIndicator.setVisibility(View.GONE);
+            }
         }
     }
 
