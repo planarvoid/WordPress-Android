@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 
 public class PlayHistoryExperiment {
-    private static final String NAME = "play_history";
+    private static final String NAME = "android_play_history";
     private static final String VARIANT_COLLECTION_ABOVE = "collection_above";
     private static final String VARIANT_COLLECTION_BELOW = "collection_below";
     private static final String VARIANT_SEARCH = "search";
