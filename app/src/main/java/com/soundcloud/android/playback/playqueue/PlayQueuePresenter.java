@@ -48,9 +48,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private final PlayQueueOperations playQueueOperations;
     private final PlayQueueArtworkController artworkController;
 
-    private final SwipeTrackToRemoveHelper swipeToRemoveHelper;
     private final EventBus eventBus;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
+    private final SwipeToRemoveCallback swipeToRemoveCallback;
     private Subscription updateSubscription = RxUtils.invalidSubscription();
 
     @Bind(R.id.recycler_view) RecyclerView recyclerView;
@@ -62,14 +62,14 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
                               PlayQueueManager playQueueManager,
                               PlayQueueOperations playQueueOperations,
                               PlayQueueArtworkController playerArtworkController,
-                              SwipeTrackToRemoveHelper swipeToRemoveHelper,
+                              SwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
                               EventBus eventBus) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.artworkController = playerArtworkController;
-        this.swipeToRemoveHelper = swipeToRemoveHelper;
         this.eventBus = eventBus;
+        this.swipeToRemoveCallback = swipeToRemoveCallbackFactory.create(this);
     }
 
     @Override
@@ -91,7 +91,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         recyclerView.setHasFixedSize(false);
         recyclerView.setItemAnimator(animator);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToRemoveCallback(swipeToRemoveHelper));
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeToRemoveCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
@@ -207,6 +207,14 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         adapter.updateInRepeatMode(playQueueManager.getRepeatMode() == REPEAT_ONE);
     }
 
+    public boolean isRemovable(int position) {
+        return position > playQueueManager.getCurrentTrackPosition();
+    }
+
+    public void remove(int position) {
+        playQueueManager.removeItemAtPosition(position);
+    }
+
     private class PlaybackProgressSubscriber extends DefaultSubscriber<PlaybackProgressEvent> {
 
         @Override
@@ -258,51 +266,4 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         }
     }
 
-    static class SwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
-
-        private final SwipeTrackToRemoveHelper swipeToRemoveHelper;
-
-        public SwipeToRemoveCallback(SwipeTrackToRemoveHelper swipeToRemoveHelper) {
-            super(0, ItemTouchHelper.RIGHT);
-            this.swipeToRemoveHelper = swipeToRemoveHelper;
-        }
-
-        @Override
-        public boolean onMove(RecyclerView recyclerView,
-                              RecyclerView.ViewHolder viewHolder,
-                              RecyclerView.ViewHolder target) {
-            return false;
-        }
-
-        @Override
-        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-            if (swipeToRemoveHelper.isRemovable(viewHolder.getAdapterPosition())) {
-                return super.getMovementFlags(recyclerView, viewHolder);
-            }
-            return ItemTouchHelper.ACTION_STATE_IDLE;
-        }
-
-
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-            swipeToRemoveHelper.remove(viewHolder.getAdapterPosition());
-        }
-    }
-
-    static class SwipeTrackToRemoveHelper {
-        private final PlayQueueManager playQueueManager;
-
-        @Inject
-        SwipeTrackToRemoveHelper(PlayQueueManager playQueueManager) {
-            this.playQueueManager = playQueueManager;
-        }
-
-        public boolean isRemovable(int position) {
-            return position > playQueueManager.getCurrentTrackPosition();
-        }
-
-        public void remove(int position) {
-            playQueueManager.removeItemAtPosition(position);
-        }
-    }
 }

@@ -50,14 +50,8 @@
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"
-            style="@style/ListItemText.SecondaryText"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:layout_marginLeft="0dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/ak_light_gray"
-            android:textSize="15sp" />
+            style="@style/PlayQueue.Title"
+            android:layout_width="match_parent" />
 
     </LinearLayout>
 

@@ -25,4 +25,7 @@
     <string name="interstate_regular">fonts/InterstateSound_Pnum-Regular_fbFICLP0jJ.ttf</string>
     <string name="interstate_light">fonts/InterstateSound_Pnum-Light_fbsTfohiYZ.ttf</string>
     <string name="interstate_light_tnum">fonts/InterstateSound_Tnum-Light_fbdOS9y3d6.ttf</string>
+
+    <!-- PLAYQUEUE PROTO -->
+    <string name="playqueue_remove">Remove</string>
 </resources>

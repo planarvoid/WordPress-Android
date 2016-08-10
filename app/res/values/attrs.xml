@@ -98,4 +98,13 @@
         <attr name="foregroundDrawable" format="reference" />
     </declare-styleable>
 
+
+    <declare-styleable name="PlayQueueSwipeRemoveItem">
+        <attr name="android:textSize" />
+        <attr name="android:text" />
+        <attr name="android:background" />
+        <attr name="android:textColor" />
+        <attr name="android:paddingRight" />
+        <attr name="custom_font" />
+    </declare-styleable>
 </resources>
