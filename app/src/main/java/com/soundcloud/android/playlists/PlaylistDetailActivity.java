@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -9,6 +10,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +32,7 @@ public class PlaylistDetailActivity extends PlayerActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject FeatureFlags featureFlags;
+    @Inject Navigator navigator;
 
     public static Intent getIntent(@NotNull Urn playlistUrn, Screen screen, boolean autoPlay) {
         return getIntent(playlistUrn, screen, autoPlay, null, null);
@@ -61,6 +64,13 @@ public class PlaylistDetailActivity extends PlayerActivity {
     private void createFragmentForPlaylist() {
         Intent intent = getIntent();
         Screen screen = Screen.fromIntent(intent);
+
+        if (!intent.hasExtra(EXTRA_URN)) {
+            ErrorUtils.handleSilentException("PlaylistDetailActivity had no EXTRA_URN, screen=" + screen.get(), new IllegalArgumentException());
+            navigator.openHome(this);
+            return;
+        }
+
         Urn urn = intent.getParcelableExtra(EXTRA_URN);
         PromotedSourceInfo promotedSourceInfo = intent.getParcelableExtra(EXTRA_PROMOTED_SOURCE_INFO);
         SearchQuerySourceInfo searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
