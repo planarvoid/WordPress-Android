@@ -27,5 +27,4 @@ public class LoadPlaylistPendingRemovalCommand extends Command<Void, List<Urn>> 
                                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                                    .whereNotNull(TableColumns.Sounds.REMOVED_AT)).toList(new PlaylistUrnMapper());
     }
-
 }
