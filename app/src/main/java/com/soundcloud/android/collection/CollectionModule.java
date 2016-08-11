@@ -10,7 +10,6 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedFragment;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
-import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Module;
 import dagger.Provides;
@@ -21,7 +20,6 @@ import android.content.res.Resources;
         injects = {
                 CollectionFragment.class,
                 CollectionPreviewView.class,
-                GoOnboardingActivity.class,
                 ConfirmRemoveOfflineDialogFragment.class,
                 PlayHistoryActivity.class,
                 PlayHistoryFragment.class,
