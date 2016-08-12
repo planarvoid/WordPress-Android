@@ -6,6 +6,7 @@ import com.soundcloud.android.sync.affiliations.MyFollowingsSyncer;
 import com.soundcloud.android.sync.entities.MeSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
 import com.soundcloud.android.sync.playlists.LegacySinglePlaylistSyncer;
+import com.soundcloud.android.sync.playlists.MyPlaylistsSyncer;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.sync.posts.MyPostsSyncer;
 import dagger.Lazy;
@@ -14,8 +15,10 @@ import android.net.Uri;
 
 import javax.inject.Inject;
 
+@SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // remove this once we use playlist syncer
 public class ApiSyncerFactory {
 
+    private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
     private final Lazy<MyFollowingsSyncer> lazyMyFollowingsSyncerLazy;
@@ -23,11 +26,13 @@ public class ApiSyncerFactory {
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
 
     @Inject
-    public ApiSyncerFactory(Lazy<MyLikesSyncer> lazyMyLikesSyncer,
+    public ApiSyncerFactory(Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer,
+                            Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             Lazy<MyPostsSyncer> lazyMyPostsSyncer,
                             Lazy<MyFollowingsSyncer> lazyMyFollowingsSyncerLazy,
                             Lazy<MeSyncer> lazyMeSyncer,
                             SinglePlaylistSyncerFactory singlePlaylistSyncerFactory) {
+        this.lazyPlaylistsSyncer = lazyPlaylistsSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
         this.lazyMyFollowingsSyncerLazy = lazyMyFollowingsSyncerLazy;
@@ -44,6 +49,9 @@ public class ApiSyncerFactory {
 
             case ME_FOLLOWINGS:
                 return lazyMyFollowingsSyncerLazy.get();
+
+            case ME_PLAYLISTS:
+                return lazyPlaylistsSyncer.get();
 
             case PLAYLIST:
                 return new LegacySinglePlaylistSyncer(singlePlaylistSyncerFactory,

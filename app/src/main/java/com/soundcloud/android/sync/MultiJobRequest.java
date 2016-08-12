@@ -16,7 +16,7 @@ public class MultiJobRequest implements SyncRequest {
 
     private final List<SyncJob> syncJobs;
     private final boolean isHighPriority;
-        private final ResultReceiver resultReceiver;
+    private final ResultReceiver resultReceiver;
     private final EventBus eventBus;
 
     private final HashSet<SyncJob> jobsRemaining;

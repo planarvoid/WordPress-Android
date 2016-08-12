@@ -17,8 +17,10 @@ import com.soundcloud.android.playlists.LoadPlaylistPendingRemovalCommand;
 import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.playlists.RemovePlaylistCommand;
+import com.soundcloud.android.sync.LegacySyncResult;
 import com.soundcloud.android.sync.LegacySyncActions;
 import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.sync.SyncStrategy;
 import com.soundcloud.android.sync.posts.PostsSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.Log;
@@ -26,7 +28,10 @@ import com.soundcloud.android.utils.Urns;
 import com.soundcloud.http.HttpStatus;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import android.net.Uri;
 import android.support.v4.util.ArrayMap;
 import android.util.Pair;
 
@@ -35,9 +40,8 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
-public class MyPlaylistsSyncer implements Callable<Boolean> {
+public class MyPlaylistsSyncer implements SyncStrategy {
 
     private static final String TAG = "MyPlaylistsSyncer";
 
@@ -75,13 +79,18 @@ public class MyPlaylistsSyncer implements Callable<Boolean> {
         this.loadOfflinePlaylistsCommand = loadOfflinePlaylistsCommand;
     }
 
+    @NotNull
     @Override
-    public Boolean call() throws Exception {
+    public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
         syncPendingRemovals();
         final List<Urn> pushedPlaylists = pushLocalPlaylists();
         final boolean postedPlaylistsChanged = postsSyncer.call(pushedPlaylists);
         final boolean offlinePlaylistsChanged = syncOfflinePlaylists();
-        return postedPlaylistsChanged || offlinePlaylistsChanged;
+        final boolean changed = postedPlaylistsChanged || offlinePlaylistsChanged;
+
+        return changed
+               ? LegacySyncResult.fromSuccessfulChange(uri)
+               : LegacySyncResult.fromSuccessWithoutChange(uri);
     }
 
     private boolean syncOfflinePlaylists() {
@@ -108,9 +117,10 @@ public class MyPlaylistsSyncer implements Callable<Boolean> {
     private void syncPendingRemovals() {
         final List<Urn> removeUrns = loadPlaylistPendingRemovalCommand.call(null);
         for (Urn urn : removeUrns) {
-            final ApiResponse response = apiClient.fetchResponse(ApiRequest.delete(ApiEndpoints.PLAYLISTS_DELETE.path(urn))
-                    .forPrivateApi()
-                    .build());
+            final ApiResponse response = apiClient.fetchResponse(ApiRequest.delete(ApiEndpoints.PLAYLISTS_DELETE.path(
+                    urn))
+                                                                           .forPrivateApi()
+                                                                           .build());
             if (response.isSuccess() || isErrorIgnored(response)) {
                 removePlaylistCommand.call(urn);
             }

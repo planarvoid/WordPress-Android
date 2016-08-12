@@ -32,8 +32,10 @@ class BackgroundSyncer {
     BackgroundSyncer(@Provided AccountOperations accountOperations,
                      @Provided SyncStateStorage syncStateStorage,
                      @Provided SyncerRegistry syncerRegistry,
+
                      Context context,
                      BackgroundSyncResultReceiver resultReceiver) {
+
         this.accountOperations = accountOperations;
         this.syncStateStorage = syncStateStorage;
         this.syncerRegistry = syncerRegistry;

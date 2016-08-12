@@ -48,12 +48,15 @@ public class PlaylistStorage {
     }
 
     public boolean hasLocalChanges() {
-        final QueryResult queryResult =
-                propeller.query(apply(exists(from(Table.Sounds.name())
-                        .select(TableColumns.SoundView._ID, TableColumns.Sounds.REMOVED_AT)
-                        .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                        .whereLt(TableColumns.Sounds._ID, 0)).as("has_local_playlists")
-                        .orWhereNotNull(TableColumns.Sounds.REMOVED_AT)));
+        final QueryResult queryResult = propeller.query(apply(exists(from(Table.Sounds.name())
+                                                                             .select(TableColumns.SoundView._ID,
+                                                                                     TableColumns.Sounds.REMOVED_AT)
+                                                                             .whereEq(TableColumns.SoundView._TYPE,
+                                                                                      TableColumns.Sounds.TYPE_PLAYLIST)
+                                                                             .whereLt(TableColumns.Sounds._ID, 0)).as(
+                "has_local_playlists")
+                                                                                                                  .orWhereNotNull(
+                                                                                                                          TableColumns.Sounds.REMOVED_AT)));
         return queryResult.first(Boolean.class);
     }
 
