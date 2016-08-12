@@ -32,7 +32,7 @@ public class EntitySyncRequestFactory {
 
     public EntitySyncRequest create(Syncable syncable, List<Urn> entities, ResultReceiver resultReceiver) {
         checkArgument(entities != null, "Requested a resource sync without providing urns...");
-        final EntitySyncJob syncJob = getEntitySyncJob(syncable);
+        EntitySyncJob syncJob = getEntitySyncJob(syncable);
         syncJob.setUrns(entities);
         return new EntitySyncRequest(syncJob, syncable, eventBus, resultReceiver);
     }
