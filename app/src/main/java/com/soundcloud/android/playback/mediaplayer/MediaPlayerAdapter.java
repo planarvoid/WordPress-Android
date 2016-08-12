@@ -75,7 +75,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
-    private PlaybackItem currentItem;
+    @Nullable private PlaybackItem currentItem;
     private int connectionRetries = 0;
     private float volume = 1.0f;
 
@@ -233,11 +233,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     private boolean isThirdPartyAudio() {
-        return AdUtils.isThirdPartyAudioAd(currentItem.getUrn());
+        return currentItem != null && AdUtils.isThirdPartyAudioAd(currentItem.getUrn());
     }
 
     private boolean isPlayingVideo() {
-        return currentItem.getPlaybackType() == VIDEO_AD;
+        return currentItem != null && currentItem.getPlaybackType() == VIDEO_AD;
     }
 
     private PlaybackProtocol getPlaybackProtocol() {
