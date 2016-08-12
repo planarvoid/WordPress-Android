@@ -66,28 +66,28 @@ public class YouScreen extends Screen {
     }
 
     private ViewElement activityLink() {
-        return testDriver.findOnScreenElement(With.id(R.id.you_activity_link));
+        return testDriver.findOnScreenElement(With.id(R.id.more_activity_link));
     }
 
     private ViewElement exploreLink() {
-        return testDriver.findOnScreenElement(With.id(R.id.you_explore_link));
+        return testDriver.findOnScreenElement(With.id(R.id.more_explore_link));
     }
 
     private ViewElement recordLink() {
-        return testDriver.findOnScreenElement(With.id(R.id.you_record_link));
+        return testDriver.findOnScreenElement(With.id(R.id.more_record_link));
     }
 
     private ViewElement basicSettingsLink() {
-        return testDriver.findOnScreenElement(With.id(R.id.you_basic_settings_link));
+        return testDriver.findOnScreenElement(With.id(R.id.more_basic_settings_link));
     }
 
     private ViewElement offlineSettingsLink() {
-        return testDriver.findOnScreenElement(With.id(R.id.you_offline_sync_settings_link));
+        return testDriver.findOnScreenElement(With.id(R.id.more_offline_sync_settings_link));
     }
 
     private ViewElement signoutLink() {
         testDriver.scrollToBottom();
-        return testDriver.findOnScreenElement(With.id(R.id.you_sign_out_link));
+        return testDriver.findOnScreenElement(With.id(R.id.more_sign_out_link));
     }
 
     private TextElement username() {

@@ -1,4 +1,4 @@
-package com.soundcloud.android.you;
+package com.soundcloud.android.more;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.same;
@@ -39,17 +39,17 @@ import android.view.View;
 
 import java.util.List;
 
-public class YouPresenterTest extends AndroidUnitTest {
+public class MoreTabPresenterTest extends AndroidUnitTest {
 
     private static final PropertySet USER = TestPropertySets.user();
     private static final Urn USER_URN = USER.get(UserProperty.URN);
 
-    private YouPresenter presenter;
+    private MoreTabPresenter presenter;
 
-    @Mock private YouViewFactory youViewFactory;
-    @Mock private YouFragment fragment;
+    @Mock private MoreViewFactory moreViewFactory;
+    @Mock private MoreFragment fragment;
     @Mock private View fragmentView;
-    @Mock private YouView youView;
+    @Mock private MoreView moreView;
     @Mock private UserRepository userRepository;
     @Mock private AccountOperations accountOperations;
     @Mock private ImageOperations imageOperations;
@@ -62,26 +62,26 @@ public class YouPresenterTest extends AndroidUnitTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private OfflineSettingsStorage storage;
 
-    @Captor private ArgumentCaptor<YouView.Listener> listenerArgumentCaptor;
+    @Captor private ArgumentCaptor<MoreView.Listener> listenerArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        presenter = new YouPresenter(youViewFactory,
-                                     userRepository,
-                                     accountOperations,
-                                     imageOperations,
-                                     resources(),
-                                     eventBus,
-                                     featureOperations,
-                                     offlineContentOperations,
-                                     navigator,
-                                     bugReporter,
-                                     appProperties,
-                                     storage);
+        presenter = new MoreTabPresenter(moreViewFactory,
+                                      userRepository,
+                                      accountOperations,
+                                      imageOperations,
+                                      resources(),
+                                      eventBus,
+                                      featureOperations,
+                                      offlineContentOperations,
+                                      navigator,
+                                      bugReporter,
+                                      appProperties,
+                                      storage);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
-        when(youViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(youView);
+        when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
     }
 
@@ -89,8 +89,8 @@ public class YouPresenterTest extends AndroidUnitTest {
     public void onCreateDoesNothingWithNoView() {
         presenter.onCreate(fragment, null);
 
-        verifyZeroInteractions(youViewFactory);
-        verifyZeroInteractions(youView);
+        verifyZeroInteractions(moreViewFactory);
+        verifyZeroInteractions(moreView);
     }
 
     @Test
@@ -131,10 +131,28 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onViewCreatedShowsGoIndicatorForGoUsers() {
+        when(featureOperations.hasGoPlan()).thenReturn(true);
+
+        setupForegroundFragment();
+
+        verify(moreView).showGoIndicator(true);
+    }
+
+    @Test
+    public void onViewCreatedDoesNotShowGoIndicatorForFreeUsers() {
+        when(featureOperations.hasGoPlan()).thenReturn(false);
+
+        setupForegroundFragment();
+
+        verify(moreView).showGoIndicator(false);
+    }
+
+    @Test
     public void hidesOfflineSettingsWithNoOfflineContentOrAccess() {
         setupForegroundFragment();
 
-        verify(youView).hideOfflineSettings();
+        verify(moreView).hideOfflineSettings();
     }
 
     @Test
@@ -143,7 +161,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
         setupForegroundFragment();
 
-        verify(youView).showOfflineSettings();
+        verify(moreView).showOfflineSettings();
     }
 
     @Test
@@ -152,7 +170,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
         setupForegroundFragment();
 
-        verify(youView).showOfflineSettings();
+        verify(moreView).showOfflineSettings();
     }
 
     @Test
@@ -161,7 +179,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
         setupForegroundFragment();
 
-        verify(youView).showOfflineSettings();
+        verify(moreView).showOfflineSettings();
     }
 
     @Test
@@ -170,7 +188,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
         setupForegroundFragment();
 
-        verify(youView).showReportBug();
+        verify(moreView).showReportBug();
     }
 
     @Test
@@ -303,14 +321,14 @@ public class YouPresenterTest extends AndroidUnitTest {
         setupForegroundFragment();
         presenter.onDestroyView(fragment);
 
-        verify(youView).unbind();
+        verify(moreView).unbind();
     }
 
     @Test
     public void resetScrollDoesNothingWithNoView() {
         presenter.resetScroll();
 
-        verifyZeroInteractions(youView);
+        verifyZeroInteractions(moreView);
     }
 
     @Test
@@ -319,7 +337,7 @@ public class YouPresenterTest extends AndroidUnitTest {
 
         presenter.resetScroll();
 
-        verify(youView).resetScroll();
+        verify(moreView).resetScroll();
     }
 
     private void setupForegroundFragment() {
@@ -328,6 +346,6 @@ public class YouPresenterTest extends AndroidUnitTest {
     }
 
     private void verifyUserBound() {
-        verify(youView).setUsername(USER.get(UserProperty.USERNAME));
+        verify(moreView).setUsername(USER.get(UserProperty.USERNAME));
     }
 }

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="You" parent="TextAppearance.SoundCloudLightFont" />
+    <style name="More" parent="TextAppearance.SoundCloudLightFont" />
 
-    <style name="You.Container">
+    <style name="More.Container">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="You.Header">
+    <style name="More.Header">
         <item name="android:background">@android:color/white</item>
         <item name="android:padding">@dimen/default_list_item_padding</item>
     </style>
 
-    <style name="You.HeaderImage">
+    <style name="More.HeaderImage">
         <item name="android:layout_width">@dimen/profile_image_dimen</item>
         <item name="android:layout_height">@dimen/profile_image_dimen</item>
         <item name="android:scaleType">centerCrop</item>
@@ -22,55 +22,68 @@
         <item name="cbiv_borderWidth">@dimen/user_image_border_width</item>
     </style>
 
-    <style name="You.HeaderText">
+    <style name="More.HeaderText">
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginRight">16dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="You.HeaderText.Username">
-        <item name="android:textAppearance">@style/TextAppearance.You.Username</item>
+    <style name="More.HeaderText.Username">
+        <item name="android:textAppearance">@style/TextAppearance.More.Username</item>
     </style>
 
-    <style name="You.HeaderText.ProfileLink">
-        <item name="android:textAppearance">@style/TextAppearance.You.ProfileLink</item>
+    <style name="More.HeaderText.ProfileLink">
+        <item name="android:textAppearance">@style/TextAppearance.More.ProfileLink</item>
     </style>
 
-    <style name="You.NavItem">
+    <style name="More.HeaderText.GoIndicator">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingBottom">1dp</item>
+        <item name="android:text">@string/more_go_indicator</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/ak_sc_orange</item>
+        <item name="android:background">@drawable/more_high_tier_label_bg</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="More.NavItem">
         <item name="android:padding">16dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">@style/TextAppearance.You.NavItem</item>
+        <item name="android:textAppearance">@style/TextAppearance.More.NavItem</item>
         <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
-    <style name="You.VersionText">
+    <style name="More.VersionText">
         <item name="android:paddingTop">32dp</item>
         <item name="android:paddingBottom">32dp</item>
         <item name="android:gravity">center|top</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:textAppearance">@style/TextAppearance.You.Version</item>
+        <item name="android:textAppearance">@style/TextAppearance.More.Version</item>
         <item name="android:background">@color/page_background</item>
     </style>
 
-    <style name="TextAppearance.You" />
+    <style name="TextAppearance.More" />
 
-    <style name="TextAppearance.You.Username">
+    <style name="TextAppearance.More.Username">
         <item name="android:textSize">16sp</item>
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/dark_gray_text</item>
     </style>
 
-    <style name="TextAppearance.You.ProfileLink">
+    <style name="TextAppearance.More.ProfileLink">
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/gray_text</item>
     </style>
 
-    <style name="TextAppearance.You.NavItem">
+    <style name="TextAppearance.More.NavItem">
         <item name="android:textSize">14sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/dark_gray_text</item>
@@ -78,7 +91,7 @@
         <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
-    <style name="TextAppearance.You.Version">
+    <style name="TextAppearance.More.Version">
         <item name="android:textSize">12sp</item>
         <item name="android:singleLine">true</item>
         <item name="android:textColor">@color/you_version_text</item>

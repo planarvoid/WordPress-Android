@@ -1,4 +1,4 @@
-package com.soundcloud.android.you;
+package com.soundcloud.android.more;
 
 import static com.soundcloud.android.settings.SettingKey.CLEAR_CACHE;
 

@@ -1,4 +1,4 @@
-package com.soundcloud.android.you;
+package com.soundcloud.android.more;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.BaseNavigationTarget;
@@ -6,15 +6,15 @@ import com.soundcloud.android.main.Screen;
 
 import android.support.v4.app.Fragment;
 
-public class YouNavigationTarget extends BaseNavigationTarget {
+public class MoreNavigationTarget extends BaseNavigationTarget {
 
-    public YouNavigationTarget() {
-        super(R.string.tab_you, R.drawable.tab_you);
+    public MoreNavigationTarget() {
+        super(R.string.tab_more, R.drawable.tab_more);
     }
 
     @Override
     public Fragment createFragment() {
-        return new YouFragment();
+        return new MoreFragment();
     }
 
     @Override

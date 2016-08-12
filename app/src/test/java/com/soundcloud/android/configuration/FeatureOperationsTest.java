@@ -181,4 +181,25 @@ public class FeatureOperationsTest {
         assertThat(featureOperations.getCurrentPlan()).isEqualTo(Plan.HIGH_TIER);
     }
 
+    @Test
+    public void hasGoPlanIsTrueForMidTier() {
+        when(planStorage.getPlan()).thenReturn(Plan.MID_TIER);
+
+        assertThat(featureOperations.hasGoPlan()).isTrue();
+    }
+
+    @Test
+    public void haGoPlanIsTrueForHighTier() {
+        when(planStorage.getPlan()).thenReturn(Plan.HIGH_TIER);
+
+        assertThat(featureOperations.hasGoPlan()).isTrue();
+    }
+
+    @Test
+    public void hasGoPlanIsFalseForFreeTier() {
+        when(planStorage.getPlan()).thenReturn(Plan.FREE_TIER);
+
+        assertThat(featureOperations.hasGoPlan()).isFalse();
+    }
+
 }

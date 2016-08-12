@@ -41,7 +41,7 @@ import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.waveform.WaveformData;
-import com.soundcloud.android.you.YouNavigationTarget;
+import com.soundcloud.android.more.MoreNavigationTarget;
 import com.soundcloud.reporting.FabricReporter;
 import com.soundcloud.rx.eventbus.DefaultEventBus;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -113,7 +113,7 @@ public class ApplicationModule {
                 new StreamNavigationTarget(),
                 new DiscoveryNavigationTarget(),
                 new CollectionNavigationTarget(),
-                new YouNavigationTarget());
+                new MoreNavigationTarget());
     }
 
     @Provides

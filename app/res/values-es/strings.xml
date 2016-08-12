@@ -616,19 +616,19 @@
   <string name="tab_home">Inicio</string>
   <string name="tab_discovery">Descubrir</string>
   <string name="tab_collection">Colección</string>
-  <string name="tab_you">Más</string>
+  <string name="tab_more">Más</string>
   <!--__YOU-->
-  <string name="you_explore">Explorar</string>
-  <string name="you_activity">Notificaciones</string>
-  <string name="you_record">Grabar</string>
-  <string name="you_notification_settings">Configuración de notificaciones</string>
-  <string name="you_basic_settings">Configuración básica</string>
-  <string name="you_report_bug">Informar sobre error</string>
-  <string name="you_help_center">Ayuda</string>
-  <string name="you_legal">Legal</string>
-  <string name="you_sign_out">Cerrar sesión</string>
-  <string name="you_view_public_profile">Ver perfil público</string>
-  <string name="you_app_version">Versión %s de la app</string>
+  <string name="more_explore">Explorar</string>
+  <string name="more_activity">Notificaciones</string>
+  <string name="more_record">Grabar</string>
+  <string name="more_notification_settings">Configuración de notificaciones</string>
+  <string name="more_basic_settings">Configuración básica</string>
+  <string name="more_report_bug">Informar sobre error</string>
+  <string name="more_help_center">Ayuda</string>
+  <string name="more_legal">Legal</string>
+  <string name="more_sign_out">Cerrar sesión</string>
+  <string name="more_view_public_profile">Ver perfil público</string>
+  <string name="more_app_version">Versión %s de la app</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s una lista</string>
   <string name="stream_track_header_text">%1$s %2$s una pista</string>

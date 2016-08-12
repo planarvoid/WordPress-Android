@@ -31,7 +31,7 @@ public class MainTabs extends Tabs {
     }
 
     public YouScreen clickYou() {
-        getTabWith(contentDescription(testDriver.getString(R.string.tab_you))).click();
+        getTabWith(contentDescription(testDriver.getString(R.string.tab_more))).click();
         return new YouScreen(testDriver);
     }
 }

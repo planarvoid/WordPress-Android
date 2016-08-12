@@ -617,19 +617,19 @@
   <string name="tab_home">Accueil</string>
   <string name="tab_discovery">Découverte</string>
   <string name="tab_collection">Collection</string>
-  <string name="tab_you">Plus</string>
+  <string name="tab_more">Plus</string>
   <!--__YOU-->
-  <string name="you_explore">Explorer</string>
-  <string name="you_activity">Notifications</string>
-  <string name="you_record">Enregistrer</string>
-  <string name="you_notification_settings">Paramètres de notification</string>
-  <string name="you_basic_settings">Configuration basique</string>
-  <string name="you_report_bug">Signaler un bug</string>
-  <string name="you_help_center">Centre d\'assistance</string>
-  <string name="you_legal">Mentions légales</string>
-  <string name="you_sign_out">Déconnexion</string>
-  <string name="you_view_public_profile">Afficher le profil public</string>
-  <string name="you_app_version">Version de l\'application : %s</string>
+  <string name="more_explore">Explorer</string>
+  <string name="more_activity">Notifications</string>
+  <string name="more_record">Enregistrer</string>
+  <string name="more_notification_settings">Paramètres de notification</string>
+  <string name="more_basic_settings">Configuration basique</string>
+  <string name="more_report_bug">Signaler un bug</string>
+  <string name="more_help_center">Centre d\'assistance</string>
+  <string name="more_legal">Mentions légales</string>
+  <string name="more_sign_out">Déconnexion</string>
+  <string name="more_view_public_profile">Afficher le profil public</string>
+  <string name="more_app_version">Version de l\'application : %s</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s une playlist</string>
   <string name="stream_track_header_text">%1$s %2$s un titre</string>

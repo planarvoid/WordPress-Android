@@ -58,6 +58,10 @@ public class FeatureOperations {
                 && isFeatureAvailableViaUpgrade(FeatureName.REMOVE_AUDIO_ADS);
     }
 
+    public boolean hasGoPlan() {
+        return getCurrentPlan() == Plan.HIGH_TIER || getCurrentPlan() == Plan.MID_TIER;
+    }
+
     private boolean isFeatureAvailableViaUpgrade(String featureName) {
         return isFeatureAvailableInPlan(featureName, Plan.HIGH_TIER)
                 && upsellHighTier();

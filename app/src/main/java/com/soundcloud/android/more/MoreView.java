@@ -1,4 +1,4 @@
-package com.soundcloud.android.you;
+package com.soundcloud.android.more;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -15,19 +15,20 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 @AutoFactory(allowSubclasses = true)
-public class YouView implements ScrollContent {
+public class MoreView implements ScrollContent {
 
     private Listener listener;
 
     @Bind(R.id.header_layout) View headerLayout;
     @Bind(R.id.image) ImageView profileImageView;
     @Bind(R.id.username) TextView username;
-    @Bind(R.id.you_version_text) TextView versionText;
-    @Bind(R.id.you_offline_sync_settings_link) View offlineSettingsView;
-    @Bind(R.id.you_report_bug) View reportBug;
+    @Bind(R.id.more_version_text) TextView versionText;
+    @Bind(R.id.more_offline_sync_settings_link) View offlineSettingsView;
+    @Bind(R.id.more_report_bug) View reportBug;
     @Bind(R.id.scroll_view) ScrollView scrollView;
+    @Bind(R.id.more_go_indicator) View goIndicator;
 
-    YouView(View view, final Listener listener) {
+    MoreView(View view, final Listener listener) {
         this.listener = listener;
         ButterKnife.bind(this, view);
 
@@ -39,8 +40,12 @@ public class YouView implements ScrollContent {
         scrollView.smoothScrollTo(0, 0);
     }
 
+    public void showGoIndicator(boolean showGoIndicator) {
+        goIndicator.setVisibility(showGoIndicator ? View.VISIBLE : View.GONE);
+    }
+
     private void setAppVersionString(Resources resources) {
-        final String appVersionString = resources.getString(R.string.you_app_version, BuildConfig.VERSION_NAME);
+        final String appVersionString = resources.getString(R.string.more_app_version, BuildConfig.VERSION_NAME);
         versionText.setText(appVersionString);
     }
 
@@ -72,70 +77,70 @@ public class YouView implements ScrollContent {
         }
     }
 
-    @OnClick(R.id.you_explore_link)
+    @OnClick(R.id.more_explore_link)
     void onExploreLinkClicked(View view) {
         if (listener != null) {
             listener.onExploreClicked(view);
         }
     }
 
-    @OnClick(R.id.you_activity_link)
+    @OnClick(R.id.more_activity_link)
     void onActivityLinkClicked(View view) {
         if (listener != null) {
             listener.onActivitiesClicked(view);
         }
     }
 
-    @OnClick(R.id.you_record_link)
+    @OnClick(R.id.more_record_link)
     void onRecordLinkClicked(View view) {
         if (listener != null) {
             listener.onRecordClicked(view);
         }
     }
 
-    @OnClick(R.id.you_offline_sync_settings_link)
+    @OnClick(R.id.more_offline_sync_settings_link)
     void onOfflineSyncSettingsClicked(View view) {
         if (listener != null) {
             listener.onOfflineSettingsClicked(view);
         }
     }
 
-    @OnClick(R.id.you_notification_preferences_link)
+    @OnClick(R.id.more_notification_preferences_link)
     void onNotificationSettingsClicked(View view) {
         if (listener != null) {
             listener.onNotificationPreferencesClicked(view);
         }
     }
 
-    @OnClick(R.id.you_basic_settings_link)
+    @OnClick(R.id.more_basic_settings_link)
     void onBasicSettingsClicked(View view) {
         if (listener != null) {
             listener.onBasicSettingsClicked(view);
         }
     }
 
-    @OnClick(R.id.you_report_bug)
+    @OnClick(R.id.more_report_bug)
     void onReportBugClicked(View view) {
         if (listener != null) {
             listener.onReportBugClicked(view);
         }
     }
 
-    @OnClick(R.id.you_help_center_link)
+    @OnClick(R.id.more_help_center_link)
     void onHelpCenterClicked(View view) {
         if (listener != null) {
             listener.onHelpCenterClicked(view);
         }
     }
 
-    @OnClick(R.id.you_legal_link)
+    @OnClick(R.id.more_legal_link)
     void onLegalClicked(View view) {
         if (listener != null) {
             listener.onLegalClicked(view);
         }
     }
 
-    @OnClick(R.id.you_sign_out_link)
+    @OnClick(R.id.more_sign_out_link)
     void onSignOutClicked(View view) {
         if (listener != null) {
             listener.onSignOutClicked(view);

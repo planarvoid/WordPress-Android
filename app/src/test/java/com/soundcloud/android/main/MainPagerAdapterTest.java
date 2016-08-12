@@ -57,7 +57,7 @@ public class MainPagerAdapterTest extends AndroidUnitTest {
             }
         };
 
-        BaseNavigationTarget page2 = new BaseNavigationTarget(R.string.tab_you, R.drawable.tab_you) {
+        BaseNavigationTarget page2 = new BaseNavigationTarget(R.string.tab_more, R.drawable.tab_more) {
             @Override
             public Fragment createFragment() {
                 return fragment1;

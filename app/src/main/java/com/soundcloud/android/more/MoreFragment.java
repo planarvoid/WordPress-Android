@@ -1,4 +1,4 @@
-package com.soundcloud.android.you;
+package com.soundcloud.android.more;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -14,11 +14,11 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class YouFragment extends LightCycleSupportFragment<YouFragment> implements ScrollContent {
+public class MoreFragment extends LightCycleSupportFragment<MoreFragment> implements ScrollContent {
 
-    @Inject @LightCycle YouPresenter presenter;
+    @Inject @LightCycle MoreTabPresenter presenter;
 
-    public YouFragment() {
+    public MoreFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
     }
@@ -32,6 +32,6 @@ public class YouFragment extends LightCycleSupportFragment<YouFragment> implemen
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.you, container, false);
+        return inflater.inflate(R.layout.more, container, false);
     }
 }

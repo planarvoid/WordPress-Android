@@ -1,4 +1,4 @@
-package com.soundcloud.android.you;
+package com.soundcloud.android.more;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
@@ -33,10 +33,10 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment>
-        implements YouView.Listener, ScrollContent {
+public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragment>
+        implements MoreView.Listener, ScrollContent {
 
-    private final YouViewFactory youViewFactory;
+    private final MoreViewFactory moreViewFactory;
     private final UserRepository userRepository;
     private final AccountOperations accountOperations;
     private final ImageOperations imageOperations;
@@ -49,23 +49,23 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment>
     private final ApplicationProperties appProperties;
     private final OfflineSettingsStorage settingsStorage;
 
-    private Optional<YouView> youViewOpt = Optional.absent();
-    private Optional<You> youOpt = Optional.absent();
+    private Optional<MoreView> moreViewOpt = Optional.absent();
+    private Optional<More> moreOpt = Optional.absent();
 
     @Inject
-    public YouPresenter(YouViewFactory youViewFactory,
-                        UserRepository userRepository,
-                        AccountOperations accountOperations,
-                        ImageOperations imageOperations,
-                        Resources resources,
-                        EventBus eventBus,
-                        FeatureOperations featureOperations,
-                        OfflineContentOperations offlineContentOperations,
-                        Navigator navigator,
-                        BugReporter bugReporter,
-                        ApplicationProperties appProperties,
-                        OfflineSettingsStorage settingsStorage) {
-        this.youViewFactory = youViewFactory;
+    public MoreTabPresenter(MoreViewFactory moreViewFactory,
+                            UserRepository userRepository,
+                            AccountOperations accountOperations,
+                            ImageOperations imageOperations,
+                            Resources resources,
+                            EventBus eventBus,
+                            FeatureOperations featureOperations,
+                            OfflineContentOperations offlineContentOperations,
+                            Navigator navigator,
+                            BugReporter bugReporter,
+                            ApplicationProperties appProperties,
+                            OfflineSettingsStorage settingsStorage) {
+        this.moreViewFactory = moreViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
         this.imageOperations = imageOperations;
@@ -80,81 +80,81 @@ public class YouPresenter extends DefaultSupportFragmentLightCycle<YouFragment>
     }
 
     @Override
-    public void onCreate(YouFragment fragment, Bundle bundle) {
+    public void onCreate(MoreFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
         userRepository.userInfo(accountOperations.getLoggedInUserUrn())
                       .observeOn(AndroidSchedulers.mainThread())
-                      .subscribe(new YouSubscriber());
+                      .subscribe(new MoreSubscriber());
     }
 
     @Override
-    public void onViewCreated(YouFragment fragment, View view, Bundle savedInstanceState) {
+    public void onViewCreated(MoreFragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        final YouView youView = youViewFactory.create(view, this);
-        youViewOpt = Optional.of(youView);
+        final MoreView moreView = moreViewFactory.create(view, this);
+        moreViewOpt = Optional.of(moreView);
 
-        setupOfflineSync(youView);
-        setupFeedback(youView);
+        setupOfflineSync(moreView);
+        setupFeedback(moreView);
         bindUserIfPresent();
     }
 
     @Override
     public void resetScroll() {
-        if (youViewOpt.isPresent()) {
-            youViewOpt.get().resetScroll();
+        if (moreViewOpt.isPresent()) {
+            moreViewOpt.get().resetScroll();
         }
     }
 
-    private void setupOfflineSync(YouView youView) {
+    private void setupOfflineSync(MoreView moreView) {
         if (featureOperations.isOfflineContentEnabled() || offlineContentOperations.hasOfflineContent()) {
-            youView.showOfflineSettings();
+            moreView.showOfflineSettings();
         } else if (featureOperations.upsellHighTier()) {
-            youView.showOfflineSettings();
+            moreView.showOfflineSettings();
             eventBus.publish(EventQueue.TRACKING, UpgradeFunnelEvent.forSettingsImpression());
         } else {
-            youView.hideOfflineSettings();
+            moreView.hideOfflineSettings();
         }
     }
 
-    private void setupFeedback(YouView youView) {
+    private void setupFeedback(MoreView moreView) {
         if (appProperties.shouldAllowFeedback()) {
-            youView.showReportBug();
+            moreView.showReportBug();
         }
     }
 
     @Override
-    public void onDestroyView(YouFragment fragment) {
-        if (youViewOpt.isPresent()) {
-            youViewOpt.get().unbind();
+    public void onDestroyView(MoreFragment fragment) {
+        if (moreViewOpt.isPresent()) {
+            moreViewOpt.get().unbind();
         }
         super.onDestroyView(fragment);
     }
 
     private void bindUserIfPresent() {
-        if (youViewOpt.isPresent() && youOpt.isPresent()) {
-            final YouView headerView = youViewOpt.get();
-            final You you = youOpt.get();
-            bindUser(headerView, you);
+        if (moreViewOpt.isPresent() && moreOpt.isPresent()) {
+            final MoreView headerView = moreViewOpt.get();
+            bindUser(headerView, moreOpt.get());
         }
     }
 
-    private void bindUser(YouView headerView, You you) {
-        headerView.setUsername(you.getUsername());
-        imageOperations.displayCircularWithPlaceholder(you,
+    private void bindUser(MoreView headerView, More more) {
+        headerView.setUsername(more.getUsername());
+        headerView.showGoIndicator(featureOperations.hasGoPlan());
+        imageOperations.displayCircularWithPlaceholder(more,
                                                        ApiImageSize.getFullImageSize(resources),
                                                        headerView.getProfileImageView());
     }
 
-    private class YouSubscriber extends DefaultSubscriber<PropertySet> {
+    private class MoreSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
         public void onNext(PropertySet user) {
-            youOpt = Optional.of(new You(user));
+            moreOpt = Optional.of(new More(user));
             bindUserIfPresent();
         }
 
         @Override
         public void onError(Throwable e) {
-            youOpt = Optional.absent();
+            moreOpt = Optional.absent();
         }
     }
 

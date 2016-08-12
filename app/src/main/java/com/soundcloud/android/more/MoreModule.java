@@ -1,13 +1,13 @@
-package com.soundcloud.android.you;
+package com.soundcloud.android.more;
 
 import com.soundcloud.android.ApplicationModule;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                YouFragment.class
+                MoreFragment.class
         }
 )
-public class YouModule {
+public class MoreModule {
 
 }

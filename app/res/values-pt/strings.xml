@@ -609,19 +609,19 @@ vão aparecer aqui.</string>
   <string name="tab_home">Início</string>
   <string name="tab_discovery">Descoberta</string>
   <string name="tab_collection">Colecção</string>
-  <string name="tab_you">Mais</string>
+  <string name="tab_more">Mais</string>
   <!--__YOU-->
-  <string name="you_explore">Explorar</string>
-  <string name="you_activity">Notificações</string>
-  <string name="you_record">Gravar</string>
-  <string name="you_notification_settings">Configurações de notificação</string>
-  <string name="you_basic_settings">Configurações básicas</string>
-  <string name="you_report_bug">Relatar bug</string>
-  <string name="you_help_center">Central de ajuda</string>
-  <string name="you_legal">Legal</string>
-  <string name="you_sign_out">Sair</string>
-  <string name="you_view_public_profile">Ver perfil público</string>
-  <string name="you_app_version">Versão %s do aplicativo</string>
+  <string name="more_explore">Explorar</string>
+  <string name="more_activity">Notificações</string>
+  <string name="more_record">Gravar</string>
+  <string name="more_notification_settings">Configurações de notificação</string>
+  <string name="more_basic_settings">Configurações básicas</string>
+  <string name="more_report_bug">Relatar bug</string>
+  <string name="more_help_center">Central de ajuda</string>
+  <string name="more_legal">Legal</string>
+  <string name="more_sign_out">Sair</string>
+  <string name="more_view_public_profile">Ver perfil público</string>
+  <string name="more_app_version">Versão %s do aplicativo</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s uma playlist</string>
   <string name="stream_track_header_text">%1$s %2$s uma faixa</string>

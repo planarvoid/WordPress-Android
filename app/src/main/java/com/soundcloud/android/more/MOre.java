@@ -1,4 +1,4 @@
-package com.soundcloud.android.you;
+package com.soundcloud.android.more;
 
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.EntityProperty;
@@ -7,11 +7,11 @@ import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
-class You implements ImageResource {
+class More implements ImageResource {
 
     private final PropertySet source;
 
-    You(PropertySet source) {
+    More(PropertySet source) {
         this.source = source;
     }
 
@@ -28,4 +28,5 @@ class You implements ImageResource {
     public Optional<String> getImageUrlTemplate() {
         return source.get(EntityProperty.IMAGE_URL_TEMPLATE);
     }
+
 }
