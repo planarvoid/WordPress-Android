@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.ads.VideoSource;
+import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -34,9 +34,9 @@ import static com.soundcloud.android.playback.PlaybackConstants.RESOLUTION_PX_72
 public class VideoSourceProvider {
 
     private static final List<String> SUPPORTED_FORMATS = Collections.singletonList(PlaybackConstants.MIME_TYPE_MP4);
-    private static final Predicate<VideoSource> SUPPORTED_FORMAT_PREDICATE = new Predicate<VideoSource>() {
+    private static final Predicate<VideoAdSource> SUPPORTED_FORMAT_PREDICATE = new Predicate<VideoAdSource>() {
         @Override
-        public boolean apply(VideoSource source) {
+        public boolean apply(VideoAdSource source) {
             return SUPPORTED_FORMATS.contains(source.getType());
         }
     };
@@ -46,7 +46,7 @@ public class VideoSourceProvider {
     private final MediaCodecInfoProvider mediaCodecInfoProvider;
     private final NetworkConnectionHelper networkConnectionHelper;
 
-    private Optional<VideoSource> currentSource = Optional.absent();
+    private Optional<VideoAdSource> currentSource = Optional.absent();
 
     @Inject
     public VideoSourceProvider(ApplicationProperties applicationProperties,
@@ -59,18 +59,18 @@ public class VideoSourceProvider {
         this.networkConnectionHelper = networkConnectionHelper;
     }
 
-    public Optional<VideoSource> getCurrentSource() {
+    public Optional<VideoAdSource> getCurrentSource() {
         return currentSource;
     }
 
-    public VideoSource selectOptimalSource(VideoAdPlaybackItem videoPlaybackItem) {
-        final List<VideoSource> sources = new ArrayList<>(videoPlaybackItem.getSources());
-        Collections.sort(sources, VideoSource.BITRATE_COMPARATOR);
+    public VideoAdSource selectOptimalSource(VideoAdPlaybackItem videoPlaybackItem) {
+        final List<VideoAdSource> sources = new ArrayList<>(videoPlaybackItem.getSources());
+        Collections.sort(sources, VideoAdSource.BITRATE_COMPARATOR);
 
-        final Collection<VideoSource> supportedFormatSources = MoreCollections.filter(sources,
+        final Collection<VideoAdSource> supportedFormatSources = MoreCollections.filter(sources,
                                                                                       SUPPORTED_FORMAT_PREDICATE);
         if (!supportedFormatSources.isEmpty()) {
-            final Collection<VideoSource> supportedResolutionSources = MoreCollections.filter(supportedFormatSources,
+            final Collection<VideoAdSource> supportedResolutionSources = MoreCollections.filter(supportedFormatSources,
                                                                                               new SupportedResolutionPredicate(
                                                                                                       maxResolutionForDevice()));
             if (supportedResolutionSources.isEmpty()) {
@@ -84,9 +84,9 @@ public class VideoSourceProvider {
         }
     }
 
-    private VideoSource selectSuitableBitrate(Collection<VideoSource> sources) {
+    private VideoAdSource selectSuitableBitrate(Collection<VideoAdSource> sources) {
         final int maxNetworkBitrate = maxBitrateForConnection(networkConnectionHelper.getCurrentConnectionType());
-        final Collection<VideoSource> suitableBitrateSources = MoreCollections.filter(sources,
+        final Collection<VideoAdSource> suitableBitrateSources = MoreCollections.filter(sources,
                                                                                       new SuitableBitratePredicate(
                                                                                               maxNetworkBitrate));
 
@@ -129,7 +129,7 @@ public class VideoSourceProvider {
         }
     }
 
-    private static class SupportedResolutionPredicate implements Predicate<VideoSource> {
+    private static class SupportedResolutionPredicate implements Predicate<VideoAdSource> {
 
         private final int maxResolution;
 
@@ -138,13 +138,13 @@ public class VideoSourceProvider {
         }
 
         @Override
-        public boolean apply(VideoSource source) {
+        public boolean apply(VideoAdSource source) {
             // Resolution refers to the smaller dimension. (e.g. 1080x1920 & 1920x1080 -> 1080p)
             return Math.min(source.getHeight(), source.getWidth()) <= maxResolution;
         }
     }
 
-    private static class SuitableBitratePredicate implements Predicate<VideoSource> {
+    private static class SuitableBitratePredicate implements Predicate<VideoAdSource> {
 
         private final int maxBitrateKbps;
 
@@ -153,7 +153,7 @@ public class VideoSourceProvider {
         }
 
         @Override
-        public boolean apply(VideoSource source) {
+        public boolean apply(VideoAdSource source) {
             return source.getBitRateKbps() <= maxBitrateKbps;
         }
     }

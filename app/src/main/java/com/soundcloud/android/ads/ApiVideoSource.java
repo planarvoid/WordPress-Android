@@ -7,10 +7,10 @@ import com.soundcloud.java.functions.Function;
 
 @AutoValue
 public abstract class ApiVideoSource {
-    public static Function<ApiVideoSource, VideoSource> toVideoSource = new Function<ApiVideoSource, VideoSource>() {
+    public static Function<ApiVideoSource, VideoAdSource> toVideoAdSource = new Function<ApiVideoSource, VideoAdSource>() {
         @Override
-        public VideoSource apply(ApiVideoSource apiVideoSource) {
-            return VideoSource.create(apiVideoSource);
+        public VideoAdSource apply(ApiVideoSource apiVideoSource) {
+            return VideoAdSource.create(apiVideoSource);
         }
     };
 

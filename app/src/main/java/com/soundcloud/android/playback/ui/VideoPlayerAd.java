@@ -4,7 +4,7 @@ import android.content.res.Resources;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.ads.VideoSource;
+import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.java.collections.PropertySet;
 
 public class VideoPlayerAd extends PlayerAd {
@@ -24,12 +24,12 @@ public class VideoPlayerAd extends PlayerAd {
         return !videoData.isVerticalVideo();
     }
 
-    VideoSource getFirstSource() {
+    VideoAdSource getFirstSource() {
         return videoData.getFirstSource();
     }
 
     float getVideoProportion() {
-        final VideoSource source = getFirstSource();
+        final VideoAdSource source = getFirstSource();
         return (float) source.getWidth() / (float) source.getHeight();
     }
 

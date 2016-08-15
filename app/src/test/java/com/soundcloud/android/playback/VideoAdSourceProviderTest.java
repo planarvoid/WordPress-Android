@@ -4,7 +4,7 @@ import android.media.CamcorderProfile;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.ApiVideoSource;
-import com.soundcloud.android.ads.VideoSource;
+import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
-public class VideoSourceProviderTest extends AndroidUnitTest {
+public class VideoAdSourceProviderTest extends AndroidUnitTest {
 
     private static ApiVideoSource SOURCE_360P = createApiVideoSource(480, 360, PlaybackConstants.MIME_TYPE_MP4, 736);
     private static ApiVideoSource SOURCE_480P = createApiVideoSource(858, 480, PlaybackConstants.MIME_TYPE_MP4, 1000);
@@ -77,7 +77,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     @Test
     public void deviceCapableUpTo1080pViaCamcorderProfileAndOnWIFIReturns1080pSource() {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_1080P)).thenReturn(true);
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, SOURCE_1080P);
     }
@@ -86,7 +86,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     public void deviceCapableUpTo1080pViaCamcorderProfileAndOnUnknownConnectionReturnsLowestSourceAsDefault() {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_1080P)).thenReturn(true);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.UNKNOWN);
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, SOURCE_360P);
     }
@@ -94,7 +94,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     @Test
     public void deviceCapableUpTo720pViaCamcorderProfileAndOnWIFIReturns720pSource() {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_720P)).thenReturn(true);
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, SOURCE_720P);
     }
@@ -102,7 +102,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
     @Test
     public void deviceCapableUpTo480pViaCamcorderProfileAndOnWIFIReturns480pSource() {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_480P)).thenReturn(true);
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, SOURCE_480P);
     }
@@ -112,7 +112,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_720P)).thenReturn(true);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.THREE_G);
 
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, SOURCE_360P);
     }
@@ -122,13 +122,13 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         when(deviceHelper.hasCamcorderProfile(CamcorderProfile.QUALITY_720P)).thenReturn(true);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
 
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
         assertVideoSource(videoSource, SOURCE_360P);
     }
 
     @Test
     public void deviceNotCapableOfAnyCamcorderProfileAndCantAccessDecoderCodecReturns360pAsDefault() {
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, SOURCE_360P);
     }
@@ -138,7 +138,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
         when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_1080P);
 
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
         assertVideoSource(videoSource, SOURCE_1080P);
     }
 
@@ -148,7 +148,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_1080P);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.THREE_G);
 
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
         assertVideoSource(videoSource, SOURCE_360P);
     }
 
@@ -157,7 +157,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
         when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_720P);
 
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
         assertVideoSource(videoSource, SOURCE_720P);
     }
 
@@ -169,7 +169,7 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
                                                                              Collections.singletonList(VERTICAL_1080P)),
                                                        0L);
 
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
 
         assertVideoSource(videoSource, VERTICAL_1080P);
     }
@@ -184,11 +184,11 @@ public class VideoSourceProviderTest extends AndroidUnitTest {
         when(applicationProperties.canAccessCodecInformation()).thenReturn(true);
         when(mediaCodecInfoProvider.maxResolutionSupportForAvcOnDevice()).thenReturn(PlaybackConstants.RESOLUTION_PX_720P);
 
-        final VideoSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
+        final VideoAdSource videoSource = videoSourceProvider.selectOptimalSource(videoPlaybackItem);
         assertThat(videoSourceProvider.getCurrentSource()).isEqualTo(Optional.of(videoSource));
     }
 
-    private void assertVideoSource(VideoSource videoSource, ApiVideoSource apiVideoSource) {
+    private void assertVideoSource(VideoAdSource videoSource, ApiVideoSource apiVideoSource) {
         assertThat(videoSource.getBitRateKbps()).isEqualTo(apiVideoSource.getBitRate());
         assertThat(videoSource.getWidth()).isEqualTo(apiVideoSource.getWidth());
         assertThat(videoSource.getHeight()).isEqualTo(apiVideoSource.getHeight());

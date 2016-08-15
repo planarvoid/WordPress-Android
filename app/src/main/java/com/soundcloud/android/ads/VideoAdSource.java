@@ -7,17 +7,17 @@ import android.os.Parcelable;
 import java.util.Comparator;
 
 @AutoParcel
-public abstract class VideoSource implements Parcelable {
+public abstract class VideoAdSource implements Parcelable {
 
-    public static final Comparator<VideoSource> BITRATE_COMPARATOR = new Comparator<VideoSource>() {
+    public static final Comparator<VideoAdSource> BITRATE_COMPARATOR = new Comparator<VideoAdSource>() {
         @Override
-        public int compare(VideoSource lhs, VideoSource rhs) {
+        public int compare(VideoAdSource lhs, VideoAdSource rhs) {
             return Integer.valueOf(lhs.getBitRateKbps()).compareTo(rhs.getBitRateKbps());
         }
     };
 
-    public static VideoSource create(ApiVideoSource apiVideoSource) {
-        return new AutoParcel_VideoSource(
+    public static VideoAdSource create(ApiVideoSource apiVideoSource) {
+        return new AutoParcel_VideoAdSource(
                 apiVideoSource.getType(),
                 apiVideoSource.getUrl(),
                 apiVideoSource.getBitRate(),

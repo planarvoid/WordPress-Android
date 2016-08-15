@@ -25,7 +25,7 @@ public abstract class VideoAd extends PlayerAdData {
                 videoTracking.resumeUrls,
                 apiVideoAd.isSkippable(),
                 Optional.of(VisualAdDisplayProperties.create(apiVideoAd.getDisplayProperties())),
-                Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoSource),
+                Lists.transform(apiVideoAd.getVideoSources(), ApiVideoSource.toVideoAdSource),
                 apiVideoAd.getClickThroughUrl(),
                 videoTracking.clickUrls,
                 videoTracking.fullScreenUrls,
@@ -39,7 +39,7 @@ public abstract class VideoAd extends PlayerAdData {
         return videoAd;
     }
 
-    public abstract List<VideoSource> getVideoSources();
+    public abstract List<VideoAdSource> getVideoSources();
 
     public abstract String getClickThroughUrl();
 
@@ -49,12 +49,12 @@ public abstract class VideoAd extends PlayerAdData {
 
     public abstract List<String> getExitFullScreenUrls();
 
-    public VideoSource getFirstSource() {
+    public VideoAdSource getFirstSource() {
         return getVideoSources().get(0);
     }
 
     public boolean isVerticalVideo() {
-        final VideoSource source = getFirstSource();
+        final VideoAdSource source = getFirstSource();
         return source.getHeight() > source.getWidth();
     }
 }

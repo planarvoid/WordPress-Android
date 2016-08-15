@@ -2,7 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.ads.VideoSource;
+import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 
 public class AdPlaybackErrorEvent extends TrackingEvent {
@@ -33,7 +33,7 @@ public class AdPlaybackErrorEvent extends TrackingEvent {
 
     public static AdPlaybackErrorEvent failToBuffer(AdData adData,
                                                     PlaybackStateTransition stateTransition,
-                                                    VideoSource videoSource) {
+                                                    VideoAdSource videoSource) {
         final String format = videoSource.getType();
         final int bitrate = videoSource.getBitRateKbps();
         final String host = videoSource.getUrl();

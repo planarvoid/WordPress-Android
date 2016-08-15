@@ -4,7 +4,7 @@ import android.os.Parcelable;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.ads.VideoSource;
+import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.model.Urn;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
     @Override
     public abstract Urn getUrn();
 
-    public abstract List<VideoSource> getSources();
+    public abstract List<VideoAdSource> getSources();
 
     @Override
     public abstract long getStartPosition();

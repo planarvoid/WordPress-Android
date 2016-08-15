@@ -18,7 +18,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.VideoSource;
+import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
@@ -116,7 +116,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
         when(urlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(STREAM_URL);
-        when(videoSourceProvider.selectOptimalSource(videoItem)).thenReturn(VideoSource.create(AdFixtures.getApiVideoSource(
+        when(videoSourceProvider.selectOptimalSource(videoItem)).thenReturn(VideoAdSource.create(AdFixtures.getApiVideoSource(
                 100,
                 200)));
         when(dateProvider.getCurrentDate()).thenReturn(new Date());
@@ -475,7 +475,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void playVideoSetsDataSourceOnMediaPlayer() throws IOException {
-        final VideoSource videoSource = VideoSource.create(AdFixtures.getApiVideoSource(1, 2));
+        final VideoAdSource videoSource = VideoAdSource.create(AdFixtures.getApiVideoSource(1, 2));
         when(videoSourceProvider.selectOptimalSource(videoItem)).thenReturn(videoSource);
 
         mediaPlayerAdapter.play(videoItem);

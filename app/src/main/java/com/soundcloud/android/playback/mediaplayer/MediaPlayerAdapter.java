@@ -8,7 +8,7 @@ import static com.soundcloud.android.playback.PlaybackType.VIDEO_AD;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdUtils;
-import com.soundcloud.android.ads.VideoSource;
+import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
@@ -90,7 +90,7 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private long prepareStartTimeMs;
     private String currentStreamUrl = Strings.EMPTY;
 
-    private Optional<VideoSource> currentVideoSource = Optional.absent();
+    private Optional<VideoAdSource> currentVideoSource = Optional.absent();
 
     @Inject
     public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager,
