@@ -13,4 +13,6 @@ public final class AdConstants {
     public static final int IAB_UNIVERSAL_MED_MAX_SCALE = 2;
 
     public static final Urn THIRD_PARTY_AD_MAGIC_TRACK_URN = Urn.forTrack(9876543210L);
+
+    public static final String KRUX_SEGMENT_PARAM = "krux_segments";
 }

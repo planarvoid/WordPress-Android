@@ -9,6 +9,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -20,6 +21,7 @@ import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
+import dagger.Lazy;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -33,6 +35,8 @@ import java.util.Collections;
 
 public class AdsOperations {
 
+    private final FeatureOperations featureOperations;
+    private final Lazy<KruxSegmentProvider> kruxSegmentProvider;
     private final StoreTracksCommand storeTracksCommand;
     private final PlayQueueManager playQueueManager;
     private final ApiClientRx apiClientRx;
@@ -50,19 +54,32 @@ public class AdsOperations {
     };
 
     @Inject
-    AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager,
+    AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager, FeatureOperations featureOperations,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                  EventBus eventBus) {
+                  EventBus eventBus, Lazy<KruxSegmentProvider> kruxSegmentProvider) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
+        this.featureOperations = featureOperations;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
         this.eventBus = eventBus;
+        this.kruxSegmentProvider = kruxSegmentProvider;
     }
 
-    public Observable<ApiAdsForTrack> ads(Urn sourceUrn, boolean playerVisible, boolean inForeground) {
+    public Observable<Optional<String>> kruxSegments() {
+        if (featureOperations.shouldUseKruxForAdTargeting()) {
+            return Observable.just(kruxSegmentProvider.get().getSegments());
+        }
+        return Observable.just(Optional.<String>absent());
+    }
+
+    public Observable<ApiAdsForTrack> ads(Urn sourceUrn, Optional<String> kruxSegments, boolean playerVisible, boolean inForeground) {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
         final ApiRequest.Builder request = ApiRequest.get(endpoint).forPrivateApi();
+
+        if (kruxSegments.isPresent()) {
+            request.addQueryParam(AdConstants.KRUX_SEGMENT_PARAM, kruxSegments.get());
+        }
 
         return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
                           .subscribeOn(scheduler)

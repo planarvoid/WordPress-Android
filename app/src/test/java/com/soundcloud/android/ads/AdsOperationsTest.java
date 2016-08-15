@@ -16,13 +16,16 @@ import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +47,8 @@ public class AdsOperationsTest extends AndroidUnitTest {
     private AdsOperations adsOperations;
     private ApiAdsForTrack fullAdsForTrack;
 
+    @Mock private FeatureOperations featureOperations;
+    @Mock private KruxSegmentProvider kruxSegmentProvider;
     @Mock private ApiClientRx apiClientRx;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private PlayQueueManager playQueueManager;
@@ -54,11 +59,60 @@ public class AdsOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         adsOperations = new AdsOperations(storeTracksCommand,
                                           playQueueManager,
+                                          featureOperations,
                                           apiClientRx,
                                           Schedulers.immediate(),
-                                          eventBus);
+                                          eventBus,
+                                          InjectionSupport.lazyOf(kruxSegmentProvider));
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(trackQueueItem);
+    }
+
+    @Test
+    public void kruxSegmentProviderUsedIfShouldUseKruxForAdTargetingIsTrue() {
+        when(featureOperations.shouldUseKruxForAdTargeting()).thenReturn(true);
+        when(kruxSegmentProvider.getSegments()).thenReturn(Optional.<String>absent());
+
+        adsOperations.kruxSegments().subscribe();
+
+        verify(kruxSegmentProvider).getSegments();
+    }
+
+    @Test
+    public void kruxSegmentProviderNotUsedIfShouldUseKruxForAdTargetingIsFalse() {
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
+                .thenReturn(Observable.just(fullAdsForTrack));
+        when(featureOperations.shouldUseKruxForAdTargeting()).thenReturn(false);
+
+        adsOperations.kruxSegments().subscribe();
+
+        verify(kruxSegmentProvider, never()).getSegments();
+    }
+
+    @Test
+    public void kruxSegmentsAddedToAdsRequestEndpoint() {
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
+                .thenReturn(Observable.just(fullAdsForTrack));
+
+        adsOperations.ads(TRACK_URN, Optional.of("123,321"), true, true).subscribe();
+
+        ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForTrack.class));
+
+        assertThat(captor.getValue().getQueryParameters().get("krux_segments")).contains("123,321");
+    }
+
+    @Test
+    public void kruxSegmentsNotAddedToAdsRequestEndpointIfNoneExist() {
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
+                .thenReturn(Observable.just(fullAdsForTrack));
+
+        adsOperations.ads(TRACK_URN, Optional.<String>absent(), true, true).subscribe();
+
+        ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(apiClientRx).mappedResponse(captor.capture(), eq(ApiAdsForTrack.class));
+
+        assertThat(captor.getValue().getQueryParameters().keySet()).doesNotContain("krux_segments");
     }
 
     @Test
@@ -67,7 +121,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        assertThat(adsOperations.ads(TRACK_URN, true, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
+        assertThat(adsOperations.ads(TRACK_URN, Optional.<String>absent(), true, true).toBlocking().first()).isEqualTo(fullAdsForTrack);
     }
 
     @Test
@@ -75,7 +129,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
                 .thenReturn(Observable.just(fullAdsForTrack));
 
-        adsOperations.ads(TRACK_URN, true, true).subscribe();
+        adsOperations.ads(TRACK_URN, Optional.<String>absent(), true, true).subscribe();
 
         verify(storeTracksCommand).call(Arrays.asList(fullAdsForTrack.audioAd().get().getApiTrack()));
     }

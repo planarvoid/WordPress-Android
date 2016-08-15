@@ -32,6 +32,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 
 import android.util.Log;
 
@@ -81,6 +82,14 @@ public class AdsController {
         }
     };
 
+    private static final Func2<PropertySet, Optional<String>, AdRequestData> TO_AD_REQUEST_DATA =
+            new Func2<PropertySet, Optional<String>, AdRequestData>() {
+                @Override
+                public AdRequestData call(PropertySet track, Optional<String> kruxSegments) {
+                    return new AdRequestData(track.get(TrackProperty.URN), kruxSegments);
+                }
+            };
+
     private final Func1<Object, Boolean> shouldFetchAudioAdForNextItem = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
@@ -107,10 +116,13 @@ public class AdsController {
         }
     };
 
-    private final Func1<PropertySet, Observable<ApiAdsForTrack>> fetchAds = new Func1<PropertySet, Observable<ApiAdsForTrack>>() {
+    private final Func1<AdRequestData, Observable<ApiAdsForTrack>> fetchAds = new Func1<AdRequestData, Observable<ApiAdsForTrack>>() {
         @Override
-        public Observable<ApiAdsForTrack> call(PropertySet propertySet) {
-            return adsOperations.ads(propertySet.get(TrackProperty.URN), isPlayerVisible, isForeground);
+        public Observable<ApiAdsForTrack> call(AdRequestData adRequestData) {
+            return adsOperations.ads(adRequestData.monetizableTrackUrn,
+                                     adRequestData.kruxSegments,
+                                     isPlayerVisible,
+                                     isForeground);
         }
     };
 
@@ -270,10 +282,12 @@ public class AdsController {
     }
 
     private void createAdsFetchObservable(PlayQueueItem playQueueItem, DefaultSubscriber<ApiAdsForTrack> adSubscriber) {
-        final Observable<ApiAdsForTrack> apiAdsForTrack = trackRepository.track(playQueueItem.getUrn())
-                                                                         .filter(IS_MONETIZABLE)
-                                                                         .flatMap(fetchAds)
-                                                                         .observeOn(AndroidSchedulers.mainThread());
+        final Observable<ApiAdsForTrack> apiAdsForTrack = Observable.zip(trackRepository.track(playQueueItem.getUrn())
+                                                                                        .filter(IS_MONETIZABLE),
+                                                                         adsOperations.kruxSegments(),
+                                                                         TO_AD_REQUEST_DATA)
+                                                                    .flatMap(fetchAds)
+                                                                    .observeOn(AndroidSchedulers.mainThread());
 
         currentAdsFetches.put(playQueueItem.getUrn(), new AdsFetchOperation(apiAdsForTrack.subscribe(adSubscriber)));
     }
@@ -374,6 +388,20 @@ public class AdsController {
         }
     }
 
+    private class ActivityStateSubscriber extends DefaultSubscriber<ActivityLifeCycleEvent> {
+        @Override
+        public void onNext(ActivityLifeCycleEvent latestState) {
+            isForeground = latestState.isForeground();
+        }
+    }
+
+    private class PlayerStateSubscriber extends DefaultSubscriber<PlayerUIEvent> {
+        @Override
+        public void onNext(PlayerUIEvent latestState) {
+            isPlayerVisible = latestState.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
+        }
+    }
+
     private class AdsFetchOperation {
         private final Subscription subscription;
         private final long createdAtMillis;
@@ -388,17 +416,13 @@ public class AdsController {
         }
     }
 
-    private class ActivityStateSubscriber extends DefaultSubscriber<ActivityLifeCycleEvent> {
-        @Override
-        public void onNext(ActivityLifeCycleEvent latestState) {
-            isForeground = latestState.isForeground();
-        }
-    }
+    private static class AdRequestData {
+        private final Urn monetizableTrackUrn;
+        private final Optional<String> kruxSegments;
 
-    private class PlayerStateSubscriber extends DefaultSubscriber<PlayerUIEvent> {
-        @Override
-        public void onNext(PlayerUIEvent latestState) {
-            isPlayerVisible = latestState.getKind() == PlayerUIEvent.PLAYER_EXPANDED;
+        private AdRequestData(Urn monetizableTrackUrn, Optional<String> kruxSegments) {
+            this.monetizableTrackUrn = monetizableTrackUrn;
+            this.kruxSegments = kruxSegments;
         }
     }
 }
