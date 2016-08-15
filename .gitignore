@@ -75,3 +75,6 @@ reports
 # heap dumps
 captures
 nimbledroid.properties
+
+# MrLoggerLogger
+app/src/androidTest/res/com/soundcloud/android/framework/helpers/mrlogga/log/
