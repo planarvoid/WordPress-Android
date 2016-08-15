@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
-    private static final int SEED_QUERY_POSITION = 0;
     private static final int FIRST_QUERY_POSITION = 1;
     private static final int SECOND_QUERY_POSITION = 2;
     private static final int THIRD_QUERY_POSITION = 3;
@@ -47,11 +46,11 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
 
     private static final DiscoveryItem EMPTY = EmptyViewItem.fromThrowable(new RuntimeException("expected"));
     private static final RecommendedTracksBucketItem FIRST_RECOMMENDATIONS = RecommendedTracksBucketItem.create(
-            createSeed(SEED_1), singletonList(RECOMMENDATION_1));
+            createSeed(SEED_1, FIRST_QUERY_POSITION), singletonList(RECOMMENDATION_1));
     private static final RecommendedTracksBucketItem SECOND_RECOMMENDATIONS = RecommendedTracksBucketItem.create(
-            createSeed(SEED_2), singletonList(RECOMMENDATION_2));
+            createSeed(SEED_2, SECOND_QUERY_POSITION), singletonList(RECOMMENDATION_2));
     private static final RecommendedTracksBucketItem THIRD_RECOMMENDATIONS = RecommendedTracksBucketItem.create(
-            createSeed(SEED_3), singletonList(RECOMMENDATION_3));
+            createSeed(SEED_3, THIRD_QUERY_POSITION), singletonList(RECOMMENDATION_3));
     private static final PlaylistTagsItem PLAYLIST_TAGS = PlaylistTagsItem.create(
             Collections.<String>emptyList(), Collections.<String>emptyList());
     private static final DiscoveryItem FOOTER = DiscoveryItem.forRecommendedTracksFooter();
@@ -106,10 +105,10 @@ public class TrackRecommendationPlaybackInitiatorTest extends AndroidUnitTest {
                 PlaySessionSource.forRecommendations(Screen.RECOMMENDATIONS_MAIN, SECOND_QUERY_POSITION, QUERY_URN));
     }
 
-    private static PropertySet createSeed(Urn urn) {
+    private static PropertySet createSeed(Urn urn, int seedQueryPosition) {
         PropertySet seed = PropertySet.create();
         seed.put(RecommendationProperty.SEED_TRACK_URN, urn);
-        seed.put(RecommendationProperty.QUERY_POSITION, SEED_QUERY_POSITION);
+        seed.put(RecommendationProperty.QUERY_POSITION, seedQueryPosition);
         seed.put(RecommendationProperty.QUERY_URN, QUERY_URN);
         return seed;
     }

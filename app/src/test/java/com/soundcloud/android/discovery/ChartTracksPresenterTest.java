@@ -1,5 +1,6 @@
 package com.soundcloud.android.discovery;
 
+import static com.soundcloud.android.api.model.ChartCategory.MUSIC;
 import static com.soundcloud.android.api.model.ChartType.TOP;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
@@ -21,6 +22,7 @@ import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.sync.charts.ApiChart;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,14 +38,17 @@ import java.util.Date;
 import java.util.List;
 
 public class ChartTracksPresenterTest extends AndroidUnitTest {
-    private static final ChartTrackListItem.Header HEADER = ChartTrackListItem.forHeader(TOP);
-    private static final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem(1);
-    private static final ChartTrackListItem.Track SECOND_TRACK_ITEM = createChartTrackListItem(2);
-    private static final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3);
-    private static final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.forFooter(new Date(10));
     private static final ChartType CHART_TYPE = TOP;
-    private static final String GENRE = "all-music";
+    private static final String GENRE = "rock";
+    private static final Urn GENRE_URN = new Urn("soundcloud:genres:" + GENRE);
+    private static final Urn QUERY_URN = new Urn("soundcloud:charts:1235kj234n5j234523k45j");
+    private static final ChartTrackListItem.Header HEADER = ChartTrackListItem.forHeader(TOP);
+    private static final ChartTrackListItem.Track FIRST_TRACK_ITEM = createChartTrackListItem(1, Optional.of(QUERY_URN));
+    private static final ChartTrackListItem.Track SECOND_TRACK_ITEM = createChartTrackListItem(2, Optional.of(QUERY_URN));
+    private static final ChartTrackListItem.Track THIRD_TRACK_ITEM = createChartTrackListItem(3, Optional.<Urn>absent());
+    private static final ChartTrackListItem.Footer FOOTER = ChartTrackListItem.forFooter(new Date(10));
     private static final ApiChart<ApiTrack> API_CHART = ChartsFixtures.createApiChart(GENRE, CHART_TYPE);
+    private static final ApiChart<ApiTrack> API_CHART_NO_QUERY_URN = ChartsFixtures.createApiChart(GENRE, CHART_TYPE, null);
     private static final List<ChartTrackListItem> CHART_TRACK_ITEMS = Lists.newArrayList(HEADER,
                                                                           FIRST_TRACK_ITEM,
                                                                           SECOND_TRACK_ITEM,
@@ -59,6 +64,7 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
 
     private ChartTracksPresenter chartTracksPresenter;
+    private Bundle bundle;
 
     @Before
     public void setup() {
@@ -69,36 +75,57 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
                                                         providerOf(expandPlayerSubscriber),
                                                         chartsTracker);
         when(chartsOperations.tracks(TOP, GENRE)).thenReturn(Observable.just(API_CHART));
-        final Bundle bundle = getChartArguments();
+        bundle = getChartArguments();
         when(fragment.getArguments()).thenReturn(bundle);
-        chartTracksPresenter.onCreate(fragment, bundle);
-    }
 
-    private Bundle getChartArguments() {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(ChartTracksFragment.EXTRA_TYPE, CHART_TYPE);
-        final Urn urn = new Urn("soundcloud:genre:" + GENRE);
-        bundle.putParcelable(ChartTracksFragment.EXTRA_GENRE_URN, urn);
-        return bundle;
     }
 
     @Test
-    public void startsPlaybackFromTrackItem() {
+    public void startsPlaybackWithTrackListPlaySessionSourceFromTrackItemWhenQueryUrnIsPresent() {
+        chartTracksPresenter.onCreate(fragment, bundle);
         final ArrayList<Urn> expectedPlayQueue = Lists.newArrayList(FIRST_TRACK_ITEM.chartTrackItem.getUrn(),
                                                                     SECOND_TRACK_ITEM.chartTrackItem.getUrn(),
                                                                     THIRD_TRACK_ITEM.chartTrackItem.getUrn());
         final int chartItemPosition = CHART_TRACK_ITEMS.indexOf(SECOND_TRACK_ITEM);
+        int queryPosition = chartItemPosition - 1;
         when(chartTracksAdapter.getItem(chartItemPosition)).thenReturn(SECOND_TRACK_ITEM);
         when(chartTracksAdapter.getItems()).thenReturn(CHART_TRACK_ITEMS);
         when(playbackInitiator.playTracks(anyList(), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.empty());
+        final String screenString = "charts:music_top_50:" + GENRE;
+        when(chartsTracker.getScreen(TOP, MUSIC, GENRE_URN)).thenReturn(screenString);
+
         chartTracksPresenter.onItemClicked(mock(View.class), chartItemPosition);
 
         final int expectedPlayQueuePosition = expectedPlayQueue.indexOf(SECOND_TRACK_ITEM.chartTrackItem.getUrn());
-        verify(playbackInitiator).playTracks(expectedPlayQueue, expectedPlayQueuePosition, PlaySessionSource.EMPTY);
+        final PlaySessionSource playSessionSource = PlaySessionSource.forChart(screenString,
+                                                                               queryPosition,
+                                                                               QUERY_URN);
+        verify(playbackInitiator).playTracks(expectedPlayQueue, expectedPlayQueuePosition, playSessionSource);
+    }
+
+    @Test
+    public void startsPlaybackWithEmptyPlaySessionFromTrackItemWhenQueryUrnIsNotPresent() {
+        chartTracksPresenter.onCreate(fragment, bundle);
+        final ArrayList<Urn> expectedPlayQueue = Lists.newArrayList(FIRST_TRACK_ITEM.chartTrackItem.getUrn(),
+                                                                    SECOND_TRACK_ITEM.chartTrackItem.getUrn(),
+                                                                    THIRD_TRACK_ITEM.chartTrackItem.getUrn());
+        final int chartItemPosition = CHART_TRACK_ITEMS.indexOf(THIRD_TRACK_ITEM);
+        when(chartTracksAdapter.getItem(chartItemPosition)).thenReturn(THIRD_TRACK_ITEM);
+        when(chartTracksAdapter.getItems()).thenReturn(CHART_TRACK_ITEMS);
+        when(playbackInitiator.playTracks(anyList(), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.empty());
+        final String screenString = "charts:music_top_50:" + GENRE;
+        when(chartsTracker.getScreen(TOP, MUSIC, GENRE_URN)).thenReturn(screenString);
+
+        chartTracksPresenter.onItemClicked(mock(View.class), chartItemPosition);
+
+        final int expectedPlayQueuePosition = expectedPlayQueue.indexOf(THIRD_TRACK_ITEM.chartTrackItem.getUrn());
+        final PlaySessionSource playSessionSource = PlaySessionSource.EMPTY;
+        verify(playbackInitiator).playTracks(expectedPlayQueue, expectedPlayQueuePosition, playSessionSource);
     }
 
     @Test
     public void doesNothingWhenHeaderOrFooterClicked() {
+        chartTracksPresenter.onCreate(fragment, bundle);
         final int headerPosition = CHART_TRACK_ITEMS.indexOf(HEADER);
         when(chartTracksAdapter.getItem(headerPosition)).thenReturn(HEADER);
         chartTracksPresenter.onItemClicked(mock(View.class), headerPosition);
@@ -111,18 +138,32 @@ public class ChartTracksPresenterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void trackChartOnNext() {
+    public void loadsDataInTrackerWhenQueryUrnAvailable() {
+        chartTracksPresenter.onCreate(fragment, bundle);
         verify(chartsTracker).chartDataLoaded(API_CHART.tracks().getQueryUrn().get(),
                                               API_CHART.type(),
                                               API_CHART.category(),
                                               API_CHART.genre());
     }
 
-    private static ChartTrackListItem.Track createChartTrackListItem(int position) {
-        return ChartTrackListItem.forTrack(new ChartTrackItem(
-                ChartType.TOP,
-                PropertySet.create().put(PlayableProperty.URN, Urn.forTrack(position)),
-                position
-        ));
+    @Test
+    public void doesNotLoadDataInTrackerWhenQueryUrnNotAvailable() {
+        when(chartsOperations.tracks(TOP, GENRE)).thenReturn(Observable.just(API_CHART_NO_QUERY_URN));
+        chartTracksPresenter.onCreate(fragment, bundle);
+        verifyZeroInteractions(chartsTracker);
+    }
+
+    private static ChartTrackListItem.Track createChartTrackListItem(int position, Optional<Urn> queryUrn) {
+        PropertySet track = PropertySet.create().put(PlayableProperty.URN, Urn.forTrack(position));
+        return ChartTrackListItem.forTrack(new ChartTrackItem(TOP, track, MUSIC, GENRE_URN, queryUrn));
+    }
+
+
+    private Bundle getChartArguments() {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(ChartTracksFragment.EXTRA_TYPE, CHART_TYPE);
+        final Urn urn = new Urn("soundcloud:genre:" + GENRE);
+        bundle.putParcelable(ChartTracksFragment.EXTRA_GENRE_URN, urn);
+        return bundle;
     }
 }

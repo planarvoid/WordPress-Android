@@ -13,10 +13,12 @@ import com.soundcloud.android.discovery.ChartTrackItem;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,10 +79,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     @Override
     public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
         final TrackItem track = trackItems.get(position);
-        bindTrackView(track, itemView, position);
+        bindTrackView(track, itemView, position, Optional.<TrackSourceInfo>absent());
     }
 
-    public void bindTrackView(final TrackItem track, View itemView, final int position) {
+    public void bindTrackView(final TrackItem track, View itemView, final int position, Optional<TrackSourceInfo> trackSourceInfo) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
         trackItemView.setTitle(track.getTitle(), track.isBlocked()
@@ -99,10 +101,10 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
 
         bindExtraInfoRight(track, trackItemView);
-        bindExtraInfoBottom(trackItemView, track);
+        bindExtraInfoBottom(trackItemView, track, position);
 
         loadArtwork(trackItemView, track);
-        setupOverFlow(trackItemView, track, position);
+        setupOverFlow(trackItemView, track, position, trackSourceInfo);
         setupRepeating(track, trackItemView);
     }
 
@@ -122,17 +124,23 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void setupOverFlow(final TrackItemView itemView, final TrackItem track, final int position) {
+    private void setupOverFlow(final TrackItemView itemView,
+                               final TrackItem track,
+                               final int position,
+                               final Optional<TrackSourceInfo> trackSourceInfo) {
         itemView.setOverflowListener(new TrackItemView.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {
-                showTrackItemMenu(overflowButton, track, position);
+                showTrackItemMenu(overflowButton, track, position, trackSourceInfo);
             }
         });
     }
 
-    protected void showTrackItemMenu(View button, TrackItem track, int position) {
-        trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position);
+    protected void showTrackItemMenu(View button,
+                                     TrackItem track,
+                                     int position,
+                                     Optional<TrackSourceInfo> trackSourceInfo) {
+        trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position, trackSourceInfo);
     }
 
     private void loadArtwork(TrackItemView itemView, TrackItem track) {
@@ -141,12 +149,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                 itemView.getImage());
     }
 
-    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track) {
+    private void bindExtraInfoBottom(TrackItemView itemView, TrackItem track, int position) {
         itemView.hideInfosViewsBottom();
         if (track instanceof PromotedTrackItem) {
             showPromoted(itemView, (PromotedTrackItem) track);
         } else if (track instanceof ChartTrackItem) {
-            showChartTrackItem(itemView, (ChartTrackItem) track);
+            showChartTrackItem(itemView, (ChartTrackItem) track, position);
         } else if (track.isBlocked()) {
             itemView.showGeoBlocked();
         } else if (track.isPlaying() || track.getUrn().equals(playingTrack)) {
@@ -158,8 +166,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         }
     }
 
-    private void showChartTrackItem(TrackItemView itemView, ChartTrackItem chartTrackItem) {
-        itemView.showPosition(chartTrackItem.position());
+    private void showChartTrackItem(TrackItemView itemView, ChartTrackItem chartTrackItem, int position) {
+        itemView.showPosition(position);
         if (chartTrackItem.chartType() == ChartType.TRENDING) {
             itemView.showPostedTime(chartTrackItem.getCreatedAt());
         } else {

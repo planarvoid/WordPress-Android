@@ -14,8 +14,8 @@ abstract class ChartTrackListItem {
         return new Footer(lastUpdatedAt);
     }
 
-    static ChartTrackListItem.Track forTrack(ChartTrackItem trackItem) {
-        return new Track(trackItem);
+    static ChartTrackListItem.Track forTrack(ChartTrackItem track) {
+        return new Track(track);
     }
 
     enum Kind {

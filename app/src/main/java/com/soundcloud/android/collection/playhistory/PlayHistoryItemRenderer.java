@@ -3,10 +3,12 @@ package com.soundcloud.android.collection.playhistory;
 import com.soundcloud.android.R;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
+import com.soundcloud.java.optional.Optional;
 
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -44,7 +46,7 @@ class PlayHistoryItemRenderer implements CellRenderer<TrackItem> {
         final TrackItem trackItem = items.get(position);
 
         itemView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.white));
-        trackItemRenderer.bindTrackView(trackItem, itemView, position);
+        trackItemRenderer.bindTrackView(trackItem, itemView, position, Optional.<TrackSourceInfo>absent());
         itemView.setOnClickListener(playTrack(trackItem));
     }
 

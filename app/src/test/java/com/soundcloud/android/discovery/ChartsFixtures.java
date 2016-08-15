@@ -11,6 +11,8 @@ import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.assertj.core.util.Lists;
 
+import android.support.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,10 +34,14 @@ public class ChartsFixtures {
     }
 
     static ApiChart<ApiTrack> createApiChart(String genre, ChartType type) {
+        return createApiChart(genre, type, "soundcloud:charts:1234");
+    }
+
+    static ApiChart<ApiTrack> createApiChart(String genre, ChartType type, @Nullable String queryUrn) {
         final ApiTrack chartTrack = ModelFixtures.create(ApiTrack.class);
         final ModelCollection<ApiTrack> apiTracks = new ModelCollection<>(Collections.singletonList(chartTrack),
                                                                           new HashMap<String, Link>(),
-                                                                          "soundcloud:chart:1234");
+                                                                          queryUrn);
         return new ApiChart<>("title",
                               new Urn("soundcloud:chart:" + genre),
                               type,

@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.discovery.ChartSourceInfo;
 import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -17,7 +18,7 @@ import android.os.Parcelable;
 public class PlaySessionSource implements Parcelable {
 
     public static final PlaySessionSource EMPTY = new PlaySessionSource();
-    public static final Parcelable.Creator<PlaySessionSource> CREATOR = new Parcelable.Creator<PlaySessionSource>() {
+    public static final Creator<PlaySessionSource> CREATOR = new Creator<PlaySessionSource>() {
         public PlaySessionSource createFromParcel(Parcel in) {
             return new PlaySessionSource(in);
         }
@@ -42,6 +43,7 @@ public class PlaySessionSource implements Parcelable {
     private PromotedSourceInfo promotedSourceInfo;
     private RecommendationsSourceInfo recommendationsSourceInfo;
     private DiscoverySource discoverySource;
+    private ChartSourceInfo chartSourceInfo;
 
     public static PlaySessionSource forPlaylist(Screen screen, Urn playlist, Urn playlistOwner, int playlistSize) {
         return forPlaylist(screen.get(), playlist, playlistOwner, playlistSize);
@@ -89,6 +91,12 @@ public class PlaySessionSource implements Parcelable {
     public static PlaySessionSource forRecommendations(Screen screen, int queryPosition, Urn queryUrn) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.recommendationsSourceInfo = RecommendationsSourceInfo.create(queryPosition, queryUrn);
+        return playSessionSource;
+    }
+
+    public static PlaySessionSource forChart(String screen, int queryPosition, Urn queryUrn) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        playSessionSource.chartSourceInfo = ChartSourceInfo.create(queryPosition, queryUrn);
         return playSessionSource;
     }
 
@@ -191,6 +199,10 @@ public class PlaySessionSource implements Parcelable {
         return recommendationsSourceInfo != null;
     }
 
+    public boolean isFromChart() {
+        return chartSourceInfo != null;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -237,12 +249,15 @@ public class PlaySessionSource implements Parcelable {
                 && collectionSize == that.collectionSize
                 && MoreObjects.equal(exploreVersion, that.exploreVersion)
                 && MoreObjects.equal(originScreen, that.originScreen)
-                && MoreObjects.equal(promotedSourceInfo, that.promotedSourceInfo);
+                && MoreObjects.equal(promotedSourceInfo, that.promotedSourceInfo)
+                && MoreObjects.equal(recommendationsSourceInfo, that.recommendationsSourceInfo)
+                && MoreObjects.equal(chartSourceInfo, that.chartSourceInfo);
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(collectionUrn, collectionOwnerUrn, collectionSize, exploreVersion, originScreen);
+        return MoreObjects.hashCode(collectionUrn, collectionOwnerUrn, collectionSize, exploreVersion, originScreen, recommendationsSourceInfo,
+                                    chartSourceInfo);
     }
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -261,6 +276,10 @@ public class PlaySessionSource implements Parcelable {
 
     public void setPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
         this.promotedSourceInfo = promotedSourceInfo;
+    }
+
+    public ChartSourceInfo getChartSourceInfo() {
+        return chartSourceInfo;
     }
 
     @Nullable

@@ -50,6 +50,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
     public static final String KIND_SKIP_VIDEO_AD_CLICK = "skip_video_ad_click";
     public static final String KIND_START_STATION = "start_station";
+    private Optional<Integer> queryPosition;
 
     public static UIEvent fromPlayerOpen() {
         return new UIEvent(KIND_PLAYER_OPEN);
@@ -317,6 +318,18 @@ public final class UIEvent extends TrackingEvent {
 
         if (sourceInfo != null && sourceInfo.hasStationsSourceInfo()) {
             return Optional.of(sourceInfo.getStationsSourceInfo().getQueryUrn());
+        } else if (sourceInfo != null && sourceInfo.isFromChart()) {
+            return Optional.of(sourceInfo.getChartSourceInfo().getQueryUrn());
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    public Optional<Integer> getQueryPosition() {
+        final TrackSourceInfo sourceInfo = eventContextMetadata.trackSourceInfo();
+
+        if (sourceInfo != null && sourceInfo.isFromChart()) {
+            return Optional.of(sourceInfo.getChartSourceInfo().getQueryPosition());
         } else {
             return Optional.absent();
         }

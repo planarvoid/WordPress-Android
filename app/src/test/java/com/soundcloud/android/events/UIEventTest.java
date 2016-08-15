@@ -8,10 +8,12 @@ import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.discovery.ChartSourceInfo;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
@@ -26,6 +28,8 @@ public class UIEventTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(42L);
     private static final Urn USER_URN = Urn.forUser(2L);
     private static final Urn PROMOTER_URN = Urn.forUser(21L);
+    private static final Urn QUERY_URN = Urn.forTrack(123L);
+    private static final int QUERY_POSITION = 0;
     private TrackSourceInfo trackSourceInfo;
     private PromotedSourceInfo promotedSourceInfo;
     private PromotedSourceInfo promotedSourceInfoWithNoPromoter;
@@ -1075,6 +1079,40 @@ public class UIEventTest extends AndroidUnitTest {
 
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_START_STATION);
     }
+
+    @Test
+    public void shouldHaveQueryUrnWhenHasStationsSourceInfo() {
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.STATIONS_INFO.get(), false);
+        final EventContextMetadata eventContextMetadata = EventContextMetadata.builder().trackSourceInfo(trackSourceInfo).build();
+
+        trackSourceInfo.setStationSourceInfo(Urn.forArtistStation(123L), StationsSourceInfo.create(QUERY_URN));
+
+        final UIEvent event = UIEvent.fromToggleLike(true, Urn.NOT_SET, eventContextMetadata, null, EntityMetadata.EMPTY);
+        assertThat(event.getQueryUrn()).isEqualTo(Optional.of(QUERY_URN));
+    }
+
+    @Test
+    public void shouldHaveQueryUrnAndPositionWhenHasChartSourceInfo() {
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.UNKNOWN.get(), false);
+        final EventContextMetadata eventContextMetadata = EventContextMetadata.builder().trackSourceInfo(trackSourceInfo).build();
+
+        trackSourceInfo.setChartSourceInfo(ChartSourceInfo.create(QUERY_POSITION, QUERY_URN));
+
+        final UIEvent event = UIEvent.fromToggleLike(true, Urn.NOT_SET, eventContextMetadata, null, EntityMetadata.EMPTY);
+        assertThat(event.getQueryUrn()).isEqualTo(Optional.of(QUERY_URN));
+        assertThat(event.getQueryPosition()).isEqualTo(Optional.of(QUERY_POSITION));
+    }
+
+    @Test
+    public void shouldHaveAbsentQueryUrnAndPositionIfNoReleventSourceInfo() {
+        final EventContextMetadata eventContextMetadata = EventContextMetadata.builder().build();
+
+
+        final UIEvent event = UIEvent.fromToggleLike(true, Urn.NOT_SET, eventContextMetadata, null, EntityMetadata.EMPTY);
+        assertThat(event.getQueryUrn()).isEqualTo(Optional.<TrackSourceInfo>absent());
+        assertThat(event.getQueryPosition()).isEqualTo(Optional.<Integer>absent());
+    }
+
 
     private EventContextMetadata.Builder eventContextBuilder() {
         return eventContextNoInvokerScreen().invokerScreen("invoker_screen");

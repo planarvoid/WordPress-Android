@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.discovery.ChartSourceInfo;
 import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationsSourceInfo;
@@ -25,6 +26,7 @@ public class TrackSourceInfo {
     private PromotedSourceInfo promotedSourceInfo;
     private StationsSourceInfo stationsSourceInfo;
     private RecommendationsSourceInfo recommendationsSourceInfo;
+    private ChartSourceInfo chartSourceInfo;
 
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
         this.originScreen = originScreen;
@@ -57,6 +59,10 @@ public class TrackSourceInfo {
 
     public void setPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
         this.promotedSourceInfo = promotedSourceInfo;
+    }
+
+    public void setChartSourceInfo(ChartSourceInfo chartSourceInfo) {
+        this.chartSourceInfo = chartSourceInfo;
     }
 
     public void setReposter(Urn reposter) {
@@ -115,6 +121,10 @@ public class TrackSourceInfo {
         return playlistOwnerUrn;
     }
 
+    public ChartSourceInfo getChartSourceInfo() {
+        return chartSourceInfo;
+    }
+
     public boolean hasSource() {
         return Strings.isNotBlank(source);
     }
@@ -133,6 +143,10 @@ public class TrackSourceInfo {
 
     public boolean isFromSearchQuery() {
         return searchQuerySourceInfo != null;
+    }
+
+    public boolean isFromChart() {
+        return chartSourceInfo != null;
     }
 
     public boolean hasReposter() {
@@ -169,5 +183,59 @@ public class TrackSourceInfo {
         }
 
         return toStringHelper.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TrackSourceInfo that = (TrackSourceInfo) o;
+
+        if (userTriggered != that.userTriggered) return false;
+        if (playlistPosition != that.playlistPosition) return false;
+        if (originScreen != null ? !originScreen.equals(that.originScreen) : that.originScreen != null) return false;
+        if (source != null ? !source.equals(that.source) : that.source != null) return false;
+        if (sourceVersion != null ? !sourceVersion.equals(that.sourceVersion) : that.sourceVersion != null)
+            return false;
+        if (reposter != null ? !reposter.equals(that.reposter) : that.reposter != null) return false;
+        if (collectionUrn != null ? !collectionUrn.equals(that.collectionUrn) : that.collectionUrn != null)
+            return false;
+        if (playlistOwnerUrn != null ? !playlistOwnerUrn.equals(that.playlistOwnerUrn) : that.playlistOwnerUrn != null)
+            return false;
+        if (searchQuerySourceInfo != null ?
+            !searchQuerySourceInfo.equals(that.searchQuerySourceInfo) :
+            that.searchQuerySourceInfo != null) return false;
+        if (promotedSourceInfo != null ?
+            !promotedSourceInfo.equals(that.promotedSourceInfo) :
+            that.promotedSourceInfo != null) return false;
+        if (stationsSourceInfo != null ?
+            !stationsSourceInfo.equals(that.stationsSourceInfo) :
+            that.stationsSourceInfo != null) return false;
+        if (recommendationsSourceInfo != null ?
+            !recommendationsSourceInfo.equals(that.recommendationsSourceInfo) :
+            that.recommendationsSourceInfo != null) return false;
+        return chartSourceInfo != null ?
+               chartSourceInfo.equals(that.chartSourceInfo) :
+               that.chartSourceInfo == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = originScreen != null ? originScreen.hashCode() : 0;
+        result = 31 * result + (userTriggered ? 1 : 0);
+        result = 31 * result + (source != null ? source.hashCode() : 0);
+        result = 31 * result + (sourceVersion != null ? sourceVersion.hashCode() : 0);
+        result = 31 * result + (reposter != null ? reposter.hashCode() : 0);
+        result = 31 * result + (collectionUrn != null ? collectionUrn.hashCode() : 0);
+        result = 31 * result + (playlistOwnerUrn != null ? playlistOwnerUrn.hashCode() : 0);
+        result = 31 * result + playlistPosition;
+        result = 31 * result + (searchQuerySourceInfo != null ? searchQuerySourceInfo.hashCode() : 0);
+        result = 31 * result + (promotedSourceInfo != null ? promotedSourceInfo.hashCode() : 0);
+        result = 31 * result + (stationsSourceInfo != null ? stationsSourceInfo.hashCode() : 0);
+        result = 31 * result + (recommendationsSourceInfo != null ? recommendationsSourceInfo.hashCode() : 0);
+        result = 31 * result + (chartSourceInfo != null ? chartSourceInfo.hashCode() : 0);
+        return result;
     }
 }

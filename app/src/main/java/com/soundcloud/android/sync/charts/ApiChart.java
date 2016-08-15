@@ -6,6 +6,7 @@ import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.optional.Optional;
 
 import java.util.Date;
 
@@ -54,5 +55,9 @@ public class ApiChart<T extends ImageResource> {
 
     public ModelCollection<T> tracks() {
         return tracks;
+    }
+
+    public Optional<Urn> getQueryUrn() {
+        return tracks.getQueryUrn();
     }
 }

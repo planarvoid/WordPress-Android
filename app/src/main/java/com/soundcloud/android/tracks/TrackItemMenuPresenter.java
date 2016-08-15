@@ -19,6 +19,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
@@ -31,7 +32,9 @@ import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.stations.StartStationHandler;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -74,6 +77,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
 
     @Nullable private RemoveTrackListener removeTrackListener;
 
+    private Optional<TrackSourceInfo> trackSourceInfo;
+
     public interface RemoveTrackListener {
         void onPlaylistTrackRemoved(int position);
     }
@@ -112,16 +117,31 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
+        show(activity, button, track, position, Optional.<TrackSourceInfo>absent());
+    }
+
+    public void show(FragmentActivity activity,
+                     View button,
+                     TrackItem track,
+                     int position,
+                     Optional<TrackSourceInfo> trackSourceInfo) {
         if (track instanceof PromotedTrackItem) {
-            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null,
-                 PromotedSourceInfo.fromItem((PromotedTrackItem) track));
+            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET,null,
+                 PromotedSourceInfo.fromItem((PromotedTrackItem) track), trackSourceInfo);
         } else {
-            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null, null);
+            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null, null, trackSourceInfo);
         }
     }
 
-    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, Urn playlistUrn,
-                     Urn ownerUrn, RemoveTrackListener removeTrackListener, PromotedSourceInfo promotedSourceInfo) {
+    public void show(FragmentActivity activity,
+                     View button,
+                     TrackItem track,
+                     int positionInAdapter,
+                     Urn playlistUrn,
+                     Urn ownerUrn,
+                     RemoveTrackListener removeTrackListener,
+                     PromotedSourceInfo promotedSourceInfo,
+                     Optional<TrackSourceInfo> trackSourceInfo) {
         this.activity = activity;
         this.track = track;
         this.positionInAdapter = positionInAdapter;
@@ -129,6 +149,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.promotedSourceInfo = promotedSourceInfo;
         this.playlistUrn = playlistUrn;
         this.ownerUrn = ownerUrn;
+        this.trackSourceInfo = trackSourceInfo;
         loadTrack(setupMenu(button));
     }
 
@@ -271,14 +292,24 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                                                   EntityMetadata.from(track)));
     }
 
-    private EventContextMetadata getEventContextMetadata() {
-        return EventContextMetadata.builder()
-                                   .invokerScreen(ScreenElement.LIST.get())
-                                   .contextScreen(screenProvider.getLastScreenTag())
-                                   .pageName(screenProvider.getLastScreenTag())
-                                   .pageUrn(playlistUrn)
-                                   .isFromOverflow(true)
-                                   .build();
+    @VisibleForTesting
+    EventContextMetadata getEventContextMetadata() {
+        final String screen = trackSourceInfo.isPresent()
+                        ? trackSourceInfo.get().getOriginScreen()
+                        : screenProvider.getLastScreenTag();
+
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
+                                                                         .contextScreen(screen)
+                                                                         .pageName(screen)
+                                                                         .invokerScreen(ScreenElement.LIST.get())
+                                                                         .pageUrn(playlistUrn)
+                                                                         .isFromOverflow(true);
+
+        if (trackSourceInfo.isPresent()) {
+            builder.trackSourceInfo(trackSourceInfo.get());
+        }
+
+        return builder.build();
     }
 
     private void handleLike() {

@@ -18,6 +18,7 @@ import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -33,16 +34,21 @@ import java.util.List;
 
 class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, ChartTrackListItem> {
 
+    static final int NUM_EXTRA_ITEMS = 1;
     private static final Predicate<ChartTrackListItem> IS_TRACK = new Predicate<ChartTrackListItem>() {
         public boolean apply(ChartTrackListItem input) {
             return input.getKind() == ChartTrackListItem.Kind.TrackItem;
         }
     };
 
-    private static Function<ApiTrack, ChartTrackListItem> toChartTrackListItem(final ChartType chartType) {
+    private static Function<ApiTrack, ChartTrackListItem> toChartTrackListItem(final ApiChart<ApiTrack> apiChart) {
         return new Function<ApiTrack, ChartTrackListItem>() {
             public ChartTrackListItem apply(ApiTrack input) {
-                return ChartTrackListItem.forTrack(new ChartTrackItem(chartType, input));
+                return ChartTrackListItem.forTrack(new ChartTrackItem(apiChart.type(),
+                                                                      input,
+                                                                      apiChart.category(),
+                                                                      apiChart.genre(),
+                                                                      apiChart.getQueryUrn()));
             }
         };
     }
@@ -57,7 +63,7 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
                                                                                                  .size() + 2);
                     chartTrackListItems.add(ChartTrackListItem.forHeader(apiChart.type()));
                     Iterables.addAll(chartTrackListItems,
-                                     transform(apiChart.tracks(), toChartTrackListItem(apiChart.type())));
+                                     transform(apiChart.tracks(), toChartTrackListItem(apiChart)));
                     chartTrackListItems.add(ChartTrackListItem.forFooter(apiChart.lastUpdated()));
                     return chartTrackListItems;
                 }
@@ -66,10 +72,13 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
     private final Action1<ApiChart<ApiTrack>> trackChart = new Action1<ApiChart<ApiTrack>>() {
         @Override
         public void call(ApiChart<ApiTrack> apiTrackApiChart) {
-            chartsTracker.chartDataLoaded(apiTrackApiChart.tracks().getQueryUrn().or(Urn.NOT_SET),
-                                          apiTrackApiChart.type(),
-                                          apiTrackApiChart.category(),
-                                          apiTrackApiChart.genre());
+            final Optional<Urn> queryUrn = apiTrackApiChart.tracks().getQueryUrn();
+            if (queryUrn.isPresent()) {
+                chartsTracker.chartDataLoaded(queryUrn.get(),
+                                              apiTrackApiChart.type(),
+                                              apiTrackApiChart.category(),
+                                              apiTrackApiChart.genre());
+            }
         }
     };
 
@@ -102,12 +111,19 @@ class ChartTracksPresenter extends RecyclerViewPresenter<ApiChart<ApiTrack>, Cha
 
     @Override
     protected void onItemClicked(View view, int position) {
-        final ChartTrackListItem item = chartTracksAdapter.getItem(position);
-        if (IS_TRACK.apply(item)) {
-            final ChartTrackListItem.Track trackItem = (ChartTrackListItem.Track) item;
+        final ChartTrackListItem chartTrackListItem = chartTracksAdapter.getItem(position);
+        if (IS_TRACK.apply(chartTrackListItem)) {
+            final ChartTrackItem trackItem = ((ChartTrackListItem.Track) chartTrackListItem).chartTrackItem;
             final List<Urn> playQueue = getPlayQueue();
 
-            playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.chartTrackItem.getUrn()), PlaySessionSource.EMPTY)
+            final String screen = chartsTracker.getScreen(trackItem.chartType(), trackItem.chartCategory(), trackItem.genre());
+            final int queryPosition = position - NUM_EXTRA_ITEMS;
+
+            final Optional<Urn> queryUrn = trackItem.queryUrn();
+            final PlaySessionSource playSessionSource = (queryUrn.isPresent()) ?
+                                                        PlaySessionSource.forChart(screen, queryPosition, queryUrn.get()) :
+                                                        PlaySessionSource.EMPTY;
+            playbackInitiator.playTracks(playQueue, playQueue.indexOf(trackItem.getUrn()), playSessionSource)
                              .subscribe(expandPlayerSubscriberProvider.get());
         }
     }

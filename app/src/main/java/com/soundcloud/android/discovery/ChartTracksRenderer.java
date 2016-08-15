@@ -1,10 +1,12 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.optional.Optional;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +17,12 @@ import java.util.List;
 class ChartTracksRenderer implements CellRenderer<ChartTrackListItem> {
 
     private final TrackItemRenderer trackItemRenderer;
+    private final ScreenProvider screenProvider;
 
     @Inject
-    ChartTracksRenderer(TrackItemRenderer trackItemRenderer) {
+    ChartTracksRenderer(TrackItemRenderer trackItemRenderer, ScreenProvider screenProvider) {
         this.trackItemRenderer = trackItemRenderer;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -28,15 +32,15 @@ class ChartTracksRenderer implements CellRenderer<ChartTrackListItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<ChartTrackListItem> items) {
-        final List<TrackItem> trackItems = Lists.transform(items, toPositionedChartTrackItem(position));
-        trackItemRenderer.bindItemView(position, itemView, trackItems);
+        final ChartTrackListItem.Track track = (ChartTrackListItem.Track) items.get(position);
+        Optional<TrackSourceInfo> trackSourceInfo = track.chartTrackItem.queryUrn().transform(new Function<Urn, TrackSourceInfo>() {
+            public TrackSourceInfo apply(Urn queryUrn) {
+                TrackSourceInfo info = new TrackSourceInfo(screenProvider.getLastScreenTag(), true);
+                info.setChartSourceInfo(ChartSourceInfo.create(position - ChartTracksPresenter.NUM_EXTRA_ITEMS, queryUrn));
+                return info;
+            }
+        });
+        trackItemRenderer.bindTrackView(track.chartTrackItem, itemView, position, trackSourceInfo);
     }
 
-    private static Function<ChartTrackListItem, TrackItem> toPositionedChartTrackItem(final int position) {
-        return new Function<ChartTrackListItem, TrackItem>() {
-            public TrackItem apply(ChartTrackListItem input) {
-                return ((ChartTrackListItem.Track) input).chartTrackItem.copyWithPosition(position);
-            }
-        };
-    }
 }

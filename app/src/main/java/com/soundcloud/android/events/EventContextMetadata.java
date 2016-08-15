@@ -31,6 +31,7 @@ public abstract class EventContextMetadata {
     @Nullable
     public abstract TrackSourceInfo trackSourceInfo();
 
+
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder invokerScreen(String invokerScreen);

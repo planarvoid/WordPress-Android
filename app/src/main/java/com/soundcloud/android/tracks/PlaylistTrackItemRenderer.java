@@ -9,7 +9,9 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.view.View;
@@ -44,9 +46,12 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
     }
 
     @Override
-    protected void showTrackItemMenu(View button, TrackItem track, int position) {
+    protected void showTrackItemMenu(View button,
+                                     TrackItem track,
+                                     int position,
+                                     Optional<TrackSourceInfo> trackSourceInfo) {
         trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position, playlistUrn, ownerUrn,
-                                    removeTrackListener, promotedSourceInfo);
+                                    removeTrackListener, promotedSourceInfo, Optional.<TrackSourceInfo>absent());
     }
 
     @Override

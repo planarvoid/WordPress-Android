@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
@@ -35,7 +36,7 @@ class UserSoundsTrackItemRenderer implements CellRenderer<UserSoundsItem> {
 
         if (trackItem.isPresent()) {
             itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
-            trackItemRenderer.bindTrackView(trackItem.get(), itemView, position);
+            trackItemRenderer.bindTrackView(trackItem.get(), itemView, position, Optional.<TrackSourceInfo>absent());
         }
     }
 }

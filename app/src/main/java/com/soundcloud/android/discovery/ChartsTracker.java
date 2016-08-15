@@ -47,9 +47,26 @@ class ChartsTracker {
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(screen));
     }
 
+    String getScreen(ChartType type, ChartCategory category, Urn genreUrn) {
+        Screen screen = Screen.UNKNOWN;
+        if (type == ChartType.TOP) {
+            if (category == ChartCategory.MUSIC) {
+                screen = Screen.MUSIC_TOP_50;
+            } else if (category == ChartCategory.AUDIO) {
+                screen = Screen.AUDIO_TOP_50;
+            }
+        } else if (type == ChartType.TRENDING) {
+            if (category == ChartCategory.MUSIC) {
+                screen = Screen.MUSIC_TRENDING;
+            } else if (category == ChartCategory.AUDIO) {
+                screen = Screen.AUDIO_TRENDING;
+            }
+        }
+        return String.format(screen.get(), genreUrn.getStringId());
+    }
+
     private void trackPage(Urn genre, ChartCategory chartCategory, ChartType chartType, Urn queryUrn) {
-        final Screen screen = getScreen(chartType, chartCategory);
-        final String screenString = String.format(screen.get(), genre.getStringId());
+        final String screenString = getScreen(chartType, chartCategory, genre);
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(screenString, queryUrn));
     }
 
@@ -58,23 +75,6 @@ class ChartsTracker {
         for (ChartType chartType : ChartType.values()) {
             this.screenDataMap.put(chartType, ScreenData.EMPTY);
         }
-    }
-
-    private Screen getScreen(ChartType type, ChartCategory category) {
-        if (type == ChartType.TOP) {
-            if (category == ChartCategory.MUSIC) {
-                return Screen.MUSIC_TOP_50;
-            } else if (category == ChartCategory.AUDIO) {
-                return Screen.AUDIO_TOP_50;
-            }
-        } else if (type == ChartType.TRENDING) {
-            if (category == ChartCategory.MUSIC) {
-                return Screen.MUSIC_TRENDING;
-            } else if (category == ChartCategory.AUDIO) {
-                return Screen.AUDIO_TRENDING;
-            }
-        }
-        throw new IllegalArgumentException("Unknown screen");
     }
 
     private static final class ScreenData {

@@ -13,6 +13,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.discovery.ChartTrackItem;
 import com.soundcloud.android.events.EventQueue;
@@ -28,6 +29,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +45,10 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public class TrackItemRendererTest extends AndroidUnitTest {
+
+    private final static ChartCategory CATEGORY = ChartCategory.MUSIC;
+    private final static Urn GENRE_URN = new Urn("soundcloud:genre:rock");
+    private final static Optional<Urn> QUERY_URN = Optional.of(new Urn("soundcloud:charts:1236"));
 
     private TrackItemRenderer renderer;
 
@@ -224,7 +230,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldShowTrackPositionAndPostedTimeForTrendingChartTrackItem() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;
-        final TrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack.toPropertySet(), position);
+        final TrackItem chartTrackItem = new ChartTrackItem(TRENDING, apiTrack.toPropertySet(), CATEGORY,
+                                                            GENRE_URN, QUERY_URN);
         renderer.bindItemView(position, itemView, Arrays.asList(chartTrackItem));
 
         verify(trackItemView).showPosition(position);
@@ -235,7 +242,8 @@ public class TrackItemRendererTest extends AndroidUnitTest {
     public void shouldShowTrackPositionButNotPostedTimeForTopChartTrackItem() {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
         final int position = 0;
-        final TrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack.toPropertySet(), position);
+        final TrackItem chartTrackItem = new ChartTrackItem(TOP, apiTrack.toPropertySet(), CATEGORY,
+                                                            GENRE_URN, QUERY_URN);
         renderer.bindItemView(position, itemView, Arrays.asList(chartTrackItem));
 
         verify(trackItemView).showPosition(position);

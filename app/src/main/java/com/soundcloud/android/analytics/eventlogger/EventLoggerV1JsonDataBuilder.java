@@ -3,7 +3,9 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_CHECKPOINT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PAUSE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.*;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -12,6 +14,7 @@ import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.discovery.ChartSourceInfo;
 import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
@@ -381,13 +384,18 @@ public class EventLoggerV1JsonDataBuilder {
 
         final Optional<Urn> sourceUrn = event.getClickSourceUrn();
         final Optional<Urn> queryUrn = event.getQueryUrn();
+        final Optional<Integer> queryPosition = event.getQueryPosition();
 
         if (sourceUrn.isPresent() && !sourceUrn.get().equals(Urn.NOT_SET)) {
             eventData.clickSourceUrn(sourceUrn.get().toString());
         }
 
-        if (queryUrn.isPresent()) {
+        if (queryUrn.isPresent() && !queryUrn.get().equals(Urn.NOT_SET)) {
             eventData.queryUrn(queryUrn.get().toString());
+        }
+
+        if (queryPosition.isPresent()) {
+            eventData.queryPosition(queryPosition.get());
         }
 
         if (!event.get(PlayableTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
@@ -537,6 +545,12 @@ public class EventLoggerV1JsonDataBuilder {
             RecommendationsSourceInfo recommendationsSourceInfo = sourceInfo.getRecommendationsSourceInfo();
             data.queryUrn(recommendationsSourceInfo.getQueryUrn().toString());
             data.queryPosition(recommendationsSourceInfo.getQueryPosition());
+        }
+
+        if (sourceInfo.isFromChart()) {
+            final ChartSourceInfo chartSourceInfo = sourceInfo.getChartSourceInfo();
+            data.queryPosition(chartSourceInfo.getQueryPosition());
+            data.queryUrn(chartSourceInfo.getQueryUrn().toString());
         }
 
         return data;

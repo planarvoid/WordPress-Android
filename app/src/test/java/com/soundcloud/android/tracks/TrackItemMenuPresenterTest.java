@@ -21,6 +21,7 @@ import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -31,6 +32,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +50,7 @@ import java.util.Collections;
 
 public class TrackItemMenuPresenterTest extends AndroidUnitTest {
 
+    private static final String SCREEN = "screen";
     @Mock TrackRepository trackRepository;
     @Mock LikeOperations likeOperations;
     @Mock ShareOperations shareOperations;
@@ -80,7 +83,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
         when(popupMenuWrapper.findItem(anyInt())).thenReturn(menuItem);
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
-        when(screenProvider.getLastScreenTag()).thenReturn("screen");
+        when(screenProvider.getLastScreenTag()).thenReturn(SCREEN);
         when(featureFlags.isEnabled(Flag.PLAY_QUEUE)).thenReturn(true);
         when(playbackInitiator.playTracks(Matchers.anyListOf(Urn.class), eq(0), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
@@ -174,6 +177,27 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(activity, view, trackItem, 0);
 
         verify(popupMenuWrapper).setItemEnabled(R.id.play_next, false);
+    }
+
+    @Test
+    public void shouldBuildEventContextMetadataUsingTrackSourceInfoIfPresent() {
+        final String originScreen = "trackSourceInfoScreen";
+        final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(originScreen, false);
+
+        presenter.show(activity, view, trackItem, 0, Optional.of(trackSourceInfo));
+
+        assertThat(presenter.getEventContextMetadata().contextScreen()).isEqualTo(originScreen);
+        assertThat(presenter.getEventContextMetadata().pageName()).isEqualTo(originScreen);
+        assertThat(presenter.getEventContextMetadata().trackSourceInfo()).isEqualTo(trackSourceInfo);
+    }
+
+    @Test
+    public void shouldBuildEventContextMetadataUsingScreenProviderIfTrackSourceInfoIsAbsent() {
+        presenter.show(activity, view, trackItem, 0);
+
+        assertThat(presenter.getEventContextMetadata().contextScreen()).isEqualTo(SCREEN);
+        assertThat(presenter.getEventContextMetadata().pageName()).isEqualTo(SCREEN);
+        assertThat(presenter.getEventContextMetadata().trackSourceInfo()).isNull();
     }
 
     private TrackItem createTrackItem() {

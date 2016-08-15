@@ -13,6 +13,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.discovery.ChartSourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
@@ -72,10 +73,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     private static final Urn PLAYLIST_URN = Urn.forPlaylist(123L);
     private static final Urn STATION_URN = Urn.forTrackStation(123L);
     private static final Plan CONSUMER_SUBS_PLAN = Plan.HIGH_TIER;
-    public static final Urn QUERY_URN = new Urn("soundcloud:radio:6d2547a");
-    public static final Urn AD_URN = Urn.forAd("dfp", "123");
+    private static final Urn QUERY_URN = new Urn("soundcloud:stations:6d2547a");
+    private static final Urn AD_URN = Urn.forAd("dfp", "123");
     private static final String PAGE_NAME = "page_name";
-    public static final String SOURCE = "stations";
+    private static final String SOURCE = "stations";
+    private static final int QUERY_POSITION = 0;
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private ExperimentOperations experimentOperations;
@@ -133,6 +135,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .sourceVersion("source-version")
                                                .inPlaylist(PLAYLIST_URN)
                                                .playlistPosition(2)
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .uuid(UUID)
@@ -148,7 +152,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
         trackSourceInfo.setReposter(Urn.forUser(456L));
-        trackSourceInfo.setStationSourceInfo(STATION_URN, StationsSourceInfo.create(Urn.NOT_SET));
+        trackSourceInfo.setStationSourceInfo(QUERY_URN, StationsSourceInfo.create(Urn.NOT_SET));
 
         jsonDataBuilder.buildForAudioEvent(event);
 
@@ -164,7 +168,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .action("play")
                                                .playheadPosition(12L)
                                                .source("source")
-                                               .sourceUrn(STATION_URN.toString())
+                                               .sourceUrn(QUERY_URN.toString())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("PLAYA")
@@ -181,7 +187,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
         trackSourceInfo.setReposter(Urn.forUser(456L));
-        trackSourceInfo.setStationSourceInfo(STATION_URN,
+        trackSourceInfo.setStationSourceInfo(QUERY_URN,
                                              StationsSourceInfo.create(new Urn("soundcloud:radio:123-456")));
 
         jsonDataBuilder.buildForAudioEvent(event);
@@ -198,8 +204,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .action("play")
                                                .playheadPosition(12L)
                                                .source("source")
-                                               .sourceUrn(STATION_URN.toString())
-                                               .queryUrn("soundcloud:radio:123-456")
+                                               .sourceUrn(QUERY_URN.toString())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("PLAYA")
@@ -237,6 +244,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .inPlaylist(PLAYLIST_URN)
                                                .playlistPosition(2)
                                                .protocol("hls")
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .playerType("PLAYA")
                                                .uuid(UUID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
@@ -267,6 +276,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .action("checkpoint")
                                                .playheadPosition(12L)
                                                .source("source")
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .sourceVersion("source-version")
                                                .inPlaylist(PLAYLIST_URN)
                                                .playlistPosition(2)
@@ -281,7 +292,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
-        trackSourceInfo.setStationSourceInfo(STATION_URN, StationsSourceInfo.create(Urn.NOT_SET));
+        trackSourceInfo.setStationSourceInfo(QUERY_URN, StationsSourceInfo.create(Urn.NOT_SET));
 
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
                 createArgs(track, trackSourceInfo, 0L, false));
@@ -303,7 +314,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .action("pause")
                                                .playheadPosition(123L)
                                                .source("source")
-                                               .sourceUrn(STATION_URN.toString())
+                                               .sourceUrn(QUERY_URN.toString())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("PLAYA")
@@ -317,8 +330,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
-        trackSourceInfo.setStationSourceInfo(STATION_URN,
-                                             StationsSourceInfo.create(new Urn("soundcloud:radio:123-456")));
+        trackSourceInfo.setStationSourceInfo(QUERY_URN,
+                                             StationsSourceInfo.create(QUERY_URN));
 
         final PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
                 createArgs(track, trackSourceInfo, 0L, false));
@@ -340,8 +353,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .action("pause")
                                                .playheadPosition(123L)
                                                .source("source")
-                                               .sourceUrn(STATION_URN.toString())
-                                               .queryUrn("soundcloud:radio:123-456")
+                                               .sourceUrn(QUERY_URN.toString())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("PLAYA")
@@ -381,6 +395,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .protocol("hls")
                                                .playerType("PLAYA")
                                                .uuid(UUID)
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                                                .adUrn("ad:urn:123")
                                                .monetizationType("promoted")
@@ -682,6 +698,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .protocol("hls")
                 .playerType("player")
                 .uuid(UUID)
+                .queryUrn(QUERY_URN.toString())
+                .queryPosition(QUERY_POSITION)
                 .adUrn(audioAd.getAdUrn().toString())
                 .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                 .monetizationType("audio_ad"));
@@ -708,6 +726,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .source("source")
                 .sourceVersion("source-version")
                 .inPlaylist(PLAYLIST_URN)
+                .queryUrn(QUERY_URN.toString())
+                .queryPosition(QUERY_POSITION)
                 .playlistPosition(2)
                 .protocol("hls")
                 .playerType("player")
@@ -965,6 +985,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clickSource(SOURCE)
                                                .clickSourceUrn(STATION_URN.toString())
                                                .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .pageName(PAGE_NAME)
                                                .experiment("exp_android_listening", 2345)
                                                .experiment("exp_android_ui", 3456)
@@ -1177,6 +1198,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clickSource(SOURCE)
                                                .clickSourceUrn(STATION_URN.toString())
                                                .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
                                                .pageName(PAGE_NAME)
                                                .pageUrn(TRACK_URN.toString())
         );
@@ -1213,6 +1235,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
         trackSourceInfo.setSource(SOURCE, "0.0");
         trackSourceInfo.setStationSourceInfo(STATION_URN, StationsSourceInfo.create(QUERY_URN));
+        trackSourceInfo.setChartSourceInfo(ChartSourceInfo.create(QUERY_POSITION, QUERY_URN));
 
         return trackSourceInfo;
     }
