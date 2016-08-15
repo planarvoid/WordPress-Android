@@ -1,12 +1,9 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collection.playhistory.PlayHistoryController;
-import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
-import com.soundcloud.android.collection.playhistory.WritePlayHistoryCommand;
 import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -34,12 +31,14 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     private static final Urn TRACK_URN2 = Urn.forTrack(234L);
     private static final Urn COLLECTION_URN = Urn.forArtistStation(987L);
     private static final long START_EVENT = 12345678L;
-    public static final PlayHistoryRecord RECORD2 = PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN);
-    public static final PlayHistoryRecord RECORD = PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN);
+    private static final PlayHistoryRecord RECORD2 = PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN);
+    private static final PlayHistoryRecord RECORD = PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN);
 
     @Mock WritePlayHistoryCommand playHistoryStoreCommand;
     @Mock WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
+    @Mock PlayHistoryOperations playHistoryOperations;
     @Mock PlayHistoryExperiment experiment;
+    @Mock PushPlayHistoryCommand pushPlayHistoryCommand;
 
     private Scheduler scheduler = Schedulers.immediate();
     private TestDateProvider dateProvider = new TestDateProvider(START_EVENT);
@@ -48,9 +47,12 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         when(experiment.isEnabled()).thenReturn(true);
-        PlayHistoryController controller = new PlayHistoryController(eventBus, playHistoryStoreCommand,
+        PlayHistoryController controller = new PlayHistoryController(eventBus,
+                                                                     playHistoryStoreCommand,
                                                                      recentlyPlayedStoreCommand,
-                                                                     experiment, scheduler);
+                                                                     experiment,
+                                                                     pushPlayHistoryCommand,
+                                                                     scheduler);
         controller.subscribe();
     }
 
@@ -86,6 +88,13 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
         List<PlayHistoryEvent> playHistoryEvents = eventBus.eventsOn(EventQueue.PLAY_HISTORY);
         assertThat(playHistoryEvents.size()).isEqualTo(1);
         assertThat(playHistoryEvents.get(0)).isEqualTo(PlayHistoryEvent.fromAdded(TRACK_URN));
+    }
+
+    @Test
+    public void pushesPlayHistoryToServer() {
+        publishStateEvents(RECORD);
+
+        verify(pushPlayHistoryCommand).call(RECORD);
     }
 
     private void publishStateEvents(PlayHistoryRecord record) {

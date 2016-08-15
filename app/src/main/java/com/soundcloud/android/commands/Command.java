@@ -10,6 +10,10 @@ public abstract class Command<I, O> {
 
     public abstract O call(I input);
 
+    public O call() {
+        return call(null);
+    }
+
     public Observable<O> toObservable(final I input) {
         return Observable.create(new Observable.OnSubscribe<O>() {
             @Override
@@ -37,7 +41,7 @@ public abstract class Command<I, O> {
         return new Action0() {
             @Override
             public void call() {
-                Command.this.call(null);
+                Command.this.call();
             }
         };
     }

@@ -338,6 +338,12 @@ public class CollectionOperations {
                 .subscribeOn(scheduler);
     }
 
+    private Observable<List<TrackItem>> refreshPlayHistoryItems() {
+        return playHistoryOperations
+                .refreshPlayHistory(PLAY_HISTORY_LIMIT)
+                .subscribeOn(scheduler);
+    }
+
     private Observable<OfflineState> likedTracksOfflineState() {
         return offlineStateOperations.loadLikedTracksOfflineState();
     }
@@ -374,7 +380,7 @@ public class CollectionOperations {
                 Observable.zip(refreshLikesAndLoadPreviews(),
                                likedTracksOfflineState(),
                                TO_LIKES_ITEM),
-                playHistoryItems(),
+                refreshPlayHistoryItems(),
                 recentlyPlayed(),
                 TO_MY_COLLECTIONS_FOR_PLAY_HISTORY
         );

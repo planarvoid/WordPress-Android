@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.activities.ActivitiesSyncProvider;
+import com.soundcloud.android.collection.playhistory.PlayHistorySyncProvider;
 import com.soundcloud.android.discovery.ChartGenresSyncProvider;
 import com.soundcloud.android.discovery.ChartsSyncProvider;
 import com.soundcloud.android.discovery.RecommendedTracksSyncProvider;
@@ -34,7 +35,8 @@ public class SyncerRegistry {
                           PlaylistPostsSyncProvider playlistPostsSyncProvider,
                           TrackLikesSyncProvider trackLikesSyncProvider,
                           PlaylistLikesSyncProvider playlistLikesSyncProvider,
-                          ChartGenresSyncProvider chartGenresSyncProvider) {
+                          ChartGenresSyncProvider chartGenresSyncProvider,
+                          PlayHistorySyncProvider playHistorySyncProvider) {
         this.syncers = new HashMap<>();
 
         registerSyncer(soundStreamSyncProvider);
@@ -49,6 +51,7 @@ public class SyncerRegistry {
         registerSyncer(trackLikesSyncProvider);
         registerSyncer(playlistLikesSyncProvider);
         registerSyncer(chartGenresSyncProvider);
+        registerSyncer(playHistorySyncProvider);
     }
 
     public SyncProvider get(Syncable syncable) {

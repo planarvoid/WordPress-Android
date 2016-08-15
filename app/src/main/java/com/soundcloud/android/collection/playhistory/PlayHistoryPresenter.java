@@ -69,6 +69,13 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<TrackItem>, TrackI
     }
 
     @Override
+    protected CollectionBinding<List<TrackItem>, TrackItem> onRefreshBinding() {
+        return CollectionBinding.from(playHistoryOperations.refreshPlayHistory())
+                                .withAdapter(adapter)
+                                .build();
+    }
+
+    @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 

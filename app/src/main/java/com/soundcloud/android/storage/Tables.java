@@ -409,6 +409,7 @@ public interface Tables {
 
         public static final Column TRACK_ID = Column.create(TABLE, "track_id");
         public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
+        public static final Column SYNCED = Column.create(TABLE, "synced");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS PlayHistory (" +
                 "timestamp INTEGER NOT NULL," +

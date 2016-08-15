@@ -117,6 +117,9 @@ public enum ApiEndpoints {
     ME("/me"),
     NOTIFICATION_PREFERENCES("/notification_preferences"),
 
+    // play history
+    PLAY_HISTORY("/recently-played/tracks"),
+
     // public API
     PLAY_PUBLISH("/tpub"),
 

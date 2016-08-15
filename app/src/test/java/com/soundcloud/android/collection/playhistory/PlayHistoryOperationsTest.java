@@ -1,13 +1,13 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playhistory;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
-import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackInitiator;
+import com.soundcloud.android.sync.SyncOperations;
+import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -35,22 +35,28 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
 
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlayHistoryStorage playHistoryStorage;
+    @Mock private SyncOperations syncOperations;
 
     private Scheduler scheduler = Schedulers.immediate();
-
     private TestSubscriber<List<TrackItem>> trackSubscriber;
+    private TestSubscriber<RecentlyPlayedItem> contextsSubscriber;
 
     private PlayHistoryOperations operations;
 
     @Before
     public void setUp() throws Exception {
-        when(playHistoryStorage.fetchTracks(anyInt())).thenReturn(Observable.from(TRACK_ITEMS));
+        when(playHistoryStorage.loadTracks(anyInt())).thenReturn(Observable.from(TRACK_ITEMS));
+        when(playHistoryStorage.loadContexts(anyInt())).thenReturn(Observable.from(RECENTLY_PLAYED_ITEMS));
         trackSubscriber = new TestSubscriber<>();
-        operations = new PlayHistoryOperations(playbackInitiator, playHistoryStorage, scheduler);
+        contextsSubscriber = new TestSubscriber<>();
+        operations = new PlayHistoryOperations(playbackInitiator, playHistoryStorage, scheduler, syncOperations);
     }
 
     @Test
-    public void playHistoryReturnsAllTracksWhenNoLimitIsSpecified() throws Exception {
+    public void shouldReturnPlayHistory() throws Exception {
+        when(syncOperations.lazySyncIfStale(Syncable.PLAY_HISTORY))
+                .thenReturn(Observable.just(SyncOperations.Result.NO_OP));
+
         operations.playHistory().subscribe(trackSubscriber);
 
         trackSubscriber.assertValue(TRACK_ITEMS);
@@ -58,27 +64,21 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void recentlyPlayedReturnsListOfRecentlyPlayedItemsWithLimit() {
-        TestSubscriber<List<RecentlyPlayedItem>> recentlyPlayedSubscriber = new TestSubscriber<>();
-        when(playHistoryStorage.fetchContexts(4))
-                .thenReturn(Observable.from(RECENTLY_PLAYED_ITEMS));
+    public void shouldForceSyncPlayHistoryOnRefresh() {
+        when(syncOperations.sync(Syncable.PLAY_HISTORY))
+                .thenReturn(Observable.just(SyncOperations.Result.NO_OP));
 
-        operations.recentlyPlayed(4).subscribe(recentlyPlayedSubscriber);
+        operations.refreshPlayHistory().subscribe(trackSubscriber);
 
-        recentlyPlayedSubscriber.assertValue(RECENTLY_PLAYED_ITEMS);
-        recentlyPlayedSubscriber.assertCompleted();
+        trackSubscriber.assertValue(TRACK_ITEMS);
+        trackSubscriber.assertCompleted();
     }
 
     @Test
-    public void recentlyPlayedReturnsListOfRecentlyPlayedItemsWithMaxLimit() {
-        TestSubscriber<RecentlyPlayedItem> recentlyPlayedSubscriber = new TestSubscriber<>();
-        when(playHistoryStorage.fetchContexts(PlayHistoryOperations.MAX_RECENTLY_PLAYED))
-                .thenReturn(Observable.from(RECENTLY_PLAYED_ITEMS));
+    public void shouldReturnRecentlyPlayed() {
+        operations.recentlyPlayed().subscribe(contextsSubscriber);
 
-        operations.recentlyPlayed().subscribe(recentlyPlayedSubscriber);
-
-        recentlyPlayedSubscriber.assertValueCount(RECENTLY_PLAYED_ITEMS.size());
-        recentlyPlayedSubscriber.assertCompleted();
+        contextsSubscriber.assertValues(RECENTLY_PLAYED_ITEM);
+        contextsSubscriber.assertCompleted();
     }
-
 }

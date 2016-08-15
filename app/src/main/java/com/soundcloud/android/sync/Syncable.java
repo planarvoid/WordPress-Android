@@ -15,5 +15,6 @@ public enum Syncable {
     TRACKS,
     PLAYLISTS,
     USERS,
-    PLAYLIST
+    PLAYLIST,
+    PLAY_HISTORY
 }

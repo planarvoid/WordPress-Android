@@ -68,6 +68,7 @@ public class PlayHistoryController {
     private final WritePlayHistoryCommand playHistoryStoreCommand;
     private final WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
     private final PlayHistoryExperiment playHistoryExperiment;
+    private final PushPlayHistoryCommand pushPlayHistoryCommand;
     private final Scheduler scheduler;
 
     @Inject
@@ -75,11 +76,13 @@ public class PlayHistoryController {
                                  WritePlayHistoryCommand playHistoryStoreCommand,
                                  WriteRecentlyPlayedCommand recentlyPlayedStoreCommand,
                                  PlayHistoryExperiment playHistoryExperiment,
+                                 PushPlayHistoryCommand pushPlayHistoryCommand,
                                  @Named(LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.playHistoryStoreCommand = playHistoryStoreCommand;
         this.recentlyPlayedStoreCommand = recentlyPlayedStoreCommand;
         this.playHistoryExperiment = playHistoryExperiment;
+        this.pushPlayHistoryCommand = pushPlayHistoryCommand;
         this.scheduler = scheduler;
     }
 
@@ -95,7 +98,8 @@ public class PlayHistoryController {
                 .doOnNext(playHistoryStoreCommand.toAction1())
                 .doOnNext(recentlyPlayedStoreCommand.toAction1())
                 .doOnNext(publishNewPlayHistory())
-                .subscribe(new DefaultSubscriber<PlayHistoryRecord>());
+                .doOnNext(pushPlayHistoryCommand.toAction1())
+                .subscribe(new DefaultSubscriber<>());
     }
 
     private Action1<PlayHistoryRecord> publishNewPlayHistory() {

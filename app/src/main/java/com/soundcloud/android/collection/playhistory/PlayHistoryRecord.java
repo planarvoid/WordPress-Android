@@ -2,9 +2,16 @@ package com.soundcloud.android.collection.playhistory;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.functions.Function;
 
 @AutoValue
 public abstract class PlayHistoryRecord {
+
+    static final Function<PlayHistoryRecord, Urn> TO_TRACK_URN = new Function<PlayHistoryRecord, Urn>() {
+        public Urn apply(PlayHistoryRecord input) {
+            return input.trackUrn();
+        }
+    };
 
     static final int CONTEXT_OTHER = 0;
     static final int CONTEXT_PLAYLIST = 1;
