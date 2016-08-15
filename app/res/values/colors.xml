@@ -58,6 +58,9 @@
     <color name="timestamp_primary">@color/white</color>
     <color name="timestamp_secondary">#c5c5c5</color>
 
+    <!-- Play Queue -->
+    <color name="play_queue_remove">#ff3300</color>
+
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>
     <color name="ad_default_background">@color/ak_almost_black</color>

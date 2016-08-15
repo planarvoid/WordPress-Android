@@ -12,7 +12,7 @@
 
     <style name="PlayQueue.Remove" parent="ListItemText.SecondaryText">
         <item name="android:textSize">15sp</item>
-        <item name="android:background">@color/ak_sc_orange</item>
+        <item name="android:background">@color/play_queue_remove</item>
         <item name="android:text">@string/playqueue_remove</item>
         <item name="android:textColor">@color/ak_light_gray</item>
         <item name="android:paddingRight">20dp</item>
