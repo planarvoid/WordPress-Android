@@ -23,8 +23,8 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Single;
 import rx.functions.Action1;
+import rx.functions.Func0;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 import android.support.annotation.NonNull;
 
@@ -55,14 +55,6 @@ public class ConfigurationOperations {
     private final ImageConfigurationStorage imageConfigurationStorage;
     private final TryWithBackOff<Configuration> tryWithBackOff;
     private final Scheduler scheduler;
-
-    private static final Func2<Object, Configuration, Configuration> TO_UPDATED_CONFIGURATION =
-            new Func2<Object, Configuration, Configuration>() {
-                @Override
-                public Configuration call(Object ignore, Configuration configuration) {
-                    return configuration;
-                }
-            };
 
     private final Func1<Long, Observable<Configuration>> toFetchConfiguration =
             new Func1<Long, Observable<Configuration>>() {
@@ -126,13 +118,15 @@ public class ConfigurationOperations {
     }
 
     Observable<Configuration> update() {
-        return Observable.zip(
-                experimentOperations.loadAssignment(),
-                fetchConfigurationWithRetry(configurationRequestBuilderForGet().build())
+        return Observable.defer(new Func0<Observable<Configuration>>() {
+            @Override
+            public Observable<Configuration> call() {
+                experimentOperations.loadAssignment();
+                return fetchConfigurationWithRetry(configurationRequestBuilderForGet().build())
                         .subscribeOn(scheduler)
-                        .toObservable(),
-                TO_UPDATED_CONFIGURATION
-        );
+                        .toObservable();
+            }
+        });
     }
 
     @NonNull

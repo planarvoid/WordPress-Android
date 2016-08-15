@@ -78,7 +78,6 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
                                                  factory.<Configuration>create(0, TimeUnit.SECONDS, 0, 1),
                                                  scheduler);
 
-        when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
         when(apiClient.fetchMappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(configuration);
         when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(

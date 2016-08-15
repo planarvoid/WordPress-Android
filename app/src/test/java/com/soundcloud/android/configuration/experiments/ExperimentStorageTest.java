@@ -6,7 +6,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiMapperException;
-import com.soundcloud.android.api.json.JsonTransformer;
+import com.soundcloud.android.configuration.experiments.ExperimentStorage.AssignmentJsonTransformer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.IOUtils;
@@ -14,8 +14,6 @@ import com.soundcloud.java.reflect.TypeToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,13 +26,13 @@ public class ExperimentStorageTest extends AndroidUnitTest {
     private static final String JSON = "{ \"key\": \"value\" }";
     private static final Assignment ASSIGNMENT = ModelFixtures.create(Assignment.class);
 
-    @Mock private JsonTransformer jsonTransformer;
+    @Mock private AssignmentJsonTransformer jsonTransformer;
 
     private ExperimentStorage storage;
 
     @Before
     public void setUp() throws Exception {
-        storage = new ExperimentStorage(Schedulers.immediate(), context(), jsonTransformer);
+        storage = new ExperimentStorage(context(), jsonTransformer);
     }
 
     @Test
@@ -42,18 +40,14 @@ public class ExperimentStorageTest extends AndroidUnitTest {
         writeAssignment(getAssignmentFile(), JSON);
         when(jsonTransformer.fromJson(eq(JSON), any(TypeToken.class))).thenReturn(ASSIGNMENT);
 
-        TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
-        storage.readAssignment().subscribe(subscriber);
-        assertThat(subscriber.getOnNextEvents()).containsExactly(ASSIGNMENT);
+        assertThat(storage.readAssignment()).isEqualTo(ASSIGNMENT);
     }
 
     @Test
     public void loadEmptyAssignmentIfNoFileExists() {
         IOUtils.deleteFile(getAssignmentFile());
 
-        TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
-        storage.readAssignment().subscribe(subscriber);
-        assertThat(subscriber.getOnNextEvents()).containsExactly(Assignment.empty());
+        assertThat(storage.readAssignment()).isEqualTo(Assignment.empty());
     }
 
     @Test
@@ -61,9 +55,7 @@ public class ExperimentStorageTest extends AndroidUnitTest {
         when(jsonTransformer.fromJson(eq(JSON),
                                       any(TypeToken.class))).thenThrow(new ApiMapperException("Fake exception"));
 
-        TestSubscriber<Assignment> subscriber = new TestSubscriber<>();
-        storage.readAssignment().subscribe(subscriber);
-        assertThat(subscriber.getOnNextEvents()).containsExactly(Assignment.empty());
+        assertThat(storage.readAssignment()).isEqualTo(Assignment.empty());
     }
 
     @Test
@@ -72,7 +64,7 @@ public class ExperimentStorageTest extends AndroidUnitTest {
         when(jsonTransformer.fromJson(eq(JSON),
                                       any(TypeToken.class))).thenThrow(new ApiMapperException("Fake exception"));
 
-        storage.readAssignment().subscribe(new TestSubscriber<Assignment>());
+        storage.readAssignment();
 
         assertThat(getAssignmentFile().exists()).isFalse();
     }

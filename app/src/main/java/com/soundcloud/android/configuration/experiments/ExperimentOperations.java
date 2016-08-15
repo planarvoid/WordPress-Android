@@ -1,13 +1,9 @@
 package com.soundcloud.android.configuration.experiments;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
-import rx.Observable;
-import rx.functions.Action1;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
@@ -20,27 +16,16 @@ public class ExperimentOperations {
 
     private static final String EXPERIMENT_PREFIX = "exp_";
 
-    private final Action1<Assignment> cacheCurrentAssignments = new Action1<Assignment>() {
-        @Override
-        public void call(Assignment assignment) {
-            ExperimentOperations.this.assignment = assignment;
-        }
-    };
-
     private final ExperimentStorage experimentStorage;
     private final ActiveExperiments activeExperiments;
 
-    @Nullable private Assignment assignment = null;
+    private Assignment assignment;
 
     @Inject
     public ExperimentOperations(ExperimentStorage experimentStorage, ActiveExperiments activeExperiments) {
         this.experimentStorage = experimentStorage;
         this.activeExperiments = activeExperiments;
-    }
-
-    public Observable<Assignment> loadAssignment() {
-        return experimentStorage.readAssignment()
-                                .doOnNext(cacheCurrentAssignments);
+        loadAssignment();
     }
 
     public String[] getActiveLayers() {
@@ -51,19 +36,11 @@ public class ExperimentOperations {
         experimentStorage.storeAssignment(assignment);
     }
 
+    public void loadAssignment() {
+        this.assignment = experimentStorage.readAssignment();
+    }
+
     public Assignment getAssignment() {
-        // TODO : Refactor this to remove the from the Operations.
-        // This fixes a race condition. The app may or may not apply
-        // the variant when the user has been assigned.
-        if (assignment == null) {
-            try {
-                assignment = loadAssignment().toBlocking().first();
-            } catch (Exception e) {
-                assignment = Assignment.empty();
-                ErrorUtils.handleSilentException(e);
-                e.printStackTrace();
-            }
-        }
         return assignment;
     }
 
@@ -77,7 +54,7 @@ public class ExperimentOperations {
     }
 
     public Optional<Layer> findLayer(ExperimentConfiguration experiment) {
-        for (Layer layer : getAssignment().getLayers()) {
+        for (Layer layer : assignment.getLayers()) {
             if (experiment.matches(layer)) {
                 return Optional.of(layer);
             }
@@ -87,7 +64,7 @@ public class ExperimentOperations {
 
     public Map<String, Integer> getTrackingParams() {
         HashMap<String, Integer> params = new HashMap<>();
-        for (Layer layer : getAssignment().getLayers()) {
+        for (Layer layer : assignment.getLayers()) {
             if (activeExperiments.isActive(layer)) {
                 params.put(EXPERIMENT_PREFIX + layer.getLayerName(), layer.getVariantId());
             }
@@ -96,7 +73,7 @@ public class ExperimentOperations {
     }
 
     public void forceExperimentVariation(ExperimentConfiguration experiment, String variation) {
-        List<Layer> existingLayers = getAssignment().getLayers();
+        List<Layer> existingLayers = assignment.getLayers();
         List<Layer> newLayers = new ArrayList<>(existingLayers.size() + 1);
         String layerName = experiment.getLayerName();
 
