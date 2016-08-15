@@ -17,10 +17,10 @@ public abstract class AudioAd extends PlayerAdData {
         final ApiAdTracking adTracking = apiAudioAd.getApiAdTracking();
         return new AutoValue_AudioAd(
                 apiAudioAd.getUrn(),
-                apiAudioAd.getTrackingImpressionUrls(),
+                adTracking.impressionUrls,
                 adTracking.startUrls,
-                apiAudioAd.getTrackingFinishUrls(),
-                apiAudioAd.getTrackingSkipUrls(),
+                adTracking.finishUrls,
+                adTracking.skipUrls,
                 adTracking.firstQuartileUrls,
                 adTracking.secondQuartileUrls,
                 adTracking.thirdQuartileUrls,
