@@ -160,9 +160,6 @@ public class AdFixtures {
                 ModelFixtures.create(ApiTrack.class),
                 skippable,
                 relatedResources,
-                Arrays.asList("audio_impression1", "audio_impression2"),
-                Arrays.asList("audio_finish1", "audio_finish2"),
-                Arrays.asList("audio_skip1", "audio_skip2"),
                 getApiAudioAdTracking()
         );
     }
@@ -174,9 +171,6 @@ public class AdFixtures {
                 ModelFixtures.create(ApiTrack.class),
                 true,
                 relatedResources,
-                Arrays.asList("audio_impression1", "audio_impression2"),
-                Arrays.asList("audio_finish1", "audio_finish2"),
-                Arrays.asList("audio_skip1", "audio_skip2"),
                 getApiAudioAdTracking()
         );
     }
@@ -188,9 +182,6 @@ public class AdFixtures {
                 ModelFixtures.create(ApiTrack.class),
                 SKIPPABLE,
                 relatedResources,
-                Arrays.asList("audio_impression1", "audio_impression2"),
-                Arrays.asList("audio_finish1", "audio_finish2"),
-                Arrays.asList("audio_skip1", "audio_skip2"),
                 getApiAudioAdTracking()
         );
     }
@@ -212,13 +203,13 @@ public class AdFixtures {
     public static ApiAdTracking getApiAudioAdTracking() {
         return new ApiAdTracking(
                 Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
+                Arrays.asList("audio_impression1", "audio_impression2"),
+                Arrays.asList("audio_skip1", "audio_skip2"),
                 Arrays.asList("audio_start_1", "audio_start_2"),
                 Arrays.asList("audio_quartile1_1", "audio_quartile1_2"),
                 Arrays.asList("audio_quartile2_1", "audio_quartile2_2"),
                 Arrays.asList("audio_quartile3_1", "audio_quartile3_2"),
-                Collections.<String>emptyList(),
+                Arrays.asList("audio_finish1", "audio_finish2"),
                 Arrays.asList("audio_pause1", "audio_pause2"),
                 Arrays.asList("audio_resume1", "audio_resume2"),
                 Collections.<String>emptyList(),

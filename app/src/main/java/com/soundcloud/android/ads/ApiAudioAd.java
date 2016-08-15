@@ -20,9 +20,6 @@ class ApiAudioAd {
     private final ApiCompanionAd visualAd;
     private final ApiLeaveBehind leaveBehind;
 
-    private final List<String> trackingImpressionUrls;
-    private final List<String> trackingFinishUrls;
-    private final List<String> trackingSkipUrls;
     private final ApiAdTracking apiAdTracking;
 
     @JsonCreator
@@ -30,18 +27,12 @@ class ApiAudioAd {
                       @JsonProperty("track") ApiTrack apiTrack,
                       @JsonProperty("skippable") boolean skippable,
                       @JsonProperty("_embedded") RelatedResources relatedResources,
-                      @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
-                      @JsonProperty("tracking_finish_urls") List<String> trackingFinishUrls,
-                      @JsonProperty("tracking_skip_urls") List<String> trackingSkipUrls,
                       @JsonProperty("audio_tracking") ApiAdTracking apiAdTracking) {
         this.urn = urn;
         this.apiTrack = apiTrack;
         this.skippable = skippable;
         this.visualAd = relatedResources.visualAd;
         this.leaveBehind = relatedResources.apiLeaveBehind;
-        this.trackingImpressionUrls = trackingImpressionUrls;
-        this.trackingFinishUrls = trackingFinishUrls;
-        this.trackingSkipUrls = trackingSkipUrls;
         this.apiAdTracking = apiAdTracking;
     }
 
@@ -55,18 +46,6 @@ class ApiAudioAd {
 
     public boolean isSkippable() {
         return skippable;
-    }
-
-    public List<String> getTrackingImpressionUrls() {
-        return trackingImpressionUrls;
-    }
-
-    public List<String> getTrackingFinishUrls() {
-        return trackingFinishUrls;
-    }
-
-    public List<String> getTrackingSkipUrls() {
-        return trackingSkipUrls;
     }
 
     public ApiAdTracking getApiAdTracking() {
@@ -103,7 +82,6 @@ class ApiAudioAd {
             this.visualAd = visualAd;
             this.apiLeaveBehind = apiLeaveBehind;
         }
-
     }
 
     public boolean isThirdParty() {
@@ -117,9 +95,6 @@ class ApiAudioAd {
                           .add("apiTrack", apiTrack)
                           .add("visualAd", visualAd)
                           .add("leaveBehind", leaveBehind)
-                          .add("trackingImpressionUrls", trackingImpressionUrls)
-                          .add("trackingFinishUrls", trackingFinishUrls)
-                          .add("trackingSkipUrls", trackingSkipUrls)
                           .toString();
     }
 }
