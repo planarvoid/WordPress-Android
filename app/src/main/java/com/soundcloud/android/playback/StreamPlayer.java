@@ -166,7 +166,8 @@ class StreamPlayer implements PlayerListener {
     }
 
     private boolean shouldFallbackToMediaPlayer(PlaybackStateTransition stateTransition) {
-        return isUsingSkippyPlayer() && stateTransition.wasGeneralFailure() && networkConnectionHelper.isNetworkConnected();
+        return isUsingSkippyPlayer() && stateTransition.wasGeneralFailure() && networkConnectionHelper.isNetworkConnected()
+                && lastItemPlayed.getPlaybackType() != PlaybackType.AUDIO_OFFLINE;
     }
 
     @Override
