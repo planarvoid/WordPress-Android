@@ -14,15 +14,18 @@ import java.util.concurrent.Executor;
 @Singleton
 public class FabricProvider {
 
-    private Executor executor;
+    private final Executor executor;
 
     @Inject
-    public FabricProvider() {
+    public FabricProvider(Context context) {
+        // Note : Fabric is only initialized the first time you call start,
+        // so calling it multiple times won’t cause any issues.
+        // https://docs.fabric.io/android/fabric/overview.html
+        executor = Fabric.with(context).getExecutorService();
     }
 
-    public void initialize(Context context) {
-        final Fabric fabric = Fabric.with(context, new Crashlytics(), new Answers());
-        this.executor = fabric.getExecutorService();
+    public static void initialize(Context context) {
+        Fabric.with(context, new Crashlytics(), new Answers());
     }
 
     public boolean isInitialized() {

@@ -108,7 +108,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject AppboyPlaySessionState appboyPlaySessionState;
     @Inject StreamPreloader streamPreloader;
     @Inject @Named(StorageModule.STREAM_CACHE_DIRECTORY) File streamCacheDirectory;
-    @Inject FabricProvider fabricProvider;
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
     @Inject SyncConfig syncConfig;
     @Inject PlayHistoryController playHistoryController;
@@ -138,6 +137,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         instance = this;
 
         initializePreInjectionObjects();
+        setUpCrashReportingIfNeeded();
 
         objectGraph.inject(this);
         devTools.initialize(this);
@@ -145,7 +145,6 @@ public class SoundCloudApplication extends MultiDexApplication {
     }
 
     protected void bootApplication() {
-        setUpCrashReportingIfNeeded();
         migrationEngine.migrate();
 
         Log.i(TAG, "Application starting up in mode " + applicationProperties.getBuildType());
@@ -214,7 +213,7 @@ public class SoundCloudApplication extends MultiDexApplication {
 
     private void setUpCrashReportingIfNeeded() {
         if (isReportingCrashes()) {
-            fabricProvider.initialize(this);
+            FabricProvider.initialize(this);
         }
         uncaughtExceptionHandlerController.setHandler();
     }
