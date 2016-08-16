@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.java.optional.Optional;
 
@@ -18,7 +19,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 @AutoFactory(allowSubclasses = true)
-class SwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
+class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
 
     private final Paint textPaint;
     private final Paint backgroundPaint;
@@ -26,8 +27,11 @@ class SwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
     private final StyleAttributes styleAttributes;
     private final PlayQueuePresenter presenter;
 
-    public SwipeToRemoveCallback(@Provided Context context, PlayQueuePresenter presenter) {
-        super(0, ItemTouchHelper.RIGHT);
+    private int draggedFromPosition = Consts.NOT_SET;
+    private int draggedToPosition = Consts.NOT_SET;
+
+    public PlayQueueSwipeToRemoveCallback(@Provided Context context, PlayQueuePresenter presenter) {
+        super(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT);
         this.presenter = presenter;
 
         styleAttributes = StyleAttributes.from(context);
@@ -51,7 +55,19 @@ class SwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
     public boolean onMove(RecyclerView recyclerView,
                           RecyclerView.ViewHolder viewHolder,
                           RecyclerView.ViewHolder target) {
-        return false;
+        if (presenter.isRemovable(target.getAdapterPosition())) {
+            draggedToPosition = target.getAdapterPosition();
+            presenter.switchItems(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        super.clearView(recyclerView, viewHolder);
+        viewHolder.itemView.setBackgroundResource(0);
     }
 
     @Override
@@ -96,6 +112,26 @@ class SwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
         presenter.remove(viewHolder.getAdapterPosition());
+    }
+
+    @Override
+    public boolean isLongPressDragEnabled() {
+        return false;
+    }
+
+    @Override
+    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+        super.onSelectedChanged(viewHolder, actionState);
+        if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+            draggedFromPosition = viewHolder.getAdapterPosition();
+            viewHolder.itemView.setBackgroundResource(R.color.playqueue_background);
+        } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
+            if (draggedFromPosition != Consts.NOT_SET && draggedToPosition != Consts.NOT_SET) {
+                presenter.moveItems(draggedFromPosition, draggedToPosition);
+                draggedFromPosition = Consts.NOT_SET;
+                draggedToPosition = Consts.NOT_SET;
+            }
+        }
     }
 
     static class StyleAttributes {

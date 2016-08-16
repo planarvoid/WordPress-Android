@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.playqueue;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.tracks.TrackItemView;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -173,9 +172,9 @@ class PlayQueueItemAnimator extends RecyclerView.ItemAnimator {
             final View imageView = view.findViewById(R.id.image);
             final View textView = view.findViewById(R.id.text_holder);
             final float postAlpha = imageView.getAlpha();
-            final float preAlpha = postAlpha == TrackItemView.ALPHA_ENABLED ?
-                                   TrackItemView.ALPHA_DISABLED :
-                                   TrackItemView.ALPHA_ENABLED;
+            final float preAlpha = postAlpha == PlayQueueItemRenderer.ALPHA_ENABLED ?
+                                   PlayQueueItemRenderer.ALPHA_DISABLED :
+                                   PlayQueueItemRenderer.ALPHA_ENABLED;
 
             ViewCompat.setAlpha(imageView, preAlpha);
             ViewCompat.setAlpha(textView, preAlpha);

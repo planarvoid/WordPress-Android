@@ -7,7 +7,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -398,7 +400,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(1);
-        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
+        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).isNewQueue()).isTrue();
     }
 
     @Test
@@ -640,7 +642,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
 
         playQueueManager.removeAds(PlayQueueEvent.fromAdsRemoved(Urn.NOT_SET));
 
-        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.ADS_REMOVED);
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).adsRemoved()).isTrue();
     }
 
     @Test
@@ -904,7 +906,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.clearAll();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(1);
-        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
+        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).isNewQueue()).isTrue();
     }
 
     @Test
@@ -1199,8 +1201,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.insertNext(playlistUrns);
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
-                PlayQueueEvent.fromNewQueue(Urn.NOT_SET),
-                PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET)
+                PlayQueueEvent.fromNewQueue(Urn.forPlaylist(6)),
+                PlayQueueEvent.fromQueueUpdate(Urn.forPlaylist(6))
         );
     }
 
@@ -1229,7 +1231,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertNextSavesQueue()  {
+    public void insertNextSavesQueue() {
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
         final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
         playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
@@ -1242,7 +1244,7 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void insertNextPublishesQueueUpdate()  {
+    public void insertNextPublishesQueueUpdate() {
         final List<Urn> tracksUrn = TestUrns.createTrackUrns(1L, 2L, 3L, 4L, 5L);
         final PlayQueue playQueueItems = TestPlayQueue.fromUrns(tracksUrn, playlistSessionSource);
         playQueueManager.setNewPlayQueue(playQueueItems, playlistSessionSource, 2);
@@ -1250,8 +1252,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.insertNext(Urn.forTrack(100L));
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
-                PlayQueueEvent.fromNewQueue(Urn.NOT_SET),
-                PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET)
+                PlayQueueEvent.fromNewQueue(Urn.forPlaylist(6)),
+                PlayQueueEvent.fromQueueUpdate(Urn.forPlaylist(6))
         );
     }
 
@@ -1413,8 +1415,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.shuffle();
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).hasSize(2);
-        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
-        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).getKind()).isEqualTo(PlayQueueEvent.NEW_QUEUE);
+        assertThat(eventBus.firstEventOn(EventQueue.PLAY_QUEUE).isNewQueue()).isTrue();
+        assertThat(eventBus.lastEventOn(EventQueue.PLAY_QUEUE).isNewQueue()).isTrue();
     }
 
     @Test
@@ -1445,7 +1447,11 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void setCurrentPlayQueueItemWithSameTrackMultipleTimes() {
         final PlayQueueItem playlistItem = new PlaylistQueueItem.Builder(Urn.forPlaylist(245L)).build();
         final PlayQueueItem trackItem = new TrackQueueItem.Builder(Urn.forTrack(123L)).build();
-        final List<PlayQueueItem> playQueueItems = Arrays.asList(playlistItem, trackItem, trackItem, playlistItem, trackItem);
+        final List<PlayQueueItem> playQueueItems = Arrays.asList(playlistItem,
+                                                                 trackItem,
+                                                                 trackItem,
+                                                                 playlistItem,
+                                                                 trackItem);
         final SimplePlayQueue playQueue = new SimplePlayQueue(playQueueItems);
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
 
@@ -1487,9 +1493,21 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         playQueueManager.removeItemAtPosition(0);
 
         assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
-                PlayQueueEvent.fromNewQueue(Urn.NOT_SET),
-                PlayQueueEvent.fromQueueUpdate(Urn.NOT_SET)
+                PlayQueueEvent.fromNewQueue(Urn.forPlaylist(6)),
+                PlayQueueEvent.fromQueueUpdateRemoved(Urn.forPlaylist(6))
         );
+    }
+
+    @Test
+    public void shouldMoveItems() {
+        playQueue = mock(PlayQueue.class);
+        playQueueManager.setNewPlayQueue(playQueue,
+                                         PlaySessionSource.forArtist(Screen.ACTIVITIES, Urn.NOT_SET));
+        playQueueManager.moveItem(0, 1);
+        verify(playQueue, times(1)).moveItem(eq(0), eq(1));
+        assertThat(eventBus.eventsOn(EventQueue.PLAY_QUEUE)).containsExactly(
+                PlayQueueEvent.fromNewQueue(Urn.NOT_SET),
+                PlayQueueEvent.fromQueueUpdateMoved(Urn.NOT_SET));
     }
 
     private void assertPlayQueueSaved(PlayQueue expected) {

@@ -250,14 +250,4 @@ public class TrackItemRendererTest extends AndroidUnitTest {
         verify(trackItemView, never()).showPostedTime(apiTrack.getCreatedAt());
         verify(trackItemView).showPlaycount(anyString());
     }
-
-    @Test
-    public void shouldSetInRepeatingMode() {
-        trackItem.setIsPlaying(true);
-        trackItem.setInRepeatMode(true);
-
-        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
-
-        verify(trackItemView).setRepeating(true, true);
-    }
 }

@@ -105,12 +105,8 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
         loadArtwork(trackItemView, track);
         setupOverFlow(trackItemView, track, position, trackSourceInfo);
-        setupRepeating(track, trackItemView);
     }
 
-    private void setupRepeating(TrackItem track, TrackItemView trackItemView) {
-        trackItemView.setRepeating(track.isInRepeatMode(), track.isPlaying());
-    }
 
     private void bindExtraInfoRight(TrackItem track, TrackItemView trackItemView) {
         trackItemView.hideInfoViewsRight();

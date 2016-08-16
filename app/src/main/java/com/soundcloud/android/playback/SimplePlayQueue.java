@@ -28,6 +28,12 @@ class SimplePlayQueue extends PlayQueue {
     }
 
     @Override
+    public void moveItem(int fromPosition, int toPosition) {
+        PlayQueueItem playQueueItem = playQueueItems.remove(fromPosition);
+        playQueueItems.add(toPosition, playQueueItem);
+    }
+
+    @Override
     public PlayQueue copy() {
         return new SimplePlayQueue(new ArrayList<>(playQueueItems));
     }

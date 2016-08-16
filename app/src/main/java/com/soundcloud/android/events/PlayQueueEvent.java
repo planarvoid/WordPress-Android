@@ -1,81 +1,54 @@
 package com.soundcloud.android.events;
 
+import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.java.objects.MoreObjects;
 
-public class PlayQueueEvent {
+@AutoValue
+public abstract class PlayQueueEvent {
 
     public static final int NEW_QUEUE = 0;
     public static final int QUEUE_UPDATE = 1;
     public static final int ADS_REMOVED = 2;
 
-    private final int kind;
-    private final Urn collectionUrn;
+    public abstract boolean itemMoved();
 
-    public PlayQueueEvent(int kind, Urn collectionUrn) {
-        this.kind = kind;
-        this.collectionUrn = collectionUrn;
-    }
+    public abstract boolean itemRemoved();
 
-    public int getKind() {
-        return kind;
-    }
+    public abstract int getKind();
 
-    public Urn getCollectionUrn() {
-        return collectionUrn;
-    }
+    public abstract Urn getCollectionUrn();
 
     public static PlayQueueEvent fromNewQueue(Urn collectionUrn) {
-        return new PlayQueueEvent(NEW_QUEUE, collectionUrn);
+        return new AutoValue_PlayQueueEvent(false, false, NEW_QUEUE, collectionUrn);
     }
 
     public static PlayQueueEvent fromQueueUpdate(Urn collectionUrn) {
-        return new PlayQueueEvent(QUEUE_UPDATE, collectionUrn);
+        return new AutoValue_PlayQueueEvent(false, false, QUEUE_UPDATE, collectionUrn);
     }
 
     public static PlayQueueEvent fromAdsRemoved(Urn collectionUrn) {
-        return new PlayQueueEvent(ADS_REMOVED, collectionUrn);
+        return new AutoValue_PlayQueueEvent(false, false, ADS_REMOVED, collectionUrn);
+    }
+
+    public static PlayQueueEvent fromQueueUpdateMoved(Urn collectionUrn) {
+        return new AutoValue_PlayQueueEvent(true, false, QUEUE_UPDATE, collectionUrn);
+    }
+
+    public static PlayQueueEvent fromQueueUpdateRemoved(Urn collectionUrn) {
+        return new AutoValue_PlayQueueEvent(false, true, QUEUE_UPDATE, collectionUrn);
     }
 
     public boolean isQueueUpdate() {
-        return kind == QUEUE_UPDATE;
+        return getKind() == QUEUE_UPDATE;
     }
 
     public boolean isNewQueue() {
-        return kind == NEW_QUEUE;
+        return getKind() == NEW_QUEUE;
     }
 
     public boolean adsRemoved() {
-        return kind == ADS_REMOVED;
+        return getKind() == ADS_REMOVED;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof PlayQueueEvent
-                && ((PlayQueueEvent) o).getKind() == kind;
-    }
 
-    @Override
-    public int hashCode() {
-        return kind;
-    }
-
-    @Override
-    public String toString() {
-        final MoreObjects.ToStringHelper stringHelper = MoreObjects.toStringHelper(this);
-        return stringHelper.add("kind", getKindName()).toString();
-    }
-
-    private String getKindName() {
-        switch (kind) {
-            case NEW_QUEUE:
-                return "NEW_QUEUE";
-            case QUEUE_UPDATE:
-                return "QUEUE_UPDATE";
-            case ADS_REMOVED:
-                return "ADS_REMOVED";
-            default:
-                return "unknown";
-        }
-    }
 }

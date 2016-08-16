@@ -20,7 +20,6 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     public static final String PLAYABLE_TYPE = "track";
 
     private boolean isPlaying;
-    private boolean isInRepeatMode;
 
     public static TrackItem from(PropertySet trackState) {
         return new TrackItem(trackState);
@@ -102,14 +101,6 @@ public class TrackItem extends PlayableItem implements TieredTrack {
         return isPlaying;
     }
 
-    public boolean isInRepeatMode() {
-        return isInRepeatMode;
-    }
-
-    public void setInRepeatMode(boolean inRepeatMode) {
-        isInRepeatMode = inRepeatMode;
-    }
-
     public boolean hasPlayCount() {
         return getPlayCount() > 0;
     }
@@ -137,12 +128,11 @@ public class TrackItem extends PlayableItem implements TieredTrack {
     @Override
     public boolean equals(Object o) {
         return o instanceof TrackItem && ((TrackItem) o).source.equals(this.source)
-                && ((TrackItem) o).isInRepeatMode == this.isInRepeatMode
                 && ((TrackItem) o).isPlaying == this.isPlaying;
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(source, isInRepeatMode, isPlaying);
+        return MoreObjects.hashCode(source, isPlaying);
     }
 }

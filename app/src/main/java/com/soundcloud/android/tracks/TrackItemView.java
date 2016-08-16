@@ -20,9 +20,6 @@ import java.util.Date;
 
 public class TrackItemView {
 
-    public static final float ALPHA_DISABLED = 0.5f;
-    public static final float ALPHA_ENABLED = 1.0f;
-
     private final View view;
     private final ImageView image;
     private final TextView creator;
@@ -89,15 +86,6 @@ public class TrackItemView {
         position.setText(String.valueOf(index));
         position.setVisibility(View.VISIBLE);
     }
-
-    void setRepeating(boolean inRepeatingMode, boolean isPlaying) {
-        if (inRepeatingMode && !isPlaying) {
-            view.setAlpha(ALPHA_DISABLED);
-        } else {
-            view.setAlpha(ALPHA_ENABLED);
-        }
-    }
-
 
     private int getColor(int color) {
         return getContext().getResources().getColor(color);

@@ -18,7 +18,7 @@ public class PlayQueuePresenterTest {
     @Mock private PlayQueueRecyclerItemAdapter adapter;
     @Mock private PlayQueueOperations playQueueOperations;
     @Mock private PlayQueueArtworkController playerArtworkController;
-    @Mock private SwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
+    @Mock private PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
     @Mock private EventBus eventbus;
     private PlayQueuePresenter presenter;
 

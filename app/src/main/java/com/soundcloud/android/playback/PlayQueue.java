@@ -39,6 +39,8 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
         return new SimplePlayQueue(playQueueItems);
     }
 
+    public abstract void moveItem(int fromPosition, int toPosition);
+
     private static List<PlayQueueItem> playQueueItemsFromUrns(List<Urn> urns,
                                                               final PlaySessionSource playSessionSource,
                                                               final Map<Urn, Boolean> blockedTracks) {
