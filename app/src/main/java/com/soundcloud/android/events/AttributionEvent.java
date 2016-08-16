@@ -8,7 +8,7 @@ public final class AttributionEvent extends TrackingEvent {
     public static final String CREATIVE = "creative";
 
     public AttributionEvent(String network, String campaign, String adGroup, String creative) {
-        super(KIND_DEFAULT, System.currentTimeMillis());
+        super(KIND_DEFAULT);
         put(NETWORK, network);
         put(CAMPAIGN, campaign);
         put(ADGROUP, adGroup);

@@ -26,7 +26,7 @@ public class ForegroundEvent extends TrackingEvent {
     }
 
     private ForegroundEvent(String kind) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
     }
 
 }

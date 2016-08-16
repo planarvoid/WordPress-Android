@@ -68,7 +68,7 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     }
 
     private AdPlaybackSessionEvent(String kind, PlayerAdData adData, TrackSourceInfo trackSourceInfo) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
         this.trackSourceInfo = trackSourceInfo;
 
         put(PlayableTrackingKeys.KEY_AD_URN, adData.getAdUrn().toString());

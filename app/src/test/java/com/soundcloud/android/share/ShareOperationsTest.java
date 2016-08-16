@@ -1,8 +1,10 @@
 package com.soundcloud.android.share;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -15,6 +17,9 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -36,11 +41,13 @@ public class ShareOperationsTest extends AndroidUnitTest {
     private ShareOperations operations;
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
+    @Mock private TheTracker tracker;
+    @Captor ArgumentCaptor<UIEvent> uiEventCaptor;
 
     @Before
     public void setUp() {
         activityContext = new Activity();
-        operations = new ShareOperations(eventBus);
+        operations = new ShareOperations(tracker);
     }
 
     @Test
@@ -61,8 +68,10 @@ public class ShareOperationsTest extends AndroidUnitTest {
     public void shareTrackPublishesTrackingEvent() throws Exception {
         operations.share(activityContext, TRACK, eventContext(), null);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
-        Map<String, String> attributes = uiEvent.getAttributes();
+        verify(tracker).trackEngagement(uiEventCaptor.capture());
+
+        final UIEvent uiEvent = uiEventCaptor.getValue();
+        final Map<String, String> attributes = uiEvent.getAttributes();
 
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_SHARE);
         assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN_TAG);
@@ -74,8 +83,10 @@ public class ShareOperationsTest extends AndroidUnitTest {
     public void sharePromotedTrackPublishesTrackingEvent() throws Exception {
         operations.share(activityContext, PROMOTED_TRACK, eventContext(), PROMOTED_SOURCE_INFO);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
-        Map<String, String> attributes = uiEvent.getAttributes();
+        verify(tracker).trackEngagement(uiEventCaptor.capture());
+
+        final UIEvent uiEvent = uiEventCaptor.getValue();
+        final Map<String, String> attributes = uiEvent.getAttributes();
 
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_SHARE);
         assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN_TAG);

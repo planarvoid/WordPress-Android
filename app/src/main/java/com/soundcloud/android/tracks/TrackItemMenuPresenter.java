@@ -7,10 +7,10 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
@@ -66,6 +66,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final PlayQueueManager playQueueManager;
     private final PlaybackInitiator playbackInitiator;
     private final PlaybackToastHelper playbackToastHelper;
+    private final TheTracker tracker;
 
     private FragmentActivity activity;
     private TrackItem track;
@@ -98,7 +99,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            FeatureFlags featureFlags,
                            PlayQueueManager playQueueManager,
                            PlaybackInitiator playbackInitiator,
-                           PlaybackToastHelper playbackToastHelper) {
+                           PlaybackToastHelper playbackToastHelper,
+                           TheTracker tracker) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;
@@ -114,6 +116,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.playQueueManager = playQueueManager;
         this.playbackInitiator = playbackInitiator;
         this.playbackToastHelper = playbackToastHelper;
+        this.tracker = tracker;
     }
 
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
@@ -271,25 +274,20 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void trackLike(boolean addLike) {
-        final Urn trackUrn = track.getUrn();
-
-        eventBus.publish(EventQueue.TRACKING,
-                         UIEvent.fromToggleLike(addLike,
-                                                trackUrn,
-                                                getEventContextMetadata(),
-                                                getPromotedSource(),
-                                                EntityMetadata.from(track)));
+        tracker.trackEngagement(UIEvent.fromToggleLike(addLike,
+                                                       track.getUrn(),
+                                                       getEventContextMetadata(),
+                                                       getPromotedSource(),
+                                                       EntityMetadata.from(track)));
     }
 
     private void trackRepost(boolean repost) {
-        final Urn trackUrn = track.getUrn();
+        tracker.trackEngagement(UIEvent.fromToggleRepost(repost,
+                                                         track.getUrn(),
+                                                         getEventContextMetadata(),
+                                                         getPromotedSource(),
+                                                         EntityMetadata.from(track)));
 
-        eventBus.publish(EventQueue.TRACKING,
-                         UIEvent.fromToggleRepost(repost,
-                                                  trackUrn,
-                                                  getEventContextMetadata(),
-                                                  getPromotedSource(),
-                                                  EntityMetadata.from(track)));
     }
 
     @VisibleForTesting
@@ -313,9 +311,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleLike() {
-        final Urn trackUrn = track.getUrn();
         final boolean addLike = !track.isLiked();
-        likeOperations.toggleLike(trackUrn, addLike)
+        likeOperations.toggleLike(track.getUrn(), addLike)
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(context, addLike));
 
@@ -323,9 +320,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleRepost() {
-        final Urn trackUrn = track.getUrn();
         final boolean repost = !track.isReposted();
-        repostOperations.toggleRepost(trackUrn, repost)
+        repostOperations.toggleRepost(track.getUrn(), repost)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(context, repost));
 

@@ -2,15 +2,14 @@ package com.soundcloud.android.share;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.Context;
 import android.content.Intent;
@@ -21,11 +20,11 @@ public class ShareOperations {
 
     private static final String SHARE_TYPE = "text/plain";
 
-    private final EventBus eventBus;
+    private final TheTracker tracker;
 
     @Inject
-    public ShareOperations(EventBus eventBus) {
-        this.eventBus = eventBus;
+    public ShareOperations(TheTracker tracker) {
+        this.tracker = tracker;
     }
 
     public void share(Context context, PropertySet playable, EventContextMetadata contextMetadata,
@@ -42,7 +41,7 @@ public class ShareOperations {
 
     private void publishShareTracking(PropertySet playable, EventContextMetadata contextMetadata,
                                       PromotedSourceInfo promotedSourceInfo) {
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromShare(
+        tracker.trackEngagement(UIEvent.fromShare(
                 playable.get(EntityProperty.URN),
                 contextMetadata,
                 promotedSourceInfo,

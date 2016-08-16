@@ -3,9 +3,8 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_CHECKPOINT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PAUSE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.*;
+import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -26,6 +25,7 @@ import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
@@ -33,6 +33,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
@@ -63,17 +64,19 @@ public class EventLoggerV1JsonDataBuilder {
     private final AccountOperations accountOperations;
     private final FeatureOperations featureOperations;
     private final ExperimentOperations experimentOperations;
+    private final FeatureFlags featureFlags;
     private final JsonTransformer jsonTransformer;
 
     @Inject
     public EventLoggerV1JsonDataBuilder(Resources resources, DeviceHelper deviceHelper,
                                         NetworkConnectionHelper connectionHelper, AccountOperations accountOperations,
                                         JsonTransformer jsonTransformer, FeatureOperations featureOperations,
-                                        ExperimentOperations experimentOperations) {
+                                        ExperimentOperations experimentOperations, FeatureFlags featureFlags) {
         this.connectionHelper = connectionHelper;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
         this.experimentOperations = experimentOperations;
+        this.featureFlags = featureFlags;
         this.appId = resources.getInteger(R.integer.app_id);
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
@@ -351,8 +354,11 @@ public class EventLoggerV1JsonDataBuilder {
     private EventLoggerEventData buildPlaybackClickEvent(String clickName, UIEvent event) {
         EventLoggerEventData eventData =
                 buildClickEvent(clickName, event).clickCategory(EventLoggerClickCategories.PLAYBACK);
-        if (!event.get(PlayableTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
-            eventData.pageUrn(event.get(PlayableTrackingKeys.KEY_PAGE_URN));
+
+        final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
+
+        if (pageUrn != null && !pageUrn.equals(Urn.NOT_SET.toString())) {
+            eventData.pageUrn(pageUrn);
         }
         return eventData;
     }
@@ -407,6 +413,15 @@ public class EventLoggerV1JsonDataBuilder {
         }
 
         return eventData;
+    }
+
+    private void attachReferringEvent(EventLoggerEventData eventData, TrackingEvent event) {
+        final String id = event.get(ReferringEvent.REFERRING_EVENT_ID_KEY);
+        final String kind = event.get(ReferringEvent.REFERRING_EVENT_KIND_KEY);
+
+        if (featureFlags.isEnabled(HOLISTIC_TRACKING) && id != null && kind != null) {
+            eventData.referringEvent(id, kind);
+        }
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {
@@ -477,7 +492,11 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, TrackingEvent event) {
-        return buildBaseEvent(eventName, event.getTimestamp());
+        final EventLoggerEventData eventData = buildBaseEvent(eventName, event.getTimestamp());
+
+        attachReferringEvent(eventData, event);
+
+        return eventData;
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {

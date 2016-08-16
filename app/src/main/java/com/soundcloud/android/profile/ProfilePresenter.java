@@ -8,10 +8,14 @@ import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_SOUNDS;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.ActivityReferringEventProvider;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.main.EnterScreenDispatcher;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
@@ -29,18 +33,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity>
-        implements ViewPager.OnPageChangeListener {
+class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
+        implements EnterScreenDispatcher.Listener {
 
     final @LightCycle ProfileScrollHelper scrollHelper;
+    final @LightCycle ActivityReferringEventProvider referringEventProvider;
+    final @LightCycle EnterScreenDispatcher enterScreenDispatcher;
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
+    private final TheTracker tracker;
 
     private ViewPager pager;
     private Subscription userSubscription = RxUtils.invalidSubscription();
@@ -60,17 +66,24 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity>
                             ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
                             UserProfileOperations profileOperations,
                             EventBus eventBus,
-                            AccountOperations accountOperations) {
+                            AccountOperations accountOperations,
+                            TheTracker tracker,
+                            ActivityReferringEventProvider referringEventProvider,
+                            EnterScreenDispatcher enterScreenDispatcher) {
         this.scrollHelper = scrollHelper;
         this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
+        this.tracker = tracker;
+        this.referringEventProvider = referringEventProvider;
+        this.enterScreenDispatcher = enterScreenDispatcher;
+        this.enterScreenDispatcher.setListener(this);
         LightCycles.bind(this);
     }
 
     @Override
-    public void onCreate(AppCompatActivity activity, Bundle bundle) {
+    public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
 
         user = getUserUrnFromIntent(activity.getIntent());
@@ -84,8 +97,8 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity>
         pager.setAdapter(new ProfilePagerAdapter(activity, user, accountOperations.isLoggedInUser(user), scrollHelper,
                                                  (SearchQuerySourceInfo) activity.getIntent()
                                                                                  .getParcelableExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO)));
-        pager.addOnPageChangeListener(this);
         pager.setCurrentItem(ProfilePagerAdapter.TAB_SOUNDS);
+        pager.addOnPageChangeListener(enterScreenDispatcher);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
@@ -100,21 +113,14 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity>
     }
 
     @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    public void onEnterScreen(RootActivity activity) {
+        int position = pager.getCurrentItem();
 
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        eventBus.publish(EventQueue.TRACKING, accountOperations.isLoggedInUser(user)
-                                              ? ScreenEvent.create(getYourScreen(position))
-                                              : ScreenEvent.create(getOtherScreen(position),
-                                                                   Urn.forUser(user.getNumericId())));
+        if (accountOperations.isLoggedInUser(user)) {
+            tracker.trackScreen(ScreenEvent.create(getYourScreen(position)), referringEventProvider.getReferringEvent());
+        } else {
+            tracker.trackScreen(ScreenEvent.create(getOtherScreen(position), Urn.forUser(user.getNumericId())), referringEventProvider.getReferringEvent());
+        }
     }
 
     private Screen getYourScreen(int position) {
@@ -166,7 +172,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<AppCompatActivity>
     }
 
     @Override
-    public void onDestroy(AppCompatActivity activity) {
+    public void onDestroy(RootActivity activity) {
         pager = null;
         userUpdatedSubscription.unsubscribe();
         userSubscription.unsubscribe();

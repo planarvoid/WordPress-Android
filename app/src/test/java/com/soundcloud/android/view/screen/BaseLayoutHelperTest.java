@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.TheTracker;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,10 +32,11 @@ public class BaseLayoutHelperTest {
     @Mock private View layout;
     @Mock private ViewGroup container;
     @Mock private View content;
+    @Mock private TheTracker theTracker;
 
     @Before
     public void setUp() throws Exception {
-        helper = new BaseLayoutHelper();
+        helper = new BaseLayoutHelper(theTracker);
 
         when(activity.getLayoutInflater()).thenReturn(inflater);
         when(layout.findViewById(R.id.container)).thenReturn(container);

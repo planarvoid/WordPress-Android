@@ -15,6 +15,7 @@ enum Feature {
   LOCAL_PLAY_HISTORY_STORAGE,
   PLAY_QUEUE,
   NEW_SYNC_ADAPTER,
+  HOLISTIC_TRACKING,
   ALBUMS,
   STATION_PAGE;
 }
@@ -33,6 +34,7 @@ android {
     buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
     buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), FALSE
+    buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), FALSE
   }
 
   buildTypes {
@@ -46,6 +48,7 @@ android {
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), TRUE
     }
 
     beta {

@@ -10,6 +10,7 @@ import com.soundcloud.java.strings.Strings;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 class EventLoggerEventData {
 
@@ -155,6 +156,17 @@ class EventLoggerEventData {
 
     public EventLoggerEventData protocol(String protocol) {
         addToPayload(PROTOCOL, protocol);
+        return this;
+    }
+
+    EventLoggerEventData referringEvent(String uuid, String kind) {
+        final HashMap<String, String> referringEvent = new HashMap<>();
+
+        referringEvent.put(EventLoggerParam.UUID, uuid);
+        referringEvent.put(EventLoggerParam.REFERRING_EVENT_KIND, kind);
+
+        addToPayload(REFERRING_EVENT, referringEvent);
+
         return this;
     }
 
@@ -365,6 +377,12 @@ class EventLoggerEventData {
 
     protected void addToPayload(String key, long value) {
         addToPayload(key, String.valueOf(value));
+    }
+
+    protected void addToPayload(String key, Map<String, String> child) {
+        if (child.size() > 0) {
+            payload.put(key, child);
+        }
     }
 
     protected void addToPayload(String key, String value) {

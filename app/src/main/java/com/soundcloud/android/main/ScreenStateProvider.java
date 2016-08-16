@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class ScreenStateProvider extends DefaultActivityLightCycle<AppCompatActivity> {
+public class ScreenStateProvider extends DefaultActivityLightCycle<AppCompatActivity> {
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
 
     private boolean onCreateCalled;
@@ -24,11 +24,11 @@ class ScreenStateProvider extends DefaultActivityLightCycle<AppCompatActivity> {
         return isForeground;
     }
 
-    boolean isReallyResuming() {
+    public boolean isReallyResuming() {
         return !onCreateCalled;
     }
 
-    boolean isConfigurationChange() {
+    public boolean isConfigurationChange() {
         return isConfigurationChange;
     }
 
@@ -56,5 +56,9 @@ class ScreenStateProvider extends DefaultActivityLightCycle<AppCompatActivity> {
     public void onPause(AppCompatActivity activity) {
         onCreateCalled = false;
         isForeground = false;
+    }
+
+    public boolean isEnteringScreen() {
+        return !isConfigurationChange() || isReallyResuming();
     }
 }

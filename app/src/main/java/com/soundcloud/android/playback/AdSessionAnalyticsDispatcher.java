@@ -8,12 +8,12 @@ import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
-import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
@@ -31,19 +31,19 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final StopReasonProvider stopReasonProvider;
-    private final UuidProvider uuidProvider;
 
     private Optional<PlayerAdData> currentPlayingAd = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
 
     @Inject
-    public AdSessionAnalyticsDispatcher(EventBus eventBus, PlayQueueManager playQueueManager, AdsOperations adsOperations,
-                                        StopReasonProvider stopReasonProvider, UuidProvider uuidProvider) {
+    public AdSessionAnalyticsDispatcher(EventBus eventBus,
+                                        PlayQueueManager playQueueManager,
+                                        AdsOperations adsOperations,
+                                        StopReasonProvider stopReasonProvider) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
         this.stopReasonProvider = stopReasonProvider;
-        this.uuidProvider = uuidProvider;
     }
 
     @Override
@@ -111,6 +111,7 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     private AdPlaybackSessionEventArgs buildEventArgs(PlaybackStateTransition stateTransition, PlaybackProgress playbackProgress) {
-        return AdPlaybackSessionEventArgs.createWithProgress(currentTrackSourceInfo.get(), playbackProgress, stateTransition, uuidProvider.getRandomUuid());
+        return AdPlaybackSessionEventArgs.createWithProgress(currentTrackSourceInfo.get(), playbackProgress, stateTransition,
+                                                             UUID.randomUUID().toString());
     }
 }

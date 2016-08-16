@@ -13,5 +13,4 @@ public class UuidProvider {
     public String getRandomUuid() {
         return UUID.randomUUID().toString();
     }
-
 }

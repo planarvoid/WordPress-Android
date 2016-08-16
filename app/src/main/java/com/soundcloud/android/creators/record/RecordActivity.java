@@ -13,9 +13,11 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.main.LoggedInActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.main.ScreenStateProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
+import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Subscription;
 
@@ -36,6 +38,7 @@ public class RecordActivity extends LoggedInActivity {
     private static final String METADATA_FRAGMENT_TAG = "metadata_fragment";
     private static final String UPLOAD_PROGRESS_FRAGMENT_TAG = "upload_progress_fragment";
 
+    @Inject @LightCycle ScreenStateProvider screenStateProvider;
     @Inject BaseLayoutHelper baseLayoutHelper;
     @Inject EventBus eventBus;
     @Inject SoundRecorder recorder;
@@ -106,7 +109,7 @@ public class RecordActivity extends LoggedInActivity {
     }
 
     public void trackScreen(ScreenEvent screenEvent) {
-        if (screenTracker.isEnteringScreen()) {
+        if (screenStateProvider.isEnteringScreen()) {
             eventBus.publish(EventQueue.TRACKING, screenEvent);
         }
     }

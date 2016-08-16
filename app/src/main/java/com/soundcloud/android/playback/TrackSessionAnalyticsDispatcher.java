@@ -8,7 +8,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -19,6 +18,7 @@ import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
@@ -31,7 +31,6 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private final PlayQueueManager playQueueManager;
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final StopReasonProvider stopReasonProvider;
-    private final UuidProvider uuidProvider;
 
     private Optional<PlaybackSessionEvent> lastPlaySessionEvent = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
@@ -42,14 +41,12 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                            TrackRepository trackRepository,
                                            PlayQueueManager playQueueManager,
                                            AppboyPlaySessionState appboyPlaySessionState,
-                                           StopReasonProvider stopReasonProvider,
-                                           UuidProvider uuidProvider) {
+                                           StopReasonProvider stopReasonProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
         this.appboyPlaySessionState = appboyPlaySessionState;
         this.stopReasonProvider = stopReasonProvider;
-        this.uuidProvider = uuidProvider;
     }
 
     @Override
@@ -184,7 +181,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                                            progress,
                                                            playStateEvent.getTransition(),
                                                            appboyPlaySessionState.isMarketablePlay(),
-                                                           uuidProvider.getRandomUuid());
+                                                           UUID.randomUUID().toString());
     }
 
 }

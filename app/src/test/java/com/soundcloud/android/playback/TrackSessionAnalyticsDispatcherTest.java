@@ -17,7 +17,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -35,7 +34,6 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private static final Urn CREATOR_URN = Urn.forUser(3L);
     private static final long PROGRESS = 1001L;
     private static final long DURATION = 2001L;
-    private static final String UUID = "blah-123";
 
     private PlaybackAnalyticsDispatcher dispatcher;
 
@@ -43,7 +41,6 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
     @Mock private StopReasonProvider stopReasonProvider;
-    @Mock private UuidProvider uuidProvider;
 
     private TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.STREAM.get(), true);
 
@@ -57,11 +54,10 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(false);
-        when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
         dispatcher = new TrackSessionAnalyticsDispatcher(
                 eventBus, trackRepository, playQueueManager, appboyPlaySessionState,
-                stopReasonProvider, uuidProvider);
+                stopReasonProvider);
     }
 
     @Test
@@ -115,7 +111,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(
                 PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
-        assertThat(playbackSessionEvent.getUUID()).isEqualTo(UUID);
+        assertThat(playbackSessionEvent.getUUID()).isNotEmpty();
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
         assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
     }

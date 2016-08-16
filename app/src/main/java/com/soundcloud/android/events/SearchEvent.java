@@ -139,7 +139,7 @@ public final class SearchEvent extends TrackingEvent {
     }
 
     private SearchEvent(String kind) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
     }
 
     @Override

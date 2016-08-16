@@ -21,7 +21,6 @@ class EventLoggerParam {
     static final String PLAYLIST_POSITION = "playlist_position";
     static final String PLAYHEAD_POSITION = "playhead_position";
     static final String POLICY = "policy";
-    static final String UUID = "client_event_id";
 
     // subs
     static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";
@@ -75,6 +74,11 @@ class EventLoggerParam {
     static final String CLICK_ATTRIBUTES = "click_attributes";
     static final String PAUSE_REASON = "pause_reason";
     static final String OVERFLOW_MENU = "overflow_menu";
+
+    // HTI Params
+    static final String UUID = "client_event_id";
+    static final String REFERRING_EVENT = "referring_event";
+    static final String REFERRING_EVENT_KIND = "event_type";
 
     // search tracking
     static final String QUERY_URN = "query_urn";

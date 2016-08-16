@@ -29,7 +29,7 @@ public class DatabaseMigrationEvent extends TrackingEvent implements MetricEvent
     }
 
     private DatabaseMigrationEvent(@NotNull String kind, long duration) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
         put(KEY_DURATION, String.valueOf(duration));
     }
 

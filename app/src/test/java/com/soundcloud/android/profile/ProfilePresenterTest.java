@@ -1,18 +1,25 @@
 package com.soundcloud.android.profile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.ActivityReferringEventProvider;
+import com.soundcloud.android.analytics.TheTracker;
+import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.EnterScreenDispatcher;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.main.ScreenStateProvider;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -20,6 +27,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +43,6 @@ import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import java.util.Collections;
@@ -49,7 +56,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
-    @Mock private AppCompatActivity activity;
+    @Mock private RootActivity activity;
     @Mock private TabLayout tabLayout;
     @Mock private MultiSwipeRefreshLayout swipeRefreshLayout;
     @Mock private ProfileHeaderPresenter.ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
@@ -61,7 +68,13 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private FragmentManager fragmentManager;
     @Mock private ProfileScrollHelper profileScrollHelper;
     @Mock private AccountOperations accountOperations;
+    @Mock private TrackingStateProvider trackingStateProvider;
+    @Mock private TheTracker tracker;
+    @Mock private ScreenStateProvider screenStateProvider;
+    @Mock private ActivityReferringEventProvider referringEventProvider;
+    @Mock private EnterScreenDispatcher enterScreenDispatcher;
     @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
+    @Captor private ArgumentCaptor<ScreenEvent> screenEventArgumentCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -85,8 +98,14 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(profileHeaderPresenterFactory.create(activity, USER_URN)).thenReturn(profileHeaderPresenter);
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
 
-        profilePresenter = new ProfilePresenter(profileScrollHelper, profileHeaderPresenterFactory,
-                                                profileOperations, eventBus, accountOperations);
+        profilePresenter = new ProfilePresenter(profileScrollHelper,
+                                                profileHeaderPresenterFactory,
+                                                profileOperations,
+                                                eventBus,
+                                                accountOperations,
+                                                tracker,
+                                                referringEventProvider,
+                                                enterScreenDispatcher);
     }
 
     @Test
@@ -143,12 +162,12 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Test
     public void profilePresenterShouldTrackUserPageViewWhenTabSelected() throws Exception {
         profilePresenter.onCreate(activity, null);
-        profilePresenter.onPageSelected(ProfilePagerAdapter.TAB_SOUNDS);
+        when(viewPager.getCurrentItem()).thenReturn(ProfilePagerAdapter.TAB_SOUNDS);
+        profilePresenter.onEnterScreen(activity);
 
-        final ScreenEvent actual = (ScreenEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-
-        assertThat(actual.getScreenTag()).isEqualTo(Screen.USER_MAIN.get());
-        assertThat(actual.getPageUrn()).isEqualTo(USER_URN.toString());
+        verify(tracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
+        assertThat(screenEventArgumentCaptor.getValue().getScreenTag()).isEqualTo(Screen.USER_MAIN.get());
+        assertThat(screenEventArgumentCaptor.getValue().getPageUrn()).isEqualTo(USER_URN.toString());
     }
 
     @Test
@@ -156,11 +175,11 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(accountOperations.isLoggedInUser(USER_URN)).thenReturn(true);
 
         profilePresenter.onCreate(activity, null);
-        profilePresenter.onPageSelected(ProfilePagerAdapter.TAB_SOUNDS);
+        when(viewPager.getCurrentItem()).thenReturn(ProfilePagerAdapter.TAB_SOUNDS);
+        profilePresenter.onEnterScreen(activity);
 
-        final ScreenEvent actual = (ScreenEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-
-        assertThat(actual.getScreenTag()).isEqualTo(Screen.YOUR_MAIN.get());
+        verify(tracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
+        assertThat(screenEventArgumentCaptor.getValue().getScreenTag()).isEqualTo(Screen.YOUR_MAIN.get());
     }
 
     private ProfileUser createProfileUser() {

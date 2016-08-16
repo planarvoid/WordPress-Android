@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
-import com.soundcloud.android.utils.UuidProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,7 +23,6 @@ public class PlaySessionStateProviderTest extends AndroidUnitTest {
     private PlaySessionStateProvider provider;
 
     @Mock private PlaySessionStateStorage playSessionStateStorage;
-    @Mock private UuidProvider uuidProvider;
     @Mock private PlayQueueManager playQueueManager;
     private TestDateProvider dateProvider;
 

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.analytics.TheTracker;
+import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -20,6 +22,7 @@ public class ForegroundControllerTest extends AndroidUnitTest {
                                                                          Referrer.PLAYBACK_NOTIFICATION);
 
     @Mock private AppCompatActivity activity;
+    @Mock private TrackingStateProvider trackingStateProvider;
 
     private TestEventBus eventBus;
     private ForegroundController lightCycle;
@@ -27,7 +30,8 @@ public class ForegroundControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        lightCycle = new ForegroundController(eventBus);
+        TheTracker tracker = new TheTracker(eventBus, trackingStateProvider);
+        lightCycle = new ForegroundController(tracker);
     }
 
     @Test

@@ -75,7 +75,7 @@ public class MainActivity extends PlayerActivity {
 
     @Override
     public Screen getScreen() {
-        return mainPresenter.getScreen();
+        return Screen.UNKNOWN;
     }
 
 }

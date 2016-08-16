@@ -29,6 +29,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
@@ -39,6 +40,8 @@ import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -85,6 +88,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private JsonTransformer jsonTransformer;
     @Mock private FeatureOperations featureOperations;
     @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private FeatureFlags featureFlags;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = createTrackSourceInfo();
@@ -99,13 +103,15 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                            accountOperations,
                                                            jsonTransformer,
                                                            featureOperations,
-                                                           experimentOperations);
+                                                           experimentOperations,
+                                                           featureFlags);
 
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
         when(deviceHelper.getAppVersionCode()).thenReturn(APP_VERSION_CODE);
         when(featureOperations.getCurrentPlan()).thenReturn(CONSUMER_SUBS_PLAN);
+        when(featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)).thenReturn(false);
     }
 
     @Test
@@ -579,6 +585,21 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .clickName("automatic_likes_sync::disable")
                                                .clickCategory("consumer_subs")
                                                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void shouldAttachesReferringEventIfHtiEnabled() throws ApiMapperException {
+        final String id = "id";
+        final String kind = "kind";
+        final ReferringEvent referringEvent = ReferringEvent.create(id, kind);
+        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
+
+        event.putReferringEvent(referringEvent);
+        when(featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)).thenReturn(true);
+
+        jsonDataBuilder.buildForUIEvent(event);
+
+        assertEngagementWithReferringEvent("share", event.getTimestamp(), id, kind);
     }
 
     @Test
@@ -1191,7 +1212,16 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     private void assertEngagementClickEventJson(String engagementName, long timestamp) throws ApiMapperException {
-        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, timestamp)
+        verify(jsonTransformer).toJson(getEngagementEventData(engagementName, timestamp)
+        );
+    }
+
+    private void assertEngagementWithReferringEvent(String engagementName, long timestamp, String id, String kind) throws ApiMapperException {
+        verify(jsonTransformer).toJson(getEngagementEventData(engagementName, timestamp).referringEvent(id, kind));
+    }
+
+    private EventLoggerEventData getEngagementEventData(String engagementName, long timestamp) {
+        return getEventData("click", BOOGALOO_VERSION, timestamp)
                                                .clickName(engagementName)
                                                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
                                                .clickObject(TRACK_URN.toString())
@@ -1200,8 +1230,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
                                                .pageName(PAGE_NAME)
-                                               .pageUrn(TRACK_URN.toString())
-        );
+                                               .pageUrn(TRACK_URN.toString());
     }
 
     private void setupExperiments() {

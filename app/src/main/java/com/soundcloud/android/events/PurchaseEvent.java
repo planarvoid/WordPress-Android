@@ -8,7 +8,7 @@ public class PurchaseEvent extends TrackingEvent {
     private static final String KEY_CURRENCY = "raw_currency";
 
     private PurchaseEvent(String kind, String rawPrice, String rawCurrency) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
         put(KEY_VALUE, rawPrice);
         put(KEY_CURRENCY, rawCurrency);
     }

@@ -18,7 +18,7 @@ public final class CollectionEvent extends TrackingEvent {
     public static final String SORT_RECENT = "sort:recent";
 
     private CollectionEvent(String kind) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
     }
 
     public static CollectionEvent forClearFilter() {

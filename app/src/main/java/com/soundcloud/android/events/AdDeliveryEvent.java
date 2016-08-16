@@ -23,7 +23,7 @@ public class AdDeliveryEvent extends TrackingEvent {
                             String endpoint,
                             boolean playerVisible,
                             boolean inForeground) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
         this.put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, monetizableUrn.toString());
         this.put(PlayableTrackingKeys.KEY_ADS_ENDPOINT, endpoint);
         this.adsRequested = adsRequested;

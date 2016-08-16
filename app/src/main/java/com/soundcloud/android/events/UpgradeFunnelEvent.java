@@ -31,7 +31,7 @@ public final class UpgradeFunnelEvent extends TrackingEvent {
     public static final String KEY_PAGE_URN = "page_urn";
 
     private UpgradeFunnelEvent(@NotNull String kind) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
     }
 
     private UpgradeFunnelEvent(@NotNull String kind, String id) {

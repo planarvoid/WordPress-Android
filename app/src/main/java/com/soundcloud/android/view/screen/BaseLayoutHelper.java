@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.screen;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.TheTracker;
 
 import android.support.v4.view.WindowCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,8 +15,11 @@ import javax.inject.Inject;
 
 public class BaseLayoutHelper {
 
+    private final TheTracker theTracker;
+
     @Inject
-    public BaseLayoutHelper() {
+    BaseLayoutHelper(TheTracker theTracker) {
+        this.theTracker = theTracker;
     }
 
     public View setContainerLayout(AppCompatActivity activity) {
@@ -73,7 +77,7 @@ public class BaseLayoutHelper {
         return layout;
     }
 
-    public void setupActionBar(AppCompatActivity activity) {
+    public void setupActionBar(final AppCompatActivity activity) {
         final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
         if (toolbar != null) {
             activity.setSupportActionBar(toolbar);

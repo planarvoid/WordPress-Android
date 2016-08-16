@@ -6,6 +6,8 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 
+import java.util.UUID;
+
 public class TestEvents {
 
     public static PlaybackSessionEvent playbackSessionPlayEvent() {
@@ -45,7 +47,7 @@ public class TestEvents {
     }
 
     public static TrackingEvent unspecifiedTrackingEvent() {
-        return new TrackingEvent("test", 123L) {
+        return new TrackingEvent("test", 123L, UUID.randomUUID().toString()) {
         };
     }
 }

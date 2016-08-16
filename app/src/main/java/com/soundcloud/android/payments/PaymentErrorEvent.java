@@ -11,7 +11,7 @@ public class PaymentErrorEvent extends TrackingEvent implements MetricEvent {
     private final String errorType;
 
     public PaymentErrorEvent(String errorType) {
-        super(KIND, System.currentTimeMillis());
+        super(KIND);
         this.errorType = errorType;
     }
 

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import android.support.v4.util.ArrayMap;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class TrackingEvent {
 
@@ -15,16 +16,31 @@ public class TrackingEvent {
     @NotNull protected final String kind;
     @NotNull protected final Map<String, String> attributes;
     protected final long timestamp;
+    private final String id;
 
-    protected TrackingEvent(@NotNull String kind, long timestamp) {
+    protected TrackingEvent(@NotNull String kind, long timestamp, String id) {
         this.kind = kind;
         this.timestamp = timestamp;
         this.attributes = new ArrayMap<>();
+        this.id = id;
+    }
+
+    protected TrackingEvent(@NotNull String kind, long timestamp) {
+        this(kind, timestamp, UUID.randomUUID().toString());
+    }
+
+    protected TrackingEvent(@NotNull String kind) {
+        this(kind, System.currentTimeMillis(), UUID.randomUUID().toString());
     }
 
     @NotNull
     public String getKind() {
         return kind;
+    }
+
+    @NotNull
+    public String getId() {
+        return id;
     }
 
     public long getTimestamp() {
@@ -43,8 +59,14 @@ public class TrackingEvent {
         return (T) this;
     }
 
+    @Nullable
     public String get(String key) {
         return attributes.get(key);
+    }
+
+    public void putReferringEvent(ReferringEvent referringEvent) {
+        this.put(ReferringEvent.REFERRING_EVENT_ID_KEY, referringEvent.getId());
+        this.put(ReferringEvent.REFERRING_EVENT_KIND_KEY, referringEvent.getKind());
     }
 
     @NotNull
@@ -53,31 +75,35 @@ public class TrackingEvent {
     }
 
     @Override
-    public final boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || o.getClass() != getClass()) {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
 
-        TrackingEvent event = (TrackingEvent) o;
+        if (o == null || getClass() != o.getClass()) { return false; }
 
-        if (timestamp != event.timestamp) {
-            return false;
-        }
-        if (!attributes.equals(event.attributes)) {
-            return false;
-        }
-        return kind.equals(event.kind);
+        TrackingEvent that = (TrackingEvent) o;
 
+        if (timestamp != that.timestamp) { return false; }
+        if (!kind.equals(that.kind)) { return false; }
+        if (!attributes.equals(that.attributes)) { return false; }
+        return id != null ? id.equals(that.id) : that.id == null;
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         int result = kind.hashCode();
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + attributes.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "TrackingEvent{" +
+                "kind='" + kind + '\'' +
+                ", attributes=" + attributes +
+                ", timestamp=" + timestamp +
+                ", id='" + id + '\'' +
+                '}';
     }
 }

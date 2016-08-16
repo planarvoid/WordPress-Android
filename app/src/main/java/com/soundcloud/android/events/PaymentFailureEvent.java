@@ -13,7 +13,7 @@ public class PaymentFailureEvent extends TrackingEvent implements MetricEvent {
     }
 
     private PaymentFailureEvent(String reason) {
-        super(TrackingEvent.KIND_DEFAULT, System.currentTimeMillis());
+        super(TrackingEvent.KIND_DEFAULT);
         put(KEY_REASON, reason);
     }
 

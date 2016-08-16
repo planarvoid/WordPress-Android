@@ -1,41 +1,36 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.analytics.ActivityReferringEventProvider;
+import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycles;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
 
-public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity> {
-    private final EventBus eventBus;
-
-    @LightCycle final ScreenStateProvider screenStateProvider;
+public class ScreenTracker extends ActivityLightCycleDispatcher<RootActivity> implements EnterScreenDispatcher.Listener {
+    @LightCycle final ActivityReferringEventProvider referringEventProvider;
+    @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
+    private final TheTracker theTracker;
 
     @Inject
-    public ScreenTracker(ScreenStateProvider screenStateProvider, EventBus eventBus) {
-        this.screenStateProvider = screenStateProvider;
-        this.eventBus = eventBus;
+    public ScreenTracker(ActivityReferringEventProvider referringEventProvider,
+                         EnterScreenDispatcher enterScreenDispatcher,
+                         TheTracker theTracker) {
+        this.referringEventProvider = referringEventProvider;
+        this.enterScreenDispatcher = enterScreenDispatcher;
+        this.theTracker = theTracker;
+
+        this.enterScreenDispatcher.setListener(this);
         LightCycles.bind(this);
     }
 
     @Override
-    public void onResume(RootActivity activity) {
-        super.onResume(activity);
-
-        if (isEnteringScreen()) {
-            final Screen screen = activity.getScreen();
-            if (screen != Screen.UNKNOWN) {
-                eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(screen));
-            }
+    public void onEnterScreen(RootActivity activity) {
+        final Screen screen = activity.getScreen();
+        if (screen != Screen.UNKNOWN) {
+            theTracker.trackScreen(ScreenEvent.create(screen), referringEventProvider.getReferringEvent());
         }
     }
-
-    public boolean isEnteringScreen() {
-        // What does it mean ? Is there a bug here ? #2664
-        return !screenStateProvider.isConfigurationChange() || screenStateProvider.isReallyResuming();
-    }
-
 }

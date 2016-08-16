@@ -27,10 +27,6 @@ public class ChartActivity extends PlayerActivity {
         return Screen.UNKNOWN;
     }
 
-    public boolean isEnteringScreen() {
-        return screenTracker.isEnteringScreen();
-    }
-
     @Override
     protected void setActivityContentView() {
         baseLayoutHelper.createActionBarLayout(this, R.layout.tabbed_activity);

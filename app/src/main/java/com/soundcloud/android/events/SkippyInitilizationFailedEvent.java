@@ -9,7 +9,7 @@ public class SkippyInitilizationFailedEvent extends TrackingEvent {
     public static final String HAS_SUCCEEDED = "has_succeeded";
 
     public SkippyInitilizationFailedEvent(Throwable throwable, String message, int failureCount, int successCount) {
-        super(KIND_DEFAULT, System.currentTimeMillis());
+        super(KIND_DEFAULT);
         put(THROWABLE, throwable.toString());
         put(MESSAGE, message);
         put(FAILURE_COUNT, String.valueOf(failureCount));

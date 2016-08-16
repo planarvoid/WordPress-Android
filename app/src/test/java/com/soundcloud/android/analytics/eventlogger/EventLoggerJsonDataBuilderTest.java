@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,6 +32,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -59,6 +61,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private JsonTransformer jsonTransformer;
+    @Mock private FeatureFlags featureFlags;
 
     private EventLoggerJsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.LIKES.get(), true);
@@ -68,11 +71,16 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        jsonDataBuilder = new EventLoggerJsonDataBuilder(context().getResources(), experimentOperations,
-                                                         deviceHelper, accountOperations, jsonTransformer);
+        jsonDataBuilder = new EventLoggerJsonDataBuilder(context().getResources(),
+                                                         experimentOperations,
+                                                         deviceHelper,
+                                                         accountOperations,
+                                                         jsonTransformer,
+                                                         featureFlags);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
+        when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(false);
     }
 
     @Test
@@ -84,6 +92,18 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         verify(jsonTransformer).toJson(eq(getEventData("pageview",
                                                        "v0.0.0",
                                                        screenEvent.getTimestamp()).pageName(Screen.ACTIVITIES.get())));
+    }
+
+    @Test
+    public void createsScreenEventJsonWithUuidWhenHtiEnabled() throws ApiMapperException {
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
+        when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(true);
+
+        jsonDataBuilder.build(screenEvent);
+
+        verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
+                                                  .uuid(screenEvent.getId())
+                                                  .pageName(Screen.ACTIVITIES.get())));
     }
 
     @Test
@@ -126,7 +146,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                .adUrn(audioAd.getCompanionAdUrn().get().toString())
                                                .pageName(Screen.LIKES.get())
                                                .clickName("clickthrough::companion_display")
-                                               .clickTarget(audioAd.getClickThroughUrl().get().toString())
+                                               .clickTarget(audioAd.getClickThroughUrl().get())
                                                .clickObject(audioAdTrackUrn.toString())
                                                .externalMedia(audioAd.getCompanionImageUrl().get().toString())
                                                .monetizedObject(monetizedTrackUrn.toString())

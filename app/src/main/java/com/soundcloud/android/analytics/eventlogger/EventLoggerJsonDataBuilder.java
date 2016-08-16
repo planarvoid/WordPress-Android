@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiMapperException;
@@ -11,12 +13,14 @@ import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 
 import android.content.res.Resources;
@@ -39,26 +43,33 @@ public class EventLoggerJsonDataBuilder {
     protected final DeviceHelper deviceHelper;
     protected final ExperimentOperations experimentOperations;
     protected final AccountOperations accountOperations;
-
+    private final FeatureFlags featureFlags;
     private final JsonTransformer jsonTransformer;
 
     @Inject
     public EventLoggerJsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
                                       DeviceHelper deviceHelper, AccountOperations accountOperations,
-                                      JsonTransformer jsonTransformer) {
+                                      JsonTransformer jsonTransformer, FeatureFlags featureFlags) {
         this.accountOperations = accountOperations;
         this.appId = resources.getInteger(R.integer.app_id);
         this.experimentOperations = experimentOperations;
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
+        this.featureFlags = featureFlags;
     }
 
     public String build(ScreenEvent event) {
         try {
-            return jsonTransformer.toJson(buildBaseEvent(PAGEVIEW_EVENT, event)
-                                                  .pageName(event.getScreenTag())
-                                                  .queryUrn(event.getQueryUrn())
-                                                  .pageUrn(event.getPageUrn()));
+            final EventLoggerEventData eventData = buildBaseEvent(PAGEVIEW_EVENT, event)
+                    .pageName(event.getScreenTag())
+                    .queryUrn(event.getQueryUrn())
+                    .pageUrn(event.getPageUrn());
+
+            if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
+                eventData.uuid(event.getId());
+            }
+
+            return jsonTransformer.toJson(eventData);
         } catch (ApiMapperException e) {
             throw new IllegalArgumentException(e);
         }
@@ -92,8 +103,14 @@ public class EventLoggerJsonDataBuilder {
                 .clickName(clickName)
                 .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN));
 
-        if (!event.get(PlayableTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
-            eventData.pageUrn(event.get(PlayableTrackingKeys.KEY_PAGE_URN));
+        final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
+
+        if (pageUrn != null && !pageUrn.equals(Urn.NOT_SET.toString())) {
+            eventData.pageUrn(pageUrn);
+        }
+
+        if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
+            eventData.uuid(event.getId());
         }
 
         return eventData;
@@ -246,10 +263,16 @@ public class EventLoggerJsonDataBuilder {
     public String build(ForegroundEvent event) {
         switch (event.getKind()) {
             case ForegroundEvent.KIND_OPEN:
-                return transform(buildBaseEvent(FOREGROUND_EVENT, event)
-                                         .pageName(event.get(ForegroundEvent.KEY_PAGE_NAME))
-                                         .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
-                                         .referrer(event.get(ForegroundEvent.KEY_REFERRER)));
+                final EventLoggerEventData eventData = buildBaseEvent(FOREGROUND_EVENT, event)
+                        .pageName(event.get(ForegroundEvent.KEY_PAGE_NAME))
+                        .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
+                        .referrer(event.get(ForegroundEvent.KEY_REFERRER));
+
+                if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
+                    eventData.uuid(event.getId());
+                }
+
+                return transform(eventData);
             default:
                 throw new IllegalArgumentException("Unexpected Foreground Event type " + event);
         }
@@ -275,7 +298,11 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, TrackingEvent event) {
-        return buildBaseEvent(eventName, event.getTimestamp());
+        final EventLoggerEventData eventData = buildBaseEvent(eventName, event.getTimestamp());
+
+        attachReferringEvent(eventData, event);
+
+        return eventData;
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
@@ -323,6 +350,15 @@ public class EventLoggerJsonDataBuilder {
                 return "uninterruptedPlaytimeMs";
             default:
                 throw new IllegalArgumentException("Unexpected metric type " + type);
+        }
+    }
+
+    private void attachReferringEvent(EventLoggerEventData eventData, TrackingEvent event) {
+        final String id = event.get(ReferringEvent.REFERRING_EVENT_ID_KEY);
+        final String kind = event.get(ReferringEvent.REFERRING_EVENT_KIND_KEY);
+
+        if (featureFlags.isEnabled(HOLISTIC_TRACKING) && id != null && kind != null) {
+            eventData.referringEvent(id, kind);
         }
     }
 }

@@ -16,7 +16,7 @@ public class OfflinePerformanceEvent extends TrackingEvent {
 
 
     private OfflinePerformanceEvent(String kind, Urn track, TrackingMetadata metadata) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
         this.track = track;
         this.metadata = metadata;
     }

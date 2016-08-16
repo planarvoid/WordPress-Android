@@ -33,5 +33,4 @@ public class ProfileModule {
                                  Lazy<ProfileApiMobile> profileApiPrivate) {
         return new ProfileApiDelegator(profileApiPublic, profileApiPrivate);
     }
-
 }

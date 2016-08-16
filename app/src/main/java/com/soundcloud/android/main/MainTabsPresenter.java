@@ -3,8 +3,9 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ActivityReferringEventProvider;
+import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -12,8 +13,9 @@ import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.CustomFontTabLayout;
 import com.soundcloud.android.view.screen.BaseLayoutHelper;
 import com.soundcloud.java.strings.Strings;
-import com.soundcloud.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.rx.eventbus.EventBus;
+import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycles;
 import rx.Subscription;
 
 import android.content.Intent;
@@ -23,7 +25,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,41 +32,54 @@ import android.widget.ImageView;
 
 import javax.inject.Inject;
 
-public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivity>
-        implements ViewPager.OnPageChangeListener {
+public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity>
+        implements EnterScreenDispatcher.Listener {
 
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
-    private final EventBus eventBus;
     private final Navigator navigator;
+    private final TheTracker tracker;
 
     private NavigationModel navigationModel;
 
-    private AppCompatActivity activity;
+    private RootActivity activity;
     private MainPagerAdapter pagerAdapter;
     private ViewPager pager;
     private TabLayout tabBar;
     private FeatureOperations featureOperations;
     private Subscription subscription = RxUtils.invalidSubscription();
+    @LightCycle final ActivityReferringEventProvider referringEventProvider;
+    @LightCycle final EnterScreenDispatcher enterScreenDispatcher;
 
     @Inject
-    MainTabsPresenter(NavigationModel navigationModel, BaseLayoutHelper layoutHelper,
-                      MainPagerAdapter.Factory pagerAdapterFactory, EventBus eventBus,
-                      Navigator navigator, FeatureOperations featureOperations) {
+    MainTabsPresenter(NavigationModel navigationModel,
+                      BaseLayoutHelper layoutHelper,
+                      MainPagerAdapter.Factory pagerAdapterFactory,
+                      Navigator navigator,
+                      FeatureOperations featureOperations,
+                      TheTracker tracker,
+                      ActivityReferringEventProvider referringEventProvider,
+                      EnterScreenDispatcher enterScreenDispatcher) {
         this.navigationModel = navigationModel;
         this.layoutHelper = layoutHelper;
         this.pagerAdapterFactory = pagerAdapterFactory;
-        this.eventBus = eventBus;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
+        this.tracker = tracker;
+        this.referringEventProvider = referringEventProvider;
+        this.enterScreenDispatcher = enterScreenDispatcher;
+        enterScreenDispatcher.setListener(this);
+        LightCycles.bind(this);
     }
 
-    public void setBaseLayout(AppCompatActivity activity) {
+    public void setBaseLayout(RootActivity activity) {
         layoutHelper.setBaseTabsLayout(activity);
     }
 
     @Override
-    public void onCreate(AppCompatActivity activity, Bundle bundle) {
+    public void onCreate(RootActivity activity, Bundle bundle) {
+        super.onCreate(activity, bundle);
+
         this.activity = activity;
         pagerAdapter = pagerAdapterFactory.create(activity.getSupportFragmentManager());
         setupViews(activity);
@@ -76,23 +90,36 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
     }
 
     @Override
-    public void onResume(AppCompatActivity activity) {
-        pager.addOnPageChangeListener(this);
+    public void onResume(RootActivity activity) {
+        super.onResume(activity);
+
+        pager.addOnPageChangeListener(enterScreenDispatcher);
     }
 
     @Override
-    public void onPause(AppCompatActivity activity) {
-        pager.removeOnPageChangeListener(this);
+    public void onPause(RootActivity activity) {
+        pager.removeOnPageChangeListener(enterScreenDispatcher);
+
+        super.onPause(activity);
     }
 
     @Override
-    public void onDestroy(AppCompatActivity activity) {
+    public void onDestroy(RootActivity activity) {
         subscription.unsubscribe();
+
+        super.onDestroy(activity);
     }
 
     @Override
-    public void onNewIntent(AppCompatActivity activity, Intent intent) {
+    public void onNewIntent(RootActivity activity, Intent intent) {
+        super.onNewIntent(activity, intent);
+
         setTabFromIntent(intent);
+    }
+
+    @Override
+    public void onEnterScreen(RootActivity activity) {
+        tracker.trackScreen(ScreenEvent.create(getScreen()), referringEventProvider.getReferringEvent());
     }
 
     private void startDevelopmentMenuStream() {
@@ -149,7 +176,7 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
         }
     }
 
-    private void setupViews(AppCompatActivity activity) {
+    private void setupViews(RootActivity activity) {
         pager = (ViewPager) activity.findViewById(R.id.pager);
         pager.setPageMargin(ViewUtils.dpToPx(activity, 10));
         pager.setPageMarginDrawable(R.color.page_background);
@@ -236,23 +263,6 @@ public class MainTabsPresenter extends DefaultActivityLightCycle<AppCompatActivi
                 }
             }
         };
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        trackScreen();
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-    }
-
-    private void trackScreen() {
-        eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(getScreen()));
     }
 
     Screen getScreen() {

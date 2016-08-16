@@ -32,12 +32,12 @@ public class OfflineInteractionEvent extends TrackingEvent {
     private static final String KEY_CLICK_OBJECT = "click_object";
 
     private OfflineInteractionEvent(@NotNull String kind, String pageName) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
         put(KEY_PAGE_NAME, pageName);
     }
 
     private OfflineInteractionEvent(@NotNull String kind) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
     }
 
     public static OfflineInteractionEvent fromOnboardingStart() {

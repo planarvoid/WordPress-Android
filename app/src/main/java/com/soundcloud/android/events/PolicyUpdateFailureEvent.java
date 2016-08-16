@@ -23,7 +23,7 @@ public class PolicyUpdateFailureEvent extends TrackingEvent implements MetricEve
     }
 
     protected PolicyUpdateFailureEvent(@NotNull String reason, String context) {
-        super(reason, System.currentTimeMillis());
+        super(reason);
         this.context = context;
     }
 

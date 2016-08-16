@@ -7,33 +7,39 @@ import static com.soundcloud.android.discovery.ChartTracksFragment.EXTRA_TYPE;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
+import com.soundcloud.android.main.EnterScreenDispatcher;
+import com.soundcloud.android.main.RootActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.lightcycle.ActivityLightCycleDispatcher;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycles;
 
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class ChartPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
+class ChartPresenter extends ActivityLightCycleDispatcher<RootActivity> implements EnterScreenDispatcher.Listener {
 
     private final Resources resources;
     private final ChartsTracker chartsTracker;
     private ViewPager pager;
     private ChartPagerAdapter adapter;
+    @LightCycle EnterScreenDispatcher enterScreenDispatcher;
 
     @Inject
-    ChartPresenter(Resources resources, ChartsTracker chartsTracker) {
+    ChartPresenter(Resources resources, ChartsTracker chartsTracker, EnterScreenDispatcher enterScreenDispatcher) {
         this.resources = resources;
         this.chartsTracker = chartsTracker;
+        this.enterScreenDispatcher = enterScreenDispatcher;
+        this.enterScreenDispatcher.setListener(this);
     }
 
     @Override
-    public void onCreate(AppCompatActivity activity, Bundle bundle) {
+    public void onCreate(RootActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
         chartsTracker.clearTracker();
         final Intent intent = activity.getIntent();
@@ -58,14 +64,14 @@ class ChartPresenter extends DefaultActivityLightCycle<AppCompatActivity> {
             }
         });
 
-        final TabLayout tabIndicator = (TabLayout) activity.findViewById(R.id.tab_indicator);
-        tabIndicator.setupWithViewPager(pager);
+        final TabLayout tabLayout = (TabLayout) activity.findViewById(R.id.tab_indicator);
+        tabLayout.setupWithViewPager(pager);
+        LightCycles.bind(this);
     }
 
     @Override
-    public void onResume(AppCompatActivity activity) {
-        super.onResume(activity);
-        if (activity instanceof ChartActivity && ((ChartActivity)activity).isEnteringScreen()) {
+    public void onEnterScreen(RootActivity activity) {
+        if (activity instanceof ChartActivity) {
             final Intent intent = activity.getIntent();
             final Urn chartGenreUrn = intent.getParcelableExtra(EXTRA_GENRE_URN);
             final ChartCategory chartCategory = (ChartCategory) intent.getSerializableExtra(EXTRA_CATEGORY);

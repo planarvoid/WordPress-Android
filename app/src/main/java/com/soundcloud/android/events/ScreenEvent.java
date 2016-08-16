@@ -8,6 +8,7 @@ import com.soundcloud.java.strings.Strings;
 
 public final class ScreenEvent extends TrackingEvent {
 
+    public static final String KIND = "screen";
     public static final String KEY_SCREEN = "screen";
     public static final String KEY_GENRE = "genre";
     public static final String KEY_QUERY_URN = "query_urn";
@@ -37,7 +38,8 @@ public final class ScreenEvent extends TrackingEvent {
     }
 
     private ScreenEvent(String screenTag) {
-        super(TrackingEvent.KIND_DEFAULT, System.currentTimeMillis());
+        super(KIND);
+
         put(KEY_SCREEN, screenTag);
     }
 

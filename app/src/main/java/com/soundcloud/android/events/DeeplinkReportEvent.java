@@ -19,7 +19,7 @@ public class DeeplinkReportEvent extends TrackingEvent implements MetricEvent {
     }
 
     private DeeplinkReportEvent(@NotNull String kind, String referrer) {
-        super(kind, System.currentTimeMillis());
+        super(kind);
         this.referrer = referrer;
     }
 
