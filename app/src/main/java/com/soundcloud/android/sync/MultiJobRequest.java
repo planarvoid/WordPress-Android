@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
-public class MultiJobRequest implements SyncRequest {
+class MultiJobRequest implements SyncRequest {
 
     private final List<SyncJob> syncJobs;
     private final boolean isHighPriority;

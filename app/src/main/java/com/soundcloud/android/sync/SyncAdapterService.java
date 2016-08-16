@@ -74,6 +74,11 @@ public class SyncAdapterService extends Service {
         }
     }
 
+    @Override
+    public IBinder onBind(Intent intent) {
+        return syncAdapter.getSyncAdapterBinder();
+    }
+
     @Deprecated
     public AbstractThreadedSyncAdapter createLegacySyncAdapter() {
         return new AbstractThreadedSyncAdapter(this, false) {
@@ -138,17 +143,13 @@ public class SyncAdapterService extends Service {
         };
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return syncAdapter.getSyncAdapterBinder();
-    }
-
     /**
      * Perform sync, already called aon a background thread.
      *
      * @return true if a sync has been started.
      */
     /* package */
+    @Deprecated
     static boolean performSync(final SoundCloudApplication app,
                                Bundle extras,
                                final SyncResult syncResult,
@@ -188,6 +189,7 @@ public class SyncAdapterService extends Service {
     }
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @Deprecated
     private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
                                         SyncStateManager syncStateManager,
                                         UserAssociationStorage userAssociationStorage,
@@ -245,5 +247,4 @@ public class SyncAdapterService extends Service {
 
         return syncIntent;
     }
-
 }

@@ -37,7 +37,7 @@ public class ApiSyncService extends Service {
     public static final int STATUS_APPEND_ERROR = 0x4;
     public static final int STATUS_APPEND_FINISHED = 0x5;
 
-    public static final int MAX_TASK_LIMIT = 3;
+    private static final int MAX_TASK_LIMIT = 3;
 
     @Inject SyncRequestFactory syncIntentSyncRequestFactory;
     @Inject SyncStateStorage syncStateStorage;
@@ -45,10 +45,9 @@ public class ApiSyncService extends Service {
     private int activeTaskCount;
 
     @SuppressWarnings({"PMD.LooseCoupling"})
-    // for some reason PMD thinks I should use an interface here, which doesnt seem to work
-    /* package */ final LinkedList<SyncJob> pendingJobs = new LinkedList<>();
-    /* package */ final List<SyncRequest> syncRequests = new ArrayList<>();
-    /* package */ final List<SyncJob> runningJobs = new ArrayList<>();
+    private final LinkedList<SyncJob> pendingJobs = new LinkedList<>();
+    private final List<SyncRequest> syncRequests = new ArrayList<>();
+    private final List<SyncJob> runningJobs = new ArrayList<>();
 
     public ApiSyncService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -60,13 +59,14 @@ public class ApiSyncService extends Service {
         this.syncStateStorage = syncStateStorage;
     }
 
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOG_TAG, "startListening(" + intent + ")");
         if (intent != null) {
             enqueueRequest(syncIntentSyncRequestFactory.create(intent));
         }
         flushSyncRequests();
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -79,17 +79,37 @@ public class ApiSyncService extends Service {
         return null;
     }
 
-    void enqueueRequest(SyncRequest syncRequest) {
+    @VisibleForTesting
+    void onSyncJobCompleted(SyncJob syncJob) {
+
+        final Optional<Syncable> syncable = syncJob.getSyncable();
+        if (syncable.isPresent() && syncJob.wasSuccess()) {
+            syncStateStorage.synced(syncable.get());
+        }
+
+        for (SyncRequest syncRequest : new ArrayList<>(syncRequests)) {
+
+            if (syncRequest.isWaitingForJob(syncJob)) {
+                syncRequest.processJobResult(syncJob);
+
+                if (syncRequest.isSatisfied()) {
+                    syncRequest.finish();
+                    syncRequests.remove(syncRequest);
+                }
+            }
+        }
+        runningJobs.remove(syncJob);
+    }
+
+    private void enqueueRequest(SyncRequest syncRequest) {
         syncRequests.add(syncRequest);
         for (SyncJob syncJob : syncRequest.getPendingJobs()) {
             if (!runningJobs.contains(syncJob)) {
                 if (!pendingJobs.contains(syncJob)) {
                     addItemToPendingRequests(syncRequest, syncJob);
                     syncJob.onQueued();
-
                 } else if (syncRequest.isHighPriority()) {
                     moveRequestToTop(syncJob);
-
                 }
             } else {
                 Log.d(LOG_TAG, "Job already running for : " + syncJob);
@@ -114,28 +134,7 @@ public class ApiSyncService extends Service {
         pendingJobs.addFirst(existing);
     }
 
-    /* package */ void onSyncJobCompleted(SyncJob syncJob) {
-
-        final Optional<Syncable> syncable = syncJob.getSyncable();
-        if (syncable.isPresent() && syncJob.wasSuccess()) {
-            syncStateStorage.synced(syncable.get());
-        }
-
-        for (SyncRequest syncRequest : new ArrayList<>(syncRequests)) {
-
-            if (syncRequest.isWaitingForJob(syncJob)) {
-                syncRequest.processJobResult(syncJob);
-
-                if (syncRequest.isSatisfied()) {
-                    syncRequest.finish();
-                    syncRequests.remove(syncRequest);
-                }
-            }
-        }
-        runningJobs.remove(syncJob);
-    }
-
-    /* package */ void flushSyncRequests() {
+    private void flushSyncRequests() {
         if (pendingJobs.isEmpty() && runningJobs.isEmpty()) {
             finishAllRequests();
             stopSelf();

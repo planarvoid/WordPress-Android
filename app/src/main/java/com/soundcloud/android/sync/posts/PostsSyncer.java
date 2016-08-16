@@ -59,10 +59,9 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     }
 
     public Boolean call(List<Urn> recentlyPostedUrns) throws Exception {
+        final NavigableSet<PropertySet> remotePosts = fetchRemotePosts.call();
         final Set<PropertySet> localPosts = new TreeSet<>(PostProperty.COMPARATOR);
         localPosts.addAll(loadLocalPosts.call());
-
-        final NavigableSet<PropertySet> remotePosts = fetchRemotePosts.call();
 
         Log.d(TAG, "Syncing Posts : Local Count = " + localPosts.size() + " , Remote Count = " + remotePosts.size());
 

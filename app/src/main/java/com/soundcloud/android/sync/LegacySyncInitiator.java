@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+@Deprecated
 public class LegacySyncInitiator {
     private final Action0 requestSystemSyncAction = new Action0() {
         @Override

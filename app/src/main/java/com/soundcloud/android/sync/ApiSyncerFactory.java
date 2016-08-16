@@ -15,7 +15,6 @@ import android.net.Uri;
 
 import javax.inject.Inject;
 
-@SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // remove this once we use playlist syncer
 public class ApiSyncerFactory {
 
     private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;

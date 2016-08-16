@@ -26,12 +26,13 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
 
-    private com.soundcloud.android.playlists.PlaylistStorage storage;
+    private PlaylistStorage storage;
+
     @Mock AccountOperations accountOperations;
 
     @Before
     public void setUp() {
-        storage = new com.soundcloud.android.playlists.PlaylistStorage(propeller(), propellerRx(), accountOperations);
+        storage = new PlaylistStorage(propeller(), propellerRx(), accountOperations);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
     }
 
