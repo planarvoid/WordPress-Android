@@ -262,15 +262,16 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                 discoveryItems.add(playHistory());
             }
 
-            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
-                discoveryItems.add(chartsOperations.featuredCharts().map(TO_DISCOVERY_ITEM));
-            }
-
             discoveryItems.add(recommendedStationsOperations.recommendedStations());
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
                 discoveryItems.add(recommendedTracksOperations.recommendedTracks());
             }
+
+            if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
+                discoveryItems.add(chartsOperations.featuredCharts().map(TO_DISCOVERY_ITEM));
+            }
+
             discoveryItems.add(playlistDiscoveryOperations.playlistTags());
 
             return items(discoveryItems);
