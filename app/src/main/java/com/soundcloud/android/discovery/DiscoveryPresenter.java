@@ -113,7 +113,7 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                                      .queue(EventQueue.PLAY_HISTORY)
                                      .flatMap(continueWith(dataSource.playHistory()))
                                      .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribe(new UpdateDiscoveryItemSubscriber()));
+                                     .subscribe(new UpdateRecentlyPlayedItemSubscriber()));
         }
     }
 
@@ -205,16 +205,17 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         }
     }
 
-    private class UpdateDiscoveryItemSubscriber extends DefaultSubscriber<DiscoveryItem> {
+    private class UpdateRecentlyPlayedItemSubscriber extends DefaultSubscriber<DiscoveryItem> {
         @Override
         public void onNext(DiscoveryItem item) {
-            adapter.updateItem(item);
+            dataSource.updateRecentlyPlayed(adapter, item);
         }
     }
 
     public static class DataSource {
         private static final DiscoveryItem EMPTY_ITEM = EmptyViewItem.fromThrowable(new EmptyThrowable());
         private static final DiscoveryItem SEARCH_ITEM = DiscoveryItem.forSearchItem();
+        private static final int RECENTLY_PLAYED_POSITION = 1;
 
         private static final Func1<Throwable, DiscoveryItem> ERROR_ITEM = new Func1<Throwable, DiscoveryItem>() {
             @Override
@@ -295,6 +296,10 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             discoveryItems.add(playlistDiscoveryOperations.playlistTags());
 
             return items(discoveryItems);
+        }
+
+        void updateRecentlyPlayed(DiscoveryAdapter adapter, DiscoveryItem item) {
+            adapter.setItem(RECENTLY_PLAYED_POSITION, item);
         }
 
         boolean showPlayHistory() {

@@ -22,6 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Collections;
+
 public class DiscoveryAdapterTest extends AndroidUnitTest {
 
     @Mock private RecommendationBucketRenderer recommendationBucketRenderer;
@@ -119,12 +121,22 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateItem() {
+    public void setItemWhenItemIsAlreadyPresent() {
         final DiscoveryItem initialItem = DiscoveryItem.forSearchItem();
         final DiscoveryItem updatedItem = DiscoveryItem.forSearchItem();
         adapter.onNext(singletonList(initialItem));
 
-        adapter.updateItem(updatedItem);
+        adapter.setItem(0, updatedItem);
+
+        assertThat(adapter.getItems()).containsExactly(updatedItem);
+    }
+
+    @Test
+    public void setItemWhenItemIsAbsent() {
+        final DiscoveryItem updatedItem = DiscoveryItem.forSearchItem();
+        adapter.onNext(Collections.<DiscoveryItem>emptyList());
+
+        adapter.setItem(0, updatedItem);
 
         assertThat(adapter.getItems()).containsExactly(updatedItem);
     }

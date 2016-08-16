@@ -8,7 +8,6 @@ import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedSta
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksFooterItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.RecommendedTracksItem;
 import static com.soundcloud.android.discovery.DiscoveryItem.Kind.SearchItem;
-import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -95,13 +94,18 @@ class DiscoveryAdapter extends RecyclerItemAdapter<DiscoveryItem, DiscoveryAdapt
         }
     }
 
-    void updateItem(DiscoveryItem item) {
-        final int position = findItemIndex(item.getKind());
-        checkState(position >= 0, item.getKind() + " must exist to be updated");
+    void setItem(int position, DiscoveryItem item) {
+        if (containsItem(item)) {
+            items.set(position, item);
+            notifyItemChanged(position);
+        } else {
+            items.add(position, item);
+            notifyItemInserted(position);
+        }
+    }
 
-        getItems().remove(position);
-        getItems().add(position, item);
-        notifyItemChanged(position);
+    private boolean containsItem(DiscoveryItem item) {
+        return findItemIndex(item.getKind()) >= 0;
     }
 
     private int findItemIndex(final DiscoveryItem.Kind kind) {
