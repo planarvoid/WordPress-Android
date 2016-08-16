@@ -15,8 +15,6 @@ import com.soundcloud.android.main.ScrollContent;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.android.utils.BugReporter;
@@ -50,7 +48,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private final BugReporter bugReporter;
     private final ApplicationProperties appProperties;
     private final OfflineSettingsStorage settingsStorage;
-    private final FeatureFlags featureFlags;
 
     private Optional<MoreView> moreViewOpt = Optional.absent();
     private Optional<More> moreOpt = Optional.absent();
@@ -67,8 +64,7 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
                             Navigator navigator,
                             BugReporter bugReporter,
                             ApplicationProperties appProperties,
-                            OfflineSettingsStorage settingsStorage,
-                            FeatureFlags featureFlags) {
+                            OfflineSettingsStorage settingsStorage) {
         this.moreViewFactory = moreViewFactory;
         this.userRepository = userRepository;
         this.accountOperations = accountOperations;
@@ -81,7 +77,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
         this.bugReporter = bugReporter;
         this.appProperties = appProperties;
         this.settingsStorage = settingsStorage;
-        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -100,7 +95,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
 
         setupOfflineSync(moreView);
         setupFeedback(moreView);
-        setupExplore(moreView);
         bindUserIfPresent();
     }
 
@@ -125,14 +119,6 @@ public class MoreTabPresenter extends DefaultSupportFragmentLightCycle<MoreFragm
     private void setupFeedback(MoreView moreView) {
         if (appProperties.shouldAllowFeedback()) {
             moreView.showReportBug();
-        }
-    }
-
-    private void setupExplore(MoreView moreView) {
-        if (featureFlags.isEnabled(Flag.DISCOVERY_CHARTS)) {
-            moreView.hideExplore();
-        } else {
-            moreView.showExplore();
         }
     }
 
