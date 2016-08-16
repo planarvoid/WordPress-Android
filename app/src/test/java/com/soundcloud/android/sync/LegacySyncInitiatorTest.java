@@ -12,13 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowContentResolver;
 import rx.Observable;
 import rx.Subscriber;
 import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 
-import android.accounts.Account;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,24 +37,6 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
     @Before
     public void setup() {
         initiator = new LegacySyncInitiator(context(), accountOperations, syncStateManager);
-    }
-
-    @Test
-    public void shouldCreateSyncIntentForPushingFollowingsForValidAccount() throws Exception {
-        Account account = new Account("soundcloud", "account");
-        when(accountOperations.getSoundCloudAccount()).thenReturn(account);
-        assertThat(initiator.pushFollowingsToApi()).isTrue();
-
-        ShadowContentResolver.Status syncStatus = ShadowContentResolver.getStatus(account, SyncConfig.AUTHORITY);
-        assertThat(syncStatus.syncRequests).isEqualTo(1);
-        assertThat(syncStatus.syncExtras.getBoolean(SyncAdapterService.EXTRA_SYNC_PUSH)).isTrue();
-        assertThat(syncStatus.syncExtras.getString(SyncAdapterService.EXTRA_SYNC_PUSH_URI)).isEqualTo(Content.ME_FOLLOWINGS.uri
-                                                                                                              .toString());
-    }
-
-    @Test
-    public void shouldReturnFalseWhenPushingFollowingsWithInvalidAccount() throws Exception {
-        assertThat(initiator.pushFollowingsToApi()).isFalse();
     }
 
     @Test

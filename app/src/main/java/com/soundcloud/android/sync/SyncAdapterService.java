@@ -198,12 +198,6 @@ public class SyncAdapterService extends Service {
                                         SyncConfig syncConfig) {
 
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
-        if (extras.getBoolean(EXTRA_SYNC_PUSH)) {
-            syncIntent.setData(Uri.parse(extras.getString(EXTRA_SYNC_PUSH_URI)));
-            syncIntent.setAction(ApiSyncService.ACTION_PUSH);
-            return syncIntent;
-        }
-
         final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         final ArrayList<Uri> urisToSync = new ArrayList<>();
 

@@ -1,5 +1,7 @@
 package com.soundcloud.android;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.facebook.FacebookSdk;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
@@ -41,9 +43,8 @@ import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.stations.StationsController;
 import com.soundcloud.android.storage.StorageModule;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncConfig;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
@@ -57,7 +58,6 @@ import org.jetbrains.annotations.NotNull;
 import android.accounts.Account;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -111,6 +111,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     @Inject TrackOfflineStateProvider trackOfflineStateProvider;
     @Inject SyncConfig syncConfig;
     @Inject PlayHistoryController playHistoryController;
+    @Inject SyncInitiatorBridge syncInitiatorBridge;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -287,11 +288,7 @@ public class SoundCloudApplication extends MultiDexApplication {
      * Alternatively, sync sets lazily where needed.
      */
     private void requestSetsSync() {
-        Intent intent = new Intent(this, ApiSyncService.class)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .setData(Content.ME_PLAYLISTS.uri);
-
-        startService(intent);
+        fireAndForget(syncInitiatorBridge.refreshMyPlaylists());
     }
 
     @NotNull

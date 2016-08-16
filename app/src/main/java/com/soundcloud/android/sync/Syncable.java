@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync;
 
+import java.util.EnumSet;
+
 public enum Syncable {
     /**
      * Used from Operations class
@@ -10,8 +12,9 @@ public enum Syncable {
     TRACK_LIKES,
     PLAYLIST_LIKES,
     TRACK_POSTS,
-    PLAYLIST_POSTS, //Is this necessary? We sync Post with MY_PLAYLISTS
     MY_PLAYLISTS,
+    MY_FOLLOWINGS,
+    ME,
     RECENT_STATIONS,
     RECOMMENDED_STATIONS,
     RECOMMENDED_TRACKS,
@@ -25,5 +28,7 @@ public enum Syncable {
     PLAYLISTS,
     USERS,
     PLAYLIST,
-    PLAY_HISTORY
+    PLAY_HISTORY;
+
+    public static EnumSet<Syncable> FOREGROUND_ONLY = EnumSet.of(TRACKS, PLAYLISTS, USERS, PLAYLIST, PLAY_HISTORY);
 }

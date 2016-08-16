@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync.affiliations;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
@@ -47,8 +49,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
-public class MyFollowingsSyncer extends LegacySyncStrategy {
+@AutoFactory
+public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<Boolean> {
 
     private static final String REQUEST_NO_BACKOFF = "0";
 
@@ -57,21 +61,26 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
     private final NotificationManager notificationManager;
     private final JsonTransformer jsonTransformer;
     private final Navigator navigator;
+    private final String action;
 
     @Inject
-    public MyFollowingsSyncer(Context context,
-                              PublicApi publicApi,
-                              AccountOperations accountOperations,
-                              FollowingOperations followingOperations,
-                              NotificationManager notificationManager,
-                              JsonTransformer jsonTransformer, Navigator navigator,
-                              UserAssociationStorage userAssociationStorage) {
+    public MyFollowingsSyncer(@Provided Context context,
+                              @Provided PublicApi publicApi,
+                              @Provided AccountOperations accountOperations,
+                              @Provided FollowingOperations followingOperations,
+                              @Provided NotificationManager notificationManager,
+                              @Provided JsonTransformer jsonTransformer,
+                              @Provided Navigator navigator,
+                              @Provided UserAssociationStorage userAssociationStorage,
+                              @Nullable String action) {
+
         super(context, publicApi, accountOperations);
         this.userAssociationStorage = userAssociationStorage;
         this.followingOperations = followingOperations;
         this.notificationManager = notificationManager;
         this.jsonTransformer = jsonTransformer;
         this.navigator = navigator;
+        this.action = action;
     }
 
     @NotNull
@@ -86,6 +95,11 @@ public class MyFollowingsSyncer extends LegacySyncStrategy {
         } else {
             return syncLocalToRemote();
         }
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        return syncContent(Content.ME_FOLLOWINGS.uri, this.action).change != LegacySyncResult.UNCHANGED;
     }
 
     private LegacySyncResult syncLocalToRemote() throws IOException {

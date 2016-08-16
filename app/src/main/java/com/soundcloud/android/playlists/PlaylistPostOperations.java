@@ -1,33 +1,22 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.java.collections.Iterables.getLast;
-
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.android.utils.PropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.rx.Pager;
-import com.soundcloud.rx.Pager.PagingFunction;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
 
 class PlaylistPostOperations {
 
@@ -36,76 +25,25 @@ class PlaylistPostOperations {
 
     private final PlaylistPostStorage playlistPostStorage;
     private final Scheduler scheduler;
-    private final LegacySyncInitiator legacySyncInitiator;
     private final SyncInitiator syncInitiator;
-    private final NetworkConnectionHelper networkConnectionHelper;
     private final EventBus eventBus;
-
-    private final PagingFunction<List<PropertySet>> postedPlaylistsPager = new PagingFunction<List<PropertySet>>() {
-        @Override
-        public Observable<List<PropertySet>> call(List<PropertySet> result) {
-            if (result.size() < PAGE_SIZE) {
-                return Pager.finish();
-            } else {
-                return postedPlaylists(getLast(result).get(PostProperty.CREATED_AT).getTime());
-            }
-        }
-    };
-
-    private final Action1<List<PropertySet>> requestPlaylistsSyncAction = new Action1<List<PropertySet>>() {
-        @Override
-        public void call(List<PropertySet> playlists) {
-            if (networkConnectionHelper.isWifiConnected() && !playlists.isEmpty()) {
-                syncInitiator.batchSyncPlaylists(PropertySets.extractUrns(playlists));
-            }
-        }
-    };
-
-    private final Func1<Boolean, Observable<List<PropertySet>>> loadInitialPlaylistPosts = new Func1<Boolean, Observable<List<PropertySet>>>() {
-        @Override
-        public Observable<List<PropertySet>> call(Boolean aBoolean) {
-            return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)
-                                      .doOnNext(requestPlaylistsSyncAction)
-                                      .subscribeOn(scheduler);
-        }
-    };
 
     private final Action1<WriteResult> requestSystemSync = new Action1<WriteResult>() {
         @Override
         public void call(WriteResult changeResult) {
-            legacySyncInitiator.requestSystemSync();
+            syncInitiator.requestSystemSync();
         }
     };
 
     @Inject
     PlaylistPostOperations(PlaylistPostStorage playlistPostStorage,
-                           LegacySyncInitiator legacySyncInitiator,
                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                            SyncInitiator syncInitiator,
-                           NetworkConnectionHelper networkConnectionHelper,
                            EventBus eventBus) {
         this.playlistPostStorage = playlistPostStorage;
-        this.legacySyncInitiator = legacySyncInitiator;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
-        this.networkConnectionHelper = networkConnectionHelper;
         this.eventBus = eventBus;
-    }
-
-    Observable<List<PropertySet>> postedPlaylists() {
-        return postedPlaylists(Long.MAX_VALUE);
-    }
-
-    Observable<List<PropertySet>> updatedPostedPlaylists() {
-        return sync().flatMap(loadInitialPlaylistPosts);
-    }
-
-    Observable<Boolean> sync() {
-        return legacySyncInitiator.refreshMyPlaylists();
-    }
-
-    PagingFunction<List<PropertySet>> pagingFunction() {
-        return postedPlaylistsPager;
     }
 
     Observable<Void> remove(final Urn urn) {
@@ -123,11 +61,5 @@ class PlaylistPostOperations {
         return eventBus.publishAction1(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromEntityDeleted(urn));
     }
 
-    private Observable<List<PropertySet>> postedPlaylists(long beforeTime) {
-        return playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, beforeTime)
-                                  .doOnNext(requestPlaylistsSyncAction)
-                                  .subscribeOn(scheduler)
-                                  .filter(RxUtils.IS_NOT_EMPTY_LIST)
-                                  .switchIfEmpty(updatedPostedPlaylists());
-    }
+
 }

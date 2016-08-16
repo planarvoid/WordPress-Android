@@ -4,6 +4,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action0;
 import rx.functions.Func1;
 
 import android.accounts.Account;
@@ -24,6 +25,13 @@ import java.util.List;
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 public class SyncInitiator {
 
+    private final Action0 requestSystemSyncAction = new Action0() {
+        @Override
+        public void call() {
+            requestSystemSync();
+        }
+    };
+
     public static final String ACTION_APPEND = ApiSyncService.ACTION_APPEND;
     public static final String ACTION_HARD_REFRESH = ApiSyncService.ACTION_HARD_REFRESH;
 
@@ -43,6 +51,10 @@ public class SyncInitiator {
         this.context = context;
         this.accountOperations = accountOperations;
         this.legacySyncInitiator = legacySyncInitiator;
+    }
+
+    public Action0 requestSystemSyncAction() {
+        return requestSystemSyncAction;
     }
 
     public Observable<SyncJobResult> sync(Syncable syncable) {
@@ -137,4 +149,7 @@ public class SyncInitiator {
         intent.putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
         return intent;
     }
+
+
+
 }

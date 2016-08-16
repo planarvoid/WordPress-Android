@@ -11,6 +11,7 @@ import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
@@ -68,8 +69,7 @@ class BackgroundSyncer {
 
     private List<Syncable> getStaleSyncables() {
         final List<Syncable> toSync = new ArrayList<>();
-
-        for (Syncable syncable : Syncable.values()) {
+        for (Syncable syncable : EnumSet.complementOf(Syncable.FOREGROUND_ONLY)) {
             final SyncerRegistry.SyncProvider syncProvider = syncerRegistry.get(syncable);
             if (shouldSync(syncable, syncProvider)) {
                 toSync.add(syncable);

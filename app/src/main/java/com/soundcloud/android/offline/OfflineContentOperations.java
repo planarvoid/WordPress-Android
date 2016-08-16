@@ -14,8 +14,8 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.propeller.TxnResult;
@@ -45,7 +45,7 @@ public class OfflineContentOperations {
 
     private final OfflineServiceInitiator serviceInitiator;
     private final OfflineContentScheduler serviceScheduler;
-    private final LegacySyncInitiator legacySyncInitiator;
+    private final SyncInitiatorBridge syncInitiatorBridge;
     private final SyncInitiator syncInitiator;
     private final TrackDownloadsStorage tracksStorage;
     private final OfflineContentStorage offlineContentStorage;
@@ -88,10 +88,10 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Func1<Object, Observable<Boolean>> refreshMyPlaylists = new Func1<Object, Observable<Boolean>>() {
+    private final Func1<TxnResult, Observable<?>> refreshMyPlaylists = new Func1<TxnResult, Observable<?>>() {
         @Override
-        public Observable<Boolean> call(Object object) {
-            return legacySyncInitiator.refreshMyPlaylists();
+        public Observable<?> call(TxnResult ignored) {
+            return syncInitiatorBridge.refreshMyPlaylists();
         }
     };
 
@@ -113,7 +113,7 @@ public class OfflineContentOperations {
                              LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
                              OfflineServiceInitiator serviceInitiator,
                              OfflineContentScheduler serviceScheduler,
-                             LegacySyncInitiator legacySyncInitiator,
+                             SyncInitiatorBridge syncInitiatorBridge,
                              SyncInitiator syncInitiator,
                              FeatureOperations featureOperations,
                              TrackDownloadsStorage tracksStorage,
@@ -130,7 +130,7 @@ public class OfflineContentOperations {
         this.loadOfflineContentUpdatesCommand = loadOfflineContentUpdatesCommand;
         this.serviceInitiator = serviceInitiator;
         this.serviceScheduler = serviceScheduler;
-        this.legacySyncInitiator = legacySyncInitiator;
+        this.syncInitiatorBridge = syncInitiatorBridge;
         this.syncInitiator = syncInitiator;
         this.featureOperations = featureOperations;
         this.tracksStorage = tracksStorage;

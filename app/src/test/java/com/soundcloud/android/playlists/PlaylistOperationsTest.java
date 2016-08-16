@@ -17,9 +17,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playlists.EditPlaylistCommand.EditPlaylistCommandParams;
-import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.LegacySyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -51,7 +51,7 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
     @Mock private Observer<PlaylistWithTracks> playlistInfoObserver;
     @Mock private SyncInitiator syncInitiator;
-    @Mock private LegacySyncInitiator legacySyncInitiator;
+    @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private PlaylistTracksStorage tracksStorage;
     @Mock private PlaylistStorage playlistStorage;
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
@@ -82,9 +82,9 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
                                             addTrackToPlaylistCommand,
                                             removeTrackFromPlaylistCommand,
                                             editPlaylistCommand,
-                                            legacySyncInitiator,
+                                            syncInitiatorBridge,
                                             eventBus);
-        when(legacySyncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
+        when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
     }
 
     @Test
@@ -202,8 +202,8 @@ public class PlaylistOperationsTest extends AndroidUnitTest {
 
         operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
-        InOrder inOrder = Mockito.inOrder(legacySyncInitiator, playlistInfoObserver);
-        inOrder.verify(legacySyncInitiator).syncLocalPlaylists();
+        InOrder inOrder = Mockito.inOrder(syncInitiatorBridge, playlistInfoObserver);
+        inOrder.verify(syncInitiatorBridge).refreshMyPlaylists();
         inOrder.verify(playlistInfoObserver)
                .onNext(new PlaylistWithTracks(playlistProperties, TrackItem.fromPropertySets().call(trackList)));
         inOrder.verify(playlistInfoObserver).onCompleted();

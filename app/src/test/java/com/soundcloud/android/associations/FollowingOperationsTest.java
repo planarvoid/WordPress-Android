@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -31,7 +31,7 @@ public class FollowingOperationsTest extends AndroidUnitTest {
     public static final int FOLLOWER_COUNT = 2;
     private FollowingOperations operations;
 
-    @Mock private LegacySyncInitiator syncInitiator;
+    @Mock private SyncInitiator syncInitiator;
     @Mock private UpdateFollowingCommand updateFollowingCommand;
     @Mock private UserAssociationStorage userAssociationStorage;
     @Captor private ArgumentCaptor<UpdateFollowingParams> commandParamsCaptor;
@@ -62,7 +62,7 @@ public class FollowingOperationsTest extends AndroidUnitTest {
     public void toggleFollowingPushesFollowingsViaSyncInitiator() {
         operations.toggleFollowing(targetUrn, true).subscribe(subscriber);
 
-        verify(syncInitiator).pushFollowingsToApi();
+        verify(syncInitiator).requestSystemSync();
     }
 
     @Test
