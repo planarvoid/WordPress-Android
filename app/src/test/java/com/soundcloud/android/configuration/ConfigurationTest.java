@@ -14,7 +14,7 @@ public class ConfigurationTest {
     public void emptyAssignmentWhenExperimentsIsMissing() {
         Configuration configuration = Configuration.create(Arrays.asList(
                 new Feature("feature", false, Arrays.asList("mid_tier"))),
-                                                           new UserPlan("free", Collections.<String>emptyList()), null,
+                                                           new UserPlan("free", Collections.<UserPlan.Upsell>emptyList()), null,
                                                            new DeviceManagement(true, false),
                                                            false, Collections.<String>emptyList());
         assertThat(configuration.getAssignment().isEmpty()).isTrue();

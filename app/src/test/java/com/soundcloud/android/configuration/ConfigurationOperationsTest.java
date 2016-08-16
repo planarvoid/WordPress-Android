@@ -406,12 +406,12 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     private Configuration getNoPlanConfiguration() {
-        final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<String>emptyList());
+        final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<UserPlan.Upsell>emptyList());
         return Configuration.builder().userPlan(userPlan).build();
     }
 
     private Configuration getHighTierConfiguration() {
-        final UserPlan userPlan = new UserPlan(Plan.HIGH_TIER.planId, Collections.<String>emptyList());
+        final UserPlan userPlan = new UserPlan(Plan.HIGH_TIER.planId, Collections.<UserPlan.Upsell>emptyList());
         return Configuration.builder().userPlan(userPlan).build();
     }
 
