@@ -79,7 +79,6 @@ public class VideoAdsTest extends AdBaseTest {
         assertThat(playerElement.isCollapsed(), is(false));
     }
 
-    @Ignore // ad is currently not skippable
     public void testSkipAdShouldStartTheMonetizableTrack() {
         swipeToAd();
         playerElement
