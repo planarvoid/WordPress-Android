@@ -38,7 +38,8 @@ def systemProperties = [
         "log.tag.PlaybackService": "DEBUG",
         "log.tag.ScAds": "DEBUG",
         "log.tag.SoundCloudApplication": "DEBUG",
-        "log.tag.OfflineTests": "DEBUG"
+        "log.tag.OfflineTests": "DEBUG",
+        "log.tag.ActivityLifeCycle": "DEBUG"
 ]
 
 task runListOfTests << {

@@ -16,6 +16,7 @@ import javax.inject.Inject;
 public abstract class RootActivity extends LightCycleAppCompatActivity<RootActivity> {
 
     @Inject @LightCycle ActivityLifeCyclePublisher lifeCyclePublisher;
+    @Inject @LightCycle ActivityLifeCycleLogger lifeCycleLogger;
     @Inject @LightCycle AnalyticsConnector analyticsConnector;
     @Inject @LightCycle ImageOperationsController imageOperationsController;
     @Inject @LightCycle protected ScreenTracker screenTracker;
