@@ -19,6 +19,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -69,20 +70,22 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         presenter = new MoreTabPresenter(moreViewFactory,
-                                      userRepository,
-                                      accountOperations,
-                                      imageOperations,
-                                      resources(),
-                                      eventBus,
-                                      featureOperations,
-                                      offlineContentOperations,
-                                      navigator,
-                                      bugReporter,
-                                      appProperties,
-                                      storage);
+                                         userRepository,
+                                         accountOperations,
+                                         imageOperations,
+                                         resources(),
+                                         eventBus,
+                                         featureOperations,
+                                         offlineContentOperations,
+                                         navigator,
+                                         bugReporter,
+                                         appProperties,
+                                         storage,
+                                         featureFlags);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
         when(moreViewFactory.create(same(fragmentView), listenerArgumentCaptor.capture())).thenReturn(moreView);
         when(userRepository.userInfo(USER_URN)).thenReturn(Observable.just(USER));
+        when(featureFlags.isEnabled(Flag.EXPLORE)).thenReturn(true);
     }
 
     @Test
@@ -162,6 +165,22 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         setupForegroundFragment();
 
         verify(moreView).showOfflineSettings();
+    }
+
+    @Test
+    public void hidesExploreWhenExploreDisabled() {
+        when(featureFlags.isEnabled(Flag.EXPLORE)).thenReturn(false);
+
+        setupForegroundFragment();
+
+        verify(moreView).hideExplore();
+    }
+
+    @Test
+    public void showsExploreWhenFlagEnabled() {
+        setupForegroundFragment();
+
+        verify(moreView).showExplore();
     }
 
     @Test

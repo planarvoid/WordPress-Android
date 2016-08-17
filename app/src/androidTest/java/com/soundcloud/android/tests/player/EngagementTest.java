@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.PlayerMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -33,18 +34,14 @@ public class EngagementTest extends ActivityTest<MainActivity> {
     }
 
     public void testPublicTrackHasEnabledShareAndRepost() {
-        mainNavHelper.goToExplore()
-                     .playFirstTrack();
-        PlayerMenuElement menu = new VisualPlayerElement(solo).clickMenu();
+        PlayerMenuElement menu = PlayerHelper.playPublicTrack(this, mainNavHelper).clickMenu();
 
         assertThat(menu.repostItem(), is(Enabled()));
         assertThat(menu.shareItem(), is(Enabled()));
     }
 
     public void testLikeTrackAlwaysShowsTheShareButton() {
-        VisualPlayerElement player = mainNavHelper.goToExplore()
-                                                  .playFirstTrack()
-                                                  .unlike();
+        VisualPlayerElement player = PlayerHelper.playPublicTrack(this, mainNavHelper);
 
         player.likeButton().click();
         assertThat(player.shareButton(), is(visible()));

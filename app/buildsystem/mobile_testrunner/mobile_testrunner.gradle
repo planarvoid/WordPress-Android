@@ -1,4 +1,3 @@
-import groovy.json.JsonOutput
 import com.soundcloud.mobiletestrunner.client.TestRunnerFactory
 import com.soundcloud.mobiletestrunner.client.TestStatusNotifier
 import com.soundcloud.mobiletestrunner.client.model.Execution
@@ -64,7 +63,7 @@ task runLollipopTests << {
           "com.soundcloud.android.framework.annotation.BlockedTrackTest",
           "com.soundcloud.android.framework.annotation.GoogleAccountTest",
           "com.soundcloud.android.framework.annotation.PaymentTest",
-          "com.soundcloud.android.framework.annotation.StationsHomeTest"
+          "com.soundcloud.android.framework.annotation.StationsHomeTest",
   ] as String[]
 
   runTests("Lollipop", excludeAnnotations, systemProperties, null, null)
@@ -80,8 +79,8 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.QueueExplosionTest",
           "com.soundcloud.android.framework.annotation.StationsTabTest",
           "com.soundcloud.android.framework.annotation.PaymentTest",
+          "com.soundcloud.android.framework.annotation.StationsHomeTest",
           "com.soundcloud.android.framework.annotation.DiscoveryChartsTest",
-          "com.soundcloud.android.framework.annotation.StationsHomeTest"
   ] as String[]
 
   runTests("Lollipop", excludeAnnotations, systemProperties, null, null)

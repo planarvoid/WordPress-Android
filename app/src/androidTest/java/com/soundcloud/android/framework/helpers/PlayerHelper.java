@@ -7,16 +7,14 @@ import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlayerHelper {
 
-    public static VisualPlayerElement openPlayer(ActivityTest activityTest, ExploreScreen exploreScreen) {
+    public static VisualPlayerElement playPublicTrack(ActivityTest activityTest, MainNavigationHelper mainNavHelper) {
         final Waiter waiter = activityTest.getWaiter();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        exploreScreen.playFirstTrack();
-        VisualPlayerElement playerElement = new VisualPlayerElement(activityTest.getSolo());
+        VisualPlayerElement playerElement = mainNavHelper.goToExplore().playFirstTrack();
         playerElement.waitForExpandedPlayer();
         playerElement.waitForContent();
         return playerElement;

@@ -33,6 +33,12 @@ public class AllGenresScreen extends Screen {
         return new ChartsScreen(testDriver);
     }
 
+    public ChartsScreen clickFirstGenre() {
+        testDriver.findOnScreenElement(With.id(R.id.chart_list_item)).click();
+
+        return new ChartsScreen(testDriver);
+    }
+
     private ViewPagerElement getViewPager() {
         return new ViewPagerElement(testDriver);
     }

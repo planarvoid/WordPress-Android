@@ -18,7 +18,6 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.screens.TrackInfoScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
@@ -48,32 +47,32 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerCollapsesWhenBackButtonIsPressed() {
-        playExploreTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressBackToCollapse();
         assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
     public void testPlayerCollapsesWhenCloseButtonIsPressed() {
-        playExploreTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressCloseButton();
         assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
     public void testPlayerCollapsesWhenSwipingDown() {
-        playExploreTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         solo.swipeDown();
         assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
     public void testPlayerExpandsOnFooterTap() {
-        playExploreTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressBackToCollapse();
         visualPlayerElement.tapFooter();
         assertThat(visualPlayerElement.isExpanded(), is(true));
     }
 
     public void testPlayStateCanBeToggledFromPlayerFooter() {
-        playExploreTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         visualPlayerElement.pressBackToCollapse();
         assertThat(visualPlayerElement, is(collapsed()));
         assertThat(visualPlayerElement, is(playing()));
@@ -83,14 +82,14 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayStateCanBeToggledFromFullPlayer() {
-        playExploreTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         assertThat(visualPlayerElement, is(playing()));
         visualPlayerElement.clickArtwork();
         assertThat(visualPlayerElement, is(not(playing())));
     }
 
     public void testPlayerIsExpandedAfterClickingTrack() {
-        playExploreTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         assertThat(visualPlayerElement.isExpanded(), is(true));
     }
 
@@ -116,7 +115,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerRemainsPausedWhenSkipping() {
-        playExploreTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
 
         visualPlayerElement.clickArtwork();
         visualPlayerElement.tapNext();
@@ -125,7 +124,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testUserButtonGoesToUserProfile() {
-        playSingleTrack();
+        visualPlayerElement = PlayerHelper.playPublicTrack(this, mainNavHelper);
         String originalUser = visualPlayerElement.getTrackCreator();
         ProfileScreen profileScreen = visualPlayerElement.clickCreator();
 
@@ -211,17 +210,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .findAndClickFirstTrackItem();
 
         assertThat(visualPlayerElement.clickMenu().commentItem(), is(not(visible())));
-    }
-
-    private void playExploreTrack() {
-        visualPlayerElement = PlayerHelper.openPlayer(this, mainNavHelper.goToExplore());
-    }
-
-    private void playSingleTrack() {
-        final ExploreScreen exploreScreen = mainNavHelper.goToExplore();
-        exploreScreen.touchTrendingAudioTab();
-        exploreScreen.playFirstTrack();
-        visualPlayerElement = new VisualPlayerElement(solo);
     }
 
     private void playTrackFromStream() {

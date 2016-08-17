@@ -80,7 +80,7 @@ public class DiscoveryPresenterDataSourceTest {
     }
 
     @Test
-    public void loadsAllItemsInOrderSearchChartsStationsTracksTags() {
+    public void loadsAllItemsInOrderSearchStationsTracksChartsTags() {
         dataSource.discoveryItems().subscribe(subscriber);
         subscriber.assertValueCount(1);
 
@@ -88,9 +88,9 @@ public class DiscoveryPresenterDataSourceTest {
 
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
-                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
@@ -106,9 +106,9 @@ public class DiscoveryPresenterDataSourceTest {
         assertThat(Lists.transform(discoveryItems, TO_KIND)).containsExactly(
                 DiscoveryItem.Kind.SearchItem,
                 DiscoveryItem.Kind.RecentlyPlayedItem,
-                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.RecommendedStationsItem,
                 DiscoveryItem.Kind.RecommendedTracksItem,
+                DiscoveryItem.Kind.ChartItem,
                 DiscoveryItem.Kind.PlaylistTagsItem
         );
     }
