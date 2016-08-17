@@ -5,7 +5,10 @@ import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.api.model.ChartCategory;
+import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.discovery.Chart;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -25,6 +28,7 @@ import rx.exceptions.OnErrorThrowable;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 
 import javax.inject.Inject;
@@ -39,6 +43,7 @@ public class IntentResolver {
     private final EventBus eventBus;
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
+    private final Resources resources;
 
     @Inject
     IntentResolver(ResolveOperations resolveOperations,
@@ -49,7 +54,8 @@ public class IntentResolver {
                    ReferrerResolver referrerResolver,
                    EventBus eventBus,
                    Navigator navigator,
-                   FeatureOperations featureOperations) {
+                   FeatureOperations featureOperations,
+                   Resources resources) {
         this.resolveOperations = resolveOperations;
         this.accountOperations = accountOperations;
         this.serviceInitiator = serviceInitiator;
@@ -59,6 +65,7 @@ public class IntentResolver {
         this.eventBus = eventBus;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
+        this.resources = resources;
     }
 
     public void handleIntent(Intent intent, Context context) {
@@ -98,6 +105,12 @@ public class IntentResolver {
                 break;
             case DISCOVERY:
                 showDiscoveryScreen(context, referrer);
+                break;
+            case TRACK_RECOMMENDATIONS:
+                showTrackRecommendationsScreen(context, referrer);
+                break;
+            case CHARTS:
+                showCharts(context, referrer);
                 break;
             case SEARCH:
                 showSearchScreen(context, uri, referrer);
@@ -163,7 +176,8 @@ public class IntentResolver {
                     trackForegroundEvent(referrer);
                     launchApplicationWithMessage(context, R.string.error_loading_url);
                     if (result.isPresent() && !ErrorUtils.isNetworkError(result.get().getException())) {
-                        ErrorUtils.handleSilentException("unable to load deeplink:" + result.get().getUri(), result.get().getException());
+                        ErrorUtils.handleSilentException("unable to load deeplink:" + result.get().getUri(),
+                                                         result.get().getException());
                         reportFailedToResolveDeeplink(referrer);
                     }
                 }
@@ -198,6 +212,20 @@ public class IntentResolver {
     private void showDiscoveryScreen(Context context, String referrer) {
         trackForegroundEvent(referrer);
         navigator.openDiscovery(context, Screen.DEEPLINK);
+    }
+
+    private void showTrackRecommendationsScreen(Context context, String referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openViewAllRecommendations(context);
+    }
+
+    private void showCharts(Context context, String referrer) {
+        trackForegroundEvent(referrer);
+        navigator.openChart(context,
+                            Chart.GLOBAL_GENRE,
+                            ChartType.TOP,
+                            ChartCategory.MUSIC,
+                            resources.getString(R.string.charts_top));
     }
 
     private void showSearchScreen(Context context, Uri uri, String referrer) {

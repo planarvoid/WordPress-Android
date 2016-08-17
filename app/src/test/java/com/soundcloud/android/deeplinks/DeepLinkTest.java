@@ -30,15 +30,6 @@ public class DeepLinkTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldHandleWebHomeTypes() {
-        assertThat(DeepLink.fromUri(null)).isEqualTo(DeepLink.HOME);
-        assertThat(DeepLink.fromUri(Uri.parse("http://soundcloud.com"))).isEqualTo(DeepLink.HOME);
-        assertThat(DeepLink.fromUri(Uri.parse("http://soundcloud.com/"))).isEqualTo(DeepLink.HOME);
-        assertThat(DeepLink.fromUri(Uri.parse("https://soundcloud.com/"))).isEqualTo(DeepLink.HOME);
-        assertThat(DeepLink.fromUri(Uri.parse("https://m.soundcloud.com/"))).isEqualTo(DeepLink.HOME);
-    }
-
-    @Test
     public void shouldHandleOtherWebUrlsAsOther() {
         assertThat(DeepLink.fromUri(Uri.parse("https://soundcloud.com/skrillex"))).isEqualTo(DeepLink.ENTITY);
         assertThat(DeepLink.fromUri(Uri.parse("https://soundcloud.com/skrillex/some-track"))).isEqualTo(DeepLink.ENTITY);
@@ -84,6 +75,8 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.SEARCH, "soundcloud://search:playlists");
         assertDeeplink(DeepLink.RECORD, "soundcloud://record");
         assertDeeplink(DeepLink.RECORD, "soundcloud://upload");
+        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "soundcloud://discover");
+        assertDeeplink(DeepLink.DISCOVERY, "soundcloud://discovery");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://soundcloudgo");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "soundcloud://go");
         assertDeeplink(DeepLink.SOUNDCLOUD_GO_BUY, "soundcloud://buysoundcloudgo");
@@ -91,6 +84,35 @@ public class DeepLinkTest extends AndroidUnitTest {
         assertDeeplink(DeepLink.NOTIFICATION_PREFERENCES, "soundcloud://notification_preferences");
         assertDeeplink(DeepLink.COLLECTION, "soundcloud://collection");
         assertDeeplink(DeepLink.ENTITY, "soundcloud://anythingelse");
+        assertDeeplink(DeepLink.CHARTS, "soundcloud://charts");
+    }
+
+    @Test
+    public void shouldHandleSoundcloudUrls() {
+        assertThat(DeepLink.fromUri(null)).isEqualTo(DeepLink.HOME);
+        assertDeeplink(DeepLink.HOME, "http://soundcloud.com");
+        assertDeeplink(DeepLink.HOME, "http://soundcloud.com/");
+        assertDeeplink(DeepLink.HOME, "https://soundcloud.com/");
+        assertDeeplink(DeepLink.HOME, "https://m.soundcloud.com/");
+        assertDeeplink(DeepLink.HOME, "https://www.soundcloud.com");
+        assertDeeplink(DeepLink.HOME, "https://www.soundcloud.com/home");
+        assertDeeplink(DeepLink.HOME, "https://www.soundcloud.com/home");
+        assertDeeplink(DeepLink.STREAM, "https://www.soundcloud.com/stream");
+        assertDeeplink(DeepLink.EXPLORE, "https://www.soundcloud.com/explore");
+        assertDeeplink(DeepLink.RECORD, "https://www.soundcloud.com/upload");
+        assertDeeplink(DeepLink.TRACK_RECOMMENDATIONS, "https://www.soundcloud.com/discover");
+        assertDeeplink(DeepLink.CHARTS, "https://www.soundcloud.com/charts");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/sounds");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/people");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/sets");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/tracks");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/users");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/search/playlists");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/tracks/search");
+        assertDeeplink(DeepLink.SEARCH, "https://www.soundcloud.com/people/search");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://www.soundcloud.com/soundcloudgo");
+        assertDeeplink(DeepLink.SOUNDCLOUD_GO_UPSELL, "https://www.soundcloud.com/go");
     }
 
     @Test

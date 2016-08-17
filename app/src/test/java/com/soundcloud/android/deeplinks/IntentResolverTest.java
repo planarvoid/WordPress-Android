@@ -11,9 +11,13 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.PlaybackServiceInitiator;
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.api.model.ChartCategory;
+import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.discovery.Chart;
 import com.soundcloud.android.events.DeeplinkReportEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -39,6 +43,8 @@ import android.content.res.Resources;
 import android.net.Uri;
 
 public class IntentResolverTest extends AndroidUnitTest {
+    private final static String TOP_FIFTY = "Top 50";
+
     @Mock private ResolveOperations resolveOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackInitiator playbackInitiator;
@@ -48,6 +54,7 @@ public class IntentResolverTest extends AndroidUnitTest {
     @Mock private EventBus eventBus;
     @Mock private Navigator navigator;
     @Mock private FeatureOperations featureOperations;
+    @Mock private Resources resources;
 
     @InjectMocks private IntentResolver resolver;
 
@@ -62,6 +69,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(playbackInitiator.startPlayback(any(Urn.class),
                                              any(Screen.class))).thenReturn(Observable.<PlaybackResult>empty());
+        when(resources.getString(R.string.charts_top)).thenReturn(TOP_FIFTY);
     }
 
     @Test
@@ -476,12 +484,12 @@ public class IntentResolverTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldOpenDiscoveryFromWebLink() {
+    public void shouldOpenDiscoverFromWebLink() {
         setupIntentForUrl("https://soundcloud.com/discover");
 
         resolver.handleIntent(intent, context);
 
-        verify(navigator).openDiscovery(context, Screen.DEEPLINK);
+        verify(navigator).openViewAllRecommendations(context);
     }
 
     @Test
@@ -491,6 +499,32 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verify(navigator).openDiscovery(context, Screen.DEEPLINK);
+    }
+
+    @Test
+    public void shouldOpenChartsFromWebLink() {
+        setupIntentForUrl("https://soundcloud.com/charts");
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openChart(context,
+                                    Chart.GLOBAL_GENRE,
+                                    ChartType.TOP,
+                                    ChartCategory.MUSIC,
+                                    TOP_FIFTY);
+    }
+
+    @Test
+    public void shouldOpenChartsFromUri() {
+        setupIntentForUrl("soundcloud://charts");
+
+        resolver.handleIntent(intent, context);
+
+        verify(navigator).openChart(context,
+                                    Chart.GLOBAL_GENRE,
+                                    ChartType.TOP,
+                                    ChartCategory.MUSIC,
+                                    "Top 50");
     }
 
     public void setupIntentForUrl(String url) {

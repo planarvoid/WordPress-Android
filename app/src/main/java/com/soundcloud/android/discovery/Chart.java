@@ -11,6 +11,7 @@ import java.util.List;
 
 @AutoValue
 public abstract class Chart {
+    public static final Urn GLOBAL_GENRE = new Urn("soundcloud:genres:all-music");
 
     static Chart create(Long localId,
                         ChartType type,
