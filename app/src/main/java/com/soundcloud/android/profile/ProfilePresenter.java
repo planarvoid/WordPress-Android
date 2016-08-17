@@ -9,8 +9,8 @@ import static com.soundcloud.android.profile.ProfilePagerAdapter.TAB_SOUNDS;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ActivityReferringEventProvider;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
@@ -46,7 +46,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
     private final UserProfileOperations profileOperations;
     private final EventBus eventBus;
     private final AccountOperations accountOperations;
-    private final TheTracker tracker;
+    private final EventTracker eventTracker;
 
     private ViewPager pager;
     private Subscription userSubscription = RxUtils.invalidSubscription();
@@ -67,7 +67,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
                             UserProfileOperations profileOperations,
                             EventBus eventBus,
                             AccountOperations accountOperations,
-                            TheTracker tracker,
+                            EventTracker eventTracker,
                             ActivityReferringEventProvider referringEventProvider,
                             EnterScreenDispatcher enterScreenDispatcher) {
         this.scrollHelper = scrollHelper;
@@ -75,7 +75,7 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
-        this.tracker = tracker;
+        this.eventTracker = eventTracker;
         this.referringEventProvider = referringEventProvider;
         this.enterScreenDispatcher = enterScreenDispatcher;
         this.enterScreenDispatcher.setListener(this);
@@ -117,9 +117,9 @@ class ProfilePresenter extends ActivityLightCycleDispatcher<RootActivity>
         int position = pager.getCurrentItem();
 
         if (accountOperations.isLoggedInUser(user)) {
-            tracker.trackScreen(ScreenEvent.create(getYourScreen(position)), referringEventProvider.getReferringEvent());
+            eventTracker.trackScreen(ScreenEvent.create(getYourScreen(position)), referringEventProvider.getReferringEvent());
         } else {
-            tracker.trackScreen(ScreenEvent.create(getOtherScreen(position), Urn.forUser(user.getNumericId())), referringEventProvider.getReferringEvent());
+            eventTracker.trackScreen(ScreenEvent.create(getOtherScreen(position), Urn.forUser(user.getNumericId())), referringEventProvider.getReferringEvent());
         }
     }
 

@@ -3,8 +3,8 @@ package com.soundcloud.android.main;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.Referrer;
-import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
@@ -30,8 +30,8 @@ public class ForegroundControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        TheTracker tracker = new TheTracker(eventBus, trackingStateProvider);
-        lightCycle = new ForegroundController(tracker);
+        EventTracker eventTracker = new EventTracker(eventBus, trackingStateProvider);
+        lightCycle = new ForegroundController(eventTracker);
     }
 
     @Test

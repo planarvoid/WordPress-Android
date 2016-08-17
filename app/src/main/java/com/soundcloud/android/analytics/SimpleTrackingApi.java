@@ -37,7 +37,7 @@ class SimpleTrackingApi implements TrackingApi {
      */
     @Override
     public List<TrackingRecord> pushToRemote(List<TrackingRecord> events) {
-        Log.d(EventTracker.TAG, "Pushing " + events.size() + " new tracking events");
+        Log.d(EventTrackingManager.TAG, "Pushing " + events.size() + " new tracking events");
 
         List<TrackingRecord> successes = new ArrayList<>(events.size());
 
@@ -48,12 +48,12 @@ class SimpleTrackingApi implements TrackingApi {
                 final Response response = httpClient.newCall(request).execute();
                 try {
                     final int status = response.code();
-                    Log.d(EventTracker.TAG, "Tracking event response: " + response.toString());
+                    Log.d(EventTrackingManager.TAG, "Tracking event response: " + response.toString());
 
                     if (isSuccessCodeOrIgnored(status)) {
                         successes.add(event);
                     } else {
-                        ErrorUtils.handleSilentException(EventTracker.TAG,
+                        ErrorUtils.handleSilentException(EventTrackingManager.TAG,
                                                          new Exception(
                                                                  "Tracking request failed with unexpected status code: "
                                                                          + response.toString() + "; record = " + event));
@@ -62,10 +62,10 @@ class SimpleTrackingApi implements TrackingApi {
                     response.body().close();
                 }
             } catch (MalformedURLException e) {
-                ErrorUtils.handleSilentException(EventTracker.TAG, new Exception(event.toString(), e));
+                ErrorUtils.handleSilentException(EventTrackingManager.TAG, new Exception(event.toString(), e));
                 successes.add(event); // no point in trying this event again
             } catch (IOException e) {
-                Log.w(EventTracker.TAG, "Failed with IOException pushing event: " + event, e);
+                Log.w(EventTrackingManager.TAG, "Failed with IOException pushing event: " + event, e);
             }
         }
 

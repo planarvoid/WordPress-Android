@@ -1,66 +1,53 @@
 package com.soundcloud.android.analytics;
 
-import static android.os.Process.THREAD_PRIORITY_LOWEST;
-
-import com.soundcloud.android.utils.Log;
-
-import android.os.HandlerThread;
-import android.os.Message;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.ReferringEvent;
+import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.concurrent.TimeUnit;
 
-/**
- * Used by an {@link com.soundcloud.android.analytics.AnalyticsProvider} to schedule tracking of events.
- * Tracked events are queued up in the database and can be flushed in batches at an appropriate time.
- */
-@Singleton
 public class EventTracker {
-    static final String TAG = EventTracker.class.getSimpleName();
-
-    private static final long FINISH_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(30);
-
-    private final TrackingHandlerFactory handlerFactory;
-    private TrackingHandler handler;
+    private final EventBus eventBus;
+    private final TrackingStateProvider trackingStateProvider;
 
     @Inject
-    public EventTracker(TrackingHandlerFactory handlerFactory) {
-        this.handlerFactory = handlerFactory;
+    public EventTracker(EventBus eventBus, TrackingStateProvider trackingStateProvider) {
+        this.eventBus = eventBus;
+        this.trackingStateProvider = trackingStateProvider;
     }
 
-    public void trackEvent(TrackingRecord event) {
-        Log.d(TAG, "New tracking event: " + event.toString());
-        createHandlerIfNecessary();
-
-        // cancel any pending finish requests
-        handler.removeMessages(TrackingHandler.FINISH_TOKEN);
-
-        final Message insert = handler.obtainMessage(TrackingHandler.INSERT_TOKEN, event);
-        handler.sendMessage(insert);
-
-        // schedule a finish (next incoming event will cancel this again)
-        final Message finish = handler.obtainMessage(TrackingHandler.FINISH_TOKEN);
-        handler.sendMessageDelayed(finish, FINISH_DELAY_MILLIS);
+    public void trackScreen(ScreenEvent event, Optional<ReferringEvent> referringEvent) {
+        publishAndUpdate(event, referringEvent);
     }
 
-    public void flush(String backend) {
-        Log.d(TAG, "Requesting FLUSH for " + backend);
-        createHandlerIfNecessary();
-        handler.obtainMessage(TrackingHandler.FLUSH_TOKEN, backend).sendToTarget();
+    public void trackForegroundEvent(ForegroundEvent event) {
+        publishAndUpdate(event, Optional.<ReferringEvent>absent());
     }
 
-    private void createHandlerIfNecessary() {
-        if (isHandlerDead()) {
-            Log.d(TAG, "Handler was dead, recreating");
-            HandlerThread thread = new HandlerThread(TAG, THREAD_PRIORITY_LOWEST);
-            thread.start();
-            handler = handlerFactory.create(thread.getLooper());
+    public void trackEngagement(UIEvent event) {
+        attachAndPublish(event, trackingStateProvider.getLastEvent());
+    }
+
+    private void attachAndPublish(TrackingEvent event, Optional<ReferringEvent> referringEvent) {
+        eventBus.publish(EventQueue.TRACKING, attachReferringEvent(event, referringEvent));
+    }
+
+    private void publishAndUpdate(TrackingEvent event, Optional<ReferringEvent> referringEvent) {
+        attachAndPublish(event, referringEvent);
+
+        trackingStateProvider.update(ReferringEvent.create(event.getId(), event.getKind()));
+    }
+
+    private TrackingEvent attachReferringEvent(TrackingEvent event, Optional<ReferringEvent> referringEvent) {
+        if (referringEvent.isPresent()) {
+            event.putReferringEvent(referringEvent.get());
         }
-    }
 
-    private boolean isHandlerDead() {
-        return handler == null || handler.getLooper().getThread().getState() == Thread.State.TERMINATED;
+        return event;
     }
-
 }

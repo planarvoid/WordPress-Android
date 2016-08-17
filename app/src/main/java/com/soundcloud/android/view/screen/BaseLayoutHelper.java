@@ -1,7 +1,6 @@
 package com.soundcloud.android.view.screen;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.TheTracker;
 
 import android.support.v4.view.WindowCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,11 +14,9 @@ import javax.inject.Inject;
 
 public class BaseLayoutHelper {
 
-    private final TheTracker theTracker;
-
     @Inject
-    BaseLayoutHelper(TheTracker theTracker) {
-        this.theTracker = theTracker;
+    BaseLayoutHelper() {
+
     }
 
     public View setContainerLayout(AppCompatActivity activity) {

@@ -15,8 +15,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
-public class EventTrackerTest extends AndroidUnitTest {
-    private EventTracker eventTracker;
+public class EventTrackingManagerTest extends AndroidUnitTest {
+    private EventTrackingManager eventTrackingManager;
 
     @Mock TrackingHandlerFactory trackingHandlerFactory;
     @Mock TrackingHandler handler;
@@ -27,7 +27,7 @@ public class EventTrackerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        eventTracker = new EventTracker(trackingHandlerFactory);
+        eventTrackingManager = new EventTrackingManager(trackingHandlerFactory);
         when(trackingHandlerFactory.create(any(Looper.class))).thenReturn(handler);
         when(handler.obtainMessage(TrackingHandler.FINISH_TOKEN)).thenReturn(finishMessage);
         final HandlerThread handlerThread = new HandlerThread("t");
@@ -37,30 +37,30 @@ public class EventTrackerTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateNewEventLoggerOnTrackEvent() throws Exception {
-        eventTracker.trackEvent(event);
+        eventTrackingManager.trackEvent(event);
         verify(trackingHandlerFactory).create(any(Looper.class));
     }
 
     @Test
     public void shouldSendTrackingEventToHandler() throws Exception {
         when(handler.obtainMessage(TrackingHandler.INSERT_TOKEN, event)).thenReturn(message);
-        eventTracker.trackEvent(event);
+        eventTrackingManager.trackEvent(event);
         verify(handler).sendMessage(message);
     }
 
     @Test
     public void shouldSendFlushMessageToHandlerForSpecificBackend() {
-        eventTracker.trackEvent(event); // make sure handler is alive
+        eventTrackingManager.trackEvent(event); // make sure handler is alive
 
         when(handler.obtainMessage(TrackingHandler.FLUSH_TOKEN, "backend")).thenReturn(flushMessage);
-        eventTracker.flush("backend");
+        eventTrackingManager.flush("backend");
         verify(flushMessage).sendToTarget();
     }
 
     @Test
     public void shouldRemovePendingFinishMessageOnTrackEvent() throws Exception {
         when(handler.obtainMessage(TrackingHandler.INSERT_TOKEN, event)).thenReturn(message);
-        eventTracker.trackEvent(event);
+        eventTrackingManager.trackEvent(event);
         verify(handler).removeMessages(TrackingHandler.FINISH_TOKEN);
     }
 
@@ -68,7 +68,7 @@ public class EventTrackerTest extends AndroidUnitTest {
     public void shouldSendDelayedFinishMessageWhenTrackingEvent() throws Exception {
         // send event to start handler
         when(handler.obtainMessage(TrackingHandler.INSERT_TOKEN, event)).thenReturn(message);
-        eventTracker.trackEvent(event);
+        eventTrackingManager.trackEvent(event);
 
         verify(handler).sendMessageDelayed(same(finishMessage), anyLong());
     }
@@ -77,7 +77,7 @@ public class EventTrackerTest extends AndroidUnitTest {
     public void shouldCreateNewHandlerForTrackingEventAfterShutDown() throws Exception {
         handler.getLooper().quit();
 
-        eventTracker.trackEvent(event);
+        eventTrackingManager.trackEvent(event);
 
         verify(trackingHandlerFactory).create(any(Looper.class));
     }
@@ -87,7 +87,7 @@ public class EventTrackerTest extends AndroidUnitTest {
         when(handler.obtainMessage(TrackingHandler.FLUSH_TOKEN, "backend")).thenReturn(flushMessage);
         handler.getLooper().quit();
 
-        eventTracker.flush("backend");
+        eventTrackingManager.flush("backend");
 
         verify(trackingHandlerFactory).create(any(Looper.class));
     }

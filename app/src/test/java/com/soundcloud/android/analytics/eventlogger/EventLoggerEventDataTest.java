@@ -2,10 +2,15 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class EventLoggerEventDataTest extends AndroidUnitTest {
 
@@ -70,4 +75,42 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
         assertThat(data.payload.get("exp_android_listening")).isEqualTo(String.valueOf(12345));
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldMapScreenEventKindToReferringEventName() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        final String uuid = UUID.randomUUID().toString();
+
+        data.referringEvent(uuid, ScreenEvent.KIND);
+
+        final Map<String, String> actual = (Map<String, String>) data.payload.get(EventLoggerParam.REFERRING_EVENT);
+
+        assertThat(actual.get(EventLoggerParam.UUID)).isEqualTo(uuid);
+        assertThat(actual.get(EventLoggerParam.REFERRING_EVENT_KIND)).isEqualTo("pageview");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldMapForegroundEventKindToReferringEventName() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        final String uuid = UUID.randomUUID().toString();
+
+        data.referringEvent(uuid, ForegroundEvent.KIND_OPEN);
+
+        final Map<String, String> actual = (Map<String, String>) data.payload.get(EventLoggerParam.REFERRING_EVENT);
+
+        assertThat(actual.get(EventLoggerParam.UUID)).isEqualTo(uuid);
+        assertThat(actual.get(EventLoggerParam.REFERRING_EVENT_KIND)).isEqualTo("foreground");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfUnknownReferringEventKind() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        final String uuid = UUID.randomUUID().toString();
+
+        data.referringEvent(uuid, "Random Event Type");
+    }
 }

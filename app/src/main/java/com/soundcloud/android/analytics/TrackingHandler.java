@@ -14,7 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
- * Processes messages received from {@link com.soundcloud.android.analytics.EventTracker}, such as inserting an event
+ * Processes messages received from {@link EventTrackingManager}, such as inserting an event
  * into the tracking database or flushing existing events to the respective tracking backend.
  */
 class TrackingHandler extends Handler {
@@ -42,7 +42,7 @@ class TrackingHandler extends Handler {
         try {
             handleTrackingEvent(msg);
         } catch (Exception e) {
-            ErrorUtils.handleSilentException(EventTracker.TAG, e);
+            ErrorUtils.handleSilentException(EventTrackingManager.TAG, e);
         }
     }
 
@@ -50,15 +50,15 @@ class TrackingHandler extends Handler {
         switch (msg.what) {
             case INSERT_TOKEN:
                 try {
-                    Log.d(EventTracker.TAG, "Inserting event: " + msg.obj + "\nthread=" + Thread.currentThread());
+                    Log.d(EventTrackingManager.TAG, "Inserting event: " + msg.obj + "\nthread=" + Thread.currentThread());
                     final InsertResult insertResult = storage.insertEvent((TrackingRecord) msg.obj);
                     if (!insertResult.success()) {
                         ErrorUtils.handleSilentException(
-                                EventTracker.TAG,
+                                EventTrackingManager.TAG,
                                 new Exception("error inserting tracking event " + msg.obj, insertResult.getFailure()));
                     }
                 } catch (UnsupportedEncodingException e) {
-                    ErrorUtils.handleSilentException(EventTracker.TAG, e);
+                    ErrorUtils.handleSilentException(EventTrackingManager.TAG, e);
                 }
                 break;
 
@@ -67,7 +67,7 @@ class TrackingHandler extends Handler {
                 break;
 
             case FINISH_TOKEN:
-                Log.d(EventTracker.TAG, "Shutting down.");
+                Log.d(EventTrackingManager.TAG, "Shutting down.");
                 removeCallbacksAndMessages(null);
                 getLooper().quit();
                 break;
@@ -81,7 +81,7 @@ class TrackingHandler extends Handler {
         final String backend = (String) flushMessage.obj;
 
         if (networkConnectionHelper.isNetworkConnected()) {
-            Log.d(EventTracker.TAG, "flushing tracking events (backend = " + backend + ")");
+            Log.d(EventTrackingManager.TAG, "flushing tracking events (backend = " + backend + ")");
             List<TrackingRecord> events = backend == null ?
                                           storage.getPendingEvents() :
                                           storage.getPendingEventsForBackend(backend);
@@ -90,7 +90,7 @@ class TrackingHandler extends Handler {
                 submitEvents(events, backend);
             }
         } else {
-            Log.d(EventTracker.TAG, "not connected, skipping flush");
+            Log.d(EventTrackingManager.TAG, "not connected, skipping flush");
         }
     }
 
@@ -100,12 +100,12 @@ class TrackingHandler extends Handler {
             ChangeResult result = storage.deleteEvents(submitted);
             final int rowsDeleted = result.getNumRowsAffected();
             if (result.success() && submitted.size() == rowsDeleted) {
-                Log.d(EventTracker.TAG, "submitted " + rowsDeleted + " events");
+                Log.d(EventTrackingManager.TAG, "submitted " + rowsDeleted + " events");
             } else {
                 ErrorUtils.handleSilentException(
-                        EventTracker.TAG, new Exception("Failed to delete some tracking events: failed = "
+                        EventTrackingManager.TAG, new Exception("Failed to delete some tracking events: failed = "
                                                                 + (submitted.size() - rowsDeleted),
-                                                        result.getFailure()));
+                                                                result.getFailure()));
             }
         }
     }

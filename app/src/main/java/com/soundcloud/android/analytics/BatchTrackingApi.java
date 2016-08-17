@@ -51,10 +51,10 @@ public class BatchTrackingApi implements TrackingApi {
             } while (batchIndex * batchSize < events.size());
 
         } catch (IOException e) {
-            Log.w(EventTracker.TAG, "Failed with IOException pushing event count: " + events.size(), e);
+            Log.w(EventTrackingManager.TAG, "Failed with IOException pushing event count: " + events.size(), e);
         } catch (JSONException e) {
             ErrorUtils.handleSilentException(e);
-            Log.e(EventTracker.TAG, "Failed with JSONException, pushing event count: " + events.size(), e);
+            Log.e(EventTrackingManager.TAG, "Failed with JSONException, pushing event count: " + events.size(), e);
         }
         return successes;
     }
@@ -66,12 +66,12 @@ public class BatchTrackingApi implements TrackingApi {
         final Response response = httpClient.newCall(request).execute();
         try {
             final int status = response.code();
-            Log.d(EventTracker.TAG, "Tracking event response: " + response.toString()
+            Log.d(EventTrackingManager.TAG, "Tracking event response: " + response.toString()
                     + ";body=" + response.body().string());
             if (isSuccessCodeOrIgnored(status)) {
                 successes.addAll(events);
             } else {
-                ErrorUtils.handleSilentException(EventTracker.TAG,
+                ErrorUtils.handleSilentException(EventTrackingManager.TAG,
                                                  new Exception("Tracking request failed with unexpected status code: "
                                                                        + response.toString() + "; recordCount = " + events
                                                          .size()));
@@ -91,7 +91,7 @@ public class BatchTrackingApi implements TrackingApi {
 
     private RequestBody createBody(List<TrackingRecord> events) throws IOException, JSONException {
         final String body = new JSONArray(getEventJsonObjects(events)).toString();
-        Log.d(EventTracker.TAG, "event payload: " + body);
+        Log.d(EventTrackingManager.TAG, "event payload: " + body);
         return RequestBody.create(MediaType.parse(CONTENT_TYPE), body.getBytes(Charsets.UTF_8.name()));
     }
 

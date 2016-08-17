@@ -1,10 +1,16 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import android.content.SharedPreferences;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
@@ -44,27 +50,20 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.java.collections.PropertySet;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.List;
+import android.content.SharedPreferences;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import java.util.List;
 
 public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     private EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 
-    @Mock private EventTracker eventTracker;
+    @Mock private EventTrackingManager eventTrackingManager;
     @Mock private EventLoggerJsonDataBuilder dataBuilderv0;
     @Mock private EventLoggerV1JsonDataBuilder dataBuilderv1;
     @Mock private SharedPreferences sharedPreferences;
@@ -77,7 +76,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker,
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTrackingManager,
                                                                         InjectionSupport.lazyOf(dataBuilderv0),
                                                                         InjectionSupport.lazyOf(dataBuilderv1),
                                                                         sharedPreferences);
@@ -93,7 +92,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertEventTracked(captor.getValue(), "url", event.getTimestamp());
     }
 
@@ -113,7 +112,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertEventTracked(captor.getValue(), "url", event.getTimestamp());
     }
 
@@ -133,7 +132,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         verify(dataBuilderv0, never()).build(event);
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getBackend()).isEqualTo(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         assertThat(captor.getValue().getTimeStamp()).isEqualTo(event.getTimestamp());
         assertThat(captor.getValue().getData()).isEqualTo("url");
@@ -152,7 +151,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handlePlaybackErrorEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertEventTracked(captor.getValue(), "url", event.getTimestamp());
     }
 
@@ -174,7 +173,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         eventLoggerAnalyticsProvider.handleTrackingEvent(event1);
         eventLoggerAnalyticsProvider.handleTrackingEvent(event2);
 
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
         assertThat(captor.getAllValues()).hasSize(2);
         List<TrackingRecord> allValues = captor.getAllValues();
         assertEventTracked(allValues.get(0), "url1", event1.getTimestamp());
@@ -196,7 +195,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForLikeEvent");
     }
 
@@ -215,7 +214,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUnlikeEvent");
     }
 
@@ -235,7 +234,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForRepostEvent");
     }
 
@@ -255,7 +254,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUnRepostEvent");
     }
 
@@ -271,7 +270,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForVisualAdImpression");
     }
 
@@ -285,7 +284,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForAudioAdImpression");
     }
 
@@ -299,7 +298,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForAudioAdClick");
     }
 
@@ -312,7 +311,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForPromotedEvent");
     }
 
@@ -322,7 +321,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verifyZeroInteractions(eventTracker);
+        verifyZeroInteractions(eventTrackingManager);
     }
 
     @Test
@@ -333,7 +332,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForScreenEvent");
     }
 
@@ -345,7 +344,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForUpsellEvent");
     }
 
@@ -357,7 +356,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("ForCollectionEvent");
     }
 
@@ -370,7 +369,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackErrorEvent");
     }
 
@@ -383,7 +382,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
     }
 
@@ -398,7 +397,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
         List<TrackingRecord> allValues = captor.getAllValues();
         assertThat(allValues.size()).isEqualTo(2);
         assertEventTracked(captor.getAllValues().get(0), "AdImpressionEvent", adEvent.getTimestamp());
@@ -417,7 +416,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
     }
 
@@ -433,7 +432,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdPlaybackSessionEvent");
     }
 
@@ -450,7 +449,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
         List<TrackingRecord> allValues = captor.getAllValues();
         assertThat(allValues.size()).isEqualTo(2);
         assertEventTracked(captor.getAllValues().get(0), "AdFinishedEvent", adEvent.getTimestamp());
@@ -466,7 +465,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("UIEvent");
     }
 
@@ -479,7 +478,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(adEvent);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("UIEvent");
     }
 
@@ -498,7 +497,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdDeliveredEvent");
     }
 
@@ -510,7 +509,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         assertThat(captor.getValue().getData()).isEqualTo("AdFetchFailedEvent");
     }
 
@@ -586,7 +585,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldForwardFlushCallToEventTracker() {
         eventLoggerAnalyticsProvider.flush();
-        verify(eventTracker).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
+        verify(eventTrackingManager).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
     }
 
     private String v1OfflinePerformanceEventCaptor(String name, OfflinePerformanceEvent event) {
@@ -595,7 +594,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         return captor.getValue().getData();
     }
 
@@ -605,7 +604,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         return captor.getValue().getData();
     }
 
@@ -615,7 +614,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker).trackEvent(captor.capture());
+        verify(eventTrackingManager).trackEvent(captor.capture());
         return captor.getValue().getData();
     }
 

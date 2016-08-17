@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
-import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -33,25 +33,25 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
 
     public static final String BATCH_BACKEND_NAME = "boogaloo";
 
-    private final EventTracker eventTracker;
+    private final EventTrackingManager eventTrackingManager;
     private final Lazy<EventLoggerJsonDataBuilder> dataBuilderV0;
     private final Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1;
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public EventLoggerAnalyticsProvider(EventTracker eventTracker,
+    public EventLoggerAnalyticsProvider(EventTrackingManager eventTrackingManager,
                                         Lazy<EventLoggerJsonDataBuilder> dataBuilderV0,
                                         Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1,
                                         SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
         this.dataBuilderV0 = dataBuilderV0;
         this.dataBuilderV1 = dataBuilderV1;
-        this.eventTracker = eventTracker;
+        this.eventTrackingManager = eventTrackingManager;
     }
 
     @Override
     public void flush() {
-        eventTracker.flush(BATCH_BACKEND_NAME);
+        eventTrackingManager.flush(BATCH_BACKEND_NAME);
     }
 
     @Override
@@ -235,9 +235,9 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void trackEvent(long timeStamp, String data) {
-        eventTracker.trackEvent(new TrackingRecord(timeStamp, BATCH_BACKEND_NAME, data));
+        eventTrackingManager.trackEvent(new TrackingRecord(timeStamp, BATCH_BACKEND_NAME, data));
         if (sharedPreferences.getBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)) {
-            eventTracker.flush(BATCH_BACKEND_NAME);
+            eventTrackingManager.flush(BATCH_BACKEND_NAME);
         }
     }
 

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.ActivityReferringEventProvider;
-import com.soundcloud.android.analytics.TheTracker;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -69,7 +69,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
     @Mock private ProfileScrollHelper profileScrollHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private TrackingStateProvider trackingStateProvider;
-    @Mock private TheTracker tracker;
+    @Mock private EventTracker eventTracker;
     @Mock private ScreenStateProvider screenStateProvider;
     @Mock private ActivityReferringEventProvider referringEventProvider;
     @Mock private EnterScreenDispatcher enterScreenDispatcher;
@@ -103,7 +103,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
                                                 profileOperations,
                                                 eventBus,
                                                 accountOperations,
-                                                tracker,
+                                                eventTracker,
                                                 referringEventProvider,
                                                 enterScreenDispatcher);
     }
@@ -165,7 +165,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(viewPager.getCurrentItem()).thenReturn(ProfilePagerAdapter.TAB_SOUNDS);
         profilePresenter.onEnterScreen(activity);
 
-        verify(tracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
+        verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
         assertThat(screenEventArgumentCaptor.getValue().getScreenTag()).isEqualTo(Screen.USER_MAIN.get());
         assertThat(screenEventArgumentCaptor.getValue().getPageUrn()).isEqualTo(USER_URN.toString());
     }
@@ -178,7 +178,7 @@ public class ProfilePresenterTest extends AndroidUnitTest {
         when(viewPager.getCurrentItem()).thenReturn(ProfilePagerAdapter.TAB_SOUNDS);
         profilePresenter.onEnterScreen(activity);
 
-        verify(tracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
+        verify(eventTracker).trackScreen(screenEventArgumentCaptor.capture(), any(Optional.class));
         assertThat(screenEventArgumentCaptor.getValue().getScreenTag()).isEqualTo(Screen.YOUR_MAIN.get());
     }
 

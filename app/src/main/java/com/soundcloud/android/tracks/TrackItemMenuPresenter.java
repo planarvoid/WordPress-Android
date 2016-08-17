@@ -4,10 +4,10 @@ import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -66,7 +66,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     private final PlayQueueManager playQueueManager;
     private final PlaybackInitiator playbackInitiator;
     private final PlaybackToastHelper playbackToastHelper;
-    private final TheTracker tracker;
+    private final EventTracker tracker;
 
     private FragmentActivity activity;
     private TrackItem track;
@@ -100,7 +100,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                            PlayQueueManager playQueueManager,
                            PlaybackInitiator playbackInitiator,
                            PlaybackToastHelper playbackToastHelper,
-                           TheTracker tracker) {
+                           EventTracker tracker) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.trackRepository = trackRepository;
         this.eventBus = eventBus;

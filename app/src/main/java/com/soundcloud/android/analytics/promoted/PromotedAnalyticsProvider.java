@@ -1,7 +1,7 @@
 package com.soundcloud.android.analytics.promoted;
 
 import com.soundcloud.android.analytics.DefaultAnalyticsProvider;
-import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
@@ -19,16 +19,16 @@ import java.util.List;
 public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
 
     public static final String BACKEND_NAME = "promoted";
-    private final EventTracker eventTracker;
+    private final EventTrackingManager eventTrackingManager;
 
     @Inject
-    public PromotedAnalyticsProvider(EventTracker eventTracker) {
-        this.eventTracker = eventTracker;
+    public PromotedAnalyticsProvider(EventTrackingManager eventTrackingManager) {
+        this.eventTrackingManager = eventTrackingManager;
     }
 
     @Override
     public void flush() {
-        eventTracker.flush(BACKEND_NAME);
+        eventTrackingManager.flush(BACKEND_NAME);
     }
 
     @Override
@@ -100,8 +100,8 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
 
     private void trackAllUrls(long timeStamp, List<String> urls) {
         for (String url : urls) {
-            eventTracker.trackEvent(new TrackingRecord(timeStamp, BACKEND_NAME, url));
+            eventTrackingManager.trackEvent(new TrackingRecord(timeStamp, BACKEND_NAME, url));
         }
-        eventTracker.flush(BACKEND_NAME);
+        eventTrackingManager.flush(BACKEND_NAME);
     }
 }

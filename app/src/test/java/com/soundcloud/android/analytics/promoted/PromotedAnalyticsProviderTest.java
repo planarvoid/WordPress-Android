@@ -14,7 +14,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.ads.VideoAd;
-import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.EventTrackingManager;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
@@ -43,7 +43,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
 
     private PromotedAnalyticsProvider analyticsProvider;
 
-    @Mock private EventTracker eventTracker;
+    @Mock private EventTrackingManager eventTrackingManager;
     private TrackSourceInfo trackSourceInfo;
 
     private Urn userUrn = Urn.forUser(123L);
@@ -51,7 +51,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        analyticsProvider = new PromotedAnalyticsProvider(eventTracker);
+        analyticsProvider = new PromotedAnalyticsProvider(eventTrackingManager);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
     }
 
@@ -66,7 +66,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
         final List<TrackingRecord> trackingRecords = captor.getAllValues();
 
         final TrackingRecord event1 = trackingRecords.get(0);
@@ -87,7 +87,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(event);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         List<TrackingRecord> allValues = captor.getAllValues();
         assertThat(allValues.size()).isEqualTo(2);
@@ -105,7 +105,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(event);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         List<TrackingRecord> allValues = captor.getAllValues();
         assertThat(allValues.size()).isEqualTo(2);
@@ -123,7 +123,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(event);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         List<TrackingRecord> events = captor.getAllValues();
         assertThat(events.size()).isEqualTo(2);
@@ -139,7 +139,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(event);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         List<TrackingRecord> events = captor.getAllValues();
         assertThat(events.size()).isEqualTo(2);
@@ -154,7 +154,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(UIEvent.fromPlaylistsNav());
         analyticsProvider.handleTrackingEvent(UIEvent.fromProfileNav());
 
-        verifyZeroInteractions(eventTracker);
+        verifyZeroInteractions(eventTrackingManager);
     }
 
     @Test
@@ -165,7 +165,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(event);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         List<TrackingRecord> allValues = captor.getAllValues();
         assertThat(allValues.size()).isEqualTo(2);
@@ -185,7 +185,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(impressionEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "comp_impression1", 333l);
@@ -206,7 +206,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(impressionEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "leave_impression1", 333l);
@@ -222,7 +222,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(event);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "promoted1", event.getTimestamp());
@@ -241,7 +241,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "promoPlay1", 12345L);
@@ -259,7 +259,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_quartile1_1", playbackProgressEvent.getTimestamp());
@@ -277,7 +277,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_quartile2_1", playbackProgressEvent.getTimestamp());
@@ -295,7 +295,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_quartile3_1", playbackProgressEvent.getTimestamp());
@@ -313,7 +313,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "audio_quartile1_1", playbackProgressEvent.getTimestamp());
@@ -331,7 +331,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "audio_quartile2_1", playbackProgressEvent.getTimestamp());
@@ -349,7 +349,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackProgressEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "audio_quartile3_1", playbackProgressEvent.getTimestamp());
@@ -366,7 +366,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(fullscreenEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_fullscreen1", fullscreenEvent.getTimestamp());
@@ -383,7 +383,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(fullscreenEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_exit_full1", fullscreenEvent.getTimestamp());
@@ -400,7 +400,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(4)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(4)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_impression1", playbackSessionEvent.getTimestamp());
@@ -422,7 +422,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_resume1", playbackSessionEvent.getTimestamp());
@@ -441,7 +441,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_pause1", playbackSessionEvent.getTimestamp());
@@ -460,7 +460,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         analyticsProvider.handleTrackingEvent(playbackSessionEvent);
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-        verify(eventTracker, times(2)).trackEvent(captor.capture());
+        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
         assertPromotedTrackingRecord(event1, "video_finish1", playbackSessionEvent.getTimestamp());
@@ -471,7 +471,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void forwardsFlushCallToEventTracker() {
         analyticsProvider.flush();
-        verify(eventTracker).flush(PromotedAnalyticsProvider.BACKEND_NAME);
+        verify(eventTrackingManager).flush(PromotedAnalyticsProvider.BACKEND_NAME);
     }
 
     @Test
@@ -480,8 +480,8 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         final PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0).withAudioAd(audioAd);
         analyticsProvider.handleTrackingEvent(event);
 
-        verify(eventTracker, times(2)).trackEvent(any(TrackingRecord.class));
-        verify(eventTracker).flush(PromotedAnalyticsProvider.BACKEND_NAME);
+        verify(eventTrackingManager, times(2)).trackEvent(any(TrackingRecord.class));
+        verify(eventTrackingManager).flush(PromotedAnalyticsProvider.BACKEND_NAME);
     }
 
     private void assertPromotedTrackingRecord(TrackingRecord trackingRecord, String data, long timeStamp) {

@@ -4,7 +4,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ActivityReferringEventProvider;
-import com.soundcloud.android.analytics.TheTracker;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.rx.RxUtils;
@@ -38,7 +38,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
     private final BaseLayoutHelper layoutHelper;
     private final MainPagerAdapter.Factory pagerAdapterFactory;
     private final Navigator navigator;
-    private final TheTracker tracker;
+    private final EventTracker eventTracker;
 
     private NavigationModel navigationModel;
 
@@ -57,7 +57,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
                       MainPagerAdapter.Factory pagerAdapterFactory,
                       Navigator navigator,
                       FeatureOperations featureOperations,
-                      TheTracker tracker,
+                      EventTracker eventTracker,
                       ActivityReferringEventProvider referringEventProvider,
                       EnterScreenDispatcher enterScreenDispatcher) {
         this.navigationModel = navigationModel;
@@ -65,7 +65,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
         this.pagerAdapterFactory = pagerAdapterFactory;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
-        this.tracker = tracker;
+        this.eventTracker = eventTracker;
         this.referringEventProvider = referringEventProvider;
         this.enterScreenDispatcher = enterScreenDispatcher;
         enterScreenDispatcher.setListener(this);
@@ -119,7 +119,7 @@ public class MainTabsPresenter extends ActivityLightCycleDispatcher<RootActivity
 
     @Override
     public void onEnterScreen(RootActivity activity) {
-        tracker.trackScreen(ScreenEvent.create(getScreen()), referringEventProvider.getReferringEvent());
+        eventTracker.trackScreen(ScreenEvent.create(getScreen()), referringEventProvider.getReferringEvent());
     }
 
     private void startDevelopmentMenuStream() {

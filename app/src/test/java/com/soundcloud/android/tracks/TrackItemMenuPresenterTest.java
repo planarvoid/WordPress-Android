@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -66,7 +66,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Mock Context context;
     @Mock FragmentActivity activity;
     @Mock AccountOperations accountOperations;
-    @Mock TheTracker tracker;
+    @Mock EventTracker tracker;
 
     @Mock DelayedLoadingDialogPresenter.Builder dialogBuilder;
     @Mock PopupMenuWrapper.Factory popupMenuWrapperFactory;

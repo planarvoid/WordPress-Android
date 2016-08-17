@@ -1,8 +1,8 @@
 package com.soundcloud.android.share;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.UIEvent;
@@ -20,10 +20,10 @@ public class ShareOperations {
 
     private static final String SHARE_TYPE = "text/plain";
 
-    private final TheTracker tracker;
+    private final EventTracker tracker;
 
     @Inject
-    public ShareOperations(TheTracker tracker) {
+    public ShareOperations(EventTracker tracker) {
         this.tracker = tracker;
     }
 

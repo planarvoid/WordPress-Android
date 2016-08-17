@@ -3,8 +3,8 @@ package com.soundcloud.android.share;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
-import com.soundcloud.android.analytics.TheTracker;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -41,7 +41,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
     private ShareOperations operations;
     private Activity activityContext;
     private TestEventBus eventBus = new TestEventBus();
-    @Mock private TheTracker tracker;
+    @Mock private EventTracker tracker;
     @Captor ArgumentCaptor<UIEvent> uiEventCaptor;
 
     @Before

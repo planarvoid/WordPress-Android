@@ -1,13 +1,6 @@
 import com.soundcloud.mobiletestrunner.client.TestRunnerFactory
 import com.soundcloud.mobiletestrunner.client.TestStatusNotifier
-import com.soundcloud.mobiletestrunner.client.model.Execution
-import com.soundcloud.mobiletestrunner.client.model.RunConfiguration
-import com.soundcloud.mobiletestrunner.client.model.Package
-import com.soundcloud.mobiletestrunner.client.model.Session
-import com.soundcloud.mobiletestrunner.client.model.TestResult
-import com.soundcloud.mobiletestrunner.client.model.Test
-import com.soundcloud.mobiletestrunner.client.model.Run
-import groovy.lang.Closure
+import com.soundcloud.mobiletestrunner.client.model.*
 
 buildscript {
   repositories {
@@ -30,7 +23,7 @@ def systemProperties = [
         "log.tag.Timeline": "DEBUG",
         "log.tag.SC_ANDROID_TEST": "DEBUG",
         "log.tag.BUG_4503": "DEBUG",
-        "log.tag.EventTracker": "DEBUG",
+        "log.tag.EventTrackingManager": "DEBUG",
         "log.tag.MrLoggaVerifier": "DEBUG",
         "log.tag.Configuration": "DEBUG",
         "log.tag.TestRunner": "DEBUG",

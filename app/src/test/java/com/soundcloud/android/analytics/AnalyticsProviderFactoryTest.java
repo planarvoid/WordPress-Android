@@ -42,14 +42,14 @@ public class AnalyticsProviderFactoryTest {
     @Mock private AdjustAnalyticsProvider adjustAnalyticsProvider;
     @Mock private FabricAnalyticsProvider fabricAnalyticsProvider;
 
-    @Mock private EventTracker eventTracker;
+    @Mock private EventTrackingManager eventTrackingManager;
     private PromotedAnalyticsProvider promotedProvider;
 
     private List<AnalyticsProvider> baseProviders;
 
     @Before
     public void setUp() throws Exception {
-        promotedProvider = new PromotedAnalyticsProvider(eventTracker);
+        promotedProvider = new PromotedAnalyticsProvider(eventTrackingManager);
         when(analyticsProperties.isAnalyticsAvailable()).thenReturn(true);
         when(appboyAnalyticsProvider.get()).thenReturn(mock(AppboyAnalyticsProvider.class));
         baseProviders = Arrays.<AnalyticsProvider>asList(eventLoggerProvider, promotedProvider);

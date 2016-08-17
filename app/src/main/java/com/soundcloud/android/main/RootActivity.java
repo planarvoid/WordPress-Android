@@ -20,7 +20,6 @@ public abstract class RootActivity extends LightCycleAppCompatActivity<RootActiv
     @Inject @LightCycle AnalyticsConnector analyticsConnector;
     @Inject @LightCycle ImageOperationsController imageOperationsController;
     @Inject @LightCycle protected ScreenTracker screenTracker;
-    @Inject @LightCycle ForegroundController foregroundController;
     @Inject @LightCycle ForceUpdateLightCycle forceUpdateLightCycle;
     @Inject ConfigurationUpdateLightCycle configurationUpdateLightCycle;
 

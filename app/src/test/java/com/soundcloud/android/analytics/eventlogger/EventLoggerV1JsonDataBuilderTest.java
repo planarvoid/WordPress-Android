@@ -30,6 +30,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ReferringEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
@@ -588,10 +589,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldAttachesReferringEventIfHtiEnabled() throws ApiMapperException {
+    public void shouldAttachReferringEventIfHtiEnabled() throws ApiMapperException {
         final String id = "id";
-        final String kind = "kind";
-        final ReferringEvent referringEvent = ReferringEvent.create(id, kind);
+        final ReferringEvent referringEvent = ReferringEvent.create(id, ScreenEvent.KIND);
         final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
 
         event.putReferringEvent(referringEvent);
@@ -599,7 +599,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
         jsonDataBuilder.buildForUIEvent(event);
 
-        assertEngagementWithReferringEvent("share", event.getTimestamp(), id, kind);
+        assertEngagementWithReferringEvent("share", event.getTimestamp(), id, ScreenEvent.KIND);
     }
 
     @Test
