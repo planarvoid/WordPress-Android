@@ -109,7 +109,7 @@ public final class AccountAssistant {
         return result;
     }
 
-    public static Subscription accountDataCleanup(Context context) {
+    static Subscription accountDataCleanup(Context context) {
         return SoundCloudApplication.fromContext(context).getEventBus().subscribe(
                 EventQueue.CURRENT_USER_CHANGED, new DefaultSubscriber<CurrentUserChangedEvent>() {
 
@@ -126,7 +126,7 @@ public final class AccountAssistant {
                 });
     }
 
-    public static void waitForAccountDataCleanup(Subscription subscription) throws Exception {
+    static void waitForAccountDataCleanup(Subscription subscription) throws Exception {
         lock.lock();
         // wait for the data cleanup action
         try {

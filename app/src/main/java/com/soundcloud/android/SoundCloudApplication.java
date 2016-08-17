@@ -50,6 +50,7 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -269,18 +270,6 @@ public class SoundCloudApplication extends MultiDexApplication {
         return instance.objectGraph;
     }
 
-    public boolean addUserAccountAndEnableSync(ApiUser user, Token token, SignupVia via) {
-        Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
-        if (account != null) {
-            // move this when we can't guarantee we will only have 1 account active at a time
-            syncConfig.enableSyncing(account);
-            requestSetsSync();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     /**
      * Make sure that sets are synced first, to avoid running into data consistency issues around adding tracks
      * to playlists, see https://github.com/soundcloud/SoundCloud-Android/issues/609
@@ -291,31 +280,21 @@ public class SoundCloudApplication extends MultiDexApplication {
         fireAndForget(syncInitiatorBridge.refreshMyPlaylists());
     }
 
-    @NotNull
-    public static SoundCloudApplication fromContext(@NotNull Context c) {
-        if (c.getApplicationContext() instanceof SoundCloudApplication) {
-            return ((SoundCloudApplication) c.getApplicationContext());
-        } else {
-            throw new RuntimeException("can't obtain app from context");
-        }
-    }
-
-    // keep this until we've sorted out RL2, since some tests rely on the getUserId stuff which in turn requires
-    // a valid AccountOps instance
-    public void setAccountOperations(AccountOperations operations) {
-        accountOperations = operations;
-    }
-
     private void setupStrictMode() {
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                                           .detectAll()
-                                           .penaltyLog()
-                                           .build());
+                .detectAll()
+                .penaltyLog()
+                .build());
 
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                                       .detectAll()
-                                       .penaltyLog()
-                                       .build());
+                .detectAll()
+                .penaltyLog()
+                .build());
+    }
+
+    private boolean isReportingCrashes() {
+        return applicationProperties.shouldReportCrashes() &&
+                sharedPreferences.getBoolean(SettingKey.CRASH_REPORTING_ENABLED, true);
     }
 
     @Override
@@ -330,8 +309,26 @@ public class SoundCloudApplication extends MultiDexApplication {
         super.onTrimMemory(level);
     }
 
-    private boolean isReportingCrashes() {
-        return applicationProperties.shouldReportCrashes() &&
-                sharedPreferences.getBoolean(SettingKey.CRASH_REPORTING_ENABLED, true);
+    @NotNull
+    @VisibleForTesting //Also used from Public api which is deprecated
+    public static SoundCloudApplication fromContext(@NotNull Context c) {
+        if (c.getApplicationContext() instanceof SoundCloudApplication) {
+            return ((SoundCloudApplication) c.getApplicationContext());
+        } else {
+            throw new RuntimeException("can't obtain app from context");
+        }
+    }
+
+    @VisibleForTesting
+    public boolean addUserAccountAndEnableSync(ApiUser user, Token token, SignupVia via) {
+        Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
+        if (account != null) {
+            // move this when we can't guarantee we will only have 1 account active at a time
+            syncConfig.enableSyncing(account);
+            requestSetsSync();
+            return true;
+        } else {
+            return false;
+        }
     }
 }
