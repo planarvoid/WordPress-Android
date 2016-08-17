@@ -133,16 +133,23 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
     @Test
     public void shouldLoadAllPlayQueueItems() {
         TestSubscriber<PlayQueueItem> subscriber = new TestSubscriber<>();
-        final PlayableQueueItem expectedItem = new Builder(forTrack(123L), forUser(123L))
+        final PlayableQueueItem expectedItem1 = new Builder(forTrack(123L), forUser(123L))
                 .fromSource("source", "source_version", new Urn("sourceUrn"), new Urn("queryUrn"))
                 .relatedEntity(RELATED_ENTITY)
                 .build();
-        insertPlayableQueueItem(expectedItem);
-        QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(1);
+
+        final PlayableQueueItem expectedItem2 = new PlaylistQueueItem.Builder(forPlaylist(456L))
+                .fromSource("source", "source_version 2", new Urn("sourceUrn2"), new Urn("queryUrn2"))
+                .relatedEntity(RELATED_ENTITY)
+                .build();
+
+        insertPlayableQueueItem(expectedItem1);
+        insertPlayableQueueItem(expectedItem2);
+        QueryAssertions.assertThat(select(from(PLAY_QUEUE_TABLE))).counts(2);
 
         storage.loadAsync().subscribe(subscriber);
 
-        assertPlayQueueItemsEqual(Arrays.asList(expectedItem), subscriber.getOnNextEvents());
+        assertPlayQueueItemsEqual(Arrays.asList(expectedItem1, expectedItem2), subscriber.getOnNextEvents());
     }
 
     @Test

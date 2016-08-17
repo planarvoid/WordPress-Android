@@ -36,8 +36,8 @@ public class PlaylistQueueItem extends PlayableQueueItem {
 
     public static class Builder extends PlayableQueueItem.Builder<Builder> {
 
-        public Builder(Urn track) {
-            super(track);
+        public Builder(Urn urn) {
+            super(urn);
         }
 
         public Builder(PropertySet track) {

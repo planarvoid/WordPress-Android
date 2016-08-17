@@ -77,12 +77,22 @@ class PlayQueueStorage {
                 final Urn queryUrn = hasQueryUrn(reader) ?
                                      new Urn(reader.getString(Tables.PlayQueue.QUERY_URN)) :
                                      Urn.NOT_SET;
-                final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.ENTITY_ID));
 
-                return new TrackQueueItem.Builder(track, reposter)
-                        .relatedEntity(relatedEntity)
-                        .fromSource(source, sourceVersion, sourceUrn, queryUrn)
-                        .build();
+                if (reader.getInt(Tables.PlayQueue.ENTITY_TYPE.name()) == ENTITY_TYPE_PLAYLIST) {
+                    final Urn playlist = Urn.forPlaylist(reader.getLong(Tables.PlayQueue.ENTITY_ID));
+                    return new PlaylistQueueItem.Builder(playlist)
+                            .relatedEntity(relatedEntity)
+                            .fromSource(source, sourceVersion, sourceUrn, queryUrn)
+                            .build();
+                } else {
+                    final Urn track = Urn.forTrack(reader.getLong(Tables.PlayQueue.ENTITY_ID));
+                    return new TrackQueueItem.Builder(track, reposter)
+                            .relatedEntity(relatedEntity)
+                            .fromSource(source, sourceVersion, sourceUrn, queryUrn)
+                            .build();
+                }
+
+
             }
         });
     }
