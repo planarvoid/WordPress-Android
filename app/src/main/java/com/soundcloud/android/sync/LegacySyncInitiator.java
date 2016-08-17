@@ -2,7 +2,6 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.storage.provider.Content;
 import rx.Observable;
 import rx.Subscriber;
@@ -114,12 +113,12 @@ class LegacySyncInitiator {
                                      .setData(Content.ME_PLAYLISTS.uri));
     }
 
-    public Observable<SyncJobResult> syncTrackLikes() {
+    Observable<SyncJobResult> syncTrackLikes() {
         return legacyRequestSyncObservable(LegacySyncActions.SYNC_TRACK_LIKES)
                 .doOnNext(resetSyncMisses(LegacySyncContent.MyLikes.content.uri));
     }
 
-    public Observable<SyncJobResult> syncPlaylistLikes() {
+    Observable<SyncJobResult> syncPlaylistLikes() {
         return legacyRequestSyncObservable(LegacySyncActions.SYNC_PLAYLIST_LIKES)
                 .doOnNext(resetSyncMisses(LegacySyncContent.MyLikes.content.uri));
     }
@@ -145,7 +144,7 @@ class LegacySyncInitiator {
         return requestSyncResultObservable(createIntent(action));
     }
 
-    public void syncLocalPlaylists() {
+    void syncLocalPlaylists() {
         context.startService(getSyncLocalPlaylistsIntent());
     }
 

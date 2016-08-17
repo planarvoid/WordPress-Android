@@ -74,6 +74,7 @@ android {
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
+      buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
     }
 
