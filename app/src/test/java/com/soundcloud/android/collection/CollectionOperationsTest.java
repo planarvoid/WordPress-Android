@@ -24,7 +24,7 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.LegacySyncContent;
-import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
@@ -50,7 +50,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     private CollectionOperations operations;
 
     @Mock private SyncStateStorage syncStateStorage;
-    @Mock private LegacySyncInitiator syncInitiator;
+    @Mock private SyncInitiatorBridge syncInitiator;
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private PlaylistLikesStorage playlistLikeStorage;
     @Mock private LoadLikedTrackPreviewsCommand loadLikedTrackPreviewsCommand;
@@ -335,7 +335,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void collectionsSyncsBeforeReturningIfNeverSyncedBefore() throws Exception {
-        final PublishSubject<Boolean> subject = PublishSubject.create();
+        final PublishSubject<Void> subject = PublishSubject.create();
         when(syncInitiator.refreshLikes()).thenReturn(subject);
         when(syncInitiator.refreshMyPlaylists()).thenReturn(subject);
 
@@ -348,7 +348,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).isEmpty();
 
-        subject.onNext(true);
+        subject.onNext(null);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         assertThat(subscriber.getOnNextEvents().get(0).getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
@@ -363,7 +363,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedCollectionsReturnsMyCollectionsAfterSync() throws Exception {
-        final PublishSubject<Boolean> subject = PublishSubject.create();
+        final PublishSubject<Void> subject = PublishSubject.create();
         when(syncInitiator.refreshLikes()).thenReturn(subject);
         when(syncInitiator.refreshMyPlaylists()).thenReturn(subject);
 
@@ -372,7 +372,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
         assertThat(subscriber.getOnNextEvents()).isEmpty();
 
-        subject.onNext(true);
+        subject.onNext(null);
 
         assertThat(subscriber.getOnNextEvents()).hasSize(1);
         MyCollection collection = subscriber.getOnNextEvents().get(0);

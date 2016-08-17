@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.activities.ActivitiesSyncProvider;
+import com.soundcloud.android.associations.MyFollowingsSyncProvider;
 import com.soundcloud.android.collection.playhistory.PlayHistorySyncProvider;
 import com.soundcloud.android.discovery.ChartGenresSyncProvider;
 import com.soundcloud.android.discovery.ChartsSyncProvider;
@@ -10,8 +11,8 @@ import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
 import com.soundcloud.android.sync.likes.PlaylistLikesSyncProvider;
 import com.soundcloud.android.sync.likes.TrackLikesSyncProvider;
+import com.soundcloud.android.sync.me.MeSyncerProvider;
 import com.soundcloud.android.sync.playlists.MyPlaylistsSyncProvider;
-import com.soundcloud.android.sync.posts.PlaylistPostsSyncProvider;
 import com.soundcloud.android.sync.posts.TrackPostsSyncProvider;
 
 import android.support.annotation.Nullable;
@@ -33,10 +34,11 @@ public class SyncerRegistry {
                           RecommendedTracksSyncProvider recommendationsSyncProvider,
                           ChartsSyncProvider chartsSyncProvider,
                           TrackPostsSyncProvider trackPostsSyncProvider,
-                          PlaylistPostsSyncProvider playlistPostsSyncProvider,
                           TrackLikesSyncProvider trackLikesSyncProvider,
                           PlaylistLikesSyncProvider playlistLikesSyncProvider,
                           MyPlaylistsSyncProvider myPlaylistsSyncProvider,
+                          MyFollowingsSyncProvider myFollowingsSyncProvider,
+                          MeSyncerProvider meSyncerProvider,
                           ChartGenresSyncProvider chartGenresSyncProvider,
                           PlayHistorySyncProvider playHistorySyncProvider) {
         this.syncers = new HashMap<>();
@@ -48,14 +50,16 @@ public class SyncerRegistry {
         registerSyncer(recommendationsSyncProvider);
         registerSyncer(chartsSyncProvider);
         registerSyncer(trackPostsSyncProvider);
-        registerSyncer(playlistPostsSyncProvider);
         registerSyncer(trackLikesSyncProvider);
         registerSyncer(playlistLikesSyncProvider);
         registerSyncer(myPlaylistsSyncProvider);
+        registerSyncer(myFollowingsSyncProvider);
+        registerSyncer(meSyncerProvider);
         registerSyncer(chartGenresSyncProvider);
         registerSyncer(playHistorySyncProvider);
     }
 
+    @Nullable
     public SyncProvider get(Syncable syncable) {
         return syncers.get(syncable);
     }

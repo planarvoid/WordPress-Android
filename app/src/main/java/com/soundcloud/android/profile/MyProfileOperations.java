@@ -9,10 +9,9 @@ import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -40,8 +39,7 @@ public class MyProfileOperations {
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private final NetworkConnectionHelper networkConnectionHelper;
-    private final SyncStateStorage syncStateStorage;
-    private final LegacySyncInitiator legacySyncInitiator;
+    private final SyncInitiatorBridge syncInitiatorBridge;
     private final SyncInitiator syncInitiator;
 
     private final PlaylistPostStorage playlistPostStorage;
@@ -50,32 +48,24 @@ public class MyProfileOperations {
     private final PostsStorage postsStorage;
     private final Scheduler scheduler;
 
-    private final Func1<Boolean, Observable<List<PropertySet>>> loadInitialFollowings = new Func1<Boolean, Observable<List<PropertySet>>>() {
+    private final Func1<Object, Observable<List<PropertySet>>> loadInitialFollowings = new Func1<Object, Observable<List<PropertySet>>>() {
         @Override
-        public Observable<List<PropertySet>> call(Boolean ignored) {
+        public Observable<List<PropertySet>> call(Object ignored) {
             return pagedFollowingsFromPosition(Consts.NOT_SET)
                     .subscribeOn(scheduler);
         }
     };
 
-    private final Func1<Boolean, Observable<List<PropertySet>>> loadInitialPosts = new Func1<Boolean, Observable<List<PropertySet>>>() {
+    private final Func1<Object, Observable<List<PropertySet>>> loadInitialPlaylistPosts = new Func1<Object, Observable<List<PropertySet>>>() {
         @Override
-        public Observable<List<PropertySet>> call(Boolean ignored) {
-            return postsStorage.loadPosts(PAGE_SIZE, Long.MAX_VALUE)
-                               .subscribeOn(scheduler);
-        }
-    };
-
-    private final Func1<Boolean, Observable<List<PropertySet>>> loadInitialPlaylistPosts = new Func1<Boolean, Observable<List<PropertySet>>>() {
-        @Override
-        public Observable<List<PropertySet>> call(Boolean ignored) {
+        public Observable<List<PropertySet>> call(Object ignored) {
             return initialPlaylistPage();
         }
     };
 
-    private final Func1<Boolean, Observable<List<PropertySet>>> loadInitialLikes = new Func1<Boolean, Observable<List<PropertySet>>>() {
+    private final Func1<Object, Observable<List<PropertySet>>> loadInitialLikes = new Func1<Object, Observable<List<PropertySet>>>() {
         @Override
-        public Observable<List<PropertySet>> call(Boolean ignored) {
+        public Observable<List<PropertySet>> call(Object ignored) {
             return likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)
                                .subscribeOn(scheduler);
         }
@@ -95,8 +85,7 @@ public class MyProfileOperations {
             LikesStorage likesStorage,
             PostsStorage postsStorage,
             PlaylistPostStorage playlistPostStorage,
-            SyncStateStorage syncStateStorage,
-            LegacySyncInitiator legacySyncInitiator,
+            SyncInitiatorBridge syncInitiatorBridge,
             NetworkConnectionHelper networkConnectionHelper,
             SyncInitiator syncInitiator,
             UserAssociationStorage userAssociationStorage,
@@ -105,8 +94,7 @@ public class MyProfileOperations {
         this.likesStorage = likesStorage;
         this.postsStorage = postsStorage;
         this.playlistPostStorage = playlistPostStorage;
-        this.syncStateStorage = syncStateStorage;
-        this.legacySyncInitiator = legacySyncInitiator;
+        this.syncInitiatorBridge = syncInitiatorBridge;
         this.networkConnectionHelper = networkConnectionHelper;
         this.syncInitiator = syncInitiator;
         this.userAssociationStorage = userAssociationStorage;
@@ -135,7 +123,7 @@ public class MyProfileOperations {
     }
 
     Observable<List<PropertySet>> updatedFollowings() {
-        return legacySyncInitiator.refreshFollowings()
+        return syncInitiatorBridge.refreshFollowings()
                                   .flatMap(loadInitialFollowings);
     }
 
@@ -197,7 +185,7 @@ public class MyProfileOperations {
     }
 
     Observable<List<PropertySet>> updatedLikes() {
-        return legacySyncInitiator.refreshLikes()
+        return syncInitiatorBridge.refreshLikes()
                                   .flatMap(loadInitialLikes);
     }
 
@@ -205,42 +193,8 @@ public class MyProfileOperations {
         return likedItems(Long.MAX_VALUE);
     }
 
-    Observable<List<PropertySet>> pagedPostItems() {
-        return postedItems(Long.MAX_VALUE);
-    }
-
-    Pager.PagingFunction<List<PropertySet>> postsPagingFunction() {
-        return new Pager.PagingFunction<List<PropertySet>>() {
-            @Override
-            public Observable<List<PropertySet>> call(List<PropertySet> result) {
-                if (result.size() < PAGE_SIZE) {
-                    return Pager.finish();
-                } else {
-                    return postedItems(getLast(result).get(PostProperty.CREATED_AT).getTime());
-                }
-            }
-        };
-    }
-
     Observable<List<PropertySet>> postsForPlayback() {
         return postsStorage.loadPostsForPlayback().subscribeOn(scheduler);
-    }
-
-    Observable<List<PropertySet>> updatedPosts() {
-        return legacySyncInitiator.refreshPosts()
-                                  .flatMap(loadInitialPosts);
-    }
-
-    private Observable<List<PropertySet>> postedItems(final long beforeTime) {
-        return syncStateStorage.hasSyncedMyPostsBefore()
-                               .flatMap(new Func1<Boolean, Observable<List<PropertySet>>>() {
-                                   @Override
-                                   public Observable<List<PropertySet>> call(Boolean hasSynced) {
-                                       return hasSynced ?
-                                              postsStorage.loadPosts(PAGE_SIZE, beforeTime) :
-                                              updatedPosts();
-                                   }
-                               }).subscribeOn(scheduler);
     }
 
     public Observable<Optional<PropertySet>> lastPublicPostedTrack() {
@@ -271,7 +225,7 @@ public class MyProfileOperations {
     }
 
     Observable<List<PropertySet>> updatedPlaylists() {
-        return legacySyncInitiator.refreshMyPlaylists()
+        return syncInitiatorBridge.refreshMyPlaylists()
                                   .flatMap(loadInitialPlaylistPosts);
     }
 

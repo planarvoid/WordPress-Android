@@ -1,4 +1,4 @@
-package com.soundcloud.android.sync.entities;
+package com.soundcloud.android.sync.me;
 
 import com.soundcloud.android.accounts.Me;
 import com.soundcloud.android.api.ApiClient;
@@ -19,9 +19,10 @@ import android.net.Uri;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.concurrent.Callable;
 
 
-public class MeSyncer implements SyncStrategy {
+public class MeSyncer implements SyncStrategy, Callable<Boolean> {
 
     private final EventBus eventBus;
     private final ApiClient apiClient;
@@ -39,11 +40,16 @@ public class MeSyncer implements SyncStrategy {
     @NotNull
     @Override
     public LegacySyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {
-        });
+        call();
+        return LegacySyncResult.fromSuccessfulChange(Content.ME.uri);
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        Me me = apiClient.fetchMappedResponse(buildRequest(), new TypeToken<Me>() {});
         storeMe(me);
         publishChangeEvent(me);
-        return LegacySyncResult.fromSuccessfulChange(Content.ME.uri);
+        return true;
     }
 
     protected ApiRequest buildRequest() {

@@ -17,6 +17,7 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.sync.LegacySyncResult;
+import com.soundcloud.android.sync.me.MeSyncer;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;

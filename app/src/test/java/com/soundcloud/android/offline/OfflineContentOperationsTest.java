@@ -19,8 +19,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.policies.ApiPolicyInfo;
 import com.soundcloud.android.policies.PolicyOperations;
-import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.collections.PropertySet;
@@ -60,7 +60,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
     @Mock private TxnResult txnResult;
     @Mock private ChangeResult changeResult;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
-    @Mock private LegacySyncInitiator legacySyncInitiator;
+    @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private SyncInitiator syncInitiator;
     @Mock private Action1<Object> startServiceAction;
     @Mock private Action1<Object> scheduleCleanupAction;
@@ -98,7 +98,7 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
                 loadOfflineContentUpdatesCommand,
                 serviceInitiator,
                 serviceScheduler,
-                legacySyncInitiator,
+                syncInitiatorBridge,
                 syncInitiator,
                 featureOperations,
                 trackDownloadsStorage,
@@ -167,8 +167,8 @@ public class OfflineContentOperationsTest extends AndroidUnitTest {
         when(collectionOperations.myPlaylists()).thenReturn(Observable.just(Arrays.asList(createPlaylistItem(playlist1),
                                                                                           createPlaylistItem(playlist2))));
         when(offlineContentStorage.resetOfflinePlaylists(expectedOfflinePlaylists)).thenReturn(Observable.just(new TxnResult()));
-        final PublishSubject<Boolean> refreshSubject = PublishSubject.create();
-        when(legacySyncInitiator.refreshMyPlaylists()).thenReturn(refreshSubject);
+        final PublishSubject<Void> refreshSubject = PublishSubject.create();
+        when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(refreshSubject);
 
         operations.enableOfflineCollection().subscribe();
 

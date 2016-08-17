@@ -8,9 +8,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.sync.LegacySyncInitiator;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncJobResult;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.PropertySets;
 import com.soundcloud.java.collections.PropertySet;
@@ -37,7 +36,7 @@ public class TrackLikeOperations {
     private final LikedTrackStorage likedTrackStorage;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
-    private final LegacySyncInitiator legacySyncInitiator;
+    private final SyncInitiatorBridge syncInitiatorBridge;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
 
@@ -50,9 +49,9 @@ public class TrackLikeOperations {
         }
     };
 
-    private final Func1<SyncJobResult, Observable<List<PropertySet>>> loadInitialLikedTracks = new Func1<SyncJobResult, Observable<List<PropertySet>>>() {
+    private final Func1<Object, Observable<List<PropertySet>>> loadInitialLikedTracks = new Func1<Object, Observable<List<PropertySet>>>() {
         @Override
-        public Observable<List<PropertySet>> call(SyncJobResult syncJobResult) {
+        public Observable<List<PropertySet>> call(Object ignored) {
             return likedTrackStorage.loadTrackLikes(PAGE_SIZE, INITIAL_TIMESTAMP);
         }
     };
@@ -68,13 +67,13 @@ public class TrackLikeOperations {
     public TrackLikeOperations(LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
                                LikedTrackStorage likedTrackStorage,
                                SyncInitiator syncInitiator,
-                               LegacySyncInitiator legacySyncInitiator,
+                               SyncInitiatorBridge syncInitiatorBridge,
                                EventBus eventBus,
                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                NetworkConnectionHelper networkConnectionHelper) {
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
         this.likedTrackStorage = likedTrackStorage;
-        this.legacySyncInitiator = legacySyncInitiator;
+        this.syncInitiatorBridge = syncInitiatorBridge;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
@@ -111,7 +110,7 @@ public class TrackLikeOperations {
     }
 
     Observable<List<PropertySet>> updatedLikedTracks() {
-        return legacySyncInitiator
+        return syncInitiatorBridge
                 .syncTrackLikes()
                 .observeOn(scheduler)
                 .flatMap(loadInitialLikedTracks)

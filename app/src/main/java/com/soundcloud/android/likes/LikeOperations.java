@@ -7,7 +7,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.LegacySyncInitiator;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
@@ -23,7 +23,7 @@ public class LikeOperations {
 
     private final UpdateLikeCommand storeLikeCommand;
     private final Scheduler scheduler;
-    private final LegacySyncInitiator syncInitiator;
+    private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
 
 
@@ -37,7 +37,7 @@ public class LikeOperations {
 
     @Inject
     public LikeOperations(UpdateLikeCommand storeLikeCommand,
-                          LegacySyncInitiator syncInitiator,
+                          SyncInitiator syncInitiator,
                           EventBus eventBus,
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeLikeCommand = storeLikeCommand;

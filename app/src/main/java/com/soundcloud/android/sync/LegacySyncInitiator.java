@@ -6,7 +6,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.storage.provider.Content;
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action0;
 import rx.functions.Action1;
 
 import android.accounts.Account;
@@ -22,13 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @Deprecated
-public class LegacySyncInitiator {
-    private final Action0 requestSystemSyncAction = new Action0() {
-        @Override
-        public void call() {
-            requestSystemSync();
-        }
-    };
+class LegacySyncInitiator {
 
     private final Context context;
     private final AccountOperations accountOperations;
@@ -41,23 +34,6 @@ public class LegacySyncInitiator {
         this.syncStateManager = syncStateManager;
         this.context = context.getApplicationContext();
         this.accountOperations = accountOperations;
-    }
-
-    public Action0 requestSystemSyncAction() {
-        return requestSystemSyncAction;
-    }
-
-    public boolean pushFollowingsToApi() {
-        final Account account = accountOperations.getSoundCloudAccount();
-        if (account != null) {
-            final Bundle extras = new Bundle();
-            extras.putBoolean(SyncAdapterService.EXTRA_SYNC_PUSH, true);
-            extras.putString(SyncAdapterService.EXTRA_SYNC_PUSH_URI, Content.ME_FOLLOWINGS.uri.toString());
-            ContentResolver.requestSync(account, SyncConfig.AUTHORITY, extras);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public boolean requestSystemSync() {
@@ -76,18 +52,6 @@ public class LegacySyncInitiator {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 requestFollowingsSync(
-                        ApiSyncService.ACTION_HARD_REFRESH,
-                        new LegacyResultReceiverAdapter(subscriber, uri));
-            }
-        }).doOnNext(resetSyncMissesLegacy(uri));
-    }
-
-    public Observable<Boolean> refreshPosts() {
-        final Uri uri = LegacySyncContent.MySounds.content.uri;
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                requestPostsSync(
                         ApiSyncService.ACTION_HARD_REFRESH,
                         new LegacyResultReceiverAdapter(subscriber, uri));
             }
@@ -137,14 +101,6 @@ public class LegacySyncInitiator {
                                      .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
                                      .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                                      .setData(Content.ME_FOLLOWING.uri));
-    }
-
-    private void requestPostsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
-        context.startService(new Intent(context, ApiSyncService.class)
-                                     .setAction(action)
-                                     .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                                     .setData(Content.ME_SOUNDS.uri));
     }
 
     private void requestLikesSync(String action, LegacyResultReceiverAdapter resultReceiver) {
