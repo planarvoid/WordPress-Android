@@ -5,7 +5,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
@@ -30,13 +29,12 @@ public class LegacySyncInitiatorTest extends AndroidUnitTest {
     private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<>();
     private TestObserver<SyncJobResult> syncSubscriber = new TestObserver<>();
 
-    @Mock private AccountOperations accountOperations;
     @Mock private ResultReceiver resultReceiver;
     @Mock private SyncStateManager syncStateManager;
 
     @Before
     public void setup() {
-        initiator = new LegacySyncInitiator(context(), accountOperations, syncStateManager);
+        initiator = new LegacySyncInitiator(context(), syncStateManager);
     }
 
     @Test

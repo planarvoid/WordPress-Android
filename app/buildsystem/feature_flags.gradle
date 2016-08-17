@@ -51,6 +51,7 @@ android {
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
       buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), TRUE
+      buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
     }
 
@@ -65,7 +66,6 @@ android {
     }
 
     debug {
-      buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
       buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
       buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
