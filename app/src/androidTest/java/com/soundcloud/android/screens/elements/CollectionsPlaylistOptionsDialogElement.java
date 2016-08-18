@@ -5,6 +5,7 @@ import static com.soundcloud.android.framework.with.With.text;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.CollectionScreen;
 
 public class CollectionsPlaylistOptionsDialogElement extends Element {
 
@@ -34,7 +35,9 @@ public class CollectionsPlaylistOptionsDialogElement extends Element {
         return this;
     }
 
-    public void clickDone() {
+    public CollectionScreen clickDone() {
         testDriver.findOnScreenElement(text(testDriver.getString(R.string.btn_done))).click();
+        waiter.waitForDialogToClose();
+        return new CollectionScreen(testDriver);
     }
 }
