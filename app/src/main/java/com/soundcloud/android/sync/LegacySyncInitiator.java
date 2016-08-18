@@ -29,6 +29,12 @@ class LegacySyncInitiator {
         this.context = context.getApplicationContext();
     }
 
+    void syncMe() {
+        context.startService(new Intent(context, ApiSyncService.class)
+                                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                                     .setData(Content.ME.uri));
+    }
+
     Observable<Boolean> refreshFollowings() {
         final Uri uri = LegacySyncContent.MyFollowings.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {

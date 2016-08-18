@@ -52,6 +52,7 @@ android {
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
       buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
     }
 
     beta {
@@ -74,6 +75,7 @@ android {
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
     }
 
     release {

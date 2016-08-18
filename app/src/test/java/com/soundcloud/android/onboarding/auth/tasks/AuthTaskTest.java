@@ -9,6 +9,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,7 @@ public class AuthTaskTest {
     @Mock private SoundCloudApplication application;
     @Mock private Token token;
     @Mock private StoreUsersCommand storeUsersCommand;
+    @Mock private SyncInitiatorBridge syncInitiatorBridge;
 
     private ApiUser user = ModelFixtures.create(ApiUser.class);
 
@@ -34,7 +36,7 @@ public class AuthTaskTest {
 
     @Before
     public void setUp() throws IOException {
-        authTask = new AuthTask(application, storeUsersCommand) {
+        authTask = new AuthTask(application, storeUsersCommand, syncInitiatorBridge) {
             @Override
             protected AuthTaskResult doInBackground(Bundle... params) {
                 return null;
