@@ -120,6 +120,9 @@ public enum ApiEndpoints {
     // play history
     PLAY_HISTORY("/recently-played/tracks"),
 
+    // recently played
+    RECENTLY_PLAYED("/recently-played/contexts"),
+
     // public API
     PLAY_PUBLISH("/tpub"),
 

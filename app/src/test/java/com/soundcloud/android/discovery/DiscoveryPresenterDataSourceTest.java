@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -46,18 +46,18 @@ public class DiscoveryPresenterDataSourceTest {
     @Mock private RecommendedStationsOperations recommendedStationsOperations;
     @Mock private ChartsOperations chartsOperations;
     @Mock private FeatureFlags featureFlags;
-    @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private PlayHistoryExperiment playHistoryExperiment;
+    @Mock private RecentlyPlayedOperations recentlyPlayedOperations;
 
     @Before
     public void setUp() throws Exception {
         dataSource = new DiscoveryPresenter.DataSource(recommendedTracksOperations,
                                                        playlistDiscoveryOperations,
                                                        recommendedStationsOperations,
-                                                       playHistoryOperations,
                                                        playHistoryExperiment,
                                                        chartsOperations,
-                                                       featureFlags);
+                                                       featureFlags,
+                                                       recentlyPlayedOperations);
 
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.<DiscoveryItem>empty());
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>empty());
@@ -75,7 +75,7 @@ public class DiscoveryPresenterDataSourceTest {
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
         List<RecentlyPlayedItem> recentlyPlayed = Collections.singletonList(mock(RecentlyPlayedItem.class));
-        when(playHistoryOperations.recentlyPlayed(10)).thenReturn(Observable.just(recentlyPlayed));
+        when(recentlyPlayedOperations.recentlyPlayed(10)).thenReturn(Observable.just(recentlyPlayed));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.<DiscoveryItem>just(playlistTagsItem));
     }
 

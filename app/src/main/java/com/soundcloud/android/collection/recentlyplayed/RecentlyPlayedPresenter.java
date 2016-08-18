@@ -1,7 +1,6 @@
 package com.soundcloud.android.collection.recentlyplayed;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -24,17 +23,17 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
 
     private final RecentlyPlayedAdapter adapter;
     private final Resources resources;
-    private final PlayHistoryOperations playHistoryOperations;
+    private final RecentlyPlayedOperations recentlyPlayedOperations;
 
     @Inject
     public RecentlyPlayedPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                    RecentlyPlayedAdapterFactory adapterFactory,
                                    Resources resources,
-                                   PlayHistoryOperations playHistoryOperations) {
+                                   RecentlyPlayedOperations recentlyPlayedOperations) {
         super(swipeRefreshAttacher, new Options.Builder().useDividers(Options.DividerMode.NONE).build());
         this.adapter = adapterFactory.create(false);
         this.resources = resources;
-        this.playHistoryOperations = playHistoryOperations;
+        this.recentlyPlayedOperations = recentlyPlayedOperations;
     }
 
     @Override
@@ -45,12 +44,16 @@ class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedI
 
     @Override
     protected CollectionBinding<List<RecentlyPlayedItem>, RecentlyPlayedItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding
-                .from(playHistoryOperations
-                              .recentlyPlayed()
-                              .toList())
-                .withAdapter(adapter)
-                .build();
+        return CollectionBinding.from(recentlyPlayedOperations.recentlyPlayed())
+                                .withAdapter(adapter)
+                                .build();
+    }
+
+    @Override
+    protected CollectionBinding<List<RecentlyPlayedItem>, RecentlyPlayedItem> onRefreshBinding() {
+        return CollectionBinding.from(recentlyPlayedOperations.refreshRecentlyPlayed())
+                                .withAdapter(adapter)
+                                .build();
     }
 
     @Override

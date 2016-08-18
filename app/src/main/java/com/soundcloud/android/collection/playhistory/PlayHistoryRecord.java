@@ -13,11 +13,11 @@ public abstract class PlayHistoryRecord {
         }
     };
 
-    static final int CONTEXT_OTHER = 0;
-    static final int CONTEXT_PLAYLIST = 1;
-    static final int CONTEXT_TRACK_STATION = 2;
-    static final int CONTEXT_ARTIST_STATION = 3;
-    static final int CONTEXT_ARTIST = 4;
+    public static final int CONTEXT_OTHER = 0;
+    public static final int CONTEXT_PLAYLIST = 1;
+    public static final int CONTEXT_TRACK_STATION = 2;
+    public static final int CONTEXT_ARTIST_STATION = 3;
+    public static final int CONTEXT_ARTIST = 4;
 
     public static PlayHistoryRecord create(long timestamp, Urn trackUrn, Urn contextUrn) {
         return builder()
@@ -51,7 +51,7 @@ public abstract class PlayHistoryRecord {
         }
     }
 
-    static Urn contextUrnFor(int contextType, long contextId) {
+    public static Urn contextUrnFor(int contextType, long contextId) {
         switch (contextType) {
             case CONTEXT_PLAYLIST:
                 return Urn.forPlaylist(contextId);

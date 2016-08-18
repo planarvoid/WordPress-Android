@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
 import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -39,6 +40,7 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     @Mock PlayHistoryOperations playHistoryOperations;
     @Mock PlayHistoryExperiment experiment;
     @Mock PushPlayHistoryCommand pushPlayHistoryCommand;
+    @Mock private PushRecentlyPlayedCommand pushRecentlyPlayedCommand;
 
     private Scheduler scheduler = Schedulers.immediate();
     private TestDateProvider dateProvider = new TestDateProvider(START_EVENT);
@@ -52,6 +54,7 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
                                                                      recentlyPlayedStoreCommand,
                                                                      experiment,
                                                                      pushPlayHistoryCommand,
+                                                                     pushRecentlyPlayedCommand,
                                                                      scheduler);
         controller.subscribe();
     }

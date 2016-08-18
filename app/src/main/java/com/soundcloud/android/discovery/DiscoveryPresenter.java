@@ -1,12 +1,12 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.collection.playhistory.PlayHistoryOperations.CAROUSEL_ITEMS;
+import static com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations.CAROUSEL_ITEMS;
 import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -236,24 +236,24 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         private final RecommendedStationsOperations recommendedStationsOperations;
         private final ChartsOperations chartsOperations;
         private final FeatureFlags featureFlags;
-        private final PlayHistoryOperations playHistoryOperations;
+        private final RecentlyPlayedOperations recentlyPlayedOperations;
         private final PlayHistoryExperiment playHistoryExperiment;
-
 
         @Inject
         public DataSource(RecommendedTracksOperations recommendedTracksOperations,
                           PlaylistDiscoveryOperations playlistDiscoveryOperations,
                           RecommendedStationsOperations recommendedStationsOperations,
-                          PlayHistoryOperations playHistoryOperations,
                           PlayHistoryExperiment playHistoryExperiment,
-                          ChartsOperations chartsOperations, FeatureFlags featureFlags) {
+                          ChartsOperations chartsOperations,
+                          FeatureFlags featureFlags,
+                          RecentlyPlayedOperations recentlyPlayedOperations) {
             this.recommendedTracksOperations = recommendedTracksOperations;
             this.playlistDiscoveryOperations = playlistDiscoveryOperations;
             this.recommendedStationsOperations = recommendedStationsOperations;
-            this.playHistoryOperations = playHistoryOperations;
             this.playHistoryExperiment = playHistoryExperiment;
             this.chartsOperations = chartsOperations;
             this.featureFlags = featureFlags;
+            this.recentlyPlayedOperations = recentlyPlayedOperations;
         }
 
         Observable<List<DiscoveryItem>> discoveryItems() {
@@ -318,9 +318,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         }
 
         private Observable<DiscoveryItem> playHistory() {
-            return playHistoryOperations.recentlyPlayed(CAROUSEL_ITEMS)
-                                        .filter(IS_NOT_EMPTY_LIST)
-                                        .map(TO_RECENTLY_PLAYED);
+            return recentlyPlayedOperations.recentlyPlayed(CAROUSEL_ITEMS)
+                                           .filter(IS_NOT_EMPTY_LIST)
+                                           .map(TO_RECENTLY_PLAYED);
         }
     }
 }

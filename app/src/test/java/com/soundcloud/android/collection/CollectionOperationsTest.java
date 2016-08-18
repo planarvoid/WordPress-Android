@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
@@ -58,6 +59,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Mock private CollectionOptionsStorage collectionOptionsStorage;
     @Mock private OfflineStateOperations offlineStateOperations;
     @Mock private PlayHistoryOperations playHistoryOperations;
+    @Mock private RecentlyPlayedOperations recentlyPlayedOperations;
 
     private TestSubscriber<MyCollection> subscriber = new TestSubscriber<>();
     private List<LikedTrackPreview> trackPreviews = Arrays.asList(
@@ -87,7 +89,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 stationsOperations,
                 collectionOptionsStorage,
                 offlineStateOperations,
-                playHistoryOperations);
+                playHistoryOperations,
+                recentlyPlayedOperations);
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));

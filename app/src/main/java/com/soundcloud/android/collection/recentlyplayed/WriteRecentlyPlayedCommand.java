@@ -3,6 +3,7 @@ package com.soundcloud.android.collection.recentlyplayed;
 import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.storage.Tables;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -20,7 +21,11 @@ public class WriteRecentlyPlayedCommand extends DefaultWriteStorageCommand<PlayH
 
     @Override
     protected WriteResult write(PropellerDatabase propeller, PlayHistoryRecord input) {
-        return propeller.upsert(Tables.RecentlyPlayed.TABLE, buildContentValue(input));
+        if (input.getContextType() != PlayHistoryRecord.CONTEXT_OTHER) {
+            return propeller.upsert(Tables.RecentlyPlayed.TABLE, buildContentValue(input));
+        } else {
+            return new ChangeResult(0);
+        }
     }
 
     private ContentValues buildContentValue(PlayHistoryRecord record) {

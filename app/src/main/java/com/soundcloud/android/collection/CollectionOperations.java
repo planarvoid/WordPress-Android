@@ -9,6 +9,7 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
@@ -69,6 +70,7 @@ public class CollectionOperations {
     private final CollectionOptionsStorage collectionOptionsStorage;
     private final OfflineStateOperations offlineStateOperations;
     private final PlayHistoryOperations playHistoryOperations;
+    private final RecentlyPlayedOperations recentlyPlayedOperations;
 
     private static final Func1<List<PropertySet>, List<PropertySet>> REMOVE_DUPLICATE_PLAYLISTS = new Func1<List<PropertySet>, List<PropertySet>>() {
         @Override
@@ -250,7 +252,8 @@ public class CollectionOperations {
                          StationsOperations stationsOperations,
                          CollectionOptionsStorage collectionOptionsStorage,
                          OfflineStateOperations offlineStateOperations,
-                         PlayHistoryOperations playHistoryOperations) {
+                         PlayHistoryOperations playHistoryOperations,
+                         RecentlyPlayedOperations recentlyPlayedOperations) {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncStateStorage = syncStateStorage;
@@ -262,6 +265,7 @@ public class CollectionOperations {
         this.collectionOptionsStorage = collectionOptionsStorage;
         this.offlineStateOperations = offlineStateOperations;
         this.playHistoryOperations = playHistoryOperations;
+        this.recentlyPlayedOperations = recentlyPlayedOperations;
     }
 
     public Observable<Object> onCollectionChanged() {
@@ -298,7 +302,11 @@ public class CollectionOperations {
     }
 
     private Observable<List<RecentlyPlayedItem>> recentlyPlayed() {
-        return playHistoryOperations.recentlyPlayed(PlayHistoryOperations.CAROUSEL_ITEMS);
+        return recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
+    }
+
+    private Observable<List<RecentlyPlayedItem>> refreshRecentlyPlayedItems() {
+        return recentlyPlayedOperations.refreshRecentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
     }
 
     public Observable<List<PlaylistItem>> myPlaylists() {
@@ -333,15 +341,11 @@ public class CollectionOperations {
     }
 
     private Observable<List<TrackItem>> playHistoryItems() {
-        return playHistoryOperations
-                .playHistory(PLAY_HISTORY_LIMIT)
-                .subscribeOn(scheduler);
+        return playHistoryOperations.playHistory(PLAY_HISTORY_LIMIT);
     }
 
     private Observable<List<TrackItem>> refreshPlayHistoryItems() {
-        return playHistoryOperations
-                .refreshPlayHistory(PLAY_HISTORY_LIMIT)
-                .subscribeOn(scheduler);
+        return playHistoryOperations.refreshPlayHistory(PLAY_HISTORY_LIMIT);
     }
 
     private Observable<OfflineState> likedTracksOfflineState() {
@@ -381,7 +385,7 @@ public class CollectionOperations {
                                likedTracksOfflineState(),
                                TO_LIKES_ITEM),
                 refreshPlayHistoryItems(),
-                recentlyPlayed(),
+                refreshRecentlyPlayedItems(),
                 TO_MY_COLLECTIONS_FOR_PLAY_HISTORY
         );
     }

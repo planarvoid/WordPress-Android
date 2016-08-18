@@ -3,6 +3,7 @@ package com.soundcloud.android.collection.playhistory;
 import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 
 import com.soundcloud.android.ads.AdUtils;
+import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
 import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -69,6 +70,7 @@ public class PlayHistoryController {
     private final WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
     private final PlayHistoryExperiment playHistoryExperiment;
     private final PushPlayHistoryCommand pushPlayHistoryCommand;
+    private final PushRecentlyPlayedCommand pushRecentlyPlayedCommand;
     private final Scheduler scheduler;
 
     @Inject
@@ -77,12 +79,14 @@ public class PlayHistoryController {
                                  WriteRecentlyPlayedCommand recentlyPlayedStoreCommand,
                                  PlayHistoryExperiment playHistoryExperiment,
                                  PushPlayHistoryCommand pushPlayHistoryCommand,
+                                 PushRecentlyPlayedCommand pushRecentlyPlayedCommand,
                                  @Named(LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.playHistoryStoreCommand = playHistoryStoreCommand;
         this.recentlyPlayedStoreCommand = recentlyPlayedStoreCommand;
         this.playHistoryExperiment = playHistoryExperiment;
         this.pushPlayHistoryCommand = pushPlayHistoryCommand;
+        this.pushRecentlyPlayedCommand = pushRecentlyPlayedCommand;
         this.scheduler = scheduler;
     }
 
@@ -99,6 +103,7 @@ public class PlayHistoryController {
                 .doOnNext(recentlyPlayedStoreCommand.toAction1())
                 .doOnNext(publishNewPlayHistory())
                 .doOnNext(pushPlayHistoryCommand.toAction1())
+                .doOnNext(pushRecentlyPlayedCommand.toAction1())
                 .subscribe(new DefaultSubscriber<>());
     }
 

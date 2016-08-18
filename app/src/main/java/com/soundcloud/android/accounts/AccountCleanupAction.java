@@ -3,6 +3,7 @@ package com.soundcloud.android.accounts;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.collection.CollectionOperations;
 import com.soundcloud.android.collection.playhistory.PlayHistoryStorage;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedStorage;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.PlanStorage;
@@ -47,6 +48,7 @@ class AccountCleanupAction implements Action0 {
     private final ConfigurationOperations configurationOperations;
     private final NotificationPreferencesStorage notificationPreferencesStorage;
     private final PlayHistoryStorage playHistoryStorage;
+    private final RecentlyPlayedStorage recentlyPlayedStorage;
     private final GcmStorage gcmStorage;
 
     @Inject
@@ -64,6 +66,7 @@ class AccountCleanupAction implements Action0 {
                          ConfigurationOperations configurationOperations,
                          NotificationPreferencesStorage notificationPreferencesStorage,
                          PlayHistoryStorage playHistoryStorage,
+                         RecentlyPlayedStorage recentlyPlayedStorage,
                          GcmStorage gcmStorage) {
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
@@ -82,6 +85,7 @@ class AccountCleanupAction implements Action0 {
         this.configurationOperations = configurationOperations;
         this.notificationPreferencesStorage = notificationPreferencesStorage;
         this.playHistoryStorage = playHistoryStorage;
+        this.recentlyPlayedStorage = recentlyPlayedStorage;
         this.gcmStorage = gcmStorage;
     }
 
@@ -105,6 +109,7 @@ class AccountCleanupAction implements Action0 {
         configurationOperations.clearConfigurationSettings();
         notificationPreferencesStorage.clear();
         playHistoryStorage.clear();
+        recentlyPlayedStorage.clear();
         gcmStorage.clearTokenForRefresh();
     }
 

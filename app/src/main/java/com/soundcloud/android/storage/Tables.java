@@ -429,6 +429,7 @@ public interface Tables {
         public static final Column TIMESTAMP = Column.create(TABLE, "timestamp");
         public static final Column CONTEXT_TYPE = Column.create(TABLE, "context_type");
         public static final Column CONTEXT_ID = Column.create(TABLE, "context_id");
+        public static final Column SYNCED = Column.create(TABLE, "synced");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS RecentlyPlayed (" +
                 "timestamp INTEGER NOT NULL," +
