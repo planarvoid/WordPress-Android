@@ -17,7 +17,6 @@ import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.LeaveBehindAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -84,7 +83,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
     @Mock private PlayerUpsellImpressionController upsellImpressionController;
     @Mock private LikeButtonPresenter likeButtonPresenter;
     @Mock private ShareAsTextButtonExperiment shareExperiment;
-    @Mock private PlayerUpsellCopyExperiment upsellCopyExperiment;
 
     @Captor private ArgumentCaptor<PlaybackProgress> progressArgumentCaptor;
 
@@ -111,7 +109,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
                                            resources(),
                                            upsellImpressionController,
                                            shareExperiment,
-                                           upsellCopyExperiment,
                                            featureFlags);
         when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
@@ -120,7 +117,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
         when(adOverlayControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(
                 adOverlayController);
         when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
-        when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_button_1);
         trackView = presenter.createItemView(container, skipListener);
         dateProvider = new TestDateProvider();
     }
@@ -763,16 +759,6 @@ public class TrackPagePresenterTest extends AndroidUnitTest {
 
         assertThat(getHolder(trackView).shareButton).isVisible();
         assertThat(getHolder(trackView).shareButtonText).isGone();
-    }
-
-    @Test
-    public void createTrackPageSetsExperimentalCopyOnUpsellCta() {
-        when(upsellCopyExperiment.getUpsellCtaId()).thenReturn(R.string.playback_upsell_button_2);
-
-        trackView = presenter.createItemView(new FrameLayout(context()), skipListener);
-
-        assertThat(getHolder(trackView).upsellButton.getText())
-                .isEqualTo(resources().getText(R.string.playback_upsell_button_2));
     }
 
     private TrackPageHolder getHolder(View trackView) {
