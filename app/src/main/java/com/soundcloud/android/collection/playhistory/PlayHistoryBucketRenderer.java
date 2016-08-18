@@ -26,8 +26,8 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
     @Bind(R.id.play_history) RecyclerView recyclerView;
 
     @Inject
-    PlayHistoryBucketRenderer(PlayHistoryAdapter adapter, Navigator navigator) {
-        this.adapter = adapter;
+    PlayHistoryBucketRenderer(PlayHistoryAdapterFactory adapterFactory, Navigator navigator) {
+        this.adapter = adapterFactory.create(null);
         this.navigator = navigator;
     }
 
@@ -38,7 +38,6 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
 
         ButterKnife.bind(this, view);
         initList();
-
         return view;
     }
 
@@ -57,7 +56,7 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
         adapter.clear();
 
         for (TrackItem trackItem : listeningHistory) {
-            adapter.addItem(trackItem);
+            adapter.addItem(PlayHistoryItemTrack.create(trackItem));
         }
 
         adapter.notifyDataSetChanged();

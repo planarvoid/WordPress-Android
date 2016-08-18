@@ -27,16 +27,19 @@ public class PlayHistoryOperations {
     private final PlayHistoryStorage playHistoryStorage;
     private final Scheduler scheduler;
     private final SyncOperations syncOperations;
+    private final ClearPlayHistoryCommand clearPlayHistoryCommand;
 
     @Inject
     public PlayHistoryOperations(PlaybackInitiator playbackInitiator,
                                  PlayHistoryStorage playHistoryStorage,
                                  @Named(HIGH_PRIORITY) Scheduler scheduler,
-                                 SyncOperations syncOperations) {
+                                 SyncOperations syncOperations,
+                                 ClearPlayHistoryCommand clearPlayHistoryCommand) {
         this.playbackInitiator = playbackInitiator;
         this.playHistoryStorage = playHistoryStorage;
         this.scheduler = scheduler;
         this.syncOperations = syncOperations;
+        this.clearPlayHistoryCommand = clearPlayHistoryCommand;
     }
 
     Observable<List<TrackItem>> playHistory() {
@@ -68,6 +71,11 @@ public class PlayHistoryOperations {
     Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
         return playbackInitiator.playTracks(getAllTracksForPlayback(), trackUrn, 0,
                                             new PlaySessionSource(screen));
+    }
+
+    Observable<Boolean> clearHistory() {
+        return clearPlayHistoryCommand.toObservable(null)
+                                      .subscribeOn(scheduler);
     }
 
     private Observable<List<Urn>> getAllTracksForPlayback() {

@@ -119,6 +119,7 @@ public enum ApiEndpoints {
 
     // play history
     PLAY_HISTORY("/recently-played/tracks"),
+    CLEAR_PLAY_HISTORY("/recently-played/tracks/all"),
 
     // recently played
     RECENTLY_PLAYED("/recently-played/contexts"),

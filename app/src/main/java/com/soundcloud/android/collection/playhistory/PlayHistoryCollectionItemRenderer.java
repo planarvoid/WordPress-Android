@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-class PlayHistoryItemRenderer implements CellRenderer<TrackItem> {
+class PlayHistoryCollectionItemRenderer implements CellRenderer<TrackItem> {
 
     private final TrackItemRenderer trackItemRenderer;
     private final TrackItemView.Factory trackItemViewFactory;
@@ -26,10 +26,10 @@ class PlayHistoryItemRenderer implements CellRenderer<TrackItem> {
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     @Inject
-    public PlayHistoryItemRenderer(TrackItemRenderer trackItemRenderer,
-                                   TrackItemView.Factory trackItemViewFactory,
-                                   PlayHistoryOperations playHistoryOperations,
-                                   Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+    PlayHistoryCollectionItemRenderer(TrackItemRenderer trackItemRenderer,
+                                      TrackItemView.Factory trackItemViewFactory,
+                                      PlayHistoryOperations playHistoryOperations,
+                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.trackItemRenderer = trackItemRenderer;
         this.trackItemViewFactory = trackItemViewFactory;
         this.playHistoryOperations = playHistoryOperations;

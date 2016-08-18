@@ -26,9 +26,11 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
     @Mock private PlaybackInitiator playbackInitiator;
     @Mock private PlayHistoryStorage playHistoryStorage;
     @Mock private SyncOperations syncOperations;
+    @Mock private ClearPlayHistoryCommand clearCommand;
 
     private Scheduler scheduler = Schedulers.immediate();
     private TestSubscriber<List<TrackItem>> trackSubscriber;
+    private TestSubscriber<Boolean> clearSubscriber;
 
     private PlayHistoryOperations operations;
 
@@ -36,7 +38,9 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         when(playHistoryStorage.loadTracks(anyInt())).thenReturn(Observable.from(TRACK_ITEMS));
         trackSubscriber = new TestSubscriber<>();
-        operations = new PlayHistoryOperations(playbackInitiator, playHistoryStorage, scheduler, syncOperations);
+        clearSubscriber = new TestSubscriber<>();
+        operations = new PlayHistoryOperations(playbackInitiator, playHistoryStorage, scheduler,
+                                               syncOperations, clearCommand);
     }
 
     @Test
@@ -61,4 +65,12 @@ public class PlayHistoryOperationsTest extends AndroidUnitTest {
         trackSubscriber.assertCompleted();
     }
 
+    @Test
+    public void shouldClearHistory() {
+        when(clearCommand.toObservable(null)).thenReturn(Observable.just(true));
+
+        operations.clearHistory().subscribe(clearSubscriber);
+
+        clearSubscriber.assertValues(true);
+    }
 }

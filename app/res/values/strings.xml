@@ -653,6 +653,12 @@
     <string name="collections_without_stations_onboarding_title">Your likes. Your playlists.\nAll in one place.</string>
     <string name="collections_onboarding_description">Welcome to your new collection, a single destination for your sounds.</string>
     <string name="collections_play_history_header">Listening history</string>
+    <string name="collections_play_history_clear_action">Clear listening history</string>
+    <string name="collections_play_history_clear_dialog_title">Clear listening history?</string>
+    <string name="collections_play_history_clear_dialog_message">Are you sure you want to clear your listening history? You won’t be able to undo this action.</string>
+    <string name="collections_play_history_clear_dialog_button">Clear</string>
+    <string name="collections_play_history_clear_error_message">Error clearing your listening history. Try again later.</string>
+    <string name="collections_play_history_empty">Find all the tracks you’ve listened to here.</string>
     <string name="collections_recently_played_header">Recently played</string>
     <string name="collections_view_all_tracks">View more</string>
     <string name="collections_view_all_recently_played">View all recently played</string>
