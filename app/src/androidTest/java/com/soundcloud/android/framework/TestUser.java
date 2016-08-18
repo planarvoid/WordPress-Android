@@ -210,8 +210,8 @@ public class TestUser {
     public static final TestUser offlineUser = new TestUser(
             "sctestoffline",
             "sctestoffline@gmail.com",
-            "passwordyeah88",
-            "1-21686-136770909-d1e6cfc089fb1f",
+            "som3aw3som3n3wpassword",
+            "1-21686-136770909-bd6c319b73449b",
             136770909,
             true);
     public static final TestUser upsellUser = new TestUser(
