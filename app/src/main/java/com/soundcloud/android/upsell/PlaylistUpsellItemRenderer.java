@@ -1,6 +1,7 @@
 package com.soundcloud.android.upsell;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.FeatureOperations;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +12,9 @@ import javax.inject.Inject;
 public class PlaylistUpsellItemRenderer extends UpsellItemRenderer {
 
     @Inject
-    public PlaylistUpsellItemRenderer() {}
+    public PlaylistUpsellItemRenderer(FeatureOperations featureOperations) {
+        super(featureOperations);
+    }
 
     @Override
     public View createItemView(ViewGroup parent) {

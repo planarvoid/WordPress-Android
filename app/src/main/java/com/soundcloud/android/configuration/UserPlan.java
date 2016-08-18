@@ -9,13 +9,13 @@ import java.util.List;
 public class UserPlan {
 
     public final Plan currentPlan;
-    public final List<Upsell> upsells;
+    public final List<Upsell> planUpsells;
 
     @JsonCreator
     public UserPlan(@JsonProperty("id") String id,
                     @JsonProperty("plan_upsells") List<Upsell> upsells) {
         this.currentPlan = Plan.fromId(id);
-        this.upsells = Collections.unmodifiableList(upsells);
+        this.planUpsells = Collections.unmodifiableList(upsells);
     }
 
     public static class Upsell {
