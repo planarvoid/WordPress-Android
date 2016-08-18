@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
+import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import butterknife.Bind;
@@ -142,17 +143,17 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
         setTitle(playableItem.getTitle());
         setArtist(playableItem.getCreatorName());
         setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
-        togglePreviewIndicator(showPreviewLabel(playableItem));
+        setupTierIndicator(playableItem);
     }
 
-    private boolean showPreviewLabel(PlayableItem playableItem) {
-        return playableItem instanceof TieredTrack && isHighTierPreview((TieredTrack) playableItem);
-    }
-
-    private void togglePreviewIndicator(boolean isUpsellable) {
-        if (previewIndicator != null) {
-            if (isUpsellable) {
+    private void setupTierIndicator(PlayableItem playableItem) {
+        if (previewIndicator != null && playableItem instanceof TieredTrack) {
+            TieredTrack track = (TieredTrack) playableItem;
+            if (isHighTierPreview(track)) {
                 previewIndicator.setText(R.string.upsell_track_preview);
+                previewIndicator.setVisibility(View.VISIBLE);
+            } else if (isFullHighTierTrack(track)) {
+                previewIndicator.setText(R.string.go);
                 previewIndicator.setVisibility(View.VISIBLE);
             } else {
                 previewIndicator.setVisibility(View.GONE);
