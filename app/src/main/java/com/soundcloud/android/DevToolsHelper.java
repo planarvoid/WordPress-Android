@@ -26,7 +26,7 @@ public class DevToolsHelper {
     }
 
     void initialize(SoundCloudApplication application) {
-        if (applicationProperties.isDebugBuild()) {
+        if (applicationProperties.isDevelopmentMode()) {
             leakCanary(application);
             stetho(application);
         }

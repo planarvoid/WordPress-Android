@@ -13,7 +13,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.rx.eventbus.EventBus;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
@@ -39,7 +38,6 @@ public class DevDrawerFragment extends PreferenceFragment {
     private static final String DEVICE_CONFIG_SETTINGS = "device_config_settings";
     private static final String KEY_LAST_CONFIG_CHECK_TIME = "last_config_check_time";
 
-    @Inject EventBus eventBus;
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
     @Inject DevDrawerExperimentsHelper drawerExperimentsHelper;
@@ -62,17 +60,12 @@ public class DevDrawerFragment extends PreferenceFragment {
     }
 
     private void addFeatureToggles() {
-        PreferenceScreen screen = this.getPreferenceScreen();
-        PreferenceCategory category = new PreferenceCategory(screen.getContext());
+        final PreferenceScreen screen = this.getPreferenceScreen();
+        final PreferenceCategory category = new PreferenceCategory(screen.getContext());
         category.setTitle(getString(R.string.dev_drawer_section_build_features));
         screen.addPreference(category);
-
-        for (Flag flag : Flag.realFeatures()) {
-            CheckBoxPreference checkBoxPref = new CheckBoxPreference(screen.getContext());
-            checkBoxPref.setKey(featureFlags.getPreferenceKey(flag));
-            checkBoxPref.setTitle(ScTextUtils.fromSnakeCaseToCamelCase(flag.name()));
-            checkBoxPref.setChecked(featureFlags.isEnabled(flag));
-            category.addPreference(checkBoxPref);
+        for (Flag flag : Flag.features()) {
+            category.addPreference(new FeatureFlagCheckBoxPreference(screen.getContext(), featureFlags, flag));
         }
     }
 
@@ -133,11 +126,11 @@ public class DevDrawerFragment extends PreferenceFragment {
               .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                   @Override
                   public boolean onPreferenceClick(Preference preference) {
-                      for (Flag flag : Flag.realFeatures()) {
-                          final String preferenceKey = featureFlags.getPreferenceKey(flag);
-                          final CheckBoxPreference chkPreference = (CheckBoxPreference) screen.findPreference(
-                                  preferenceKey);
-                          chkPreference.setChecked(featureFlags.resetAndGet(flag));
+                      for (Flag flag : Flag.features()) {
+                          final String preferenceKey = featureFlags.getRuntimeFeatureFlagKey(flag);
+                          final CheckBoxPreference chkPreference =
+                                  (CheckBoxPreference) screen.findPreference(preferenceKey);
+                          chkPreference.setChecked(featureFlags.resetRuntimeFlagValue(flag));
                       }
                       return true;
                   }
@@ -200,10 +193,8 @@ public class DevDrawerFragment extends PreferenceFragment {
 
     private void updateLastConfigUpdateText(Preference preference, SharedPreferences sharedPreferences) {
         final long lastUpdatedTs = sharedPreferences.getLong(KEY_LAST_CONFIG_CHECK_TIME, 0);
-        preference.setSummary("last updated " + ScTextUtils.formatTimeElapsedSince(preference.getContext()
-                                                                                             .getResources(),
-                                                                                   lastUpdatedTs,
-                                                                                   true));
+        final String lastUpdateTime = ScTextUtils.formatTimeElapsedSince(preference.getContext().getResources(), lastUpdatedTs, true);
+        preference.setSummary("last updated " + lastUpdateTime);
     }
 
     private void copyTokenToClipboard() {
@@ -217,5 +208,35 @@ public class DevDrawerFragment extends PreferenceFragment {
         ViewGroup view = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
         view.setBackgroundColor(getResources().getColor(android.R.color.white));
         return view;
+    }
+
+    /**
+     * {@link CheckBoxPreference} class for Feature Flags which
+     * uses a custom obfuscated shared preferences file.
+     */
+    private static class FeatureFlagCheckBoxPreference extends CheckBoxPreference {
+
+        private final FeatureFlags featureFlags;
+        private final Flag flag;
+
+        FeatureFlagCheckBoxPreference(Context context, FeatureFlags featureFlags, Flag flag) {
+            super(context);
+            this.featureFlags = featureFlags;
+            this.flag = flag;
+            this.initialize();
+        }
+
+        private void initialize() {
+            setTitle(ScTextUtils.fromSnakeCaseToCamelCase(flag.name()));
+            setKey(featureFlags.getRuntimeFeatureFlagKey(flag));
+            setChecked(featureFlags.isEnabled(flag));
+            setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    featureFlags.setRuntimeFeatureFlagValue(flag, ((CheckBoxPreference)preference).isChecked());
+                    return false;
+                }
+            });
+        }
     }
 }

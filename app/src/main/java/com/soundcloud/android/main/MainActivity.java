@@ -6,6 +6,8 @@ import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.facebookinvites.FacebookInvitesController;
 import com.soundcloud.android.gcm.GcmManager;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
@@ -19,6 +21,7 @@ public class MainActivity extends PlayerActivity {
     @Inject PlaySessionController playSessionController;
     @Inject CastConnectionHelper castConnectionHelper;
     @Inject Navigator navigator;
+    @Inject FeatureFlags featureFlags;
 
     @Inject @LightCycle MainTabsPresenter mainPresenter;
     @Inject @LightCycle GcmManager gcmManager;
@@ -67,10 +70,22 @@ public class MainActivity extends PlayerActivity {
         }
     }
 
+    private void fetchFeatureFlags() {
+        if (!this.isChangingConfigurations() && featureFlags.isEnabled(Flag.REMOTE_FEATURE_TOGGLES)) {
+            featureFlags.fetchRemoteFlags(this);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         setupUpgradeUpsell();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        fetchFeatureFlags();
     }
 
     @Override

@@ -6,6 +6,8 @@ import com.appboy.Appboy;
 import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.api.ApiModule;
@@ -128,6 +130,19 @@ public class ApplicationModule {
     @Provides
     public SharedPreferences provideDefaultSharedPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
+    }
+
+    @Provides
+    @Singleton
+    public FirebaseRemoteConfig provideFirebaseRemoteConfig(ApplicationProperties applicationProperties) {
+        final FirebaseRemoteConfigSettings remoteConfigSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setDeveloperModeEnabled(applicationProperties.isDevelopmentMode())
+                .build();
+
+        final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.getInstance();
+        remoteConfig.setConfigSettings(remoteConfigSettings);
+
+        return remoteConfig;
     }
 
     @Provides
@@ -312,5 +327,4 @@ public class ApplicationModule {
     public DateProvider provideCurrentDateProvider() {
         return new CurrentDateProvider();
     }
-
 }

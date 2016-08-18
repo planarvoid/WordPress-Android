@@ -45,8 +45,10 @@ public class StorageModule {
     public static final String NOTIFICATION_PREFERENCES = "NotificationPreferences";
     public static final String IMAGE_CONFIG = "ImageConfiguration";
     public static final String PLAY_SESSION_STATE = "PlaySessionState";
+    public static final String FEATURES_FLAGS = "FeatureFlags";
 
     public static final String PREFS_NOTIFICATION_PREFERENCES = "notification_preferences";
+    public static final String PREFS_FEATURE_FLAGS = "feature_flags";
 
     private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
     private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
@@ -69,7 +71,6 @@ public class StorageModule {
     private static final String PREFS_CONFIGURATION_SETTINGS = "device_config_settings";
     private static final String PREFS_IMAGE_CONFIG = "image_configuration";
     private static final String PREFS_PLAY_SESSION_STATE = "play_session_state";
-
 
     @Provides
     @Named(STREAM_CACHE_DIRECTORY)
@@ -151,6 +152,14 @@ public class StorageModule {
     }
 
     @Provides
+    @Singleton
+    @Named(FEATURES_FLAGS)
+    public SharedPreferences provideFeatureFlagsPrefs(Context context, Obfuscator obfuscator) {
+        return new ObfuscatedPreferences(context.getSharedPreferences(PREFS_FEATURE_FLAGS, Context.MODE_PRIVATE),
+                obfuscator);
+    }
+
+    @Provides
     @Named(STREAM_SYNC)
     public SharedPreferences provideStreamSyncPrefs(Context context) {
         return context.getSharedPreferences(PREFS_STREAM_SYNC, Context.MODE_PRIVATE);
@@ -214,6 +223,13 @@ public class StorageModule {
     @Named(PLAY_SESSION_STATE)
     public SharedPreferences providePlaySessionState(Context context) {
         return context.getSharedPreferences(PREFS_PLAY_SESSION_STATE, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Singleton
+    @Named(FEATURES_FLAGS)
+    public PersistentStorage provideFeatureFlagsStorage(@Named(FEATURES_FLAGS) SharedPreferences preferences) {
+        return new PersistentStorage(preferences);
     }
 
     @Provides

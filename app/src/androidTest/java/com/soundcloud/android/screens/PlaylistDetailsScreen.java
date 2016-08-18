@@ -1,7 +1,6 @@
 package com.soundcloud.android.screens;
 
 import com.robotium.solo.Condition;
-import com.soundcloud.android.BuildConfig;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EmptyViewElement;
@@ -11,6 +10,8 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.elements.AdapterElement;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.ListElement;
@@ -27,8 +28,11 @@ public class PlaylistDetailsScreen extends Screen {
 
     private static final Class ACTIVITY = PlaylistDetailActivity.class;
 
+    private FeatureFlagsHelper featureFlags;
+
     public PlaylistDetailsScreen(Han solo) {
         super(solo);
+        featureFlags = FeatureFlagsHelper.create(solo.getCurrentActivity());
     }
 
     public PlaylistsScreen goBackToPlaylists() {
@@ -204,7 +208,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     private AdapterElement getTracksContainer() {
-        if (BuildConfig.EDIT_PLAYLIST) {
+        if (featureFlags.isEnabled(Flag.EDIT_PLAYLIST)) {
             return tracksRecyclerView();
         } else {
             return tracksListView();

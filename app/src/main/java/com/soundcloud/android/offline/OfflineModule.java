@@ -29,7 +29,7 @@ public class OfflineModule {
     public OkHttpClient provideOkHttpClient(ApplicationProperties applicationProperties,
                                             @Named(API_HTTP_CLIENT) OkHttpClient defaultClient) {
         final OkHttpClient client = defaultClient.clone();
-        if (!applicationProperties.isDebugBuild()) {
+        if (!applicationProperties.isDevelopmentMode()) {
             client.setHostnameVerifier(new SoundCloudHostnameVerifier());
         }
         return client;

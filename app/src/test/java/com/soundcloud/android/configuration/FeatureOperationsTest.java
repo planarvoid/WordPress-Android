@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FeatureOperationsTest {
@@ -49,7 +50,7 @@ public class FeatureOperationsTest {
 
     @Test
     public void upsellHighTierIfUpsellAvailable() {
-        when(planStorage.getUpsells()).thenReturn(Arrays.asList(Plan.HIGH_TIER));
+        when(planStorage.getUpsells()).thenReturn(Collections.singletonList(Plan.HIGH_TIER));
 
         assertThat(featureOperations.upsellHighTier()).isTrue();
     }
@@ -69,36 +70,6 @@ public class FeatureOperationsTest {
     public void shouldUseKruxForAdTargetingIsEnabledWhenStorageContainsFeatureTrue() {
         when(featureStorage.isEnabled(FeatureName.KRUX_ADS, false)).thenReturn(true);
         assertThat(featureOperations.shouldUseKruxForAdTargeting()).isTrue();
-    }
-
-    @Test
-    public void developmentMenuDisabledByDefault() {
-        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
-    }
-
-    @Test
-    public void developmentMenuEnabledWhenStorageContainsFeatureTrue() {
-        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, false)).thenReturn(true);
-        assertThat(featureOperations.isDevelopmentMenuEnabled()).isTrue();
-    }
-
-    @Test
-    public void developmentMenuEnabledWhenStorageContainsFeatureFalse() {
-        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, false)).thenReturn(false);
-        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
-    }
-
-    @Test
-    public void developmentMenuEnabledWhenDebug() {
-        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, true)).thenReturn(true);
-        when(applicationProperties.isDebugBuild()).thenReturn(true);
-        assertThat(featureOperations.isDevelopmentMenuEnabled()).isTrue();
-    }
-
-    @Test
-    public void developmentMenuDisabledWhenNotDebug() {
-        when(applicationProperties.isDebugBuild()).thenReturn(false);
-        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
     }
 
     @Test
@@ -231,5 +202,35 @@ public class FeatureOperationsTest {
         when(planStorage.getHighTierTrialDays()).thenReturn(30);
 
         assertThat(featureOperations.isHighTierTrialEligible()).isTrue();
+    }
+
+    @Test
+    public void developmentMenuDisabledByDefault() {
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
+    }
+
+    @Test
+    public void developmentMenuEnabledWhenStorageContainsFeatureTrue() {
+        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, false)).thenReturn(true);
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isTrue();
+    }
+
+    @Test
+    public void developmentMenuEnabledWhenStorageContainsFeatureFalse() {
+        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, false)).thenReturn(false);
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
+    }
+
+    @Test
+    public void developmentMenuEnabledWhenDebug() {
+        when(featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, true)).thenReturn(true);
+        when(applicationProperties.isDevelopmentMode()).thenReturn(true);
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isTrue();
+    }
+
+    @Test
+    public void developmentMenuDisabledWhenNotDebug() {
+        when(applicationProperties.isDevelopmentMode()).thenReturn(false);
+        assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
     }
 }

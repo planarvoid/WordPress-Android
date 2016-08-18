@@ -1,10 +1,14 @@
 apply plugin: 'com.android.application'
 
-def BOOLEAN = "boolean"
-def TRUE = "true"
-def FALSE = "false"
+def FLAG = "String"
+
+//Flag values
+def DEFAULT_SHOW = "\"DEFAULT_SHOW\""
+def DEFAULT_HIDE = "\"DEFAULT_HIDE\""
+def UNDER_DEVELOPMENT = "\"UNDER_DEVELOPMENT\""
 
 enum Feature {
+  REMOTE_FEATURE_TOGGLES,
   ARCHER_PUSH,
   DISCOVERY_CHARTS,
   DISCOVERY_RECOMMENDATIONS,
@@ -23,87 +27,89 @@ enum Feature {
 
 android {
   defaultConfig {
-    buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), FALSE
-    buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), FALSE
-    buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
-    buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
-    buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), FALSE
-    buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), FALSE
-    buildConfigField BOOLEAN, Feature.EXPLORE.name(), FALSE
-    buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), FALSE
-    buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.SUGGESTED_CREATORS.name(), FALSE
-    buildConfigField BOOLEAN, Feature.MOAT_ADS_VIEWABILITY.name(), FALSE
+    buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.ARCHER_PUSH.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.EDIT_PLAYLIST.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.ALBUMS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.PLAY_QUEUE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.EXPLORE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.STATION_PAGE.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.LIKED_STATIONS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.SUGGESTED_CREATORS.name(), UNDER_DEVELOPMENT
+    buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), UNDER_DEVELOPMENT
   }
 
   buildTypes {
     alpha {
-      buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
-      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), TRUE
+      buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.HOLISTIC_TRACKING.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
     }
 
     beta {
-      buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), TRUE
+      buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
     }
 
     debug {
-      buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
-      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.MOAT_ADS_VIEWABILITY.name(), TRUE
+      buildConfigField FLAG, Feature.REMOTE_FEATURE_TOGGLES.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.PLAY_QUEUE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DISCOVERY_CHARTS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.NEW_SYNC_ADAPTER.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.MOAT_ADS_VIEWABILITY.name(), DEFAULT_SHOW
     }
 
     release {
-      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), TRUE
+      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ARCHER_PUSH.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
     }
 
     preRelease {
-      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), TRUE
+      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
     }
 
     releaseNonPlayStore {
-      buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
-      buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), TRUE
+      buildConfigField FLAG, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.DISCOVERY_RECOMMENDATIONS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.ALBUMS.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.EXPLORE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.STATION_PAGE.name(), DEFAULT_SHOW
+      buildConfigField FLAG, Feature.LIKED_STATIONS.name(), DEFAULT_SHOW
     }
   }
 }
@@ -116,23 +122,25 @@ task checkFlags(dependsOn: ':app:preBuild') {
   //with the number of flags defined in the default section.
   if (defaultFeatureFlags.keySet().size() != Feature.values().size())
     failBuild("Inconsistent number of flags between defaultConfig section and Feature enum.")
-  //Make sure that all flags in default config section are disabled.
+  //Make sure that all flags in default config section are UNDER_DEVELOPMENT.
   defaultFeatureFlags.each {
-    if (it.getValue().getValue() == TRUE) {
-      failBuild("Flag ${it.key} has a TRUE value in defaultConfig. All values by default should be FALSE. " +
+    def flagValue = it.getValue().getValue()
+    if (flagValue == DEFAULT_SHOW || flagValue == DEFAULT_HIDE) {
+      failBuild("Flag ${it.key} has a DEFAULT_SHOW or DEFAULT_HIDE value in defaultConfig. " +
+              "All values by default should be UNDER_DEVELOPMENT. " +
               "Please override the Flag ${it.key} value in the build type you are interested in.")
     }
   }
 }
 
-//Checks whether all flags in each build are TRUE otherwise fails
-//the build asking to remove it since the default value is FALSE.
+//Checks whether all flags in each build are DEFAULT_SHOW or DEFAULT_HIDE otherwise fails
+//the build asking to remove it since the default should be UNDER_DEVELOPMENT.
 android.buildTypes.all { buildType ->
   buildType.getBuildConfigFields().each {
     if (!excludeConfigFields.contains(it.key))
-      if (it.getValue().getValue() == FALSE) {
-      failBuild("Flag ${it.key} has a FALSE value in build type: ${buildType.name}. " +
-              "Please remove it or turn its value to TRUE.")
+      if (it.getValue().getValue() == UNDER_DEVELOPMENT) {
+      failBuild("Flag ${it.key} has a UNDER_DEVELOPMENT value in build type: ${buildType.name}. " +
+              "Please remove it or turn its value to DEFAULT_SHOW or DEFAULT_HIDE.")
     }
   }
 }

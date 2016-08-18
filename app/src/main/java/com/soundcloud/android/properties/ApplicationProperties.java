@@ -33,9 +33,9 @@ public class ApplicationProperties {
 
     private final String castReceiverAppId;
     @VisibleForTesting
-    protected static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
+    static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
     @VisibleForTesting
-    protected static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
+    static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
             "full_x86".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT);
 
     public String getFeedbackEmail() {
@@ -57,7 +57,6 @@ public class ApplicationProperties {
         private final String playbackFeedbackEmail;
 
         BuildType(String feedbackEmail, String playbackFeedbackEmail) {
-
             this.feedbackEmail = feedbackEmail;
             this.playbackFeedbackEmail = playbackFeedbackEmail;
         }
@@ -114,6 +113,10 @@ public class ApplicationProperties {
 
     public boolean shouldEnableNetworkProxy() {
         return isDebugBuild() && IS_RUNNING_ON_DEVICE;
+    }
+
+    public boolean isDevelopmentMode() {
+        return isDebugBuild();
     }
 
     public boolean isDevBuildRunningOnDevice() {

@@ -12,7 +12,7 @@ ext {
   androidMultiDex = "1.0.1"
   androidSupportVersion = '23.4.0'
   androidKitVersion = '0.49'
-  firebaseVersion = '9.0.0'
+  googleServicesVersion = '9.2.0'
   lightCycleVersion = '1.1.0'
   daggerVersion = '1.2.2'
   propellerVersion = '0.63'
@@ -79,12 +79,12 @@ ext {
           androidRecyclerView             : "com.android.support:recyclerview-v7:$androidSupportVersion",
           androidCardView                 : "com.android.support:cardview-v7:$androidSupportVersion",
           androidDesign                   : "com.android.support:design:$androidSupportVersion",
-          androidPlayServicesBase         : "com.google.android.gms:play-services-base:$firebaseVersion",
-          androidPlayServicesAuth         : "com.google.android.gms:play-services-auth:$firebaseVersion",
-          androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$firebaseVersion",
-
-          firebaseCore                    : "com.google.firebase:firebase-core:$firebaseVersion",
-          firebaseMessaging               : "com.google.firebase:firebase-messaging:$firebaseVersion"
+          androidPlayServicesBase         : "com.google.android.gms:play-services-base:$googleServicesVersion",
+          androidPlayServicesAuth         : "com.google.android.gms:play-services-auth:$googleServicesVersion",
+          androidPlayServicesCast         : "com.google.android.gms:play-services-cast:$googleServicesVersion",
+          firebaseCore                    : "com.google.firebase:firebase-core:$googleServicesVersion",
+          firebaseConfig                  : "com.google.firebase:firebase-config:$googleServicesVersion",
+          firebaseMessaging               : "com.google.firebase:firebase-messaging:$googleServicesVersion"
   ]
 
   devLibraries = [

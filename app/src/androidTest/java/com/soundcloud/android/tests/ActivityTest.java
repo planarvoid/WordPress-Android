@@ -8,14 +8,13 @@ import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.helpers.MainNavigationHelper;
 import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.FeatureFlagsHelper;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.preference.PreferenceManager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 import android.widget.ProgressBar;
@@ -25,19 +24,15 @@ import android.widget.ProgressBar;
  * screenshots for test failures.
  */
 public abstract class ActivityTest<T extends Activity> extends ActivityInstrumentationTestCase2<T> {
-
-    protected String testCaseName;
-    protected MainNavigationHelper mainNavHelper;
-    protected Waiter waiter;
-    protected ToastObserver toastObserver;
-
+    private String testCaseName;
+    private boolean runBasedOnTestResource = true;
     private Flag[] requiredEnabledFeatures;
     private Flag[] requiredDisabledFeatures;
 
-    private boolean runBasedOnTestResource = true;
-
     protected Han solo;
-
+    protected MainNavigationHelper mainNavHelper;
+    protected Waiter waiter;
+    protected ToastObserver toastObserver;
     protected NetworkManagerClient networkManagerClient;
 
     public ActivityTest(Class<T> activityClass) {
@@ -142,7 +137,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         this.runBasedOnTestResource = runBasedOnTestResource;
     }
 
-    protected boolean shouldRunTest() {
+    private boolean shouldRunTest() {
         return runBasedOnTestResource && requiredEnabledFeaturesAreEnabled() && requiredDisabledFeaturesAreDisabled();
     }
 
@@ -154,7 +149,6 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
                 }
             }
         }
-
         return true;
     }
 
@@ -166,12 +160,11 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
                 }
             }
         }
-
         return true;
     }
 
-    private FeatureFlags getFeatureFlags() {
-        return new FeatureFlags(PreferenceManager.getDefaultSharedPreferences(getActivity()));
+    private FeatureFlagsHelper getFeatureFlags() {
+        return FeatureFlagsHelper.create(getActivity().getApplicationContext());
     }
 
     protected final void logIn() {
@@ -181,7 +174,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     protected void logInHelper() {
     }
 
-    public final void observeToasts() {
+    private void observeToasts() {
         toastObserver = new ToastObserver(solo);
         observeToastsHelper();
     }
