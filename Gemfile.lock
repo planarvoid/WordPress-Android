@@ -1,8 +1,8 @@
 GIT
   remote: git@github.com:soundcloud/test-user-generator.git
-  revision: ffc5653c898e6c6d866abb06433c70c90c3f3e53
+  revision: 59cf17c26690fdd5f981a1e8c192e4e327270ded
   specs:
-    test-user-generator (0.0.1)
+    test-user-generator (0.0.2)
 
 GEM
   remote: https://rubygems.org/
