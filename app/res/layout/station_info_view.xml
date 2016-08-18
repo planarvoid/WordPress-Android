@@ -1,50 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <FrameLayout
-        android:id="@+id/artwork_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.soundcloud.android.view.SquareImageView
-            android:id="@+id/artwork"
+        <ImageView
+            android:id="@+id/blurred_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            tools:background="@color/ak_sc_dark_orange" />
+
+        <LinearLayout
+            android:id="@+id/header_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
-            tools:background="@color/ak_dark_gray" />
+            android:background="@color/stations_blur_overlay"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/btn_play"
-            style="@style/StationInfo.PlayButton"
-            android:layout_gravity="center" />
+            <FrameLayout
+                android:id="@+id/artwork_container"
+                android:layout_width="168dp"
+                android:layout_height="168dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="32dp"
+                android:scaleType="centerCrop">
+
+                <com.soundcloud.android.view.SquareImageView
+                    android:id="@+id/artwork"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:background="@color/ak_light_gray" />
+
+                <ImageButton
+                    android:id="@+id/btn_play"
+                    style="@style/StationInfo.PlayButton"
+                    android:layout_gravity="center" />
+            </FrameLayout>
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/station_type"
+                style="@style/PlayerContext"
+                android:layout_marginTop="16dp"
+                android:drawableLeft="@drawable/ic_station"
+                android:textColor="@color/white"
+                tools:text="Track station based on" />
+
+            <com.soundcloud.android.view.AutoResizeTextView
+                android:id="@+id/station_title"
+                style="@style/StationInfo.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                app:minTextSize="16sp"
+                app:resizeStep="4sp"
+                tools:text="LosoMio #Similar Sounds" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/station_desc"
+                style="@style/StationInfo.Description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="24dp"
+                android:gravity="center_horizontal"
+                tools:text="A mix of music by Summer Soul, REWARD and Hokey Pokesssy" />
+        </LinearLayout>
+
     </FrameLayout>
 
-    <com.soundcloud.android.view.JaggedTextView
-        android:id="@+id/station_type"
-        style="@style/PlayerContext"
-        android:layout_above="@+id/title"
-        android:layout_marginLeft="@dimen/playlist_header_padding"
-        android:drawableLeft="@drawable/ic_stations_player_context"
-        android:enabled="false"
-        tools:text="track station" />
+    <LinearLayout
+        style="@style/NewPlaylistActionContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center_vertical|right"
+        android:orientation="horizontal">
 
-    <com.soundcloud.android.view.JaggedTextView
-        android:id="@+id/title"
-        style="@style/ShrinkWrap.Primary.Medium"
-        android:layout_alignBottom="@id/artwork_container"
-        android:layout_marginBottom="@dimen/playlist_header_padding"
-        android:layout_marginLeft="@dimen/playlist_header_padding"
-        android:layout_marginRight="@dimen/playlist_header_padding"
-        android:layout_marginTop="4dp"
-        tools:text="seed name" />
+        <com.soundcloud.android.view.CustomFontToggleButton
+            android:id="@+id/toggle_like"
+            style="@style/Cards.ToggleButton"
+            android:drawableLeft="@drawable/ic_toggle_player_like_states"
+            android:text="@string/btn_like"
+            android:textAllCaps="false" />
+    </LinearLayout>
 
-    <View
-        android:id="@+id/artwork_divider"
-        style="@style/Divider.Section"
-        android:layout_below="@id/artwork_container" />
+    <View style="@style/Divider.Section" />
 
-</RelativeLayout>
+</LinearLayout>

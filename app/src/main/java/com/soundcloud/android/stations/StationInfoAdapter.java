@@ -24,6 +24,8 @@ class StationInfoAdapter extends PagingRecyclerItemAdapter<StationInfoItem, Stat
         void onPlayButtonClicked(Context context);
 
         void onTrackClicked(Context context, int position);
+
+        void onLikeToggled(Context context);
     }
 
     StationInfoAdapter(StationInfoClickListener clickListener,

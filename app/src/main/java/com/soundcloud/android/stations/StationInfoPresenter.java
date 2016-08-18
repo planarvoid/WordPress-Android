@@ -137,4 +137,9 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
                                       discoverySource, position);
     }
 
+    @Override
+    public void onLikeToggled(Context context) {
+        // TODO: STAT-575
+    }
+
 }

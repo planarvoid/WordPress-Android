@@ -8,29 +8,53 @@ import com.google.auto.factory.Provided;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.SimpleBlurredImageLoader;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 
 import android.content.res.Resources;
+import android.graphics.Typeface;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
+import java.util.Arrays;
 import java.util.List;
 
 @AutoFactory
 class StationInfoItemRenderer implements CellRenderer<StationInfo> {
 
+    private final View.OnClickListener playButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            clickListener.onPlayButtonClicked(view.getContext());
+        }
+    };
+
+    private final View.OnClickListener toggleLikeClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            clickListener.onLikeToggled(view.getContext());
+        }
+    };
+
     private final StationInfoClickListener clickListener;
+    private final SimpleBlurredImageLoader simpleBlurredImageLoader;
     private final ImageOperations imageOperations;
     private final Resources resources;
 
     StationInfoItemRenderer(StationInfoClickListener listener,
+                            @Provided SimpleBlurredImageLoader simpleBlurredImageLoader,
                             @Provided Resources resources,
                             @Provided ImageOperations imageOperations) {
         this.clickListener = listener;
+        this.simpleBlurredImageLoader = simpleBlurredImageLoader;
         this.imageOperations = imageOperations;
         this.resources = resources;
     }
@@ -46,29 +70,53 @@ class StationInfoItemRenderer implements CellRenderer<StationInfo> {
 
         bindArtwork(info, itemView);
         bindTextViews(info, itemView);
-        bindPlayButton(itemView);
+        bindButtons(info, itemView);
     }
 
-    private void bindPlayButton(View itemView) {
+    private void bindButtons(StationInfo info, View itemView) {
         final View playButton = ButterKnife.findById(itemView, R.id.btn_play);
         playButton.setVisibility(View.VISIBLE);
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clickListener.onPlayButtonClicked(view.getContext());
-            }
-        });
+        playButton.setOnClickListener(playButtonClickListener);
+
+        final ToggleButton likeButton = ButterKnife.findById(itemView, R.id.toggle_like);
+        likeButton.setChecked(info.isLiked());
+        likeButton.setOnClickListener(toggleLikeClickListener);
     }
 
     private void bindTextViews(StationInfo info, View itemView) {
         ButterKnife.<TextView>findById(itemView, R.id.station_type)
-                .setText(getHumanReadableType(resources, info.getType()));
-        ButterKnife.<TextView>findById(itemView, R.id.title).setText(info.getTitle());
+                .setText(resources.getString(R.string.stations_home_station_based_on,
+                                             getHumanReadableType(resources, info.getType())));
+        ButterKnife.<TextView>findById(itemView, R.id.station_title).setText(info.getTitle());
+
+        //TODO: Most played artists will be part of the StationInfo model (calculated by operations)
+        final List<String> mostPlayed = Arrays.asList("Madonna", "MadMax", "Mad");
+        ButterKnife.<TextView>findById(itemView, R.id.station_desc)
+                .setText(buildStationDescription(mostPlayed));
     }
 
-    private void bindArtwork(StationInfo info, View headerView) {
+    private SpannableString buildStationDescription(List<String> mostPlayed) {
+        final String descriptionText = resources.getString(R.string.stations_home_description,
+                                                           mostPlayed.get(0),
+                                                           mostPlayed.get(1),
+                                                           mostPlayed.get(2));
+        final SpannableString descriptionSpan = new SpannableString(descriptionText);
+
+        int lastIndexOf = 0;
+        for (String artist : mostPlayed) {
+            int start = descriptionText.indexOf(artist, lastIndexOf);
+            lastIndexOf = start + artist.length();
+            descriptionSpan.setSpan(new StyleSpan(Typeface.BOLD), start, lastIndexOf, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return descriptionSpan;
+    }
+
+    private void bindArtwork(StationInfo info, final View headerView) {
         final ApiImageSize artworkSize = ApiImageSize.getFullImageSize(headerView.getResources());
-        ImageView artworkView = ButterKnife.findById(headerView, R.id.artwork);
+        final ImageView artworkView = ButterKnife.findById(headerView, R.id.artwork);
+        final ImageView blurredArtworkView = ButterKnife.findById(headerView, R.id.blurred_background);
+
         imageOperations.displayWithPlaceholder(info, artworkSize, artworkView);
+        simpleBlurredImageLoader.displayBlurredArtwork(info, blurredArtworkView);
     }
 }

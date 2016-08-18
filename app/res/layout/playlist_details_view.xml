@@ -12,7 +12,7 @@
         <com.soundcloud.android.view.SquareImageView
             android:id="@+id/artwork"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:scaleType="centerCrop" />
 
         <ImageButton

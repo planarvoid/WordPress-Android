@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/blurred_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:background="@color/ak_sc_dark_orange" />
+
+    <RelativeLayout
+        android:id="@+id/header_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/stations_blur_overlay"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:id="@+id/artwork_container"
+            android:layout_width="164dp"
+            android:layout_height="164dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="24dp">
+
+            <com.soundcloud.android.view.SquareImageView
+                android:id="@+id/artwork"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:background="@color/ak_light_gray" />
+
+            <ImageButton
+                android:id="@+id/btn_play"
+                style="@style/StationInfo.PlayButton"
+                android:layout_gravity="center" />
+        </FrameLayout>
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/station_type"
+            style="@style/PlayerContext"
+            android:layout_alignTop="@id/artwork_container"
+            android:layout_marginLeft="8dp"
+            android:layout_toRightOf="@id/artwork_container"
+            android:drawableLeft="@drawable/ic_station"
+            android:textColor="@color/white"
+            tools:text="Track station based on" />
+
+        <com.soundcloud.android.view.AutoResizeTextView
+            android:id="@+id/station_title"
+            style="@style/StationInfo.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/station_type"
+            android:textSize="26sp"
+            android:layout_toRightOf="@id/artwork_container"
+            tools:text="LosoMio #Similar Sounds" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/station_desc"
+            style="@style/StationInfo.Description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/station_title"
+            android:layout_marginTop="24dp"
+            android:layout_toRightOf="@id/artwork_container"
+            android:gravity="bottom"
+            tools:text="A mix of music by Summer Soul, REWARD and Hokey Pokesssy" />
+
+        <com.soundcloud.android.view.CustomFontToggleButton
+            android:id="@+id/toggle_like"
+            style="@style/Cards.ToggleButton"
+            android:layout_alignBottom="@id/artwork_container"
+            android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@id/artwork_container"
+            android:drawableLeft="@drawable/ic_like_station"
+            android:drawablePadding="8dp"
+            android:text="@string/btn_like"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            tools:checked="true" />
+
+    </RelativeLayout>
+
+</FrameLayout>

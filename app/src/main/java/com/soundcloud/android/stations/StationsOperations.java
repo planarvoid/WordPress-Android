@@ -134,7 +134,7 @@ public class StationsOperations {
     }
 
     Observable<Integer> lastPlayedPosition(Urn stationUrn) {
-        return stationsStorage.loadLastPlayedPosition(stationUrn);
+        return stationsStorage.loadLastPlayedPosition(stationUrn).subscribeOn(scheduler);
     }
 
     public Observable<SyncJobResult> sync() {

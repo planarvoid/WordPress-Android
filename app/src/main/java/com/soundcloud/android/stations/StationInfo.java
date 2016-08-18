@@ -37,4 +37,9 @@ abstract class StationInfo extends StationInfoItem implements ImageResource, Ent
 
     @Override
     public abstract Optional<String> getImageUrlTemplate();
+
+    public boolean isLiked() {
+        // TODO: another story
+        return false;
+    }
 }
