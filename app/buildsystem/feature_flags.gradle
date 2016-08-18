@@ -77,6 +77,7 @@ android {
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
     }
 
     preRelease {
