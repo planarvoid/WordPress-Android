@@ -319,6 +319,13 @@ public class TestUser {
             "1-21686-204010094-472bb0a263263f",
             204010094,
             true);
+    public static final TestUser chartsTestUser = new TestUser(
+            "ChartsTests",
+            "soundcloud.Android.ChartsTests@tests.soundcloud",
+            "SoundCloudTest2016",
+            "1-8742-248182220-15821b020aca9a9",
+            248182220,
+            false);
 
     // not used directly in a test, but user info is kept here for documentation
     public static final TestUser adUser = new TestUser(
