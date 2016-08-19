@@ -11,7 +11,6 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.os.Bundle;
@@ -33,15 +32,14 @@ public class GooglePlusSignInTask extends LoginTask {
     public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
                                 TokenInformationGenerator tokenInformationGenerator, StoreUsersCommand userStorage,
                                 AccountOperations accountOperations, ConfigurationOperations configurationOperations,
-                                EventBus eventBus, ApiClient apiClient, SyncInitiatorBridge syncInitiatorBridge) {
+                                EventBus eventBus, ApiClient apiClient) {
         super(application,
               tokenInformationGenerator,
               userStorage,
               configurationOperations,
               eventBus,
               accountOperations,
-              apiClient,
-              syncInitiatorBridge);
+              apiClient);
         this.accountName = accountName;
         this.scope = scope;
         extras = new Bundle();

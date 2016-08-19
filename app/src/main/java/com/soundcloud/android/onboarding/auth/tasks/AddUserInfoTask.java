@@ -14,7 +14,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.java.strings.Strings;
 
 import android.os.Bundle;
@@ -36,9 +35,8 @@ public class AddUserInfoTask extends AuthTask {
                            File avatarFile,
                            StoreUsersCommand storeUsersCommand,
                            ApiClient apiClient,
-                           AccountOperations accountOperations,
-                           SyncInitiatorBridge syncInitiatorBridge) {
-        super(app, storeUsersCommand, syncInitiatorBridge);
+                           AccountOperations accountOperations) {
+        super(app, storeUsersCommand);
         this.apiClient = apiClient;
         this.username = username;
         this.permalink = permalink;

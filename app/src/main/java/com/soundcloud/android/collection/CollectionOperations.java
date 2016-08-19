@@ -25,6 +25,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -313,8 +314,8 @@ public class CollectionOperations {
     }
 
     private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
-        return syncInitiator
-                .hasSyncedMyPlaylistsBefore()
+        return syncStateStorage
+                .hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)
                 .flatMap(new Func1<Boolean, Observable<List<PlaylistItem>>>() {
                     @Override
                     public Observable<List<PlaylistItem>> call(Boolean hasSynced) {
@@ -352,7 +353,8 @@ public class CollectionOperations {
     }
 
     private Observable<List<LikedTrackPreview>> tracksLiked() {
-        return syncInitiator.hasSyncedMyLikesBefore()
+        return syncStateStorage
+                .hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)
                 .flatMap(new Func1<Boolean, Observable<List<LikedTrackPreview>>>() {
                     @Override
                     public Observable<List<LikedTrackPreview>> call(Boolean hasSynced) {

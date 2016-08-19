@@ -22,7 +22,6 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.AddAccountException;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.reflect.TypeToken;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -44,8 +43,8 @@ public class LoginTask extends AuthTask {
 
     public LoginTask(@NotNull SoundCloudApplication application, TokenInformationGenerator tokenUtils,
                      StoreUsersCommand storeUsersCommand, ConfigurationOperations configurationOperations,
-                     EventBus eventBus, AccountOperations accountOperations, ApiClient apiClient, SyncInitiatorBridge syncInitiatorBridge) {
-        super(application, storeUsersCommand, syncInitiatorBridge);
+                     EventBus eventBus, AccountOperations accountOperations, ApiClient apiClient) {
+        super(application, storeUsersCommand);
         this.tokenUtils = tokenUtils;
         this.configurationOperations = configurationOperations;
         this.eventBus = eventBus;

@@ -21,7 +21,6 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
@@ -44,7 +43,6 @@ public class LoginTaskTest extends AndroidUnitTest {
     @Mock private ConfigurationOperations configurationOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private ApiClient apiClient;
-    @Mock private SyncInitiatorBridge syncInitiatorBridge;
     private ApiUser user = ModelFixtures.create(ApiUser.class);
     private Bundle bundle;
 
@@ -54,8 +52,7 @@ public class LoginTaskTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         bundle = new Bundle();
         loginTask = new LoginTask(application, tokenInformationGenerator, storeUsersCommand,
-                                  configurationOperations, new TestEventBus(), accountOperations,
-                                  apiClient, syncInitiatorBridge);
+                                  configurationOperations, new TestEventBus(), accountOperations, apiClient);
 
         when(application.addUserAccountAndEnableSync(user, token, SignupVia.NONE)).thenReturn(true);
         when(apiClient.fetchMappedResponse(argThat(

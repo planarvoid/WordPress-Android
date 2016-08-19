@@ -17,7 +17,6 @@ import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,17 +30,12 @@ public class SignupTaskTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private SoundCloudApplication application;
-    @Mock private SyncInitiatorBridge syncInitiatorBridge;
 
     private SignupTask signupTask;
 
     @Before
     public void setUp() throws Exception {
-        signupTask = new SignupTask(application,
-                                    storeUsersCommand,
-                                    tokenInformationGenerator,
-                                    apiClient,
-                                    syncInitiatorBridge);
+        signupTask = new SignupTask(application, storeUsersCommand, tokenInformationGenerator, apiClient);
     }
 
     @Test

@@ -14,7 +14,6 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -43,7 +42,6 @@ public abstract class AuthTaskFragment extends DialogFragment {
     @Inject TokenInformationGenerator tokenUtils;
     @Inject ApiClient apiClient;
     @Inject StoreUsersCommand storeUsersCommand;
-    @Inject SyncInitiatorBridge syncInitiatorBridge;
 
     public interface OnAuthResultListener {
         void onAuthTaskComplete(ApiUser user, SignupVia signupVia, boolean shouldAddUserInfo);

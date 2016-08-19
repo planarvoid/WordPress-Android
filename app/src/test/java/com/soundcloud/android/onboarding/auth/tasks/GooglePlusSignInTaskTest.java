@@ -29,7 +29,6 @@ import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.java.reflect.TypeToken;
@@ -55,7 +54,6 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
     @Mock private ApiClient apiClient;
     @Mock private Token token;
     @Mock private ConfigurationOperations configurationOperations;
-    @Mock private SyncInitiatorBridge syncInitiatorBridge;
 
     private ApiUser user = ModelFixtures.create(ApiUser.class);
 
@@ -67,7 +65,7 @@ public class GooglePlusSignInTaskTest extends AndroidUnitTest {
         when(tokenInformationGenerator.getToken(any(Bundle.class))).thenReturn(token);
         when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, false));
         task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, storeUsersCommand,
-                                        accountOperations, configurationOperations, new TestEventBus(), apiClient, syncInitiatorBridge);
+                                        accountOperations, configurationOperations, new TestEventBus(), apiClient);
 
         stub(tokenInformationGenerator.getGrantBundle(anyString(), anyString())).toReturn(bundle);
     }

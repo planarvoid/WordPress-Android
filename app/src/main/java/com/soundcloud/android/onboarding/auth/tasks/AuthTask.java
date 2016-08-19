@@ -6,9 +6,11 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.onboarding.auth.AuthTaskFragment;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,14 +23,11 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
 
     private final SoundCloudApplication app;
     private final StoreUsersCommand storeUsersCommand;
-    private final SyncInitiatorBridge syncInitiatorBridge;
     private AuthTaskFragment fragment;
 
-    public AuthTask(SoundCloudApplication application,
-                    StoreUsersCommand storeUsersCommand, SyncInitiatorBridge syncInitiatorBridge) {
+    public AuthTask(SoundCloudApplication application, StoreUsersCommand storeUsersCommand) {
         this.app = application;
         this.storeUsersCommand = storeUsersCommand;
-        this.syncInitiatorBridge = syncInitiatorBridge;
     }
 
     public void setTaskOwner(AuthTaskFragment taskOwner) {
@@ -60,7 +59,7 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        syncInitiatorBridge.refreshMe();
+                        app.startService(new Intent(app, ApiSyncService.class).setData(Content.ME.uri));
                     }
                 }, ME_SYNC_DELAY_MILLIS);
             }

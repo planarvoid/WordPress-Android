@@ -48,8 +48,7 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
                                    avatarFile,
                                    storeUsersCommand,
                                    apiClient,
-                                   accountOperations,
-                                   syncInitiatorBridge);
+                                   accountOperations);
     }
 
     @Override

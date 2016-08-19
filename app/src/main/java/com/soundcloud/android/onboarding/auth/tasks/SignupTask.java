@@ -16,7 +16,6 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.sync.SyncInitiatorBridge;
 
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
@@ -37,9 +36,8 @@ public class SignupTask extends AuthTask {
     public SignupTask(SoundCloudApplication soundCloudApplication,
                       StoreUsersCommand storeUsersCommand,
                       TokenInformationGenerator tokenUtils,
-                      ApiClient apiClient,
-                      SyncInitiatorBridge syncInitiatorBridge) {
-        super(soundCloudApplication, storeUsersCommand, syncInitiatorBridge);
+                      ApiClient apiClient) {
+        super(soundCloudApplication, storeUsersCommand);
         this.tokenUtils = tokenUtils;
         this.apiClient = apiClient;
     }
