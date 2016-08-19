@@ -3,18 +3,32 @@ package com.soundcloud.android.configuration;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
 import java.util.List;
 
-class UserPlan {
+public class UserPlan {
 
     public final Plan currentPlan;
-    public final List<Plan> upsells;
+    public final List<Upsell> planUpsells;
 
     @JsonCreator
     public UserPlan(@JsonProperty("id") String id,
-                    @JsonProperty("upsells") List<String> upsells) {
+                    @JsonProperty("plan_upsells") List<Upsell> upsells) {
         this.currentPlan = Plan.fromId(id);
-        this.upsells = Plan.fromIds(upsells);
+        this.planUpsells = Collections.unmodifiableList(upsells);
+    }
+
+    public static class Upsell {
+
+        public final String id;
+        public final int trialDays;
+
+        @JsonCreator
+        public Upsell(@JsonProperty("id") String id,
+                      @JsonProperty("trial_days") int trialDays) {
+            this.id = id;
+            this.trialDays = trialDays;
+        }
     }
 
 }

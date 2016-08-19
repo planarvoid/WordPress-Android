@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration;
 
 import static com.soundcloud.android.configuration.ConfigurationManager.TAG;
 
+import com.soundcloud.android.configuration.UserPlan.Upsell;
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.Log;
@@ -20,6 +21,10 @@ public class PlanStorage {
 
     private static final String KEY_PLAN = "plan";
     private static final String KEY_UPSELLS = "upsells";
+    private static final String KEY_HIGH_TIER_TRIAL = "high_tier_trial";
+
+    private static final int NO_TRIAL = 0;
+
     private static final Func1<String, Boolean> UPSELLS_PREFERENCE = new Func1<String, Boolean>() {
         @Override
         public Boolean call(String key) {
@@ -45,9 +50,22 @@ public class PlanStorage {
         sharedPreferences.edit().putString(KEY_PLAN, plan.planId).apply();
     }
 
-    public void updateUpsells(List<Plan> plans) {
+    public void updateUpsells(List<Upsell> upsells) {
+        List<Plan> plans = Plan.fromUpsells(upsells);
         Log.d(TAG, "updating upsells: " + Arrays.toString(plans.toArray()));
         sharedPreferences.edit().putStringSet(KEY_UPSELLS, Plan.toIds(plans)).apply();
+
+        updateTrialDays(upsells);
+    }
+
+    private void updateTrialDays(List<Upsell> upsells) {
+        int highTierTrialDays = NO_TRIAL;
+        for (Upsell upsell : upsells) {
+            if (Plan.fromId(upsell.id) == Plan.HIGH_TIER) {
+                highTierTrialDays = upsell.trialDays;
+            }
+        }
+        sharedPreferences.edit().putInt(KEY_HIGH_TIER_TRIAL, highTierTrialDays).apply();
     }
 
     public Plan getPlan() {
@@ -56,6 +74,10 @@ public class PlanStorage {
 
     public List<Plan> getUpsells() {
         return Plan.fromIds(sharedPreferences.getStringSet(KEY_UPSELLS, Collections.<String>emptySet()));
+    }
+
+    public int getHighTierTrialDays() {
+        return sharedPreferences.getInt(KEY_HIGH_TIER_TRIAL, NO_TRIAL);
     }
 
     public Observable<List<Plan>> getUpsellUpdates() {

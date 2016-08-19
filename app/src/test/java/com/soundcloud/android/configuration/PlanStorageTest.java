@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.configuration.UserPlan.Upsell;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
@@ -12,10 +13,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class PlanStorageTest extends AndroidUnitTest {
 
     private PlanStorage storage;
+
+    private static final Upsell MID_TIER = new Upsell(Plan.MID_TIER.planId, 0);
+    private static final Upsell HIGH_TIER = new Upsell(Plan.HIGH_TIER.planId, 30);
 
     @Before
     public void setUp() throws Exception {
@@ -38,16 +43,16 @@ public class PlanStorageTest extends AndroidUnitTest {
 
     @Test
     public void updateStoresValueList() {
-        storage.updateUpsells(Arrays.asList(Plan.MID_TIER, Plan.HIGH_TIER));
+        storage.updateUpsells(Arrays.asList(MID_TIER, HIGH_TIER));
 
         assertThat(storage.getUpsells()).containsOnly(Plan.MID_TIER, Plan.HIGH_TIER);
     }
 
     @Test
     public void updateReplacesEntireValueList() {
-        storage.updateUpsells(Arrays.asList(Plan.MID_TIER, Plan.HIGH_TIER));
+        storage.updateUpsells(Arrays.asList(MID_TIER, HIGH_TIER));
 
-        storage.updateUpsells(Arrays.asList(Plan.MID_TIER));
+        storage.updateUpsells(Collections.singletonList(MID_TIER));
 
         assertThat(storage.getUpsells()).containsExactly(Plan.MID_TIER);
     }
@@ -55,6 +60,21 @@ public class PlanStorageTest extends AndroidUnitTest {
     @Test
     public void returnsEmptyListIfNotSet() {
         assertThat(storage.getUpsells()).isEmpty();
+    }
+
+    @Test
+    public void updateSetsHighTierTrialDays() {
+        storage.updateUpsells(Collections.singletonList(HIGH_TIER));
+
+        assertThat(storage.getHighTierTrialDays()).isEqualTo(30);
+    }
+
+    @Test
+    public void updateClearsHighTierTrialDaysIfUpsellIsNotPresent() {
+        storage.updateUpsells(Collections.singletonList(HIGH_TIER));
+        storage.updateUpsells(Collections.singletonList(MID_TIER));
+
+        assertThat(storage.getHighTierTrialDays()).isEqualTo(0);
     }
 
     @Test
