@@ -1,7 +1,5 @@
 package com.soundcloud.android.tracks;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
@@ -15,11 +13,8 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
-import rx.observers.TestSubscriber;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 public class TrackStorageTest extends StorageIntegrationTest {
 
@@ -127,34 +122,5 @@ public class TrackStorageTest extends StorageIntegrationTest {
         PropertySet description = storage.loadTrackDescription(track.getUrn()).toBlocking().single();
 
         assertThat(description).isEqualTo(PropertySet.from(TrackProperty.DESCRIPTION.bind("description123")));
-    }
-
-    @Test
-    public void availableTracksReturnsEmptyWhenStorageIsEmpty() {
-        final TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
-
-        storage.availableTracks(singletonList(Urn.forTrack(133L))).subscribe(subscriber);
-
-        subscriber.assertValue(Collections.<Urn>emptyList());
-    }
-
-    @Test
-    public void availableTracksReturnsEmptyWhenNoneIsPresent() {
-        final TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
-        testFixtures().insertTrack();
-
-        storage.availableTracks(singletonList(Urn.forTrack(731982L))).subscribe(subscriber);
-
-        subscriber.assertValue(Collections.<Urn>emptyList());
-    }
-
-    @Test
-    public void availableTracksReturnsPresentTracks() {
-        final TestSubscriber<List<Urn>> subscriber = new TestSubscriber<>();
-        ApiTrack apiTrack = testFixtures().insertTrack();
-
-        storage.availableTracks(asList(apiTrack.getUrn(), Urn.forTrack(731982L))).subscribe(subscriber);
-
-        subscriber.assertValue(singletonList(apiTrack.getUrn()));
     }
 }

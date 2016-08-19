@@ -1,13 +1,8 @@
 package com.soundcloud.android.tracks;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -23,11 +18,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.observers.TestSubscriber;
+import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
-import java.util.List;
-import java.util.Map;
+import android.support.annotation.NonNull;
 
 public class TrackRepositoryTest extends AndroidUnitTest {
 
@@ -46,7 +40,7 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     @Mock private AccountOperations accountOperations;
     @Mock private SyncInitiator syncInitiator;
 
-    private TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
+    private TestObserver<PropertySet> observer = new TestObserver<>();
 
     @Before
     public void setUp() {
@@ -61,49 +55,44 @@ public class TrackRepositoryTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tracksLoadAvailableTracksFromStorage() {
-        final List<Urn> requestedTracks = singletonList(trackUrn);
-        final List<Urn> availableTracks = singletonList(trackUrn);
-        final Map<Urn, PropertySet> syncedTrackProperties = singletonMap(trackUrn, track);
+    public void trackReturnsTrackPropertySetByUrnWithLoggedInUserUrn() throws Exception {
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(getSuccessResult()));
+        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
 
-        when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
-        when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(syncedTrackProperties));
+        trackRepository.track(trackUrn).subscribe(observer);
 
-        trackRepository.track(trackUrn).subscribe(subscriber);
+        assertThat(observer.getOnNextEvents()).containsExactly(track);
+    }
 
-        subscriber.assertValue(track);
-        verifyNoMoreInteractions(syncInitiator);
+    @NonNull
+    private SyncJobResult getSuccessResult() {
+        return SyncJobResult.success("action", true);
     }
 
     @Test
-    public void tracksSyncsMissingTracks() {
-        final List<Urn> requestedTracks = singletonList(trackUrn);
-        final List<Urn> availableTracks = emptyList();
+    public void trackUsesSyncerToBackfillMissingTrack() {
         final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
-        final Map<Urn, PropertySet> actualTrackProperties = singletonMap(trackUrn, syncedTrack);
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(getSuccessResult()));
+        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(PropertySet.create()),
+                                                          Observable.just(syncedTrack));
 
-        when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
-        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Observable.just(getSuccessResult()));
-        when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(actualTrackProperties));
+        trackRepository.track(trackUrn).subscribe(observer);
 
-        trackRepository.track(trackUrn).subscribe(subscriber);
-
-        subscriber.assertValue(syncedTrack);
+        assertThat(observer.getOnNextEvents()).containsExactly(syncedTrack);
+        verify(syncInitiator, times(2)).syncTrack(trackUrn);
     }
 
     @Test
-    public void trackReturnsEmptyWhenLoadingFailed() {
-        final List<Urn> requestedTracks = singletonList(trackUrn);
-        final List<Urn> availableTracks = emptyList();
-        final Map<Urn, PropertySet> syncedTracks = emptyMap();
+    public void trackUsesSyncerToBackfillErrorOnLoad() {
+        final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(getSuccessResult()));
+        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.<PropertySet>error(new NullPointerException()),
+                                                          Observable.just(syncedTrack));
 
-        when(trackStorage.availableTracks(requestedTracks)).thenReturn(Observable.just(availableTracks));
-        when(syncInitiator.batchSyncTracks(requestedTracks)).thenReturn(Observable.just(getSuccessResult()));
-        when(trackStorage.loadTracks(requestedTracks)).thenReturn(Observable.just(syncedTracks));
+        trackRepository.track(trackUrn).subscribe(observer);
 
-        trackRepository.track(trackUrn).subscribe(subscriber);
-
-        subscriber.assertValue(PropertySet.create());
+        assertThat(observer.getOnNextEvents()).containsExactly(syncedTrack);
+        verify(syncInitiator).syncTrack(trackUrn);
     }
 
     @Test
@@ -112,9 +101,9 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(trackDescription));
 
-        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(subscriber);
+        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(observer);
 
-        final PropertySet first = subscriber.getOnNextEvents().get(0);
+        final PropertySet first = observer.getOnNextEvents().get(0);
         assertThat(first.get(PlayableProperty.TITLE)).isEqualTo(TITLE);
         assertThat(first.get(PlayableProperty.CREATOR_NAME)).isEqualTo(CREATOR);
         assertThat(first.get(TrackProperty.DESCRIPTION)).isEqualTo(DESCRIPTION);
@@ -126,14 +115,11 @@ public class TrackRepositoryTest extends AndroidUnitTest {
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
         when(trackStorage.loadTrackDescription(trackUrn)).thenReturn(Observable.just(trackDescription));
 
-        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(subscriber);
+        trackRepository.fullTrackWithUpdate(trackUrn).subscribe(observer);
 
         final PropertySet propertySet = track.merge(trackDescription);
-        assertThat(subscriber.getOnNextEvents()).containsExactly(propertySet, propertySet);
+        assertThat(observer.getOnNextEvents()).containsExactly(propertySet, propertySet);
         verify(trackStorage, times(2)).loadTrack(trackUrn);
     }
 
-    private SyncJobResult getSuccessResult() {
-        return SyncJobResult.success("action", true);
-    }
 }

@@ -1,87 +1,75 @@
 package com.soundcloud.android.playback.playqueue;
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageResource;
-import com.soundcloud.android.image.SimpleImageResource;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlayQueueItem;
-import com.soundcloud.android.tracks.TieredTracks;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 
 class PlayQueueUIItem {
 
-    private final PlayQueueItem playQueueItem;
-    private final TrackItem trackItem;
-    private final int uniqueId;
-    private final int statusLabelId;
+    private final long id;
+    private final Urn urn;
+    private final String title;
+    private final String creator;
+    private final boolean blocked;
+    private final int statusLableId;
     private final ImageResource imageResource;
+    private final TrackItem trackItem;
+
     private boolean isInRepeatMode;
     private boolean isPlaying;
     private boolean isDraggable;
 
-    public PlayQueueUIItem(PlayQueueItem playQueueItem,
+    public PlayQueueUIItem(long id,
+                           Urn urn,
+                           String title,
+                           String creator,
+                           boolean blocked,
+                           int statusLableId,
+                           ImageResource imageResource,
                            TrackItem trackItem,
-                           int uniqueId,
-                           int statusLabelId,
-                           ImageResource imageResource) {
-        this.playQueueItem = playQueueItem;
-        this.trackItem = trackItem;
-        this.uniqueId = uniqueId;
-        this.statusLabelId = statusLabelId;
+                           boolean isInRepeatMode) {
+
+        this.id = id;
+        this.urn = urn;
+        this.title = title;
+        this.creator = creator;
+        this.blocked = blocked;
+        this.statusLableId = statusLableId;
         this.imageResource = imageResource;
-        this.isInRepeatMode = false;
-        this.isPlaying = false;
-        this.isDraggable = false;
+        this.trackItem = trackItem;
+        this.isInRepeatMode = isInRepeatMode;
     }
 
-    static PlayQueueUIItem from(PlayQueueItem playQueueItem, TrackItem trackItem) {
-        return new PlayQueueUIItem(
-                playQueueItem,
-                trackItem,
-                System.identityHashCode(playQueueItem),
-                createStatusLabelId(trackItem),
-                getImageResource(trackItem)
-        );
-    }
-
-    public TrackItem getTrackItem() {
-        return trackItem;
-    }
-
-    public PlayQueueItem getPlayQueueItem() {
-        return playQueueItem;
-    }
-
-    public long getUniqueId() {
-        return uniqueId;
+    public long getId() {
+        return id;
     }
 
     public Urn getUrn() {
-        return playQueueItem.getUrn();
+        return urn;
     }
 
     public String getTitle() {
-        return trackItem.getTitle();
+        return title;
     }
 
     public String getCreator() {
-        return trackItem.getCreatorName();
+        return creator;
     }
 
-    public int getStatusLabelId() {
-        return statusLabelId;
+    public int getStatusLableId() {
+        return statusLableId;
     }
 
     public boolean isBlocked() {
-        return trackItem.isBlocked();
+        return blocked;
     }
 
     public ImageResource getImageResource() {
         return imageResource;
+    }
+
+    public TrackItem getTrackItem() {
+        return trackItem;
     }
 
     public boolean isInRepeatMode() {
@@ -106,27 +94,5 @@ class PlayQueueUIItem {
 
     public void setDraggable(boolean draggable) {
         isDraggable = draggable;
-    }
-
-    private static ImageResource getImageResource(TrackItem trackItem) {
-        Urn urn = trackItem.getUrn();
-        PropertySet propertySet = trackItem.getSource();
-        Optional<String> templateUrl = propertySet.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE,
-                                                             Optional.<String>absent());
-        return SimpleImageResource.create(urn, templateUrl);
-    }
-
-    private static int createStatusLabelId(TrackItem trackItem) {
-        if (trackItem.isBlocked()) {
-            return R.layout.not_available;
-        } else if (TieredTracks.isHighTierPreview(trackItem)) {
-            return R.layout.preview;
-        } else if (TieredTracks.isFullHighTierTrack(trackItem)) {
-            return R.layout.go_label;
-        } else if (trackItem.isPrivate()) {
-            return R.layout.private_label;
-        } else {
-            return Consts.NOT_SET;
-        }
     }
 }

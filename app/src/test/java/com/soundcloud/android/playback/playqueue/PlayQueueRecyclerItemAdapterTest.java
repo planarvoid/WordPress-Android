@@ -1,17 +1,18 @@
 package com.soundcloud.android.playback.playqueue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import android.support.annotation.NonNull;
 
 public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
 
@@ -64,11 +65,16 @@ public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
         assertThat(playQueueItem3.isInRepeatMode()).isTrue();
     }
 
-    public PlayQueueUIItem getPlayQueueItem(int uniqueId) {
-        final Urn track = Urn.forTrack(uniqueId);
-        final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version", Optional.<AdData>absent(), false, Urn.NOT_SET, Urn.NOT_SET, false);
-        final TrackItem trackItem = new TrackItem(TestPropertySets.expectedTrackForListItem(track));
-        final int someReourceId = 123;
-        return new PlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someReourceId, null);
+    @NonNull
+    public PlayQueueUIItem getPlayQueueItem(int id) {
+        return new PlayQueueUIItem(id,
+                                   Urn.forTrack(1),
+                                   "title1",
+                                   "creator1",
+                                   false,
+                                   1,
+                                   mock(SimpleImageResource.class),
+                                   TrackItem.from(TestPropertySets.fromApiTrack()),
+                                   false);
     }
 }

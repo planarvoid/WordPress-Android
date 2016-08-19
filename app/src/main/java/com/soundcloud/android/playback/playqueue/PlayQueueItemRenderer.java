@@ -69,8 +69,8 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
                                 PlayQueueUIItem playQueueUIItem) {
         if (playQueueUIItem.isPlaying()) {
             statusPlaceHolder.addView(View.inflate(itemView.getContext(), R.layout.playing, null));
-        } else if (playQueueUIItem.getStatusLabelId() != -1) {
-            statusPlaceHolder.addView(View.inflate(itemView.getContext(), playQueueUIItem.getStatusLabelId(), null));
+        } else if (playQueueUIItem.getStatusLableId() != -1) {
+            statusPlaceHolder.addView(View.inflate(itemView.getContext(), playQueueUIItem.getStatusLableId(), null));
         }
 
     }

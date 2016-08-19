@@ -696,12 +696,6 @@ public class PlayQueueManager implements OriginProvider {
         }
     }
 
-    public void removeItem(PlayQueueItem item) {
-        playQueue.removeItem(item);
-        eventBus.publish(EventQueue.PLAY_QUEUE,
-                         PlayQueueEvent.fromQueueUpdateRemoved(getCollectionUrn()));
-    }
-
     public void removeItemAtPosition(int position) {
         playQueue.removeItemAtPosition(position);
         eventBus.publish(EventQueue.PLAY_QUEUE,
