@@ -407,8 +407,13 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData experiment(String layerTrackingName, int variantId) {
-        addToPayload(layerTrackingName, variantId);
+    public EventLoggerEventData experiment(String layerTrackingName, Integer value) {
+        addToPayload(layerTrackingName, value);
+        return this;
+    }
+
+    public EventLoggerEventData experiment(String key, String value) {
+        addToPayload(key, value);
         return this;
     }
 

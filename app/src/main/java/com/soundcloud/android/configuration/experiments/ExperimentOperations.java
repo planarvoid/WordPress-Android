@@ -2,6 +2,7 @@ package com.soundcloud.android.configuration.experiments;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Joiner;
 import com.soundcloud.java.strings.Strings;
 
 import javax.inject.Inject;
@@ -15,6 +16,7 @@ import java.util.Map;
 public class ExperimentOperations {
 
     private static final String EXPERIMENT_PREFIX = "exp_";
+    private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
     private final ExperimentStorage experimentStorage;
     private final ActiveExperiments activeExperiments;
@@ -62,6 +64,7 @@ public class ExperimentOperations {
         return Optional.absent();
     }
 
+    @Deprecated
     public Map<String, Integer> getTrackingParams() {
         HashMap<String, Integer> params = new HashMap<>();
         for (Layer layer : assignment.getLayers()) {
@@ -70,6 +73,19 @@ public class ExperimentOperations {
             }
         }
         return params;
+    }
+
+    public ArrayList<Integer> getActiveVariants() {
+
+        ArrayList<Integer> activeVariants = new ArrayList<>();
+
+        for (Layer layer : assignment.getLayers()) {
+            if (activeExperiments.isActive(layer)) {
+                activeVariants.add(layer.getVariantId());
+            }
+        }
+
+        return activeVariants;
     }
 
     public void forceExperimentVariation(ExperimentConfiguration experiment, String variation) {
