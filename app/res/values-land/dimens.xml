@@ -34,4 +34,7 @@
     <dimen name="go_onboarding_settings_tooltip_margin_top">28dp</dimen>
     <dimen name="go_onboarding_settings_tooltip_margin_bottom">16dp</dimen>
 
+    <!-- Stations -->
+    <dimen name="stations_home_artwork_size">104dp</dimen>
+
 </resources>

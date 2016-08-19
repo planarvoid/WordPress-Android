@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -20,55 +19,27 @@
 
         <LinearLayout
             android:id="@+id/header_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/stations_blur_overlay"
+            style="@style/StationInfo.HeaderContainer"
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <FrameLayout
-                android:id="@+id/artwork_container"
-                android:layout_width="168dp"
-                android:layout_height="168dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="32dp"
-                android:scaleType="centerCrop">
-
-                <com.soundcloud.android.view.SquareImageView
-                    android:id="@+id/artwork"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:background="@color/ak_light_gray" />
-
-                <ImageButton
-                    android:id="@+id/btn_play"
-                    style="@style/StationInfo.PlayButton"
-                    android:layout_gravity="center" />
-            </FrameLayout>
+            <include layout="@layout/station_info_artwork" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/station_type"
-                style="@style/PlayerContext"
+                style="@style/StationInfo.StationContext"
                 android:layout_marginTop="16dp"
-                android:drawableLeft="@drawable/ic_station"
-                android:textColor="@color/white"
                 tools:text="Track station based on" />
 
             <com.soundcloud.android.view.AutoResizeTextView
                 android:id="@+id/station_title"
                 style="@style/StationInfo.Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                app:minTextSize="16sp"
-                app:resizeStep="4sp"
                 tools:text="LosoMio #Similar Sounds" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/station_desc"
                 style="@style/StationInfo.Description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:layout_marginTop="24dp"
                 android:gravity="center_horizontal"

@@ -207,4 +207,7 @@
     <dimen name="collection_recently_played_item_size">128dp</dimen>
     <dimen name="collection_default_margin">16dp</dimen>
 
+    <!-- Stations -->
+    <dimen name="stations_home_artwork_size">164dp</dimen>
+
 </resources>

@@ -102,6 +102,13 @@
 
     <style name="StationInfo" />
 
+    <style name="StationInfo.HeaderContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/stations_blur_overlay</item>
+        <item name="android:paddingTop">32dp</item>
+    </style>
+
     <style name="StationInfo.Title" parent="TextAppearance.ScAppCompat.Large">
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/white</item>
@@ -109,10 +116,16 @@
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginRight">16dp</item>
         <item name="android:singleLine">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="minTextSize">16sp</item>
+        <item name="resizeStep">4sp</item>
     </style>
 
     <style name="StationInfo.Description" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginRight">16dp</item>
@@ -137,6 +150,12 @@
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:clipToPadding">false</item>
         <item name="android:overScrollMode">never</item>
+    </style>
+
+    <style name="StationInfo.StationContext" parent="ShrinkWrap.Secondary.Small">
+        <item name="android:drawablePadding">6dp</item>
+        <item name="android:drawableLeft">@drawable/ic_station</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="StationInfo.TrackHeader">
