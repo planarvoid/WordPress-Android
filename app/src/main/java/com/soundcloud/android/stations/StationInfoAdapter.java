@@ -30,7 +30,7 @@ class StationInfoAdapter extends PagingRecyclerItemAdapter<StationInfoItem, Stat
 
     StationInfoAdapter(StationInfoClickListener clickListener,
                        StationInfoTracksBucketRenderer bucketRenderer,
-                       @Provided StationInfoItemRendererFactory headerRenderer) {
+                       @Provided StationInfoHeaderRendererFactory headerRenderer) {
         super(new CellRendererBinding<>(StationTracksBucket.ordinal(), bucketRenderer),
               new CellRendererBinding<>(StationHeader.ordinal(), headerRenderer.create(clickListener)));
 

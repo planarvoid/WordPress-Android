@@ -21,7 +21,8 @@ public enum Flag {
     HOLISTIC_TRACKING(BuildConfig.HOLISTIC_TRACKING),
     EXPLORE(BuildConfig.EXPLORE),
     PLAY_QUEUE(BuildConfig.PLAY_QUEUE),
-    STATION_INFO_PAGE(BuildConfig.STATION_PAGE);
+    STATION_INFO_PAGE(BuildConfig.STATION_PAGE),
+    LIKED_STATIONS(BuildConfig.LIKED_STATIONS);
 
     private final boolean value;
 

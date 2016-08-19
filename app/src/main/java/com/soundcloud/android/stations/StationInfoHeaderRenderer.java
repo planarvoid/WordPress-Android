@@ -10,6 +10,8 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleBlurredImageLoader;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListener;
 
 import android.content.res.Resources;
@@ -28,7 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @AutoFactory
-class StationInfoItemRenderer implements CellRenderer<StationInfo> {
+class StationInfoHeaderRenderer implements CellRenderer<StationInfo> {
 
     private final View.OnClickListener playButtonClickListener = new View.OnClickListener() {
         @Override
@@ -46,15 +48,18 @@ class StationInfoItemRenderer implements CellRenderer<StationInfo> {
 
     private final StationInfoClickListener clickListener;
     private final SimpleBlurredImageLoader simpleBlurredImageLoader;
+    private final FeatureFlags featureFlags;
     private final ImageOperations imageOperations;
     private final Resources resources;
 
-    StationInfoItemRenderer(StationInfoClickListener listener,
-                            @Provided SimpleBlurredImageLoader simpleBlurredImageLoader,
-                            @Provided Resources resources,
-                            @Provided ImageOperations imageOperations) {
+    StationInfoHeaderRenderer(StationInfoClickListener listener,
+                              @Provided SimpleBlurredImageLoader simpleBlurredImageLoader,
+                              @Provided Resources resources,
+                              @Provided FeatureFlags featureFlags,
+                              @Provided ImageOperations imageOperations) {
         this.clickListener = listener;
         this.simpleBlurredImageLoader = simpleBlurredImageLoader;
+        this.featureFlags = featureFlags;
         this.imageOperations = imageOperations;
         this.resources = resources;
     }
@@ -78,9 +83,25 @@ class StationInfoItemRenderer implements CellRenderer<StationInfo> {
         playButton.setVisibility(View.VISIBLE);
         playButton.setOnClickListener(playButtonClickListener);
 
-        final ToggleButton likeButton = ButterKnife.findById(itemView, R.id.toggle_like);
-        likeButton.setChecked(info.isLiked());
-        likeButton.setOnClickListener(toggleLikeClickListener);
+        final boolean likeStationEnabled = featureFlags.isEnabled(Flag.LIKED_STATIONS);
+
+        toggleLikeStationVisibility(itemView, likeStationEnabled);
+        if (likeStationEnabled) {
+            final ToggleButton likeButton = ButterKnife.findById(itemView, R.id.toggle_like);
+            likeButton.setChecked(info.isLiked());
+            likeButton.setOnClickListener(toggleLikeClickListener);
+        }
+    }
+
+    private void toggleLikeStationVisibility(View itemView, boolean isEnabled) {
+        final View view = itemView.findViewById(R.id.station_engagements_bar);
+        final int visibility = isEnabled ? View.VISIBLE : View.GONE;
+
+        if (view != null) {
+            view.setVisibility(visibility);
+        } else {
+            itemView.findViewById(R.id.toggle_like).setVisibility(visibility);
+        }
     }
 
     private void bindTextViews(StationInfo info, View itemView) {

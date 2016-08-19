@@ -5,21 +5,18 @@ import static org.assertj.android.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.SimpleBlurredImageLoader;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Scheduler;
 
-import android.graphics.Bitmap;
 import android.support.annotation.IdRes;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,25 +24,22 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class StationInfoItemRendererTest extends AndroidUnitTest {
+public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
     @Mock private StationInfoAdapter.StationInfoClickListener listener;
     @Mock private SimpleBlurredImageLoader simpleBlurredImageLoader;
+    @Mock private FeatureFlags featureFlags;
 
     private View itemView;
-    private StationInfoItemRenderer renderer;
+    private StationInfoHeaderRenderer renderer;
 
     @Before
     public void setUp() throws Exception {
         itemView = LayoutInflater.from(context()).inflate(
                 R.layout.station_info_view, new FrameLayout(context()), false);
-        renderer = new StationInfoItemRenderer(listener, simpleBlurredImageLoader, resources(), imageOperations);
-        when(imageOperations.blurredPlayerArtwork(eq(resources()),
-                                                  any(StationInfo.class),
-                                                  any(Scheduler.class),
-                                                  any(Scheduler.class)))
-                .thenReturn(Observable.<Bitmap>empty());
+        renderer = new StationInfoHeaderRenderer(listener, simpleBlurredImageLoader, resources(),
+                                                 featureFlags, imageOperations);
     }
 
     @Test

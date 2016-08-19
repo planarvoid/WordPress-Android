@@ -49,12 +49,10 @@
     </FrameLayout>
 
     <LinearLayout
-        style="@style/NewPlaylistActionContainer"
+        android:id="@+id/station_engagements_bar"
+        style="@style/StationInfo.EngagementsBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:gravity="center_vertical|right"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
         <com.soundcloud.android.view.CustomFontToggleButton
             android:id="@+id/toggle_like"

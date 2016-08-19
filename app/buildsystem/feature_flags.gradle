@@ -18,7 +18,8 @@ enum Feature {
   HOLISTIC_TRACKING,
   ALBUMS,
   EXPLORE,
-  STATION_PAGE;
+  STATION_PAGE,
+  LIKED_STATIONS;
 }
 
 android {
@@ -34,9 +35,10 @@ android {
     buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), FALSE
     buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
     buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), FALSE
-    buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), FALSE
     buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLORE.name(), FALSE
+    buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), FALSE
+    buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), FALSE
   }
 
   buildTypes {
