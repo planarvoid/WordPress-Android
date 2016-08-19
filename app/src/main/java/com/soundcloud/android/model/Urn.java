@@ -2,6 +2,7 @@ package com.soundcloud.android.model;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
@@ -12,6 +13,13 @@ import android.support.annotation.Nullable;
 import java.util.Arrays;
 
 public final class Urn extends ContentStringHelper<Urn> {
+
+    public static final Predicate<Urn> IS_NOT_TRACK = new Predicate<Urn>() {
+        @Override
+        public boolean apply(Urn input) {
+            return !input.isTrack();
+        }
+    };
 
     public static final Urn NOT_SET = new Urn(UrnNamespace.SOUNDCLOUD, UrnCollection.UNKNOWN, Consts.NOT_SET);
 

@@ -18,6 +18,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -141,6 +142,26 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         assertThat(playQueue).hasSize(4);
         assertTrackQueueItem(playQueue.getPlayQueueItem(0), Urn.forTrack(1L));
         assertTrackQueueItem(playQueue.getPlayQueueItem(2), Urn.forTrack(2L));
+    }
+
+    @Test
+    public void removeItem() {
+        playQueue = PlayQueue.fromPlayQueueItems(Lists.<PlayQueueItem>newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2));
+
+        playQueue.removeItem(TRACK_QUEUE_ITEM_1);
+
+        final List<PlayQueueItem> expected = Collections.<PlayQueueItem>singletonList(TRACK_QUEUE_ITEM_2);
+        assertThat(playQueue).isEqualTo(PlayQueue.fromPlayQueueItems(expected));
+    }
+
+    @Test
+    public void removeItemIgnoreMissingItem() {
+        playQueue = PlayQueue.fromPlayQueueItems(Lists.<PlayQueueItem>newArrayList(TRACK_QUEUE_ITEM_1));
+
+        playQueue.removeItem(TRACK_QUEUE_ITEM_2);
+
+        final List<PlayQueueItem> expected = Collections.<PlayQueueItem>singletonList(TRACK_QUEUE_ITEM_1);
+        assertThat(playQueue).isEqualTo(PlayQueue.fromPlayQueueItems(expected));
     }
 
     @Test

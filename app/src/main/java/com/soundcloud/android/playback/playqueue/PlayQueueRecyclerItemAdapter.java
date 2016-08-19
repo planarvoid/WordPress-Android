@@ -33,7 +33,7 @@ class PlayQueueRecyclerItemAdapter
 
     @Override
     public long getItemId(int position) {
-        return items.get(position).getId();
+        return items.get(position).getUniqueId();
     }
 
     @Override
