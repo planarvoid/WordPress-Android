@@ -323,7 +323,7 @@ public class TestUser {
             "ChartsTests",
             "soundcloud.Android.ChartsTests@tests.soundcloud",
             "SoundCloudTest2016",
-            "1-8742-248182220-15821b020aca9a9",
+            "1-21686-248182220-43bc24e62ef77d",
             248182220,
             false);
 
