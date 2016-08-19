@@ -2,7 +2,6 @@ package com.soundcloud.android.configuration.experiments;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Joiner;
 import com.soundcloud.java.strings.Strings;
 
 import javax.inject.Inject;
