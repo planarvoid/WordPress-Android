@@ -261,10 +261,10 @@ public class PlaySessionController {
             final PlayQueueItem playQueueItem = event.getCurrentPlayQueueItem();
             if (playQueueItem.isTrack()) {
                 if (castConnectionHelper.isCasting()) {
-                    if (shouldPlayTrack(playQueueItem.getUrn())) {
+                    if (shouldPlayTrack(playQueueItem.getUrn(), event)) {
                         playCurrent();
                     }
-                } else if (shouldPlayTrack(playQueueItem.getUrn()) || playSessionStateProvider.isInErrorState()) {
+                } else if (shouldPlayTrack(playQueueItem.getUrn(), event) || playSessionStateProvider.isInErrorState()) {
                     playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
                     playCurrent();
                 }
@@ -276,8 +276,9 @@ public class PlaySessionController {
             lastKnownPlayQueueTrackUrn = playQueueItem.getUrnOrNotSet();
         }
 
-        private boolean shouldPlayTrack(Urn newTrack) {
-            return playSessionStateProvider.isPlaying() && !lastKnownPlayQueueTrackUrn.equals(newTrack);
+        private boolean shouldPlayTrack(Urn newTrack, CurrentPlayQueueItemEvent event) {
+            return playSessionStateProvider.isPlaying()
+                    && (event.isRepeat() || !lastKnownPlayQueueTrackUrn.equals(newTrack));
         }
 
     }

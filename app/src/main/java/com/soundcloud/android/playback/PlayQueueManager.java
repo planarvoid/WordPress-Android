@@ -406,7 +406,10 @@ public class PlayQueueManager implements OriginProvider {
 
     private boolean repeatCurrentPlayableItemInternal() {
         currentItemIsUserTriggered = false;
-        publishPositionUpdate();
+        eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
+                         CurrentPlayQueueItemEvent.fromPositionRepeat(getCurrentPlayQueueItem(),
+                                                                       getCollectionUrn(),
+                                                                       getCurrentPosition()));
         return true;
     }
 

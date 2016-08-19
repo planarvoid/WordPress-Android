@@ -8,6 +8,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 public abstract class CurrentPlayQueueItemEvent {
     private static final int NEW_QUEUE = 0;
     private static final int POSITION_CHANGED = 1;
+    private static final int POSITION_REPEAT = 2;
 
     public static CurrentPlayQueueItemEvent fromNewQueue(PlayQueueItem playQueueItem, Urn collectionUrn, int position) {
         return new AutoValue_CurrentPlayQueueItemEvent(NEW_QUEUE, playQueueItem, collectionUrn, position);
@@ -19,7 +20,17 @@ public abstract class CurrentPlayQueueItemEvent {
         return new AutoValue_CurrentPlayQueueItemEvent(POSITION_CHANGED, playQueueItem, collectionUrn, position);
     }
 
+    public static CurrentPlayQueueItemEvent fromPositionRepeat(PlayQueueItem playQueueItem,
+                                                                Urn collectionUrn,
+                                                                int position) {
+        return new AutoValue_CurrentPlayQueueItemEvent(POSITION_REPEAT, playQueueItem, collectionUrn, position);
+    }
+
     public abstract int getKind();
+
+    public boolean isRepeat() {
+        return getKind() == POSITION_REPEAT;
+    }
 
     public abstract PlayQueueItem getCurrentPlayQueueItem();
 
