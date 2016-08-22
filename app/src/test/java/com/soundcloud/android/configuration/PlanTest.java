@@ -3,7 +3,6 @@ package com.soundcloud.android.configuration;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.configuration.UserPlan.Upsell;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -30,8 +29,7 @@ public class PlanTest {
 
     @Test
     public void shouldMapToPlanCollectionFromIds() {
-        assertThat(Plan.fromUpsells(
-                asList(new Upsell("unknown", 0), new Upsell("mid_tier", 0), new Upsell("high_tier", 30))))
+        assertThat(Plan.fromIds(asList("unknown", "mid_tier", "high_tier")))
                 .containsExactly(Plan.MID_TIER, Plan.HIGH_TIER);
     }
 

@@ -5,7 +5,6 @@ import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.configuration.FeatureName;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.configuration.PlanStorage;
-import com.soundcloud.android.configuration.UserPlan.Upsell;
 import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
@@ -34,15 +33,13 @@ public class ConfigurationHelper {
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
     private static final String TAG = "TestRunner";
 
-    private static final Upsell HIGH_TIER = new Upsell(Plan.HIGH_TIER.planId, 0);
-
     public static void enableOfflineContent(Context context) {
         enableFeature(context, FeatureName.OFFLINE_SYNC);
     }
 
     public static void enableUpsell(final Context context) {
         final PlanStorage planStorage = getPlanStorage(context);
-        planStorage.updateUpsells(Collections.singletonList(HIGH_TIER));
+        planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
         disableFeature(context, FeatureName.OFFLINE_SYNC);
         disableFeature(context, FeatureName.REMOVE_AUDIO_ADS);
 
@@ -51,7 +48,7 @@ public class ConfigurationHelper {
                        @Override
                        public void call(List<Plan> plans) {
                            if (!planStorage.getUpsells().contains(Plan.HIGH_TIER)) {
-                               planStorage.updateUpsells(Collections.singletonList(HIGH_TIER));
+                               planStorage.updateUpsells(Collections.singletonList(Plan.HIGH_TIER));
                            }
                        }
                    }).subscribe();

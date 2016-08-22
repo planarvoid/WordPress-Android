@@ -24,7 +24,8 @@
         <com.soundcloud.android.playback.ui.view.RoundedColorButton
             android:id="@+id/action_button"
             android:layout_marginBottom="8dp"
-            style="@style/ListItemNotificationButton" />
+            style="@style/ListItemNotificationButton"
+            android:text="@string/upsell_upgrade_button" />
 
     </LinearLayout>
 

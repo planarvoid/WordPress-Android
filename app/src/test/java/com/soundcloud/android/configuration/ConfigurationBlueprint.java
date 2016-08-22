@@ -1,6 +1,5 @@
 package com.soundcloud.android.configuration;
 
-import com.soundcloud.android.configuration.UserPlan.Upsell;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
@@ -19,7 +18,7 @@ public class ConfigurationBlueprint {
         public Object createInstance() {
             return Configuration.builder()
                                 .features(createFeatures())
-                                .userPlan(new UserPlan("free", Collections.singletonList(new Upsell("high_tier", 30))))
+                                .userPlan(new UserPlan("free", Collections.singletonList("mid_tier")))
                                 .assignment(new Assignment(createLayers()))
                                 .deviceManagement(new DeviceManagement(false, true))
                                 .selfDestruct(false)

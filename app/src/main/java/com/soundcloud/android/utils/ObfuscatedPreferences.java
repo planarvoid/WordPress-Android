@@ -14,8 +14,7 @@ import java.util.WeakHashMap;
 
 /**
  * SharedPreferences implementation that transparently obfuscates the stored values.
- * Supports: String, StringSet, Boolean
- * Stores value un-obfuscated: Int
+ * Only supports: String, StringSet, Boolean
  */
 public class ObfuscatedPreferences implements SharedPreferences {
 
@@ -84,7 +83,7 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
     @Override
     public int getInt(String key, int defValue) {
-        return wrappedPrefs.getInt(obfuscator.obfuscate(key), defValue);
+        throw notImplemented();
     }
 
     @Override
@@ -182,8 +181,7 @@ public class ObfuscatedPreferences implements SharedPreferences {
 
         @Override
         public Editor putInt(String key, int value) {
-            wrappedEditor.putInt(obfuscator.obfuscate(key), value);
-            return this;
+            throw notImplemented();
         }
 
         @Override

@@ -29,7 +29,7 @@ public class FeatureOperations {
 
     public void updatePlan(UserPlan userPlan) {
         planStorage.updatePlan(userPlan.currentPlan);
-        planStorage.updateUpsells(userPlan.planUpsells);
+        planStorage.updateUpsells(userPlan.upsells);
     }
 
     public Plan getCurrentPlan() {
@@ -75,24 +75,16 @@ public class FeatureOperations {
         return planStorage.getUpsells().contains(Plan.HIGH_TIER);
     }
 
-    public boolean isHighTierTrialEligible() {
-        return planStorage.getHighTierTrialDays() != 0;
-    }
-
-    public int getHighTierTrialDays() {
-        return planStorage.getHighTierTrialDays();
-    }
-
     public Observable<Boolean> offlineContentEnabled() {
         return getUpdates(FeatureName.OFFLINE_SYNC);
     }
 
-    public Observable<Boolean> developmentMenuEnabled() {
-        return getUpdates(FeatureName.DEVELOPMENT_MENU);
-    }
-
     private Observable<Boolean> getUpdates(String name) {
         return featureStorage.getUpdates(name);
+    }
+
+    public Observable<Boolean> developmentMenuEnabled() {
+        return getUpdates(FeatureName.DEVELOPMENT_MENU);
     }
 
 }

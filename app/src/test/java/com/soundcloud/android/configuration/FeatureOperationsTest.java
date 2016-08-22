@@ -202,17 +202,4 @@ public class FeatureOperationsTest {
         assertThat(featureOperations.hasGoPlan()).isFalse();
     }
 
-    @Test
-    public void isHighTierTrialEligibleIsFalseIfTrialDaysIsZero() {
-        when(planStorage.getHighTierTrialDays()).thenReturn(0);
-
-        assertThat(featureOperations.isHighTierTrialEligible()).isFalse();
-    }
-
-    @Test
-    public void isHighTierTrialEligibleIsTrueIfTrialDaysIsNonZero() {
-        when(planStorage.getHighTierTrialDays()).thenReturn(30);
-
-        assertThat(featureOperations.isHighTierTrialEligible()).isTrue();
-    }
 }
