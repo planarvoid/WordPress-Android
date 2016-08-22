@@ -6,6 +6,7 @@ import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerClic
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerDismiss;
 import static com.soundcloud.android.events.FacebookInvitesEvent.forListenerShown;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Navigator;
@@ -144,10 +145,9 @@ public class SoundStreamPresenter extends TimelinePresenter<TypedListItem> imple
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingTrackSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                eventBus.queue(EventQueue.STREAM)
+                fireAndForget(eventBus.queue(EventQueue.STREAM)
                         .filter(FILTER_STREAM_REFRESH_EVENTS)
-                        .flatMap(continueWith(updateIndicatorFromMostRecent()))
-                        .subscribe()
+                        .flatMap(continueWith(updateIndicatorFromMostRecent())))
         );
     }
 

@@ -5,6 +5,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
 import static com.soundcloud.android.ApplicationModule.HIGH_PRIORITY;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.rx.PropertySetFunctions.mergeWith;
 
 import com.soundcloud.android.R;
@@ -64,7 +65,7 @@ class MetadataOperations {
     }
 
     void preload(final Urn trackUrn) {
-        metadata(trackUrn, false, Optional.<MediaMetadataCompat>absent()).subscribe();
+        fireAndForget(metadata(trackUrn, false, Optional.<MediaMetadataCompat>absent()));
     }
 
     private Observable<MediaMetadataCompat> adMediaMetadata() {

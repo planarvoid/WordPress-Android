@@ -2,6 +2,7 @@ package com.soundcloud.android.sync.timeline;
 
 import static com.soundcloud.android.rx.RxUtils.IS_VALID_TIMESTAMP;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -101,8 +102,7 @@ public abstract class TimelinePresenter<ItemT extends Timestamped>
     }
 
     private void refreshAndUpdateIndicator() {
-        operations.updatedTimelineItemsForStart()
-                  .flatMap(continueWith(updateIndicatorFromMostRecent()))
-                  .subscribe();
+        fireAndForget(operations.updatedTimelineItemsForStart()
+                  .flatMap(continueWith(updateIndicatorFromMostRecent())));
     }
 }
