@@ -14,7 +14,7 @@
 
     <include layout="@layout/player_gradient" />
 
-    <include layout="@layout/player_expanded_close_control" />
+    <include layout="@layout/player_expanded_top_bar" />
 
     <LinearLayout
         android:layout_width="match_parent"
