@@ -931,7 +931,9 @@
 
     <!-- __PLAYER -->
     <string name="playback_error_blocked">Not available in\nyour country</string>
-    <string name="playback_upsell_button">Unlock full track</string>
+    <string name="playback_upsell_button_1">Hear full track</string>
+    <string name="playback_upsell_button_2">Unlock preview</string>
+    <string name="playback_upsell_button_3">Unlock full track</string>
 
     <!-- __SEARCH -->
     <plurals name="search_premium_content_results_count">

@@ -33,21 +33,12 @@
         android:scaleType="center"
         android:visibility="gone" />
 
-    <FrameLayout
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/upsell_button"
+        style="@style/Upsell"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/high_tier_label">
+        android:layout_height="48dp"
+        android:layout_alignParentRight="true" />
 
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/upsell_button"
-            style="@style/Upsell"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:layout_gravity="right" />
-    </FrameLayout>
 
 </RelativeLayout>

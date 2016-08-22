@@ -225,7 +225,7 @@
     <style name="Upsell" parent="Widget.AppCompat.Button.Colored">
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:text">@string/playback_upsell_button</item>
+        <item name="android:text">@string/playback_upsell_button_1</item>
         <item name="android:padding">16dp</item>
         <item name="colorButtonNormal">@color/ak_sc_orange</item>
     </style>

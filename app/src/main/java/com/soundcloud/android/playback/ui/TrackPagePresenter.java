@@ -9,6 +9,7 @@ import com.soundcloud.android.ads.AdOverlayControllerFactory;
 import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.configuration.experiments.PlayerUpsellCopyExperiment;
 import com.soundcloud.android.configuration.experiments.ShareAsTextButtonExperiment;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -73,6 +74,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
     private final Resources resources;
     private final PlayerUpsellImpressionController upsellImpressionController;
     private final ShareAsTextButtonExperiment shareExperiment;
+    private final PlayerUpsellCopyExperiment upsellCopyExperiment;
     private final FeatureFlags featureFlags;
 
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
@@ -92,6 +94,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                               Resources resources,
                               PlayerUpsellImpressionController upsellImpressionController,
                               ShareAsTextButtonExperiment shareExperiment,
+                              PlayerUpsellCopyExperiment upsellCopyExperiment,
                               FeatureFlags featureFlags) {
         this.waveformOperations = waveformOperations;
         this.featureOperations = featureOperations;
@@ -107,6 +110,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         this.resources = resources;
         this.upsellImpressionController = upsellImpressionController;
         this.shareExperiment = shareExperiment;
+        this.upsellCopyExperiment = upsellCopyExperiment;
         this.featureFlags = featureFlags;
     }
 
@@ -149,6 +153,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         final View trackView = LayoutInflater.from(container.getContext())
                                              .inflate(R.layout.player_track_page, container, false);
         setupHolder(trackView);
+        getViewHolder(trackView).upsellButton.setText(upsellCopyExperiment.getUpsellCtaId());
         setupSkipListener(trackView, skipListener);
         return trackView;
     }
