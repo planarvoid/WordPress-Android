@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
@@ -34,6 +35,7 @@ public class MakeOfflineUpsellTest extends TrackingActivityTest<MainActivity> {
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
     }
 
+    @Ignore // FIXME: 22/08/16
     public void testLikesUpsellImpressionAndClick() {
         TrackLikesScreen trackLikesScreen = mainNavHelper.goToTrackLikes();
 
