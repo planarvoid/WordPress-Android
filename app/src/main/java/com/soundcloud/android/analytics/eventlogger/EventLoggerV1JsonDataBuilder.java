@@ -37,10 +37,13 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,6 +58,7 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String RICH_MEDIA_ERROR_EVENT = "rich_media_stream_error";
     private static final String RICH_MEDIA_STREAM_EVENT = "rich_media_stream";
     private static final String RICH_MEDIA_PERFORMANCE_EVENT = "rich_media_stream_performance";
+    private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
     private static final String BOOGALOO_VERSION = "v1.21.2";
 
@@ -514,8 +518,9 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private void addExperiments(EventLoggerEventData eventData) {
-        for (Map.Entry<String, Integer> pair : experimentOperations.getTrackingParams().entrySet()) {
-            eventData.experiment(pair.getKey(), pair.getValue());
+        ArrayList<Integer> activeVariants = experimentOperations.getActiveVariants();
+        if(activeVariants.size() > 0) {
+            eventData.experiment(EXPERIMENT_VARIANTS_KEY, Strings.joinOn(",").join(activeVariants));
         }
     }
 
