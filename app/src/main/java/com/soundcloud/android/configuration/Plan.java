@@ -1,5 +1,7 @@
 package com.soundcloud.android.configuration;
 
+import com.soundcloud.android.configuration.UserPlan.Upsell;
+
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -46,10 +48,21 @@ public enum Plan {
         }
     }
 
-    public static List<Plan> fromIds(Collection<String> planIds) {
-        final List<Plan> plans = new ArrayList<>(planIds.size());
-        for (String id : planIds) {
+    public static List<Plan> fromIds(Collection<String> ids) {
+        final List<Plan> plans = new ArrayList<>(ids.size());
+        for (String id : ids) {
             final Plan plan = Plan.fromId(id);
+            if (plan != UNDEFINED) {
+                plans.add(plan);
+            }
+        }
+        return plans;
+    }
+
+    public static List<Plan> fromUpsells(Collection<Upsell> upsells) {
+        final List<Plan> plans = new ArrayList<>(upsells.size());
+        for (Upsell upsell : upsells) {
+            final Plan plan = Plan.fromId(upsell.id);
             if (plan != UNDEFINED) {
                 plans.add(plan);
             }

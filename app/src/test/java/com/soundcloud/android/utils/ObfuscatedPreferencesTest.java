@@ -88,6 +88,15 @@ public class ObfuscatedPreferencesTest extends AndroidUnitTest {
     }
 
     @Test
+    public void obfuscatesKeyButNotValueForIntegers() {
+        preferences.edit().putInt(KEY, 12).apply();
+
+        verify(obfuscator).obfuscate(KEY);
+        assertThat(wrappedPreferences.contains(mockObfuscate(KEY))).isTrue();
+        assertThat(wrappedPreferences.getInt(mockObfuscate(KEY), 0)).isEqualTo(12);
+    }
+
+    @Test
     public void obfuscatesStoredStringSet() {
         Set<String> strings = new HashSet<>();
         strings.add("a");

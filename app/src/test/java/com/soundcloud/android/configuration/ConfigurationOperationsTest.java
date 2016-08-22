@@ -21,6 +21,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.UserPlan.Upsell;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.image.ImageConfigurationStorage;
@@ -406,12 +407,12 @@ public class ConfigurationOperationsTest extends AndroidUnitTest {
     }
 
     private Configuration getNoPlanConfiguration() {
-        final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<String>emptyList());
+        final UserPlan userPlan = new UserPlan(Plan.FREE_TIER.planId, Collections.<Upsell>emptyList());
         return Configuration.builder().userPlan(userPlan).build();
     }
 
     private Configuration getHighTierConfiguration() {
-        final UserPlan userPlan = new UserPlan(Plan.HIGH_TIER.planId, Collections.<String>emptyList());
+        final UserPlan userPlan = new UserPlan(Plan.HIGH_TIER.planId, Collections.<Upsell>emptyList());
         return Configuration.builder().userPlan(userPlan).build();
     }
 
