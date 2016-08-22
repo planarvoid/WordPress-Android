@@ -58,6 +58,11 @@ class SimplePlayQueue extends PlayQueue {
     }
 
     @Override
+    public void removeItem(PlayQueueItem item) {
+        playQueueItems.remove(item);
+    }
+
+    @Override
     public void removeItemAtPosition(int position) {
         this.playQueueItems.remove(position);
     }

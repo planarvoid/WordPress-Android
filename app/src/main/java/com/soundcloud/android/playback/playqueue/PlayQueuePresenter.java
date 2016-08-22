@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayQueueManager.RepeatMode;
 import com.soundcloud.android.playback.PlayStateEvent;
@@ -36,6 +37,7 @@ import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
@@ -56,6 +58,16 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private final EventBus eventBus;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
+    private final Func1<List<TrackAndPlayQueueItem>, List<PlayQueueUIItem>> toPlayQueueUIItem = new Func1<List<TrackAndPlayQueueItem>, List<PlayQueueUIItem>>() {
+        @Override
+        public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> trackAndPlayQueueItems) {
+            final List<PlayQueueUIItem> items = new ArrayList<>();
+            for (TrackAndPlayQueueItem trackAndPlayQueueItem : trackAndPlayQueueItems) {
+                items.add(PlayQueueUIItem.from(trackAndPlayQueueItem.playQueueItem, trackAndPlayQueueItem.trackItem));
+            }
+            return items;
+        }
+    };
     private Subscription updateSubscription = RxUtils.invalidSubscription();
 
     @Bind(R.id.recycler_view) RecyclerView recyclerView;
@@ -136,8 +148,8 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     private void refreshPlayQueue() {
-        updateSubscription = playQueueOperations.getTrackItems()
-                                                .map(new PlayQueueUIItemMapper())
+        updateSubscription = playQueueOperations.getTracks()
+                                                .map(toPlayQueueUIItem)
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(new PlayQueueSubscriber());
     }
@@ -226,8 +238,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     public void remove(int position) {
+        final PlayQueueItem playQueueItem = adapter.getItem(position).getPlayQueueItem();
         adapter.removeItem(position);
-        playQueueManager.removeItemAtPosition(position);
+        playQueueManager.removeItem(playQueueItem);
     }
 
     public void switchItems(int fromPosition, int toPosition) {

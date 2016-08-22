@@ -8,16 +8,16 @@ import com.soundcloud.java.optional.Optional;
 
 public class TrackQueueItem extends PlayableQueueItem {
 
-    private TrackQueueItem(Urn trackUrn,
-                           Urn reposter,
-                           Urn relatedEntity,
-                           String source,
-                           String sourceVersion,
-                           Optional<AdData> adData,
-                           boolean shouldPersist,
-                           Urn sourceUrn,
-                           Urn queryUrn,
-                           boolean blocked) {
+    public TrackQueueItem(Urn trackUrn,
+                          Urn reposter,
+                          Urn relatedEntity,
+                          String source,
+                          String sourceVersion,
+                          Optional<AdData> adData,
+                          boolean shouldPersist,
+                          Urn sourceUrn,
+                          Urn queryUrn,
+                          boolean blocked) {
         super(trackUrn,
               reposter,
               source,

@@ -7,9 +7,10 @@ import com.soundcloud.java.optional.Optional;
 
 public abstract class PlayQueueItem {
 
-    public static final Function<PlayQueueItem, Long> TO_ID = new Function<PlayQueueItem, Long>() {
-        public Long apply(PlayQueueItem playQueueItem) {
-            return playQueueItem.getUrnOrNotSet().getNumericId();
+    public static final Function<PlayQueueItem, Urn> TO_URN = new Function<PlayQueueItem, Urn>() {
+        @Override
+        public Urn apply(PlayQueueItem input) {
+            return input.getUrn();
         }
     };
 
