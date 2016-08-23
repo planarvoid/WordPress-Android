@@ -549,9 +549,14 @@
     <string name="stations_collection_title_station_page">Station</string>
     <string name="stations_tracks_in_this_station">Tracks in this station</string>
     <string name="stations_see_all_tracks">See all tracks</string>
-    <string name="stations_home_description">A mix of similar tracks including %1$s, %2$s and %3$s</string>
     <string name="stations_home_station_based_on">%s based on</string>
     <string name="suggested_stations">Suggested stations</string>
+
+    <plurals name="stations_home_description">
+        <item quantity="one">A mix of similar tracks including %1$s</item>
+        <item quantity="two">A mix of similar tracks including %1$s and %2$s</item>
+        <item quantity="other">A mix of similar tracks including %1$s, %2$s and %3$s</item>
+    </plurals>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>

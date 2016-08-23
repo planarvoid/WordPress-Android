@@ -6,6 +6,7 @@ import static com.soundcloud.android.model.PlayableProperty.IMAGE_URL_TEMPLATE;
 import static com.soundcloud.android.model.PlayableProperty.TITLE;
 import static com.soundcloud.android.model.PlayableProperty.URN;
 import static com.soundcloud.android.stations.Stations.NEVER_PLAYED;
+import static com.soundcloud.android.tracks.TrackProperty.PLAY_COUNT;
 import static com.soundcloud.java.optional.Optional.fromNullable;
 import static com.soundcloud.propeller.ContentValuesBuilder.values;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
@@ -192,6 +193,7 @@ class StationsStorage {
                                          SoundView.TITLE,
                                          SoundView.USERNAME,
                                          SoundView.USER_ID,
+                                         SoundView.PLAYBACK_COUNT,
                                          SoundView.ARTWORK_URL)
                                  .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
                                  .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
@@ -270,6 +272,7 @@ class StationsStorage {
                             TITLE.bind(reader.getString(SoundView.TITLE)),
                             CREATOR_NAME.bind(reader.getString(SoundView.USERNAME)),
                             CREATOR_URN.bind(Urn.forUser(reader.getLong(SoundView.USER_ID))),
+                            PLAY_COUNT.bind(reader.getInt(SoundView.PLAYBACK_COUNT)),
                             IMAGE_URL_TEMPLATE.bind(fromNullable(reader.getString(SoundView.ARTWORK_URL)))
                     )
             );

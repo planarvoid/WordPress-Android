@@ -85,8 +85,10 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
     public void shouldLoadInitialItemsInOnCreate() {
         presenter.onCreate(fragmentRule1.getFragment(), null);
 
-        verify(adapter).onNext(Arrays.asList(StationInfo.from(stationRecord),
-                                             StationInfoTracksBucket.from(stationTracks, Consts.NOT_SET)));
+        final StationInfoTracksBucket tracksBucket = StationInfoTracksBucket.from(stationTracks, Consts.NOT_SET);
+        final StationInfoHeader header = StationInfoHeader.from(stationRecord, tracksBucket.getMostPlayedArtists(3));
+
+        verify(adapter).onNext(Arrays.asList(header, tracksBucket));
     }
 
     @Test

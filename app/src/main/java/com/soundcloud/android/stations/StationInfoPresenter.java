@@ -1,7 +1,6 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
-import static com.soundcloud.android.stations.StationInfo.FROM_STATION_RECORD;
 import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_SOURCE;
 import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_URN;
 
@@ -21,6 +20,7 @@ import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.functions.Func2;
 
 import android.content.Context;
@@ -29,10 +29,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 
 class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, StationInfoItem>
         implements StationInfoClickListener {
+
+    private static final int MOST_PLAYED_ARTISTS_COUNT = 3;
 
     private final StartStationPresenter stationPresenter;
     private final StationsOperations stationOperations;
@@ -40,8 +43,8 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
 
-    private final Func2<List<StationInfoTrack>, Integer, StationInfoItem> toViewModel =
-            new Func2<List<StationInfoTrack>, Integer, StationInfoItem>() {
+    private final Func2<List<StationInfoTrack>, Integer, StationInfoTracksBucket> toViewModel =
+            new Func2<List<StationInfoTrack>, Integer, StationInfoTracksBucket>() {
                 @Override
                 public StationInfoTracksBucket call(List<StationInfoTrack> trackItems, Integer lastPlayedPosition) {
                     final Urn nowPlayingCollection = playQueueManager.getCollectionUrn();
@@ -97,10 +100,7 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
         seedTrack = getSeedTrackUrn(fragmentArgs);
         stationUrn = fragmentArgs.getParcelable(EXTRA_URN);
 
-        return CollectionBinding.from(getStationInfo(stationUrn)
-                                              .concatWith(getStationTracks(stationUrn))
-                                              .toList())
-                                .withAdapter(adapter).build();
+        return CollectionBinding.from(getStation(stationUrn)).withAdapter(adapter).build();
     }
 
     private DiscoverySource getDiscoverySource(Bundle fragmentArgs) {
@@ -111,11 +111,31 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
         return Optional.fromNullable((Urn) fragmentArgs.getParcelable(StationInfoFragment.EXTRA_SEED_TRACk));
     }
 
-    private Observable<StationInfoItem> getStationInfo(Urn stationUrn) {
-        return stationOperations.stationWithSeed(stationUrn, seedTrack).map(FROM_STATION_RECORD);
+    private Observable<List<StationInfoItem>> getStation(final Urn stationUrn) {
+        return stationOperations.stationWithSeed(stationUrn, seedTrack).flatMap(combineStationTracks(stationUrn));
     }
 
-    private Observable<StationInfoItem> getStationTracks(Urn stationUrn) {
+    private Func1<StationRecord, Observable<List<StationInfoItem>>> combineStationTracks(final Urn stationUrn) {
+        return new Func1<StationRecord, Observable<List<StationInfoItem>>>() {
+            @Override
+            public Observable<List<StationInfoItem>> call(StationRecord stationRecord) {
+                return getStationTracks(stationUrn).map(mapToViewModel(stationRecord));
+            }
+        };
+    }
+
+    private Func1<StationInfoTracksBucket, List<StationInfoItem>> mapToViewModel(final StationRecord stationRecord) {
+        return new Func1<StationInfoTracksBucket, List<StationInfoItem>>() {
+            @Override
+            public List<StationInfoItem> call(StationInfoTracksBucket tracksBucket) {
+                final List<String> mostPlayedArtists = tracksBucket.getMostPlayedArtists(MOST_PLAYED_ARTISTS_COUNT);
+                final StationInfoHeader stationInfoHeader = StationInfoHeader.from(stationRecord, mostPlayedArtists);
+                return Arrays.asList(stationInfoHeader, tracksBucket);
+            }
+        };
+    }
+
+    private Observable<StationInfoTracksBucket> getStationTracks(Urn stationUrn) {
         return stationOperations.stationTracks(stationUrn)
                                 .zipWith(stationOperations.lastPlayedPosition(stationUrn), toViewModel);
     }

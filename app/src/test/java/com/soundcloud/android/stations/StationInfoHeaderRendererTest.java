@@ -24,6 +24,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Collections;
+
 public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
     @Mock private ImageOperations imageOperations;
@@ -44,23 +46,25 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsStationInfo() {
-        StationInfo stationInfo = StationInfo.from(StationFixtures.getStation(Urn.forTrackStation(123L)));
+        StationInfoHeader stationInfoHeader = StationInfoHeader.from(StationFixtures.getStation(Urn.forTrackStation(123L)),
+                                                                     Collections.<String>emptyList());
 
-        renderer.bindItemView(0, itemView, singletonList(stationInfo));
+        renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
 
-        assertThat(textView(R.id.station_title)).hasText(stationInfo.getTitle());
+        assertThat(textView(R.id.station_title)).hasText(stationInfoHeader.getTitle());
         assertThat(textView(R.id.station_type)).hasText("Track station based on");
     }
 
     @Test
     public void bindArtwork() {
-        StationInfo stationInfo = StationInfo.from(StationFixtures.getStation(Urn.forTrackStation(123L)));
+        StationInfoHeader stationInfoHeader = StationInfoHeader.from(StationFixtures.getStation(Urn.forTrackStation(123L)),
+                                                                     Collections.<String>emptyList());
 
-        renderer.bindItemView(0, itemView, singletonList(stationInfo));
+        renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
 
         verify(imageOperations)
-                .displayWithPlaceholder(eq(stationInfo), any(ApiImageSize.class), eq(imageView(R.id.artwork)));
-        verify(simpleBlurredImageLoader).displayBlurredArtwork(stationInfo, imageView(R.id.blurred_background));
+                .displayWithPlaceholder(eq(stationInfoHeader), any(ApiImageSize.class), eq(imageView(R.id.artwork)));
+        verify(simpleBlurredImageLoader).displayBlurredArtwork(stationInfoHeader, imageView(R.id.blurred_background));
     }
 
     private TextView textView(@IdRes int id) {

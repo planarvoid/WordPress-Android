@@ -26,11 +26,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import java.util.Arrays;
 import java.util.List;
 
 @AutoFactory
-class StationInfoHeaderRenderer implements CellRenderer<StationInfo> {
+class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
 
     private final View.OnClickListener playButtonClickListener = new View.OnClickListener() {
         @Override
@@ -70,15 +69,15 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfo> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<StationInfo> items) {
-        StationInfo info = items.get(position);
+    public void bindItemView(int position, View itemView, List<StationInfoHeader> items) {
+        StationInfoHeader info = items.get(position);
 
         bindArtwork(info, itemView);
         bindTextViews(info, itemView);
         bindButtons(info, itemView);
     }
 
-    private void bindButtons(StationInfo info, View itemView) {
+    private void bindButtons(StationInfoHeader info, View itemView) {
         final View playButton = ButterKnife.findById(itemView, R.id.btn_play);
         playButton.setVisibility(View.VISIBLE);
         playButton.setOnClickListener(playButtonClickListener);
@@ -104,23 +103,24 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfo> {
         }
     }
 
-    private void bindTextViews(StationInfo info, View itemView) {
+    private void bindTextViews(StationInfoHeader info, View itemView) {
         ButterKnife.<TextView>findById(itemView, R.id.station_type)
                 .setText(resources.getString(R.string.stations_home_station_based_on,
                                              getHumanReadableType(resources, info.getType())));
         ButterKnife.<TextView>findById(itemView, R.id.station_title).setText(info.getTitle());
 
-        //TODO: Most played artists will be part of the StationInfo model (calculated by operations)
-        final List<String> mostPlayed = Arrays.asList("Madonna", "MadMax", "Mad");
-        ButterKnife.<TextView>findById(itemView, R.id.station_desc)
-                .setText(buildStationDescription(mostPlayed));
+        final List<String> mostPlayedArtists = info.getMostPlayedArtists();
+        final TextView description = ButterKnife.findById(itemView, R.id.station_desc);
+        final boolean artistsPresent = mostPlayedArtists.size() > 0;
+        if (artistsPresent) {
+            description.setText(buildStationDescription(mostPlayedArtists));
+        }
+        description.setVisibility(artistsPresent ? View.VISIBLE : View.GONE);
     }
 
     private SpannableString buildStationDescription(List<String> mostPlayed) {
-        final String descriptionText = resources.getString(R.string.stations_home_description,
-                                                           mostPlayed.get(0),
-                                                           mostPlayed.get(1),
-                                                           mostPlayed.get(2));
+        final String descriptionText = resources.getQuantityString(R.plurals.stations_home_description,
+                                                                   mostPlayed.size(), mostPlayed.toArray());
         final SpannableString descriptionSpan = new SpannableString(descriptionText);
 
         int lastIndexOf = 0;
@@ -132,7 +132,7 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfo> {
         return descriptionSpan;
     }
 
-    private void bindArtwork(StationInfo info, final View headerView) {
+    private void bindArtwork(StationInfoHeader info, final View headerView) {
         final ApiImageSize artworkSize = ApiImageSize.getFullImageSize(headerView.getResources());
         final ImageView artworkView = ButterKnife.findById(headerView, R.id.artwork);
         final ImageView blurredArtworkView = ButterKnife.findById(headerView, R.id.blurred_background);
