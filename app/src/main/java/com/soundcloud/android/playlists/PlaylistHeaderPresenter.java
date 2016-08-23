@@ -219,8 +219,9 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     private void bingEngagementBars() {
         updateEngagementBar();
 
-        showPublicOptions();
-        showShuffleOption();
+        toggleMyOptions();
+        togglePublicOptions();
+        toggleShuffleOption();
 
         updateOfflineAvailability();
         subscribeForOfflineContentUpdates();
@@ -241,7 +242,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                                            .subscribe(new OfflineStateSubscriber());
     }
 
-    private void showShuffleOption() {
+    private void toggleShuffleOption() {
         if (headerItem.getTrackCount() > 1) {
             playlistEngagementsView.enableShuffle();
         } else {
@@ -249,13 +250,17 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         }
     }
 
-    private void showPublicOptions() {
+    private void toggleMyOptions() {
+        if (isOwned(headerItem)) {
+            playlistEngagementsView.showMyOptions();
+        } else {
+            playlistEngagementsView.hideMyOptions();
+        }
+    }
+
+    private void togglePublicOptions() {
         if (headerItem.isPublic()) {
-            if (isOwned(headerItem)) {
-                playlistEngagementsView.showPublicOptionsForYourTrack();
-            } else {
-                playlistEngagementsView.showPublicOptions(this.headerItem.isRepostedByUser());
-            }
+            playlistEngagementsView.showPublicOptions(headerItem.isRepostedByUser());
         } else {
             playlistEngagementsView.hidePublicOptions();
         }

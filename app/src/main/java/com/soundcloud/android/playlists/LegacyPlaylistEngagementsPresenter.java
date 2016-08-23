@@ -184,8 +184,9 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
         playlistEngagementsView.updateLikeItem(this.playlistHeaderItem.getLikesCount(),
                                                this.playlistHeaderItem.isLikedByUser());
 
-        showPublicOptions(this.playlistHeaderItem);
-        showShuffleOption(this.playlistHeaderItem);
+        toggleMyOptions();
+        togglePublicOptions();
+        toggleShuffleOption();
 
         updateOfflineAvailability();
         subscribeForOfflineContentUpdates();
@@ -200,21 +201,25 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
                                            .subscribe(new OfflineStateSubscriber());
     }
 
-    private void showShuffleOption(PlaylistHeaderItem headerItem) {
-        if (headerItem.getTrackCount() > 1) {
+    private void toggleShuffleOption() {
+        if (playlistHeaderItem.getTrackCount() > 1) {
             playlistEngagementsView.enableShuffle();
         } else {
             playlistEngagementsView.disableShuffle();
         }
     }
 
-    private void showPublicOptions(PlaylistHeaderItem playlistHeaderItem) {
+    private void toggleMyOptions() {
+        if (isOwned(playlistHeaderItem)) {
+            playlistEngagementsView.showMyOptions();
+        } else {
+            playlistEngagementsView.hideMyOptions();
+        }
+    }
+
+    private void togglePublicOptions() {
         if (playlistHeaderItem.isPublic()) {
-            if (isOwned(playlistHeaderItem)) {
-                playlistEngagementsView.showPublicOptionsForYourTrack();
-            } else {
-                playlistEngagementsView.showPublicOptions(this.playlistHeaderItem.isRepostedByUser());
-            }
+            playlistEngagementsView.showPublicOptions(playlistHeaderItem.isRepostedByUser());
         } else {
             playlistEngagementsView.hidePublicOptions();
         }

@@ -164,12 +164,14 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         downloadToggle.setVisibility(View.GONE);
     }
 
-    void showPublicOptionsForYourTrack() {
-        popupMenuWrapper.setItemVisible(R.id.share, true);
-        popupMenuWrapper.setItemVisible(R.id.repost, false);
-        popupMenuWrapper.setItemVisible(R.id.unpost, false);
+    void showMyOptions() {
         popupMenuWrapper.setItemVisible(R.id.edit_playlist, featureFlags.isEnabled(Flag.EDIT_PLAYLIST));
         popupMenuWrapper.setItemVisible(R.id.delete_playlist, true);
+    }
+
+    void hideMyOptions() {
+        popupMenuWrapper.setItemVisible(R.id.edit_playlist, false);
+        popupMenuWrapper.setItemVisible(R.id.delete_playlist, false);
     }
 
     void showPublicOptions(boolean repostedByUser) {
@@ -182,8 +184,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.share, false);
         popupMenuWrapper.setItemVisible(R.id.repost, false);
         popupMenuWrapper.setItemVisible(R.id.unpost, false);
-        popupMenuWrapper.setItemVisible(R.id.edit_playlist, false);
-        popupMenuWrapper.setItemVisible(R.id.delete_playlist, false);
     }
 
     void configurePlayNext() {

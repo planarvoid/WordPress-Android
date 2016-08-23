@@ -135,6 +135,24 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     }
 
     @Test
+    public void shouldShowUsersOptions() {
+        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(true);
+
+        presenter.setPlaylist(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+
+        verify(engagementsView).showMyOptions();
+    }
+
+    @Test
+    public void shouldHideUsersOptions() {
+        when(accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn())).thenReturn(false);
+
+        presenter.setPlaylist(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
+
+        verify(engagementsView).hideMyOptions();
+    }
+
+    @Test
     public void updatesLikeItemOnPresenterUpdate() {
         setPlaylistInfo();
 
