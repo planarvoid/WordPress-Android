@@ -103,13 +103,13 @@ public class RecommendationRendererTest extends AndroidUnitTest {
     @Test
     public void shouldBindGoIndicatorForHighTierTracks() {
         renderer.bindItemView(goTrackPosition, itemView, recommendations);
-        assertThat(ButterKnife.findById(itemView, R.id.high_tier_label).getVisibility()).isEqualTo(View.VISIBLE);
+        assertThat(ButterKnife.findById(itemView, R.id.go_indicator).getVisibility()).isEqualTo(View.VISIBLE);
     }
 
     @Test
     public void shouldNotBindGoIndicatorForNonHighTierTracks() {
         renderer.bindItemView(trackPosition, itemView, recommendations);
-        assertThat(ButterKnife.findById(itemView, R.id.high_tier_label).getVisibility()).isEqualTo(View.GONE);
+        assertThat(ButterKnife.findById(itemView, R.id.go_indicator).getVisibility()).isEqualTo(View.GONE);
     }
 
     @Test

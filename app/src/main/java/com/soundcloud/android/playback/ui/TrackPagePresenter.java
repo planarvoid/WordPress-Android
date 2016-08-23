@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
+import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static java.util.Collections.singletonList;
 
@@ -173,7 +174,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.menuController.setTrack(trackState);
         holder.waveformController.setWaveform(waveformOperations.waveformDataFor(trackState.getUrn(),
                                                                                  trackState.getWaveformUrl()),
-                                              trackState.isForeground());
+                                                                                 trackState.isForeground());
 
         holder.artworkController.setFullDuration(trackState.getFullDuration());
         holder.waveformController.setDurations(trackState.getPlayableDuration(), trackState.getFullDuration());
@@ -199,15 +200,18 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         setClickListener(this, holder.onClickViews);
     }
 
-    private void configureHighTierStates(PlayerTrackState trackState, TrackPageHolder holder,
+    private void configureHighTierStates(PlayerTrackState trackState,
+                                         TrackPageHolder holder,
                                          FeatureOperations featureOperations) {
         if (isHighTierPreview(trackState)) {
-            holder.highTierLabel.setText(R.string.upsell_track_preview);
-            holder.highTierLabel.setVisibility(View.VISIBLE);
+            holder.previewLabel.setVisibility(View.VISIBLE);
             holder.upsellButton.setVisibility(featureOperations.upsellHighTier() ? View.VISIBLE : View.GONE);
+        } else if (isFullHighTierTrack(trackState)) {
+            holder.goLabel.setVisibility(View.VISIBLE);
         } else {
-            holder.highTierLabel.setVisibility(View.GONE);
+            holder.previewLabel.setVisibility(View.GONE);
             holder.upsellButton.setVisibility(View.GONE);
+            holder.goLabel.setVisibility(View.GONE);
         }
     }
 
@@ -294,7 +298,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         holder.timestamp.setVisibility(View.GONE);
         holder.errorViewController.hideError();
 
-        holder.highTierLabel.setVisibility(View.GONE);
+        holder.previewLabel.setVisibility(View.GONE);
+        holder.goLabel.setVisibility(View.GONE);
         holder.upsellButton.setVisibility(View.GONE);
 
         return view;
@@ -606,7 +611,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
 
         holder.playQueueButton = trackView.findViewById(R.id.play_queue_button);
         holder.upsellButton = (Button) trackView.findViewById(R.id.upsell_button);
-        holder.highTierLabel = (TextView) trackView.findViewById(R.id.high_tier_label);
+        holder.previewLabel = trackView.findViewById(R.id.preview_indicator);
+        holder.goLabel = trackView.findViewById(R.id.go_indicator);
 
         // set initial media route button state
         holder.mediaRouteButton = (MediaRouteButton) trackView.findViewById(R.id.media_route_button);
@@ -735,7 +741,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
         @Nullable View previousButton;
         @Nullable View playButton;
         View closeIndicator;
-        TextView highTierLabel;
+        View previewLabel;
+        View goLabel;
         Button upsellButton;
         View profileLink;
         View playControlsHolder;
@@ -783,7 +790,8 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                    previousButton,
                                                    playButton,
                                                    bottomClose,
-                                                   highTierLabel,
+                                                   previewLabel,
+                                                   goLabel,
                                                    upsellButton,
                                                    getPlayQueueButtonOrNull(featureFlags));
             List<View> hideOnError = Arrays.asList(playButton, timestamp);
@@ -804,7 +812,7 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
                                                   timestamp,
                                                   castDeviceName,
                                                   getPlayQueueButtonOrNull(featureFlags));
-            fullScreenViews = Arrays.asList(title, user, trackContext, close, timestamp, interstitialHolder);
+            fullScreenViews = Arrays.asList(title, user, goLabel, trackContext, close, timestamp, interstitialHolder);
             fullScreenAdViews = singletonList(interstitialHolder);
             fullScreenErrorViews = Arrays.asList(title, user, trackContext, close, interstitialHolder);
 

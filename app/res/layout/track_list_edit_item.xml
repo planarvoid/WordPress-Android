@@ -22,7 +22,6 @@
 
         <include layout="@layout/sound_list_item_views" />
 
-
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/promoted_track"
             style="@style/ListItemText.TertiaryText"
@@ -66,13 +65,12 @@
             android:layout_marginTop="3dp" />
 
         <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/track_list_item_preview_text"
-            style="@style/ListItemText.HighTierTrack.Preview"
+            android:id="@+id/track_list_item_preview_label"
+            style="@style/PreviewIndicator"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@id/image"
             android:paddingBottom="2dp"
-            android:paddingTop="1dp"
-            android:visibility="gone" />
+            android:paddingTop="1dp" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/private_indicator"

@@ -59,11 +59,11 @@ class RecommendationRenderer implements CellRenderer<Recommendation> {
         bindNowPlaying(view, viewModel.isPlaying());
         setOnClickListener(viewModel, view);
         setOverflowMenuClickListener(ButterKnife.<ImageView>findById(view, R.id.overflow_button), track, position);
-        showHighTierIndicator(view, track);
+        showGoIndicator(view, track);
     }
 
-    private void showHighTierIndicator(View view, TrackItem track) {
-        ButterKnife.findById(view, R.id.high_tier_label).setVisibility(isFullHighTierTrack(track) ? VISIBLE : GONE);
+    private void showGoIndicator(View view, TrackItem track) {
+        ButterKnife.findById(view, R.id.go_indicator).setVisibility(isFullHighTierTrack(track) ? VISIBLE : GONE);
     }
 
     private void bindTrackTitle(View view, String title) {

@@ -28,7 +28,7 @@ class TrackEditItemView {
     @Bind(R.id.private_indicator) View privateIndicator;
     @Bind(R.id.promoted_track) TextView promoted;
     @Bind(R.id.not_available_offline) TextView notAvailableOffline;
-    @Bind(R.id.track_list_item_preview_text) TextView preview;
+    @Bind(R.id.preview_indicator) View preview;
     @Bind(R.id.track_list_item_geo_blocked_text) TextView geoBlocked;
 
     public TrackEditItemView(View rootView) {

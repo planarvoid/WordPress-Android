@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:clipChildren="false">
 
     <View style="@style/Divider.Section" />
 
@@ -38,6 +39,7 @@
         android:id="@+id/recommendations_carousel"
         android:paddingLeft="16dp"
         android:layout_marginBottom="24dp"
+        android:clipChildren="false"
         android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

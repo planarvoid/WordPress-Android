@@ -175,6 +175,9 @@
     <dimen name="conversion_width">272dp</dimen>
     <dimen name="conversion_height">400dp</dimen>
 
+    <!-- Go -->
+    <dimen name="go_indicator_offset">-4dp</dimen>
+
     <!-- Go Onboarding  -->
     <dimen name="android_status_bar_stub_height">0dp</dimen>
     <dimen name="go_onboarding_header_text_size">26sp</dimen>

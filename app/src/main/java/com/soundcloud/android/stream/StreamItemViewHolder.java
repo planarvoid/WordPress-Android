@@ -9,7 +9,6 @@ import com.soundcloud.android.view.adapters.CardViewHolder;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.text.SpannableString;
 import android.view.View;
 import android.widget.ImageView;
@@ -39,7 +38,8 @@ public class StreamItemViewHolder implements CardViewHolder {
     @Bind(R.id.overflow_button) View overflowButton;
 
     @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
-    @Nullable @Bind(R.id.high_tier_label) TextView highTierLabel;
+    @Nullable @Bind(R.id.go_indicator) View goIndicator;
+    @Nullable @Bind(R.id.preview_indicator) View previewIndicator;
 
     private OverflowListener overflowListener;
     private CardEngagementClickListener clickListener;
@@ -176,16 +176,22 @@ public class StreamItemViewHolder implements CardViewHolder {
         privateSeparator.setVisibility(isPrivate ? View.VISIBLE : View.GONE);
     }
 
-    public void showHighTierLabel(@StringRes int text) {
-        if (highTierLabel != null) {
-            highTierLabel.setText(text);
-            highTierLabel.setVisibility(View.VISIBLE);
-        }
+    public void resetTierIndicators() {
+        safeSetVisibility(previewIndicator, View.GONE);
+        safeSetVisibility(goIndicator, View.GONE);
     }
 
-    public void hideHighTierLabel() {
-        if (highTierLabel != null) {
-            highTierLabel.setVisibility(View.GONE);
+    public void showPreview() {
+        safeSetVisibility(previewIndicator, View.VISIBLE);
+    }
+
+    public void showGoIndicator() {
+        safeSetVisibility(goIndicator, View.VISIBLE);
+    }
+
+    private void safeSetVisibility(View view, int visibility) {
+        if (view != null) {
+            view.setVisibility(visibility);
         }
     }
 

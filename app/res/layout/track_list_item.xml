@@ -9,7 +9,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipChildren="false">
 
         <TextView
             android:id="@+id/position"
@@ -18,7 +19,7 @@
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:textColor="@color/list_primary"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <View
             android:id="@+id/left_spacer"
@@ -28,7 +29,9 @@
         <RelativeLayout
             style="@style/ListItemLayout"
             android:paddingLeft="0dp"
-            android:paddingTop="0dp">
+            android:paddingTop="0dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <include layout="@layout/sound_list_item_views" />
 
@@ -89,23 +92,20 @@
                 android:layout_alignParentRight="true" />
 
             <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/track_list_item_preview_label"
-                style="@style/ListItemText.HighTierTrack.Preview"
+                android:id="@+id/preview_indicator"
+                style="@style/PreviewIndicator"
                 android:paddingBottom="2dp"
                 android:paddingTop="1dp"
                 android:layout_alignTop="@+id/image"
-                android:layout_alignParentRight="true"
-                android:visibility="gone" />
+                android:layout_alignParentRight="true" />
 
-            <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/track_list_item_go_label"
-                style="@style/ListItemText.HighTierTrack.Go"
-                android:layout_marginLeft="12dp"
-                android:paddingBottom="2dp"
-                android:paddingTop="1dp"
-                android:layout_alignBaseline="@id/list_item_counter"
-                android:layout_toRightOf="@id/list_item_counter"
-                android:visibility="gone" />
+            <View
+                android:id="@+id/go_indicator"
+                style="@style/GoIndicator.Overlay"
+                android:layout_alignRight="@id/image"
+                android:layout_alignTop="@id/image"
+                android:layout_marginRight="@dimen/go_indicator_offset"
+                android:layout_marginTop="@dimen/go_indicator_offset" />
 
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/private_indicator"

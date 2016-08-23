@@ -117,6 +117,7 @@ public abstract class BaseCollectionPresenter extends RecyclerViewPresenter<MyCo
         recyclerView.addItemDecoration(new CollectionItemDecoration(itemMargin));
         recyclerView.setPadding(itemMargin, 0, 0, 0);
         recyclerView.setClipToPadding(false);
+        recyclerView.setClipChildren(false);
     }
 
     @Override

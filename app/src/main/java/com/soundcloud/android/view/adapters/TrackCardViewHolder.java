@@ -34,7 +34,8 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     @Bind(R.id.overflow_button) View overflowButton;
     @Nullable @Bind(R.id.toggle_repost) ToggleButton repostButton;
 
-    @Nullable @Bind(R.id.high_tier_label) TextView previewIndicator;
+    @Nullable @Bind(R.id.go_indicator) View goIndicator;
+    @Nullable @Bind(R.id.preview_indicator) View previewIndicator;
 
     private CardEngagementsPresenter.CardEngagementClickListener clickListener;
     private final ImageOperations imageOperations;
@@ -147,17 +148,25 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
     }
 
     private void setupTierIndicator(PlayableItem playableItem) {
-        if (previewIndicator != null && playableItem instanceof TieredTrack) {
+        resetTierIndicators();
+        if (playableItem instanceof TieredTrack) {
             TieredTrack track = (TieredTrack) playableItem;
             if (isHighTierPreview(track)) {
-                previewIndicator.setText(R.string.upsell_track_preview);
-                previewIndicator.setVisibility(View.VISIBLE);
+                safeSetVisibility(previewIndicator, View.VISIBLE);
             } else if (isFullHighTierTrack(track)) {
-                previewIndicator.setText(R.string.go);
-                previewIndicator.setVisibility(View.VISIBLE);
-            } else {
-                previewIndicator.setVisibility(View.GONE);
+                safeSetVisibility(goIndicator, View.VISIBLE);
             }
+        }
+    }
+
+    private void resetTierIndicators() {
+        safeSetVisibility(previewIndicator, View.GONE);
+        safeSetVisibility(goIndicator, View.GONE);
+    }
+
+    private void safeSetVisibility(View view, int visibility) {
+        if (view != null) {
+            view.setVisibility(visibility);
         }
     }
 

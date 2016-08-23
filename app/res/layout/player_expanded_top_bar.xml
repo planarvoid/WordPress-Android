@@ -14,10 +14,8 @@
         style="@style/PlayerCloseBase.PlayerClose" />
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/high_tier_label"
-        style="@style/HighTierLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/preview_indicator"
+        style="@style/PreviewIndicator.Light"
         android:layout_centerVertical="true"
         android:layout_marginLeft="20dp"
         android:layout_toRightOf="@id/player_close_indicator" />
@@ -38,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="12dp"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/high_tier_label">
+        android:layout_toRightOf="@id/preview_indicator">
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/upsell_button"

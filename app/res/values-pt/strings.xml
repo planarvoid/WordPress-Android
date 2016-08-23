@@ -639,7 +639,6 @@ vão aparecer aqui.</string>
   <string name="notification_username_commented_on_tracktitle">comentou %s</string>
   <string name="notification_username_started_following_you">começou a seguir você</string>
   <!--__SUBS-->
-  <string name="go">Ir</string>
   <string name="pref_subscriptions_header">Assinaturas</string>
   <string name="pref_subscription_buy_title">Atualizar</string>
   <string name="pref_subscription_buy_summary">Atualize sua conta</string>

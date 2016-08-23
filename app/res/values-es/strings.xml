@@ -650,7 +650,6 @@
   <string name="notification_username_commented_on_tracktitle">hizo un comentario sobre %s</string>
   <string name="notification_username_started_following_you">comenzó a seguirte</string>
   <!--__SUBS-->
-  <string name="go">Ir</string>
   <string name="pref_subscriptions_header">Suscripciones</string>
   <string name="pref_subscription_buy_title">Mejorar la cuenta</string>
   <string name="pref_subscription_buy_summary">Mejora tu cuenta</string>
