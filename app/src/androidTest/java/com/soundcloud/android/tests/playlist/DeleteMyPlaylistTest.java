@@ -4,11 +4,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
+@Ignore // https://github.com/soundcloud/SoundCloud-Android/issues/5919
 public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
 
     public DeleteMyPlaylistTest() {
