@@ -671,6 +671,18 @@
     <string name="collections_recently_played_album">album</string>
     <string name="collections_recently_played_profile">profile</string>
 
+    <string name="collections_recently_played_clear_action">Clear recently played</string>
+    <string name="collections_recently_played_clear_dialog_title">Clear recently played?</string>
+    <string name="collections_recently_played_clear_dialog_message">Are you sure you want to clear your recently played? You won’t be able to undo this action.</string>
+    <string name="collections_recently_played_clear_dialog_button">Clear</string>
+    <string name="collections_recently_played_clear_error_message">Error clearing your recently played. Try again later.</string>
+    <string name="collections_recently_played_empty">Find all your recently played content here.</string>
+
+    <plurals name="collections_recently_played_header">
+        <item quantity="one">%d recently played item</item>
+        <item quantity="other">%d recently played items</item>
+    </plurals>
+
     <!-- __TABS -->
     <string name="tab_home">Home</string>
     <string name="tab_discovery">Discovery</string>

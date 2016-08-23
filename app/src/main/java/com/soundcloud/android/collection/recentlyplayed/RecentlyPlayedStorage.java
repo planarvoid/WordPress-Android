@@ -75,7 +75,7 @@ public class RecentlyPlayedStorage {
         });
     }
 
-    Observable<RecentlyPlayedItem> loadContexts(int limit) {
+    Observable<RecentlyPlayedPlayableItem> loadContexts(int limit) {
         return rxDatabase.query(loadContextsQuery(limit))
                          .map(new RecentlyPlayedItemMapper());
     }
@@ -159,19 +159,19 @@ public class RecentlyPlayedStorage {
         return asSynced;
     }
 
-    private static class RecentlyPlayedItemMapper extends RxResultMapper<RecentlyPlayedItem> {
+    private static class RecentlyPlayedItemMapper extends RxResultMapper<RecentlyPlayedPlayableItem> {
         static final String COLUMN_ARTWORK_URL = "artwork_url";
         static final String COLUMN_COLLECTION_ALBUM = "collection_album";
         static final String COLUMN_COLLECTION_COUNT = "collection_count";
         static final String COLUMN_TITLE = "recently_played_title";
 
         @Override
-        public RecentlyPlayedItem map(CursorReader reader) {
+        public RecentlyPlayedPlayableItem map(CursorReader reader) {
             Urn urn = PlayHistoryRecord.contextUrnFor(
                     reader.getInt(RecentlyPlayed.CONTEXT_TYPE.name()),
                     reader.getLong(RecentlyPlayed.CONTEXT_ID.name()));
 
-            return RecentlyPlayedItem.create(
+            return RecentlyPlayedPlayableItem.create(
                     urn,
                     Optional.fromNullable(reader.getString(COLUMN_ARTWORK_URL)),
                     reader.getString(COLUMN_TITLE),

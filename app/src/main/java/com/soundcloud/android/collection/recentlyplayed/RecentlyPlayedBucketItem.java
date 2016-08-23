@@ -8,9 +8,9 @@ import java.util.List;
 @AutoValue
 public abstract class RecentlyPlayedBucketItem extends CollectionItem {
 
-    public static RecentlyPlayedBucketItem create(List<RecentlyPlayedItem> recentlyPlayed) {
+    public static RecentlyPlayedBucketItem create(List<RecentlyPlayedPlayableItem> recentlyPlayed) {
         return new AutoValue_RecentlyPlayedBucketItem(CollectionItem.TYPE_RECENTLY_PLAYED_BUCKET, recentlyPlayed);
     }
 
-    abstract List<RecentlyPlayedItem> getRecentlyPlayedItems();
+    abstract List<RecentlyPlayedPlayableItem> getRecentlyPlayedPlayableItems();
 }

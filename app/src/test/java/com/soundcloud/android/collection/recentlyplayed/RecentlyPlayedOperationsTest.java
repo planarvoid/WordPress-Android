@@ -20,21 +20,24 @@ import java.util.List;
 
 public class RecentlyPlayedOperationsTest extends AndroidUnitTest {
 
-    private static final List<RecentlyPlayedItem> CONTEXT_ITEMS = singletonList(mock(RecentlyPlayedItem.class));
+    private static final List<RecentlyPlayedPlayableItem> CONTEXT_ITEMS = singletonList(mock(RecentlyPlayedPlayableItem.class));
 
     @Mock private RecentlyPlayedStorage recentlyPlayedStorage;
     @Mock private SyncOperations syncOperations;
+    @Mock private ClearRecentlyPlayedCommand clearRecentlyPlayedCommand;
 
     private Scheduler scheduler = Schedulers.immediate();
-    private TestSubscriber<List<RecentlyPlayedItem>> contextsSubscriber;
+    private TestSubscriber<List<RecentlyPlayedPlayableItem>> contextsSubscriber;
 
     private RecentlyPlayedOperations operations;
+
 
     @Before
     public void setUp() throws Exception {
         when(recentlyPlayedStorage.loadContexts(anyInt())).thenReturn(Observable.from(CONTEXT_ITEMS));
         contextsSubscriber = new TestSubscriber<>();
-        operations = new RecentlyPlayedOperations(recentlyPlayedStorage, scheduler, syncOperations);
+        operations = new RecentlyPlayedOperations(recentlyPlayedStorage, scheduler, syncOperations,
+                                                  clearRecentlyPlayedCommand);
     }
 
     @Test

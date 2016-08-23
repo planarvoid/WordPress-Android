@@ -5,7 +5,7 @@ import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -50,10 +50,10 @@ import java.util.List;
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
         implements DiscoveryAdapter.DiscoveryItemListenerBucket, TrackRecommendationListener {
 
-    private static final Func1<List<RecentlyPlayedItem>, DiscoveryItem> TO_RECENTLY_PLAYED = new Func1<List<RecentlyPlayedItem>, DiscoveryItem>() {
+    private static final Func1<List<RecentlyPlayedPlayableItem>, DiscoveryItem> TO_RECENTLY_PLAYED = new Func1<List<RecentlyPlayedPlayableItem>, DiscoveryItem>() {
         @Override
-        public DiscoveryItem call(List<RecentlyPlayedItem> recentlyPlayedItems) {
-            return RecentlyPlayedBucketDiscoveryItem.create(recentlyPlayedItems);
+        public DiscoveryItem call(List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems) {
+            return RecentlyPlayedBucketDiscoveryItem.create(recentlyPlayedPlayableItems);
         }
     };
 

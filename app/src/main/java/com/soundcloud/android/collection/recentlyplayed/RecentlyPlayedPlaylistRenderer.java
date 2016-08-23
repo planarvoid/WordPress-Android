@@ -21,7 +21,7 @@ import android.widget.TextView;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
-class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedItem> {
+class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlayableItem> {
 
     private final ImageOperations imageOperations;
     private final Resources resources;
@@ -49,8 +49,8 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedItem>
     }
 
     @Override
-    public void bindItemView(int position, View view, List<RecentlyPlayedItem> list) {
-        final RecentlyPlayedItem playlist = list.get(position);
+    public void bindItemView(int position, View view, List<RecentlyPlayedPlayableItem> list) {
+        final RecentlyPlayedPlayableItem playlist = list.get(position);
 
         setImage(view, playlist);
         setTitle(view, playlist.getTitle());
@@ -75,7 +75,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedItem>
         imageOperations.displayInAdapterView(imageResource, getImageSize(), artwork);
     }
 
-    private void setTrackCount(View view, RecentlyPlayedItem playlist) {
+    private void setTrackCount(View view, RecentlyPlayedPlayableItem playlist) {
         final TextView trackCount = (TextView) view.findViewById(R.id.track_count);
         trackCount.setText(String.valueOf(playlist.getTrackCount()));
     }
@@ -84,7 +84,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedItem>
         return ApiImageSize.getFullImageSize(resources);
     }
 
-    private View.OnClickListener goToPlaylist(final RecentlyPlayedItem playlist) {
+    private View.OnClickListener goToPlaylist(final RecentlyPlayedPlayableItem playlist) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {

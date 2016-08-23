@@ -7,6 +7,7 @@ import static com.soundcloud.android.feedback.Feedback.LENGTH_LONG;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
@@ -45,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, PlayHistoryItem>
-        implements PlayHistoryAdapter.PlayHistoryClickListener, ClearPlayHistoryDialog.ClearPlayHistoryDialogListener {
+        implements SimpleHeaderRenderer.MenuClickListener, ClearPlayHistoryDialog.ClearPlayHistoryDialogListener {
 
     private static final Function<TrackItem, PlayHistoryItem> TRACK_TO_PLAY_HISTORY_ITEM = new Function<TrackItem, PlayHistoryItem>() {
         public PlayHistoryItem apply(TrackItem trackItem) {
@@ -88,19 +89,13 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     }
 
     @Override
-    public void onDestroy(Fragment fragment) {
-        this.fragment = null;
-        super.onDestroy(fragment);
-    }
-
-    @Override
-    public void onClearHistoryClicked() {
-        new ClearPlayHistoryDialog().setListener(this).show(fragment.getFragmentManager());
-    }
-
-    @Override
     public void onClearConfirmationClicked() {
         playHistoryOperations.clearHistory().subscribe(new ClearHistorySubscriber());
+    }
+
+    @Override
+    public void onClearClicked() {
+        new ClearPlayHistoryDialog().setListener(this).show(fragment.getFragmentManager());
     }
 
     @Override
@@ -156,6 +151,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     @Override
     public void onDestroyView(Fragment fragment) {
         viewLifeCycle.unsubscribe();
+        this.fragment = null;
         super.onDestroyView(fragment);
     }
 
@@ -190,7 +186,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
             } else {
                 adapter.clear();
                 retryWith(onBuildBinding(null));
-                eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(Urn.NOT_SET));
+                eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
             }
         }
     }

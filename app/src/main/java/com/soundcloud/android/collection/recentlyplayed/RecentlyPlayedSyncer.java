@@ -81,7 +81,7 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
         if (hasChanges) {
             addPlayHistory(current, remote);
             removePlayHistory(current, remote);
-            eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(Urn.NOT_SET));
+            eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.updated());
         }
 
         return hasChanges;

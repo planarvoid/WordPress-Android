@@ -21,7 +21,7 @@ import android.widget.TextView;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
-class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedItem> {
+class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedPlayableItem> {
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
@@ -49,8 +49,8 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedItem> 
     }
 
     @Override
-    public void bindItemView(int position, View view, List<RecentlyPlayedItem> list) {
-        final RecentlyPlayedItem station = list.get(position);
+    public void bindItemView(int position, View view, List<RecentlyPlayedPlayableItem> list) {
+        final RecentlyPlayedPlayableItem station = list.get(position);
 
         setImage(view, station);
         setTitle(view, station.getTitle());
@@ -62,7 +62,7 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedItem> 
         ButterKnife.<TextView>findById(view, R.id.title).setText(title);
     }
 
-    private int getStationType(RecentlyPlayedItem station) {
+    private int getStationType(RecentlyPlayedPlayableItem station) {
         Urn urn = station.getUrn();
 
         if (urn.isArtistStation()) {
@@ -87,7 +87,7 @@ class RecentlyPlayedStationRenderer implements CellRenderer<RecentlyPlayedItem> 
         return ApiImageSize.getFullImageSize(resources);
     }
 
-    private View.OnClickListener goToStation(final RecentlyPlayedItem station) {
+    private View.OnClickListener goToStation(final RecentlyPlayedPlayableItem station) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {

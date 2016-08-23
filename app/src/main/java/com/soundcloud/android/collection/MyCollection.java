@@ -1,7 +1,7 @@
 package com.soundcloud.android.collection;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TrackItem;
@@ -18,16 +18,16 @@ public abstract class MyCollection {
                                           likedAndPostedPlaylists,
                                           recentStations,
                                           Collections.<TrackItem>emptyList(),
-                                          Collections.<RecentlyPlayedItem>emptyList(),
+                                          Collections.<RecentlyPlayedPlayableItem>emptyList(),
                                           atLeastOneError);
     }
 
     static MyCollection forCollectionWithPlayHistory(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
                                                      List<TrackItem> playHistoryTrackItems,
-                                                     List<RecentlyPlayedItem> recentlyPlayedItems,
+                                                     List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems,
                                                      boolean atLeastOneError) {
         return new AutoValue_MyCollection(likes, likedAndPostedPlaylists, Collections.<StationRecord>emptyList(),
-                                          playHistoryTrackItems, recentlyPlayedItems, atLeastOneError);
+                                          playHistoryTrackItems, recentlyPlayedPlayableItems, atLeastOneError);
     }
 
     public abstract LikesItem getLikes();
@@ -38,7 +38,7 @@ public abstract class MyCollection {
 
     public abstract List<TrackItem> getPlayHistoryTrackItems();
 
-    public abstract List<RecentlyPlayedItem> getRecentlyPlayedItems();
+    public abstract List<RecentlyPlayedPlayableItem> getRecentlyPlayedItems();
 
     public abstract boolean hasError();
 

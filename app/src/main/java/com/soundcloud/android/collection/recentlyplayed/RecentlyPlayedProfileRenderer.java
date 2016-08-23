@@ -21,7 +21,7 @@ import android.widget.TextView;
 import java.util.List;
 
 @AutoFactory(allowSubclasses = true)
-class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedItem> {
+class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayableItem> {
 
     private final boolean fixedWidth;
     private final ImageOperations imageOperations;
@@ -49,8 +49,8 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedItem> 
     }
 
     @Override
-    public void bindItemView(int position, View view, List<RecentlyPlayedItem> list) {
-        final RecentlyPlayedItem user = list.get(position);
+    public void bindItemView(int position, View view, List<RecentlyPlayedPlayableItem> list) {
+        final RecentlyPlayedPlayableItem user = list.get(position);
 
         setTitle(view, user.getTitle());
         setImage(view, user);
@@ -70,7 +70,7 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedItem> 
         return ApiImageSize.getFullImageSize(resources);
     }
 
-    private View.OnClickListener goToUserProfile(final RecentlyPlayedItem user) {
+    private View.OnClickListener goToUserProfile(final RecentlyPlayedPlayableItem user) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {

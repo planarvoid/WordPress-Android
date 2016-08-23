@@ -8,7 +8,7 @@ import com.soundcloud.android.collection.CollectionOptionsStorage;
 import com.soundcloud.android.collection.MyCollection;
 import com.soundcloud.android.collection.PreviewCollectionItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.tracks.TrackItem;
@@ -60,7 +60,7 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
     @Override
     protected List<CollectionItem> buildCollectionItems(MyCollection myCollection) {
         List<TrackItem> playHistoryTrackItems = myCollection.getPlayHistoryTrackItems();
-        List<RecentlyPlayedItem> recentlyPlayedItems = myCollection.getRecentlyPlayedItems();
+        List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems = myCollection.getRecentlyPlayedItems();
         List<CollectionItem> collectionItems = new ArrayList<>(playHistoryTrackItems.size() + FIXED_ITEMS);
 
         collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(),
@@ -70,18 +70,18 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
             addPlayHistory(playHistoryTrackItems, collectionItems);
         } else if (experiment.showBelowListeningHistory()) {
             addPlayHistory(playHistoryTrackItems, collectionItems);
-            addRecentlyPlayed(recentlyPlayedItems, collectionItems);
+            addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
         } else {
-            addRecentlyPlayed(recentlyPlayedItems, collectionItems);
+            addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
             addPlayHistory(playHistoryTrackItems, collectionItems);
         }
 
         return collectionItems;
     }
 
-    private void addRecentlyPlayed(List<RecentlyPlayedItem> recentlyPlayedItems, List<CollectionItem> collectionItems) {
-        if (recentlyPlayedItems.size() > 0) {
-            collectionItems.add(RecentlyPlayedBucketItem.create(recentlyPlayedItems));
+    private void addRecentlyPlayed(List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems, List<CollectionItem> collectionItems) {
+        if (recentlyPlayedPlayableItems.size() > 0) {
+            collectionItems.add(RecentlyPlayedBucketItem.create(recentlyPlayedPlayableItems));
         }
     }
 

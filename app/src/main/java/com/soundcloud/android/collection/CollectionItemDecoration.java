@@ -5,11 +5,11 @@ import android.support.v7.widget.GridLayoutManager.LayoutParams;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-class CollectionItemDecoration extends RecyclerView.ItemDecoration {
+public class CollectionItemDecoration extends RecyclerView.ItemDecoration {
 
     private final int spacing;
 
-    CollectionItemDecoration(int spacing) {
+    public CollectionItemDecoration(int spacing) {
         this.spacing = spacing;
     }
 

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -74,7 +74,7 @@ public class DiscoveryPresenterDataSourceTest {
         when(chartsOperations.featuredCharts()).thenReturn(Observable.just(chartsItem));
         when(recommendedStationsOperations.recommendedStations()).thenReturn(Observable.<DiscoveryItem>just(stationsItem));
         when(recommendedTracksOperations.recommendedTracks()).thenReturn(Observable.just(tracksItem));
-        List<RecentlyPlayedItem> recentlyPlayed = Collections.singletonList(mock(RecentlyPlayedItem.class));
+        List<RecentlyPlayedPlayableItem> recentlyPlayed = Collections.singletonList(mock(RecentlyPlayedPlayableItem.class));
         when(recentlyPlayedOperations.recentlyPlayed(10)).thenReturn(Observable.just(recentlyPlayed));
         when(playlistDiscoveryOperations.playlistTags()).thenReturn(Observable.<DiscoveryItem>just(playlistTagsItem));
     }

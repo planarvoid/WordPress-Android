@@ -24,7 +24,7 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
     @Inject
     RecentlyPlayedBucketRenderer(RecentlyPlayedAdapterFactory recentlyPlayedAdapterFactory,
                                  Navigator navigator) {
-        this.adapter = recentlyPlayedAdapterFactory.create(true);
+        this.adapter = recentlyPlayedAdapterFactory.create(true, null);
         this.navigator = navigator;
     }
 
@@ -51,12 +51,12 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
     }
 
     private void bindCarousel(RecentlyPlayedBucketItem recentlyPlayedBucket) {
-        final List<RecentlyPlayedItem> recentlyPlayedItems = recentlyPlayedBucket.getRecentlyPlayedItems();
+        final List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems = recentlyPlayedBucket.getRecentlyPlayedPlayableItems();
 
         adapter.clear();
 
-        for (RecentlyPlayedItem recentlyPlayedItem : recentlyPlayedItems) {
-            adapter.addItem(recentlyPlayedItem);
+        for (RecentlyPlayedPlayableItem recentlyPlayedPlayableItem : recentlyPlayedPlayableItems) {
+            adapter.addItem(recentlyPlayedPlayableItem);
         }
         adapter.notifyDataSetChanged();
     }

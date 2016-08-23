@@ -2,13 +2,13 @@ package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_HISTORY;
-import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_ADDED;
+import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_CHANGE;
 import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -138,16 +138,16 @@ public class CollectionOperations {
         }
     };
 
-    private static final Func4<List<PlaylistItem>, LikesItem, List<TrackItem>, List<RecentlyPlayedItem>, MyCollection> TO_MY_COLLECTIONS_FOR_PLAY_HISTORY = new Func4<List<PlaylistItem>, LikesItem, List<TrackItem>, List<RecentlyPlayedItem>, MyCollection>() {
+    private static final Func4<List<PlaylistItem>, LikesItem, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection> TO_MY_COLLECTIONS_FOR_PLAY_HISTORY = new Func4<List<PlaylistItem>, LikesItem, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection>() {
         @Override
         public MyCollection call(List<PlaylistItem> playlistItems,
                                  LikesItem likes,
                                  List<TrackItem> playHistoryTrackItems,
-                                 List<RecentlyPlayedItem> recentlyPlayedItems) {
+                                 List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems) {
             return MyCollection.forCollectionWithPlayHistory(likes,
                                                              playlistItems,
                                                              playHistoryTrackItems,
-                                                             recentlyPlayedItems,
+                                                             recentlyPlayedPlayableItems,
                                                              false);
         }
     };
@@ -181,13 +181,13 @@ public class CollectionOperations {
                 }
             };
 
-    private static final Func4<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedItem>>, Notification<MyCollection>> TO_MY_COLLECTIONS_FOR_PLAY_HISTORY_OR_ERROR =
-            new Func4<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedItem>>, Notification<MyCollection>>() {
+    private static final Func4<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedPlayableItem>>, Notification<MyCollection>> TO_MY_COLLECTIONS_FOR_PLAY_HISTORY_OR_ERROR =
+            new Func4<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedPlayableItem>>, Notification<MyCollection>>() {
                 @Override
                 public Notification<MyCollection> call(Notification<List<PlaylistItem>> playlists,
                                                        Notification<LikesItem> likes,
                                                        Notification<List<TrackItem>> playHistoryTrackItems,
-                                                       Notification<List<RecentlyPlayedItem>> recentlyPlayedItems) {
+                                                       Notification<List<RecentlyPlayedPlayableItem>> recentlyPlayedItems) {
                     if (playlists.isOnCompleted() && likes.isOnCompleted() && playHistoryTrackItems.isOnCompleted() && recentlyPlayedItems
                             .isOnCompleted()) {
                         return Notification.createOnCompleted();
@@ -201,7 +201,7 @@ public class CollectionOperations {
                             Collections.<TrackItem>emptyList() :
                             playHistoryTrackItems.getValue(),
                             recentlyPlayedItems.isOnError() ?
-                            Collections.<RecentlyPlayedItem>emptyList() :
+                            Collections.<RecentlyPlayedPlayableItem>emptyList() :
                             recentlyPlayedItems.getValue(),
                             likes.isOnError() || playlists.isOnError() || playHistoryTrackItems.isOnError() || recentlyPlayedItems
                                     .isOnError()
@@ -273,7 +273,7 @@ public class CollectionOperations {
     public Observable<Object> onCollectionChangedWithPlayHistory() {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
-                eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_ADDED)
+                eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_CHANGE)
         );
     }
 
@@ -296,11 +296,11 @@ public class CollectionOperations {
         ).dematerialize();
     }
 
-    private Observable<List<RecentlyPlayedItem>> recentlyPlayed() {
+    private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {
         return recentlyPlayedOperations.recentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
     }
 
-    private Observable<List<RecentlyPlayedItem>> refreshRecentlyPlayedItems() {
+    private Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayedItems() {
         return recentlyPlayedOperations.refreshRecentlyPlayed(RecentlyPlayedOperations.CAROUSEL_ITEMS);
     }
 

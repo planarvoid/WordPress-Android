@@ -12,7 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryCollectionPresenter;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -42,7 +42,7 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
 
     private static final List<PlaylistItem> PLAYLISTS = ModelFixtures.create(PlaylistItem.class, 2);
     private static final List<TrackItem> PLAY_HISTORY = singletonList(mock(TrackItem.class));
-    private static final List<RecentlyPlayedItem> RECENTLY_PLAYED = singletonList(mock(RecentlyPlayedItem.class));
+    private static final List<RecentlyPlayedPlayableItem> RECENTLY_PLAYED = singletonList(mock(RecentlyPlayedPlayableItem.class));
 
     private static final MyCollection MY_COLLECTION = MyCollection.forCollectionWithPlayHistory(LIKES,
                                                                                                 PLAYLISTS,
@@ -53,12 +53,12 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
             LIKES,
             PLAYLISTS,
             Collections.<TrackItem>emptyList(),
-            Collections.<RecentlyPlayedItem>emptyList(),
+            Collections.<RecentlyPlayedPlayableItem>emptyList(),
             false);
     private static final MyCollection MY_COLLECTION_EMPTY = MyCollection.forCollectionWithPlayHistory(NO_LIKES,
                                                                                                       Collections.<PlaylistItem>emptyList(),
                                                                                                       Collections.<TrackItem>emptyList(),
-                                                                                                      Collections.<RecentlyPlayedItem>emptyList(),
+                                                                                                      Collections.<RecentlyPlayedPlayableItem>emptyList(),
                                                                                                       false);
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.default_recyclerview_with_refresh);

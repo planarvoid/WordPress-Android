@@ -21,39 +21,47 @@ public class RecentlyPlayedOperations {
     private final Scheduler scheduler;
     private final SyncOperations syncOperations;
     private final RecentlyPlayedStorage recentlyPlayedStorage;
+    private ClearRecentlyPlayedCommand clearRecentlyPlayedCommand;
 
     @Inject
     public RecentlyPlayedOperations(RecentlyPlayedStorage recentlyPlayedStorage,
                                     @Named(HIGH_PRIORITY) Scheduler scheduler,
-                                    SyncOperations syncOperations) {
+                                    SyncOperations syncOperations,
+                                    ClearRecentlyPlayedCommand clearRecentlyPlayedCommand) {
         this.recentlyPlayedStorage = recentlyPlayedStorage;
         this.scheduler = scheduler;
         this.syncOperations = syncOperations;
+        this.clearRecentlyPlayedCommand = clearRecentlyPlayedCommand;
     }
 
-    public Observable<List<RecentlyPlayedItem>> recentlyPlayed() {
+    Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed() {
         return recentlyPlayed(MAX_RECENTLY_PLAYED);
     }
 
-    public Observable<List<RecentlyPlayedItem>> recentlyPlayed(int limit) {
+    public Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayed(int limit) {
         return syncOperations.lazySyncIfStale(Syncable.RECENTLY_PLAYED)
                              .observeOn(scheduler)
                              .onErrorResumeNext(Observable.just(Result.NO_OP))
                              .flatMap(continueWith(recentlyPlayedItems(limit)));
     }
 
-    public Observable<List<RecentlyPlayedItem>> refreshRecentlyPlayed() {
+    Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed() {
         return refreshRecentlyPlayed(MAX_RECENTLY_PLAYED);
     }
 
-    public Observable<List<RecentlyPlayedItem>> refreshRecentlyPlayed(int limit) {
+    public Observable<List<RecentlyPlayedPlayableItem>> refreshRecentlyPlayed(int limit) {
         return syncOperations.sync(Syncable.RECENTLY_PLAYED)
                              .observeOn(scheduler)
                              .onErrorResumeNext(Observable.just(Result.NO_OP))
                              .flatMap(continueWith(recentlyPlayedItems(limit)));
     }
 
-    private Observable<List<RecentlyPlayedItem>> recentlyPlayedItems(int limit) {
+    Observable<Boolean> clearHistory() {
+        return clearRecentlyPlayedCommand.toObservable(null)
+                                      .subscribeOn(scheduler);
+    }
+
+    private Observable<List<RecentlyPlayedPlayableItem>> recentlyPlayedItems(int limit) {
         return recentlyPlayedStorage.loadContexts(limit).toList();
     }
 

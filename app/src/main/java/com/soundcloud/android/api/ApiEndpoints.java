@@ -123,6 +123,7 @@ public enum ApiEndpoints {
 
     // recently played
     RECENTLY_PLAYED("/recently-played/contexts"),
+    CLEAR_RECENTLY_PLAYED("/recently-played/contexts/all"),
 
     // public API
     PLAY_PUBLISH("/tpub"),

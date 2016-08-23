@@ -5,6 +5,7 @@ import static com.soundcloud.android.collection.playhistory.PlayHistoryItem.Kind
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
@@ -18,13 +19,9 @@ import android.view.View;
 class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, PlayHistoryAdapter.PlayHistoryViewHolder>
         implements PlayingTrackAware {
 
-    interface PlayHistoryClickListener {
-        void onClearHistoryClicked();
-    }
-
-    PlayHistoryAdapter(PlayHistoryAdapter.PlayHistoryClickListener listener,
-                              @Provided PlayHistoryTrackRenderer trackRenderer,
-                              @Provided PlayHistoryHeaderRendererFactory headerRendererFactory) {
+    PlayHistoryAdapter(SimpleHeaderRenderer.MenuClickListener listener,
+                       @Provided PlayHistoryTrackRenderer trackRenderer,
+                       @Provided PlayHistoryHeaderRendererFactory headerRendererFactory) {
         super(new CellRendererBinding<>(PlayHistoryTrack.ordinal(), trackRenderer),
               new CellRendererBinding<>(PlayHistoryHeader.ordinal(), headerRendererFactory.create(listener)));
     }
