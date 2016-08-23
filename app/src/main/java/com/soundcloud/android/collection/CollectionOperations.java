@@ -25,10 +25,8 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
@@ -61,7 +59,6 @@ public class CollectionOperations {
 
     private final EventBus eventBus;
     private final Scheduler scheduler;
-    private final SyncStateStorage syncStateStorage;
     private final PlaylistPostStorage playlistPostStorage;
     private final PlaylistLikesStorage playlistLikesStorage;
     private final LoadLikedTrackPreviewsCommand loadLikedTrackPreviews;
@@ -244,7 +241,6 @@ public class CollectionOperations {
     @Inject
     CollectionOperations(EventBus eventBus,
                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                         SyncStateStorage syncStateStorage,
                          PlaylistPostStorage playlistPostStorage,
                          PlaylistLikesStorage playlistLikesStorage,
                          LoadLikedTrackPreviewsCommand loadLikedTrackPreviews,
@@ -256,7 +252,6 @@ public class CollectionOperations {
                          RecentlyPlayedOperations recentlyPlayedOperations) {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
-        this.syncStateStorage = syncStateStorage;
         this.playlistPostStorage = playlistPostStorage;
         this.playlistLikesStorage = playlistLikesStorage;
         this.loadLikedTrackPreviews = loadLikedTrackPreviews;
@@ -314,8 +309,8 @@ public class CollectionOperations {
     }
 
     private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
-        return syncStateStorage
-                .hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)
+        return syncInitiator
+                .hasSyncedMyPlaylistsBefore()
                 .flatMap(new Func1<Boolean, Observable<List<PlaylistItem>>>() {
                     @Override
                     public Observable<List<PlaylistItem>> call(Boolean hasSynced) {
@@ -353,8 +348,7 @@ public class CollectionOperations {
     }
 
     private Observable<List<LikedTrackPreview>> tracksLiked() {
-        return syncStateStorage
-                .hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)
+        return syncInitiator.hasSyncedMyLikesBefore()
                 .flatMap(new Func1<Boolean, Observable<List<LikedTrackPreview>>>() {
                     @Override
                     public Observable<List<LikedTrackPreview>> call(Boolean hasSynced) {

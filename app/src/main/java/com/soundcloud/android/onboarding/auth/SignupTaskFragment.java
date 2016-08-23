@@ -77,7 +77,8 @@ public class SignupTaskFragment extends AuthTaskFragment {
                                                   configurationOperations,
                                                   eventBus,
                                                   accountOperations,
-                                                  apiClient);
+                                                  apiClient,
+                                                  syncInitiatorBridge);
         loginTask.setTaskOwner(this);
         return loginTask;
     }
@@ -88,6 +89,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
         return new SignupTask((SoundCloudApplication) getActivity().getApplication(),
                               storeUsersCommand,
                               tokenUtils,
-                              apiClient);
+                              apiClient,
+                              syncInitiatorBridge);
     }
 }

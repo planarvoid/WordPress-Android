@@ -24,10 +24,8 @@ import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.sync.LegacySyncContent;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -50,7 +48,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
     private CollectionOperations operations;
 
-    @Mock private SyncStateStorage syncStateStorage;
     @Mock private SyncInitiatorBridge syncInitiator;
     @Mock private PlaylistPostStorage playlistPostStorage;
     @Mock private PlaylistLikesStorage playlistLikeStorage;
@@ -81,7 +78,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         operations = new CollectionOperations(
                 eventBus,
                 Schedulers.immediate(),
-                syncStateStorage,
                 playlistPostStorage,
                 playlistLikeStorage,
                 loadLikedTrackPreviewsCommand,
@@ -94,9 +90,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));
-        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)).thenReturn(Observable.just(true));
-        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(
-                true));
+        when(syncInitiator.hasSyncedMyPlaylistsBefore()).thenReturn(Observable.just(true));
+        when(syncInitiator.hasSyncedMyLikesBefore()).thenReturn(Observable.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(
                 Urn.forTrackStation(123L))));
         when(stationsOperations.sync()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
@@ -342,9 +337,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(syncInitiator.refreshLikes()).thenReturn(subject);
         when(syncInitiator.refreshMyPlaylists()).thenReturn(subject);
 
-        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri)).thenReturn(Observable.just(false));
-        when(syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri)).thenReturn(Observable.just(
-                false));
+        when(syncInitiator.hasSyncedMyLikesBefore()).thenReturn(Observable.just(false));
+        when(syncInitiator.hasSyncedMyPlaylistsBefore()).thenReturn(Observable.just(false));
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
         operations.collections(options).subscribe(subscriber);

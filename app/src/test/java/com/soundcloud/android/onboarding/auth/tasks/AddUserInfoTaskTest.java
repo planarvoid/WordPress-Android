@@ -13,6 +13,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
@@ -27,6 +28,7 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private SoundCloudApplication application;
     @Mock private AccountOperations accountOperations;
+    @Mock private SyncInitiatorBridge syncInitiatorBridge;
 
     private PublicApiUser user;
 
@@ -42,7 +44,7 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                 eq(PublicApiUser.class))).thenReturn(user);
 
         AddUserInfoTask task = new AddUserInfoTask(
-                application, "permalink", "name", null, storeUsersCommand, apiClient, accountOperations);
+                application, "permalink", "name", null, storeUsersCommand, apiClient, accountOperations, syncInitiatorBridge);
         AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
         assertThat(result.getUser().getUrn()).isEqualTo(user.getUrn());
@@ -63,7 +65,8 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                 new File("doesntexist"),
                 storeUsersCommand,
                 apiClient,
-                accountOperations);
+                accountOperations,
+                syncInitiatorBridge);
         AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
         assertThat(result.getUser().getUrn()).isEqualTo(user.getUrn());
@@ -84,7 +87,8 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                                                    tmp,
                                                    storeUsersCommand,
                                                    apiClient,
-                                                   accountOperations);
+                                                   accountOperations,
+                                                   syncInitiatorBridge);
         AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isTrue();
         assertThat(result.getUser().getUsername()).isEqualTo(user.getUsername());
@@ -103,7 +107,8 @@ public class AddUserInfoTaskTest extends AndroidUnitTest {
                                                    null,
                                                    storeUsersCommand,
                                                    apiClient,
-                                                   accountOperations);
+                                                   accountOperations,
+                                                   syncInitiatorBridge);
         AuthTaskResult result = task.doInBackground();
         assertThat(result.wasSuccess()).isFalse();
         assertThat(result.wasValidationError()).isTrue();
