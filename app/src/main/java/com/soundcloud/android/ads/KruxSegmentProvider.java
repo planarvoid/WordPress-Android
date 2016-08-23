@@ -1,7 +1,6 @@
 package com.soundcloud.android.ads;
 
 import android.content.Context;
-import android.os.Handler;
 import android.os.Looper;
 
 import com.krux.androidsdk.aggregator.KruxEventAggregator;
@@ -14,6 +13,8 @@ import com.soundcloud.java.strings.Strings;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import static com.soundcloud.java.checks.Preconditions.checkState;
+
 @Singleton
 class KruxSegmentProvider {
 
@@ -23,7 +24,8 @@ class KruxSegmentProvider {
 
     @Inject
     KruxSegmentProvider(final Context context) {
-        try { // Must be done on the main thread
+        try {
+            checkState(Thread.currentThread() == Looper.getMainLooper().getThread());
             KruxEventAggregator.initialize(context.getApplicationContext(),
                                            context.getString(R.string.krux_configuration_id),
                                            new KruxSegments() {
