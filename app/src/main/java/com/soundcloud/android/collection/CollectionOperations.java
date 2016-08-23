@@ -8,8 +8,8 @@ import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.likes.LikeProperty;
@@ -310,7 +310,7 @@ public class CollectionOperations {
 
     private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
         return syncInitiator
-                .hasSyncedMyPlaylistsBefore()
+                .hasSyncedLikedAndPostedPlaylistsBefore()
                 .flatMap(new Func1<Boolean, Observable<List<PlaylistItem>>>() {
                     @Override
                     public Observable<List<PlaylistItem>> call(Boolean hasSynced) {
@@ -325,7 +325,7 @@ public class CollectionOperations {
 
     private Observable<List<PlaylistItem>> refreshAndLoadPlaylists(final PlaylistsOptions options) {
         return syncInitiator
-                .refreshMyPlaylists()
+                .refreshMyPostedAndLikedPlaylists()
                 .flatMap(continueWith(loadPlaylists(options)));
     }
 
@@ -348,7 +348,7 @@ public class CollectionOperations {
     }
 
     private Observable<List<LikedTrackPreview>> tracksLiked() {
-        return syncInitiator.hasSyncedMyLikesBefore()
+        return syncInitiator.hasSyncedTrackLikesBefore()
                 .flatMap(new Func1<Boolean, Observable<List<LikedTrackPreview>>>() {
                     @Override
                     public Observable<List<LikedTrackPreview>> call(Boolean hasSynced) {
@@ -389,7 +389,7 @@ public class CollectionOperations {
     }
 
     private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {
-        return syncInitiator.refreshLikes().flatMap(continueWith(likedTrackPreviews()));
+        return syncInitiator.refreshLikedTracks().flatMap(continueWith(likedTrackPreviews()));
     }
 
     private Observable<List<LikedTrackPreview>> likedTrackPreviews() {
@@ -433,7 +433,6 @@ public class CollectionOperations {
                                                                                                          Long.MAX_VALUE);
         final Observable<List<PropertySet>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT,
                                                                                                           Long.MAX_VALUE);
-
         if (options.showLikes() && !options.showPosts()) {
             return loadLikedPlaylists;
         } else if (options.showPosts() && !options.showLikes()) {

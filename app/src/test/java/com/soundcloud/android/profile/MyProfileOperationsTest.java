@@ -2,24 +2,18 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.MyProfileOperations.PAGE_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
 import com.soundcloud.android.sync.SyncJobResult;
-import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
@@ -39,15 +33,10 @@ import java.util.List;
 public class MyProfileOperationsTest extends AndroidUnitTest {
 
     private MyProfileOperations operations;
-    private List<PropertySet> posts;
 
     @Mock private PostsStorage postStorage;
-    @Mock private SyncStateStorage syncStateStorage;
     @Mock private SyncInitiatorBridge syncInitiatorBridge;
     @Mock private SyncInitiator syncInitiator;
-    @Mock private PlaylistPostStorage playlistPostStorage;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
-    @Mock private LikesStorage likesStorage;
     @Mock private UserAssociationStorage userAssociationStorage;
 
     private Scheduler scheduler = Schedulers.immediate();
@@ -55,163 +44,14 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new MyProfileOperations(likesStorage,
-                                             postStorage,
-                                             playlistPostStorage,
-                                             syncInitiatorBridge,
-                                             networkConnectionHelper,
-                                             syncInitiator,
-                                             userAssociationStorage,
-                                             scheduler);
+        operations = new MyProfileOperations(
+                postStorage,
+                syncInitiatorBridge,
+                syncInitiator,
+                userAssociationStorage,
+                scheduler);
 
-
-        posts = Arrays.asList(
-                TestPropertySets.expectedPostedPlaylistForPostsScreen(),
-                TestPropertySets.expectedPostedTrackForPostsScreen()
-        );
         subscriber = new TestSubscriber<>();
-    }
-
-    @Test
-    public void postsForPlaybackLoadsTrackPostsFromStorage() {
-        final List<PropertySet> trackPosts = createPageOfPostedTracks(PAGE_SIZE);
-        when(postStorage.loadPostsForPlayback()).thenReturn(Observable.just(trackPosts));
-
-        operations.postsForPlayback().subscribe(subscriber);
-
-        subscriber.assertValues(trackPosts);
-    }
-
-    @Test
-    public void syncAndLoadLikesWhenInitialLikesLoadReturnsEmptyList() {
-        final List<PropertySet> firstPage = createPageOfLikes(PAGE_SIZE);
-        when(likesStorage.loadLikes(PAGE_SIZE,
-                                    Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
-                                                                Observable.just(firstPage));
-        when(syncInitiatorBridge.refreshLikes()).thenReturn(Observable.<Void>just(null));
-
-        operations.pagedLikes().subscribe(subscriber);
-
-        subscriber.assertValue(firstPage);
-    }
-
-    @Test
-    public void syncAndLoadEmptyLikesResultsWithEmptyResults() {
-        when(likesStorage.loadLikes(PAGE_SIZE,
-                                    Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiatorBridge.refreshLikes()).thenReturn(Observable.<Void>just(null));
-
-        operations.pagedLikes().subscribe(subscriber);
-
-        subscriber.assertValue(Collections.<PropertySet>emptyList());
-    }
-
-    @Test
-    public void pagedLikesReturnsLikesFromStorage() {
-        final List<PropertySet> pageOfLikes = createPageOfLikes(2);
-
-        when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(pageOfLikes));
-        when(syncInitiatorBridge.refreshLikes()).thenReturn(Observable.<Void>empty());
-
-        operations.pagedLikes().subscribe(subscriber);
-
-        subscriber.assertValue(pageOfLikes);
-    }
-
-    @Test
-    public void likesPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() {
-        final List<PropertySet> firstPage = createPageOfLikes(PAGE_SIZE);
-        final long time = firstPage.get(PAGE_SIZE - 1).get(LikeProperty.CREATED_AT).getTime();
-        when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
-        when(likesStorage.loadLikes(PAGE_SIZE, time)).thenReturn(Observable.<List<PropertySet>>never());
-        when(syncInitiatorBridge.refreshLikes()).thenReturn(Observable.<Void>empty());
-
-        operations.likesPagingFunction().call(firstPage);
-
-        verify(likesStorage).loadLikes(PAGE_SIZE, time);
-    }
-
-    @Test
-    public void likesPagerFinishesIfLastPageIncomplete() {
-        assertThat(operations.likesPagingFunction().call(createPageOfLikes(PAGE_SIZE - 1))).isEqualTo(Pager.finish());
-    }
-
-    @Test
-    public void updatedLikesReloadsLikesAfterSyncWithChange() {
-        final List<PropertySet> pageOfLikes = createPageOfLikes(2);
-        when(likesStorage.loadLikes(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(pageOfLikes));
-        when(syncInitiatorBridge.refreshLikes()).thenReturn(Observable.<Void>just(null));
-
-        operations.updatedLikes().subscribe(subscriber);
-
-        subscriber.assertValue(pageOfLikes);
-    }
-
-    @Test
-    public void syncAndLoadPlaylistsWhenInitialPlaylistLoadReturnsEmptyList() {
-        final List<PropertySet> firstPage = createPageOfPlaylists(PAGE_SIZE);
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE,
-                                                     Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()),
-                                                                                 Observable.just(firstPage));
-        when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(Observable.<Void>just(null));
-
-        operations.pagedPlaylistItems().subscribe(subscriber);
-
-        subscriber.assertValue(firstPage);
-    }
-
-    @Test
-    public void syncAndLoadEmptyPlaylistsResultsWithEmptyResults() {
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE,
-                                                     Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
-        when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(Observable.<Void>just(null));
-
-        operations.pagedPlaylistItems().subscribe(subscriber);
-
-        subscriber.assertValue(Collections.<PropertySet>emptyList());
-    }
-
-    @Test
-    public void pagedPlaylistItemsReturnsPlaylistItemsFromStorage() {
-        final List<PropertySet> playlists = createPageOfPlaylists(2);
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
-        when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(Observable.<Void>empty());
-
-        operations.pagedPlaylistItems().subscribe(subscriber);
-
-        subscriber.assertValue(playlists);
-    }
-
-    @Test
-    public void playlistPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() {
-        final List<PropertySet> firstPage = createPageOfPlaylists(PAGE_SIZE);
-        final List<PropertySet> secondPage = createPageOfPlaylists(1);
-
-        final long time = firstPage.get(PAGE_SIZE - 1).get(PostProperty.CREATED_AT).getTime();
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, time)).thenReturn(Observable.just(secondPage));
-        when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(Observable.<Void>empty());
-
-        operations.playlistPagingFunction().call(firstPage).subscribe(subscriber);
-
-        subscriber.assertReceivedOnNext(Arrays.asList(secondPage));
-    }
-
-    @Test
-    public void playlistPagerFinishesIfLastPageIncomplete() {
-        assertThat(operations.playlistPagingFunction()
-                             .call(createPageOfPlaylists(PAGE_SIZE - 1))).isEqualTo(Pager.finish());
-    }
-
-    @Test
-    public void updatedPostedPlaylistsReloadsPostedPlaylistsAfterSyncWithChange() {
-        final List<PropertySet> playlists = createPageOfPlaylists(2);
-        when(playlistPostStorage.loadPostedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(playlists));
-        when(syncInitiatorBridge.refreshMyPlaylists()).thenReturn(Observable.<Void>just(null));
-
-        operations.updatedPlaylists().subscribe(subscriber);
-
-        subscriber.assertValue(playlists);
     }
 
     @Test

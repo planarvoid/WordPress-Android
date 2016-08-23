@@ -11,6 +11,7 @@ import rx.Notification;
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.subscriptions.Subscriptions;
 
 import java.util.List;
@@ -34,6 +35,14 @@ public final class RxUtils {
     public static final Func1<Object, Void> TO_VOID = new Func1<Object, Void>() {
         @Override
         public Void call(Object ignore) {
+            return null;
+        }
+    };
+
+    public static final Func2<Object, Object, Void> ZIP_TO_VOID = new Func2<Object, Object, Void>() {
+        @Override
+        public Void call(Object ignored,
+                         Object ignored2) {
             return null;
         }
     };

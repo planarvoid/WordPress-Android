@@ -35,9 +35,10 @@ public class SyncInitiatorBridge {
         }
     }
 
-    public Observable<Boolean> hasSyncedMyPlaylistsBefore() {
+    public Observable<Boolean> hasSyncedLikedAndPostedPlaylistsBefore() {
         if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
-            return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.MY_PLAYLISTS));
+            return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.MY_PLAYLISTS) &&
+                                           syncStateStorage.hasSyncedBefore(Syncable.PLAYLIST_LIKES));
         } else {
             return syncStateStorage.hasSyncedBefore(LegacySyncContent.MyPlaylists.content.uri);
         }
@@ -51,19 +52,28 @@ public class SyncInitiatorBridge {
         }
     }
 
-    public Observable<Boolean> hasSyncedMyLikesBefore() {
+    public Observable<Void> refreshMyPostedAndLikedPlaylists() {
         if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
-            return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.TRACK_LIKES)
-                                           && syncStateStorage.hasSyncedBefore(Syncable.PLAYLIST_LIKES));
+            return syncInitiator.sync(Syncable.MY_PLAYLISTS)
+                                .zipWith(syncInitiator.sync(Syncable.PLAYLIST_LIKES), RxUtils.ZIP_TO_VOID
+            );
+        } else {
+            return legacySyncInitiator.refreshMyPlaylists()
+                                      .zipWith(legacySyncInitiator.syncPlaylistLikes(), RxUtils.ZIP_TO_VOID);
+        }
+    }
+
+    public Observable<Boolean> hasSyncedTrackLikesBefore() {
+        if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
+            return Observable.just(syncStateStorage.hasSyncedBefore(Syncable.TRACK_LIKES));
         } else {
             return syncStateStorage.hasSyncedBefore(LegacySyncContent.MyLikes.content.uri);
         }
     }
 
-    public Observable<Void> refreshLikes() {
+    public Observable<Void> refreshLikedTracks() {
         if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
-            return syncInitiator.sync(Syncable.TRACK_LIKES).mergeWith(syncInitiator.sync(Syncable.PLAYLIST_LIKES))
-                                .map(RxUtils.TO_VOID);
+            return syncInitiator.sync(Syncable.TRACK_LIKES).map(RxUtils.TO_VOID);
         } else {
             return legacySyncInitiator.refreshLikes().map(RxUtils.TO_VOID);
         }

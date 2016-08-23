@@ -90,8 +90,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));
-        when(syncInitiator.hasSyncedMyPlaylistsBefore()).thenReturn(Observable.just(true));
-        when(syncInitiator.hasSyncedMyLikesBefore()).thenReturn(Observable.just(true));
+        when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Observable.just(true));
+        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(
                 Urn.forTrackStation(123L))));
         when(stationsOperations.sync()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
@@ -334,11 +334,11 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Test
     public void collectionsSyncsBeforeReturningIfNeverSyncedBefore() throws Exception {
         final PublishSubject<Void> subject = PublishSubject.create();
-        when(syncInitiator.refreshLikes()).thenReturn(subject);
-        when(syncInitiator.refreshMyPlaylists()).thenReturn(subject);
+        when(syncInitiator.refreshLikedTracks()).thenReturn(subject);
+        when(syncInitiator.refreshMyPostedAndLikedPlaylists()).thenReturn(subject);
 
-        when(syncInitiator.hasSyncedMyLikesBefore()).thenReturn(Observable.just(false));
-        when(syncInitiator.hasSyncedMyPlaylistsBefore()).thenReturn(Observable.just(false));
+        when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(false));
+        when(syncInitiator.hasSyncedLikedAndPostedPlaylistsBefore()).thenReturn(Observable.just(false));
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
         operations.collections(options).subscribe(subscriber);
@@ -361,8 +361,8 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Test
     public void updatedCollectionsReturnsMyCollectionsAfterSync() throws Exception {
         final PublishSubject<Void> subject = PublishSubject.create();
-        when(syncInitiator.refreshLikes()).thenReturn(subject);
-        when(syncInitiator.refreshMyPlaylists()).thenReturn(subject);
+        when(syncInitiator.refreshLikedTracks()).thenReturn(subject);
+        when(syncInitiator.refreshMyPostedAndLikedPlaylists()).thenReturn(subject);
 
         final PlaylistsOptions options = PlaylistsOptions.builder().showPosts(true).showLikes(true).build();
         operations.updatedCollections(options).subscribe(subscriber);
