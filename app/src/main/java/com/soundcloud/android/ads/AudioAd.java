@@ -2,6 +2,7 @@ package com.soundcloud.android.ads;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
@@ -28,14 +29,14 @@ public abstract class AudioAd extends PlayerAdData {
                 adTracking.resumeUrls,
                 apiAudioAd.isSkippable(),
                 extractVisualAdDisplayProperties(apiAudioAd),
-                apiAudioAd.isThirdParty(),
                 apiAudioAd.getApiTrack().getStreamUrl(),
                 apiAudioAd.hasCompanion() ? Optional.of(apiAudioAd.getCompanion().urn) : Optional.<Urn>absent(),
                 apiAudioAd.hasCompanion() ? Optional.of(Uri.parse(apiAudioAd.getCompanion().imageUrl)): Optional.<Uri>absent(),
                 extractClickThrough(apiAudioAd),
                 apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().ctaButtonText : Optional.<String>absent(),
                 apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().trackingImpressionUrls : Collections.<String>emptyList(),
-                apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().trackingClickUrls : Collections.<String>emptyList());
+                apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().trackingClickUrls : Collections.<String>emptyList(),
+                Lists.transform(apiAudioAd.getAudioSources(), ApiAudioAdSource.toAudioAdSource));
     }
 
     public static AudioAd create(ApiAudioAd apiAudioAd, Urn monetizableUrn) {
@@ -65,8 +66,6 @@ public abstract class AudioAd extends PlayerAdData {
         return getCompanionAdUrn().isPresent();
     }
 
-    public abstract boolean isThirdParty();
-
     public abstract String getStreamUrl();
 
     public abstract Optional<Urn> getCompanionAdUrn();
@@ -80,4 +79,6 @@ public abstract class AudioAd extends PlayerAdData {
     public abstract List<String> getCompanionImpressionUrls();
 
     public abstract List<String> getCompanionClickUrls();
+
+    public abstract List<AudioAdSource> getAudioSources();
 }

@@ -40,6 +40,7 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.skippy.Skippy;
@@ -106,7 +107,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                              Skippy.SkippyMediaType.UNKNOWN.name(),
                                                                              0,
                                                                              userUrn,
-                                                                             false);
+                                                                             PlaybackType.AUDIO_DEFAULT);
         when(dataBuilderv0.build(event)).thenReturn("url");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -125,7 +126,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
                                                                              "video/mp4",
                                                                              200,
                                                                              userUrn,
-                                                                             true);
+                                                                             PlaybackType.VIDEO_AD);
         when(dataBuilderv1.buildForRichMediaPerformance(event)).thenReturn("url");
 
         eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);

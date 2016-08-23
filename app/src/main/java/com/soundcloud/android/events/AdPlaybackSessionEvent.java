@@ -158,4 +158,8 @@ public class AdPlaybackSessionEvent extends TrackingEvent {
     public int getStopReason() {
         return stopReason;
     }
+
+    public boolean isVideoAd() {
+        return MONETIZATION_VIDEO.equals(get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE));
+    }
 }

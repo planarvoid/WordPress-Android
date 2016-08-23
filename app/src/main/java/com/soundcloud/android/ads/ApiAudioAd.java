@@ -15,6 +15,7 @@ class ApiAudioAd {
 
     private final Urn urn;
     private final ApiTrack apiTrack;
+    private final List<ApiAudioAdSource> audioSources;
     private final boolean skippable;
 
     private final ApiCompanionAd visualAd;
@@ -27,9 +28,11 @@ class ApiAudioAd {
                       @JsonProperty("track") ApiTrack apiTrack,
                       @JsonProperty("skippable") boolean skippable,
                       @JsonProperty("_embedded") RelatedResources relatedResources,
+                      @JsonProperty("audio_sources") List<ApiAudioAdSource> audioSources,
                       @JsonProperty("audio_tracking") ApiAdTracking apiAdTracking) {
         this.urn = urn;
         this.apiTrack = apiTrack;
+        this.audioSources = audioSources;
         this.skippable = skippable;
         this.visualAd = relatedResources.visualAd;
         this.leaveBehind = relatedResources.apiLeaveBehind;
@@ -42,6 +45,10 @@ class ApiAudioAd {
 
     public ApiTrack getApiTrack() {
         return apiTrack;
+    }
+
+    public List<ApiAudioAdSource> getAudioSources() {
+        return audioSources;
     }
 
     public boolean isSkippable() {
@@ -82,10 +89,6 @@ class ApiAudioAd {
             this.visualAd = visualAd;
             this.apiLeaveBehind = apiLeaveBehind;
         }
-    }
-
-    public boolean isThirdParty() {
-        return AdUtils.isThirdPartyAudioAd(apiTrack.getUrn());
     }
 
     @Override

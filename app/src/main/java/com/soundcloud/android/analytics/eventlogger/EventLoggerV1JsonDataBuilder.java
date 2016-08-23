@@ -153,7 +153,7 @@ public class EventLoggerV1JsonDataBuilder {
         return transform(buildBaseEvent(IMPRESSION_EVENT, eventData)
                                  .adUrn(eventData.get(PlayableTrackingKeys.KEY_AD_URN))
                                  .pageName(eventData.trackSourceInfo.getOriginScreen())
-                                 .impressionName("video_ad_impression")
+                                 .impressionName(eventData.isVideoAd() ? "video_ad_impression" : "audio_ad_impression")
                                  .monetizedObject(eventData.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
                                  .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE)));
     }
@@ -198,7 +198,7 @@ public class EventLoggerV1JsonDataBuilder {
 
     public String buildForRichMediaPerformance(PlaybackPerformanceEvent event) {
         return transform(buildBaseEvent(RICH_MEDIA_PERFORMANCE_EVENT, event.getTimestamp())
-                                 .mediaType("video")
+                                 .mediaType(event.isVideoAd() ? "video" : "audio")
                                  .protocol(event.getProtocol().getValue())
                                  .playerType(event.getPlayerType().getValue())
                                  .format(getRichMediaFormatName(event.getFormat()))

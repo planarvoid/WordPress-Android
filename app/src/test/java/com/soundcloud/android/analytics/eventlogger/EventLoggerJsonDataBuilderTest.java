@@ -31,6 +31,7 @@ import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -524,7 +525,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                                              MEDIA_TYPE,
                                                                              BIT_RATE,
                                                                              LOGGED_IN_USER,
-                                                                             false);
+                                                                             PlaybackType.AUDIO_DEFAULT);
 
         jsonDataBuilder.build(event);
 

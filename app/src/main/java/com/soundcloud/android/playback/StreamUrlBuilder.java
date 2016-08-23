@@ -1,6 +1,9 @@
 package com.soundcloud.android.playback;
 
+import android.net.Uri;
+
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AudioAdSource;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
@@ -36,5 +39,16 @@ public class StreamUrlBuilder {
             urlBuilder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
         }
         return urlBuilder;
+    }
+
+    public String buildAdUrlWithAuth(AudioAdSource source) {
+        Uri.Builder builder = Uri.parse(source.getUrl()).buildUpon();
+
+        Token token = accountOperations.getSoundCloudToken();
+        if (token.valid()) {
+            builder.appendQueryParameter(ApiRequest.Param.OAUTH_TOKEN.toString(), token.getAccessToken());
+        }
+
+        return builder.build().toString();
     }
 }

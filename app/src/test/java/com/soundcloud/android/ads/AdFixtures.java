@@ -53,10 +53,6 @@ public class AdFixtures {
         return AudioAd.create(getNonClickableApiAudioAd(), monetizableUrn);
     }
 
-    public static AudioAd getThirdPartyAudioAd(Urn monetizableUrn) {
-        return AudioAd.create(getApiAudioAdForThirdParty(), monetizableUrn);
-    }
-
     public static AudioAd getCompanionlessAudioAd(Urn monetizableUrn) {
         return AudioAd.create(getCompanionlessAudioAd(), monetizableUrn);
     }
@@ -125,13 +121,6 @@ public class AdFixtures {
         );
     }
 
-    static ApiAudioAd getApiAudioAdForThirdParty() {
-        final ApiAudioAd audioAd = getApiAudioAdWithCompanion(getApiCompanionAd(), SKIPPABLE);
-        audioAd.getApiTrack().setUrn(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
-        audioAd.getApiTrack().setStreamUrl("http://thirdparty.com/ad.mp3");
-        return audioAd;
-    }
-
     static ApiAudioAd getApiAudioAd() {
         return getApiAudioAdWithCompanion(getApiCompanionAd(), SKIPPABLE);
     }
@@ -160,6 +149,7 @@ public class AdFixtures {
                 ModelFixtures.create(ApiTrack.class),
                 skippable,
                 relatedResources,
+                getApiAudioAdSources(),
                 getApiAudioAdTracking()
         );
     }
@@ -171,6 +161,7 @@ public class AdFixtures {
                 ModelFixtures.create(ApiTrack.class),
                 true,
                 relatedResources,
+                getApiAudioAdSources(),
                 getApiAudioAdTracking()
         );
     }
@@ -182,8 +173,14 @@ public class AdFixtures {
                 ModelFixtures.create(ApiTrack.class),
                 SKIPPABLE,
                 relatedResources,
+                getApiAudioAdSources(),
                 getApiAudioAdTracking()
         );
+    }
+
+    public static List<ApiAudioAdSource> getApiAudioAdSources() {
+        return Arrays.asList(ApiAudioAdSource.create("audio/mpeg", "http://audiourl.com/audio.mp3", false),
+                             ApiAudioAdSource.create("application/x-mpegurl", "http://audiourl.com/audio.m3u", true));
     }
 
     public static ApiVideoSource getApiVideoSource(int width, int height) {

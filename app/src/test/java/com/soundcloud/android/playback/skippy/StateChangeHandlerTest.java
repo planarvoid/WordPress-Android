@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
+import com.soundcloud.android.playback.skippy.SkippyAdapter.StateChangeHandler;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,24 +18,24 @@ import android.os.Message;
 @RunWith(MockitoJUnitRunner.class)
 public class StateChangeHandlerTest {
 
-    private SkippyAdapter.StateChangeHandler handler;
+    private StateChangeHandler handler;
 
     @Mock private Looper looper;
     @Mock private Player.PlayerListener listener;
     @Mock private Message msg;
-    @Mock private PlaybackStateTransition stateTransition;
+    @Mock private StateChangeHandler.StateChangeMessage stateChangeMessage;
     @Mock NetworkConnectionHelper connectionHelper;
 
     @Before
     public void setUp() {
-        handler = new SkippyAdapter.StateChangeHandler(looper, connectionHelper);
+        handler = new StateChangeHandler(looper, connectionHelper);
         handler.setPlayerListener(listener);
     }
 
     @Test
     public void shouldNotifyListenerOfStateChange() {
-        msg.obj = stateTransition;
+        msg.obj = stateChangeMessage;
         handler.handleMessage(msg);
-        verify(listener).onPlaystateChanged(stateTransition);
+        verify(listener).onPlaystateChanged(stateChangeMessage.stateTransition);
     }
 }

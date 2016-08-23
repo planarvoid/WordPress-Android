@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -34,7 +33,6 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
@@ -48,6 +46,8 @@ import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.PreloadItem;
+import com.soundcloud.android.playback.skippy.SkippyAdapter.StateChangeHandler;
+import com.soundcloud.android.playback.skippy.SkippyAdapter.StateChangeHandler.StateChangeMessage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.skippy.SkippyPreloader;
@@ -59,6 +59,7 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -82,7 +83,6 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public static final int BITRATE = 128000;
     private SkippyAdapter skippyAdapter;
 
-    private static final String THIRD_PARTY_AD_STREAM_URL = "https://api-mobile.soundcloud.com/streams/to-hls?duration=456&url=http%3A%2F%2Fthirdparty.com%2Fad.mp3&oauth_token=access";
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls?oauth_token=access";
     private static final String SNIPPET_STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/hls/snippet?oauth_token=access";
     private static final long PROGRESS = 500L;
@@ -94,7 +94,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private Player.PlayerListener listener;
     @Mock private AccountOperations accountOperations;
     @Mock private ApplicationProperties applicationProperties;
-    @Mock private SkippyAdapter.StateChangeHandler stateChangeHandler;
+    @Mock private StateChangeHandler stateChangeHandler;
     @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private ApiUrlBuilder snippetApiUrlBuilder;
     @Mock private Message message;
@@ -107,7 +107,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private SecureFileStorage secureFileStorage;
     @Mock private CryptoOperations cryptoOperations;
-    @Captor private ArgumentCaptor<PlaybackStateTransition> stateCaptor;
+    @Captor private ArgumentCaptor<StateChangeMessage> stateChangeMessageCaptor;
+    @Captor private ArgumentCaptor<Message> messageCaptor;
 
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
@@ -150,7 +151,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         when(applicationProperties.isReleaseBuild()).thenReturn(true);
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
-        when(stateChangeHandler.obtainMessage(eq(0), any(PlaybackStateTransition.class))).thenReturn(new Message());
+        when(stateChangeHandler.obtainMessage(eq(0), any(StateChangeMessage.class))).thenReturn(message);
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
 
@@ -203,21 +204,12 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playFirstPartyAudioAdPlaysUrlOnSkippy() {
+    public void playAudioAdPlaysUrlOnSkippy() {
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
 
         skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
 
-        verify(skippy).play(STREAM_URL, 0, true);
-    }
-
-    @Test
-    public void playThirdPartyAudioAdPlaysThirdPartyStreamUrlOnSkippy() {
-        final AudioAd audioAd = setupThirdPartyAudioAd();
-
-        skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
-
-        verify(skippy).play(THIRD_PARTY_AD_STREAM_URL, 0, false);
+        verify(skippy).play("http://audiourl.com/audio.m3u?oauth_token=access", 0, false);
     }
 
     @Test
@@ -423,27 +415,28 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     @Test
     public void skippyIdlePausedEventTranslatesToListenerIdleEvent() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                       PlayStateReason.NONE,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.NONE,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION,
+                                                                         dateProvider);
+
         skippyAdapter.onStateChanged(State.IDLE, Reason.PAUSED, Error.OK, PROGRESS, DURATION, STREAM_URL, MP3, BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void skippyIdleStoppedEventTranslatesToListenerIdleNoneEvent() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                       PlayStateReason.NONE,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.NONE,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION,
+                                                                         dateProvider);
+
         skippyAdapter.onStateChanged(State.IDLE,
                                      Reason.STOPPED,
                                      Error.OK,
@@ -452,19 +445,20 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void skippyPlayingTranslatesToListenerPlayingEvent() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.PLAYING,
-                                                                       PlayStateReason.NONE,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
+                                                                         PlayStateReason.NONE,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION,
+                                                                         dateProvider);
+
         skippyAdapter.onStateChanged(State.PLAYING,
                                      Reason.NOTHING,
                                      Error.OK,
@@ -473,19 +467,19 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void skippyPlayBufferingTranslatesToListenerBufferingEvent() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.BUFFERING,
-                                                                       PlayStateReason.NONE,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.BUFFERING,
+                                                                         PlayStateReason.NONE,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION,
+                                                                         dateProvider);
         skippyAdapter.onStateChanged(State.PLAYING,
                                      Reason.BUFFERING,
                                      Error.OK,
@@ -494,19 +488,19 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void skippyIdleErrorTimeoutTranslatesToListenerTimeoutError() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                       PlayStateReason.ERROR_FAILED,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.ERROR_FAILED,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION,
+                                                                         dateProvider);
         skippyAdapter.onStateChanged(State.IDLE,
                                      Reason.ERROR,
                                      Error.TIMEOUT,
@@ -515,19 +509,20 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void skippyFailedErrorTranslatesToListenerErrorFailed() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                       PlayStateReason.ERROR_FAILED,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.ERROR_FAILED,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION,
+                                                                         dateProvider);
+
         skippyAdapter.onStateChanged(State.IDLE,
                                      Reason.ERROR,
                                      Error.FAILED,
@@ -536,19 +531,20 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void skippyIdleErrorForbiddenTranslatesToListenerErrorForbiddenEvent() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                       PlayStateReason.ERROR_FORBIDDEN,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.ERROR_FORBIDDEN,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION,
+                                                                         dateProvider);
+
         skippyAdapter.onStateChanged(State.IDLE,
                                      Reason.ERROR,
                                      Error.FORBIDDEN,
@@ -557,19 +553,20 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void skippyIdleErrorNotFoundTranslatesToListenerErrorNotFoundEvent() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                       PlayStateReason.ERROR_NOT_FOUND,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.ERROR_NOT_FOUND,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION,
+                                                                         dateProvider);
+
         skippyAdapter.onStateChanged(State.IDLE,
                                      Reason.ERROR,
                                      Error.MEDIA_NOT_FOUND,
@@ -578,19 +575,20 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void skippyIdlePausedEventAdjustsProgressToDurationBoundsWhenSendingEvent() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                       PlayStateReason.NONE,
-                                                                       trackUrn,
-                                                                       DURATION,
-                                                                       DURATION,
-                                                                       dateProvider);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.NONE,
+                                                                         trackUrn,
+                                                                         DURATION,
+                                                                         DURATION,
+                                                                         dateProvider);
+
         skippyAdapter.onStateChanged(State.IDLE,
                                      Reason.PAUSED,
                                      Error.OK,
@@ -599,18 +597,19 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).sendMessage(message);
+
+        verifyStateChangeMessage(playbackItem, transition);
     }
 
     @Test
     public void returnsLastStateChangeProgressAfterError() {
         skippyAdapter.play(playbackItem);
-        PlaybackStateTransition expected = new PlaybackStateTransition(PlaybackState.IDLE,
-                                                                       PlayStateReason.ERROR_NOT_FOUND,
-                                                                       trackUrn,
-                                                                       PROGRESS,
-                                                                       DURATION);
-        when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
+        PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.IDLE,
+                                                                         PlayStateReason.ERROR_NOT_FOUND,
+                                                                         trackUrn,
+                                                                         PROGRESS,
+                                                                         DURATION);
+
         skippyAdapter.onStateChanged(State.IDLE,
                                      Reason.ERROR,
                                      Error.MEDIA_NOT_FOUND,
@@ -619,6 +618,8 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
+
+        verifyStateChangeMessage(playbackItem, transition);
         assertThat(skippyAdapter.getProgress()).isEqualTo(PROGRESS);
     }
 
@@ -709,9 +710,9 @@ public class SkippyAdapterTest extends AndroidUnitTest {
                                      STREAM_URL,
                                      MP3,
                                      BITRATE);
-        verify(stateChangeHandler).obtainMessage(anyInt(), stateCaptor.capture());
+        verify(stateChangeHandler).obtainMessage(anyInt(), stateChangeMessageCaptor.capture());
 
-        assertThat(stateCaptor.getValue().getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL)).isEqualTo(
+        assertThat(stateChangeMessageCaptor.getValue().stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL)).isEqualTo(
                 PlaybackProtocol.HLS.getValue());
     }
 
@@ -732,14 +733,19 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void performanceMetricDoesNotPublishTimeToPlayEventEventForThirdPartyAd() {
+    public void performanceMetricPublishesTimeToPlayEventEventForAudioAds() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
-        final AudioAd audioAd = setupThirdPartyAudioAd();
-        skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
+        skippyAdapter.play(AudioAdPlaybackItem.create(track, AdFixtures.getAudioAd(trackUrn)));
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST, MP3, BITRATE);
 
-        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
+        assertThat(event.getMetricValue()).isEqualTo(1000L);
+        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.getPlayerType()).isEqualTo(PlayerType.SKIPPY);
+        assertThat(event.getProtocol()).isEqualTo(PlaybackProtocol.HLS);
+        assertThat(event.getUserUrn()).isEqualTo(userUrn);
     }
 
     @Test
@@ -899,15 +905,18 @@ public class SkippyAdapterTest extends AndroidUnitTest {
         eventBus.verifyNoEventsOn(EventQueue.PLAYBACK_PERFORMANCE);
     }
 
-    private AudioAd setupThirdPartyAudioAd() {
-        track.put(EntityProperty.URN, AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
-        final AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(trackUrn);
-        when(apiUrlBuilder.from(ApiEndpoints.STREAMS_TO_HLS)).thenReturn(apiUrlBuilder);
-        when(apiUrlBuilder.withQueryParam(SkippyAdapter.PARAM_URL, "http://thirdparty.com/ad.mp3")).thenReturn(
-                apiUrlBuilder);
-        when(apiUrlBuilder.withQueryParam(SkippyAdapter.PARAM_DURATION, "456")).thenReturn(apiUrlBuilder);
-        when(apiUrlBuilder.build()).thenReturn(THIRD_PARTY_AD_STREAM_URL);
-        return audioAd;
+    private void verifyStateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
+        verify(stateChangeHandler).obtainMessage(anyInt(), stateChangeMessageCaptor.capture());
+        final StateChangeMessage stateChangeMessage = stateChangeMessageCaptor.getValue();
+
+        assertThat(stateChangeMessage.playbackItem).isEqualTo(item);
+        assertThat(stateChangeMessage.stateTransition.getUrn()).isEqualTo(transition.getUrn());
+        assertThat(stateChangeMessage.stateTransition.getNewState()).isEqualTo(transition.getNewState());
+        assertThat(stateChangeMessage.stateTransition.getReason()).isEqualTo(transition.getReason());
+        assertThat(stateChangeMessage.stateTransition.getProgress().getPosition()).isEqualTo(transition.getProgress().getPosition());
+        assertThat(stateChangeMessage.stateTransition.getProgress().getDuration()).isEqualTo(transition.getProgress().getDuration());
+
+        verify(stateChangeHandler).sendMessage(message);
     }
 
     @NonNull

@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.ads.AdFixtures.getThirdPartyAudioAd;
 import static com.soundcloud.android.ads.AdFixtures.getVideoAd;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -47,7 +46,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
             TrackProperty.FULL_DURATION.bind(456L)
     );
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
-    private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(track, getThirdPartyAudioAd(trackUrn));
+    private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(track, AdFixtures.getAudioAd(trackUrn));
     private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);
     private VideoAdPlaybackItem videoPlaybackItem = VideoAdPlaybackItem.create(getVideoAd(trackUrn), 0L);
 

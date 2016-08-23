@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 
 import org.junit.Before;
@@ -37,7 +38,7 @@ public class PlaybackPerformanceEventTest {
                                                                              MEDIA_TYPE,
                                                                              BIT_RATE,
                                                                              userUrn,
-                                                                             false);
+                                                                             PlaybackType.AUDIO_DEFAULT);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -45,11 +46,12 @@ public class PlaybackPerformanceEventTest {
         assertThat(event.getProtocol()).isEqualTo(PROTOCOL);
         assertThat(event.getConnectionType()).isEqualTo(ConnectionType.FOUR_G);
         assertThat(event.getUserUrn()).isEqualTo(userUrn);
-        assertThat(event.isVideo()).isFalse();
+        assertThat(event.isVideoAd()).isFalse();
+        assertThat(event.isAd()).isFalse();
     }
 
     @Test
-    public void createTimeToPlayEventForVideo() throws Exception {
+    public void createTimeToPlayEventForVideoAd() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L,
                                                                              PROTOCOL,
                                                                              PLAYER_TYPE,
@@ -58,7 +60,7 @@ public class PlaybackPerformanceEventTest {
                                                                              VIDEO_MEDIA_TYPE,
                                                                              BIT_RATE,
                                                                              userUrn,
-                                                                             true);
+                                                                             PlaybackType.VIDEO_AD);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -68,7 +70,30 @@ public class PlaybackPerformanceEventTest {
         assertThat(event.getFormat()).isEqualTo(VIDEO_MEDIA_TYPE);
         assertThat(event.getBitrate()).isEqualTo(BIT_RATE);
         assertThat(event.getUserUrn()).isEqualTo(userUrn);
-        assertThat(event.isVideo()).isTrue();
+        assertThat(event.isVideoAd()).isTrue();
+        assertThat(event.isAd()).isTrue();
+    }
+
+    @Test
+    public void createTimeToPlayEventForAudioAd() throws Exception {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(1000L,
+                                                                             PROTOCOL,
+                                                                             PLAYER_TYPE,
+                                                                             CONNECTION_TYPE,
+                                                                             CDN_HOST,
+                                                                             MEDIA_TYPE,
+                                                                             BIT_RATE,
+                                                                             userUrn,
+                                                                             PlaybackType.AUDIO_AD);
+        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY);
+        assertThat(event.getMetricValue()).isEqualTo(1000L);
+        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.getPlayerType()).isEqualTo(PLAYER_TYPE);
+        assertThat(event.getProtocol()).isEqualTo(PROTOCOL);
+        assertThat(event.getConnectionType()).isEqualTo(ConnectionType.FOUR_G);
+        assertThat(event.getUserUrn()).isEqualTo(userUrn);
+        assertThat(event.isVideoAd()).isFalse();
+        assertThat(event.isAd()).isTrue();
     }
 
     @Test
@@ -90,7 +115,7 @@ public class PlaybackPerformanceEventTest {
         assertThat(event.getFormat()).isEqualTo(MEDIA_TYPE);
         assertThat(event.getBitrate()).isEqualTo(BIT_RATE);
         assertThat(event.getUserUrn()).isEqualTo(userUrn);
-        assertThat(event.isVideo()).isFalse();
+        assertThat(event.isAd()).isFalse();
     }
 
     @Test
@@ -112,7 +137,7 @@ public class PlaybackPerformanceEventTest {
         assertThat(event.getFormat()).isEqualTo(MEDIA_TYPE);
         assertThat(event.getBitrate()).isEqualTo(BIT_RATE);
         assertThat(event.getUserUrn()).isEqualTo(userUrn);
-        assertThat(event.isVideo()).isFalse();
+        assertThat(event.isAd()).isFalse();
     }
 
     @Test
@@ -134,7 +159,7 @@ public class PlaybackPerformanceEventTest {
         assertThat(event.getFormat()).isEqualTo(MEDIA_TYPE);
         assertThat(event.getBitrate()).isEqualTo(BIT_RATE);
         assertThat(event.getUserUrn()).isEqualTo(userUrn);
-        assertThat(event.isVideo()).isFalse();
+        assertThat(event.isAd()).isFalse();
     }
 
     @Test
@@ -156,7 +181,7 @@ public class PlaybackPerformanceEventTest {
         assertThat(event.getFormat()).isEqualTo(MEDIA_TYPE);
         assertThat(event.getBitrate()).isEqualTo(BIT_RATE);
         assertThat(event.getUserUrn()).isEqualTo(userUrn);
-        assertThat(event.isVideo()).isFalse();
+        assertThat(event.isAd()).isFalse();
     }
 
     @Test
@@ -178,7 +203,7 @@ public class PlaybackPerformanceEventTest {
         assertThat(event.getFormat()).isEqualTo(MEDIA_TYPE);
         assertThat(event.getBitrate()).isEqualTo(BIT_RATE);
         assertThat(event.getUserUrn()).isEqualTo(userUrn);
-        assertThat(event.isVideo()).isFalse();
+        assertThat(event.isAd()).isFalse();
     }
 
     @Test
@@ -190,7 +215,7 @@ public class PlaybackPerformanceEventTest {
                                                                                           CDN_HOST,
                                                                                           MEDIA_TYPE,
                                                                                           BIT_RATE,
-                                                                                          false);
+                                                                                          PlaybackType.AUDIO_DEFAULT);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
@@ -199,11 +224,11 @@ public class PlaybackPerformanceEventTest {
         assertThat(event.getConnectionType()).isEqualTo(CONNECTION_TYPE);
         assertThat(event.getFormat()).isEqualTo(MEDIA_TYPE);
         assertThat(event.getBitrate()).isEqualTo(BIT_RATE);
-        assertThat(event.isVideo()).isFalse();
+        assertThat(event.isAd()).isFalse();
     }
 
     @Test
-    public void createUninterruptedPlaytimeEventForVideo() throws Exception {
+    public void createUninterruptedPlaytimeEventForVideoAd() throws Exception {
         PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(1000L,
                                                                                           PROTOCOL,
                                                                                           PLAYER_TYPE,
@@ -211,13 +236,36 @@ public class PlaybackPerformanceEventTest {
                                                                                           CDN_HOST,
                                                                                           VIDEO_MEDIA_TYPE,
                                                                                           BIT_RATE,
-                                                                                          true);
+                                                                                          PlaybackType.VIDEO_AD);
         assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
         assertThat(event.getMetricValue()).isEqualTo(1000L);
         assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
         assertThat(event.getPlayerType()).isEqualTo(PLAYER_TYPE);
         assertThat(event.getProtocol()).isEqualTo(PROTOCOL);
         assertThat(event.getConnectionType()).isEqualTo(CONNECTION_TYPE);
-        assertThat(event.isVideo()).isTrue();
+        assertThat(event.isAd()).isTrue();
+        assertThat(event.isVideoAd()).isTrue();
+    }
+
+    @Test
+    public void createUninterruptedPlaytimeEventForAudioAd() throws Exception {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(1000L,
+                                                                                          PROTOCOL,
+                                                                                          PLAYER_TYPE,
+                                                                                          CONNECTION_TYPE,
+                                                                                          CDN_HOST,
+                                                                                          MEDIA_TYPE,
+                                                                                          BIT_RATE,
+                                                                                          PlaybackType.AUDIO_AD);
+        assertThat(event.getMetric()).isEqualTo(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
+        assertThat(event.getMetricValue()).isEqualTo(1000L);
+        assertThat(event.getCdnHost()).isEqualTo(CDN_HOST);
+        assertThat(event.getPlayerType()).isEqualTo(PLAYER_TYPE);
+        assertThat(event.getProtocol()).isEqualTo(PROTOCOL);
+        assertThat(event.getConnectionType()).isEqualTo(CONNECTION_TYPE);
+        assertThat(event.getFormat()).isEqualTo(MEDIA_TYPE);
+        assertThat(event.getBitrate()).isEqualTo(BIT_RATE);
+        assertThat(event.isAd()).isTrue();
+        assertThat(event.isVideoAd()).isFalse();
     }
 }

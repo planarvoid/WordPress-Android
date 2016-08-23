@@ -1,6 +1,5 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackType;
@@ -47,7 +46,4 @@ public final class AdUtils {
         return playQueueItem.getAdData().isPresent() && playQueueItem.getAdData().get() instanceof OverlayAdData;
     }
 
-    public static boolean isThirdPartyAudioAd(Urn trackUrn) {
-        return trackUrn.equals(AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
-    }
 }

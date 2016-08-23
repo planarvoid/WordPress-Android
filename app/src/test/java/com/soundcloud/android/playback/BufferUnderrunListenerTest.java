@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdConstants;
+import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -63,8 +64,9 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldSendUninterruptedPlaytimeEventForVideoWithFormatAndBitrate() {
-        createAndProcessStateTransition(Urn.forAd("dfp", "123"),
+    public void shouldSendUninterruptedPlaytimeEventForAdWithFormatAndBitrate() {
+        PlaybackItem playbackItem = VideoAdPlaybackItem.create(AdFixtures.getVideoAd(track), 0L);
+        createAndProcessStateTransition(playbackItem,
                                         PlayerType.MEDIA_PLAYER,
                                         PlaybackState.PLAYING,
                                         "video/mp4",
@@ -74,7 +76,7 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         List<PlaybackPerformanceEvent> playbackPerformanceEvents = eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE);
         assertThat(playbackPerformanceEvents).isEmpty();
 
-        createAndProcessStateTransition(Urn.forAd("dfp", "123"),
+        createAndProcessStateTransition(playbackItem,
                                         PlayerType.MEDIA_PLAYER,
                                         PlaybackState.BUFFERING,
                                         "video/mp4",
@@ -89,17 +91,7 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
         assertThat(event.getMetricValue()).isEqualTo(900L);
         assertThat(event.getBitrate()).isEqualTo(1001000);
         assertThat(event.getFormat()).isEqualTo(PlaybackConstants.MIME_TYPE_MP4);
-        assertThat(event.isVideo()).isTrue();
-    }
-
-    @Test
-    public void shouldNotSendBufferUnderrunEventsForThirdPartyAudioAds() {
-        track = AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN;
-
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.PLAYING, new Date(100L), false);
-        createAndProcessStateTransition(PlayerType.SKIPPY, PlaybackState.BUFFERING, new Date(1000L), true);
-
-        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
+        assertThat(event.isVideoAd()).isTrue();
     }
 
     @Test
@@ -194,18 +186,29 @@ public class BufferUnderrunListenerTest extends AndroidUnitTest {
                                                  int bitrate,
                                                  Date transitionTime,
                                                  boolean isBufferUnderrun) {
-        PlaybackStateTransition stateTransition = new PlaybackStateTransition(newState,
-                                                                              PlayStateReason.NONE,
-                                                                              itemUrn,
-                                                                              0,
-                                                                              0,
-                                                                              format,
-                                                                              bitrate,
-                                                                              dateProvider);
+        final PlaybackItem playbackItem = AudioPlaybackItem.create(itemUrn, 0L, 0L, PlaybackType.AUDIO_DEFAULT);
+        createAndProcessStateTransition(playbackItem, player, newState, format, bitrate, transitionTime, isBufferUnderrun);
+    }
+
+    private void createAndProcessStateTransition(PlaybackItem playbackItem,
+                                                 PlayerType player,
+                                                 PlaybackState newState,
+                                                 String format,
+                                                 int bitrate,
+                                                 Date transitionTime,
+                                                 boolean isBufferUnderrun) {
+        final PlaybackStateTransition stateTransition = new PlaybackStateTransition(newState,
+                                                                                    PlayStateReason.NONE,
+                                                                                    playbackItem.getUrn(),
+                                                                                    0,
+                                                                                    0,
+                                                                                    format,
+                                                                                    bitrate,
+                                                                                    dateProvider);
         stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE, player.getValue());
         when(detector.onStateTransitionEvent(stateTransition)).thenReturn(isBufferUnderrun);
         when(dateProvider.getCurrentDate()).thenReturn(transitionTime);
-        listener.onPlaystateChanged(stateTransition, PlaybackProtocol.HLS, player, ConnectionType.THREE_G);
+        listener.onPlaystateChanged(playbackItem, stateTransition, PlaybackProtocol.HLS, player, ConnectionType.THREE_G);
     }
 
 }

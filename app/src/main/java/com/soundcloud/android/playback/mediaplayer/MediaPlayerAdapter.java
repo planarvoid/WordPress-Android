@@ -3,11 +3,12 @@ package com.soundcloud.android.playback.mediaplayer;
 import static com.soundcloud.android.playback.PlaybackState.BUFFERING;
 import static com.soundcloud.android.playback.PlaybackState.IDLE;
 import static com.soundcloud.android.playback.PlaybackState.PLAYING;
+import static com.soundcloud.android.playback.PlaybackType.AUDIO_AD;
 import static com.soundcloud.android.playback.PlaybackType.VIDEO_AD;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdUtils;
+import com.soundcloud.android.ads.AudioAdSource;
 import com.soundcloud.android.ads.VideoAdSource;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -20,6 +21,7 @@ import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.PlaybackStateTransition;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.VideoAdPlaybackItem;
@@ -29,6 +31,8 @@ import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -60,6 +64,13 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
 
     public static final int MAX_CONNECT_RETRIES = 2;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
+
+    private static final Predicate<AudioAdSource> IS_MP3 = new Predicate<AudioAdSource>() {
+        @Override
+        public boolean apply(AudioAdSource input) {
+            return input.isMp3();
+        }
+    };
 
     private final Context context;
     private final MediaPlayerManager mediaPlayerManager;
@@ -175,16 +186,11 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     private String getAudioStreamUrl(PlaybackItem playbackItem) {
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_AD:
-                return getAudioAdStream((AudioAdPlaybackItem) playbackItem);
+                final AudioAdSource source = Iterables.find(((AudioAdPlaybackItem) playbackItem).getSources(), IS_MP3);
+                return source.requiresAuth() ? urlBuilder.buildAdUrlWithAuth(source) : source.getUrl();
             default:
                 return urlBuilder.buildHttpsStreamUrl(playbackItem.getUrn());
         }
-    }
-
-    private String getAudioAdStream(AudioAdPlaybackItem adPlaybackItem) {
-        return adPlaybackItem.isThirdParty()
-               ? adPlaybackItem.getThirdPartyStreamUrl()
-               : urlBuilder.buildHttpsStreamUrl(adPlaybackItem.getUrn());
     }
 
     @Override
@@ -218,22 +224,16 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     private void publishTimeToPlayEvent(long timeToPlay, String streamUrl) {
-        if (!isThirdPartyAudio()) {
-            final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
-                                                                                       getPlaybackProtocol(),
-                                                                                       PlayerType.MEDIA_PLAYER,
-                                                                                       networkConnectionHelper.getCurrentConnectionType(),
-                                                                                       streamUrl,
-                                                                                       getCurrentFormat(),
-                                                                                       getCurrentBitrate(),
-                                                                                       accountOperations.getLoggedInUserUrn(),
-                                                                                       isPlayingVideo());
-            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
-        }
-    }
-
-    private boolean isThirdPartyAudio() {
-        return currentItem != null && AdUtils.isThirdPartyAudioAd(currentItem.getUrn());
+        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToPlay(timeToPlay,
+                                                                                   getPlaybackProtocol(),
+                                                                                   PlayerType.MEDIA_PLAYER,
+                                                                                   networkConnectionHelper.getCurrentConnectionType(),
+                                                                                   streamUrl,
+                                                                                   getCurrentFormat(),
+                                                                                   getCurrentBitrate(),
+                                                                                   accountOperations.getLoggedInUserUrn(),
+                                                                                   currentItem.getPlaybackType());
+        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 
     private boolean isPlayingVideo() {
@@ -442,7 +442,8 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
             stateTransition.addExtraAttribute(PlaybackStateTransition.EXTRA_CONNECTION_TYPE,
                                               networkConnectionHelper.getCurrentConnectionType().getValue());
             playerListener.onPlaystateChanged(stateTransition);
-            bufferUnderrunListener.onPlaystateChanged(stateTransition,
+            bufferUnderrunListener.onPlaystateChanged(currentItem,
+                                                      stateTransition,
                                                       getPlaybackProtocol(),
                                                       PlayerType.MEDIA_PLAYER,
                                                       networkConnectionHelper.getCurrentConnectionType()
@@ -451,9 +452,13 @@ public class MediaPlayerAdapter implements Player, MediaPlayer.OnPreparedListene
     }
 
     String getCurrentFormat() {
-        return currentVideoSource.isPresent() ?
-               currentVideoSource.get().getType() :
-               Skippy.SkippyMediaType.UNKNOWN.name();
+        if (currentVideoSource.isPresent()) {
+            return currentVideoSource.get().getType();
+        } else if (currentItem != null && currentItem.getPlaybackType() == PlaybackType.AUDIO_AD) {
+            return PlaybackConstants.MIME_TYPE_MP3;
+        } else {
+            return Skippy.SkippyMediaType.UNKNOWN.name();
+        }
     }
 
     int getCurrentBitrate() {

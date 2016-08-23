@@ -8,7 +8,7 @@ import static com.soundcloud.java.checks.Preconditions.checkState;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdUtils;
+import com.soundcloud.android.ads.AudioAdSource;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
@@ -42,11 +42,14 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.Iterables;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -64,11 +67,16 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     static final String SKIPPY_INIT_SUCCESS_COUNT_KEY = "SkippyAdapter.initSuccessCount";
     static final long PRELOAD_DURATION = TimeUnit.SECONDS.toMillis(10);
     static final int PRELOAD_START_POSITION = 0;
-    static final String PARAM_URL = "url";
-    static final String PARAM_DURATION = "duration";
     private static final String PARAM_CAN_SNIP = "can_snip";
 
     private static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
+    private static final Predicate<AudioAdSource> IS_HLS = new Predicate<AudioAdSource>() {
+        @Override
+        public boolean apply(AudioAdSource input) {
+            return input.isHls();
+        }
+    };
+
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;
 
@@ -85,8 +93,9 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     private final CryptoOperations cryptoOperations;
     private final CurrentDateProvider dateProvider;
 
+    private Urn latestItemUrn;
     private volatile String currentStreamUrl;
-    private Urn currentTrackUrn;
+    private PlaybackItem currentPlaybackItem;
     private PlayerListener playerListener;
     private long lastStateChangeProgress;
 
@@ -146,7 +155,6 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void play(PlaybackItem playbackItem) {
         final long fromPos = playbackItem.getStartPosition();
-        currentTrackUrn = playbackItem.getUrn();
 
         if (!accountOperations.isUserLoggedIn()) {
             throw new IllegalStateException("Cannot play a track if no soundcloud account exists");
@@ -166,6 +174,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     private void startPlayback(PlaybackItem playbackItem, long fromPos) {
+        latestItemUrn = playbackItem.getUrn();
+        currentPlaybackItem = playbackItem;
         currentStreamUrl = buildStreamUrl(playbackItem);
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_OFFLINE:
@@ -173,7 +183,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                 skippy.playOffline(currentStreamUrl, fromPos, deviceSecret.getKey(), deviceSecret.getInitVector());
                 break;
             case AUDIO_AD:
-                final boolean shouldCache = !AdUtils.isThirdPartyAudioAd(playbackItem.getUrn());
+                final boolean shouldCache = false;
                 skippy.play(currentStreamUrl, fromPos, shouldCache);
                 break;
             default:
@@ -186,31 +196,31 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
 
         final PlaybackType playType = playbackItem.getPlaybackType();
+        final Urn urn = playbackItem.getUrn();
         switch (playbackItem.getPlaybackType()) {
             case AUDIO_OFFLINE:
-                return secureFileStorage.getFileUriForOfflineTrack(currentTrackUrn).toString();
+                return secureFileStorage.getFileUriForOfflineTrack(urn).toString();
             case AUDIO_AD:
                 return buildAudioAdUrl((AudioAdPlaybackItem) playbackItem);
             default:
-                return buildRemoteUrl(currentTrackUrn, playType);
+                return buildRemoteUrl(urn, playType);
         }
     }
 
     private String buildAudioAdUrl(AudioAdPlaybackItem adPlaybackItem) {
-        return adPlaybackItem.isThirdParty()
-               ? buildThirdPartyAdHlsUrl(adPlaybackItem)
-               : buildRemoteUrl(adPlaybackItem.getUrn(), PlaybackType.AUDIO_AD);
+        final AudioAdSource source = Iterables.find(adPlaybackItem.getSources(), IS_HLS);
+        return source.requiresAuth() ? buildAdHlsUrlWithAuth(source) : source.getUrl();
     }
 
-    private String buildThirdPartyAdHlsUrl(AudioAdPlaybackItem adPlaybackItem) {
+    private String buildAdHlsUrlWithAuth(AudioAdSource source) {
+        Uri.Builder builder = Uri.parse(source.getUrl()).buildUpon();
+
         Token token = accountOperations.getSoundCloudToken();
-        ApiUrlBuilder builder = urlBuilder.from(ApiEndpoints.STREAMS_TO_HLS);
         if (token.valid()) {
-            builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
+            builder.appendQueryParameter(ApiRequest.Param.OAUTH_TOKEN.toString(), token.getAccessToken());
         }
-        return builder.withQueryParam(PARAM_URL, adPlaybackItem.getThirdPartyStreamUrl())
-                      .withQueryParam(PARAM_DURATION, String.valueOf(adPlaybackItem.getDuration()))
-                      .build();
+
+        return builder.build().toString();
     }
 
     private String buildRemoteUrl(Urn trackUrn, PlaybackType playType) {
@@ -232,8 +242,8 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     @Override
     public void resume(PlaybackItem playbackItem) {
-        if (playbackItem.getUrn().equals(currentTrackUrn)) {
-            if (currentStreamUrl != null) {
+        if (playbackItem.getUrn().equals(latestItemUrn)) {
+            if (currentPlaybackItem != null) {
                 skippy.resume();
             } else {
                 startPlayback(playbackItem, lastStateChangeProgress);
@@ -264,7 +274,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     @Override
     public long getProgress() {
-        if (currentStreamUrl != null) {
+        if (currentPlaybackItem != null) {
             return skippy.getPosition();
         } else {
             return lastStateChangeProgress;
@@ -284,6 +294,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     @Override
     public void stop() {
         skippy.stop();
+        currentPlaybackItem = null;
         currentStreamUrl = null;
     }
 
@@ -342,7 +353,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
             final PlayStateReason translatedReason = getTranslatedReason(reason, errorCode);
             final PlaybackStateTransition transition = new PlaybackStateTransition(translatedState,
                                                                                    translatedReason,
-                                                                                   currentTrackUrn,
+                                                                                   currentPlaybackItem.getUrn(),
                                                                                    adjustedPosition,
                                                                                    duration,
                                                                                    format.name(),
@@ -357,13 +368,14 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                          String.valueOf(true));
             transition.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, uri);
 
-            if (transition.playbackHasStopped()) {
-                currentStreamUrl = null;
-            }
-
-            Message msg = stateHandler.obtainMessage(0, transition);
+            Message msg = stateHandler.obtainMessage(0, new StateChangeHandler.StateChangeMessage(currentPlaybackItem, transition));
             stateHandler.sendMessage(msg);
             configureLockBasedOnNewState(transition);
+
+            if (transition.playbackHasStopped()) {
+                currentPlaybackItem = null;
+                currentStreamUrl = null;
+            }
         }
     }
 
@@ -393,9 +405,15 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
     }
 
     private boolean allowPerformanceMeasureEvent(PlaybackMetric metric) {
-        // Time to load library & cache usage events are not specific to the current playing track
-        return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY || metric == PlaybackMetric.CACHE_USAGE_PERCENT || !AdUtils
-                .isThirdPartyAudioAd(currentTrackUrn);
+        return metric == PlaybackMetric.TIME_TO_LOAD_LIBRARY
+               || metric == PlaybackMetric.CACHE_USAGE_PERCENT
+               || metric == PlaybackMetric.TIME_TO_PLAY
+               || metric == PlaybackMetric.UNINTERRUPTED_PLAYTIME
+               || !isCurrentItemAd();
+    }
+
+    private boolean isCurrentItemAd() {
+        return currentPlaybackItem != null && currentPlaybackItem.getPlaybackType() == PlaybackType.AUDIO_AD;
     }
 
     @Override
@@ -463,7 +481,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                                            format.name(),
                                                            bitRate,
                                                            userUrn,
-                                                           false);
+                                                           currentPlaybackItem.getPlaybackType());
             case TIME_TO_BUFFER:
                 return PlaybackPerformanceEvent.timeToBuffer(value,
                                                              playbackProtocol,
@@ -525,7 +543,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
                                                                         cdnHost,
                                                                         format.name(),
                                                                         bitRate,
-                                                                        false);
+                                                                        currentPlaybackItem.getPlaybackType());
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }
@@ -541,7 +559,7 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
     private long fixPosition(long position, long duration) {
         if (position > duration) {
-            ErrorUtils.handleSilentException("track [" + currentTrackUrn + "] : position [" + position + "] > duration [" + duration + "].",
+            ErrorUtils.handleSilentException("track [" + latestItemUrn + "] : position [" + position + "] > duration [" + duration + "].",
                                              new IllegalStateException("Skippy inconsistent state : position > duration"));
             return duration;
         }
@@ -621,15 +639,26 @@ public class SkippyAdapter implements Player, Skippy.PlayListener {
 
         @Override
         public void handleMessage(Message msg) {
-            final PlaybackStateTransition stateTransition = (PlaybackStateTransition) msg.obj;
+            final StateChangeMessage message = (StateChangeMessage) msg.obj;
             if (playerListener != null) {
-                playerListener.onPlaystateChanged(stateTransition);
+                playerListener.onPlaystateChanged(message.stateTransition);
             }
             if (bufferUnderrunListener != null) {
-                bufferUnderrunListener.onPlaystateChanged(stateTransition,
+                bufferUnderrunListener.onPlaystateChanged(message.playbackItem,
+                                                          message.stateTransition,
                                                           PlaybackProtocol.HLS,
                                                           PlayerType.SKIPPY,
                                                           connectionHelper.getCurrentConnectionType());
+            }
+        }
+
+        static class StateChangeMessage {
+            final PlaybackItem playbackItem;
+            final PlaybackStateTransition stateTransition;
+
+            StateChangeMessage(PlaybackItem item, PlaybackStateTransition transition) {
+                this.playbackItem = item;
+                this.stateTransition = transition;
             }
         }
     }

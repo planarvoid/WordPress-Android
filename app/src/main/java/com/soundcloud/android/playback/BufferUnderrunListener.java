@@ -1,11 +1,9 @@
 package com.soundcloud.android.playback;
 
-import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -38,7 +36,8 @@ public class BufferUnderrunListener {
         this.dateProvider = dateProvider;
     }
 
-    public void onPlaystateChanged(PlaybackStateTransition stateTransition,
+    public void onPlaystateChanged(PlaybackItem playbackItem,
+                                   PlaybackStateTransition stateTransition,
                                    PlaybackProtocol playbackProtocol,
                                    PlayerType playerType,
                                    ConnectionType currentConnectionType) {
@@ -53,7 +52,7 @@ public class BufferUnderrunListener {
             uninterruptedPlayTime = incrementPlaytime(uninterruptedPlayTime);
             if (isBufferUnderrun) {
                 checkForEmptyPlayerType(stateTransition);
-                emitUninterruptedPlaytimeEvent(stateTransition.getUrn(),
+                emitUninterruptedPlaytimeEvent(playbackItem,
                                                playbackProtocol,
                                                playerType,
                                                currentConnectionType,
@@ -71,26 +70,24 @@ public class BufferUnderrunListener {
         return uninterruptedPlayTime + (dateProvider.getCurrentDate().getTime() - enteringPlayingStateTime.getTime());
     }
 
-    private void emitUninterruptedPlaytimeEvent(Urn item,
+    private void emitUninterruptedPlaytimeEvent(PlaybackItem item,
                                                 PlaybackProtocol playbackProtocol,
                                                 PlayerType playerType,
                                                 ConnectionType currentConnectionType,
                                                 long uninterruptedPlayTime,
                                                 String format,
                                                 int bitrate) {
-        if (!AdUtils.isThirdPartyAudioAd(item)) {
-            final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(
-                    uninterruptedPlayTime,
-                    playbackProtocol,
-                    playerType,
-                    currentConnectionType,
-                    item.toString(),
-                    format,
-                    bitrate,
-                    item.isAd());
-            Log.i(TAG, "Playa buffer underrun. " + event);
-            eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
-        }
+        final PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(
+                uninterruptedPlayTime,
+                playbackProtocol,
+                playerType,
+                currentConnectionType,
+                item.toString(),
+                format,
+                bitrate,
+                item.getPlaybackType());
+        Log.i(TAG, "Playa buffer underrun. " + event);
+        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 
     // This should be removed when we discover why we are getting empty player types

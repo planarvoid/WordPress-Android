@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 
 public final class PlaybackPerformanceEvent {
 
@@ -24,7 +25,7 @@ public final class PlaybackPerformanceEvent {
     private final String cdnHost;
     private final ConnectionType connectionType;
     private final Urn userUrn;
-    private boolean isVideoAd;
+    private PlaybackType playbackType;
 
     private PlaybackPerformanceEvent(int metric,
                                      long value,
@@ -54,7 +55,7 @@ public final class PlaybackPerformanceEvent {
                                                                    String cdnHost,
                                                                    String format,
                                                                    int bitRate,
-                                                                   boolean isVideoAd) {
+                                                                   PlaybackType playbackType) {
         return new PlaybackPerformanceEvent(METRIC_UNINTERRUPTED_PLAYTIME_MS,
                                             value,
                                             protocol,
@@ -63,8 +64,7 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            Urn.NOT_SET)
-                .setVideoAd(isVideoAd);
+                                            Urn.NOT_SET).setPlaybackType(playbackType);
     }
 
     public static PlaybackPerformanceEvent cacheUsagePercent(long value,
@@ -93,7 +93,7 @@ public final class PlaybackPerformanceEvent {
                                                       String format,
                                                       int bitRate,
                                                       Urn urn,
-                                                      boolean isVideoAd) {
+                                                      PlaybackType playbackType) {
         return new PlaybackPerformanceEvent(METRIC_TIME_TO_PLAY,
                                             value,
                                             protocol,
@@ -102,8 +102,7 @@ public final class PlaybackPerformanceEvent {
                                             cdnHost,
                                             format,
                                             bitRate,
-                                            urn)
-                .setVideoAd(isVideoAd);
+                                            urn).setPlaybackType(playbackType);
     }
 
     public static PlaybackPerformanceEvent timeToPlaylist(long value,
@@ -201,13 +200,17 @@ public final class PlaybackPerformanceEvent {
                                             urn);
     }
 
-    public PlaybackPerformanceEvent setVideoAd(boolean isVideoAd) {
-        this.isVideoAd = isVideoAd;
+    public PlaybackPerformanceEvent setPlaybackType(PlaybackType playbackType) {
+        this.playbackType = playbackType;
         return this;
     }
 
-    public boolean isVideo() {
-        return isVideoAd;
+    public boolean isAd(){
+        return playbackType == PlaybackType.VIDEO_AD || playbackType == PlaybackType.AUDIO_AD;
+    }
+
+    public boolean isVideoAd() {
+        return playbackType == PlaybackType.VIDEO_AD;
     }
 
     public int getMetric() {
