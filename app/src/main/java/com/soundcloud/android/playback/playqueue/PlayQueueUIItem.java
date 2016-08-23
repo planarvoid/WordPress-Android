@@ -12,6 +12,11 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.support.annotation.ColorInt;
+import android.support.v4.content.ContextCompat;
+
 class PlayQueueUIItem {
 
     private final PlayQueueItem playQueueItem;
@@ -19,6 +24,7 @@ class PlayQueueUIItem {
     private final int uniqueId;
     private final int statusLabelId;
     private final ImageResource imageResource;
+    private final int titleTextColor;
     private boolean isInRepeatMode;
     private boolean isPlaying;
     private boolean isDraggable;
@@ -27,23 +33,27 @@ class PlayQueueUIItem {
                            TrackItem trackItem,
                            int uniqueId,
                            int statusLabelId,
+                           @ColorInt int titleTextColor,
                            ImageResource imageResource) {
         this.playQueueItem = playQueueItem;
         this.trackItem = trackItem;
         this.uniqueId = uniqueId;
         this.statusLabelId = statusLabelId;
         this.imageResource = imageResource;
+        this.titleTextColor = titleTextColor;
         this.isInRepeatMode = false;
         this.isPlaying = false;
         this.isDraggable = false;
     }
 
-    static PlayQueueUIItem from(PlayQueueItem playQueueItem, TrackItem trackItem) {
+    static PlayQueueUIItem from(PlayQueueItem playQueueItem, TrackItem trackItem,
+                                Context context) {
         return new PlayQueueUIItem(
                 playQueueItem,
                 trackItem,
                 System.identityHashCode(playQueueItem),
                 createStatusLabelId(trackItem),
+                getColor(trackItem.isBlocked(), context),
                 getImageResource(trackItem)
         );
     }
@@ -92,6 +102,11 @@ class PlayQueueUIItem {
         this.isInRepeatMode = isInRepeatMode;
     }
 
+    @ColorInt
+    public int getTitleTextColor() {
+        return titleTextColor;
+    }
+
     public boolean isPlaying() {
         return isPlaying;
     }
@@ -112,7 +127,7 @@ class PlayQueueUIItem {
         Urn urn = trackItem.getUrn();
         PropertySet propertySet = trackItem.getSource();
         Optional<String> templateUrl = propertySet.getOrElse(EntityProperty.IMAGE_URL_TEMPLATE,
-                                                             Optional.<String>absent());
+                Optional.<String>absent());
         return SimpleImageResource.create(urn, templateUrl);
     }
 
@@ -127,6 +142,14 @@ class PlayQueueUIItem {
             return R.layout.private_label;
         } else {
             return Consts.NOT_SET;
+        }
+    }
+
+    private static int getColor(boolean blocked, Context context) {
+        if (blocked) {
+            return ContextCompat.getColor(context, R.color.ak_medium_dark_gray);
+        } else {
+            return ContextCompat.getColor(context, R.color.ak_light_gray);
         }
     }
 }

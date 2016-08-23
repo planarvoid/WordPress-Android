@@ -1,15 +1,18 @@
 package com.soundcloud.android.playback.playqueue;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import android.content.Context;
 
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.rx.eventbus.EventBus;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayQueuePresenterTest {
@@ -20,6 +23,7 @@ public class PlayQueuePresenterTest {
     @Mock private PlayQueueArtworkController playerArtworkController;
     @Mock private PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory;
     @Mock private EventBus eventbus;
+    @Mock private Context context;
     private PlayQueuePresenter presenter;
 
     @Before
@@ -30,7 +34,8 @@ public class PlayQueuePresenterTest {
                 playQueueOperations,
                 playerArtworkController,
                 swipeToRemoveCallbackFactory,
-                eventbus
+                eventbus,
+                context
         );
     }
 

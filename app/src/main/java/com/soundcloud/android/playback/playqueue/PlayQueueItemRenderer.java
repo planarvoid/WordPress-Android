@@ -1,5 +1,11 @@
 package com.soundcloud.android.playback.playqueue;
 
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -8,20 +14,15 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import java.util.List;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
 
     public static final float ALPHA_DISABLED = 0.5f;
     public static final float ALPHA_ENABLED = 1.0f;
-    private static final int FIVE_PIXELS = 5;
+    private static final int EXTENDED_TOUCH_DP = 6;
 
     private final ImageOperations imageOperations;
     private final PlayQueueManager playQueueManager;
@@ -53,8 +54,8 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
         title.setText(item.getTitle());
         creator.setText(item.getCreator());
         imageOperations.displayInAdapterView(item.getImageResource(),
-                                             ApiImageSize.getListItemImageSize(itemView.getResources()),
-                                             imageView);
+                ApiImageSize.getListItemImageSize(itemView.getResources()),
+                imageView);
         statusPlaceHolder.removeAllViews();
         setListener(position, itemView, item);
         setClickable(itemView, item);
@@ -62,15 +63,20 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
         setRepeatAlpha(item, imageView, textHolder);
         setupOverFlow(item, overFlowButton, position);
         setBackground(item, itemView);
+        setTitleColor(item, title);
+    }
+
+    private void setTitleColor(PlayQueueUIItem item, TextView titleTextView) {
+        titleTextView.setTextColor(item.getTitleTextColor());
     }
 
     private void setStatusLabel(ViewGroup statusPlaceHolder,
                                 View itemView,
                                 PlayQueueUIItem playQueueUIItem) {
         if (playQueueUIItem.isPlaying()) {
-            statusPlaceHolder.addView(View.inflate(itemView.getContext(), R.layout.playing, null));
+            View.inflate(itemView.getContext(), R.layout.playing, statusPlaceHolder);
         } else if (playQueueUIItem.getStatusLabelId() != -1) {
-            statusPlaceHolder.addView(View.inflate(itemView.getContext(), playQueueUIItem.getStatusLabelId(), null));
+            View.inflate(itemView.getContext(), playQueueUIItem.getStatusLabelId(), statusPlaceHolder);
         }
 
     }
@@ -109,7 +115,7 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
     }
 
     private void setupOverFlow(final PlayQueueUIItem item, final ImageView overflowButton, final int position) {
-        ViewUtils.extendTouchArea(overflowButton, ViewUtils.dpToPx(overflowButton.getContext(), FIVE_PIXELS));
+        ViewUtils.extendTouchArea(overflowButton, ViewUtils.dpToPx(overflowButton.getContext(), EXTENDED_TOUCH_DP));
         if (item.isDraggable()) {
             overflowButton.setImageResource(R.drawable.drag_handle);
         } else {
@@ -117,7 +123,10 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
             overflowButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    trackItemMenuPresenter.show(ViewUtils.getFragmentActivity(view), view, item.getTrackItem(), position);
+                    trackItemMenuPresenter.show(ViewUtils.getFragmentActivity(view),
+                            view,
+                            item.getTrackItem(),
+                            position);
                 }
             });
         }

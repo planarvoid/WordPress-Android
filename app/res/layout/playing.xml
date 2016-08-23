@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.soundcloud.android.view.CustomFontTextView android:id="@+id/now_playing"
+<com.soundcloud.android.view.CustomFontTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/now_playing"
     style="@style/ListItemText.TertiaryText"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:layout_marginBottom="-4dp"
+    android:layout_marginTop="0dp"
     android:drawableLeft="@drawable/ic_now_playing"
     android:text="@string/title_now_playing"
     android:textColor="@color/ak_sc_orange" />

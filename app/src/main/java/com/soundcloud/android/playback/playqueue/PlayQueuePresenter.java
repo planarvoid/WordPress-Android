@@ -1,10 +1,19 @@
 package com.soundcloud.android.playback.playqueue;
 
-import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ONE;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ToggleButton;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -22,23 +31,20 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.rx.eventbus.EventBus;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ToggleButton;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.List;
+
+import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ONE;
 
 class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         implements TrackItemRenderer.Listener {
@@ -56,6 +62,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     private final PlayQueueArtworkController artworkController;
 
     private final EventBus eventBus;
+    private final Context context;
     private final CompositeSubscription eventSubscriptions = new CompositeSubscription();
     private final PlayQueueSwipeToRemoveCallback playQueueSwipeToRemoveCallback;
     private final Func1<List<TrackAndPlayQueueItem>, List<PlayQueueUIItem>> toPlayQueueUIItem = new Func1<List<TrackAndPlayQueueItem>, List<PlayQueueUIItem>>() {
@@ -63,15 +70,17 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> trackAndPlayQueueItems) {
             final List<PlayQueueUIItem> items = new ArrayList<>();
             for (TrackAndPlayQueueItem trackAndPlayQueueItem : trackAndPlayQueueItems) {
-                items.add(PlayQueueUIItem.from(trackAndPlayQueueItem.playQueueItem, trackAndPlayQueueItem.trackItem));
+                items.add(PlayQueueUIItem.from(trackAndPlayQueueItem.playQueueItem, trackAndPlayQueueItem.trackItem, context));
             }
             return items;
         }
     };
     private Subscription updateSubscription = RxUtils.invalidSubscription();
 
-    @Bind(R.id.recycler_view) RecyclerView recyclerView;
-    @Bind(R.id.play_queue_drawer) View playQueueDrawer;
+    @Bind(R.id.recycler_view)
+    RecyclerView recyclerView;
+    @Bind(R.id.play_queue_drawer)
+    View playQueueDrawer;
     private PlayQueueItemAnimator animator;
 
     @Inject
@@ -80,12 +89,14 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
                               PlayQueueOperations playQueueOperations,
                               PlayQueueArtworkController playerArtworkController,
                               PlayQueueSwipeToRemoveCallbackFactory swipeToRemoveCallbackFactory,
-                              EventBus eventBus) {
+                              EventBus eventBus,
+                              Context context) {
         this.adapter = adapter;
         this.playQueueManager = playQueueManager;
         this.playQueueOperations = playQueueOperations;
         this.artworkController = playerArtworkController;
         this.eventBus = eventBus;
+        this.context = context;
         this.playQueueSwipeToRemoveCallback = swipeToRemoveCallbackFactory.create(this);
     }
 
@@ -120,13 +131,13 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     private void subscribeToEvents() {
         eventSubscriptions.add(eventBus.subscribeImmediate(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                                                           new UpdateCurrentTrackSubscriber()));
+                new UpdateCurrentTrackSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
-                                       .filter(isNotMoveOrRemovedEvent)
-                                       .subscribe(new ChangePlayQueueSubscriber()));
+                .filter(isNotMoveOrRemovedEvent)
+                .subscribe(new ChangePlayQueueSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
-                                       .observeOn(AndroidSchedulers.mainThread())
-                                       .subscribe(new PlaybackProgressSubscriber()));
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new PlaybackProgressSubscriber()));
         eventSubscriptions.add(
                 eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -149,9 +160,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     private void refreshPlayQueue() {
         updateSubscription = playQueueOperations.getTracks()
-                                                .map(toPlayQueueUIItem)
-                                                .observeOn(AndroidSchedulers.mainThread())
-                                                .subscribe(new PlayQueueSubscriber());
+                .map(toPlayQueueUIItem)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new PlayQueueSubscriber());
     }
 
     private int getScrollPosition() {

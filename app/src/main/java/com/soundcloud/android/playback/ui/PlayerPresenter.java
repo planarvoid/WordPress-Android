@@ -52,7 +52,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private static final int CHANGE_TRACKS_DELAY = 350;
     private static final int UNSKIPPABLE_UNLOCK = 500;
 
-    @LightCycle final PlayerPagerPresenter presenter;
+    @LightCycle
+    final PlayerPagerPresenter presenter;
 
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
@@ -96,9 +97,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         @Override
         public void call(CurrentPlayQueueItemEvent currentItemEvent) {
             unblockPagerSubscription = eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
-                                               .first(isBecomingSkippable)
-                                               .observeOn(AndroidSchedulers.mainThread())
-                                               .subscribe(getRestoreQueueSubscriber());
+                    .first(isBecomingSkippable)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(getRestoreQueueSubscriber());
         }
     };
 
@@ -206,15 +207,15 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
         // setup player ad
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                                 .doOnNext(onTrackChanged)
-                                 .filter(isCurrentTrackAd)
-                                 .doOnNext(allowScrollAfterAdSkipTimeout)
-                                 .subscribe(new ShowAudioAdSubscriber()));
+                .doOnNext(onTrackChanged)
+                .filter(isCurrentTrackAd)
+                .doOnNext(allowScrollAfterAdSkipTimeout)
+                .subscribe(new ShowAudioAdSubscriber()));
 
         // set position from track change
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                                 .filter(notWaitingForScroll)
-                                 .subscribe(setPagerPositionFromPlayQueueManager));
+                .filter(notWaitingForScroll)
+                .subscribe(setPagerPositionFromPlayQueueManager));
     }
 
     private void setupScrollingSubscribers() {
@@ -222,12 +223,12 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
                 .getPageChangedObservable();
 
         subscription.add(pageChangedObservable
-                                 .subscribe(new SetQueueOnScrollSubscriber()));
+                .subscribe(new SetQueueOnScrollSubscriber()));
 
         subscription.add(pageChangedObservable
-                                 .doOnNext(updateAdapter)
-                                 .filter(isInForeground)
-                                 .subscribe(new ChangeTracksSubscriber()));
+                .doOnNext(updateAdapter)
+                .filter(isInForeground)
+                .subscribe(new ChangeTracksSubscriber()));
     }
 
     @Override
@@ -249,9 +250,9 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
             return false;
         } else {
             fragmentManager.beginTransaction()
-                           .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                           .remove(fragment)
-                           .commitAllowingStateLoss();
+                    .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                    .remove(fragment)
+                    .commitAllowingStateLoss();
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
             return true;
         }
@@ -323,18 +324,18 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
                 if (fragment == null) {
                     eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.lockPlayQueue());
                     fragmentManager.beginTransaction()
-                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                                   .add(R.id.player_pager_holder,
-                                        playQueueFragmentFactory.create(),
-                                        PlayQueueFragment.TAG)
-                                   .commitAllowingStateLoss();
+                            .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                            .add(R.id.player_pager_holder,
+                                    playQueueFragmentFactory.create(),
+                                    PlayQueueFragment.TAG)
+                            .commitAllowingStateLoss();
                 }
             } else if (playQueueUIEvent.isHideEvent()) {
                 if (fragment != null) {
                     fragmentManager.beginTransaction()
-                                   .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
-                                   .remove(fragment)
-                                   .commitAllowingStateLoss();
+                            .setCustomAnimations(R.anim.ak_fade_in, R.anim.ak_fade_out)
+                            .remove(fragment)
+                            .commitAllowingStateLoss();
                     eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayQueue());
                 }
             }

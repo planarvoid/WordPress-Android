@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/track_list_item"
     style="@style/ListItemLayout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -71,6 +70,8 @@
             style="@style/ListItemText.HighTierTrack.Preview"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@id/image"
+            android:paddingBottom="2dp"
+            android:paddingTop="1dp"
             android:visibility="gone" />
 
         <com.soundcloud.android.view.CustomFontTextView

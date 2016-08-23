@@ -70,7 +70,7 @@
             android:layout_height="match_parent"
             android:headerDividersEnabled="false"
             android:scrollbars="vertical"
-            tools:listitem="@layout/track_list_light_item" />
+            tools:listitem="@layout/playqueue_track_item" />
 
     </LinearLayout>
 </FrameLayout>

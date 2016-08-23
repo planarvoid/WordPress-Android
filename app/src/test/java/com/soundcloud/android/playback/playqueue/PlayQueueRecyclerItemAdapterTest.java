@@ -9,6 +9,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.optional.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -17,7 +18,8 @@ public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
 
     private PlayQueueRecyclerItemAdapter adapter;
 
-    @Mock private PlayQueueItemRenderer playQueueItemRenderer;
+    @Mock
+    private PlayQueueItemRenderer playQueueItemRenderer;
 
     private PlayQueueUIItem playQueueItem1;
     private PlayQueueUIItem playQueueItem2;
@@ -69,6 +71,7 @@ public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
         final TrackQueueItem trackQueueItem = new TrackQueueItem(track, Urn.NOT_SET, Urn.NOT_SET, "source", "version", Optional.<AdData>absent(), false, Urn.NOT_SET, Urn.NOT_SET, false);
         final TrackItem trackItem = new TrackItem(TestPropertySets.expectedTrackForListItem(track));
         final int someReourceId = 123;
-        return new PlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someReourceId, null);
+        final int color = 321;
+        return new PlayQueueUIItem(trackQueueItem, trackItem, uniqueId, someReourceId, color, null);
     }
 }
