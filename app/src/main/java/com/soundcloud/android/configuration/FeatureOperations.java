@@ -36,6 +36,10 @@ public class FeatureOperations {
         return planStorage.getPlan();
     }
 
+    public boolean shouldUseKruxForAdTargeting() {
+        return featureStorage.isEnabled(FeatureName.KRUX_ADS, false);
+    }
+
     public boolean isDevelopmentMenuEnabled() {
         return featureStorage.isEnabled(FeatureName.DEVELOPMENT_MENU, applicationProperties.isDebugBuild());
     }

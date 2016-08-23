@@ -55,6 +55,23 @@ public class FeatureOperationsTest {
     }
 
     @Test
+    public void shouldUseKruxForAdTargetingIsDisabledByDefault() {
+        assertThat(featureOperations.shouldUseKruxForAdTargeting()).isFalse();
+    }
+
+    @Test
+    public void shouldUseKruxForAdTargetingIsDisabledWhenStorageContainsFeatureFalse() {
+        when(featureStorage.isEnabled(FeatureName.KRUX_ADS, false)).thenReturn(false);
+        assertThat(featureOperations.shouldUseKruxForAdTargeting()).isFalse();
+    }
+
+    @Test
+    public void shouldUseKruxForAdTargetingIsEnabledWhenStorageContainsFeatureTrue() {
+        when(featureStorage.isEnabled(FeatureName.KRUX_ADS, false)).thenReturn(true);
+        assertThat(featureOperations.shouldUseKruxForAdTargeting()).isTrue();
+    }
+
+    @Test
     public void developmentMenuDisabledByDefault() {
         assertThat(featureOperations.isDevelopmentMenuEnabled()).isFalse();
     }
