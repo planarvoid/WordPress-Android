@@ -9,12 +9,14 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.LegacyStationTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
+@LegacyStationTest
 public class StartStationTest extends TrackingActivityTest<LauncherActivity> {
     private static final String START_STATION_FROM_PLAYLIST = "audio-events-v1-start_station_from_playlist";
 

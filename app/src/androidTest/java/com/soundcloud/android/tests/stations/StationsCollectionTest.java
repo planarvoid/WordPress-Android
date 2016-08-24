@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.LegacyStationTest;
 import com.soundcloud.android.framework.annotation.StationsHomeTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.CollectionScreen;
@@ -35,6 +36,7 @@ public class StationsCollectionTest extends ActivityTest<LauncherActivity> {
         collectionScreen = mainNavHelper.goToCollections();
     }
 
+    @LegacyStationTest
     public void testStartedStationShouldBeAddedToRecentStations() {
         final String stationTrackTitle = startStationAndReturnTitle(false);
         final RecentStationsScreen recentStationsScreen = mainNavHelper.goToCollections().clickRecentStations();

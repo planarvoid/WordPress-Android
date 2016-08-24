@@ -15,8 +15,8 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.stations.StationHomeScreen;
 
 /**
- * This test tests exactly the same functionality as StartStationTest, the only difference is that it takes
- * into account the station home page. StartStationTest should be replaces by StationsHomeTest after StationHome
+ * This test tests exactly the same functionality as LegacyStationTest, the only difference is that it takes
+ * into account the station home page. LegacyStationTest should be replaces by StationsHomeTest after StationHome
  * (StationInfoPage) is released
  */
 @StationsHomeTest
@@ -45,7 +45,7 @@ public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void testStartStationFromTrackItem() {
+    public void testOpenStationFromTrackItem() {
         startEventTracking();
 
         final VisualPlayerElement player = playlistDetailsScreen
@@ -63,7 +63,7 @@ public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> 
         finishEventTracking(START_STATION_FROM_PLAYLIST);
     }
 
-    public void testStartStationFromPlayer() {
+    public void testOpenStationFromPlayer() {
         VisualPlayerElement player = playlistDetailsScreen.clickFirstTrack();
         final String originalTitle = player.getTrackTitle();
 
@@ -79,7 +79,7 @@ public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> 
         assertThat(player.getTrackPageContext(), containsString(originalTitle));
     }
 
-    public void testStartStationShouldResume() {
+    public void testOpenStationShouldResume() {
         final VisualPlayerElement player = playlistDetailsScreen
                 .findAndClickFirstTrackOverflowButton()
                 .clickStation()

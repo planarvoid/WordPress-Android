@@ -28,7 +28,7 @@ public class StationHomeScreen extends Screen {
     }
 
     public String stationTitle() {
-        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.title))).getText();
+        return new TextElement(testDriver.findOnScreenElement(With.id(R.id.station_title))).getText();
     }
 
     private ViewElement playButton() {

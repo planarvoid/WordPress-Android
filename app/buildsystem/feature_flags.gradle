@@ -55,6 +55,7 @@ android {
       buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
+      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
     }
 
     beta {
@@ -65,6 +66,7 @@ android {
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
     }
 
     debug {
@@ -78,6 +80,7 @@ android {
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
+      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
     }
 
     release {
@@ -87,6 +90,7 @@ android {
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
+      buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
     }
 
     preRelease {

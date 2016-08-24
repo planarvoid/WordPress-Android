@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.StationsHomeTest;
+import com.soundcloud.android.framework.annotation.*;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.discovery.DiscoveryScreen;
@@ -26,8 +26,8 @@ public class StationsRecommendationsTest extends TrackingActivityTest<MainActivi
         TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
     }
 
+    @LegacyStationTest
     public void testStartSuggestedStationFromDiscovery() {
-
         startEventTracking();
         final DiscoveryScreen discoveryScreen = mainNavHelper.goToDiscovery();
         final StationsBucketElement stationsBucketElement = discoveryScreen.stationsRecommendationsBucket();
