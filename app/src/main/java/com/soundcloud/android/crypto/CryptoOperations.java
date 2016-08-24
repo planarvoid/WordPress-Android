@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -17,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.concurrent.Callable;
 
 public class CryptoOperations {
 
@@ -49,10 +49,10 @@ public class CryptoOperations {
     }
 
     public void generateAndStoreDeviceKeyIfNeeded() {
-        fireAndForget(Observable.create(new Observable.OnSubscribe<Object>() {
+        fireAndForget(Observable.fromCallable(new Callable<DeviceSecret>() {
             @Override
-            public void call(Subscriber<? super Object> subscriber) {
-                checkAndGetDeviceKey();
+            public DeviceSecret call() throws Exception {
+                return checkAndGetDeviceKey();
             }
         }).subscribeOn(storageScheduler));
     }

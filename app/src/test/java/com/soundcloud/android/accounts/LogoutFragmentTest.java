@@ -9,7 +9,6 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentService;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestFragmentController;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -18,12 +17,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.subjects.PublishSubject;
 
 import android.support.v4.app.FragmentActivity;
 
 public class LogoutFragmentTest extends AndroidUnitTest {
 
-    private LogoutFragment fragment;
     private TestFragmentController fragmentController;
 
     @Mock private AccountOperations accountOperations;
@@ -35,18 +34,18 @@ public class LogoutFragmentTest extends AndroidUnitTest {
     @Before
     public void setup() {
         when(accountOperations.logout()).thenReturn(Observable.<Void>empty());
-        fragment = new LogoutFragment(eventBus, accountOperations, featureOperations);
+        LogoutFragment fragment = new LogoutFragment(eventBus, accountOperations, featureOperations);
         fragmentController = TestFragmentController.of(fragment);
     }
 
     @Test
     public void shouldRemoveCurrentUserAccountInOnCreate() {
-        TestObservables.MockObservable accountRemovingObservable = TestObservables.emptyObservable();
-        when(accountOperations.logout()).thenReturn(accountRemovingObservable);
+        final PublishSubject<Void> logOutOperation = PublishSubject.create();
+        when(accountOperations.logout()).thenReturn(logOutOperation);
 
         fragmentController.create();
 
-        assertThat(accountRemovingObservable.subscribedTo()).isTrue();
+        assertThat(logOutOperation.hasObservers()).isTrue();
     }
 
     @Test

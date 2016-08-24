@@ -8,7 +8,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.functions.Action1;
 
 import android.content.Context;
@@ -16,6 +15,7 @@ import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.concurrent.Callable;
 
 public class WaveformOperations {
 
@@ -63,15 +63,10 @@ public class WaveformOperations {
 
     @VisibleForTesting
     protected Observable<WaveformData> fetchDefault() {
-        return Observable.create(new Observable.OnSubscribe<WaveformData>() {
+        return Observable.fromCallable(new Callable<WaveformData>() {
             @Override
-            public void call(Subscriber<? super WaveformData> subscriber) {
-                try {
-                    subscriber.onNext(waveformParser.parse(context.getAssets().open(DEFAULT_WAVEFORM_ASSET_FILE)));
-                    subscriber.onCompleted();
-                } catch (Exception e) {
-                    subscriber.onError(e);
-                }
+            public WaveformData call() throws Exception {
+                return waveformParser.parse(context.getAssets().open(DEFAULT_WAVEFORM_ASSET_FILE));
             }
         });
     }

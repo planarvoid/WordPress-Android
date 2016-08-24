@@ -8,13 +8,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class FacebookApi {
 
@@ -32,15 +32,15 @@ public class FacebookApi {
             return Observable.just(Collections.<String>emptyList());
         }
 
-        return Observable.create(new Observable.OnSubscribe<List<String>>() {
-            @Override
-            public void call(final Subscriber<? super List<String>> subscriber) {
-                FacebookApiResponse response = facebookApiHelper.graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES);
-                List<String> pictureUrls = extractFriendPictureUrls(response);
-                subscriber.onNext(pictureUrls);
-                subscriber.onCompleted();
-            }
-        }).subscribeOn(scheduler);
+        return Observable
+                .fromCallable(new Callable<List<String>>() {
+                    @Override
+                    public List<String> call() throws Exception {
+                        final FacebookApiResponse response = facebookApiHelper.graphRequest(FacebookApiEndpoints.ME_FRIEND_PICTURES);
+                        return extractFriendPictureUrls(response);
+                    }
+                })
+                .subscribeOn(scheduler);
     }
 
     private List<String> extractPictureUrls(JSONObject jsonResponse) {

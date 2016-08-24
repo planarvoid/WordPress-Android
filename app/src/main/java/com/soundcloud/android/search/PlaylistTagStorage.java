@@ -7,7 +7,6 @@ import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 
 import android.content.SharedPreferences;
 import android.support.annotation.VisibleForTesting;
@@ -17,6 +16,7 @@ import javax.inject.Named;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class PlaylistTagStorage {
@@ -66,23 +66,25 @@ public class PlaylistTagStorage {
     }
 
     public Observable<List<String>> getRecentTagsAsync() {
-        return Observable.create(new Observable.OnSubscribe<List<String>>() {
-            @Override
-            public void call(Subscriber<? super List<String>> subscriber) {
-                subscriber.onNext(getRecentTags());
-                subscriber.onCompleted();
-            }
-        }).subscribeOn(scheduler);
+        return Observable
+                .fromCallable(new Callable<List<String>>() {
+                    @Override
+                    public List<String> call() throws Exception {
+                        return getRecentTags();
+                    }
+                })
+                .subscribeOn(scheduler);
     }
 
     public Observable<List<String>> getPopularTagsAsync() {
-        return Observable.create(new Observable.OnSubscribe<List<String>>() {
-            @Override
-            public void call(Subscriber<? super List<String>> observer) {
-                observer.onNext(getPopularTags());
-                observer.onCompleted();
-            }
-        }).subscribeOn(scheduler);
+        return Observable
+                .fromCallable(new Callable<List<String>>() {
+                    @Override
+                    public List<String> call() throws Exception {
+                        return getPopularTags();
+                    }
+                })
+                .subscribeOn(scheduler);
     }
 
     public boolean isTagsCacheExpired() {

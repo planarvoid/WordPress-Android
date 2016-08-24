@@ -21,7 +21,6 @@ import com.soundcloud.rx.Pager.PagingFunction;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -31,6 +30,7 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 class UserProfileOperations {
 
@@ -150,15 +150,14 @@ class UserProfileOperations {
     }
 
     Observable<List<PropertySet>> postsForPlayback(final List<? extends PlayableItem> playableItems) {
-        return Observable.create(new Observable.OnSubscribe<List<PropertySet>>() {
+        return Observable.fromCallable(new Callable<List<PropertySet>>() {
             @Override
-            public void call(Subscriber<? super List<PropertySet>> subscriber) {
-                List<PropertySet> postsForPlayback = new ArrayList<>();
+            public List<PropertySet> call() throws Exception {
+                final List<PropertySet> postsForPlayback = new ArrayList<>();
                 for (PlayableItem playableItem : playableItems) {
                     postsForPlayback.add(createPostForPlayback(playableItem));
                 }
-                subscriber.onNext(postsForPlayback);
-                subscriber.onCompleted();
+                return postsForPlayback;
             }
         });
     }

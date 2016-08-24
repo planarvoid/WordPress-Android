@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.TestFragmentController;
 import com.soundcloud.android.view.ListViewController;
@@ -16,7 +15,8 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import rx.Subscription;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import android.widget.ListView;
 
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class ExploreGenresFragmentTest extends AndroidUnitTest {
 
-    private TestObservables.MockObservable observable;
+    private PublishSubject<ExploreGenresSections> categoriesOperation;
 
     private ExploreGenresFragment fragment;
     private TestFragmentController fragmentController;
@@ -36,12 +36,11 @@ public class ExploreGenresFragmentTest extends AndroidUnitTest {
     @Mock private ListViewController listViewController;
     @Mock private ExploreGenre exploreGenre;
     @Mock private ListView listView;
-    @Mock private Subscription subscription;
 
     @Before
     public void setUp() throws Exception {
-        observable = TestObservables.emptyObservable(subscription);
-        when(operations.getCategories()).thenReturn(observable);
+        categoriesOperation = PublishSubject.create();
+        when(operations.getCategories()).thenReturn(categoriesOperation);
 
         fragment = new ExploreGenresFragment(operations, adapter, listViewController, eventBus);
         fragmentController = TestFragmentController.of(fragment);
@@ -51,8 +50,8 @@ public class ExploreGenresFragmentTest extends AndroidUnitTest {
     public void shouldLoadFirstPageOfTrackSuggestionsWithGenreFromBundleInOnCreate() {
         fragmentController.create();
 
-        assertThat(observable.subscribedTo()).isTrue();
-        verify(operations).getCategories();
+        assertThat(categoriesOperation.hasObservers()).isTrue();
+        categoriesOperation.onCompleted();
         verify(adapter).onCompleted();
     }
 
@@ -61,7 +60,7 @@ public class ExploreGenresFragmentTest extends AndroidUnitTest {
         fragmentController.create();
         fragmentController.destroy();
 
-        verify(subscription).unsubscribe();
+        assertThat(categoriesOperation.hasObservers()).isFalse();
     }
 
     @Test
@@ -95,8 +94,7 @@ public class ExploreGenresFragmentTest extends AndroidUnitTest {
     }
 
     private void mockCategoriesObservable(ExploreGenresSections categories) {
-        observable = TestObservables.just(categories);
-        when(operations.getCategories()).thenReturn(observable);
+        when(operations.getCategories()).thenReturn(Observable.just(categories));
         when(listView.getHeaderViewsCount()).thenReturn(0);
         when(adapter.getItem(0)).thenReturn(categories.getMusic().get(0));
         when(adapter.getItem(1)).thenReturn(categories.getAudio().get(0));
