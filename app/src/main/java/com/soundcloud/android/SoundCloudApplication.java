@@ -240,7 +240,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             AndroidUtils.doOnce(this, "request.sets.sync", new Runnable() {
                 @Override
                 public void run() {
-                    requestSetsSync();
+                    requestCollectionsSync();
                 }
             });
         }
@@ -276,8 +276,9 @@ public class SoundCloudApplication extends MultiDexApplication {
      * <p/>
      * Alternatively, sync sets lazily where needed.
      */
-    private void requestSetsSync() {
-        fireAndForget(syncInitiatorBridge.refreshMyPlaylists());
+    private void requestCollectionsSync() {
+        fireAndForget(syncInitiatorBridge.refreshMyPostedAndLikedPlaylists());
+        fireAndForget(syncInitiatorBridge.refreshLikedTracks());
     }
 
     private void setupStrictMode() {
@@ -325,7 +326,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         if (account != null) {
             // move this when we can't guarantee we will only have 1 account active at a time
             syncConfig.enableSyncing(account);
-            requestSetsSync();
+            requestCollectionsSync();
             return true;
         } else {
             return false;
