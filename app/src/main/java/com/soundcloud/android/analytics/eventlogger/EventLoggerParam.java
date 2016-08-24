@@ -92,15 +92,4 @@ class EventLoggerParam {
     static final String AUDIO_ACTION_PLAY = "play";
     static final String AUDIO_ACTION_PAUSE = "pause";
     static final String AUDIO_ACTION_CHECKPOINT = "checkpoint";
-
-
-    //audio v0
-    @Deprecated
-    static final String PLAYLIST_ID = "set_id";
-    @Deprecated
-    static final String PLAYLIST_POSITION_v0 = "set_position";
-    @Deprecated
-    static final String DURATION = "duration";
-    @Deprecated
-    static final String SOUND = "sound";
 }

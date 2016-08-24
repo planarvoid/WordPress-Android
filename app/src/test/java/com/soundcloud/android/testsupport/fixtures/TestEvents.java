@@ -25,14 +25,6 @@ public class TestEvents {
                         new TrackSourceInfo("screen", false), playbackProgress, "hls", "playa", false, false, "uuid"));
     }
 
-    public static PlaybackSessionEvent playbackSessionStopEvent() {
-        return playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_BUFFERING, Urn.forTrack(1L));
-    }
-
-    public static PlaybackSessionEvent playbackSessionTrackFinishedEvent(Urn trackUrn) {
-        return playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, trackUrn);
-    }
-
     public static PlaybackSessionEvent playbackSessionTrackFinishedEvent() {
         return playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED, Urn.forTrack(1L));
     }
