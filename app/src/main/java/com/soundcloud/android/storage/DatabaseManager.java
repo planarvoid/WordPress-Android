@@ -72,7 +72,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             }
 
             // views
-            db.execSQL(Tables.Shortcuts.SQL);
             db.execSQL(Tables.SearchSuggestions.SQL);
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
 
@@ -103,7 +102,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         for (Table t : Table.values()) {
             SchemaMigrationHelper.drop(t, db);
         }
-        dropView(Tables.Shortcuts.TABLE.name(), db);
         dropView(Tables.SearchSuggestions.TABLE.name(), db);
 
         onCreate(db);
@@ -186,9 +184,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 57:
                             success = upgradeTo57(db, oldVersion);
-                            break;
-                        case 58:
-                            success = upgradeTo58(db, oldVersion);
                             break;
                         case 59:
                             success = upgradeTo59(db, oldVersion);
@@ -621,19 +616,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /**
-     * Create Shortcuts view for querying ShortCuts
-     */
-    private static boolean upgradeTo58(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(Tables.Shortcuts.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 58);
-        }
-        return false;
-    }
-
-    /**
      * Adds the URN column to the Comments table
      */
     private static boolean upgradeTo59(SQLiteDatabase db, int oldVersion) {
@@ -1023,7 +1005,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Split PlayHistory (tracks+context) into PlayHistory (tracks)
      * and RecentlyPlayed (context)
      */
-
     private boolean upgradeTo86(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.RecentlyPlayed.SQL);
@@ -1033,20 +1014,22 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 86);
         }
-
         return false;
     }
 
+    /**
+     * Remove Shortcuts table
+     */
     private boolean upgradeTo87(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.StationsCollections.TABLE.name(), Tables.StationsCollections.SQL, db);
+            dropTable("Shortcuts", db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 87);
         }
         return false;
     }
-
 
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {
