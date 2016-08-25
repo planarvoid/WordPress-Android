@@ -7,15 +7,10 @@ import com.soundcloud.java.strings.Strings;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Singleton
 public class ExperimentOperations {
-
-    private static final String EXPERIMENT_PREFIX = "exp_";
-    private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
     private final ExperimentStorage experimentStorage;
     private final ActiveExperiments activeExperiments;
@@ -61,17 +56,6 @@ public class ExperimentOperations {
             }
         }
         return Optional.absent();
-    }
-
-    @Deprecated
-    public Map<String, Integer> getTrackingParams() {
-        HashMap<String, Integer> params = new HashMap<>();
-        for (Layer layer : assignment.getLayers()) {
-            if (activeExperiments.isActive(layer)) {
-                params.put(EXPERIMENT_PREFIX + layer.getLayerName(), layer.getVariantId());
-            }
-        }
-        return params;
     }
 
     public ArrayList<Integer> getActiveVariants() {
