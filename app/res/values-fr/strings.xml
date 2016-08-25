@@ -84,7 +84,7 @@
   <string name="authentication_your_password">Votre mot de passe</string>
   <string name="authentication_clear_image">Garder enfoncé pour effacer l\'image</string>
   <string name="authentication_login_error_message">Nous n\'avons pas réussi à vous connecter. Veuillez réessayer.</string>
-  <string name="authentication_log_in_with_google">Se connecter avec Google</string>
+  <string name="authentication_log_in_with_google_plus">Se connecter avec Google Plus</string>
   <string name="error_google_sign_in_failed">Nous n\'avons pas réussi à vous connecter avec Google+. Pour activer votre compte Google+ et réessayer, accédez à plus.google.com.</string>
   <string name="auth_disclaimer_title">Plus qu\'une étape</string>
   <string name="auth_disclaimer_message">En sélectionnant \"Continuer\", vous acceptez les Conditions d\'utilisation et la Politique de confidentialité de SoundCloud.</string>

@@ -14,8 +14,6 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/tour_text_color</item>
         <item name="android:gravity">center</item>
-
-        <item name="android:background">@drawable/signup_next_button</item>
     </style>
 
     <style name="Onboarding.NextButton" parent="Onboarding.Button">
@@ -24,10 +22,6 @@
 
     <style name="Onboarding.CancelButton" parent="Onboarding.Button">
         <item name="android:background">@drawable/signup_cancel_button</item>
-    </style>
-
-    <style name="Onboarding.BottomButton" parent="Onboarding.Button">
-        <item name="android:minWidth">100dp</item>
     </style>
 
     <style name="Onboarding.LoginCreateAccountBar">
@@ -47,22 +41,31 @@
         <item name="android:layout_marginLeft">24dp</item>
     </style>
 
-    <style name="Onboarding.SocialButton" parent="Onboarding.Button">
+    <style name="Onboarding.EmailSignUpButton" parent="Onboarding">
         <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">251dp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:background">@drawable/btn_signup</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Onboarding.FacebookButton" parent="Onboarding">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:paddingTop">11dp</item>
+        <item name="android:paddingBottom">10.5dp</item>
+        <item name="android:paddingRight">25.5dp</item>
+        <item name="android:paddingLeft">9dp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:drawablePadding">30dp</item>
+    </style>
+
+    <style name="Onboarding.GooglePlusButton" parent="Onboarding">
+        <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:minWidth">250dp</item>
-        <item name="android:maxWidth">500dp</item>
-        <item name="android:textColor">@color/white</item>
         <item name="android:paddingLeft">43dp</item>
-    </style>
-
-    <style name="Onboarding.FacebookButton" parent="Onboarding.SocialButton">
-        <item name="android:background">@drawable/btn_facebook</item>
-    </style>
-
-    <style name="Onboarding.GooglePlusButton" parent="Onboarding.SocialButton">
+        <item name="android:layout_margin">10dp</item>
         <item name="android:background">@drawable/btn_google_plus</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="Onboarding.Headline">

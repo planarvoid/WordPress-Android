@@ -6,14 +6,12 @@
 
         <include layout="@layout/auth_buttons_social"/>
 
-        <com.soundcloud.android.view.CustomFontButton android:id="@+id/signup_with_email"
-                style="@style/Onboarding.BottomButton"
-                android:text="@string/signup_button"
-                android:layout_width="wrap_content"
-                android:layout_margin="10dp"
-                android:layout_gravity="center_horizontal"
-                android:minWidth="250dp"
-                android:maxWidth="500dp"/>
+        <com.soundcloud.android.view.CustomFontButton
+            android:id="@+id/signup_with_email"
+            style="@style/Onboarding.EmailSignUpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/signup_button" />
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/txt_msg"

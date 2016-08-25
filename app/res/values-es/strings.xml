@@ -84,7 +84,7 @@
   <string name="authentication_your_password">Tu contraseña</string>
   <string name="authentication_clear_image">Mantén pulsado para borrar la imagen</string>
   <string name="authentication_login_error_message">No hemos podido iniciar tu sesión. Inténtalo de nuevo.</string>
-  <string name="authentication_log_in_with_google">Conéctate con Google</string>
+  <string name="authentication_log_in_with_google_plus">Conéctate con Google Plus</string>
   <string name="error_google_sign_in_failed">No hemos podido iniciar tu sesión con Google+. Visita plus.google.com para activar tu cuenta de Google+ e inténtalo de nuevo.</string>
   <string name="auth_disclaimer_title">Un paso más</string>
   <string name="auth_disclaimer_message">Al seleccionar \"Continuar\", aceptas las Condiciones de uso y la Política de privacidad de SoundCloud.</string>

@@ -84,7 +84,7 @@
   <string name="authentication_your_password">Sua senha</string>
   <string name="authentication_clear_image">Mantenha pressionado para excluir a imagem</string>
   <string name="authentication_login_error_message">Não foi possível fazer login. Tente novamente.</string>
-  <string name="authentication_log_in_with_google">Logar com Google</string>
+  <string name="authentication_log_in_with_google_plus">Logar com Google Plus</string>
   <string name="error_google_sign_in_failed">Não conseguimos iniciar sua sessão com o Google+. Para ativar sua conta do Google+ e tentar novamente, acesse plus.google.com.</string>
   <string name="auth_disclaimer_title">Mais um passo</string>
   <string name="auth_disclaimer_message">Selecionando \"Continuar\", você concorda com os Termos de Uso e com a Política de Privacidade da SoundCloud.</string>

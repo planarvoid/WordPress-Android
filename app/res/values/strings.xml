@@ -90,7 +90,7 @@
     <string name="authentication_your_password">Your password</string>
     <string name="authentication_clear_image">Hold to clear image</string>
     <string name="authentication_login_error_message">We couldn’t sign you in. Please try again.</string>
-    <string name="authentication_log_in_with_google">Sign in with Google</string>
+    <string name="authentication_log_in_with_google_plus">Sign in with Google Plus</string>
     <string name="error_google_sign_in_failed">We couldn’t sign you in with Google+. To activate your Google+ account and try again, go to plus.google.com.</string>
     <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By selecting \"Continue\", you agree to the Terms of use and Privacy policy of SoundCloud.</string>
