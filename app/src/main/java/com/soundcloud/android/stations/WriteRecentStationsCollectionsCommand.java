@@ -55,7 +55,7 @@ class WriteRecentStationsCollectionsCommand
                         Tables.StationsCollections.TABLE,
                         filter()
                                 .whereEq(Tables.StationsCollections.COLLECTION_TYPE, RECENT)
-                                .whereNull(Tables.StationsCollections.UPDATED_LOCALLY_AT)
+                                .whereNull(Tables.StationsCollections.ADDED_AT)
                 );
             }
 
@@ -64,7 +64,7 @@ class WriteRecentStationsCollectionsCommand
                         Tables.StationsCollections.TABLE,
                         filter()
                                 .whereEq(Tables.StationsCollections.COLLECTION_TYPE, RECENT)
-                                .whereLt(Tables.StationsCollections.UPDATED_LOCALLY_AT, metadata.clearBeforeTime)
+                                .whereLt(Tables.StationsCollections.ADDED_AT, metadata.clearBeforeTime)
                 );
             }
 

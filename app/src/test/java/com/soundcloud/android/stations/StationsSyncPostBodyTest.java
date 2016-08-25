@@ -25,7 +25,7 @@ public class StationsSyncPostBodyTest extends AndroidUnitTest {
     @Test
     public void shouldHaveRecentStationsToSync() {
         final StationsSyncPostBody.RecentStations.RecentStation actual = postBody.getRecent().getCollection().get(0);
-        assertThat(actual.getLastPlayed()).isEqualTo(ApiDateFormat.formatDate(station.get(StationProperty.UPDATED_LOCALLY_AT)));
+        assertThat(actual.getLastPlayed()).isEqualTo(ApiDateFormat.formatDate(station.get(StationProperty.ADDED_AT)));
         assertThat(actual.getUrn()).isEqualTo(station.get(StationProperty.URN).toString());
     }
 

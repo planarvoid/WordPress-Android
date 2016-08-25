@@ -20,6 +20,7 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.stations.StationFixtures;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
@@ -57,6 +58,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Mock private OfflineStateOperations offlineStateOperations;
     @Mock private PlayHistoryOperations playHistoryOperations;
     @Mock private RecentlyPlayedOperations recentlyPlayedOperations;
+    @Mock private FeatureFlags featureFlags;
 
     private TestSubscriber<MyCollection> subscriber = new TestSubscriber<>();
     private List<LikedTrackPreview> trackPreviews = Arrays.asList(
@@ -86,7 +88,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
                 collectionOptionsStorage,
                 offlineStateOperations,
                 playHistoryOperations,
-                recentlyPlayedOperations);
+                recentlyPlayedOperations, featureFlags);
 
         when(offlineStateOperations.loadLikedTracksOfflineState()).thenReturn(Observable.just(OfflineState.NOT_OFFLINE));
         when(loadLikedTrackPreviewsCommand.toObservable(null)).thenReturn(Observable.just(trackPreviews));

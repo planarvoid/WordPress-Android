@@ -187,7 +187,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
 
         final PropertySet expectedProperties = PropertySet.from(
                 StationProperty.URN.bind(unsyncedStation.getUrn()),
-                StationProperty.UPDATED_LOCALLY_AT.bind(timestamp),
+                StationProperty.ADDED_AT.bind(timestamp),
                 StationProperty.POSITION.bind(unsyncedStation.getPreviousPosition())
         );
 

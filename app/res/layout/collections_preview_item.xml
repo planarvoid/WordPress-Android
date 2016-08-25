@@ -38,7 +38,7 @@
         android:visibility="gone"/>
 
     <com.soundcloud.android.collection.CollectionPreviewView
-        android:id="@+id/collection_recent_stations_preview"
+        android:id="@+id/collection_stations_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"

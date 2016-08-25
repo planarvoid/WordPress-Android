@@ -44,7 +44,7 @@ public class StationFixtures {
     static PropertySet stationProperties() {
         return PropertySet.from(
                 StationProperty.URN.bind(Urn.forTrackStation(123L)),
-                StationProperty.UPDATED_LOCALLY_AT.bind(12345L),
+                StationProperty.ADDED_AT.bind(12345L),
                 StationProperty.POSITION.bind(0)
         );
     }

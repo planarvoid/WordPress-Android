@@ -34,7 +34,7 @@ class StationsSyncPostBody {
             public RecentStation apply(PropertySet recentStation) {
                 return new RecentStation(
                         recentStation.get(StationProperty.URN),
-                        recentStation.get(StationProperty.UPDATED_LOCALLY_AT)
+                        recentStation.get(StationProperty.ADDED_AT)
                 );
             }
         };

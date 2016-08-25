@@ -150,13 +150,15 @@ public interface Tables {
         public static final Column STATION_URN = Column.create(TABLE, "station_urn");
         public static final Column COLLECTION_TYPE = Column.create(TABLE, "collection_type");
         public static final Column POSITION = Column.create(TABLE, "position");
-        public static final Column UPDATED_LOCALLY_AT = Column.create(TABLE, "updated_locally_at");
+        public static final Column ADDED_AT = Column.create(TABLE, "added_at");
+        public static final Column REMOVED_AT = Column.create(TABLE, "removed_at");
 
         static final String SQL = "CREATE TABLE IF NOT EXISTS StationsCollections (" +
                 "station_urn TEXT NOT NULL," +
                 "collection_type INTEGER NOT NULL," +
                 "position INTEGER," +
-                "updated_locally_at INTEGER," +
+                "added_at INTEGER," +
+                "removed_at INTEGER," +
                 "PRIMARY KEY(station_urn, collection_type) ON CONFLICT IGNORE," +
                 "FOREIGN KEY(station_urn) REFERENCES Stations(station_urn)" +
                 ");";
@@ -222,7 +224,6 @@ public interface Tables {
         public static final Column _TYPE = Column.create(TABLE, "_type");
         public static final Column DISPLAY_TEXT = Column.create(TABLE, "display_text");
 
-        public static final String TYPE_LIKE = "like";
         public static final String KIND_FOLLOWING = "following";
 
         static final String SQL = "CREATE VIEW IF NOT EXISTS Shortcuts AS SELECT 'like' AS kind, " +

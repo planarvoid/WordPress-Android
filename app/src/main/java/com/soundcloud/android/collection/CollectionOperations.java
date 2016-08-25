@@ -22,6 +22,8 @@ import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistPostStorage;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
@@ -68,6 +70,7 @@ public class CollectionOperations {
     private final OfflineStateOperations offlineStateOperations;
     private final PlayHistoryOperations playHistoryOperations;
     private final RecentlyPlayedOperations recentlyPlayedOperations;
+    private final FeatureFlags featureFlags;
 
     private static final Func1<List<PropertySet>, List<PropertySet>> REMOVE_DUPLICATE_PLAYLISTS = new Func1<List<PropertySet>, List<PropertySet>>() {
         @Override
@@ -249,7 +252,8 @@ public class CollectionOperations {
                          CollectionOptionsStorage collectionOptionsStorage,
                          OfflineStateOperations offlineStateOperations,
                          PlayHistoryOperations playHistoryOperations,
-                         RecentlyPlayedOperations recentlyPlayedOperations) {
+                         RecentlyPlayedOperations recentlyPlayedOperations,
+                         FeatureFlags featureFlags) {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.playlistPostStorage = playlistPostStorage;
@@ -261,6 +265,7 @@ public class CollectionOperations {
         this.offlineStateOperations = offlineStateOperations;
         this.playHistoryOperations = playHistoryOperations;
         this.recentlyPlayedOperations = recentlyPlayedOperations;
+        this.featureFlags = featureFlags;
     }
 
     public Observable<Object> onCollectionChanged() {
@@ -281,7 +286,7 @@ public class CollectionOperations {
         return Observable.zip(
                 myPlaylists(options).materialize(),
                 likesItem().materialize(),
-                recentStations().materialize(),
+                loadStations().materialize(),
                 TO_MY_COLLECTIONS_OR_ERROR
         ).dematerialize();
     }
@@ -367,7 +372,7 @@ public class CollectionOperations {
                 Observable.zip(refreshLikesAndLoadPreviews(),
                                likedTracksOfflineState(),
                                TO_LIKES_ITEM),
-                refreshRecentStationsAndLoad(),
+                refreshStationsAndLoad(),
                 TO_MY_COLLECTIONS
         );
     }
@@ -384,8 +389,8 @@ public class CollectionOperations {
         );
     }
 
-    private Observable<List<StationRecord>> refreshRecentStationsAndLoad() {
-        return stationsOperations.sync().flatMap(continueWith(recentStations()));
+    private Observable<List<StationRecord>> refreshStationsAndLoad() {
+        return stationsOperations.sync().flatMap(continueWith(loadStations()));
     }
 
     private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {
@@ -396,8 +401,11 @@ public class CollectionOperations {
         return loadLikedTrackPreviews.toObservable(null).subscribeOn(scheduler);
     }
 
-    private Observable<List<StationRecord>> recentStations() {
-        return stationsOperations.collection(StationsCollectionsTypes.RECENT).toList();
+    private Observable<List<StationRecord>> loadStations() {
+        final int stationCollectionType = featureFlags.isEnabled(Flag.LIKED_STATIONS) ?
+                                          StationsCollectionsTypes.LIKED :
+                                          StationsCollectionsTypes.RECENT;
+        return stationsOperations.collection(stationCollectionType).toList();
     }
 
     private Observable<List<PlaylistItem>> loadPlaylists(PlaylistsOptions options) {

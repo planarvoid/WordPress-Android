@@ -162,7 +162,7 @@ public class DatabaseFixtures {
         cv.put(StationsCollections.STATION_URN, stationUrn.toString());
         cv.put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT);
         cv.put(StationsCollections.POSITION, position);
-        cv.put(StationsCollections.UPDATED_LOCALLY_AT, null);
+        cv.put(StationsCollections.ADDED_AT, null);
         insertInto(StationsCollections.TABLE, cv.get());
     }
 
@@ -171,7 +171,7 @@ public class DatabaseFixtures {
         cv.put(StationsCollections.STATION_URN, stationUrn.toString());
         cv.put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT);
         cv.put(StationsCollections.POSITION, Consts.NOT_SET);
-        cv.put(StationsCollections.UPDATED_LOCALLY_AT, time);
+        cv.put(StationsCollections.ADDED_AT, time);
         insertInto(StationsCollections.TABLE, cv.get());
     }
 
@@ -179,7 +179,7 @@ public class DatabaseFixtures {
         ContentValuesBuilder cv = ContentValuesBuilder.values();
         cv.put(StationsCollections.STATION_URN, stationUrn.toString());
         cv.put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT);
-        cv.put(StationsCollections.UPDATED_LOCALLY_AT, time);
+        cv.put(StationsCollections.ADDED_AT, time);
         insertInto(StationsCollections.TABLE, cv.get());
     }
 

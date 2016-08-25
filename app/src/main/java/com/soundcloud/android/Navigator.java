@@ -48,6 +48,7 @@ import com.soundcloud.android.settings.LegalActivity;
 import com.soundcloud.android.settings.OfflineSettingsActivity;
 import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.settings.notifications.NotificationPreferencesActivity;
+import com.soundcloud.android.stations.LikedStationsActivity;
 import com.soundcloud.android.stations.RecentStationsActivity;
 import com.soundcloud.android.stations.StationInfoActivity;
 import com.soundcloud.android.upgrade.GoOnboardingActivity;
@@ -351,6 +352,10 @@ public class Navigator {
 
     public void openRecentStations(Context context) {
         context.startActivity(new Intent(context, RecentStationsActivity.class));
+    }
+
+    public void openLikedStations(Context context) {
+        context.startActivity(new Intent(context, LikedStationsActivity.class));
     }
 
     public void openStationInfo(Context context, Urn stationUrn, Urn seedTrack, DiscoverySource source) {

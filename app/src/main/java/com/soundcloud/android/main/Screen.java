@@ -128,6 +128,7 @@ public enum Screen {
     // Stations
     STATIONS_SHOW_ALL("stations:show_all"),
     STATIONS_RECENT("stations:recent_stations"),
+    STATIONS_LIKED("stations:liked_stations"),
     STATIONS_INFO("stations:main"),
 
     // PAYMENT

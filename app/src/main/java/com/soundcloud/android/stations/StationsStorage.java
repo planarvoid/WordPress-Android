@@ -83,7 +83,7 @@ class StationsStorage {
         public PropertySet map(CursorReader reader) {
             return PropertySet.from(
                     StationProperty.URN.bind(new Urn(reader.getString(StationsCollections.STATION_URN))),
-                    StationProperty.UPDATED_LOCALLY_AT.bind(reader.getLong(StationsCollections.UPDATED_LOCALLY_AT)),
+                    StationProperty.ADDED_AT.bind(reader.getLong(StationsCollections.ADDED_AT)),
                     StationProperty.POSITION.bind(reader.getInt(StationsCollections.POSITION))
             );
         }
@@ -157,7 +157,7 @@ class StationsStorage {
     private Query buildStationsQuery(int collectionType) {
         return Query.from(StationsCollections.TABLE)
                     .whereEq(StationsCollections.COLLECTION_TYPE, collectionType)
-                    .order(StationsCollections.UPDATED_LOCALLY_AT, Query.Order.DESC)
+                    .order(StationsCollections.ADDED_AT, Query.Order.DESC)
                     .order(StationsCollections.POSITION, Query.Order.ASC);
     }
 
@@ -241,7 +241,7 @@ class StationsStorage {
                 StationsCollections.TABLE,
                 values().put(StationsCollections.STATION_URN, stationUrn.toString())
                         .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
-                        .put(StationsCollections.UPDATED_LOCALLY_AT, dateProvider.getCurrentTime())
+                        .put(StationsCollections.ADDED_AT, dateProvider.getCurrentTime())
                         .get()
         );
     }
@@ -250,7 +250,7 @@ class StationsStorage {
         return propellerDatabase
                 .query(Query.from(StationsCollections.TABLE)
                             .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
-                            .whereNotNull(StationsCollections.UPDATED_LOCALLY_AT))
+                            .whereNotNull(StationsCollections.ADDED_AT))
                 .toList(TO_RECENT_STATION);
     }
 

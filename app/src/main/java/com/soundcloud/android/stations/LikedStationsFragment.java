@@ -14,16 +14,16 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class RecentStationsFragment extends LightCycleSupportFragment<RecentStationsFragment>
+public class LikedStationsFragment extends LightCycleSupportFragment<LikedStationsFragment>
         implements RefreshableScreen {
 
-    @Inject @LightCycle RecentStationsPresenter presenter;
+    @Inject @LightCycle LikedStationsPresenter presenter;
 
-    public static RecentStationsFragment create() {
-        return new RecentStationsFragment();
+    public static LikedStationsFragment create() {
+        return new LikedStationsFragment();
     }
 
-    public RecentStationsFragment() {
+    public LikedStationsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 

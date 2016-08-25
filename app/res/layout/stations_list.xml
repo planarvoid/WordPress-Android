@@ -1,22 +1,18 @@
-<com.soundcloud.android.view.MultiSwipeRefreshLayout
-    android:id="@+id/recent_stations_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.soundcloud.android.view.MultiSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/stations_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <FrameLayout
         style="@style/Stations.ListContainer"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".stations.RecentStationsFragment">
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
-            style="@style/Stations.List"
             android:id="@+id/ak_recycler_view"
+            style="@style/Stations.List"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false" />

@@ -290,6 +290,7 @@
         <!-- stations -->
         <activity android:label="@string/stations_collection_title_recent_stations" android:name=".stations.RecentStationsActivity" />
         <activity android:label="@string/stations_collection_title_station_page" android:name=".stations.StationInfoActivity" />
+        <activity android:label="@string/stations_collection_title_liked_stations" android:name=".stations.LikedStationsActivity" />
 
         <!-- for testing purposes -->
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>

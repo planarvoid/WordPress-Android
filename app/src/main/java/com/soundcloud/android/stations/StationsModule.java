@@ -8,6 +8,8 @@ import dagger.Module;
         injects = {
                 RecentStationsActivity.class,
                 RecentStationsFragment.class,
+                LikedStationsActivity.class,
+                LikedStationsFragment.class,
                 StationInfoActivity.class,
                 StationInfoFragment.class
         }

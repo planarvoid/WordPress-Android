@@ -92,7 +92,6 @@ import static com.soundcloud.android.storage.Tables.Stations.PERMALINK;
 import static com.soundcloud.android.storage.Tables.Stations.STATION_URN;
 import static com.soundcloud.android.storage.Tables.Stations.TYPE;
 import static com.soundcloud.android.storage.Tables.StationsCollections.COLLECTION_TYPE;
-import static com.soundcloud.android.storage.Tables.StationsCollections.UPDATED_LOCALLY_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.TABLE;
 import static com.soundcloud.android.storage.Tables.TrackDownloads.UNAVAILABLE_AT;
@@ -331,7 +330,7 @@ public class DatabaseAssertions {
         assertThat(select(from(StationsCollections.TABLE)
                                   .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
                                   .whereEq(COLLECTION_TYPE, RECENT)
-                                  .whereEq(UPDATED_LOCALLY_AT, currentTime))).counts(expectedCount);
+                                  .whereEq(StationsCollections.ADDED_AT, currentTime))).counts(expectedCount);
     }
 
     public void assertRecentStationsAtPosition(Urn stationUrn, long position) {
@@ -347,7 +346,7 @@ public class DatabaseAssertions {
     public void assertLocalStationDeleted(Urn urn) {
         assertThat(select(from(StationsCollections.TABLE)
                                   .whereEq(StationsCollections.STATION_URN, urn.toString())
-                                  .whereNull(UPDATED_LOCALLY_AT))).counts(1);
+                                  .whereNull(StationsCollections.ADDED_AT))).counts(1);
     }
 
     public void assertRecommendedStationsEquals(List<Urn> stations) {
