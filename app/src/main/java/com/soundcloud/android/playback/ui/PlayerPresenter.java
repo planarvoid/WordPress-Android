@@ -72,10 +72,10 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private boolean setPlayQueueAfterScroll;
     private FragmentManager fragmentManager;
 
-    private final Func1<CurrentPlayQueueItemEvent, Boolean> isCurrentTrackAd = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
+    private final Func1<CurrentPlayQueueItemEvent, Boolean> isCurrentItemAd = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
         @Override
-        public Boolean call(CurrentPlayQueueItemEvent ignored) {
-            return adsOperations.isCurrentItemAd();
+        public Boolean call(CurrentPlayQueueItemEvent currentItemEvent) {
+            return currentItemEvent.getCurrentPlayQueueItem().isAd();
         }
     };
 
@@ -113,7 +113,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
         }
     };
 
-    private final Action1<CurrentPlayQueueItemEvent> onTrackChanged = new Action1<CurrentPlayQueueItemEvent>() {
+    private final Action1<CurrentPlayQueueItemEvent> onItemChanged = new Action1<CurrentPlayQueueItemEvent>() {
         @Override
         public void call(CurrentPlayQueueItemEvent currentItemEvent) {
             presenter.onTrackChange();
@@ -138,7 +138,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private static final Predicate<PlayQueueItem> IS_PLAYABLE = new Predicate<PlayQueueItem>() {
         @Override
         public boolean apply(PlayQueueItem input) {
-            return input.isTrack() || input.isVideoAd();
+            return input.isTrack() || input.isAd();
         }
     };
 
@@ -207,8 +207,8 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
 
         // setup player ad
         subscription.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
-                .doOnNext(onTrackChanged)
-                .filter(isCurrentTrackAd)
+                .doOnNext(onItemChanged)
+                .filter(isCurrentItemAd)
                 .doOnNext(allowScrollAfterAdSkipTimeout)
                 .subscribe(new ShowAudioAdSubscriber()));
 

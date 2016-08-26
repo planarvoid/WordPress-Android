@@ -29,7 +29,6 @@ public abstract class AudioAd extends PlayerAdData {
                 adTracking.resumeUrls,
                 apiAudioAd.isSkippable(),
                 extractVisualAdDisplayProperties(apiAudioAd),
-                apiAudioAd.getApiTrack().getStreamUrl(),
                 apiAudioAd.hasCompanion() ? Optional.of(apiAudioAd.getCompanion().urn) : Optional.<Urn>absent(),
                 apiAudioAd.hasCompanion() ? Optional.of(Uri.parse(apiAudioAd.getCompanion().imageUrl)): Optional.<Uri>absent(),
                 extractClickThrough(apiAudioAd),
@@ -65,8 +64,6 @@ public abstract class AudioAd extends PlayerAdData {
     public boolean hasCompanion() {
         return getCompanionAdUrn().isPresent();
     }
-
-    public abstract String getStreamUrl();
 
     public abstract Optional<Urn> getCompanionAdUrn();
 

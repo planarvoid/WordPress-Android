@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
-import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
@@ -26,7 +26,6 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     private final PlayQueueManager playQueueManager;
     private final PlaybackServiceInitiator serviceInitiator;
     private final TrackRepository trackRepository;
-    private final AdsOperations adsOperations;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
     private final EventBus eventBus;
@@ -62,10 +61,7 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
             if (track.getOrElse(TrackProperty.BLOCKED, false)) {
                 return Observable.error(new BlockedTrackException(trackUrn));
             } else {
-                if (adsOperations.isCurrentItemAudioAd()) {
-                    final AudioAd audioAd = (AudioAd) adsOperations.getCurrentTrackAdData().get();
-                    serviceInitiator.play(AudioAdPlaybackItem.create(track, audioAd));
-                } else if (offlinePlaybackOperations.shouldPlayOffline(track)) {
+                if (offlinePlaybackOperations.shouldPlayOffline(track)) {
                     serviceInitiator.play(AudioPlaybackItem.forOffline(track, getPosition(trackUrn)));
                 } else if (track.get(TrackProperty.SNIPPED)) {
                     serviceInitiator.play(AudioPlaybackItem.forSnippet(track, getPosition(trackUrn)));
@@ -78,13 +74,11 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     };
 
     public DefaultPlaybackStrategy(PlayQueueManager playQueueManager, PlaybackServiceInitiator serviceInitiator,
-                                   TrackRepository trackRepository, AdsOperations adsOperations,
-                                   OfflinePlaybackOperations offlinePlaybackOperations,
+                                   TrackRepository trackRepository, OfflinePlaybackOperations offlinePlaybackOperations,
                                    PlaySessionStateProvider playSessionStateProvider, EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.serviceInitiator = serviceInitiator;
         this.trackRepository = trackRepository;
-        this.adsOperations = adsOperations;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.playSessionStateProvider = playSessionStateProvider;
         this.eventBus = eventBus;
@@ -115,13 +109,22 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
         final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
         if (currentPlayQueueItem.isTrack()) {
             return trackRepository.track(currentPlayQueueItem.getUrn()).flatMap(playPlayableTrack);
-        } else if (currentPlayQueueItem.isVideoAd()) {
-            final VideoAd videoAd = (VideoAd) currentPlayQueueItem.getAdData().get();
-            serviceInitiator.play(VideoAdPlaybackItem.create(videoAd, getPosition(videoAd.getAdUrn())));
-            return Observable.empty();
+        } else if (currentPlayQueueItem.isAd()) {
+            return playCurrentAd(currentPlayQueueItem);
         } else {
             return Observable.empty();
         }
+    }
+
+    private Observable<Void> playCurrentAd(PlayQueueItem currentPlayQueueItem) {
+        final AdData adData = currentPlayQueueItem.getAdData().get();
+        final long position = getPosition(adData.getAdUrn());
+        final PlaybackItem playbackItem = currentPlayQueueItem.isVideoAd()
+                                          ? VideoAdPlaybackItem.create((VideoAd) adData, position)
+                                          : AudioAdPlaybackItem.create((AudioAd) adData);
+
+        serviceInitiator.play(playbackItem);
+        return Observable.empty();
     }
 
     private long getPosition(Urn urn) {

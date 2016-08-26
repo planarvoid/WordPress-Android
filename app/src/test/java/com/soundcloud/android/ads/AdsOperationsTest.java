@@ -18,6 +18,7 @@ import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -50,15 +51,13 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private KruxSegmentProvider kruxSegmentProvider;
     @Mock private ApiClientRx apiClientRx;
-    @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private EventBus eventBus;
     @Captor private ArgumentCaptor<List> listArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand,
-                                          playQueueManager,
+        adsOperations = new AdsOperations(playQueueManager,
                                           featureOperations,
                                           apiClientRx,
                                           Schedulers.immediate(),
@@ -125,20 +124,9 @@ public class AdsOperationsTest extends AndroidUnitTest {
     }
 
     @Test
-    public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
-                .thenReturn(Observable.just(fullAdsForTrack));
-
-        adsOperations.ads(TRACK_URN, Optional.<String>absent(), true, true).subscribe();
-
-        verify(storeTracksCommand).call(Arrays.asList(fullAdsForTrack.audioAd().get().getApiTrack()));
-    }
-
-    @Test
     public void isCurrentItemAdShouldReturnTrueIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
-                                                          AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAd()).isTrue();
     }
@@ -169,8 +157,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void isNextItemAdShouldReturnTrueIfNextItemIsAudioAd() {
         when(playQueueManager.getNextPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
-                                                          AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isNextItemAd()).isTrue();
     }
@@ -201,8 +188,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void isCurrentItemAudioAdShouldReturnTrueIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
-                                                          AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemAudioAd()).isTrue();
     }
@@ -289,13 +275,6 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void applyAdInsertsAudioAdWhenOnlyAudioAdIsAvailable() throws Exception {
         ApiAdsForTrack adsWithOnlyAudioAd = AdFixtures.audioAdsForTrack();
-        final LeaveBehindAd expectedLeavebehding = LeaveBehindAd.create(adsWithOnlyAudioAd.audioAd()
-                                                                                          .get()
-                                                                                          .getLeaveBehind(),
-                                                                        adsWithOnlyAudioAd.audioAd()
-                                                                                          .get()
-                                                                                          .getApiTrack()
-                                                                                          .getUrn());
 
         adsOperations.applyAdToUpcomingTrack(adsWithOnlyAudioAd);
 
@@ -331,14 +310,13 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void insertAudioAdShouldInsertAudioAdAndLeaveBehind() throws Exception {
         final ApiAdsForTrack noInterstitial = AdFixtures.audioAdsForTrack();
-        final LeaveBehindAd expectedLeaveBehind = AdFixtures.getLeaveBehindAd(noInterstitial.audioAd()
-                                                                                            .get()
-                                                                                            .getApiTrack()
-                                                                                            .getUrn());
 
         adsOperations.applyAdToUpcomingTrack(noInterstitial);
 
         verifyAudioAdInserted(noInterstitial);
+        PlayQueueItem playQueueItem = (PlayQueueItem) listArgumentCaptor.getValue().get(1);
+        assertThat(playQueueItem.getAdData().isPresent()).isTrue();
+        assertThat(playQueueItem.getAdData().get()).isInstanceOf(LeaveBehindAd.class);
     }
 
     @Test
@@ -362,13 +340,9 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
 
         final AudioAd audioAdData = AudioAd.create(allAds.audioAd().get(), trackQueueItem.getUrn());
-        final Urn audioAdTrackUrn = allAds.audioAd().get().getApiTrack().getUrn();
-        final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(audioAdTrackUrn)
-                .withAdData(audioAdData)
-                .persist(false)
-                .build();
+        final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(trackQueueItem)
-                .withAdData(LeaveBehindAd.create(allAds.audioAd().get().getLeaveBehind(), audioAdTrackUrn)).build();
+                .withAdData(LeaveBehindAd.create(allAds.audioAd().get().getLeaveBehind(), audioAdData.getAdUrn())).build();
 
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, newMonetizableItem));
     }
@@ -420,16 +394,12 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
 
         final AudioAd audioAdData = AudioAd.create(adsForTrack.audioAd().get(), TRACK_URN);
-        final Urn audioAdTrackUrn = adsForTrack.audioAd().get().getApiTrack().getUrn();
-        final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(audioAdTrackUrn)
-                .withAdData(audioAdData)
-                .persist(false)
-                .build();
+        final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);
 
         TrackQueueItem.Builder builder = new TrackQueueItem.Builder(trackQueueItem);
         if (adsForTrack.audioAd().get().getLeaveBehind() != null) {
             builder = builder.withAdData(LeaveBehindAd.create(adsForTrack.audioAd().get().getLeaveBehind(),
-                                                              audioAdTrackUrn));
+                                                              audioAdData.getAdUrn()));
         }
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(), Arrays.asList(audioAdItem, builder.build()));
     }

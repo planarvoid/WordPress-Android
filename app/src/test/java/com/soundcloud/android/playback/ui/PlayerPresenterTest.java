@@ -69,8 +69,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = Urn.forTrack(456L);
     private static final PlayQueueItem TRACK_PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(TRACK_URN);
     private static final AudioAd AUDIO_AD = AdFixtures.getAudioAd(TRACK_URN);
-    private static final Urn AUDIO_AD_URN = Urn.forTrack(123L);
-    private static final PlayQueueItem AUDIO_AD_PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(AUDIO_AD_URN, AUDIO_AD);
+    private static final PlayQueueItem AUDIO_AD_PLAY_QUEUE_ITEM = TestPlayQueueItem.createAudioAd(AUDIO_AD);
 
     @Mock private PlayerPagerPresenter playerPagerPresenter;
     @Mock private PlayQueueManager playQueueManager;
@@ -287,9 +286,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unskippableAudioAdDoesNotUnlockPagerAfterSkipInterval() {
-        final PlayQueueItem audioItem = TestPlayQueueItem.createTrack(TRACK_URN,
-                AdFixtures.getNonskippableAudioAd(TRACK_URN));
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        final PlayQueueItem audioItem = TestPlayQueueItem.createAudioAd(AdFixtures.getNonskippableAudioAd(TRACK_URN));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(audioItem.getAdData());
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(audioItem);
         setupPositionsForAd(2);
@@ -307,9 +304,7 @@ public class PlayerPresenterTest extends AndroidUnitTest {
 
     @Test
     public void unskippableAudioAdUnlocksPagerWhenTrackIsEnding() {
-        final PlayQueueItem audioItem = TestPlayQueueItem.createTrack(TRACK_URN,
-                AdFixtures.getNonskippableAudioAd(TRACK_URN));
-        when(adsOperations.isCurrentItemAd()).thenReturn(true);
+        final PlayQueueItem audioItem = TestPlayQueueItem.createAudioAd(AdFixtures.getNonskippableAudioAd(TRACK_URN));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(audioItem.getAdData());
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(audioItem);
         setupPositionsForAd(2);

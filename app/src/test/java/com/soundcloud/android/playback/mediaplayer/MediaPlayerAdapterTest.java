@@ -447,7 +447,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void playAudioAdSetsDataSourceOnMediaPlayer() throws IOException {
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
-        final AudioAdPlaybackItem adPlaybackItem = AudioAdPlaybackItem.create(track, audioAd);
+        final AudioAdPlaybackItem adPlaybackItem = AudioAdPlaybackItem.create(audioAd);
         mediaPlayerAdapter.play(adPlaybackItem);
         verify(mediaPlayer).setDataSource("http://audiourl.com/audio.mp3");
     }

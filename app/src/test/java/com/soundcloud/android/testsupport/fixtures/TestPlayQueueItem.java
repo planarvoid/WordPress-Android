@@ -1,8 +1,10 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.PlaylistQueueItem;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.VideoAdQueueItem;
@@ -35,5 +37,9 @@ public class TestPlayQueueItem {
 
     public static VideoAdQueueItem createVideo(VideoAd adData) {
         return new VideoAdQueueItem(adData);
+    }
+
+    public static AudioAdQueueItem createAudioAd(AudioAd adData) {
+        return new AudioAdQueueItem(adData);
     }
 }

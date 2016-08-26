@@ -25,7 +25,7 @@ public final class AdUtils {
     };
 
     public static boolean isAd(PlayQueueItem playQueueItem) {
-        return isAudioAd(playQueueItem) || isVideoAd(playQueueItem);
+        return playQueueItem.isAd();
     }
 
     public static boolean isAd(PlaybackItem playbackItem) {
@@ -35,7 +35,7 @@ public final class AdUtils {
     }
 
     public static boolean isAudioAd(PlayQueueItem playQueueItem) {
-        return playQueueItem.getAdData().isPresent() && playQueueItem.getAdData().get() instanceof AudioAd;
+        return playQueueItem.isAudioAd();
     }
 
     public static boolean isVideoAd(PlayQueueItem playQueueItem) {

@@ -19,7 +19,6 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.java.collections.PropertySet;
 import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Test;
@@ -397,17 +396,17 @@ public class VideoAdPresenterTest extends AndroidUnitTest {
     private void bindVerticalVideo(boolean playSessionActive) {
         adView.findViewById(R.id.video_container).layout(0, 0, VERTICAL_VIDEO_WIDTH, VERTICAL_VIDEO_HEIGHT);
         adView.findViewById(R.id.play_controls).setVisibility(playSessionActive ? View.GONE : View.VISIBLE);
-        presenter.bindItemView(adView, new VideoPlayerAd(buildAd(true), PropertySet.create()));
+        presenter.bindItemView(adView, new VideoPlayerAd(buildAd(true)));
     }
 
     private void bindLetterboxVideo(boolean playSessionActive) {
         adView.findViewById(R.id.video_container).layout(0, 0, LETTERBOX_VIDEO_WIDTH, LETTERBOX_VIDEO_HEIGHT);
         adView.findViewById(R.id.play_controls).setVisibility(playSessionActive ? View.GONE : View.VISIBLE);
-        presenter.bindItemView(adView, new VideoPlayerAd(buildAd(false), PropertySet.create()));
+        presenter.bindItemView(adView, new VideoPlayerAd(buildAd(false)));
     }
 
     private void bindUnskippableAd() {
         final VideoAd videoAd = AdFixtures.getNonskippableVideoAd(Urn.forTrack(123L));
-        presenter.bindItemView(adView, new VideoPlayerAd(videoAd, PropertySet.create()));
+        presenter.bindItemView(adView, new VideoPlayerAd(videoAd));
     }
 }

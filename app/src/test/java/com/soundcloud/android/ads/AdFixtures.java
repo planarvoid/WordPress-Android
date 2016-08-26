@@ -146,7 +146,6 @@ public class AdFixtures {
         RelatedResources relatedResources = new RelatedResources(companion, getApiLeaveBehind());
         return new ApiAudioAd(
                 Urn.forAd("dfp", "869"),
-                ModelFixtures.create(ApiTrack.class),
                 skippable,
                 relatedResources,
                 getApiAudioAdSources(),
@@ -158,7 +157,6 @@ public class AdFixtures {
         RelatedResources relatedResources = new RelatedResources(null, getApiLeaveBehind());
         return new ApiAudioAd(
                 Urn.forAd("dfp", "869"),
-                ModelFixtures.create(ApiTrack.class),
                 true,
                 relatedResources,
                 getApiAudioAdSources(),
@@ -170,7 +168,6 @@ public class AdFixtures {
         RelatedResources relatedResources = new RelatedResources(getApiCompanionAd(), null);
         return new ApiAudioAd(
                 Urn.forAd("dfp", "869"),
-                ModelFixtures.create(ApiTrack.class),
                 SKIPPABLE,
                 relatedResources,
                 getApiAudioAdSources(),

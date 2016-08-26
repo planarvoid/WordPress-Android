@@ -268,7 +268,7 @@ public class PlaySessionController {
                     playSessionStateProvider.clearLastProgressForItem(playQueueItem.getUrn());
                     playCurrent();
                 }
-            } else if (playQueueItem.isVideoAd()) {
+            } else if (playQueueItem.isAd()) {
                 if (playSessionStateProvider.isPlaying()) {
                     playCurrent();
                 }

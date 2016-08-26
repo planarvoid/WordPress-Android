@@ -16,7 +16,7 @@ public abstract class PlayQueueItem {
 
     public static final PlayQueueItem EMPTY = new Empty();
 
-    enum Kind {EMPTY, TRACK, PLAYLIST, VIDEO_AD}
+    enum Kind {EMPTY, TRACK, PLAYLIST, VIDEO_AD, AUDIO_AD}
 
     protected Optional<AdData> adData;
 
@@ -30,6 +30,14 @@ public abstract class PlayQueueItem {
 
     public boolean isVideoAd() {
         return this.getKind() == Kind.VIDEO_AD;
+    }
+
+    public boolean isAudioAd() {
+        return this.getKind() == Kind.AUDIO_AD;
+    }
+
+    public boolean isAd() {
+        return isVideoAd() || isAudioAd();
     }
 
     public boolean isEmpty() {

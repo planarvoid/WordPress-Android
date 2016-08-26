@@ -207,7 +207,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public void playAudioAdPlaysUrlOnSkippy() {
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
 
-        skippyAdapter.play(AudioAdPlaybackItem.create(track, audioAd));
+        skippyAdapter.play(AudioAdPlaybackItem.create(audioAd));
 
         verify(skippy).play("http://audiourl.com/audio.m3u?oauth_token=access", 0, false);
     }
@@ -736,7 +736,7 @@ public class SkippyAdapterTest extends AndroidUnitTest {
     public void performanceMetricPublishesTimeToPlayEventEventForAudioAds() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
 
-        skippyAdapter.play(AudioAdPlaybackItem.create(track, AdFixtures.getAudioAd(trackUrn)));
+        skippyAdapter.play(AudioAdPlaybackItem.create(AdFixtures.getAudioAd(trackUrn)));
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST, MP3, BITRATE);
 
         final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);

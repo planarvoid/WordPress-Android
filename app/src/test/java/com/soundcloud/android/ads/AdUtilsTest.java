@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackType;
@@ -16,15 +17,13 @@ public class AdUtilsTest extends AndroidUnitTest {
 
     @Test
     public void isPlayerAdItemShouldReturnTrueForAudioAdPlayQueueItem() {
-        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final TrackQueueItem adItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), audioAd);
+        final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
         assertThat(AdUtils.IS_PLAYER_AD_ITEM.apply(adItem)).isTrue();
     }
 
     @Test
     public void isPlayerAdItemShouldReturnTrueForVideoAdPlayQueueItem() {
-        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(videoAd);
+        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
         assertThat(AdUtils.IS_PLAYER_AD_ITEM.apply(adItem)).isTrue();
     }
 
@@ -36,15 +35,13 @@ public class AdUtilsTest extends AndroidUnitTest {
 
     @Test
     public void isAudioAdItemShouldReturnTrueForAudioAdPlayQueueItem() {
-        final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final TrackQueueItem adItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), audioAd);
+        final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
         assertThat(AdUtils.IS_AUDIO_AD_ITEM.apply(adItem)).isTrue();
     }
 
     @Test
     public void isAudioAdItemShouldReturnFalseForVideoAdPlayQueueItem() {
-        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(videoAd);
+        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
         assertThat(AdUtils.IS_AUDIO_AD_ITEM.apply(adItem)).isFalse();
     }
 

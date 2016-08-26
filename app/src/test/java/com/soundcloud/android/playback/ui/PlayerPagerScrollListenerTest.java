@@ -9,6 +9,7 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -81,7 +82,7 @@ public class PlayerPagerScrollListenerTest extends AndroidUnitTest {
     @Test
     public void setsPagingDisabledOnPageSelectedWithAdNotAtCurrentPosition() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(2));
-        final TrackQueueItem item = TestPlayQueueItem.createTrack(Urn.forTrack(1), audioAd);
+        final AudioAdQueueItem item = TestPlayQueueItem.createAudioAd(audioAd);
         when(presenter.getItemAtPosition(1)).thenReturn(item);
 
         pagerScrollListener.onPageSelected(1);

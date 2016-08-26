@@ -4,8 +4,6 @@ import static com.soundcloud.java.checks.Preconditions.checkElementIndex;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.checks.Preconditions;
@@ -42,19 +40,6 @@ class SimplePlayQueue extends PlayQueue {
     public PlayQueueItem getPlayQueueItem(int position) {
         checkElementIndex(position, size());
         return playQueueItems.get(position);
-    }
-
-    @Override
-    public void insertAudioAd(int position, Urn trackUrn, AudioAd adData, boolean shouldPersist) {
-        insertPlayQueueItem(position, new TrackQueueItem.Builder(trackUrn)
-                .withAdData(adData)
-                .persist(shouldPersist)
-                .build());
-    }
-
-    @Override
-    public void insertVideo(int position, VideoAd videoAd) {
-        insertPlayQueueItem(position, new VideoAdQueueItem(videoAd));
     }
 
     @Override

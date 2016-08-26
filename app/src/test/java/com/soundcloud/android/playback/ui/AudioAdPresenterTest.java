@@ -10,13 +10,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.java.collections.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -138,7 +135,7 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
     public void callToActionTextShouldUseProvidedText() {
         final String expectedText = "CLICK ME!!!";
         final AudioAd adData = prepareAd(AdFixtures.getAudioAdWithCustomCTA(expectedText, Urn.forTrack(123L)));
-        presenter.bindItemView(adView, new AudioPlayerAd(adData, buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(adData));
 
         final Button button = (Button) adView.findViewById(R.id.cta_button);
 
@@ -421,27 +418,20 @@ public class AudioAdPresenterTest extends AndroidUnitTest {
         return audioAd;
     }
 
-    private PropertySet buildTrack() {
-        return PropertySet.from(
-                PlayableProperty.TITLE.bind("Ad Title"),
-                TrackProperty.URN.bind(Urn.forTrack(123L))
-        );
-    }
-
     private void bindSkippableAd() {
-        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(true), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(true)));
     }
 
     private void bindUnskippableAd() {
-        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(false), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(buildAd(false)));
     }
 
     private void bindNonClickableAd() {
-        presenter.bindItemView(adView, new AudioPlayerAd(AdFixtures.getNonClickableAudioAd(TRACK_URN), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(AdFixtures.getNonClickableAudioAd(TRACK_URN)));
     }
 
     private void bindCompanionlessAd() {
-        presenter.bindItemView(adView, new AudioPlayerAd(AdFixtures.getCompanionlessAudioAd(TRACK_URN), buildTrack()));
+        presenter.bindItemView(adView, new AudioPlayerAd(AdFixtures.getCompanionlessAudioAd(TRACK_URN)));
     }
 
 }

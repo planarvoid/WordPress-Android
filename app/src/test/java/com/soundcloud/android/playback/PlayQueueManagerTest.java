@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
+import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -361,7 +362,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final Urn queryUrn = new Urn("soundcloud:radio:123-456");
         final StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, Collections.singletonList(stationTrack));
-        playQueue.insertAudioAd(0, Urn.forTrack(321L), AdFixtures.getAudioAd(Urn.forTrack(123L)), false);
+
+        final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        playQueue.replaceItem(0, Arrays.asList(adItem, playQueue.getPlayQueueItem(0)));
 
         playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn));
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
@@ -375,7 +378,9 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
         final Urn queryUrn = new Urn("soundcloud:radio:123-456");
         final StationTrack stationTrack = StationTrack.create(Urn.forTrack(123L), queryUrn);
         final PlayQueue playQueue = PlayQueue.fromStation(stationUrn, Collections.singletonList(stationTrack));
-        playQueue.insertVideo(0, AdFixtures.getVideoAd(Urn.forTrack(123L)));
+
+        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
+        playQueue.replaceItem(0, Arrays.asList(adItem, playQueue.getPlayQueueItem(0)));
 
         playQueueManager.setNewPlayQueue(playQueue, PlaySessionSource.forStation(Screen.PLAYLIST_DETAILS, stationUrn));
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
@@ -623,7 +628,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void clearAdsFromPlayQueue() throws CreateModelException {
         final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
-        playQueue.insertAudioAd(1, Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)), true);
+        final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        playQueue.replaceItem(1, Arrays.asList(adItem, playQueue.getPlayQueueItem(1)));
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
 
         playQueueManager.removeAds();
@@ -637,7 +643,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void publishesQueueChangeEventWhenAdsCleared() throws CreateModelException {
         final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
-        playQueue.insertAudioAd(1, Urn.forTrack(123L), AdFixtures.getAudioAd(Urn.forTrack(123L)), true);
+        final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        playQueue.replaceItem(1, Arrays.asList(adItem, playQueue.getPlayQueueItem(1)));
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 3);
 
         playQueueManager.removeAds(PlayQueueEvent.fromAdsRemoved(Urn.NOT_SET));
@@ -658,7 +665,8 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     @Test
     public void filtersAdItems() {
         final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(123L, 456L));
-        playQueue.insertAudioAd(1, Urn.forTrack(789), AdFixtures.getAudioAd(Urn.forTrack(789L)), true);
+        final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        playQueue.replaceItem(1, Arrays.asList(adItem, playQueue.getPlayQueueItem(1)));
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
 
         assertPlayQueueItemsEqual(
@@ -1036,7 +1044,10 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
     public void isCurrentItemShouldReturnTrueIfGivenVideoItemIsCurrentVideoItem() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(2L));
         final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
-        playQueue.insertVideo(1, videoAd);
+
+        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(videoAd);
+        playQueue.replaceItem(1, Arrays.asList(adItem, playQueue.getPlayQueueItem(1)));
+
         playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource);
         playQueueManager.setPosition(1, true);
         assertThat(playQueueManager.isCurrentItem(videoAd.getAdUrn())).isTrue();
