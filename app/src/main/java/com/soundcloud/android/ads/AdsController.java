@@ -17,7 +17,7 @@ import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -217,7 +217,7 @@ public class AdsController {
             final ApiAdsForTrack ads = adsForNextTrack.get();
             final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
             if (AdUtils.isVideoAd(nextItem)) {
-                adsOperations.replaceUpcomingVideoAd(ads, (VideoQueueItem) nextItem);
+                adsOperations.replaceUpcomingVideoAd(ads, (VideoAdQueueItem) nextItem);
                 didReplaceNextAd = true;
             } else if (!AdUtils.isAudioAd(nextItem) && ads.audioAd().isPresent()) {
                 adsOperations.insertAudioAd((TrackQueueItem) nextItem, ads.audioAd().get());

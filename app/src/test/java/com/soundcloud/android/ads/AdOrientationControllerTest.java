@@ -11,7 +11,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -160,7 +160,7 @@ public class AdOrientationControllerTest extends AndroidUnitTest {
         final ApiVideoSource videoSource = verticalVideo ?
                                            AdFixtures.getApiVideoSource(300, 600) :
                                            AdFixtures.getApiVideoSource(600, 300);
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L),
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L),
                                                                                              videoSource));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);

@@ -14,7 +14,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -170,7 +170,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
         final ApiVideoSource videoSource = verticalVideo ?
                                            AdFixtures.getApiVideoSource(300, 600) :
                                            AdFixtures.getApiVideoSource(600, 300);
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(TRACK_URN, videoSource));
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(TRACK_URN, videoSource));
         when(adsOperations.isCurrentItemAd()).thenReturn(true);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
         when(adsOperations.getCurrentTrackAdData()).thenReturn(videoItem.getAdData());

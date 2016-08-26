@@ -5,7 +5,7 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaylistQueueItem;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 
 public class TestPlayQueueItem {
 
@@ -33,7 +33,7 @@ public class TestPlayQueueItem {
         return new TrackQueueItem.Builder(itemUrn).fromSource(source, sourceVersion).build();
     }
 
-    public static VideoQueueItem createVideo(VideoAd adData) {
-        return new VideoQueueItem(adData);
+    public static VideoAdQueueItem createVideo(VideoAd adData) {
+        return new VideoAdQueueItem(adData);
     }
 }

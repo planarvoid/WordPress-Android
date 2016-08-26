@@ -17,7 +17,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -140,7 +140,7 @@ public class AdsOperations {
     void insertVideoAd(TrackQueueItem monetizableItem, ApiVideoAd apiVideoAd) {
         final VideoAd videoData = VideoAd.create(apiVideoAd, monetizableItem.getUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
-        final VideoQueueItem videoItem = new VideoQueueItem(videoData);
+        final VideoAdQueueItem videoItem = new VideoAdQueueItem(videoData);
         playQueueManager.replace(monetizableItem, Arrays.asList(videoItem, newMonetizableItem));
     }
 
@@ -180,7 +180,7 @@ public class AdsOperations {
         playQueueManager.replace(monetizableItem, Arrays.<PlayQueueItem>asList(audioAdItem, newMonetizableItem));
     }
 
-    void replaceUpcomingVideoAd(ApiAdsForTrack ads, VideoQueueItem videoItem) {
+    void replaceUpcomingVideoAd(ApiAdsForTrack ads, VideoAdQueueItem videoItem) {
         final boolean hasAudioAd = ads.audioAd().isPresent();
         final boolean hasInterstitial = ads.interstitialAd().isPresent();
         // Don't publish queue change if we can swap another ad in. Queue change will be published on insert.
@@ -210,7 +210,7 @@ public class AdsOperations {
     }
 
     public boolean isCurrentItemLetterboxVideoAd() {
-        return isCurrentItemVideoAd() && !((VideoQueueItem) playQueueManager.getCurrentPlayQueueItem()).isVerticalVideo();
+        return isCurrentItemVideoAd() && !((VideoAdQueueItem) playQueueManager.getCurrentPlayQueueItem()).isVerticalVideo();
     }
 
     public void clearAllAdsFromQueue() {

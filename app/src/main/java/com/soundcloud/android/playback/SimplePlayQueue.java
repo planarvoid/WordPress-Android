@@ -54,7 +54,7 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public void insertVideo(int position, VideoAd videoAd) {
-        insertPlayQueueItem(position, new VideoQueueItem(videoAd));
+        insertPlayQueueItem(position, new VideoAdQueueItem(videoAd));
     }
 
     @Override

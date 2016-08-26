@@ -105,7 +105,7 @@ public class StreamPreloaderTest extends AndroidUnitTest {
     @Test
     public void doesNotPreloadWhenNextPlayQueueItemNotTrack() {
         when(playQueueManager.hasNextItem()).thenReturn(true);
-        when(playQueueManager.getNextPlayQueueItem()).thenReturn(new VideoQueueItem(AdFixtures.getVideoAd(Urn.NOT_SET)));
+        when(playQueueManager.getNextPlayQueueItem()).thenReturn(new VideoAdQueueItem(AdFixtures.getVideoAd(Urn.NOT_SET)));
 
         setupValidSpaceRemaining();
 

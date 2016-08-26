@@ -36,7 +36,7 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
     private static final TrackQueueItem TRACK_QUEUE_ITEM_2 = TestPlayQueueItem.createTrack(Urn.forTrack(2L),
                                                                                            "source2",
                                                                                            "version2");
-    private static final VideoQueueItem VIDEO_QUEUE_ITEM = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(
+    private static final VideoAdQueueItem VIDEO_QUEUE_ITEM = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(
             722L)));
 
     private static final int PLAY_QUEUE_ITEM_COUNT = 3;

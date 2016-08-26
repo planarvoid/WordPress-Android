@@ -7,7 +7,7 @@ import com.soundcloud.android.playback.AudioPlaybackItem;
 import com.soundcloud.android.playback.PlaybackItem;
 import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class AdUtilsTest extends AndroidUnitTest {
     @Test
     public void isPlayerAdItemShouldReturnTrueForVideoAdPlayQueueItem() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final VideoQueueItem adItem = TestPlayQueueItem.createVideo(videoAd);
+        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(videoAd);
         assertThat(AdUtils.IS_PLAYER_AD_ITEM.apply(adItem)).isTrue();
     }
 
@@ -44,7 +44,7 @@ public class AdUtilsTest extends AndroidUnitTest {
     @Test
     public void isAudioAdItemShouldReturnFalseForVideoAdPlayQueueItem() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final VideoQueueItem adItem = TestPlayQueueItem.createVideo(videoAd);
+        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(videoAd);
         assertThat(AdUtils.IS_AUDIO_AD_ITEM.apply(adItem)).isFalse();
     }
 

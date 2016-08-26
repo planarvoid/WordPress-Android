@@ -5,9 +5,9 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.optional.Optional;
 
-public class VideoQueueItem extends PlayQueueItem {
+public class VideoAdQueueItem extends PlayQueueItem {
 
-    public VideoQueueItem(VideoAd adData) {
+    public VideoAdQueueItem(VideoAd adData) {
         this.adData = Optional.<AdData>of(adData);
     }
 

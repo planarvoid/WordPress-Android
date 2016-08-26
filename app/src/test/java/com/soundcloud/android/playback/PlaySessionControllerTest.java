@@ -99,7 +99,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     @Test
     public void playQueueTrackChangedHandlerCallsPlayCurrentIfCurrentItemIsVideoAdIfThePlayerIsInPlaySession() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromPositionChanged(videoItem, Urn.NOT_SET, 0));
@@ -141,7 +141,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
     public void playQueueTrackChangeHandlerDoesNotCallPlayCurrentForVideoAdIfPlaySessionIsNotActive() {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
 
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
                          CurrentPlayQueueItemEvent.fromNewQueue(videoItem, Urn.NOT_SET, 0));
 
@@ -242,7 +242,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     @Test
     public void togglePlaybackShouldTogglePlaybackStrategyIfVideoAd() {
-        final VideoQueueItem queueItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
+        final VideoAdQueueItem queueItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(trackUrn));
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(queueItem);
         when(playSessionStateProvider.isCurrentlyPlaying(queueItem.getUrn())).thenReturn(true);
 
@@ -721,7 +721,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     private void setupVideoAdInProgress(long currentProgress) {
         final VideoAd adData = AdFixtures.getVideoAd(Urn.forTrack(456L));
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(adData);
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(adData);
         when(adsOperations.isCurrentItemVideoAd()).thenReturn(true);
         setupAdInProgress(currentProgress, videoItem);
     }

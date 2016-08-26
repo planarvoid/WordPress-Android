@@ -28,7 +28,7 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.playback.VideoSourceProvider;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
@@ -197,7 +197,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void configureAdForNextTrackReplacesVideoAdWhenAppInBackground() {
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
         insertFullAdsForNextTrack();
 
         when(adsOperations.isNextItemAd()).thenReturn(true);
@@ -208,7 +208,7 @@ public class AdsControllerTest extends AndroidUnitTest {
                          ActivityLifeCycleEvent.forOnPause(mock(AppCompatActivity.class)));
         adsController.reconfigureAdForNextTrack();
 
-        verify(adsOperations).replaceUpcomingVideoAd(any(ApiAdsForTrack.class), any(VideoQueueItem.class));
+        verify(adsOperations).replaceUpcomingVideoAd(any(ApiAdsForTrack.class), any(VideoAdQueueItem.class));
     }
 
     @Test

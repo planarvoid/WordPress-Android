@@ -6,7 +6,7 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -131,14 +131,14 @@ public class AdOrientationController extends DefaultActivityLightCycle<AppCompat
             if (activity != null) {
                 final PlayQueueItem currentItem = event.getCurrentPlayQueueItem();
                 if (currentItem.isVideo()) {
-                    lockOrientationInPortraitIfVertical(activity, (VideoQueueItem) currentItem);
+                    lockOrientationInPortraitIfVertical(activity, (VideoAdQueueItem) currentItem);
                 } else {
                     unlockOrientation(activity);
                 }
             }
         }
 
-        private void lockOrientationInPortraitIfVertical(Activity activity, VideoQueueItem videoItem) {
+        private void lockOrientationInPortraitIfVertical(Activity activity, VideoAdQueueItem videoItem) {
             if (videoItem.isVerticalVideo()) {
                 activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             }

@@ -21,7 +21,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
-import com.soundcloud.android.playback.VideoQueueItem;
+import com.soundcloud.android.playback.VideoAdQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
@@ -354,7 +354,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void replaceVideoAdReplacesVideoAdWithAudioAdIfAllAdsAvailable() {
         final ApiAdsForTrack allAds = AdFixtures.fullAdsForTrack();
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
 
         adsOperations.replaceUpcomingVideoAd(allAds, videoItem);
 
@@ -376,7 +376,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void replaceVideoAdReplacesVideoAdWithInterstitialIfNoAudioAdAvailable() {
         final ApiAdsForTrack interstitialAdForTrack = AdFixtures.interstitialAdsForTrack();
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
 
         adsOperations.replaceUpcomingVideoAd(interstitialAdForTrack, videoItem);
 
@@ -395,7 +395,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void replaceVideoAdReplacesVideoAdWithNothingIfNoOtherAdTypesExist() {
         final ApiAdsForTrack emptyAds = new ApiAdsForTrack(Collections.<ApiAdWrapper>emptyList());
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(123L)));
 
         adsOperations.replaceUpcomingVideoAd(emptyAds, videoItem);
         verify(playQueueManager).removeUpcomingItem(videoItem, true);
@@ -412,7 +412,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
         verify(playQueueManager).replace(same(trackQueueItem), listCaptor.capture());
         final List value = listCaptor.getValue();
         assertPlayQueueItemsEqual(value,
-                                  Arrays.asList(new VideoQueueItem(VideoAd.create(videoAd, TRACK_URN)),
+                                  Arrays.asList(new VideoAdQueueItem(VideoAd.create(videoAd, TRACK_URN)),
                                                 TestPlayQueueItem.createTrack(TRACK_URN)));
     }
 
@@ -437,7 +437,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     private void verifyVideoInserted(ApiVideoAd apiVideoAd) {
         verify(playQueueManager).replace(same(trackQueueItem), listArgumentCaptor.capture());
         final VideoAd videoAd = VideoAd.create(apiVideoAd, TRACK_URN);
-        final VideoQueueItem videoItem = TestPlayQueueItem.createVideo(videoAd);
+        final VideoAdQueueItem videoItem = TestPlayQueueItem.createVideo(videoAd);
         assertPlayQueueItemsEqual(listArgumentCaptor.getValue(),
                                   Arrays.asList(videoItem, TestPlayQueueItem.createTrack(TRACK_URN)));
     }
