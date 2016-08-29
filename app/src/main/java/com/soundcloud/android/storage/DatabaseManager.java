@@ -26,7 +26,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 87;
+    public static final int DATABASE_VERSION = 88;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -72,7 +72,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             }
 
             // views
-            db.execSQL(Tables.Shortcuts.SQL);
             db.execSQL(Tables.SearchSuggestions.SQL);
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
 
@@ -103,7 +102,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         for (Table t : Table.values()) {
             SchemaMigrationHelper.drop(t, db);
         }
-        dropView(Tables.Shortcuts.TABLE.name(), db);
         dropView(Tables.SearchSuggestions.TABLE.name(), db);
 
         onCreate(db);
@@ -188,7 +186,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             success = upgradeTo57(db, oldVersion);
                             break;
                         case 58:
-                            success = upgradeTo58(db, oldVersion);
+                            // Previously added the Shortcuts table, which is no longer used
+                            success = true;
                             break;
                         case 59:
                             success = upgradeTo59(db, oldVersion);
@@ -278,6 +277,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 87:
                             success = upgradeTo87(db, oldVersion);
+                            break;
+                        case 88:
+                            success = upgradeTo88(db, oldVersion);
                             break;
                         default:
                             break;
@@ -616,19 +618,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 57);
-        }
-        return false;
-    }
-
-    /**
-     * Create Shortcuts view for querying ShortCuts
-     */
-    private static boolean upgradeTo58(SQLiteDatabase db, int oldVersion) {
-        try {
-            db.execSQL(Tables.Shortcuts.SQL);
-            return true;
-        } catch (SQLException exception) {
-            handleUpgradeException(exception, oldVersion, 58);
         }
         return false;
     }
@@ -1023,7 +1012,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Split PlayHistory (tracks+context) into PlayHistory (tracks)
      * and RecentlyPlayed (context)
      */
-
     private boolean upgradeTo86(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.RecentlyPlayed.SQL);
@@ -1033,7 +1021,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 86);
         }
-
         return false;
     }
 
@@ -1047,6 +1034,18 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Remove Shortcuts table
+     */
+    private boolean upgradeTo88(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable("Shortcuts", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 88);
+        }
+        return false;
+    }
 
     private void tryMigratePlayHistory(SQLiteDatabase db) {
         try {

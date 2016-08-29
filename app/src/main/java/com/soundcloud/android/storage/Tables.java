@@ -215,34 +215,6 @@ public interface Tables {
         }
     }
 
-    class Shortcuts extends BaseTable {
-
-        public static final Shortcuts TABLE = new Shortcuts();
-
-        public static final Column KIND = Column.create(TABLE, "kind");
-        public static final Column _ID = Column.create(TABLE, "_id");
-        public static final Column _TYPE = Column.create(TABLE, "_type");
-        public static final Column DISPLAY_TEXT = Column.create(TABLE, "display_text");
-
-        public static final String KIND_FOLLOWING = "following";
-
-        static final String SQL = "CREATE VIEW IF NOT EXISTS Shortcuts AS SELECT 'like' AS kind, " +
-                "Sounds._id AS _id, " +
-                "Sounds._type AS _type, " +
-                "title AS display_text " +
-                "FROM Likes INNER JOIN Sounds ON Likes._id = Sounds._id " +
-                "AND Likes._type = Sounds._type" +
-                " UNION" +
-                " SELECT 'following' AS kind, " +
-                "Users._id, 0 AS _type, " +
-                "username AS text " +
-                "from UserAssociations INNER JOIN Users ON UserAssociations.target_id = Users._id";
-
-        protected Shortcuts() {
-            super("Shortcuts", PrimaryKey.of(BaseColumns._ID, "kind"));
-        }
-    }
-
     class SearchSuggestions extends BaseTable {
 
         public static final SearchSuggestions TABLE = new SearchSuggestions();

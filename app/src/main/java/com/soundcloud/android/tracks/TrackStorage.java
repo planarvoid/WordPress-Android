@@ -9,7 +9,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.Urns;
-import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.QueryResult;
@@ -71,14 +70,6 @@ class TrackStorage {
                 .query(buildTracksQuery(requestedTracks))
                 .map(new TrackUrnMapper())
                 .toList();
-    }
-
-    private Query buildQueryLoadTracks(List<Urn> tracksUrn) {
-        return Query
-                .from(Table.Sounds)
-                .select(TableColumns.Sounds._ID)
-                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .whereIn(TableColumns.Sounds._ID, Lists.transform(tracksUrn, Urns.TO_ID));
     }
 
     Observable<PropertySet> loadTrackDescription(Urn urn) {
