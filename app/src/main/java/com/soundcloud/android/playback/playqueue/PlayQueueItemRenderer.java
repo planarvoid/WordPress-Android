@@ -20,7 +20,7 @@ import javax.inject.Inject;
 
 public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
 
-    public static final float ALPHA_DISABLED = 0.5f;
+    public static final float ALPHA_DISABLED = 0.3f;
     public static final float ALPHA_ENABLED = 1.0f;
     private static final int EXTENDED_TOUCH_DP = 6;
 
@@ -73,7 +73,7 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
     private void setStatusLabel(ViewGroup statusPlaceHolder,
                                 View itemView,
                                 PlayQueueUIItem playQueueUIItem) {
-        if (playQueueUIItem.isPlaying()) {
+        if (playQueueUIItem.getPlayState() == PlayQueueUIItem.PlayState.PLAYING) {
             View.inflate(itemView.getContext(), R.layout.playing, statusPlaceHolder);
         } else if (playQueueUIItem.getStatusLabelId() != -1) {
             View.inflate(itemView.getContext(), playQueueUIItem.getStatusLabelId(), statusPlaceHolder);
@@ -82,7 +82,7 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
     }
 
     private void setBackground(PlayQueueUIItem item, View view) {
-        if (item.isPlaying()) {
+        if (item.getPlayState() == PlayQueueUIItem.PlayState.PLAYING) {
             view.setBackgroundResource(R.drawable.queue_item_playing_background);
         } else {
             view.setBackgroundResource(R.drawable.queue_item_background);
@@ -105,18 +105,50 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
     }
 
     private void setRepeatAlpha(PlayQueueUIItem item, ImageView imageView, View textHolder) {
-        if (item.isInRepeatMode() && !item.isPlaying()) {
-            imageView.setAlpha(ALPHA_DISABLED);
-            textHolder.setAlpha(ALPHA_DISABLED);
+        float alpha = getAlpha(item.getRepeatMode(), item.getPlayState());
+        imageView.setAlpha(alpha);
+        textHolder.setAlpha(alpha);
+    }
+
+    public static float getAlpha(PlayQueueManager.RepeatMode repeatMode, PlayQueueUIItem.PlayState playstate) {
+        switch (repeatMode) {
+            case REPEAT_NONE:
+                if (playstate == PlayQueueUIItem.PlayState.PLAYED) {
+                    return ALPHA_DISABLED;
+                } else {
+                    return ALPHA_ENABLED;
+                }
+            case REPEAT_ONE:
+                if (playstate == PlayQueueUIItem.PlayState.PLAYING) {
+                    return ALPHA_ENABLED;
+                } else {
+                    return ALPHA_DISABLED;
+                }
+            case REPEAT_ALL:
+                return ALPHA_ENABLED;
+            default:
+                throw new IllegalStateException("Unknown value of repeat mode");
+        }
+    }
+
+    public static boolean shouldRerender(PlayQueueManager.RepeatMode oldRepeatMode,
+                                         PlayQueueManager.RepeatMode newRepeatMode,
+                                         PlayQueueUIItem.PlayState playstate) {
+        if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE) {
+            return playstate == PlayQueueUIItem.PlayState.COMING_UP;
+        } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ONE && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL) {
+            return playstate == PlayQueueUIItem.PlayState.PLAYED || playstate == PlayQueueUIItem.PlayState.COMING_UP;
+        } else if (oldRepeatMode == PlayQueueManager.RepeatMode.REPEAT_ALL && newRepeatMode == PlayQueueManager.RepeatMode.REPEAT_NONE) {
+            return playstate == PlayQueueUIItem.PlayState.PLAYED;
         } else {
-            imageView.setAlpha(ALPHA_ENABLED);
-            textHolder.setAlpha(ALPHA_ENABLED);
+            throw new IllegalStateException("New repeat mode: " + newRepeatMode.toString()
+                    + " cannot follow and old repeat mode: " + oldRepeatMode.toString());
         }
     }
 
     private void setupOverFlow(final PlayQueueUIItem item, final ImageView overflowButton, final int position) {
         ViewUtils.extendTouchArea(overflowButton, ViewUtils.dpToPx(overflowButton.getContext(), EXTENDED_TOUCH_DP));
-        if (item.isDraggable()) {
+        if (item.getPlayState() == PlayQueueUIItem.PlayState.COMING_UP) {
             overflowButton.setImageResource(R.drawable.drag_handle);
         } else {
             overflowButton.setImageResource(R.drawable.playqueue_track_item_overflow);

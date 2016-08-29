@@ -241,7 +241,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     private void updateRepeatAdapter() {
-        adapter.updateInRepeatMode(playQueueManager.getRepeatMode() == REPEAT_ONE);
+        adapter.updateInRepeatMode(playQueueManager.getRepeatMode());
     }
 
     public boolean isRemovable(int position) {

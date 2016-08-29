@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -40,30 +41,21 @@ public class PlayQueueRecyclerItemAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void updateNowPlayingSetsPlayingStateOnItems() {
-        adapter.updateNowPlaying(1);
-
-        assertThat(playQueueItem1.isPlaying()).isFalse();
-        assertThat(playQueueItem2.isPlaying()).isTrue();
-        assertThat(playQueueItem3.isPlaying()).isFalse();
-    }
-
-    @Test
     public void updateNowPlayingSetsDraggableStateOnItems() {
         adapter.updateNowPlaying(1);
 
-        assertThat(playQueueItem1.isDraggable()).isFalse();
-        assertThat(playQueueItem2.isDraggable()).isFalse();
-        assertThat(playQueueItem3.isDraggable()).isTrue();
+        assertThat(playQueueItem1.getPlayState()).isEqualTo(PlayQueueUIItem.PlayState.PLAYED);
+        assertThat(playQueueItem2.getPlayState()).isEqualTo(PlayQueueUIItem.PlayState.PLAYING);
+        assertThat(playQueueItem3.getPlayState()).isEqualTo(PlayQueueUIItem.PlayState.COMING_UP);
     }
 
     @Test
     public void updateRepeatModeStateOnItems() {
-        adapter.updateInRepeatMode(true);
+        adapter.updateInRepeatMode(PlayQueueManager.RepeatMode.REPEAT_ONE);
 
-        assertThat(playQueueItem1.isInRepeatMode()).isTrue();
-        assertThat(playQueueItem2.isInRepeatMode()).isTrue();
-        assertThat(playQueueItem3.isInRepeatMode()).isTrue();
+        assertThat(playQueueItem1.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
+        assertThat(playQueueItem2.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
+        assertThat(playQueueItem3.getRepeatMode()).isEqualTo(PlayQueueManager.RepeatMode.REPEAT_ONE);
     }
 
     public PlayQueueUIItem getPlayQueueItem(int uniqueId) {

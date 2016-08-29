@@ -7,17 +7,19 @@ import com.soundcloud.android.image.SimpleImageResource;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueItem;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.tracks.TieredTracks;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 
 class PlayQueueUIItem {
+
+    enum PlayState {PLAYING, COMING_UP, PLAYED;}
 
     private final PlayQueueItem playQueueItem;
     private final TrackItem trackItem;
@@ -25,9 +27,8 @@ class PlayQueueUIItem {
     private final int statusLabelId;
     private final ImageResource imageResource;
     private final int titleTextColor;
-    private boolean isInRepeatMode;
-    private boolean isPlaying;
-    private boolean isDraggable;
+    private PlayQueueManager.RepeatMode repeatMode;
+    private PlayState currentPlayingState;
 
     public PlayQueueUIItem(PlayQueueItem playQueueItem,
                            TrackItem trackItem,
@@ -41,9 +42,8 @@ class PlayQueueUIItem {
         this.statusLabelId = statusLabelId;
         this.imageResource = imageResource;
         this.titleTextColor = titleTextColor;
-        this.isInRepeatMode = false;
-        this.isPlaying = false;
-        this.isDraggable = false;
+        this.repeatMode = PlayQueueManager.RepeatMode.REPEAT_NONE;
+        this.currentPlayingState = PlayState.COMING_UP;
     }
 
     static PlayQueueUIItem from(PlayQueueItem playQueueItem, TrackItem trackItem,
@@ -94,33 +94,25 @@ class PlayQueueUIItem {
         return imageResource;
     }
 
-    public boolean isInRepeatMode() {
-        return isInRepeatMode;
+    public PlayQueueManager.RepeatMode getRepeatMode() {
+        return repeatMode;
     }
 
-    public void setInRepeatMode(boolean isInRepeatMode) {
-        this.isInRepeatMode = isInRepeatMode;
+    public void setRepeatMode(PlayQueueManager.RepeatMode repeatMode) {
+        this.repeatMode = repeatMode;
+    }
+
+    public PlayState getPlayState() {
+        return currentPlayingState;
+    }
+
+    public void setPlayState(PlayState currentPlayingState) {
+        this.currentPlayingState = currentPlayingState;
     }
 
     @ColorInt
     public int getTitleTextColor() {
         return titleTextColor;
-    }
-
-    public boolean isPlaying() {
-        return isPlaying;
-    }
-
-    public void setIsPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
-    }
-
-    public boolean isDraggable() {
-        return isDraggable;
-    }
-
-    public void setDraggable(boolean draggable) {
-        isDraggable = draggable;
     }
 
     private static ImageResource getImageResource(TrackItem trackItem) {

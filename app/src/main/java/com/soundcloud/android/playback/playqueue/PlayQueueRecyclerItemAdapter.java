@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.playqueue;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.RepeatableItemAdapter;
 
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
+
 import java.util.Collections;
 
 class PlayQueueRecyclerItemAdapter
@@ -52,25 +54,35 @@ class PlayQueueRecyclerItemAdapter
     }
 
     @Override
-    public void updateInRepeatMode(boolean inRepeatMode) {
+    public void updateInRepeatMode(PlayQueueManager.RepeatMode repeatMode) {
         for (int i = 0; i < items.size(); i++) {
             PlayQueueUIItem item = items.get(i);
-            if (item.isInRepeatMode() != inRepeatMode) {
-                item.setInRepeatMode(inRepeatMode);
-                if (!item.isPlaying()) {
+            if (item.getRepeatMode() != repeatMode) {
+                boolean shouldRerender = PlayQueueItemRenderer.shouldRerender(item.getRepeatMode(), repeatMode, item.getPlayState());
+                item.setRepeatMode(repeatMode);
+                if (shouldRerender) {
                     notifyItemChanged(i);
                 }
             }
         }
     }
 
+
     public void updateNowPlaying(int position) {
         for (int i = 0; i < items.size(); i++) {
-            final PlayQueueUIItem item = items.get(i);
-            item.setIsPlaying(position == i);
-            item.setDraggable(i > position);
+            setPlayState(position, i, items.get(i));
         }
         notifyDataSetChanged();
+    }
+
+    private void setPlayState(int position, int index, PlayQueueUIItem item) {
+        if (position == index) {
+            item.setPlayState(PlayQueueUIItem.PlayState.PLAYING);
+        } else if (index > position) {
+            item.setPlayState(PlayQueueUIItem.PlayState.COMING_UP);
+        } else {
+            item.setPlayState(PlayQueueUIItem.PlayState.PLAYED);
+        }
     }
 
     void setDragListener(PlayQueuePresenter.DragListener dragListener) {
