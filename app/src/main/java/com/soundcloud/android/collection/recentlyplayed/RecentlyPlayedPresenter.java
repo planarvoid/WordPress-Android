@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class RecentlyPlayedPresenter extends RecyclerViewPresenter<List<RecentlyPlayedItem>, RecentlyPlayedItem>
-        implements ClearRecentlyPlayedDialog.ClearRecentlyPlayedDialogListener, SimpleHeaderRenderer.MenuClickListener {
+        implements ClearRecentlyPlayedDialog.Listener, SimpleHeaderRenderer.Listener {
 
     private final RecentlyPlayedAdapter adapter;
     private final Resources resources;

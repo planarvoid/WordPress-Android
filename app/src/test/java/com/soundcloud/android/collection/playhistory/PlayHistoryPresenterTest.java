@@ -37,7 +37,6 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private SwipeRefreshAttacher swipeRrefreshAttacher;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
-    @Mock private PlayHistoryAdapterFactory adapterFactory;
     @Mock private PlayHistoryAdapter adapter;
     @Mock private FeedbackController feedbackController;
     @Mock private Fragment fragment;
@@ -49,11 +48,10 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(adapterFactory.create(any(PlayHistoryPresenter.class))).thenReturn(adapter);
         when(playHistoryOperations.playHistory()).thenReturn(Observable.<List<TrackItem>>empty());
 
         playHistoryPresenter = new PlayHistoryPresenter(playHistoryOperations, offlineContentOperations,
-                                                        adapterFactory, expandPlayerSubscriberProvider, eventBus,
+                                                        adapter, expandPlayerSubscriberProvider, eventBus,
                                                         swipeRrefreshAttacher, feedbackController);
     }
 
@@ -80,4 +78,8 @@ public class PlayHistoryPresenterTest extends AndroidUnitTest {
                                                                 LENGTH_LONG));
     }
 
+    @Test
+    public void shouldSetTrackClickListener() throws Exception {
+        verify(adapter).setTrackClickListener(playHistoryPresenter);
+    }
 }

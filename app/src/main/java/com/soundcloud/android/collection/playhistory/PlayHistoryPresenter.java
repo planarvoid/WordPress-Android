@@ -24,6 +24,7 @@ import com.soundcloud.android.presentation.RefreshRecyclerViewAdapterSubscriber;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -46,7 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, PlayHistoryItem>
-        implements SimpleHeaderRenderer.MenuClickListener, ClearPlayHistoryDialog.ClearPlayHistoryDialogListener {
+        implements SimpleHeaderRenderer.Listener, ClearPlayHistoryDialog.Listener, TrackItemRenderer.Listener {
 
     private static final Function<TrackItem, PlayHistoryItem> TRACK_TO_PLAY_HISTORY_ITEM = new Function<TrackItem, PlayHistoryItem>() {
         public PlayHistoryItem apply(TrackItem trackItem) {
@@ -67,7 +68,7 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     @Inject
     PlayHistoryPresenter(PlayHistoryOperations playHistoryOperations,
                          OfflineContentOperations offlineContentOperations,
-                         PlayHistoryAdapterFactory adapterFactory,
+                         PlayHistoryAdapter adapter,
                          Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                          EventBus eventBus,
                          SwipeRefreshAttacher swipeRefreshAttacher,
@@ -75,10 +76,13 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         super(swipeRefreshAttacher);
         this.playHistoryOperations = playHistoryOperations;
         this.offlineContentOperations = offlineContentOperations;
-        this.adapter = adapterFactory.create(this);
+        this.adapter = adapter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
         this.feedbackController = feedbackController;
+
+        adapter.setMenuClickListener(this);
+        adapter.setTrackClickListener(this);
     }
 
     @Override
@@ -96,6 +100,13 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
     @Override
     public void onClearClicked() {
         new ClearPlayHistoryDialog().setListener(this).show(fragment.getFragmentManager());
+    }
+
+    @Override
+    public void trackItemClicked(Urn urn, int position) {
+        playHistoryOperations
+                .startPlaybackFrom(urn, Screen.PLAY_HISTORY)
+                .subscribe(expandPlayerSubscriberProvider.get());
     }
 
     @Override
@@ -153,23 +164,6 @@ class PlayHistoryPresenter extends RecyclerViewPresenter<List<PlayHistoryItem>, 
         viewLifeCycle.unsubscribe();
         this.fragment = null;
         super.onDestroyView(fragment);
-    }
-
-    @Override
-    public void onItemClicked(View view, int position) {
-        PlayHistoryItem item = adapter.getItem(position);
-
-        switch (item.getKind()) {
-            case PlayHistoryTrack:
-                Urn urn = ((PlayHistoryItemTrack) item).trackItem().getUrn();
-
-                playHistoryOperations
-                        .startPlaybackFrom(urn, Screen.PLAY_HISTORY)
-                        .subscribe(expandPlayerSubscriberProvider.get());
-                break;
-            default:
-                break;
-        }
     }
 
     @Override

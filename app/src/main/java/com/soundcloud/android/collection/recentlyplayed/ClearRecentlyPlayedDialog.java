@@ -16,17 +16,17 @@ public class ClearRecentlyPlayedDialog extends DialogFragment implements DialogI
 
     private static final String TAG = "ClearRecentlyPlayed";
 
-    interface ClearRecentlyPlayedDialogListener {
+    interface Listener {
         void onClearConfirmationClicked();
     }
 
-    private ClearRecentlyPlayedDialogListener listener;
+    private Listener listener;
 
     public void show(FragmentManager fragmentManager) {
         show(fragmentManager, TAG);
     }
 
-    public ClearRecentlyPlayedDialog setListener(ClearRecentlyPlayedDialogListener listener) {
+    public ClearRecentlyPlayedDialog setListener(Listener listener) {
         this.listener = listener;
         return this;
     }

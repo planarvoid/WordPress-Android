@@ -10,17 +10,22 @@ import com.soundcloud.android.collection.PreviewCollectionItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 
 import android.content.res.Resources;
 
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
+public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter implements TrackItemRenderer.Listener {
 
     private static final int FIXED_PLAY_HISTORY_ITEMS = 2;
     private static final int FIXED_RECENTLY_PLAYED_ITEMS = 2;
@@ -29,6 +34,8 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
 
     private final CollectionOperations collectionOperations;
     private final PlayHistoryExperiment experiment;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final PlayHistoryOperations playHistoryOperations;
 
     public PlayHistoryCollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                           CollectionOperations collectionOperations,
@@ -36,10 +43,16 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
                                           CollectionAdapter adapter,
                                           PlayHistoryExperiment experiment,
                                           Resources resources,
-                                          EventBus eventBus) {
+                                          EventBus eventBus,
+                                          Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                                          PlayHistoryOperations playHistoryOperations) {
         super(swipeRefreshAttacher, eventBus, adapter, resources, collectionOptionsStorage);
         this.collectionOperations = collectionOperations;
         this.experiment = experiment;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.playHistoryOperations = playHistoryOperations;
+
+        adapter.setTrackClickListener(this);
     }
 
     @Override
@@ -89,5 +102,12 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter {
         if (tracks.size() > 0) {
             collectionItems.add(PlayHistoryBucketItem.create(tracks));
         }
+    }
+
+    @Override
+    public void trackItemClicked(Urn urn, int position) {
+        playHistoryOperations
+                .startPlaybackFrom(urn, Screen.COLLECTIONS)
+                .subscribe(expandPlayerSubscriberProvider.get());
     }
 }

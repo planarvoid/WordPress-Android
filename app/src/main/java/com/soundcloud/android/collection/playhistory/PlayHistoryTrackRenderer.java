@@ -2,6 +2,7 @@ package com.soundcloud.android.collection.playhistory;
 
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.DownloadableTrackItemRenderer;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,5 +29,9 @@ class PlayHistoryTrackRenderer implements CellRenderer<PlayHistoryItemTrack> {
     public void bindItemView(int position, View itemView, List<PlayHistoryItemTrack> items) {
         PlayHistoryItemTrack track = items.get(position);
         renderer.bindItemView(0, itemView, Collections.singletonList(track.trackItem()));
+    }
+
+    public void setListener(TrackItemRenderer.Listener listener) {
+        renderer.setListener(listener);
     }
 }

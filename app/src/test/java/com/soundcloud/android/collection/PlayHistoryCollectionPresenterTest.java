@@ -1,5 +1,6 @@
 package com.soundcloud.android.collection;
 
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -11,10 +12,12 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
 import com.soundcloud.android.collection.playhistory.PlayHistoryCollectionPresenter;
+import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -31,6 +34,7 @@ import rx.subjects.PublishSubject;
 
 import android.support.v4.app.Fragment;
 
+import javax.inject.Provider;
 import java.util.Collections;
 import java.util.List;
 
@@ -72,7 +76,10 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
     @Mock private CollectionAdapter adapter;
     @Mock private Fragment fragment;
     @Mock private PlayHistoryExperiment experiment;
+    @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
+    @Mock private PlayHistoryOperations playHistoryOperations;
 
+    private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -86,7 +93,9 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
                                                        adapter,
                                                        experiment,
                                                        resources(),
-                                                       eventBus);
+                                                       eventBus,
+                                                       expandPlayerSubscriberProvider,
+                                                       playHistoryOperations);
     }
 
     @Test
@@ -185,4 +194,8 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
         );
     }
 
+    @Test
+    public void shouldSetTrackClickListeners() {
+        verify(adapter).setTrackClickListener(presenter);
+    }
 }

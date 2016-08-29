@@ -7,6 +7,7 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,8 +27,8 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
     @Bind(R.id.play_history) RecyclerView recyclerView;
 
     @Inject
-    PlayHistoryBucketRenderer(PlayHistoryAdapterFactory adapterFactory, Navigator navigator) {
-        this.adapter = adapterFactory.create(null);
+    PlayHistoryBucketRenderer(PlayHistoryAdapter adapter, Navigator navigator) {
+        this.adapter = adapter;
         this.navigator = navigator;
     }
 
@@ -39,6 +40,10 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
         ButterKnife.bind(this, view);
         initList();
         return view;
+    }
+
+    public void setTrackClickListener(TrackItemRenderer.Listener listener) {
+        adapter.setTrackClickListener(listener);
     }
 
     private void initList() {

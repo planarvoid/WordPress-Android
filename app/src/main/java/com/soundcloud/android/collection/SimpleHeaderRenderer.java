@@ -8,7 +8,6 @@ import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,16 +19,14 @@ import java.util.List;
 public abstract class SimpleHeaderRenderer<T>
         implements CellRenderer<T>, PopupMenuWrapper.PopupMenuWrapperListener {
 
-    public interface MenuClickListener {
+    public interface Listener {
         void onClearClicked();
     }
 
-    private final MenuClickListener clickListener;
+    private Listener listener;
     private final PopupMenuWrapper.Factory popupMenuFactory;
 
-    public SimpleHeaderRenderer(@Nullable MenuClickListener listener,
-                                PopupMenuWrapper.Factory popupMenuFactory) {
-        this.clickListener = listener;
+    public SimpleHeaderRenderer(PopupMenuWrapper.Factory popupMenuFactory) {
         this.popupMenuFactory = popupMenuFactory;
     }
 
@@ -53,8 +50,8 @@ public abstract class SimpleHeaderRenderer<T>
     public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.clear_history:
-                if (clickListener != null) {
-                    clickListener.onClearClicked();
+                if (listener != null) {
+                    listener.onClearClicked();
                 }
                 return true;
             default:
@@ -86,5 +83,9 @@ public abstract class SimpleHeaderRenderer<T>
 
     private void setTitle(View itemView, T header) {
         ButterKnife.<TextView>findById(itemView, R.id.header_text).setText(getTitle(header));
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 }

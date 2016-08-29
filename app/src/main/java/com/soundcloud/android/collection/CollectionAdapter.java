@@ -5,6 +5,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketRend
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.RecyclerItemAdapter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import android.view.View;
 
@@ -14,6 +15,7 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
         implements CollectionPlaylistHeaderRenderer.OnSettingsClickListener, CollectionPlaylistRemoveFilterRenderer.OnRemoveFilterListener {
 
     private final OnboardingItemCellRenderer onboardingItemCellRenderer;
+    private final PlayHistoryBucketRenderer playHistoryBucketRenderer;
     private Listener listener;
 
     interface Listener {
@@ -41,6 +43,7 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
                 new CellRendererBinding<>(CollectionItem.TYPE_RECENTLY_PLAYED_BUCKET, recentlyPlayedBucketRenderer),
                 new CellRendererBinding<>(CollectionItem.TYPE_PLAY_HISTORY_BUCKET, playHistoryBucketRenderer));
         this.onboardingItemCellRenderer = onboardingItemCellRenderer;
+        this.playHistoryBucketRenderer = playHistoryBucketRenderer;
 
         headerRenderer.setOnSettingsClickListener(this);
         removeFilterRenderer.setOnRemoveFilterClickListener(this);
@@ -76,5 +79,9 @@ public class CollectionAdapter extends PagingRecyclerItemAdapter<CollectionItem,
     @Override
     public int getBasicItemViewType(int position) {
         return getItem(position).getType();
+    }
+
+    public void setTrackClickListener(TrackItemRenderer.Listener listener) {
+        playHistoryBucketRenderer.setTrackClickListener(listener);
     }
 }

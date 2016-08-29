@@ -3,27 +3,32 @@ package com.soundcloud.android.collection.playhistory;
 import static com.soundcloud.android.collection.playhistory.PlayHistoryItem.Kind.PlayHistoryHeader;
 import static com.soundcloud.android.collection.playhistory.PlayHistoryItem.Kind.PlayHistoryTrack;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import com.soundcloud.android.collection.SimpleHeaderRenderer;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.PlayingTrackAware;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-@AutoFactory(allowSubclasses = true)
+import javax.inject.Inject;
+
 class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, PlayHistoryAdapter.PlayHistoryViewHolder>
         implements PlayingTrackAware {
 
-    PlayHistoryAdapter(SimpleHeaderRenderer.MenuClickListener listener,
-                       @Provided PlayHistoryTrackRenderer trackRenderer,
-                       @Provided PlayHistoryHeaderRendererFactory headerRendererFactory) {
+    private final PlayHistoryTrackRenderer trackRenderer;
+    private final PlayHistoryHeaderRenderer headerRenderer;
+
+    @Inject
+    PlayHistoryAdapter(PlayHistoryTrackRenderer trackRenderer,
+                       PlayHistoryHeaderRenderer headerRenderer) {
         super(new CellRendererBinding<>(PlayHistoryTrack.ordinal(), trackRenderer),
-              new CellRendererBinding<>(PlayHistoryHeader.ordinal(), headerRendererFactory.create(listener)));
+              new CellRendererBinding<>(PlayHistoryHeader.ordinal(), headerRenderer));
+        this.trackRenderer = trackRenderer;
+        this.headerRenderer = headerRenderer;
     }
 
     @Override
@@ -57,5 +62,13 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Play
         PlayHistoryViewHolder(View itemView) {
             super(itemView);
         }
+    }
+
+    public void setMenuClickListener(SimpleHeaderRenderer.Listener listener) {
+        this.headerRenderer.setListener(listener);
+    }
+
+    public void setTrackClickListener(TrackItemRenderer.Listener listener) {
+        this.trackRenderer.setListener(listener);
     }
 }

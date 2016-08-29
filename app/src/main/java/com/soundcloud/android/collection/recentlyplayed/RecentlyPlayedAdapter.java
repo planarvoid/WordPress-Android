@@ -13,19 +13,21 @@ import android.view.View;
 class RecentlyPlayedAdapter extends PagingRecyclerItemAdapter<RecentlyPlayedItem, RecyclerItemAdapter.ViewHolder> {
 
     RecentlyPlayedAdapter(boolean fixedWidth,
-                          SimpleHeaderRenderer.MenuClickListener listener,
-                          @Provided RecentlyPlayedHeaderRendererFactory recentlyPlayedHeaderRendererFactory,
+                          SimpleHeaderRenderer.Listener listener,
+                          @Provided RecentlyPlayedHeaderRenderer recentlyPlayedHeaderRenderer,
                           @Provided RecentlyPlayedPlaylistRendererFactory recentlyPlayedPlaylistRendererFactory,
                           @Provided RecentlyPlayedProfileRendererFactory recentlyPlayedProfileRendererFactory,
                           @Provided RecentlyPlayedStationRendererFactory recentlyPlayedStationRendererFactory) {
         super(new CellRendererBinding<>(RecentlyPlayedItem.Kind.RecentlyPlayedHeader.ordinal(),
-                                        recentlyPlayedHeaderRendererFactory.create(listener)),
+                                        recentlyPlayedHeaderRenderer),
               new CellRendererBinding<>(RecentlyPlayedItem.Kind.RecentlyPlayedPlaylist.ordinal(),
                                         recentlyPlayedPlaylistRendererFactory.create(fixedWidth)),
               new CellRendererBinding<>(RecentlyPlayedItem.Kind.RecentlyPlayedProfile.ordinal(),
                                         recentlyPlayedProfileRendererFactory.create(fixedWidth)),
               new CellRendererBinding<>(RecentlyPlayedItem.Kind.RecentlyPlayedStation.ordinal(),
                                         recentlyPlayedStationRendererFactory.create(fixedWidth)));
+
+        recentlyPlayedHeaderRenderer.setListener(listener);
     }
 
     @Override

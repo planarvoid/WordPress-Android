@@ -16,17 +16,17 @@ public class ClearPlayHistoryDialog extends DialogFragment implements DialogInte
 
     private static final String TAG = "ClearPlayHistory";
 
-    interface ClearPlayHistoryDialogListener {
+    interface Listener {
         void onClearConfirmationClicked();
     }
 
-    private ClearPlayHistoryDialogListener listener;
+    private Listener listener;
 
     public void show(FragmentManager fragmentManager) {
         show(fragmentManager, TAG);
     }
 
-    public ClearPlayHistoryDialog setListener(ClearPlayHistoryDialogListener listener) {
+    public ClearPlayHistoryDialog setListener(Listener listener) {
         this.listener = listener;
         return this;
     }
