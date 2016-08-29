@@ -26,7 +26,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 87;
+    public static final int DATABASE_VERSION = 88;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static final AtomicReference<DatabaseMigrationEvent> migrationEvent = new AtomicReference<>();
@@ -185,6 +185,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
                         case 57:
                             success = upgradeTo57(db, oldVersion);
                             break;
+                        case 58:
+                            // Previously added the Shortcuts table, which is no longer used
+                            success = true;
+                            break;
                         case 59:
                             success = upgradeTo59(db, oldVersion);
                             break;
@@ -273,6 +277,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 87:
                             success = upgradeTo87(db, oldVersion);
+                            break;
+                        case 88:
+                            success = upgradeTo88(db, oldVersion);
                             break;
                         default:
                             break;
@@ -1017,16 +1024,25 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    /**
-     * Remove Shortcuts table
-     */
     private boolean upgradeTo87(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.StationsCollections.TABLE.name(), Tables.StationsCollections.SQL, db);
-            dropTable("Shortcuts", db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 87);
+        }
+        return false;
+    }
+
+    /**
+     * Remove Shortcuts table
+     */
+    private boolean upgradeTo88(SQLiteDatabase db, int oldVersion) {
+        try {
+            dropTable("Shortcuts", db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 88);
         }
         return false;
     }
