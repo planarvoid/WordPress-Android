@@ -55,7 +55,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @Override
-    public void onPlayTransition(PlayStateEvent playStateEvent, boolean isNewItem) {
+    public void onPlayTransition(PlaybackItem ignored, PlayStateEvent playStateEvent, boolean isNewItem) {
         loadTrackIfChanged(playStateEvent, isNewItem);
         publishPlayEvent(playStateEvent);
 

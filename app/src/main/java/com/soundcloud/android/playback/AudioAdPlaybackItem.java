@@ -10,19 +10,17 @@ import com.soundcloud.java.collections.PropertySet;
 import auto.parcel.AutoParcel;
 
 @AutoParcel
-public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
+public abstract class AudioAdPlaybackItem implements AdPlaybackItem, Parcelable {
 
     private static final long POSITION_START = 0L;
 
     public static AudioAdPlaybackItem create(PropertySet track, AudioAd audioAd) {
         return new AutoParcel_AudioAdPlaybackItem(
+                audioAd,
                 track.get(TrackProperty.URN),
                 POSITION_START,
                 PlaybackType.AUDIO_AD,
-                Durations.getTrackPlayDuration(track),
-                audioAd.isThirdParty(),
-                audioAd.getStreamUrl()
-        );
+                Durations.getTrackPlayDuration(track));
     }
 
     @Override
@@ -37,7 +35,11 @@ public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
     @Override
     public abstract long getDuration();
 
-    public abstract boolean isThirdParty();
+    public boolean isThirdParty() {
+        return ((AudioAd) getAdData()).isThirdParty();
+    }
 
-    public abstract String getThirdPartyStreamUrl();
+    public String getThirdPartyStreamUrl() {
+        return ((AudioAd) getAdData()).getStreamUrl();
+    }
 }
