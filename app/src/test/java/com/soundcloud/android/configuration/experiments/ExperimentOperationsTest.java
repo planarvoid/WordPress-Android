@@ -66,39 +66,6 @@ public class ExperimentOperationsTest {
     }
 
     @Test
-    public void shouldGenerateTrackingParametersMapForActiveExperiments() {
-        Assignment assignment = ModelFixtures.create(Assignment.class);
-        when(experimentStorage.readAssignment()).thenReturn(assignment);
-        when(activeExperiments.isActive(any(Layer.class))).thenReturn(true);
-
-        operations.loadAssignment();
-
-        Map<String, Integer> params = operations.getTrackingParams();
-
-        assertThat(params.containsKey("exp_android-ui")).isTrue();
-        assertThat(params.get("exp_android-ui")).isEqualTo(3);
-
-        assertThat(params.containsKey("exp_android-listen")).isTrue();
-        assertThat(params.get("exp_android-listen")).isEqualTo(9);
-    }
-
-    @Test
-    public void shouldNotGenerateTrackingParametersForExperimentsThatAreNotRunning() {
-        final Layer layer = new Layer("android-ui", 1, "experiment", 1, "variant");
-        final Assignment assignment = new Assignment(Collections.singletonList(layer));
-
-        when(experimentStorage.readAssignment()).thenReturn(assignment);
-        when(activeExperiments.isActive(layer)).thenReturn(true);
-
-        operations.loadAssignment();
-
-        Map<String, Integer> params = operations.getTrackingParams();
-
-        assertThat(params.containsKey("exp_android-ui")).isTrue();
-        assertThat(params.containsKey("exp_android-listen")).isFalse();
-    }
-
-    @Test
     public void shouldReturnLayerWhenAssigned() {
         final Layer layer = new Layer("layer", 1, "experiment", 1, "variant");
         final Assignment assignment = new Assignment(Collections.singletonList(layer));

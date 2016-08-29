@@ -50,6 +50,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -59,6 +60,7 @@ import org.mockito.Mock;
 
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -992,11 +994,57 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         assertEngagementClickEventJson("share", event.getTimestamp());
     }
 
+
+    @Test
+    public void addsCurrentExperimentJsonOmitsEmptyVariants() throws ApiMapperException {
+
+        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(new Integer[]{}));
+
+        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("share")
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                .clickObject(TRACK_URN.toString())
+                .clickSource(SOURCE)
+                .clickSourceUrn(STATION_URN.toString())
+                .queryUrn(QUERY_URN.toString())
+                .queryPosition(QUERY_POSITION)
+                .pageName(PAGE_NAME)
+                .pageUrn(TRACK_URN.toString())
+        );
+    }
+
+    @Test
+    public void addsCurrentExperimentJsonAddsSingleVariant() throws ApiMapperException {
+
+        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(new Integer[]{1234}));
+
+        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
+        jsonDataBuilder.buildForUIEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                .clickName("share")
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                .clickObject(TRACK_URN.toString())
+                .clickSource(SOURCE)
+                .clickSourceUrn(STATION_URN.toString())
+                .queryUrn(QUERY_URN.toString())
+                .queryPosition(QUERY_POSITION)
+                .pageName(PAGE_NAME)
+               .experiment("part_of_variants", "1234")
+                .pageUrn(TRACK_URN.toString())
+        );
+    }
+
+
     @Test
     public void addsCurrentExperimentJson() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
-        setupExperiments();
 
+        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(new Integer[]{2345,3456}));
+
+        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
@@ -1008,8 +1056,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
                                                .pageName(PAGE_NAME)
-                                               .experiment("exp_android_listening", 2345)
-                                               .experiment("exp_android_ui", 3456)
+                                               .experiment("part_of_variants", "2345,3456")
                                                .pageUrn(TRACK_URN.toString())
         );
     }
@@ -1233,12 +1280,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageUrn(TRACK_URN.toString());
     }
 
-    private void setupExperiments() {
-        HashMap<String, Integer> activeExperiments = new HashMap<>();
-        activeExperiments.put("exp_android_listening", 2345);
-        activeExperiments.put("exp_android_ui", 3456);
-        when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
-    }
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
         return new EventLoggerEventDataV1(eventName,

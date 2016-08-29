@@ -412,6 +412,11 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData experiment(String key, String value) {
+        addToPayload(key, value);
+        return this;
+    }
+
     @Deprecated // this is added to the base event in v1
     public EventLoggerEventData connectionType(String connectionType) {
         addToPayload(CONNECTION_TYPE, connectionType);

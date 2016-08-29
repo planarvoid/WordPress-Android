@@ -42,6 +42,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -725,18 +727,49 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void addsCurrentExperimentJson() throws Exception {
+    public void omitsCurrentExperimentJsonWhenNoActiveVariants() throws Exception {
         final EventContextMetadata eventContext = eventContextBuilder().invokerScreen(SCREEN_TAG).build();
         final UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, null, EntityMetadata.EMPTY);
-        setupExperiments();
+
+        when(experimentOperations.getActiveVariants()).thenReturn(new ArrayList<>(Arrays.asList(new Integer[]{})));
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void addsCurrentExperimentJsonSingle() throws Exception {
+        final EventContextMetadata eventContext = eventContextBuilder().invokerScreen(SCREEN_TAG).build();
+        final UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, null, EntityMetadata.EMPTY);
+
+        when(experimentOperations.getActiveVariants()).thenReturn(new ArrayList<>(Arrays.asList(new Integer[]{1})));
+
+        jsonDataBuilder.build(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
+                .clickName("like::add")
+                .clickObject(Urn.forTrack(123).toString())
+                .experiment("part_of_variants", "1")
+                .pageName(PAGE_NAME));
+    }
+
+    @Test
+    public void addsCurrentExperimentJsonMultiples() throws Exception {
+        final EventContextMetadata eventContext = eventContextBuilder().invokerScreen(SCREEN_TAG).build();
+        final UIEvent event = UIEvent.fromToggleLike(true, Urn.forTrack(123), eventContext, null, EntityMetadata.EMPTY);
+
+        when(experimentOperations.getActiveVariants()).thenReturn(new ArrayList<>(Arrays.asList(new Integer[]{1,2})));
 
         jsonDataBuilder.build(event);
 
         verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", event.getTimestamp())
                                                .clickName("like::add")
                                                .clickObject(Urn.forTrack(123).toString())
-                                               .experiment("exp_android_listening", 2345)
-                                               .experiment("exp_android_ui", 3456)
+                                               .experiment("part_of_variants", "1,2")
                                                .pageName(PAGE_NAME));
     }
 
@@ -761,13 +794,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 
     private EventLoggerEventData getEventData(String eventName, String boogalooVersion, long timestamp) {
         return new EventLoggerEventData(eventName, boogalooVersion, 3152, UDID, LOGGED_IN_USER.toString(), timestamp);
-    }
-
-    private void setupExperiments() {
-        HashMap<String, Integer> activeExperiments = new HashMap<>();
-        activeExperiments.put("exp_android_listening", 2345);
-        activeExperiments.put("exp_android_ui", 3456);
-        when(experimentOperations.getTrackingParams()).thenReturn(activeExperiments);
     }
 
 }

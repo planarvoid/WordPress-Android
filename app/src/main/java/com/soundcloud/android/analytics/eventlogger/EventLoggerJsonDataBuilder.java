@@ -22,10 +22,13 @@ import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
 import java.util.Map;
 
 public class EventLoggerJsonDataBuilder {
@@ -45,6 +48,7 @@ public class EventLoggerJsonDataBuilder {
     protected final AccountOperations accountOperations;
     private final FeatureFlags featureFlags;
     private final JsonTransformer jsonTransformer;
+    private static final String EXPERIMENT_VARIANTS_KEY = "part_of_variants";
 
     @Inject
     public EventLoggerJsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
@@ -317,8 +321,9 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private void addExperiments(EventLoggerEventData eventData) {
-        for (Map.Entry<String, Integer> pair : experimentOperations.getTrackingParams().entrySet()) {
-            eventData.experiment(pair.getKey(), pair.getValue());
+        ArrayList<Integer> activeVariants = experimentOperations.getActiveVariants();
+        if(activeVariants.size() > 0) {
+            eventData.experiment(EXPERIMENT_VARIANTS_KEY, Strings.joinOn(",").join(activeVariants));
         }
     }
 
