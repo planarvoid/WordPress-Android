@@ -149,7 +149,7 @@ class SearchPresenter extends DefaultActivityLightCycle<AppCompatActivity>
 
     void showUserProfile(Urn userUrn) {
         deactivateSearchView();
-        navigator.openProfile(window.getContext(), userUrn, Screen.SEARCH_SUGGESTIONS, null);
+        navigator.legacyOpenProfile(window.getContext(), userUrn, Screen.SEARCH_SUGGESTIONS, null);
     }
 
     private void setupTransitionAnimation(Window window) {

@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
+import static java.util.UUID.randomUUID;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,10 +21,13 @@ import com.soundcloud.android.events.AdDeliveryEvent.AdsReceived;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
+import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -30,7 +35,6 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ReferringEvent;
-import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.main.Screen;
@@ -53,6 +57,7 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,9 +65,7 @@ import org.mockito.Mock;
 
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
@@ -591,20 +594,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldAttachReferringEventIfHtiEnabled() throws ApiMapperException {
-        final String id = "id";
-        final ReferringEvent referringEvent = ReferringEvent.create(id, ScreenEvent.KIND);
-        final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
-
-        event.putReferringEvent(referringEvent);
-        when(featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)).thenReturn(true);
-
-        jsonDataBuilder.buildForUIEvent(event);
-
-        assertEngagementWithReferringEvent("share", event.getTimestamp(), id, ScreenEvent.KIND);
-    }
-
-    @Test
     public void createsJsonForOfflineStorageLimitBelowUsage() throws Exception {
         OfflineInteractionEvent impression = OfflineInteractionEvent.forStorageBelowLimitImpression();
 
@@ -683,24 +672,28 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createsJsonFromRichMediaErrorEvent() throws ApiMapperException {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        final AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd, TestPlayerTransitions.buffering(), videoAd.getFirstSource());
+        final AdPlaybackErrorEvent event = AdPlaybackErrorEvent.failToBuffer(videoAd,
+                                                                             TestPlayerTransitions.buffering(),
+                                                                             videoAd.getFirstSource());
 
         jsonDataBuilder.buildForRichMediaErrorEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("rich_media_stream_error", BOOGALOO_VERSION, event.getTimestamp())
-                                            .mediaType("video")
-                                            .errorName("failToBuffer")
-                                            .host("http://videourl.com/video.mp4")
-                                            .format("mp4")
-                                            .bitrate(1001)
-                                            .playerType("player")
-                                            .protocol("hls"));
+                                               .mediaType("video")
+                                               .errorName("failToBuffer")
+                                               .host("http://videourl.com/video.mp4")
+                                               .format("mp4")
+                                               .bitrate(1001)
+                                               .playerType("player")
+                                               .protocol("hls"));
     }
 
     @Test
     public void createsJsonFromRichMediaStreamPlayEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), UUID);
+        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                                       TestPlayerTransitions.playing(),
+                                                                                       UUID);
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(audioAd, eventArgs);
 
         trackSourceInfo.setSource("source", "source-version");
@@ -709,30 +702,34 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForRichMediaSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("rich_media_stream", BOOGALOO_VERSION, event.getTimestamp())
-                .pageName(eventArgs.getTrackSourceInfo().getOriginScreen())
-                .trackLength(eventArgs.getDuration())
-                .trigger("manual")
-                .action("play")
-                .playheadPosition(0L)
-                .source("source")
-                .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
-                .playlistPosition(2)
-                .protocol("hls")
-                .playerType("player")
-                .uuid(UUID)
-                .queryUrn(QUERY_URN.toString())
-                .queryPosition(QUERY_POSITION)
-                .adUrn(audioAd.getAdUrn().toString())
-                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
-                .monetizationType("audio_ad"));
+                                               .pageName(eventArgs.getTrackSourceInfo().getOriginScreen())
+                                               .trackLength(eventArgs.getDuration())
+                                               .trigger("manual")
+                                               .action("play")
+                                               .playheadPosition(0L)
+                                               .source("source")
+                                               .sourceVersion("source-version")
+                                               .inPlaylist(PLAYLIST_URN)
+                                               .playlistPosition(2)
+                                               .protocol("hls")
+                                               .playerType("player")
+                                               .uuid(UUID)
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
+                                               .adUrn(audioAd.getAdUrn().toString())
+                                               .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
+                                               .monetizationType("audio_ad"));
     }
 
     @Test
     public void createsJsonFromRichMediaStreamStopEvent() throws ApiMapperException {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), UUID);
-        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(audioAd, eventArgs, PlaybackSessionEvent.STOP_REASON_BUFFERING);
+        final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                                       TestPlayerTransitions.idle(),
+                                                                                       UUID);
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(audioAd,
+                                                                            eventArgs,
+                                                                            PlaybackSessionEvent.STOP_REASON_BUFFERING);
 
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
@@ -740,24 +737,24 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForRichMediaSessionEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("rich_media_stream", BOOGALOO_VERSION, event.getTimestamp())
-                .action("pause")
-                .reason("buffer_underrun")
-                .pageName(eventArgs.getTrackSourceInfo().getOriginScreen())
-                .trackLength(eventArgs.getDuration())
-                .trigger("manual")
-                .playheadPosition(0L)
-                .source("source")
-                .sourceVersion("source-version")
-                .inPlaylist(PLAYLIST_URN)
-                .queryUrn(QUERY_URN.toString())
-                .queryPosition(QUERY_POSITION)
-                .playlistPosition(2)
-                .protocol("hls")
-                .playerType("player")
-                .uuid(UUID)
-                .adUrn(audioAd.getAdUrn().toString())
-                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
-                .monetizationType("audio_ad"));
+                                               .action("pause")
+                                               .reason("buffer_underrun")
+                                               .pageName(eventArgs.getTrackSourceInfo().getOriginScreen())
+                                               .trackLength(eventArgs.getDuration())
+                                               .trigger("manual")
+                                               .playheadPosition(0L)
+                                               .source("source")
+                                               .sourceVersion("source-version")
+                                               .inPlaylist(PLAYLIST_URN)
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
+                                               .playlistPosition(2)
+                                               .protocol("hls")
+                                               .playerType("player")
+                                               .uuid(UUID)
+                                               .adUrn(audioAd.getAdUrn().toString())
+                                               .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
+                                               .monetizationType("audio_ad"));
     }
 
     @Test
@@ -958,7 +955,9 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdImpression() throws ApiMapperException {
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
+        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                                  TestPlayerTransitions.playing(),
+                                                                                  "123");
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(AdFixtures.getVideoAd(TRACK_URN), args);
 
         jsonDataBuilder.buildForAdImpression(event);
@@ -973,8 +972,12 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdFinish() throws ApiMapperException {
-        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.idle(), "123");
-        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(AdFixtures.getVideoAd(TRACK_URN), args, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
+        final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo,
+                                                                                  TestPlayerTransitions.idle(),
+                                                                                  "123");
+        final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(AdFixtures.getVideoAd(TRACK_URN),
+                                                                            args,
+                                                                            PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
 
         jsonDataBuilder.buildForAdFinished(event);
 
@@ -984,6 +987,48 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .pageName("collection:likes")
                                                .monetizationType("video_ad")
                                                .clickName("ad::finish"));
+    }
+
+    @Test
+    public void createdJsonForNavigationEvent() throws ApiMapperException {
+        final Integer position = 0;
+        final AttributingActivity attributingActivityType = AttributingActivity.create(
+                AttributingActivity.PROMOTED,
+                Strings.EMPTY);
+        final Module module = Module.create(Module.STREAM,
+                                            Strings.EMPTY);
+        final Urn pageUrn = Urn.forUser(123L);
+        final EventContextMetadata eventContextMetadata =
+                EventContextMetadata.builder()
+                                    .contextScreen("screen")
+                                    .trackSourceInfo(trackSourceInfo)
+                                    .pageName(PAGE_NAME)
+                                    .module(module)
+                                    .modulePosition(position)
+                                    .attributingActivity(attributingActivityType)
+                                    .linkType(LinkType.SELF)
+                                    .pageUrn(pageUrn)
+                                    .build();
+
+        final UIEvent navigationEvent = UIEvent.fromNavigation(TRACK_URN, eventContextMetadata);
+        final String pageviewId = randomUUID().toString();
+
+        navigationEvent.putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
+
+        jsonDataBuilder.buildForUIEvent(navigationEvent);
+
+        verify(jsonTransformer).toJson(getEventData("item_interaction", BOOGALOO_VERSION, navigationEvent.getTimestamp())
+                .uuid(navigationEvent.getId())
+                .item(TRACK_URN.toString())
+                .pageviewId(pageviewId)
+                .pageName(PAGE_NAME)
+                .action(ACTION_NAVIGATION)
+                .linkType(LinkType.SELF.getName())
+                .pageUrn(pageUrn.toString())
+                .attributingActivity(attributingActivityType.getType(), attributingActivityType.getResource())
+                .module(module.getName(), module.getResource())
+                .modulePosition(position.toString())
+        );
     }
 
     @Test
@@ -1004,37 +1049,37 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                .clickName("share")
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .clickSource(SOURCE)
-                .clickSourceUrn(STATION_URN.toString())
-                .queryUrn(QUERY_URN.toString())
-                .queryPosition(QUERY_POSITION)
-                .pageName(PAGE_NAME)
-                .pageUrn(TRACK_URN.toString())
+                                               .clickName("share")
+                                               .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                                               .clickObject(TRACK_URN.toString())
+                                               .clickSource(SOURCE)
+                                               .clickSourceUrn(STATION_URN.toString())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
+                                               .pageName(PAGE_NAME)
+                                               .pageUrn(TRACK_URN.toString())
         );
     }
 
     @Test
     public void addsCurrentExperimentJsonAddsSingleVariant() throws ApiMapperException {
 
-        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(new Integer[]{1234}));
+        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(1234));
 
         final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);
 
         verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
-                .clickName("share")
-                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                .clickObject(TRACK_URN.toString())
-                .clickSource(SOURCE)
-                .clickSourceUrn(STATION_URN.toString())
-                .queryUrn(QUERY_URN.toString())
-                .queryPosition(QUERY_POSITION)
-                .pageName(PAGE_NAME)
-               .experiment("part_of_variants", "1234")
-                .pageUrn(TRACK_URN.toString())
+                                               .clickName("share")
+                                               .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                                               .clickObject(TRACK_URN.toString())
+                                               .clickSource(SOURCE)
+                                               .clickSourceUrn(STATION_URN.toString())
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
+                                               .pageName(PAGE_NAME)
+                                               .experiment("part_of_variants", "1234")
+                                               .pageUrn(TRACK_URN.toString())
         );
     }
 
@@ -1042,7 +1087,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void addsCurrentExperimentJson() throws ApiMapperException {
 
-        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(new Integer[]{2345,3456}));
+        when(experimentOperations.getActiveVariants()).thenReturn(Lists.newArrayList(2345, 3456));
 
         final UIEvent event = UIEvent.fromShare(TRACK_URN, eventContextMetadata, null, entityMetadata);
         jsonDataBuilder.buildForUIEvent(event);
@@ -1263,21 +1308,17 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         );
     }
 
-    private void assertEngagementWithReferringEvent(String engagementName, long timestamp, String id, String kind) throws ApiMapperException {
-        verify(jsonTransformer).toJson(getEngagementEventData(engagementName, timestamp).referringEvent(id, kind));
-    }
-
     private EventLoggerEventData getEngagementEventData(String engagementName, long timestamp) {
         return getEventData("click", BOOGALOO_VERSION, timestamp)
-                                               .clickName(engagementName)
-                                               .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
-                                               .clickObject(TRACK_URN.toString())
-                                               .clickSource(SOURCE)
-                                               .clickSourceUrn(STATION_URN.toString())
-                                               .queryUrn(QUERY_URN.toString())
-                                               .queryPosition(QUERY_POSITION)
-                                               .pageName(PAGE_NAME)
-                                               .pageUrn(TRACK_URN.toString());
+                .clickName(engagementName)
+                .clickCategory(EventLoggerClickCategories.ENGAGEMENT)
+                .clickObject(TRACK_URN.toString())
+                .clickSource(SOURCE)
+                .clickSourceUrn(STATION_URN.toString())
+                .queryUrn(QUERY_URN.toString())
+                .queryPosition(QUERY_POSITION)
+                .pageName(PAGE_NAME)
+                .pageUrn(TRACK_URN.toString());
     }
 
 

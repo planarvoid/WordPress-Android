@@ -61,7 +61,7 @@ public class CardEngagementsPresenter {
         if (accountOperations.isLoggedInUser(playable.getCreatorUrn())) {
             viewHolder.hideRepostStats();
         } else {
-            viewHolder.showRepostStats(getCountString(playable.getRepostCount()), playable.isReposted());
+            viewHolder.showRepostStats(getCountString(playable.getRepostCount()), playable.isRepostedByCurrentUser());
         }
 
         viewHolder.setEngagementClickListener(new CardEngagementClickListener() {
@@ -79,7 +79,7 @@ public class CardEngagementsPresenter {
 
     private void handleRepost(View repostButton, PlayableItem playableItem, EventContextMetadata contextMetadata) {
         final Urn entityUrn = playableItem.getUrn();
-        final boolean addRepost = !playableItem.isReposted();
+        final boolean addRepost = !playableItem.isRepostedByCurrentUser();
         repostOperations.toggleRepost(entityUrn, addRepost)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(repostButton.getContext(), addRepost));

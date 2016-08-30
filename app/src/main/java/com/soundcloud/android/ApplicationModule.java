@@ -8,6 +8,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.accounts.FacebookModule;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayer;
@@ -287,11 +288,11 @@ public class ApplicationModule {
     }
 
     @Provides
-    public Navigator provideNavigator() {
+    public Navigator provideNavigator(EventTracker eventTracker) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new SmoothNavigator();
+            return new SmoothNavigator(eventTracker);
         } else {
-            return new Navigator();
+            return new Navigator(eventTracker);
         }
     }
 

@@ -259,7 +259,7 @@ public class MoreTabPresenterTest extends AndroidUnitTest {
         setupForegroundFragment();
         listenerArgumentCaptor.getValue().onProfileClicked(new View(context()));
 
-        verify(navigator).openProfile(context(), USER_URN);
+        verify(navigator).legacyOpenProfile(context(), USER_URN);
     }
 
     @Test

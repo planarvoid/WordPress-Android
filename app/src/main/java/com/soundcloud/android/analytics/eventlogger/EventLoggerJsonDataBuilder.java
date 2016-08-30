@@ -64,12 +64,18 @@ public class EventLoggerJsonDataBuilder {
 
     public String build(ScreenEvent event) {
         try {
+            final String referringEventId = event.get(ReferringEvent.REFERRING_EVENT_ID_KEY);
+            final String referringEventKind = event.get(ReferringEvent.REFERRING_EVENT_KIND_KEY);
             final EventLoggerEventData eventData = buildBaseEvent(PAGEVIEW_EVENT, event)
                     .pageName(event.getScreenTag())
                     .queryUrn(event.getQueryUrn())
                     .pageUrn(event.getPageUrn());
 
             if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
+                if (referringEventId != null && referringEventKind != null) {
+                    eventData.referringEvent(referringEventId, referringEventKind);
+                }
+
                 eventData.uuid(event.getId());
             }
 
@@ -304,8 +310,6 @@ public class EventLoggerJsonDataBuilder {
     private EventLoggerEventData buildBaseEvent(String eventName, TrackingEvent event) {
         final EventLoggerEventData eventData = buildBaseEvent(eventName, event.getTimestamp());
 
-        attachReferringEvent(eventData, event);
-
         return eventData;
     }
 
@@ -355,15 +359,6 @@ public class EventLoggerJsonDataBuilder {
                 return "uninterruptedPlaytimeMs";
             default:
                 throw new IllegalArgumentException("Unexpected metric type " + type);
-        }
-    }
-
-    private void attachReferringEvent(EventLoggerEventData eventData, TrackingEvent event) {
-        final String id = event.get(ReferringEvent.REFERRING_EVENT_ID_KEY);
-        final String kind = event.get(ReferringEvent.REFERRING_EVENT_KIND_KEY);
-
-        if (featureFlags.isEnabled(HOLISTIC_TRACKING) && id != null && kind != null) {
-            eventData.referringEvent(id, kind);
         }
     }
 }

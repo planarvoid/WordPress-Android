@@ -88,7 +88,7 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.openPlaylist(view.getContext(), playlist.getUrn(), Screen.COLLECTIONS);
+                navigator.legacyOpenPlaylist(view.getContext(), playlist.getUrn(), Screen.COLLECTIONS);
             }
         };
     }

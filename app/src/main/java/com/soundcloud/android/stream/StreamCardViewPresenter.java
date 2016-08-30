@@ -6,6 +6,10 @@ import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.events.AttributingActivity;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
@@ -17,6 +21,7 @@ import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -47,29 +52,56 @@ class StreamCardViewPresenter {
         this.imageOperations = imageOperations;
     }
 
-    void bind(StreamItemViewHolder itemView, PlayableItem item) {
-        bindHeaderView(itemView, item);
-        bindArtworkView(itemView, item);
+    void bind(StreamItemViewHolder itemView,
+              PlayableItem item,
+              EventContextMetadata.Builder eventContextMetadataBuilder) {
+
+        eventContextMetadataBuilder.attributingActivity(AttributingActivity.create(
+                AttributingActivity.typeFromPlayableItem(item),
+                Strings.EMPTY));
+
+        bindHeaderView(itemView, item, item.getUrn(), eventContextMetadataBuilder);
+        bindArtworkView(itemView, item, eventContextMetadataBuilder);
     }
 
-    private void bindHeaderView(StreamItemViewHolder itemView, PlayableItem playableItem) {
+    private void bindHeaderView(StreamItemViewHolder itemView,
+                                PlayableItem playableItem,
+                                Urn itemUrn,
+                                EventContextMetadata.Builder eventContextMetadataBuilder) {
         itemView.resetCardView();
 
+        final EventContextMetadata eventContextMetadata = eventContextMetadataBuilder.linkType(LinkType.ATTRIBUTION)
+                                                                                     .build();
+
         if (playableItem instanceof PromotedListItem) {
-            showPromoted(itemView, (PromotedListItem) playableItem, playableItem.getPlayableType());
+            showPromoted(itemView,
+                         (PromotedListItem) playableItem,
+                         playableItem.getPlayableType(),
+                         itemUrn,
+                         eventContextMetadata);
         } else {
-            loadAvatar(itemView, playableItem.getUserUrn(), playableItem.getAvatarUrlTemplate());
+            loadAvatar(itemView,
+                       playableItem.getUserUrn(),
+                       playableItem.getAvatarUrlTemplate(),
+                       itemUrn,
+                       eventContextMetadata);
             setHeaderText(itemView, playableItem);
             showCreatedAt(itemView, playableItem.getCreatedAt());
             itemView.togglePrivateIndicator(playableItem.isPrivate());
         }
     }
 
-    private void bindArtworkView(StreamItemViewHolder itemView, PlayableItem playableItem) {
+    private void bindArtworkView(StreamItemViewHolder itemView,
+                                 PlayableItem playableItem,
+                                 EventContextMetadata.Builder eventContextMetadataBuilder) {
         loadArtwork(itemView, playableItem);
         itemView.setTitle(playableItem.getTitle());
         itemView.setArtist(playableItem.getCreatorName());
-        itemView.setArtistClickable(new ProfileClickViewListener(playableItem.getCreatorUrn()));
+        itemView.setArtistClickable(new ProfileClickViewListener(
+                playableItem.getCreatorUrn(),
+                playableItem.getUrn(),
+                eventContextMetadataBuilder.linkType(LinkType.OWNER).build()));
+
         bindHighTierLabel(itemView, playableItem);
     }
 
@@ -107,10 +139,15 @@ class StreamCardViewPresenter {
         }
     }
 
-    private void showPromoted(StreamItemViewHolder itemView, PromotedListItem promoted, String playableType) {
+    private void showPromoted(StreamItemViewHolder itemView,
+                              PromotedListItem promoted,
+                              String playableType,
+                              Urn itemUrn,
+                              EventContextMetadata eventContextMetadata) {
         if (promoted.hasPromoter()) {
             final String action = resources.getString(R.string.stream_promoted_action);
-            loadAvatar(itemView, promoted.getPromoterUrn().get(), promoted.getAvatarUrlTemplate());
+            loadAvatar(itemView, promoted.getPromoterUrn().get(), promoted.getAvatarUrlTemplate(), itemUrn,
+                       eventContextMetadata);
             headerSpannableBuilder.actionSpannedString(action, playableType);
             itemView.setPromoterHeader(promoted.getPromoterName().get(), headerSpannableBuilder.get());
             itemView.setPromoterClickable(new PromoterClickViewListener(promoted, eventBus, screenProvider, navigator));
@@ -127,9 +164,13 @@ class StreamCardViewPresenter {
         itemView.setCreatedAt(formattedTime);
     }
 
-    private void loadAvatar(StreamItemViewHolder itemView, Urn userUrn, Optional<String> avatarUrl) {
+    private void loadAvatar(StreamItemViewHolder itemView,
+                            Urn userUrn,
+                            Optional<String> avatarUrl,
+                            Urn itemUrn,
+                            EventContextMetadata eventContextMetadata) {
         final ImageResource avatar = SimpleImageResource.create(userUrn, avatarUrl);
-        itemView.setCreatorClickable(new ProfileClickViewListener(userUrn));
+        itemView.setCreatorClickable(new ProfileClickViewListener(userUrn, itemUrn, eventContextMetadata));
         imageOperations.displayCircularInAdapterView(
                 avatar, ApiImageSize.getListItemImageSize(resources),
                 itemView.getUserImage());
@@ -138,14 +179,18 @@ class StreamCardViewPresenter {
     private class ProfileClickViewListener implements View.OnClickListener {
 
         private final Urn userUrn;
+        private final Urn itemUrn;
+        private final EventContextMetadata eventContextMetadata;
 
-        ProfileClickViewListener(Urn userUrn) {
+        ProfileClickViewListener(Urn userUrn, Urn itemUrn, EventContextMetadata eventContextMetadata) {
             this.userUrn = userUrn;
+            this.itemUrn = itemUrn;
+            this.eventContextMetadata = eventContextMetadata;
         }
 
         @Override
         public void onClick(View v) {
-            navigator.openProfile(v.getContext(), userUrn);
+            navigator.openProfile(v.getContext(), userUrn, UIEvent.fromNavigation(itemUrn, eventContextMetadata));
         }
     }
 }

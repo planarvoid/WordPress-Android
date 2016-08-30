@@ -113,7 +113,7 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         itemView.creator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigator.openProfile(v.getContext(), playableItem.getCreatorUrn());
+                navigator.legacyOpenProfile(v.getContext(), playableItem.getCreatorUrn());
             }
         });
     }

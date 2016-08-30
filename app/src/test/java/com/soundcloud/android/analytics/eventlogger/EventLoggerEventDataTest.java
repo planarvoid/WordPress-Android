@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
@@ -103,6 +104,21 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
 
         assertThat(actual.get(EventLoggerParam.UUID)).isEqualTo(uuid);
         assertThat(actual.get(EventLoggerParam.REFERRING_EVENT_KIND)).isEqualTo("foreground");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldMapNavigationEventKindToReferringEventName() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        final String uuid = UUID.randomUUID().toString();
+
+        data.referringEvent(uuid, UIEvent.KIND_NAVIGATION);
+
+        final Map<String, String> actual = (Map<String, String>) data.payload.get(EventLoggerParam.REFERRING_EVENT);
+
+        assertThat(actual.get(EventLoggerParam.UUID)).isEqualTo(uuid);
+        assertThat(actual.get(EventLoggerParam.REFERRING_EVENT_KIND)).isEqualTo("navigation");
     }
 
     @Test(expected = IllegalArgumentException.class)

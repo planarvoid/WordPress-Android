@@ -68,7 +68,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
     public void shareTrackPublishesTrackingEvent() throws Exception {
         operations.share(activityContext, TRACK, eventContext(), null);
 
-        verify(tracker).trackEngagement(uiEventCaptor.capture());
+        verify(tracker).trackInteraction(uiEventCaptor.capture());
 
         final UIEvent uiEvent = uiEventCaptor.getValue();
         final Map<String, String> attributes = uiEvent.getAttributes();
@@ -83,7 +83,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
     public void sharePromotedTrackPublishesTrackingEvent() throws Exception {
         operations.share(activityContext, PROMOTED_TRACK, eventContext(), PROMOTED_SOURCE_INFO);
 
-        verify(tracker).trackEngagement(uiEventCaptor.capture());
+        verify(tracker).trackInteraction(uiEventCaptor.capture());
 
         final UIEvent uiEvent = uiEventCaptor.getValue();
         final Map<String, String> attributes = uiEvent.getAttributes();

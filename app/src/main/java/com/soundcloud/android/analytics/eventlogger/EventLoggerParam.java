@@ -79,6 +79,15 @@ class EventLoggerParam {
     static final String UUID = "client_event_id";
     static final String REFERRING_EVENT = "referring_event";
     static final String REFERRING_EVENT_KIND = "event_type";
+    static final String PAGEVIEW_ID = "pageview_id";
+    static final String ACTION_NAVIGATION = "item_navigation";
+    static final String ATTRIBUTING_ACTIVITY = "attributing_activity";
+    static final String LINK_TYPE = "link_type";
+    static final String ITEM = "item";
+    static final String RESOURCE = "resource";
+    static final String MODULE = "context";
+    static final String MODULE_NAME = "name";
+    static final String MODULE_POSITION = "context_position";
 
     // search tracking
     static final String QUERY_URN = "query_urn";

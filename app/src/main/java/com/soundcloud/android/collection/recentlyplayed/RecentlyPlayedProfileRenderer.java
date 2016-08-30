@@ -74,7 +74,7 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.openProfile(view.getContext(), user.getUrn(), Screen.COLLECTIONS);
+                navigator.legacyOpenProfile(view.getContext(), user.getUrn(), Screen.COLLECTIONS);
             }
         };
     }

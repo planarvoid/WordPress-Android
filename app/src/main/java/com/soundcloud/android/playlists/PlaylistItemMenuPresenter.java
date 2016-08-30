@@ -217,7 +217,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
 
     private void handleRepost() {
         final Urn playlistUrn = playlist.getUrn();
-        boolean addRepost = !playlist.isReposted();
+        boolean addRepost = !playlist.isRepostedByCurrentUser();
         repostOperations.toggleRepost(playlistUrn, addRepost)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(appContext, addRepost));
@@ -259,7 +259,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         menu.setItemVisible(R.id.toggle_repost, canRepost(playlist));
         menu.setItemVisible(R.id.share, !playlist.isPrivate());
         menu.setItemVisible(R.id.delete_playlist, isOwned(playlist));
-        updateRepostActionTitle(menu, playlist.isReposted());
+        updateRepostActionTitle(menu, playlist.isRepostedByCurrentUser());
     }
 
     private boolean canRepost(PlaylistItem playlist) {
@@ -367,7 +367,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         public void onNext(PlaylistWithTracks details) {
             playlist.update(details.getSourceSet());
             updateLikeActionTitle(menu, playlist.isLiked());
-            updateRepostActionTitle(menu, playlist.isReposted());
+            updateRepostActionTitle(menu, playlist.isRepostedByCurrentUser());
             configureOfflineOptions(menu, playlist.isMarkedForOffline());
         }
     }

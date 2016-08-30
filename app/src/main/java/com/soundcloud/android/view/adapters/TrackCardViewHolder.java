@@ -171,7 +171,7 @@ public class TrackCardViewHolder extends RecyclerView.ViewHolder implements Card
 
         @Override
         public void onClick(View v) {
-            navigator.openProfile(v.getContext(), userUrn);
+            navigator.legacyOpenProfile(v.getContext(), userUrn);
         }
     }
 }

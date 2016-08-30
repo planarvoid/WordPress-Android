@@ -129,7 +129,7 @@ public class LegacyPlaylistDetailFragment extends LightCycleSupportFragment<Lega
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            navigator.openProfile(getActivity(), playlistWithTracks.getCreatorUrn());
+            navigator.legacyOpenProfile(getActivity(), playlistWithTracks.getCreatorUrn());
         }
     };
 

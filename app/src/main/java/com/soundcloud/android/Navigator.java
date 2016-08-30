@@ -1,6 +1,7 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -22,6 +23,7 @@ import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -82,6 +84,11 @@ public class Navigator {
 
     public static final String EXTRA_SEARCH_INTENT = "search_intent";
     public static final String EXTRA_UPGRADE_INTENT = "upgrade_intent";
+    private final EventTracker eventTracker;
+
+    public Navigator(EventTracker eventTracker) {
+        this.eventTracker = eventTracker;
+    }
 
     public void openHome(Context context) {
         context.startActivity(createHomeIntent(context));
@@ -132,20 +139,33 @@ public class Navigator {
         context.startActivity((new Intent(context, WebCheckoutActivity.class)));
     }
 
-    public void openPlaylist(Context context, Urn playlist, Screen screen) {
-        context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false));
-    }
-
     public void openPlaylistWithAutoPlay(Context context, Urn playlist, Screen screen) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, true));
     }
 
-    public void openPlaylist(Context context, Urn playlist, Screen screen,
-                             SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
+    public void legacyOpenPlaylist(Context context, Urn playlist, Screen screen) {
+        context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false));
+    }
+
+    public void legacyOpenPlaylist(Context context, Urn playlist, Screen screen,
+                                   SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo) {
         context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
     }
 
-    public void openProfile(Context context, Urn user) {
+    public void openPlaylist(Context context, Urn playlist, Screen screen,
+                             SearchQuerySourceInfo queryInfo, PromotedSourceInfo promotedInfo, UIEvent event) {
+        eventTracker.trackNavigation(event);
+
+        context.startActivity(PlaylistDetailActivity.getIntent(playlist, screen, false, queryInfo, promotedInfo));
+    }
+
+    public void openProfile(Context context, Urn user, UIEvent navigationEvent) {
+        eventTracker.trackNavigation(navigationEvent);
+
+        context.startActivity(createProfileIntent(context, user));
+    }
+
+    public void legacyOpenProfile(Context context, Urn user) {
         context.startActivity(createProfileIntent(context, user));
     }
 
@@ -193,11 +213,14 @@ public class Navigator {
         context.startActivity(new Intent(Intent.ACTION_VIEW).setData(uri));
     }
 
-    public void openProfile(Context context, Urn user, Screen screen) {
+    public void legacyOpenProfile(Context context, Urn user, Screen screen) {
         context.startActivity(createProfileIntent(context, user, screen));
     }
 
-    public void openProfile(Context context, Urn user, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public void legacyOpenProfile(Context context,
+                                  Urn user,
+                                  Screen screen,
+                                  SearchQuerySourceInfo searchQuerySourceInfo) {
         context.startActivity(createProfileIntent(context, user, screen)
                                       .putExtra(ProfileActivity.EXTRA_SEARCH_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
@@ -210,7 +233,7 @@ public class Navigator {
                                          PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    public PendingIntent openProfileFromWidget(Context context, Urn user, int requestCode) {
+    public static PendingIntent openProfileFromWidget(Context context, Urn user, int requestCode) {
         return PendingIntent.getActivity(context,
                                          requestCode,
                                          createProfileIntent(context, user, Screen.WIDGET, Referrer.PLAYBACK_WIDGET),
@@ -447,17 +470,17 @@ public class Navigator {
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
     }
 
-    public Intent createProfileIntent(Context context, Urn user) {
+    static public Intent createProfileIntent(Context context, Urn user) {
         return new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER_URN, user);
     }
 
-    public Intent createProfileIntent(Context context, Urn user, Screen screen) {
+    static public Intent createProfileIntent(Context context, Urn user, Screen screen) {
         Intent intent = createProfileIntent(context, user);
         screen.addToIntent(intent);
         return intent;
     }
 
-    public Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
+    static public Intent createProfileIntent(Context context, Urn user, Screen screen, Referrer referrer) {
         Intent intent = createProfileIntent(context, user, screen);
         referrer.addToIntent(intent);
         return intent;

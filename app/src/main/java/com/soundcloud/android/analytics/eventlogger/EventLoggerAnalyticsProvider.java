@@ -142,6 +142,7 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
                 trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
                 break;
+            case UIEvent.KIND_NAVIGATION:
             case UIEvent.KIND_LIKE:
             case UIEvent.KIND_UNLIKE:
             case UIEvent.KIND_REPOST:

@@ -5,13 +5,16 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
+import com.soundcloud.java.strings.Strings;
 
+import android.support.annotation.VisibleForTesting;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,8 +54,8 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         StreamItemViewHolder trackView = (StreamItemViewHolder) itemView.getTag();
         trackView.resetAdditionalInformation();
 
-        streamCardViewPresenter.bind(trackView, track);
-        engagementsPresenter.bind(trackView, track, getEventContextMetadata());
+        streamCardViewPresenter.bind(trackView, track, getEventContextMetadataBuilder(position));
+        engagementsPresenter.bind(trackView, track, getEventContextMetadataBuilder(position).build());
 
         showPlayCountOrNowPlaying(trackView, track);
         trackView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
@@ -63,11 +66,13 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
         });
     }
 
-    private EventContextMetadata getEventContextMetadata() {
+    @VisibleForTesting
+    EventContextMetadata.Builder getEventContextMetadataBuilder(Integer position) {
         return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
+                                   .module(Module.create(Module.STREAM, Strings.EMPTY))
+                                   .modulePosition(position)
                                    .contextScreen(Screen.STREAM.get())
-                                   .pageName(Screen.STREAM.get())
-                                   .build();
+                                   .pageName(Screen.STREAM.get());
     }
 
     private void showPlayCountOrNowPlaying(StreamItemViewHolder itemView, TrackItem track) {

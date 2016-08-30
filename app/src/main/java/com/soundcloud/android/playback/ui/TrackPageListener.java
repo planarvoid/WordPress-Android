@@ -87,7 +87,7 @@ class TrackPageListener extends PageListener {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
             public void onNext(PlayerUIEvent playerUIEvent) {
-                navigator.openProfile(activityContext, userUrn);
+                navigator.legacyOpenProfile(activityContext, userUrn);
             }
         };
     }

@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -17,10 +18,9 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
-
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.view.LayoutInflater;
@@ -55,7 +55,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     public void bindsHeaderViewPresenter() {
         renderer.bindItemView(0, itemView, singletonList(postedTrack));
 
-        verify(headerViewPresenter).bind(viewHolder, postedTrack);
+        verify(headerViewPresenter).bind(eq(viewHolder), eq(postedTrack), any(EventContextMetadata.Builder.class));
     }
 
     @Test
@@ -70,13 +70,19 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     public void bindsEngagementsPresenter() {
         renderer.bindItemView(0, itemView, singletonList(postedTrack));
 
-        ArgumentCaptor<EventContextMetadata> eventContextCaptor = ArgumentCaptor.forClass(EventContextMetadata.class);
-        verify(engagementsPresenter).bind(eq(viewHolder), eq(postedTrack), eventContextCaptor.capture());
+        verify(engagementsPresenter).bind(eq(viewHolder), eq(postedTrack), any(EventContextMetadata.class));
+    }
 
-        EventContextMetadata context = eventContextCaptor.getValue();
+    @Test
+    public void createsBaseContextMetadata() {
+        final Integer position = 0;
+        final EventContextMetadata context = renderer.getEventContextMetadataBuilder(position).build();
+
         assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
         assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
         assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
+        assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, Strings.EMPTY));
+        assertThat(context.modulePosition()).isEqualTo(position);
     }
 
     @Test

@@ -1,6 +1,8 @@
 package com.soundcloud.android.view.adapters;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,6 +10,9 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.events.AttributingActivity;
+import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -26,8 +31,11 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
@@ -51,6 +59,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private Navigator navigator;
     @Mock private Context context;
+    @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private final Screen screen = Screen.ACTIVITIES;
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123));
@@ -120,7 +129,12 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(items, view, 2);
 
-        verify(navigator).openPlaylist(context, playlistItem.getUrn(), screen, searchQuerySourceInfo, null);
+        verify(navigator).openPlaylist(eq(context),
+                                       eq(playlistItem.getUrn()),
+                                       eq(screen),
+                                       eq(searchQuerySourceInfo),
+                                       any(PromotedSourceInfo.class),
+                                       any(UIEvent.class));
     }
 
     @Test
@@ -131,7 +145,12 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(playables, view, 0, playlistItem);
 
-        verify(navigator).openPlaylist(context, playlistItem.getUrn(), screen, searchQuerySourceInfo, info);
+        verify(navigator).openPlaylist(eq(context),
+                                       eq(playlistItem.getUrn()),
+                                       eq(screen),
+                                       eq(searchQuerySourceInfo),
+                                       any(PromotedSourceInfo.class),
+                                       any(UIEvent.class));
     }
 
     @Test
@@ -147,7 +166,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(items, view, 2);
 
-        verify(navigator).openProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
+        verify(navigator).legacyOpenProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
     }
 
     @Test
@@ -171,7 +190,38 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigator).openPlaylist(context, playlistItem.getUrn(), screen, searchQuerySourceInfo, null);
+        verify(navigator).openPlaylist(eq(context),
+                                       eq(playlistItem.getUrn()),
+                                       eq(screen),
+                                       eq(searchQuerySourceInfo),
+                                       any(PromotedSourceInfo.class),
+                                       any(UIEvent.class));
+    }
+
+    @Test
+    public void itemClickOnPlayableCreatesUIEventWithCorrectMetadata() {
+        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        List<Urn> items = Arrays.asList(Urn.forTrack(123L), playlistItem.getUrn());
+
+        listener.onItemClick(Observable.just(items), view, 1, playlistItem);
+
+        verify(navigator).openPlaylist(eq(context),
+                                       eq(playlistItem.getUrn()),
+                                       eq(screen),
+                                       eq(searchQuerySourceInfo),
+                                       any(PromotedSourceInfo.class),
+                                       uiEventArgumentCaptor.capture());
+
+        assertThat(uiEventArgumentCaptor.getValue()
+                                        .getAttributingActivity()
+                                        .get()).isEqualTo(AttributingActivity.create(
+                AttributingActivity.typeFromPlayableItem(playlistItem),
+                Strings.EMPTY
+        ));
+
+        assertThat(uiEventArgumentCaptor.getValue().getContextScreen()).isEqualTo(screen.get());
+
+        assertThat(uiEventArgumentCaptor.getValue().getLinkType()).isEqualTo(LinkType.SELF.getName());
     }
 
     @Test
@@ -181,7 +231,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onItemClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).openProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
+        verify(navigator).legacyOpenProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
     }
 
     @Test
@@ -206,7 +256,12 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onPostClick(Observable.just(items), view, 1, playlistItem);
 
-        verify(navigator).openPlaylist(context, playlistItem.getUrn(), screen, searchQuerySourceInfo, null);
+        verify(navigator).openPlaylist(eq(context),
+                                       eq(playlistItem.getUrn()),
+                                       eq(screen),
+                                       eq(searchQuerySourceInfo),
+                                       any(PromotedSourceInfo.class),
+                                       any(UIEvent.class));
     }
 
     @Test
@@ -218,7 +273,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         listener.onPostClick(Observable.just(items), view, 2, userItem);
 
-        verify(navigator).openProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
+        verify(navigator).legacyOpenProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
     }
 
     @NonNull

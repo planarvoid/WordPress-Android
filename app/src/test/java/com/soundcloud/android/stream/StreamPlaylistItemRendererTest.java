@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -18,7 +19,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
-
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -57,7 +58,19 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
     public void bindsCardViewPresenter() {
         renderer.bindItemView(0, itemView, singletonList(playlistItem));
 
-        verify(cardViewPresenter).bind(viewHolder, playlistItem);
+        verify(cardViewPresenter).bind(eq(viewHolder), eq(playlistItem), any(EventContextMetadata.Builder.class));
+    }
+
+    @Test
+    public void createsBaseContextMetadata() {
+        final int position = 0;
+        final EventContextMetadata context = renderer.getEventContextMetadataBuilder(position).build();
+
+        assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
+        assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
+        assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
+        assertThat(context.modulePosition()).isEqualTo(position);
+        assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, Strings.EMPTY));
     }
 
     @Test

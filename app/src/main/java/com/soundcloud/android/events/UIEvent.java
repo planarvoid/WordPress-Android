@@ -50,7 +50,6 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
     public static final String KIND_SKIP_VIDEO_AD_CLICK = "skip_video_ad_click";
     public static final String KIND_START_STATION = "start_station";
-    private Optional<Integer> queryPosition;
 
     public static UIEvent fromPlayerOpen() {
         return new UIEvent(KIND_PLAYER_OPEN);
@@ -115,30 +114,6 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_SHUFFLE).putEventContextMetadata(contextMetadata);
     }
 
-    public static UIEvent fromProfileNav() {
-        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "you");
-    }
-
-    public static UIEvent fromStreamNav() {
-        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "stream");
-    }
-
-    public static UIEvent fromExploreNav() {
-        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "explore");
-    }
-
-    public static UIEvent fromLikesNav() {
-        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "collection_likes");
-    }
-
-    public static UIEvent fromPlaylistsNav() {
-        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "collection_playlists");
-    }
-
-    public static UIEvent fromSearchAction() {
-        return new UIEvent(KIND_NAVIGATION).put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, "search");
-    }
-
     public static UIEvent fromVideoAdFullscreen(VideoAd videoAd, @Nullable TrackSourceInfo trackSourceInfo) {
         final UIEvent event = new UIEvent(KIND_VIDEO_AD_FULLSCREEN, System.currentTimeMillis());
         return withBasicVideoAdAttributes(event, videoAd, trackSourceInfo)
@@ -166,6 +141,24 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromStartStation() {
         return new UIEvent(KIND_START_STATION);
+    }
+
+    public Optional<AttributingActivity> getAttributingActivity() {
+        return Optional.fromNullable(eventContextMetadata.attributingActivity());
+    }
+
+    public Optional<Module> getModule() {
+        return Optional.fromNullable(eventContextMetadata.module());
+    }
+
+    public Optional<Integer> getModulePosition() {
+        return Optional.fromNullable(eventContextMetadata.modulePosition());
+    }
+
+    public String getLinkType() {
+        final LinkType linkType = eventContextMetadata.linkType();
+
+        return linkType == null ? null : linkType.getName();
     }
 
     private static UIEvent withBasicVideoAdAttributes(UIEvent adEvent,
@@ -231,6 +224,13 @@ public final class UIEvent extends TrackingEvent {
     public static UIEvent fromCreatePlaylist(EntityMetadata metadata) {
         return new UIEvent(KIND_CREATE_PLAYLIST)
                 .putPlayableMetadata(metadata);
+    }
+
+    public static UIEvent fromNavigation(@NonNull Urn itemUrn,
+                                         @NonNull EventContextMetadata contextMetadata) {
+        return new UIEvent(KIND_NAVIGATION)
+                .<UIEvent>put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, itemUrn.toString())
+                .putEventContextMetadata(contextMetadata);
     }
 
     private static UIEvent withBasicAudioAdAttributes(UIEvent event,

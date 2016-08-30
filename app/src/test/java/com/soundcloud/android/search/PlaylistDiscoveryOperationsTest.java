@@ -208,7 +208,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         operations.playlistsForTag("tag1").subscribe(observer);
 
         PlaylistItem playlistItem = PlaylistItem.from(captureFirstPlaylist());
-        assertThat(playlistItem.isReposted()).isTrue();
+        assertThat(playlistItem.isRepostedByCurrentUser()).isTrue();
     }
 
     @Test
@@ -222,7 +222,7 @@ public class PlaylistDiscoveryOperationsTest extends AndroidUnitTest {
         operations.playlistsForTag("tag1").subscribe(observer);
 
         PlaylistItem playlistItem = PlaylistItem.from(captureFirstPlaylist());
-        assertThat(playlistItem.isReposted()).isFalse();
+        assertThat(playlistItem.isRepostedByCurrentUser()).isFalse();
     }
 
     @Test

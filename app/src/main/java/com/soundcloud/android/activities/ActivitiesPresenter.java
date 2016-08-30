@@ -105,7 +105,7 @@ class ActivitiesPresenter extends TimelinePresenter<ActivityItem> {
         } else {
             // in all other cases we simply go to the user profile
             final Urn userUrn = item.getUrn();
-            navigator.openProfile(view.getContext(), userUrn);
+            navigator.legacyOpenProfile(view.getContext(), userUrn);
         }
     }
 

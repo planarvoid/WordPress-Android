@@ -29,8 +29,19 @@ public abstract class EventContextMetadata {
     public abstract String contextScreen();
 
     @Nullable
-    public abstract TrackSourceInfo trackSourceInfo();
+    public abstract LinkType linkType();
 
+    @Nullable
+    public abstract AttributingActivity attributingActivity();
+
+    @Nullable
+    public abstract Module module();
+
+    @Nullable
+    public abstract Integer modulePosition();
+
+    @Nullable
+    public abstract TrackSourceInfo trackSourceInfo();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -43,6 +54,14 @@ public abstract class EventContextMetadata {
         public abstract Builder pageUrn(Urn pageUrn);
 
         public abstract Builder trackSourceInfo(TrackSourceInfo sourceInfo);
+
+        public abstract Builder linkType(LinkType linkType);
+
+        public abstract Builder module(Module module);
+
+        public abstract Builder modulePosition(Integer position);
+
+        public abstract Builder attributingActivity(AttributingActivity attributingActivityType);
 
         public abstract Builder isFromOverflow(boolean isFromOverflow);
 

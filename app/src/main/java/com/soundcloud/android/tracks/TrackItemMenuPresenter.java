@@ -274,19 +274,19 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void trackLike(boolean addLike) {
-        tracker.trackEngagement(UIEvent.fromToggleLike(addLike,
-                                                       track.getUrn(),
-                                                       getEventContextMetadata(),
-                                                       getPromotedSource(),
-                                                       EntityMetadata.from(track)));
+        tracker.trackInteraction(UIEvent.fromToggleLike(addLike,
+                                                        track.getUrn(),
+                                                        getEventContextMetadata(),
+                                                        getPromotedSource(),
+                                                        EntityMetadata.from(track)));
     }
 
     private void trackRepost(boolean repost) {
-        tracker.trackEngagement(UIEvent.fromToggleRepost(repost,
-                                                         track.getUrn(),
-                                                         getEventContextMetadata(),
-                                                         getPromotedSource(),
-                                                         EntityMetadata.from(track)));
+        tracker.trackInteraction(UIEvent.fromToggleRepost(repost,
+                                                          track.getUrn(),
+                                                          getEventContextMetadata(),
+                                                          getPromotedSource(),
+                                                          EntityMetadata.from(track)));
 
     }
 
@@ -320,7 +320,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void handleRepost() {
-        final boolean repost = !track.isReposted();
+        final boolean repost = !track.isRepostedByCurrentUser();
         repostOperations.toggleRepost(track.getUrn(), repost)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(context, repost));
@@ -341,7 +341,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         public void onNext(PropertySet details) {
             track.update(details);
             updateLikeActionTitle(track.isLiked());
-            updateRepostActionTitle(track.isReposted());
+            updateRepostActionTitle(track.isRepostedByCurrentUser());
         }
 
         private void updateLikeActionTitle(boolean isLiked) {

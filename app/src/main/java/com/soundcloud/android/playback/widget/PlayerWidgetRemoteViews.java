@@ -81,9 +81,8 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
                                                                           PendingIntent.FLAG_CANCEL_CURRENT));
 
         if (userUrn.isPresent()) {
-            Navigator navigator = new Navigator(); // Can't inject here :(
             setOnClickPendingIntent(R.id.user_txt,
-                                    navigator.openProfileFromWidget(context,
+                                    Navigator.openProfileFromWidget(context,
                                                                     userUrn.get(),
                                                                     PENDING_INTENT_REQUEST_CODE));
         }

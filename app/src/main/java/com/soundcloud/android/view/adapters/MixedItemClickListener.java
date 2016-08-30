@@ -2,7 +2,12 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.events.AttributingActivity;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -10,9 +15,11 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 
 import android.view.View;
@@ -97,18 +104,39 @@ public class MixedItemClickListener {
 
     private void handleNonTrackItemClick(View view, ListItem item) {
         Urn entityUrn = item.getUrn();
-        if (entityUrn.isPlaylist()) {
+        if (item instanceof PlayableItem) {
             navigator.openPlaylist(view.getContext(),
                                    entityUrn,
                                    screen,
                                    searchQuerySourceInfo,
-                                   promotedPlaylistInfo(item));
+                                   promotedPlaylistInfo(item),
+                                   UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item)));
+        } else if (entityUrn.isPlaylist()) {
+            navigator.legacyOpenPlaylist(view.getContext(),
+                                         entityUrn,
+                                         screen,
+                                         searchQuerySourceInfo,
+                                         promotedPlaylistInfo(item));
         } else if (entityUrn.isUser()) {
-            navigator.openProfile(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
+            navigator.legacyOpenProfile(view.getContext(), entityUrn, screen, searchQuerySourceInfo);
         } else {
             throw new IllegalArgumentException("Unrecognized urn in " + this.getClass()
                                                                             .getSimpleName() + ": " + entityUrn);
         }
+    }
+
+    private EventContextMetadata getEventContextMetadata(PlayableItem item) {
+        return EventContextMetadata.builder()
+                                   .invokerScreen(ScreenElement.LIST.get())
+                                   .contextScreen(screen.get())
+                                   .pageName(screen.get())
+                                   .attributingActivity(
+                                           AttributingActivity.create(
+                                                   AttributingActivity.typeFromPlayableItem(item),
+                                                   Strings.EMPTY
+                                           ))
+                                   .linkType(LinkType.SELF)
+                                   .build();
     }
 
     private PromotedSourceInfo promotedPlaylistInfo(ListItem item) {

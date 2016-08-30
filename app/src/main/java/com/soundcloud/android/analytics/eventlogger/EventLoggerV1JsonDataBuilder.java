@@ -1,10 +1,12 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_CHECKPOINT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PAUSE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY;
-import static com.soundcloud.android.events.AdPlaybackSessionEvent.*;
-import static com.soundcloud.android.properties.Flag.HOLISTIC_TRACKING;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
+import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -18,8 +20,10 @@ import com.soundcloud.android.discovery.RecommendationsSourceInfo;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.AdPlaybackErrorEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
+import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.CollectionEvent;
 import com.soundcloud.android.events.FacebookInvitesEvent;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.OfflineInteractionEvent;
 import com.soundcloud.android.events.OfflinePerformanceEvent;
 import com.soundcloud.android.events.PlayableTrackingKeys;
@@ -42,10 +46,8 @@ import com.soundcloud.java.strings.Strings;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class EventLoggerV1JsonDataBuilder {
 
@@ -53,6 +55,7 @@ public class EventLoggerV1JsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String OFFLINE_SYNC_EVENT = "offline_sync";
     private static final String IMPRESSION_EVENT = "impression";
+    private static final String INTERACTION_EVENT = "item_interaction";
 
     // Ads specific events
     private static final String RICH_MEDIA_ERROR_EVENT = "rich_media_stream_error";
@@ -206,13 +209,13 @@ public class EventLoggerV1JsonDataBuilder {
 
     public String buildForRichMediaErrorEvent(AdPlaybackErrorEvent eventData) {
         return transform(buildBaseEvent(RICH_MEDIA_ERROR_EVENT, eventData)
-                .mediaType(eventData.getMediaType())
-                .protocol(eventData.getProtocol())
-                .playerType(eventData.getPlayerType())
-                .format(getRichMediaFormatName(eventData.getFormat()))
-                .bitrate(eventData.getBitrate())
-                .errorName(eventData.getKind())
-                .host(eventData.getHost()));
+                                 .mediaType(eventData.getMediaType())
+                                 .protocol(eventData.getProtocol())
+                                 .playerType(eventData.getPlayerType())
+                                 .format(getRichMediaFormatName(eventData.getFormat()))
+                                 .bitrate(eventData.getBitrate())
+                                 .errorName(eventData.getKind())
+                                 .host(eventData.getHost()));
     }
 
     private String getRichMediaFormatName(String format) {
@@ -311,6 +314,8 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildAdClickThroughEvent("clickthrough::video_ad", event));
             case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
                 return transform(buildClickEvent("ad::skip", event));
+            case UIEvent.KIND_NAVIGATION:
+                return transform(buildNavigationEvent(event, ACTION_NAVIGATION));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -419,13 +424,37 @@ public class EventLoggerV1JsonDataBuilder {
         return eventData;
     }
 
-    private void attachReferringEvent(EventLoggerEventData eventData, TrackingEvent event) {
-        final String id = event.get(ReferringEvent.REFERRING_EVENT_ID_KEY);
-        final String kind = event.get(ReferringEvent.REFERRING_EVENT_KIND_KEY);
+    private EventLoggerEventData buildNavigationEvent(UIEvent event, String action) {
+        final Optional<AttributingActivity> attributingActivity = event.getAttributingActivity();
+        final Optional<Module> module = event.getModule();
+        final Optional<Integer> modulePosition = event.getModulePosition();
+        final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
 
-        if (featureFlags.isEnabled(HOLISTIC_TRACKING) && id != null && kind != null) {
-            eventData.referringEvent(id, kind);
+        final EventLoggerEventData eventData = buildBaseEvent(INTERACTION_EVENT, event)
+                .uuid(event.getId())
+                .item(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .pageviewId(event.get(ReferringEvent.REFERRING_EVENT_ID_KEY))
+                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
+                .action(action)
+                .linkType(event.getLinkType());
+
+        if (pageUrn != null && !pageUrn.equals(Urn.NOT_SET.toString())) {
+            eventData.pageUrn(pageUrn);
         }
+
+        if (attributingActivity.isPresent()) {
+            eventData.attributingActivity(attributingActivity.get().getType(), attributingActivity.get().getResource());
+        }
+
+        if (module.isPresent()) {
+            eventData.module(module.get().getName(), module.get().getResource());
+        }
+
+        if (modulePosition.isPresent()) {
+            eventData.modulePosition(modulePosition.get().toString());
+        }
+
+        return eventData;
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {
@@ -454,7 +483,7 @@ public class EventLoggerV1JsonDataBuilder {
         } else if (event.isStopEvent()) {
             data.action(AUDIO_ACTION_PAUSE);
             data.reason(getStopReason(event.getStopReason()));
-        } else if(event.isCheckpointEvent()) {
+        } else if (event.isCheckpointEvent()) {
             data.action(AUDIO_ACTION_CHECKPOINT);
         } else {
             throw new IllegalArgumentException("Unexpected audio event:" + event.getKind());
@@ -496,11 +525,7 @@ public class EventLoggerV1JsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, TrackingEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(eventName, event.getTimestamp());
-
-        attachReferringEvent(eventData, event);
-
-        return eventData;
+        return buildBaseEvent(eventName, event.getTimestamp());
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
@@ -536,7 +561,9 @@ public class EventLoggerV1JsonDataBuilder {
         return trackSourceInfo.getIsUserTriggered() ? "manual" : "auto";
     }
 
-    public EventLoggerEventData addTrackSourceInfoToSessionEvent(EventLoggerEventData data, TrackSourceInfo sourceInfo, Urn urn) {
+    public EventLoggerEventData addTrackSourceInfoToSessionEvent(EventLoggerEventData data,
+                                                                 TrackSourceInfo sourceInfo,
+                                                                 Urn urn) {
         if (sourceInfo.hasSource()) {
             data.source(sourceInfo.getSource());
             data.sourceVersion(sourceInfo.getSourceVersion());

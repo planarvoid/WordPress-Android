@@ -8,6 +8,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_R
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_SELECTION_OPTIMIZED;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ATTRIBUTING_ACTIVITY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_CATEGORY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.CLICK_NAME;
@@ -27,16 +28,22 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IMPR
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_FOREGROUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_LIKES;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.IN_PLAYLIST;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ITEM;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LATENCY;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LINK_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.LOCAL_STORAGE_PLAYBACK;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MEDIA_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.METRIC_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.METRIC_VALUE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MODULE;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MODULE_NAME;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MODULE_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_MODEL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZATION_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OFFLINE_EVENT_STAGE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGEVIEW_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAUSE_REASON;
@@ -52,6 +59,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUER
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRING_EVENT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REPOSTER;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.RESOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
@@ -68,9 +76,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.configuration.Plan;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
+
+import android.support.annotation.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -79,6 +90,7 @@ import java.util.Map;
 class EventLoggerEventData {
     private static final String PAGEVIEW_EVENT = "pageview";
     private static final String FOREGROUND_EVENT = "foreground";
+    private static final String NAVIGATION_EVENT = "navigation";
 
     @JsonProperty("event") final String event;
     @JsonProperty("version") final String version;
@@ -225,6 +237,51 @@ class EventLoggerEventData {
         return this;
     }
 
+    public EventLoggerEventData pageviewId(String uuid) {
+        addToPayload(PAGEVIEW_ID, uuid);
+        return this;
+    }
+
+    public EventLoggerEventData attributingActivity(String attributingActivityType, String attributingActivityResource) {
+        final HashMap<String, String> attributingActivity = new HashMap<>();
+
+        attributingActivity.put(EventLoggerParam.TYPE, attributingActivityType);
+        attributingActivity.put(RESOURCE, attributingActivityResource);
+
+        addToPayload(ATTRIBUTING_ACTIVITY, attributingActivity);
+
+        return this;
+    }
+
+    public EventLoggerEventData linkType(String linkType) {
+        addToPayload(LINK_TYPE, linkType);
+
+        return this;
+    }
+
+    public EventLoggerEventData item(String item) {
+        addToPayload(ITEM, item);
+
+        return this;
+    }
+
+    public EventLoggerEventData module(String name, String resource) {
+        final HashMap<String, String> module = new HashMap<>();
+
+        module.put(MODULE_NAME, name);
+        module.put(RESOURCE, resource);
+
+        addToPayload(MODULE, module);
+
+        return this;
+    }
+
+    public EventLoggerEventData modulePosition(String position) {
+        addToPayload(MODULE_POSITION, position);
+
+        return this;
+    }
+
     EventLoggerEventData referringEvent(String uuid, String kind) {
         final HashMap<String, String> referringEvent = new HashMap<>();
 
@@ -367,8 +424,8 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData action(String play) {
-        addToPayload(ACTION, play);
+    public EventLoggerEventData action(String action) {
+        addToPayload(ACTION, action);
         return this;
     }
 
@@ -487,12 +544,15 @@ class EventLoggerEventData {
                           .add("payload", payload).toString();
     }
 
+    @VisibleForTesting
     String toReferringEventName(String eventKind) {
         switch (eventKind) {
             case ScreenEvent.KIND:
                 return PAGEVIEW_EVENT;
             case ForegroundEvent.KIND_OPEN:
                 return FOREGROUND_EVENT;
+            case UIEvent.KIND_NAVIGATION:
+                return NAVIGATION_EVENT;
             default:
                 throw new IllegalArgumentException(
                         "Unable to transform from event kind to event logger event name. Unknown event kind: " + eventKind);

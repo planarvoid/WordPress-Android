@@ -97,7 +97,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
 
     @Override
     protected void onItemClicked(View view, int position) {
-        navigator.openProfile(view.getContext(), adapter.getItem(position).getUrn());
+        navigator.legacyOpenProfile(view.getContext(), adapter.getItem(position).getUrn());
     }
 
     @Override

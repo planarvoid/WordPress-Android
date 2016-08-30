@@ -59,7 +59,7 @@ public class CommentsFragment extends LightCycleSupportFragment<CommentsFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        navigator.openProfile(getActivity(), adapter.getItem(position).getUserUrn());
+        navigator.legacyOpenProfile(getActivity(), adapter.getItem(position).getUserUrn());
     }
 
     @Override

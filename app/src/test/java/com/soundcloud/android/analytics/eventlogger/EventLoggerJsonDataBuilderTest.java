@@ -23,6 +23,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.PromotedTrackingEvent;
+import com.soundcloud.android.events.ReferringEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -97,14 +98,17 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createsScreenEventJsonWithUuidWhenHtiEnabled() throws ApiMapperException {
+    public void createsScreenEventJsonWithUuidAndReferringEventWhenHtiEnabled() throws ApiMapperException {
         ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
+        final String referringEventId = "id";
+        screenEvent.putReferringEvent(ReferringEvent.create(referringEventId, ScreenEvent.KIND));
         when(featureFlags.isEnabled(HOLISTIC_TRACKING)).thenReturn(true);
 
         jsonDataBuilder.build(screenEvent);
 
         verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
                                                   .uuid(screenEvent.getId())
+                                                  .referringEvent(referringEventId, ScreenEvent.KIND)
                                                   .pageName(Screen.ACTIVITIES.get())));
     }
 

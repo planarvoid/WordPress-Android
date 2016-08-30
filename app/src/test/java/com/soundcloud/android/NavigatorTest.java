@@ -1,7 +1,9 @@
 package com.soundcloud.android;
 
 import static com.soundcloud.android.testsupport.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -20,6 +22,8 @@ import com.soundcloud.android.discovery.ChartTracksFragment;
 import com.soundcloud.android.discovery.PlaylistDiscoveryActivity;
 import com.soundcloud.android.discovery.ViewAllRecommendedTracksActivity;
 import com.soundcloud.android.downgrade.GoOffboardingActivity;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreActivity;
 import com.soundcloud.android.likes.TrackLikesActivity;
 import com.soundcloud.android.main.LauncherActivity;
@@ -54,6 +58,7 @@ import com.soundcloud.java.optional.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.robolectric.Shadows;
 
 import android.Manifest;
@@ -75,10 +80,11 @@ public class NavigatorTest extends AndroidUnitTest {
 
     private Context appContext;
     private Activity activityContext;
+    @Mock private EventTracker eventTracker;
 
     @Before
     public void setUp() throws Exception {
-        navigator = new Navigator();
+        navigator = new Navigator(eventTracker);
         appContext = context();
         activityContext = new Activity();
     }
@@ -190,8 +196,29 @@ public class NavigatorTest extends AndroidUnitTest {
 
         PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
         SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn);
+        final UIEvent event = UIEvent.fromNavigation(Urn.forTrack(123L), EventContextMetadata.builder().build());
 
-        navigator.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo);
+        navigator.openPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo, event);
+
+        verify(eventTracker).trackNavigation(event);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsAction(Actions.PLAYLIST)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_URN, playlistUrn)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, queryInfo)
+                                   .containsExtra(PlaylistDetailActivity.EXTRA_PROMOTED_SOURCE_INFO, promotedInfo)
+                                   .containsScreen(Screen.SEARCH_PLAYLISTS);
+    }
+
+    @Test
+    public void opensLegacyPlaylist() {
+        PromotedPlaylistItem playlist = PromotedPlaylistItem.from(TestPropertySets.expectedPromotedPlaylist());
+        Urn playlistUrn = playlist.getUrn();
+
+        PromotedSourceInfo promotedInfo = PromotedSourceInfo.fromItem(playlist);
+        SearchQuerySourceInfo queryInfo = new SearchQuerySourceInfo(playlistUrn);
+
+        navigator.legacyOpenPlaylist(activityContext, playlistUrn, Screen.SEARCH_PLAYLISTS, queryInfo, promotedInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.PLAYLIST)
@@ -205,7 +232,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensPlaylistWithoutSearchQuerySourceInfo() {
         Urn playlist = Urn.forPlaylist(123L);
 
-        navigator.openPlaylist(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
+        navigator.legacyOpenPlaylist(activityContext, playlist, Screen.SEARCH_PLAYLISTS);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsAction(Actions.PLAYLIST)
@@ -227,8 +254,8 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
-    public void opensProfileActivity() {
-        navigator.openProfile(activityContext, USER_URN);
+    public void legacyOpensProfileActivity() {
+        navigator.legacyOpenProfile(activityContext, USER_URN);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
@@ -236,8 +263,21 @@ public class NavigatorTest extends AndroidUnitTest {
     }
 
     @Test
+    public void opensProfileActivity() {
+        UIEvent uiEvent = UIEvent.fromPlayerOpen();
+
+        navigator.openProfile(activityContext, USER_URN, uiEvent);
+
+        assertThat(activityContext).nextStartedIntent()
+                                   .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
+                                   .opensActivity(ProfileActivity.class);
+
+        verify(eventTracker).trackNavigation(uiEvent);
+    }
+
+    @Test
     public void opensProfileActivityWithScreen() {
-        navigator.openProfile(activityContext, USER_URN, Screen.DEEPLINK);
+        navigator.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
@@ -249,7 +289,7 @@ public class NavigatorTest extends AndroidUnitTest {
     public void opensProfileActivityWithSearchSourceInfo() {
         SearchQuerySourceInfo searchSourceInfo = new SearchQuerySourceInfo(Urn.forTrack(123L));
 
-        navigator.openProfile(activityContext, USER_URN, Screen.DEEPLINK, searchSourceInfo);
+        navigator.legacyOpenProfile(activityContext, USER_URN, Screen.DEEPLINK, searchSourceInfo);
 
         assertThat(activityContext).nextStartedIntent()
                                    .containsExtra(ProfileActivity.EXTRA_USER_URN, USER_URN)
@@ -273,7 +313,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void createsPendingIntentToProfileFromWidget() throws PendingIntent.CanceledException {
-        PendingIntent pendingIntent = navigator.openProfileFromWidget(appContext, USER_URN, 0);
+        PendingIntent pendingIntent = Navigator.openProfileFromWidget(appContext, USER_URN, 0);
 
         pendingIntent.send();
 
@@ -297,7 +337,7 @@ public class NavigatorTest extends AndroidUnitTest {
 
     @Test
     public void openRecord() {
-        Shadows.shadowOf(activityContext.getApplication()).grantPermissions(new String[]{Manifest.permission.RECORD_AUDIO});
+        Shadows.shadowOf(activityContext.getApplication()).grantPermissions(Manifest.permission.RECORD_AUDIO);
         Recording recording = new Recording();
         navigator.openRecord(activityContext, recording);
 

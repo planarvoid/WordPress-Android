@@ -141,7 +141,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verify(navigator).openPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
+        verify(navigator).legacyOpenPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
         verify(resolveOperations, never()).resolve(any(Uri.class));
     }
 
@@ -152,7 +152,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verify(navigator).openPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
+        verify(navigator).legacyOpenPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verify(navigator).openProfile(context, Urn.forUser(123), Screen.DEEPLINK);
+        verify(navigator).legacyOpenProfile(context, Urn.forUser(123), Screen.DEEPLINK);
         verify(resolveOperations, never()).resolve(any(Uri.class));
     }
 
@@ -172,7 +172,7 @@ public class IntentResolverTest extends AndroidUnitTest {
 
         resolver.handleIntent(intent, context);
 
-        verify(navigator).openProfile(context, Urn.forUser(123), Screen.DEEPLINK);
+        verify(navigator).legacyOpenProfile(context, Urn.forUser(123), Screen.DEEPLINK);
     }
 
     @Test
@@ -225,7 +225,7 @@ public class IntentResolverTest extends AndroidUnitTest {
         resolver.handleIntent(intent, context);
 
         verify(accountOperations).loginCrawlerUser();
-        verify(navigator).openPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
+        verify(navigator).legacyOpenPlaylist(context, Urn.forPlaylist(123), Screen.DEEPLINK);
     }
 
     @Test

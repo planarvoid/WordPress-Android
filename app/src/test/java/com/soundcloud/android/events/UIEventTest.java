@@ -19,6 +19,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -944,42 +945,6 @@ public class UIEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldCreateEventFromProfileNavigation() {
-        UIEvent uiEvent = UIEvent.fromProfileNav();
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-    }
-
-    @Test
-    public void shouldCreateEventFromStreamNavigation() {
-        UIEvent uiEvent = UIEvent.fromStreamNav();
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-    }
-
-    @Test
-    public void shouldCreateEventFromExploreNavigation() {
-        UIEvent uiEvent = UIEvent.fromExploreNav();
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-    }
-
-    @Test
-    public void shouldCreateEventFromLikesNavigation() {
-        UIEvent uiEvent = UIEvent.fromLikesNav();
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-    }
-
-    @Test
-    public void shouldCreateEventFromPlaylistsNavigation() {
-        UIEvent uiEvent = UIEvent.fromPlaylistsNav();
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-    }
-
-    @Test
-    public void shouldCreateEventFromSearchNavigation() {
-        UIEvent uiEvent = UIEvent.fromSearchAction();
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
-    }
-
-    @Test
     public void shouldCreateEventFromAudioAdClick() {
         AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd,
@@ -1078,6 +1043,29 @@ public class UIEventTest extends AndroidUnitTest {
         UIEvent event = UIEvent.fromStartStation();
 
         assertThat(event.getKind()).isEqualTo(UIEvent.KIND_START_STATION);
+    }
+
+    @Test
+    public void shouldCreateEventFromNavigation() {
+        final AttributingActivity attributingActivity = AttributingActivity.create(AttributingActivity.POSTED,
+                                                                                   Strings.EMPTY);
+
+        EventContextMetadata eventContext = eventContextNoInvokerScreen()
+                .attributingActivity(attributingActivity)
+                .linkType(LinkType.OWNER)
+                .build();
+
+        UIEvent uiEvent = UIEvent.fromNavigation(TRACK_URN, eventContext);
+
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_NAVIGATION);
+        assertThat(uiEvent.getContextScreen()).isEqualTo("context_screen");
+
+        assertThat(uiEvent.get("page_urn")).isEqualTo("soundcloud:unknown:-1");
+        assertThat(uiEvent.get("click_object_urn")).isEqualTo("soundcloud:tracks:30");
+        assertThat(uiEvent.get("origin_screen")).isEqualTo("page_name");
+        assertThat(uiEvent.getAttributingActivity().isPresent()).isTrue();
+        assertThat(uiEvent.getAttributingActivity().get()).isEqualTo(attributingActivity);
+        assertThat(uiEvent.getLinkType()).isEqualTo(LinkType.OWNER.getName());
     }
 
     @Test

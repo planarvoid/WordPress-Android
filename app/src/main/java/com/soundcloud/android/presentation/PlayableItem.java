@@ -101,7 +101,7 @@ public abstract class PlayableItem implements TypedListItem {
         return source.getOrElse(PlayableProperty.IS_USER_LIKE, false);
     }
 
-    public boolean isReposted() {
+    public boolean isRepostedByCurrentUser() {
         return source.getOrElse(PlayableProperty.IS_USER_REPOST, false);
     }
 

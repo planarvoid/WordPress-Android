@@ -208,7 +208,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     }
 
     private void onGoToCreator(View view, Urn creatorUrn) {
-        navigator.openProfile(view.getContext(), creatorUrn);
+        navigator.legacyOpenProfile(view.getContext(), creatorUrn);
     }
 
     @Override

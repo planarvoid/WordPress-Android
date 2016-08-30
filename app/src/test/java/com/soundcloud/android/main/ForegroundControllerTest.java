@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.TrackingStateProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
@@ -23,6 +24,7 @@ public class ForegroundControllerTest extends AndroidUnitTest {
 
     @Mock private AppCompatActivity activity;
     @Mock private TrackingStateProvider trackingStateProvider;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus;
     private ForegroundController lightCycle;
@@ -30,7 +32,7 @@ public class ForegroundControllerTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        EventTracker eventTracker = new EventTracker(eventBus, trackingStateProvider);
+        EventTracker eventTracker = new EventTracker(eventBus, trackingStateProvider, featureFlags);
         lightCycle = new ForegroundController(eventTracker);
     }
 

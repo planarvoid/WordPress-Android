@@ -302,9 +302,9 @@ public class IntentResolver {
                              .observeOn(AndroidSchedulers.mainThread())
                              .subscribe(new PlaybackSubscriber(context));
         } else if (urn.isUser()) {
-            navigator.openProfile(context, urn, Screen.DEEPLINK);
+            navigator.legacyOpenProfile(context, urn, Screen.DEEPLINK);
         } else if (urn.isPlaylist()) {
-            navigator.openPlaylist(context, urn, Screen.DEEPLINK);
+            navigator.legacyOpenPlaylist(context, urn, Screen.DEEPLINK);
         } else {
             throw new IllegalArgumentException("Unrecognized resolved resource: " + urn);
         }

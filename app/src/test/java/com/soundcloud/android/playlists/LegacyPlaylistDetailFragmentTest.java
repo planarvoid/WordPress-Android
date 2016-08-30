@@ -252,7 +252,7 @@ public class LegacyPlaylistDetailFragmentTest extends AndroidUnitTest {
         View usernameView = layout.findViewById(R.id.username);
         usernameView.performClick();
 
-        verify(navigator).openProfile(any(Context.class), eq(playlistWithTracks.getCreatorUrn()));
+        verify(navigator).legacyOpenProfile(any(Context.class), eq(playlistWithTracks.getCreatorUrn()));
     }
 
     @Test

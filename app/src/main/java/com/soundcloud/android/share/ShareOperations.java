@@ -41,7 +41,7 @@ public class ShareOperations {
 
     private void publishShareTracking(PropertySet playable, EventContextMetadata contextMetadata,
                                       PromotedSourceInfo promotedSourceInfo) {
-        tracker.trackEngagement(UIEvent.fromShare(
+        tracker.trackInteraction(UIEvent.fromShare(
                 playable.get(EntityProperty.URN),
                 contextMetadata,
                 promotedSourceInfo,

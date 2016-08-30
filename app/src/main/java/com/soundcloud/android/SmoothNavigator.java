@@ -2,6 +2,7 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.discovery.SearchActivity;
 import com.soundcloud.android.payments.WebConversionActivity;
 
@@ -20,6 +21,10 @@ import java.util.List;
 @TargetApi(21)
 @SuppressLint("NewApi")
 public class SmoothNavigator extends Navigator {
+
+    public SmoothNavigator(EventTracker eventTracker) {
+        super(eventTracker);
+    }
 
     @Override
     public void openSearch(Activity activity) {

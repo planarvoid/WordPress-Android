@@ -123,7 +123,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickRepostItemRepostsTrack() {
         final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
-        when(repostOperations.toggleRepost(trackItem.getUrn(), !trackItem.isReposted())).thenReturn(repostObservable);
+        when(repostOperations.toggleRepost(trackItem.getUrn(), !trackItem.isRepostedByCurrentUser())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
         presenter.show(activity, view, trackItem, 0);

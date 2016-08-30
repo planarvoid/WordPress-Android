@@ -74,7 +74,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
     }
 
     @Test
@@ -104,7 +104,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ActivitiesPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 0);
 
-        verify(navigator).openProfile(context(), activity.get(ActivityProperty.USER_URN));
+        verify(navigator).legacyOpenProfile(context(), activity.get(ActivityProperty.USER_URN));
     }
 
     @Test

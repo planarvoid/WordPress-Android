@@ -126,6 +126,6 @@ public class RecommendationRendererTest extends AndroidUnitTest {
 
         View artistName = itemView.findViewById(R.id.recommendation_artist);
         artistName.performClick();
-        verify(navigator).openProfile(artistName.getContext(), recommendedTrack.getCreatorUrn());
+        verify(navigator).legacyOpenProfile(artistName.getContext(), recommendedTrack.getCreatorUrn());
     }
 }

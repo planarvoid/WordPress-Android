@@ -137,7 +137,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickRepostItemRepostsPlaylist() {
         final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
-        when(repostOperations.toggleRepost(playlist.getUrn(), !playlist.isReposted())).thenReturn(repostObservable);
+        when(repostOperations.toggleRepost(playlist.getUrn(), !playlist.isRepostedByCurrentUser())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
         presenter.show(button, playlist, menuOptions);
@@ -149,7 +149,7 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Test
     public void clickingOnRepostSendsTrackingEvent() {
         final PublishSubject<PropertySet> repostObservable = PublishSubject.create();
-        when(repostOperations.toggleRepost(playlist.getUrn(), !playlist.isReposted())).thenReturn(repostObservable);
+        when(repostOperations.toggleRepost(playlist.getUrn(), !playlist.isRepostedByCurrentUser())).thenReturn(repostObservable);
         when(menuItem.getItemId()).thenReturn(R.id.toggle_repost);
 
         presenter.show(button, playlist, menuOptions);

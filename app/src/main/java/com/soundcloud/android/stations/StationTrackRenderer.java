@@ -93,7 +93,7 @@ class StationTrackRenderer implements CellRenderer<StationInfoTrack> {
             artist.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigator.openProfile(artist.getContext(), creatorUrn);
+                    navigator.legacyOpenProfile(artist.getContext(), creatorUrn);
                 }
             });
         }

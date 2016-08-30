@@ -141,7 +141,7 @@ public class TrackPageListenerTest extends AndroidUnitTest {
         listener.onGotoUser(context(), userUrn);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        verify(navigator).openProfile(any(Context.class), eq(userUrn));
+        verify(navigator).legacyOpenProfile(any(Context.class), eq(userUrn));
     }
 
     @Test

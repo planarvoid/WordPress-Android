@@ -6,7 +6,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -145,16 +144,6 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         assertThat(events.size()).isEqualTo(2);
         assertPromotedTrackingRecord(events.get(0), "video_click1", event.getTimestamp());
         assertPromotedTrackingRecord(events.get(1), "video_click2", event.getTimestamp());
-    }
-
-    @Test
-    public void doesNotTrackNavigationEvents() throws Exception {
-        analyticsProvider.handleTrackingEvent(UIEvent.fromExploreNav());
-        analyticsProvider.handleTrackingEvent(UIEvent.fromLikesNav());
-        analyticsProvider.handleTrackingEvent(UIEvent.fromPlaylistsNav());
-        analyticsProvider.handleTrackingEvent(UIEvent.fromProfileNav());
-
-        verifyZeroInteractions(eventTrackingManager);
     }
 
     @Test

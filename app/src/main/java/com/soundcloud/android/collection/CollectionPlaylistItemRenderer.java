@@ -106,7 +106,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.openPlaylist(view.getContext(), playlistItem.getUrn(), Screen.COLLECTIONS);
+                navigator.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.COLLECTIONS);
             }
         };
     }
