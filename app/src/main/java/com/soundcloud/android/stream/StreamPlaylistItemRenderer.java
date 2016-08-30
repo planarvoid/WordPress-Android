@@ -5,6 +5,7 @@ import static com.soundcloud.android.tracks.OverflowMenuOptions.builder;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
+import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.main.Screen;
@@ -58,7 +59,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         StreamPlaylistViewHolder itemView = (StreamPlaylistViewHolder) view.getTag();
         itemView.resetAdditionalInformation();
 
-        cardViewPresenter.bind(itemView, playlistItem, getEventContextMetadataBuilder(position));
+        cardViewPresenter.bind(itemView, playlistItem, getEventContextMetadataBuilder(playlistItem, position));
         showTrackCount(itemView, playlistItem);
         setupEngagementBar(itemView, playlistItem, position);
     }
@@ -70,25 +71,30 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private void setupEngagementBar(StreamPlaylistViewHolder playlistView,
                                     final PlaylistItem playlistItem,
-                                    int position) {
-        cardEngagementsPresenter.bind(playlistView, playlistItem, getEventContextMetadataBuilder(position).build());
+                                    final int position) {
+
+        cardEngagementsPresenter.bind(playlistView,
+                                      playlistItem,
+                                      getEventContextMetadataBuilder(playlistItem, position).build());
 
         playlistView.showDuration(ScTextUtils.formatTimestamp(playlistItem.getDuration(), TimeUnit.MILLISECONDS));
         playlistView.setOverflowListener(new StreamItemViewHolder.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {
-                playlistItemMenuPresenter.show(overflowButton, playlistItem, builder().build());
+                playlistItemMenuPresenter.show(overflowButton, playlistItem, builder().build(),
+                                               getEventContextMetadataBuilder(playlistItem, position));
             }
         });
     }
 
     @VisibleForTesting
-    EventContextMetadata.Builder getEventContextMetadataBuilder(int position) {
+    EventContextMetadata.Builder getEventContextMetadataBuilder(PlaylistItem playlistItem, int position) {
         return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
                                    .contextScreen(Screen.STREAM.get())
                                    .module(Module.create(Module.STREAM, Strings.EMPTY))
                                    .modulePosition(position)
-                                   .pageName(Screen.STREAM.get());
+                                   .pageName(Screen.STREAM.get())
+                                   .attributingActivity(AttributingActivity.fromPlayableItem(playlistItem));
     }
 
     static class StreamPlaylistViewHolder extends StreamItemViewHolder {

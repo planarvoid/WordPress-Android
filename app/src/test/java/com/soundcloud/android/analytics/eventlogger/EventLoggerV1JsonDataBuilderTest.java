@@ -994,7 +994,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final Integer position = 0;
         final AttributingActivity attributingActivityType = AttributingActivity.create(
                 AttributingActivity.PROMOTED,
-                Strings.EMPTY);
+                Optional.<Urn>absent());
         final Module module = Module.create(Module.STREAM,
                                             Strings.EMPTY);
         final Urn pageUrn = Urn.forUser(123L);

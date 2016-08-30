@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
@@ -76,13 +77,14 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
     @Test
     public void createsBaseContextMetadata() {
         final Integer position = 0;
-        final EventContextMetadata context = renderer.getEventContextMetadataBuilder(position).build();
+        final EventContextMetadata context = renderer.getEventContextMetadataBuilder(postedTrack, position).build();
 
         assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
         assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
         assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
         assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, Strings.EMPTY));
         assertThat(context.modulePosition()).isEqualTo(position);
+        assertThat(context.attributingActivity()).isEqualTo(AttributingActivity.fromPlayableItem(postedTrack));
     }
 
     @Test

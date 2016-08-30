@@ -6,7 +6,6 @@ import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.LinkType;
 import com.soundcloud.android.events.UIEvent;
@@ -21,7 +20,6 @@ import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -55,10 +53,6 @@ class StreamCardViewPresenter {
     void bind(StreamItemViewHolder itemView,
               PlayableItem item,
               EventContextMetadata.Builder eventContextMetadataBuilder) {
-
-        eventContextMetadataBuilder.attributingActivity(AttributingActivity.create(
-                AttributingActivity.typeFromPlayableItem(item),
-                Strings.EMPTY));
 
         bindHeaderView(itemView, item, item.getUrn(), eventContextMetadataBuilder);
         bindArtworkView(itemView, item, eventContextMetadataBuilder);

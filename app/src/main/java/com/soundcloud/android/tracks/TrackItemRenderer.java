@@ -10,6 +10,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.discovery.ChartTrackItem;
+import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -136,7 +137,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                      TrackItem track,
                                      int position,
                                      Optional<TrackSourceInfo> trackSourceInfo) {
-        trackItemMenuPresenter.show(getFragmentActivity(button), button, track, position, trackSourceInfo);
+        trackItemMenuPresenter.show(getFragmentActivity(button),
+                                    button,
+                                    track,
+                                    position,
+                                    trackSourceInfo,
+                                    Optional.<EventContextMetadata.Builder>absent());
     }
 
     private void loadArtwork(TrackItemView itemView, TrackItem track) {

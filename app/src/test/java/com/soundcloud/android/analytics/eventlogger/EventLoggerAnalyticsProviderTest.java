@@ -42,6 +42,7 @@ import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
@@ -67,6 +68,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Mock private EventLoggerJsonDataBuilder dataBuilderv0;
     @Mock private EventLoggerV1JsonDataBuilder dataBuilderv1;
     @Mock private SharedPreferences sharedPreferences;
+    @Mock private FeatureFlags featureFlags;
 
     private Urn userUrn = Urn.forUser(123L);
     private Urn trackUrn = Urn.forTrack(123L);
@@ -79,7 +81,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
         eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTrackingManager,
                                                                         InjectionSupport.lazyOf(dataBuilderv0),
                                                                         InjectionSupport.lazyOf(dataBuilderv1),
-                                                                        sharedPreferences);
+                                                                        sharedPreferences, featureFlags);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"));
     }

@@ -79,6 +79,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     @Nullable private RemoveTrackListener removeTrackListener;
 
     private Optional<TrackSourceInfo> trackSourceInfo;
+    private Optional<EventContextMetadata.Builder> eventContextMetadataBuilder;
 
     public interface RemoveTrackListener {
         void onPlaylistTrackRemoved(int position);
@@ -119,20 +120,25 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.tracker = tracker;
     }
 
+    public void show(FragmentActivity activity, View button, TrackItem track, int position, EventContextMetadata.Builder builder) {
+        show(activity, button, track, position, Optional.<TrackSourceInfo>absent(), Optional.of(builder));
+    }
+
     public void show(FragmentActivity activity, View button, TrackItem track, int position) {
-        show(activity, button, track, position, Optional.<TrackSourceInfo>absent());
+        show(activity, button, track, position, Optional.<TrackSourceInfo>absent(), Optional.<EventContextMetadata.Builder>absent());
     }
 
     public void show(FragmentActivity activity,
                      View button,
                      TrackItem track,
                      int position,
-                     Optional<TrackSourceInfo> trackSourceInfo) {
+                     Optional<TrackSourceInfo> trackSourceInfo,
+                     Optional<EventContextMetadata.Builder> builder) {
         if (track instanceof PromotedTrackItem) {
             show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET,null,
-                 PromotedSourceInfo.fromItem((PromotedTrackItem) track), trackSourceInfo);
+                 PromotedSourceInfo.fromItem((PromotedTrackItem) track), trackSourceInfo, builder);
         } else {
-            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null, null, trackSourceInfo);
+            show(activity, button, track, position, Urn.NOT_SET, Urn.NOT_SET, null, null, trackSourceInfo, builder);
         }
     }
 
@@ -144,7 +150,8 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                      Urn ownerUrn,
                      RemoveTrackListener removeTrackListener,
                      PromotedSourceInfo promotedSourceInfo,
-                     Optional<TrackSourceInfo> trackSourceInfo) {
+                     Optional<TrackSourceInfo> trackSourceInfo,
+                     Optional<EventContextMetadata.Builder> builder) {
         this.activity = activity;
         this.track = track;
         this.positionInAdapter = positionInAdapter;
@@ -153,6 +160,7 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
         this.playlistUrn = playlistUrn;
         this.ownerUrn = ownerUrn;
         this.trackSourceInfo = trackSourceInfo;
+        this.eventContextMetadataBuilder = builder;
         loadTrack(setupMenu(button));
     }
 
@@ -237,7 +245,9 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                                   .subscribe(new DefaultSubscriber<PropertySet>() {
                                       @Override
                                       public void onNext(PropertySet args) {
-                                          removeTrackListener.onPlaylistTrackRemoved(positionInAdapter);
+                                          if (removeTrackListener != null) {
+                                              removeTrackListener.onPlaylistTrackRemoved(positionInAdapter);
+                                          }
                                       }
                                   });
                 return true;
@@ -274,19 +284,19 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
     }
 
     private void trackLike(boolean addLike) {
-        tracker.trackInteraction(UIEvent.fromToggleLike(addLike,
-                                                        track.getUrn(),
-                                                        getEventContextMetadata(),
-                                                        getPromotedSource(),
-                                                        EntityMetadata.from(track)));
+        tracker.trackEngagement(UIEvent.fromToggleLike(addLike,
+                                                       track.getUrn(),
+                                                       getEventContextMetadata(),
+                                                       getPromotedSource(),
+                                                       EntityMetadata.from(track)));
     }
 
     private void trackRepost(boolean repost) {
-        tracker.trackInteraction(UIEvent.fromToggleRepost(repost,
-                                                          track.getUrn(),
-                                                          getEventContextMetadata(),
-                                                          getPromotedSource(),
-                                                          EntityMetadata.from(track)));
+        tracker.trackEngagement(UIEvent.fromToggleRepost(repost,
+                                                         track.getUrn(),
+                                                         getEventContextMetadata(),
+                                                         getPromotedSource(),
+                                                         EntityMetadata.from(track)));
 
     }
 
@@ -296,12 +306,14 @@ public class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapper
                         ? trackSourceInfo.get().getOriginScreen()
                         : screenProvider.getLastScreenTag();
 
-        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
-                                                                         .contextScreen(screen)
-                                                                         .pageName(screen)
-                                                                         .invokerScreen(ScreenElement.LIST.get())
-                                                                         .pageUrn(playlistUrn)
-                                                                         .isFromOverflow(true);
+        final EventContextMetadata.Builder builder = eventContextMetadataBuilder.isPresent()
+                                                     ? eventContextMetadataBuilder.get()
+                                                     : EventContextMetadata.builder()
+                                                                           .contextScreen(screen)
+                                                                           .pageName(screen)
+                                                                           .invokerScreen(ScreenElement.LIST.get())
+                                                                           .pageUrn(playlistUrn);
+        builder.isFromOverflow(true);
 
         if (trackSourceInfo.isPresent()) {
             builder.trackSourceInfo(trackSourceInfo.get());

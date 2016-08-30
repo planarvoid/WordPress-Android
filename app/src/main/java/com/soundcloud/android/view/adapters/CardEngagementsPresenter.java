@@ -3,11 +3,11 @@ package com.soundcloud.android.view.adapters;
 import static com.soundcloud.java.strings.Strings.EMPTY;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EventContextMetadata;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
@@ -17,8 +17,6 @@ import com.soundcloud.android.playlists.RepostResultSubscriber;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
-import com.soundcloud.rx.eventbus.EventBus;
-
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.view.View;
@@ -37,19 +35,19 @@ public class CardEngagementsPresenter {
     private final LikeOperations likeOperations;
     private final RepostOperations repostOperations;
     private final AccountOperations accountOperations;
-    private final EventBus eventBus;
+    private final EventTracker eventTracker;
 
     @Inject
     CardEngagementsPresenter(CondensedNumberFormatter numberFormatter,
                              LikeOperations likeOperations,
                              RepostOperations repostOperations,
                              AccountOperations accountOperations,
-                             EventBus eventBus) {
+                             EventTracker eventTracker) {
         this.numberFormatter = numberFormatter;
         this.likeOperations = likeOperations;
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
-        this.eventBus = eventBus;
+        this.eventTracker = eventTracker;
     }
 
     public void bind(final CardViewHolder viewHolder,
@@ -84,7 +82,7 @@ public class CardEngagementsPresenter {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(repostButton.getContext(), addRepost));
 
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(addRepost, entityUrn,
+        eventTracker.trackEngagement(UIEvent.fromToggleRepost(addRepost, entityUrn,
                                                                        contextMetadata,
                                                                        getPromotedSourceInfo(playableItem),
                                                                        EntityMetadata.from(playableItem)));
@@ -97,7 +95,7 @@ public class CardEngagementsPresenter {
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(likeButton.getContext(), addLike));
 
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, entityUrn,
+        eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike, entityUrn,
                                                                      contextMetadata,
                                                                      getPromotedSourceInfo(playableItem),
                                                                      EntityMetadata.from(playableItem)));

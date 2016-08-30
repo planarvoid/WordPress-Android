@@ -30,7 +30,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
 
     private static final String SCREEN_TAG = "screen_tag";
     private static final String PAGE_NAME = "page_name";
-    private static final Urn PAGE_URN = Urn.forPlaylist(234l);
+    private static final Urn PAGE_URN = Urn.forPlaylist(234L);
     private static final PropertySet TRACK = TestPropertySets.expectedTrackForPlayer();
     private static final PropertySet PRIVATE_TRACK = TestPropertySets.expectedPrivateTrackForPlayer();
     private static final PropertySet PLAYLIST = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
@@ -68,7 +68,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
     public void shareTrackPublishesTrackingEvent() throws Exception {
         operations.share(activityContext, TRACK, eventContext(), null);
 
-        verify(tracker).trackInteraction(uiEventCaptor.capture());
+        verify(tracker).trackEngagement(uiEventCaptor.capture());
 
         final UIEvent uiEvent = uiEventCaptor.getValue();
         final Map<String, String> attributes = uiEvent.getAttributes();
@@ -83,7 +83,7 @@ public class ShareOperationsTest extends AndroidUnitTest {
     public void sharePromotedTrackPublishesTrackingEvent() throws Exception {
         operations.share(activityContext, PROMOTED_TRACK, eventContext(), PROMOTED_SOURCE_INFO);
 
-        verify(tracker).trackInteraction(uiEventCaptor.capture());
+        verify(tracker).trackEngagement(uiEventCaptor.capture());
 
         final UIEvent uiEvent = uiEventCaptor.getValue();
         final Map<String, String> attributes = uiEvent.getAttributes();
