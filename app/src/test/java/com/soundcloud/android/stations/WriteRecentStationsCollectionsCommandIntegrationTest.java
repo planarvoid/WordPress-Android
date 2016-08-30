@@ -100,7 +100,7 @@ public class WriteRecentStationsCollectionsCommandIntegrationTest extends Storag
         command.call(buildSyncMetadata(remoteContent));
 
         databaseAssertions().assertStationMetadataInserted(localStation);
-        databaseAssertions().assertNoRecentStations();
+        databaseAssertions().assertNoStationsCollections();
     }
 
     @Test

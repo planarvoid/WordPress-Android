@@ -89,7 +89,7 @@ public class CollectionPresenter extends BaseCollectionPresenter
                                                                        playHistoryTrackItems.size() + NON_PLAYLIST_OR_TRACK_COLLECTION_ITEMS);
 
         collectionItems.add(PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(),
-                                                                      myCollection.getRecentStations()));
+                                                                      myCollection.getStations()));
         collectionItems.addAll(playlistCollectionItems(playlistItems, false));
 
         return collectionItems;

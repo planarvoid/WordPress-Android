@@ -35,7 +35,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     public static final int ENTITY_CREATED = 8;
     public static final int ENTITY_DELETED = 9;
     public static final int PLAYLIST_PUSHED_TO_SERVER = 10;
-    public static final int RECENT_STATION_UPDATED = 11;
+    public static final int STATIONS_COLLECTION_UPDATED = 11;
     public static final int PLAYLIST_MARKED_FOR_DOWNLOAD = 12;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
@@ -77,13 +77,6 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.isTrackAddedEvent() || event.isTrackRemovedEvent() || event.isPlaylistEditedEvent();
-        }
-    };
-
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_DELETED = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            return event.getFirstUrn().isPlaylist() && event.getKind() == ENTITY_DELETED;
         }
     };
 
@@ -156,7 +149,7 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
     }
 
     public static EntityStateChangedEvent fromStationsUpdated(Urn station) {
-        return create(RECENT_STATION_UPDATED, PropertySet.from(StationProperty.URN.bind(station)));
+        return create(STATIONS_COLLECTION_UPDATED, PropertySet.from(StationProperty.URN.bind(station)));
     }
 
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {

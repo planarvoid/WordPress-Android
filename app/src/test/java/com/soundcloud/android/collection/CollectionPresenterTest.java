@@ -94,7 +94,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionItem.create(playlistItems.get(0)),
                 PlaylistCollectionItem.create(playlistItems.get(1)),
@@ -110,7 +110,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionItem.create(playlistItems.get(0)),
                 PlaylistCollectionItem.create(playlistItems.get(1)),
@@ -126,7 +126,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showOfflineOnly(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionItem.create(playlistItems.get(0)),
                 PlaylistCollectionItem.create(playlistItems.get(1)),
@@ -142,7 +142,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showPosts(true).showLikes(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionItem.create(playlistItems.get(0)),
                 PlaylistCollectionItem.create(playlistItems.get(1))
@@ -157,7 +157,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(PLAYLIST_COUNT),
                 PlaylistCollectionItem.create(playlistItems.get(0)),
                 PlaylistCollectionItem.create(playlistItems.get(1))
@@ -172,7 +172,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(ZERO_PLAYLIST_COUNT),
                 EmptyPlaylistCollectionItem.create()
         );
@@ -186,7 +186,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(ZERO_PLAYLIST_COUNT),
                 EmptyPlaylistCollectionItem.create()
         );
@@ -202,7 +202,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(ZERO_PLAYLIST_COUNT),
                 EmptyPlaylistCollectionItem.create()
         );
@@ -216,7 +216,7 @@ public class CollectionPresenterTest extends AndroidUnitTest {
         presenter.onOptionsUpdated(PlaylistsOptions.builder().showLikes(true).showPosts(true).build());
 
         assertThat(presenter.toCollectionItems.call(myCollection)).containsExactly(
-                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getRecentStations()),
+                PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(), myCollection.getStations()),
                 PlaylistHeaderCollectionItem.create(ZERO_PLAYLIST_COUNT),
                 EmptyPlaylistCollectionItem.create()
         );

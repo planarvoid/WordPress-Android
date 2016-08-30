@@ -1,11 +1,16 @@
 package com.soundcloud.android.stations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -13,12 +18,13 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
+import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -27,9 +33,7 @@ import rx.subjects.PublishSubject;
 import java.util.Collections;
 import java.util.List;
 
-
-@RunWith(MockitoJUnitRunner.class)
-public class StationsOperationsTest {
+public class StationsOperationsTest extends AndroidUnitTest {
 
     @Mock FeatureFlags featureFlags;
     @Mock SyncStateStorage syncStateStorage;
@@ -40,12 +44,17 @@ public class StationsOperationsTest {
     @Mock SyncInitiator syncInitiator;
 
     private final Urn station = Urn.forTrackStation(123L);
+    private TestEventBus eventBus;
     private StationsOperations operations;
     private StationRecord stationFromDisk;
     private ApiStation apiStation;
 
     @Before
     public void setUp() {
+        stationFromDisk = StationFixtures.getStation(Urn.forTrackStation(123L));
+        apiStation = StationFixtures.getApiStation();
+        eventBus = new TestEventBus();
+
         operations = new StationsOperations(
                 syncStateStorage,
                 stationsStorage,
@@ -53,11 +62,8 @@ public class StationsOperationsTest {
                 storeTracksCommand,
                 storeStationCommand,
                 syncInitiator,
-                Schedulers.immediate()
-        );
-
-        stationFromDisk = StationFixtures.getStation(Urn.forTrackStation(123L));
-        apiStation = StationFixtures.getApiStation();
+                Schedulers.immediate(),
+                eventBus);
 
         when(stationsStorage.clearExpiredPlayQueue(station)).thenReturn(Observable.just(new TxnResult()));
         when(stationsStorage.station(station)).thenReturn(Observable.just(stationFromDisk));
@@ -191,4 +197,28 @@ public class StationsOperationsTest {
         verify(storeTracksCommand).call(apiStation.getTrackRecords());
         verify(storeStationCommand).call(eq(apiStation));
     }
+
+    @Test
+    public void shouldPersistNewLikedStation() {
+        when(stationsStorage.updateStationLike(any(Urn.class),
+                                               anyBoolean())).thenReturn(Observable.just(mock(ChangeResult.class)));
+
+        operations.toggleStationLike(station, true).subscribe();
+
+        verify(stationsStorage).updateStationLike(station, true);
+    }
+
+    @Test
+    public void shouldEmitStationUpdatedEventWhenLikingAStation() {
+        when(stationsStorage.updateStationLike(any(Urn.class),
+                                               anyBoolean())).thenReturn(Observable.just(mock(ChangeResult.class)));
+
+        operations.toggleStationLike(station, true).subscribe();
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED,
+                                                                   EntityStateChangedEvent.class);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.STATIONS_COLLECTION_UPDATED);
+        assertThat(event.getFirstUrn()).isEqualTo(station);
+    }
+
 }

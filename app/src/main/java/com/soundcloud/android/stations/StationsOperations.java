@@ -1,5 +1,7 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.events.EntityStateChangedEvent.fromStationsUpdated;
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
@@ -12,6 +14,7 @@ import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -30,6 +33,7 @@ public class StationsOperations {
     private final StoreStationCommand storeStationCommand;
     private final SyncInitiator syncInitiator;
     private final Scheduler scheduler;
+    private final EventBus eventBus;
 
     private final Action1<ApiStation> storeTracks = new Action1<ApiStation>() {
         @Override
@@ -52,7 +56,7 @@ public class StationsOperations {
                               StoreTracksCommand storeTracksCommand,
                               StoreStationCommand storeStationCommand,
                               SyncInitiator syncInitiator,
-                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler, EventBus eventBus) {
         this.syncStateStorage = syncStateStorage;
         this.stationsStorage = stationsStorage;
         this.stationsApi = stationsApi;
@@ -60,6 +64,7 @@ public class StationsOperations {
         this.scheduler = scheduler;
         this.storeTracksCommand = storeTracksCommand;
         this.storeStationCommand = storeStationCommand;
+        this.eventBus = eventBus;
     }
 
     public Observable<StationRecord> station(Urn station) {
@@ -145,6 +150,12 @@ public class StationsOperations {
         final ChangeResult result = stationsStorage.saveUnsyncedRecentlyPlayedStation(stationUrn);
         syncInitiator.requestSystemSync();
         return result;
+    }
+
+    Observable<ChangeResult> toggleStationLike(Urn stationUrn, boolean liked) {
+        return stationsStorage.updateStationLike(stationUrn, liked)
+                              .doOnNext(eventBus.publishAction1(ENTITY_STATE_CHANGED, fromStationsUpdated(stationUrn)))
+                              .subscribeOn(scheduler);
     }
 
     public Observable<PlayQueue> fetchUpcomingTracks(final Urn station, final int currentSize) {

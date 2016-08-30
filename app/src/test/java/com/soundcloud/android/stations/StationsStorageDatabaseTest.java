@@ -1,7 +1,6 @@
 package com.soundcloud.android.stations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
@@ -9,15 +8,19 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.propeller.ChangeResult;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.robolectric.fakes.RoboSharedPreferences;
 import rx.observers.TestSubscriber;
 
-import android.content.SharedPreferences;
+import android.content.Context;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class StationsStorageDatabaseTest extends StorageIntegrationTest {
@@ -25,6 +28,9 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     private final TestDateProvider dateProvider = new TestDateProvider();
     private final Urn stationUrn = Urn.forTrackStation(123L);
     private final long BEFORE_24H = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(25L);
+    private RoboSharedPreferences sharedPreferences =
+            new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "TEST", Context.MODE_PRIVATE);
+
 
     private StationsStorage storage;
     private TestSubscriber<StationRecord> subscriber = new TestSubscriber<>();
@@ -32,7 +38,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     @Before
     public void setup() {
         storage = new StationsStorage(
-                mock(SharedPreferences.class),
+                sharedPreferences,
                 propeller(),
                 dateProvider
         );
@@ -66,6 +72,18 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
 
         databaseAssertions().assertStationPlayQueuePosition(stationUrn, 5);
         databaseAssertions().assertStationPlayQueueContains(stationUrn, station.getTracks());
+    }
+
+    @Test
+    public void clearRemovesDataFromAllStationTables() {
+        testFixtures().insertStation();
+        testFixtures().insertRecentlyPlayedStationAtPosition(stationUrn, 2);
+
+        storage.clear();
+
+        databaseAssertions().assertNoStations();
+        databaseAssertions().assertNoStationsCollections();
+        databaseAssertions().assertNoStationPlayQueues();
     }
 
     @Test
@@ -206,6 +224,34 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         List<StationInfoTrack> receivedTracks = subscriber.getOnNextEvents();
         assertReceivedStationInfoTracks(receivedTracks, apiTracks);
         subscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldSaveLocalStationLike() {
+        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
+
+        storage.updateStationLike(stationUrn, true).subscribe(subscriber);
+
+        databaseAssertions().assertLocalStationLike(stationUrn);
+    }
+
+    @Test
+    public void shouldSaveLocalStationUnlike() {
+        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
+
+        storage.updateStationLike(stationUrn, false).subscribe(subscriber);
+
+        databaseAssertions().assertLocalStationUnlike(stationUrn);
+    }
+
+    @Test
+    public void shouldStationLikeOverridePreviousUnlikeState() {
+        final ApiStation apiStation = testFixtures().insertUnlikedStation();
+        final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
+
+        storage.updateStationLike(apiStation.getUrn(), true).subscribe(subscriber);
+
+        databaseAssertions().assertLocalStationLike(apiStation.getUrn());
     }
 
     private void assertReceivedStationInfoTracks(List<StationInfoTrack> receivedTracks, List<ApiTrack> apiTracks) {

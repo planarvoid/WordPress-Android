@@ -113,6 +113,7 @@ import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.ApiStationMetadata;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationTrack;
+import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.Tables.ChartTracks;
 import com.soundcloud.android.storage.Tables.Charts;
@@ -269,7 +270,7 @@ public class DatabaseAssertions {
         )).counts(1);
     }
 
-    public void assertStationPlayQueueInserted(StationRecord station) {
+    private void assertStationPlayQueueInserted(StationRecord station) {
         assertThat(select(from(StationsPlayQueues.TABLE)
                                   .whereEq(StationsPlayQueues.STATION_URN, station.getUrn().toString())
                                   .whereIn(TRACK_ID, Lists.transform(station.getTracks(), StationTrack.TO_TRACK_IDS))
@@ -339,8 +340,35 @@ public class DatabaseAssertions {
                                   .whereEq(StationsCollections.POSITION, position))).counts(1);
     }
 
-    public void assertNoRecentStations() {
+    public void assertNoStationsCollections() {
         assertThat(select(from(StationsCollections.TABLE))).counts(0);
+    }
+
+    public void assertNoStations() {
+        assertThat(select(from(Stations.TABLE))).counts(0);
+    }
+
+    public void assertNoStationPlayQueues() {
+        assertThat(select(from(StationsPlayQueues.TABLE))).counts(0);
+    }
+
+    public void assertLocalStationLike(Urn stationUrn) {
+        assertThat(select(from(StationsCollections.TABLE)
+                                  .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
+                                  .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)
+                                  .whereNull(StationsCollections.REMOVED_AT)
+                                  .whereNotNull(StationsCollections.ADDED_AT)))
+                .counts(1);
+    }
+
+    public void assertLocalStationUnlike(Urn stationUrn) {
+        assertThat(select(from(StationsCollections.TABLE)
+                                  .whereEq(StationsCollections.STATION_URN, stationUrn.toString())
+                                  .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)
+                                  .whereNull(StationsCollections.ADDED_AT)
+                                  .whereNotNull(StationsCollections.REMOVED_AT)))
+                .counts(1);
+
     }
 
     public void assertLocalStationDeleted(Urn urn) {
@@ -370,10 +398,6 @@ public class DatabaseAssertions {
 
     public void assertPlayHistory(PlayHistoryRecord record) {
         assertPlayHistory(record, 1);
-    }
-
-    public void assertNoPlayHistory(PlayHistoryRecord record) {
-        assertPlayHistory(record, 0);
     }
 
     private void assertTrackPolicyInserted(TrackRecord track) {

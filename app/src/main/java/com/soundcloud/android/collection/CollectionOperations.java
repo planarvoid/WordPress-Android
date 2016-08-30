@@ -136,8 +136,8 @@ public class CollectionOperations {
         @Override
         public MyCollection call(List<PlaylistItem> playlistItems,
                                  LikesItem likes,
-                                 List<StationRecord> recentStations) {
-            return MyCollection.forCollectionWithPlaylists(likes, playlistItems, recentStations, false);
+                                 List<StationRecord> stationRecords) {
+            return MyCollection.forCollectionWithPlaylists(likes, playlistItems, stationRecords, false);
         }
     };
 
@@ -232,7 +232,7 @@ public class CollectionOperations {
                     return event.getFirstUrn().isPlaylist();
                 case EntityStateChangedEvent.LIKE:
                 case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
-                case EntityStateChangedEvent.RECENT_STATION_UPDATED:
+                case EntityStateChangedEvent.STATIONS_COLLECTION_UPDATED:
                 case EntityStateChangedEvent.PLAYLIST_MARKED_FOR_DOWNLOAD:
                     return true;
                 default:

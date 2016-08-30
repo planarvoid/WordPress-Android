@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.playback.DiscoverySource.STATIONS;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_SOURCE;
 import static com.soundcloud.android.stations.StationInfoFragment.EXTRA_URN;
 
@@ -158,8 +159,8 @@ class StationInfoPresenter extends RecyclerViewPresenter<List<StationInfoItem>, 
     }
 
     @Override
-    public void onLikeToggled(Context context) {
-        // TODO: STAT-575
+    public void onLikeToggled(Context context, boolean liked) {
+        fireAndForget(stationOperations.toggleStationLike(stationUrn, liked));
     }
 
 }

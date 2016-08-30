@@ -199,7 +199,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         MyCollection collection = subscriber.getOnNextEvents().get(0);
         assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(Collections.emptyList());
         assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
-        assertThat(collection.getRecentStations()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
         assertThat(collection.hasError()).isTrue();
     }
 
@@ -220,7 +220,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         MyCollection collection = subscriber.getOnNextEvents().get(0);
         assertThat(collection.getLikes().getTrackPreviews()).isEqualTo(trackPreviews);
         assertThat(collection.getPlaylistItems()).isEqualTo(Collections.emptyList());
-        assertThat(collection.getRecentStations()).isEqualTo(Collections.emptyList());
+        assertThat(collection.getStations()).isEqualTo(Collections.emptyList());
     }
 
     @Test

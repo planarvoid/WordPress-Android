@@ -1,6 +1,8 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.playback.DiscoverySource.STATIONS_SUGGESTIONS;
 import static com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem.createTrack;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -19,12 +21,14 @@ import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListen
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import android.os.Bundle;
 
@@ -107,7 +111,7 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
 
         presenter.onPlayButtonClicked(context());
 
-        verify(stationPresenter).startStation(context(), TRACK_STATION, DiscoverySource.STATIONS_SUGGESTIONS);
+        verify(stationPresenter).startStation(context(), TRACK_STATION, STATIONS_SUGGESTIONS);
     }
 
     @Test
@@ -119,6 +123,31 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
         verify(stationPresenter).startStation(context(), TRACK_STATION, DiscoverySource.STATIONS);
     }
 
+    @Test
+    public void shouldStartStationOnTrackClicked() {
+        final Observable<StationRecord> recordObservable = Observable.empty();
+        final int trackPosition = 2;
+        when(stationOperations.station(TRACK_STATION)).thenReturn(recordObservable);
+
+        presenter.onCreate(fragmentRule1.getFragment(), null);
+
+        presenter.onTrackClicked(context(), trackPosition);
+
+        verify(stationPresenter).startStation(context(), recordObservable, STATIONS_SUGGESTIONS, trackPosition);
+    }
+
+    @Test
+    public void shouldChangeLikeStatusWhenLikeButtonToggled() {
+        final PublishSubject<ChangeResult> toggleLikeObservable = PublishSubject.create();
+        when(stationOperations.toggleStationLike(TRACK_STATION, true)).thenReturn(toggleLikeObservable);
+
+        presenter.onCreate(fragmentRule1.getFragment(), null);
+
+        presenter.onLikeToggled(context(), true);
+
+        assertThat(toggleLikeObservable.hasObservers()).isTrue();
+    }
+
     private CurrentPlayQueueItemEvent positionChangedEvent(Urn trackUrn) {
         return CurrentPlayQueueItemEvent.fromPositionChanged(createTrack(trackUrn), TRACK_STATION, 0);
     }
@@ -126,7 +155,7 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
     private static Bundle fragmentArgs() {
         Bundle bundle = new Bundle();
         bundle.putParcelable(StationInfoFragment.EXTRA_URN, TRACK_STATION);
-        bundle.putString(StationInfoFragment.EXTRA_SOURCE, DiscoverySource.STATIONS_SUGGESTIONS.value());
+        bundle.putString(StationInfoFragment.EXTRA_SOURCE, STATIONS_SUGGESTIONS.value());
         return bundle;
     }
 

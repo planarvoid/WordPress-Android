@@ -398,6 +398,23 @@ public class DatabaseFixtures {
         return station;
     }
 
+    public ApiStation insertUnlikedStation() {
+        final ApiStation apiStation = insertStation();
+        insertInto(StationsCollections.TABLE, getStationLikeContentValues(apiStation.getUrn(), false));
+        return apiStation;
+    }
+
+    private ContentValues getStationLikeContentValues(Urn stationUrn, boolean isLiked) {
+        return ContentValuesBuilder
+                .values()
+                .put(StationsCollections.STATION_URN, stationUrn.toString())
+                .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)
+                .put(isLiked ? StationsCollections.ADDED_AT : StationsCollections.REMOVED_AT,
+                     System.currentTimeMillis())
+                .put(isLiked ? StationsCollections.REMOVED_AT : StationsCollections.ADDED_AT, null)
+                .get();
+    }
+
     public Chart insertChart(ApiChart<ApiImageResource> apiChart, int bucketType) {
         final ContentValues cv = new ContentValues();
         cv.put(Tables.Charts.DISPLAY_NAME.name(), apiChart.displayName());

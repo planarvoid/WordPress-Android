@@ -58,7 +58,7 @@ public class StationsControllerTest extends AndroidUnitTest {
                                                                        0));
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.RECENT_STATION_UPDATED);
+        assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.STATIONS_COLLECTION_UPDATED);
         assertThat(event.getFirstUrn()).isEqualTo(STATION);
     }
 

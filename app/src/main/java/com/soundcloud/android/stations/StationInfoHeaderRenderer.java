@@ -23,6 +23,7 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -39,10 +40,10 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
         }
     };
 
-    private final View.OnClickListener toggleLikeClickListener = new View.OnClickListener() {
+    private final ToggleButton.OnCheckedChangeListener toggleLikeListener = new ToggleButton.OnCheckedChangeListener() {
         @Override
-        public void onClick(View view) {
-            clickListener.onLikeToggled(view.getContext());
+        public void onCheckedChanged(CompoundButton compoundButton, boolean isLiked) {
+            clickListener.onLikeToggled(compoundButton.getContext(), isLiked);
         }
     };
 
@@ -89,7 +90,7 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
         if (likeStationEnabled) {
             final ToggleButton likeButton = ButterKnife.findById(itemView, R.id.toggle_like);
             likeButton.setChecked(info.isLiked());
-            likeButton.setOnClickListener(toggleLikeClickListener);
+            likeButton.setOnCheckedChangeListener(toggleLikeListener);
         }
     }
 

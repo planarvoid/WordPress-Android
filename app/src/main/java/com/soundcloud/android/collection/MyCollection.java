@@ -13,10 +13,10 @@ import java.util.List;
 public abstract class MyCollection {
 
     static MyCollection forCollectionWithPlaylists(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
-                                                   List<StationRecord> recentStations, boolean atLeastOneError) {
+                                                   List<StationRecord> stationRecords, boolean atLeastOneError) {
         return new AutoValue_MyCollection(likes,
                                           likedAndPostedPlaylists,
-                                          recentStations,
+                                          stationRecords,
                                           Collections.<TrackItem>emptyList(),
                                           Collections.<RecentlyPlayedPlayableItem>emptyList(),
                                           atLeastOneError);
@@ -34,7 +34,7 @@ public abstract class MyCollection {
 
     public abstract List<PlaylistItem> getPlaylistItems();
 
-    public abstract List<StationRecord> getRecentStations();
+    public abstract List<StationRecord> getStations();
 
     public abstract List<TrackItem> getPlayHistoryTrackItems();
 

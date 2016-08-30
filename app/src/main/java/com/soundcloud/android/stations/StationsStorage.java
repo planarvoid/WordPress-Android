@@ -25,6 +25,7 @@ import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.propeller.ChangeResult;
+import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
@@ -141,6 +142,20 @@ class StationsStorage {
         });
     }
 
+    Observable<ChangeResult> updateStationLike(Urn stationUrn, boolean liked) {
+        return propellerRx.upsert(StationsCollections.TABLE, contentValuesForStationLikeToggled(stationUrn, liked));
+    }
+
+    private ContentValues contentValuesForStationLikeToggled(Urn stationUrn, boolean liked) {
+        return ContentValuesBuilder.values()
+                                   .put(StationsCollections.STATION_URN, stationUrn.toString())
+                                   .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)
+                                   .put(liked ? StationsCollections.ADDED_AT : StationsCollections.REMOVED_AT,
+                                        dateProvider.getCurrentTime())
+                                   .put(liked ? StationsCollections.REMOVED_AT : StationsCollections.ADDED_AT, null)
+                                   .get();
+    }
+
     void clear() {
         propellerDatabase.delete(Stations.TABLE);
         propellerDatabase.delete(StationsCollections.TABLE);
@@ -166,7 +181,6 @@ class StationsStorage {
                 propellerRx.query(Query.from(Stations.TABLE)
                                        .whereEq(Stations.STATION_URN, stationUrn))
                            .map(TO_STATION_WITHOUT_TRACKS),
-
                 propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_STATION_TRACK).toList(),
                 new Func2<Station, List<StationTrack>, StationRecord>() {
                     @Override
