@@ -9,8 +9,8 @@
         android:id="@+id/blurred_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        tools:background="@color/ak_sc_dark_orange" />
+        android:background="@color/ak_medium_gray"
+        android:scaleType="centerCrop" />
 
     <RelativeLayout
         android:id="@+id/header_container"

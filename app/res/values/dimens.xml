@@ -208,6 +208,6 @@
     <dimen name="collection_default_margin">16dp</dimen>
 
     <!-- Stations -->
-    <dimen name="stations_home_artwork_size">164dp</dimen>
+    <dimen name="stations_home_artwork_size">168dp</dimen>
 
 </resources>

@@ -2,6 +2,7 @@ package com.soundcloud.android.image;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.java.optional.Optional;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -13,6 +14,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class SimpleBlurredImageLoader {
+
+    private final static float BLUR_RADIUS = 22.f;
 
     private ImageOperations imageOperations;
     private Resources resources;
@@ -26,9 +29,12 @@ public class SimpleBlurredImageLoader {
         this.scheduler = scheduler;
     }
 
-
     public void displayBlurredArtwork(ImageResource info, final ImageView blurredArtworkView) {
-        imageOperations.blurredPlayerArtwork(resources, info, scheduler, AndroidSchedulers.mainThread())
+        imageOperations.blurredArtwork(resources,
+                                       info,
+                                       Optional.of(BLUR_RADIUS),
+                                       scheduler,
+                                       AndroidSchedulers.mainThread())
                        .subscribe(new DefaultSubscriber<Bitmap>() {
                            @Override
                            public void onNext(Bitmap args) {

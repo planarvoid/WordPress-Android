@@ -112,11 +112,10 @@
     <style name="StationInfo.Title" parent="TextAppearance.ScAppCompat.Large">
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginRight">16dp</item>
         <item name="android:singleLine">true</item>
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="minTextSize">16sp</item>
         <item name="resizeStep">4sp</item>
@@ -130,6 +129,7 @@
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginRight">16dp</item>
         <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:lineSpacingMultiplier">1.1</item>
     </style>
 
@@ -168,8 +168,8 @@
         <item name="android:maxLines">1</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/collections_recently_played_header</item>
-        <item name="android:paddingLeft">@dimen/collection_default_margin</item>
-        <item name="android:paddingRight">@dimen/collection_default_margin</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 

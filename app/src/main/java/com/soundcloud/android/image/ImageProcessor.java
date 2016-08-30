@@ -1,7 +1,9 @@
 package com.soundcloud.android.image;
 
+import com.soundcloud.java.optional.Optional;
+
 import android.graphics.Bitmap;
 
 public interface ImageProcessor {
-    Bitmap blurBitmap(Bitmap bitmap);
+    Bitmap blurBitmap(Bitmap bitmap, Optional<Float> blurRadius);
 }

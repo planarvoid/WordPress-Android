@@ -16,6 +16,7 @@ import com.soundcloud.android.stations.StationInfoAdapter.StationInfoClickListen
 
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
@@ -120,7 +121,7 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
 
     private SpannableString buildStationDescription(List<String> mostPlayed) {
         final String descriptionText = resources.getQuantityString(R.plurals.stations_home_description,
-                                                                   mostPlayed.size(), mostPlayed.toArray());
+                                                                   mostPlayed.size(), artistString(mostPlayed));
         final SpannableString descriptionSpan = new SpannableString(descriptionText);
 
         int lastIndexOf = 0;
@@ -138,6 +139,16 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
         final ImageView blurredArtworkView = ButterKnife.findById(headerView, R.id.blurred_background);
 
         imageOperations.displayWithPlaceholder(info, artworkSize, artworkView);
-        simpleBlurredImageLoader.displayBlurredArtwork(info, blurredArtworkView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            simpleBlurredImageLoader.displayBlurredArtwork(info, blurredArtworkView);
+        }
+    }
+
+    private String artistString(List<String> mostPlayed) {
+        StringBuilder sb = new StringBuilder();
+        for (String artist : mostPlayed) {
+            sb.append(artist).append(", ");
+        }
+        return sb.toString().substring(0, sb.length() - 2);
     }
 }

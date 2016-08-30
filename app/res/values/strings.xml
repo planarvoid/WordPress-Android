@@ -555,9 +555,8 @@
     <string name="suggested_stations">Suggested stations</string>
 
     <plurals name="stations_home_description">
-        <item quantity="one">A mix of similar tracks including %1$s</item>
-        <item quantity="two">A mix of similar tracks including %1$s and %2$s</item>
-        <item quantity="other">A mix of similar tracks including %1$s, %2$s and %3$s</item>
+        <item quantity="one">An endless mix of music by %1$s</item>
+        <item quantity="other">An endless mix of music by %1$s and more</item>
     </plurals>
 
     <!-- __TIME -->

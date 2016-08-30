@@ -12,7 +12,7 @@
     <com.soundcloud.android.view.CustomFontTextView
         style="@style/StationInfo.TrackHeader"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="56dp"
         android:text="@string/stations_tracks_in_this_station" />
 
     <android.support.v7.widget.RecyclerView

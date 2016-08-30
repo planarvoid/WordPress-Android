@@ -21,6 +21,7 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
 import com.soundcloud.android.utils.images.ImageUtils;
+import com.soundcloud.java.optional.Optional;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
@@ -68,12 +69,6 @@ public class ImageOperations {
     private final Cache<String, TransitionDrawable> placeholderCache;
     private final Cache<Urn, Bitmap> blurredImageCache;
 
-    private final Func1<Bitmap, Bitmap> blurBitmap = new Func1<Bitmap, Bitmap>() {
-        @Override
-        public Bitmap call(Bitmap bitmap) {
-            return imageProcessor.blurBitmap(bitmap);
-        }
-    };
     private ImageProcessor imageProcessor;
 
     @Inject
@@ -352,6 +347,13 @@ public class ImageOperations {
 
     public Observable<Bitmap> blurredPlayerArtwork(final Resources resources, final ImageResource imageResource,
                                                    Scheduler scheduleOn, Scheduler observeOn) {
+        return blurredArtwork(resources, imageResource, Optional.<Float>absent(), scheduleOn, observeOn);
+    }
+
+    public Observable<Bitmap> blurredArtwork(final Resources resources,
+                                             final ImageResource imageResource,
+                                             Optional<Float> blurRadius,
+                                             Scheduler scheduleOn, Scheduler observeOn) {
         final Bitmap cachedBlurImage = blurredImageCache.get(imageResource.getUrn());
         if (cachedBlurImage != null) {
             return Observable.just(cachedBlurImage);
@@ -359,18 +361,26 @@ public class ImageOperations {
             final Bitmap cached = getCachedListItemBitmap(resources, imageResource);
             if (cached == null) {
                 return artwork(imageResource, ApiImageSize.getListItemImageSize(resources))
-                        .map(blurBitmap)
+                        .map(blurBitmap(blurRadius))
                         .subscribeOn(scheduleOn)
                         .observeOn(observeOn)
                         .doOnNext(cacheBlurredBitmap(imageResource.getUrn()));
             } else {
-                return blurBitmap(cached)
+                return blurBitmap(cached, blurRadius)
                         .subscribeOn(scheduleOn)
                         .observeOn(observeOn)
                         .doOnNext(cacheBlurredBitmap(imageResource.getUrn()));
             }
         }
+    }
 
+    private Func1<Bitmap, Bitmap> blurBitmap(final Optional<Float> blurRadius) {
+        return new Func1<Bitmap, Bitmap>() {
+            @Override
+            public Bitmap call(Bitmap bitmap) {
+                return imageProcessor.blurBitmap(bitmap, blurRadius);
+            }
+        };
     }
 
     private Action1<Bitmap> cacheBlurredBitmap(final Urn resourceUrn) {
@@ -382,11 +392,11 @@ public class ImageOperations {
         };
     }
 
-    private Observable<Bitmap> blurBitmap(final Bitmap original) {
+    private Observable<Bitmap> blurBitmap(final Bitmap original, final Optional<Float> blurRadius) {
         return Observable.create(new Observable.OnSubscribe<Bitmap>() {
             @Override
             public void call(Subscriber<? super Bitmap> subscriber) {
-                subscriber.onNext(imageProcessor.blurBitmap(original));
+                subscriber.onNext(imageProcessor.blurBitmap(original, blurRadius));
                 subscriber.onCompleted();
             }
         });

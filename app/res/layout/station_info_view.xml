@@ -15,8 +15,8 @@
             android:id="@+id/blurred_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            tools:background="@color/ak_sc_dark_orange" />
+            android:background="@color/ak_medium_gray"
+            android:scaleType="centerCrop" />
 
         <LinearLayout
             android:id="@+id/header_container"
@@ -41,10 +41,10 @@
             <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/station_desc"
                 style="@style/StationInfo.Description"
-                android:layout_marginBottom="16dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center_horizontal"
-                tools:text="A mix of music by Summer Soul, REWARD and Hokey Pokesssy" />
+                tools:text="A mix of similar tracks including Summer Soul, REWARD and Hokey Pokesssy" />
         </LinearLayout>
 
     </FrameLayout>

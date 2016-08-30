@@ -141,8 +141,8 @@ public class AutoResizeTextView extends CustomFontTextView {
                 if (lastLine < 0) {
                     setText("");
                 } else {
-                    int start = layout.getLineStart(lastLine);
-                    int end = layout.getLineEnd(lastLine);
+                    int start = 0;
+                    int end = text.length();
                     float lineWidth = layout.getLineWidth(lastLine);
                     float ellipseWidth = textPaint.measureText(ELLIPSIS);
 

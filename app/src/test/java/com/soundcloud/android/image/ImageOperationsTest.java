@@ -442,7 +442,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         Bitmap blurredBitmap = Bitmap.createBitmap(2, 1, Bitmap.Config.RGB_565);
 
         when(memoryCache.get(anyString())).thenReturn(cachedBitmap);
-        when(imageProcessor.blurBitmap(cachedBitmap)).thenReturn(blurredBitmap);
+        when(imageProcessor.blurBitmap(cachedBitmap, Optional.<Float>absent())).thenReturn(blurredBitmap);
 
         imageOperations.blurredPlayerArtwork(resources(), imageResource,
                                              scheduler, scheduler).subscribe(subscriber);
@@ -457,7 +457,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
         Bitmap blurredBitmap = Bitmap.createBitmap(2, 1, Bitmap.Config.RGB_565);
 
         when(memoryCache.get(anyString())).thenReturn(cachedBitmaop);
-        when(imageProcessor.blurBitmap(cachedBitmaop)).thenReturn(blurredBitmap);
+        when(imageProcessor.blurBitmap(cachedBitmaop, Optional.<Float>absent())).thenReturn(blurredBitmap);
 
         imageOperations.blurredPlayerArtwork(resources(), imageResource,
                                              scheduler, scheduler).subscribe(subscriber);
