@@ -22,9 +22,7 @@ public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
                 audioAd.getAudioSources(),
                 POSITION_START,
                 PlaybackType.AUDIO_AD,
-                Durations.getTrackPlayDuration(track),
-                audioAd.isThirdParty(),
-                audioAd.getStreamUrl()
+                Durations.getTrackPlayDuration(track)
         );
     }
 
