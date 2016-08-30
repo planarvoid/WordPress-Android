@@ -3,9 +3,10 @@ package com.soundcloud.android.playback;
 public interface PlaybackConstants {
     long PROGRESS_DELAY_MS = 500L;
 
-    // Video playback constants
     String MIME_TYPE_AVC = "video/avc";
     String MIME_TYPE_MP4 = "video/mp4";
+    String MIME_TYPE_MP3 = "audio/mpeg";
+    String MIME_TYPE_HLS = "application/x-mpegurl";
 
     int MAX_BITRATE_KBPS_WIFI = 4000;
     int MAX_BITRATE_KBPS_4G = 2000;

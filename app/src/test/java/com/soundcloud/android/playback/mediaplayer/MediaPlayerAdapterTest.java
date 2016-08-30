@@ -69,7 +69,6 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     private static final String ACCESS_TOKEN = "access";
     private static final Token TOKEN = new Token(ACCESS_TOKEN, "refresh");
-    private static final String THIRD_PARTY_AD_STREAM_URL = "http://thirdparty.com/ad.mp3";
     private static final String STREAM_URL = "https://api-mobile.soundcloud.com/tracks/soundcloud:tracks:123/streams/http?oauth_token=access";
     private MediaPlayerAdapter mediaPlayerAdapter;
 
@@ -249,18 +248,6 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         assertThat(event.getUserUrn()).isEqualTo(userUrn);
         assertThat(event.getFormat()).isEqualTo(PlaybackConstants.MIME_TYPE_MP4);
         assertThat(event.getBitrate()).isEqualTo(1001000);
-    }
-
-    @Test
-    public void preparedListenerShouldntReportTimeToPlayOnThirdPartyAudioAds() {
-        track.put(EntityProperty.URN, AdConstants.THIRD_PARTY_AD_MAGIC_TRACK_URN);
-        when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.TWO_G);
-        when(dateProvider.getCurrentDate()).thenReturn(new Date(0), new Date(1000));
-
-        mediaPlayerAdapter.play(AudioAdPlaybackItem.create(track, AdFixtures.getThirdPartyAudioAd(trackUrn)));
-        mediaPlayerAdapter.onPrepared(mediaPlayer);
-
-        assertThat(eventBus.eventsOn(EventQueue.PLAYBACK_PERFORMANCE)).isEmpty();
     }
 
     @Test
@@ -458,19 +445,11 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playUrlForAudioAdSetsDataSourceOnMediaPlayer() throws IOException {
+    public void playAudioAdSetsDataSourceOnMediaPlayer() throws IOException {
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
         final AudioAdPlaybackItem adPlaybackItem = AudioAdPlaybackItem.create(track, audioAd);
         mediaPlayerAdapter.play(adPlaybackItem);
-        verify(mediaPlayer).setDataSource(STREAM_URL);
-    }
-
-    @Test
-    public void playUrlForThirdPartyAudioAdSetsDataSourceOnMediaPlayer() throws IOException {
-        final AudioAd audioAd = AdFixtures.getThirdPartyAudioAd(trackUrn);
-        final AudioAdPlaybackItem adPlaybackItem = AudioAdPlaybackItem.create(track, audioAd);
-        mediaPlayerAdapter.play(adPlaybackItem);
-        verify(mediaPlayer).setDataSource(THIRD_PARTY_AD_STREAM_URL);
+        verify(mediaPlayer).setDataSource("http://audiourl.com/audio.mp3");
     }
 
     @Test

@@ -42,6 +42,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.TrackingMetadata;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
@@ -767,7 +768,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                                                    PlaybackConstants.MIME_TYPE_MP4,
                                                                                    1001,
                                                                                    Urn.NOT_SET,
-                                                                                   true);
+                                                                                   PlaybackType.AUDIO_AD);
 
         jsonDataBuilder.buildForRichMediaPerformance(event);
 
@@ -775,7 +776,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                     BOOGALOO_VERSION,
                                                     event.getTimestamp())
                                                .metric("timeToPlayMs", 321)
-                                               .mediaType("video")
+                                               .mediaType("audio")
                                                .protocol("https")
                                                .playerType("MediaPlayer")
                                                .host("host")
