@@ -122,9 +122,7 @@
                 android:id="@+id/go_indicator"
                 style="@style/GoIndicator.Overlay"
                 android:layout_alignTop="@id/track_page_title"
-                android:layout_alignRight="@id/track_page_title"
-                android:layout_marginRight="@dimen/go_indicator_offset"
-                android:layout_marginTop="@dimen/go_indicator_offset" />
+                android:layout_alignRight="@id/track_page_title" />
         </RelativeLayout>
 
         <com.soundcloud.android.view.JaggedTextView

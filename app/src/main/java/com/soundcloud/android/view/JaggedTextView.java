@@ -21,6 +21,12 @@ public class JaggedTextView extends CustomFontTextView {
 
     private boolean showBackground = true;
 
+    private Listener listener;
+
+    public interface Listener {
+        void onBackgroundChange(int badgeOffset);
+    }
+
     public JaggedTextView(Context context) {
         super(context);
     }
@@ -64,6 +70,10 @@ public class JaggedTextView extends CustomFontTextView {
         invalidate();
     }
 
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         if (getLayout() == null) {
@@ -77,6 +87,10 @@ public class JaggedTextView extends CustomFontTextView {
 
         canvas.save();
         canvas.translate(getPaddingLeft(), getPaddingTop());
+        if (listener != null) {
+            int badgeOffset = (int) (getWidth() - layout.getLineRight(0) - getPaddingRight() - getPaddingLeft());
+            listener.onBackgroundChange(badgeOffset);
+        }
         if (showBackground && !TextUtils.isEmpty(getText())) {
             drawBackground(canvas, layout);
         }

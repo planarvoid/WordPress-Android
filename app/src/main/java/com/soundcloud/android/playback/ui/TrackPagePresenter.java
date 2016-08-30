@@ -48,6 +48,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Checkable;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -208,11 +209,24 @@ class TrackPagePresenter implements PlayerPagePresenter<PlayerTrackState>, View.
             holder.upsellButton.setVisibility(featureOperations.upsellHighTier() ? View.VISIBLE : View.GONE);
         } else if (isFullHighTierTrack(trackState)) {
             holder.goLabel.setVisibility(View.VISIBLE);
+            repositionGoLabel(holder);
         } else {
             holder.previewLabel.setVisibility(View.GONE);
             holder.upsellButton.setVisibility(View.GONE);
             holder.goLabel.setVisibility(View.GONE);
         }
+    }
+
+    private void repositionGoLabel(final TrackPageHolder holder) {
+        holder.title.setListener(new JaggedTextView.Listener() {
+            @Override
+            public void onBackgroundChange(int badgeOffset) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.goLabel.getLayoutParams();
+                int negativeIndent = resources.getDimensionPixelSize(R.dimen.go_indicator_offset);
+                params.setMargins(0, negativeIndent, badgeOffset + negativeIndent, 0);
+                holder.goLabel.requestLayout();
+            }
+        });
     }
 
     private void configureBlockedState(TrackPageHolder holder, PlayerTrackState trackState) {
