@@ -33,15 +33,17 @@
 
             <ImageView
                 android:id="@+id/close_play_queue"
-                android:scaleType="centerInside"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_margin="16dp"
+                android:scaleType="centerInside"
                 android:src="@drawable/white_cross" />
 
             <TextView
+                android:id="@+id/up_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:fontFamily="sans-serif-thin"
                 android:text="@string/up_next"
                 android:textColor="@color/white"

@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.playqueue;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
@@ -104,17 +103,16 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     public void onViewCreated(final Fragment fragment, final View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         ButterKnife.bind(this, view);
-        initRecyclerView(view);
-
+        initRecyclerView();
         playQueueDrawer.setVisibility(View.VISIBLE);
         artworkController.bind(ButterKnife.<PlayerTrackArtworkView>findById(view, R.id.artwork_view));
         subscribeToEvents();
         refreshPlayQueue();
     }
 
-    private void initRecyclerView(final View view) {
+    private void initRecyclerView() {
         animator = new PlayQueueItemAnimator();
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setLayoutManager(new SmoothScrollLinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
         recyclerView.setHasFixedSize(false);
         recyclerView.setItemAnimator(animator);
@@ -156,6 +154,11 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     @OnClick(R.id.close_play_queue)
     public void closePlayQueue() {
         eventBus.publish(EventQueue.PLAY_QUEUE_UI, PlayQueueUIEvent.createHideEvent());
+    }
+
+    @OnClick(R.id.up_next)
+    public void scrollToNowPlaying() {
+        recyclerView.smoothScrollToPosition(getScrollPosition());
     }
 
     private void refreshPlayQueue() {
