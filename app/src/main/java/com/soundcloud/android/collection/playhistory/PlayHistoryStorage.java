@@ -108,6 +108,7 @@ public class PlayHistoryStorage {
         // field("0").as(...) sets the field to false
         fields.add(field("0").as(SoundView.USER_LIKE));
         fields.add(field("0").as(SoundView.USER_REPOST));
+        fields.add(field("max("+PlayHistory.TIMESTAMP.name()+")").as("max_timestamp"));
 
         return Query.from(PlayHistory.TABLE)
                     .select(fields.toArray())
@@ -115,7 +116,7 @@ public class PlayHistoryStorage {
                             .whereEq(Sounds._ID, PlayHistory.TRACK_ID)
                             .whereEq(Sounds._TYPE, Sounds.TYPE_TRACK))
                     .groupBy(PlayHistory.TRACK_ID)
-                    .order(PlayHistory.TIMESTAMP, Query.Order.DESC)
+                    .order("max_timestamp", Query.Order.DESC)
                     .limit(limit);
     }
 

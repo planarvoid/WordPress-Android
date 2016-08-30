@@ -99,7 +99,8 @@ public class RecentlyPlayedStorage {
                 "    coalesce(playlists.title, artist_stations.title, track_stations.title, users.username) as " + RecentlyPlayedItemMapper.COLUMN_TITLE + "," +
                 "    coalesce(playlists.artwork_url, artist_stations.artwork_url_template, artist_stations.artwork_url_template, users.avatar_url, ptv.artwork_url) as " + RecentlyPlayedItemMapper.COLUMN_ARTWORK_URL + "," +
                 "    coalesce(playlists.track_count, 0) as " + RecentlyPlayedItemMapper.COLUMN_COLLECTION_COUNT + "," +
-                "    coalesce(playlists.is_album, 0) as " + RecentlyPlayedItemMapper.COLUMN_COLLECTION_ALBUM +
+                "    coalesce(playlists.is_album, 0) as " + RecentlyPlayedItemMapper.COLUMN_COLLECTION_ALBUM + "," +
+                "    max(" + RecentlyPlayed.TIMESTAMP.name() + ") as max_timestamp" +
                 "  FROM " + RecentlyPlayed.TABLE.name() + " as rp" +
                 "  LEFT JOIN " + Table.SoundView.name() + " as playlists ON rp.context_type = " + PlayHistoryRecord.CONTEXT_PLAYLIST + " AND playlists._type = " + Sounds.TYPE_PLAYLIST + " AND playlists._id = rp.context_id" +
                 "  LEFT JOIN " + Tables.Stations.TABLE.name() + " as track_stations ON rp.context_type = " + PlayHistoryRecord.CONTEXT_TRACK_STATION + " AND track_stations.station_urn = '" + TRACK_STATIONS_URN_PREFIX + "' || rp.context_id" +
@@ -108,7 +109,7 @@ public class RecentlyPlayedStorage {
                 "  LEFT JOIN " + Table.PlaylistTracksView.name() + " as ptv ON ptv.playlist_id = playlists._ID AND playlist_position = 0" +
                 "  WHERE rp.context_type != " + PlayHistoryRecord.CONTEXT_OTHER + " AND " + RecentlyPlayedItemMapper.COLUMN_TITLE + " IS NOT NULL" +
                 "  GROUP BY rp.context_type, rp.context_id" +
-                "  ORDER BY rp.timestamp DESC" +
+                "  ORDER BY max_timestamp DESC" +
                 "  LIMIT " + limit;
     }
 
