@@ -8,6 +8,7 @@ import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -68,11 +69,23 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     public void onPlayTransition(PlayStateEvent playStateEvent, boolean isNewItem) {
         currentTrackSourceInfo = Optional.fromNullable(playQueueManager.getCurrentTrackSourceInfo());
         if (!currentPlayingAd.isPresent() && currentTrackSourceInfo.isPresent()) {
-            currentPlayingAd = adsOperations.getCurrentTrackAdData().transform(TO_PLAYER_AD);
-            final AdPlaybackSessionEventArgs eventArgs = buildEventArgs(playStateEvent.getTransition());
-            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
-            currentPlayingAd.get().setStartReported();
+            currentPlayingAd = getPlayerAdDataIfAvailable();
+            if (currentPlayingAd.isPresent()) {
+                final AdPlaybackSessionEventArgs eventArgs = buildEventArgs(playStateEvent.getTransition());
+                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
+                currentPlayingAd.get().setStartReported();
+            } else {
+                ErrorUtils.handleSilentException(new IllegalStateException("AdSessionAnalyticsController couldn't retrieve ad data for play state: " + playStateEvent.getTransition()));
+            }
         }
+    }
+
+    private Optional<PlayerAdData> getPlayerAdDataIfAvailable() {
+        Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
+        if (adData.isPresent() && adData.get() instanceof PlayerAdData) {
+            return adData.transform(TO_PLAYER_AD);
+        }
+        return Optional.absent();
     }
 
     @Override
