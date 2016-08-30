@@ -12,18 +12,20 @@ import java.util.List;
 import auto.parcel.AutoParcel;
 
 @AutoParcel
-public abstract class AudioAdPlaybackItem implements AdPlaybackItem, Parcelable {
+public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
 
     private static final long POSITION_START = 0L;
 
     public static AudioAdPlaybackItem create(PropertySet track, AudioAd audioAd) {
         return new AutoParcel_AudioAdPlaybackItem(
-                audioAd,
                 track.get(TrackProperty.URN),
                 audioAd.getAudioSources(),
                 POSITION_START,
                 PlaybackType.AUDIO_AD,
-                Durations.getTrackPlayDuration(track));
+                Durations.getTrackPlayDuration(track),
+                audioAd.isThirdParty(),
+                audioAd.getStreamUrl()
+        );
     }
 
     @Override
