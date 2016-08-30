@@ -553,11 +553,7 @@
     <string name="stations_see_all_tracks">See all tracks</string>
     <string name="stations_home_station_based_on">%s based on</string>
     <string name="suggested_stations">Suggested stations</string>
-
-    <plurals name="stations_home_description">
-        <item quantity="one">An endless mix of music by %1$s</item>
-        <item quantity="other">An endless mix of music by %1$s and more</item>
-    </plurals>
+    <string name="stations_home_description">An endless mix of music including %1$s and more</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>

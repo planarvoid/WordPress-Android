@@ -120,8 +120,8 @@ class StationInfoHeaderRenderer implements CellRenderer<StationInfoHeader> {
     }
 
     private SpannableString buildStationDescription(List<String> mostPlayed) {
-        final String descriptionText = resources.getQuantityString(R.plurals.stations_home_description,
-                                                                   mostPlayed.size(), artistString(mostPlayed));
+        final String descriptionText = resources.getString(R.string.stations_home_description,
+                                                           artistString(mostPlayed));
         final SpannableString descriptionSpan = new SpannableString(descriptionText);
 
         int lastIndexOf = 0;

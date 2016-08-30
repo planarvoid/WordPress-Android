@@ -79,13 +79,12 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
         renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
 
         final SpannedString actual = (SpannedString) textView(R.id.station_desc).getText();
-        assertEquals(actual.toString(), resources().getQuantityString(R.plurals.stations_home_description, 2, "Artist1, Artist2"));
+        assertEquals(actual.toString(), resources().getString(R.string.stations_home_description, "Artist1, Artist2"));
     }
 
     @Test
     public void bindDescriptionWithOneArtists() {
-        final CharSequence expectedDesc = resources().getQuantityString(R.plurals.stations_home_description,
-                                                                        1, "Artist1");
+        final CharSequence expectedDesc = resources().getString(R.string.stations_home_description, "Artist1");
         final StationInfoHeader stationInfoHeader = StationInfoHeader.from(StationFixtures.getStation(station),
                                                                            Collections.singletonList("Artist1"));
 
