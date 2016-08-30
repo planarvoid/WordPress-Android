@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="PreviewIndicator" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:antialias">true</item>
+        <item name="android:textColor">@color/ak_dark_gray</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/list_high_tier_label_bg</item>
+        <item name="android:paddingTop">1dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:text">@string/upsell_track_preview</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="PreviewIndicator.Light">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="GoIndicator">
+        <item name="android:layout_width">18dp</item>
+        <item name="android:layout_height">13.5dp</item>
+        <item name="android:background">@drawable/go_indicator</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="GoIndicator.Overlay">
+        <item name="android:layout_height">18dp</item>
+        <item name="android:background">@drawable/go_indicator_overlay</item>
+    </style>
+
+</resources>

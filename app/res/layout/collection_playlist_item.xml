@@ -43,10 +43,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/artwork"
-            android:layout_alignRight="@id/artwork"
+            android:layout_alignLeft="@id/artwork"
             android:visibility="gone"
             android:layout_marginTop="@dimen/download_progress_indicator_margin"
-            android:layout_marginRight="@dimen/download_progress_indicator_margin"/>
+            android:layout_marginLeft="@dimen/download_progress_indicator_margin"/>
 
         <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/title"

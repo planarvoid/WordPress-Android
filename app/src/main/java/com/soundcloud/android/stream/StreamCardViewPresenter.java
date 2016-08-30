@@ -105,14 +105,14 @@ class StreamCardViewPresenter {
         bindHighTierLabel(itemView, playableItem);
     }
 
-    private void bindHighTierLabel(StreamItemViewHolder itemView, PlayableItem playableItem) {
-        itemView.hideHighTierLabel();
+    private void bindHighTierLabel(StreamItemViewHolder item, PlayableItem playableItem) {
+        item.resetTierIndicators();
         if (playableItem instanceof TieredTrack) {
             TieredTrack tieredTrack = ((TieredTrack) playableItem);
             if (isHighTierPreview(tieredTrack)) {
-                itemView.showHighTierLabel(R.string.upsell_track_preview);
+                item.showPreview();
             } else if (isFullHighTierTrack(tieredTrack)) {
-                itemView.showHighTierLabel(R.string.go);
+                item.showGoIndicator();
             }
         }
     }

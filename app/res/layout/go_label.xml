@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.soundcloud.android.view.CustomFontTextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/track_list_item_go_label"
-    style="@style/ListItemText.HighTierTrack.Go"
+<View xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/go_indicator"
+    style="@style/GoIndicator"
     android:layout_gravity="bottom"
-    android:layout_marginBottom="-2dp"
-    android:layout_marginTop="0dp"
-    android:paddingBottom="2dp"
-    android:paddingTop="2dp"
-    android:textColor="@color/white" />
+    android:visibility="visible" />

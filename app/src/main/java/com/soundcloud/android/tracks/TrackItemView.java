@@ -20,7 +20,6 @@ import java.util.Date;
 
 public class TrackItemView {
 
-    private final View view;
     private final ImageView image;
     private final TextView creator;
     private final TextView title;
@@ -32,15 +31,14 @@ public class TrackItemView {
     private final TextView promoted;
     private final TextView postedTime;
     private final TextView notAvailableOffline;
-    private final TextView previewLabel;
-    private final TextView goLabel;
+    private final View previewIndicator;
+    private final View goIndicator;
     private final TextView geoBlocked;
     private final View leftSpacer;
     private final TextView position;
     private OverflowListener overflowListener;
 
     public TrackItemView(View view) {
-        this.view = view;
         creator = (TextView) view.findViewById(R.id.list_item_header);
         title = (TextView) view.findViewById(R.id.list_item_subheader);
         image = (ImageView) view.findViewById(R.id.image);
@@ -52,8 +50,8 @@ public class TrackItemView {
         promoted = (TextView) view.findViewById(R.id.promoted_track);
         postedTime = (TextView) view.findViewById(R.id.posted_time);
         notAvailableOffline = (TextView) view.findViewById(R.id.not_available_offline);
-        previewLabel = (TextView) view.findViewById(R.id.track_list_item_preview_label);
-        goLabel = (TextView) view.findViewById(R.id.track_list_item_go_label);
+        previewIndicator = view.findViewById(R.id.preview_indicator);
+        goIndicator = view.findViewById(R.id.go_indicator);
         geoBlocked = (TextView) view.findViewById(R.id.track_list_item_geo_blocked_text);
         leftSpacer = view.findViewById(R.id.left_spacer);
         position = (TextView) view.findViewById(R.id.position);
@@ -116,11 +114,11 @@ public class TrackItemView {
     }
 
     public void showPreviewLabel() {
-        previewLabel.setVisibility(View.VISIBLE);
+        previewIndicator.setVisibility(View.VISIBLE);
     }
 
     public void showGoLabel() {
-        goLabel.setVisibility(View.VISIBLE);
+        goIndicator.setVisibility(View.VISIBLE);
     }
 
     public void showNowPlaying() {
@@ -132,7 +130,7 @@ public class TrackItemView {
     }
 
     public void hideInfoViewsRight() {
-        previewLabel.setVisibility(View.GONE);
+        previewIndicator.setVisibility(View.GONE);
         privateIndicator.setVisibility(View.GONE);
         duration.setVisibility(View.GONE);
     }
@@ -141,7 +139,7 @@ public class TrackItemView {
         playCount.setVisibility(View.INVISIBLE);
         nowPlaying.setVisibility(View.INVISIBLE);
         promoted.setVisibility(View.GONE);
-        goLabel.setVisibility(View.GONE);
+        goIndicator.setVisibility(View.GONE);
         notAvailableOffline.setVisibility(View.GONE);
         geoBlocked.setVisibility(View.GONE);
         ViewUtils.unsetTouchClickable(promoted);

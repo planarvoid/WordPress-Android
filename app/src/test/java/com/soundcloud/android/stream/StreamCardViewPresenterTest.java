@@ -241,7 +241,7 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         TrackItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem, EventContextMetadata.builder());
 
-        verify(itemView).showHighTierLabel(R.string.upsell_track_preview);
+        verify(itemView).showPreview();
     }
 
     @Test
@@ -249,15 +249,15 @@ public class StreamCardViewPresenterTest extends AndroidUnitTest {
         TrackItem trackItem = highTierTrack();
         presenter.bind(itemView, trackItem, EventContextMetadata.builder());
 
-        verify(itemView).showHighTierLabel(R.string.go);
+        verify(itemView).showGoIndicator();
     }
 
     @Test
     public void hidesHighTierLabelWhenOtherItem() {
-        PlayableItem trackItem = repostedTrack();
+        PlayableItem trackItem = upsellableTrack();
         presenter.bind(itemView, trackItem, EventContextMetadata.builder());
 
-        verify(itemView).hideHighTierLabel();
+        verify(itemView, never()).showGoIndicator();
     }
 
     private PromotedPlaylistItem promotedPlaylistItem() {

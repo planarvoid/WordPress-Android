@@ -3,15 +3,17 @@
     style="@style/Recommendation.RecommendationItem"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:ForegroundImageView="http://schemas.android.com/apk/res-auto"
     android:layout_width="@dimen/recommendation_item_size"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    xmlns:ForegroundImageView="http://schemas.android.com/apk/res-auto">
+    android:clipChildren="false">
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="4dp">
+        android:paddingBottom="4dp"
+        android:clipToPadding="false">
 
         <com.soundcloud.android.view.ForegroundImageView
             android:id="@+id/recommendation_artwork"
@@ -48,18 +50,22 @@
             android:drawableLeft="@drawable/ic_now_playing"
             android:visibility="gone"
             android:text="@string/title_now_playing" />
+
+        <View
+            android:id="@+id/go_indicator"
+            style="@style/GoIndicator.Overlay"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="@dimen/go_indicator_offset"
+            android:layout_marginRight="@dimen/go_indicator_offset" />
     </RelativeLayout>
 
     <com.soundcloud.android.view.CustomFontTextView
-        android:id="@+id/high_tier_label"
-        style="@style/HighTierLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/preview_indicator"
+        style="@style/PreviewIndicator"
         android:layout_gravity="top|right"
         android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp"
-        android:visibility="gone"
-        android:text="@string/go"/>
+        android:layout_marginRight="8dp" />
 
     <com.soundcloud.android.view.OverflowAnchorImageView
         android:id="@+id/overflow_button"

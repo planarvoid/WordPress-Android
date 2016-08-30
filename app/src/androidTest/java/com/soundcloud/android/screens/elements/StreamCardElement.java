@@ -72,7 +72,7 @@ public class StreamCardElement {
     }
 
     public boolean isPreview() {
-        return wrapped.isElementOnScreen(With.id(R.id.high_tier_label));
+        return wrapped.isElementOnScreen(With.id(R.id.preview_indicator));
     }
 
     public boolean hasPromoter() {
