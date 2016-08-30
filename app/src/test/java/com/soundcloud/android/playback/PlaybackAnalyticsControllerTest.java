@@ -67,7 +67,7 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         controller.onProgressEvent(playbackItem, progress);
 
         InOrder inOrder = inOrder(trackSessionDispatcher);
-        inOrder.verify(trackSessionDispatcher).onPlayTransition(playbackItem, wrap(transition), true);
+        inOrder.verify(trackSessionDispatcher).onPlayTransition(wrap(transition), true);
         inOrder.verify(trackSessionDispatcher).onProgressCheckpoint(wrap(transition), progress);
     }
 
@@ -102,7 +102,7 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         controller.onProgressEvent(playbackItem, progress);
 
         InOrder inOrder = inOrder(adSessionDispatcher);
-        inOrder.verify(adSessionDispatcher).onPlayTransition(playbackItem, wrap(transition), true);
+        inOrder.verify(adSessionDispatcher).onPlayTransition(wrap(transition), true);
         inOrder.verify(adSessionDispatcher).onProgressCheckpoint(wrap(transition), progress);
     }
 
@@ -132,8 +132,8 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
         controller.onStateTransition(playbackItem, wrap(transition));
 
-        verify(trackSessionDispatcher).onPlayTransition(playbackItem, wrap(transition), true);
-        verify(adSessionDispatcher, never()).onPlayTransition(any(PlaybackItem.class), any(PlayStateEvent.class), anyBoolean());
+        verify(trackSessionDispatcher).onPlayTransition(wrap(transition), true);
+        verify(adSessionDispatcher, never()).onPlayTransition(any(PlayStateEvent.class), anyBoolean());
     }
 
     @Test
@@ -146,8 +146,8 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
         controller.onStateTransition(playbackItem, wrap(transition));
 
-        verify(adSessionDispatcher).onPlayTransition(playbackItem, wrap(transition), true);
-        verify(trackSessionDispatcher, never()).onPlayTransition(any(PlaybackItem.class), any(PlayStateEvent.class), anyBoolean());
+        verify(adSessionDispatcher).onPlayTransition(wrap(transition), true);
+        verify(trackSessionDispatcher, never()).onPlayTransition(any(PlayStateEvent.class), anyBoolean());
     }
 
     @Test
@@ -163,8 +163,8 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         controller.onStateTransition(playbackItem, wrap(transition2));
 
         InOrder inOrder = inOrder(trackSessionDispatcher);
-        inOrder.verify(trackSessionDispatcher).onPlayTransition(playbackItem, wrap(transition1), true);
-        inOrder.verify(trackSessionDispatcher).onPlayTransition(playbackItem, wrap(transition2), false);
+        inOrder.verify(trackSessionDispatcher).onPlayTransition(wrap(transition1), true);
+        inOrder.verify(trackSessionDispatcher).onPlayTransition(wrap(transition2), false);
     }
 
     @Test
@@ -194,9 +194,9 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
         controller.onStateTransition(playbackItem2, wrap(transition2));
 
         InOrder inOrder = inOrder(trackSessionDispatcher, adSessionDispatcher);
-        inOrder.verify(trackSessionDispatcher).onPlayTransition(playbackItem, wrap(transition1), true);
+        inOrder.verify(trackSessionDispatcher).onPlayTransition(wrap(transition1), true);
         inOrder.verify(trackSessionDispatcher).onSkipTransition(wrap(transition1));
-        inOrder.verify(adSessionDispatcher).onPlayTransition(playbackItem2, wrap(transition2), true);
+        inOrder.verify(adSessionDispatcher).onPlayTransition(wrap(transition2), true);
     }
 
     @Test
