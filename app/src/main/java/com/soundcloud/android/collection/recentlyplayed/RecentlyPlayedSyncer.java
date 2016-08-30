@@ -128,7 +128,11 @@ class RecentlyPlayedSyncer implements Callable<Boolean> {
                 case CONTEXT_TRACK_STATION:
                 case CONTEXT_ARTIST_STATION:
                     for (Urn urn : urns) {
-                        stationsOperations.station(urn).toBlocking().firstOrDefault(null);
+                        try {
+                            stationsOperations.station(urn).toBlocking().firstOrDefault(null);
+                        } catch (Exception e) {
+                            // failed loading, ignore
+                        }
                     }
                     break;
             }
