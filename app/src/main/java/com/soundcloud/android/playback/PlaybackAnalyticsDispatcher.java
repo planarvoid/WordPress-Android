@@ -6,7 +6,7 @@ public interface PlaybackAnalyticsDispatcher {
 
     void onProgressEvent(PlaybackProgressEvent progressEvent);
 
-    void onPlayTransition(PlayStateEvent playStateEvent, boolean isNewItem);
+    void onPlayTransition(PlaybackItem playbackItem, PlayStateEvent playStateEvent, boolean isNewItem);
 
     void onStopTransition(PlayStateEvent playStateEvent, boolean isNewItem);
 
