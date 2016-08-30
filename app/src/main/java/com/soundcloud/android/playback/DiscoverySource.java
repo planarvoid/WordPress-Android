@@ -7,7 +7,9 @@ public enum DiscoverySource {
     EXPLORE("explore"),
     STATIONS("stations"),
     STREAM("stream"),
-    STATIONS_SUGGESTIONS("stations:suggestions");
+    STATIONS_SUGGESTIONS("stations:suggestions"),
+    HISTORY("history"),
+    RECENTLY_PLAYED("recently_played");
 
     private String value;
 

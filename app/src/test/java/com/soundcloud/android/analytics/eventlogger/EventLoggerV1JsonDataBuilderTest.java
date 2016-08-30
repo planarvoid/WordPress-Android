@@ -1202,6 +1202,19 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
+    public void createsJsonForCollectionNavigationEvent() throws ApiMapperException {
+        final Urn urn = Urn.forPlaylist(123);
+        final CollectionEvent event = CollectionEvent.forRecentlyPlayed(urn, Screen.RECENTLY_PLAYED);
+
+        jsonDataBuilder.buildForCollectionEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("click", BOOGALOO_VERSION, event.getTimestamp())
+                                               .pageName("collection:recently_played")
+                                               .clickName("item_navigation")
+                                               .clickObject(urn.toString()));
+    }
+
+    @Test
     public void createsPlayerUpsellImpressionJson() throws Exception {
         UpgradeFunnelEvent impression = UpgradeFunnelEvent.forPlayerImpression(TRACK_URN);
 

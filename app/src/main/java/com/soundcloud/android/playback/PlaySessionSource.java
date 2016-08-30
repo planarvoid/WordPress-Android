@@ -100,6 +100,12 @@ public class PlaySessionSource implements Parcelable {
         return playSessionSource;
     }
 
+    public static PlaySessionSource forHistory(String screen) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        playSessionSource.discoverySource = DiscoverySource.HISTORY;
+        return playSessionSource;
+    }
+
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
         exploreVersion = in.readString();
@@ -108,6 +114,7 @@ public class PlaySessionSource implements Parcelable {
         collectionOwnerUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
         searchQuerySourceInfo = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
         promotedSourceInfo = in.readParcelable(PromotedSourceInfo.class.getClassLoader());
+        discoverySource = (DiscoverySource) in.readSerializable();
     }
 
     public PlaySessionSource(SharedPreferences sharedPreferences) {
@@ -117,6 +124,7 @@ public class PlaySessionSource implements Parcelable {
         collectionSize = sharedPreferences.getInt(PREF_KEY_COLLECTION_SIZE, Consts.NOT_SET);
     }
 
+    @Nullable
     DiscoverySource getDiscoverySource() {
         return discoverySource;
     }
@@ -162,11 +170,13 @@ public class PlaySessionSource implements Parcelable {
         return originScreen.startsWith("explore");
     }
 
-    public String getInitialSource() {
+    String getInitialSource() {
         if (Strings.isNotBlank(exploreVersion)) {
             return DiscoverySource.EXPLORE.value();
         } else if (isFromStreamTrack()) {
             return DiscoverySource.STREAM.value();
+        } else if (hasDiscoverySource()) {
+            return discoverySource.value();
         }
         return Strings.EMPTY;
     }
@@ -195,6 +205,10 @@ public class PlaySessionSource implements Parcelable {
         return originScreen.equals(Screen.STREAM.get()) && !isFromPlaylist();
     }
 
+    private boolean hasDiscoverySource() {
+        return discoverySource != null;
+    }
+
     public boolean isFromRecommendations() {
         return recommendationsSourceInfo != null;
     }
@@ -217,6 +231,7 @@ public class PlaySessionSource implements Parcelable {
         dest.writeParcelable(collectionOwnerUrn, 0);
         dest.writeParcelable(searchQuerySourceInfo, 0);
         dest.writeParcelable(promotedSourceInfo, 0);
+        dest.writeSerializable(discoverySource);
     }
 
     public void saveToPreferences(SharedPreferences.Editor editor) {
@@ -251,13 +266,20 @@ public class PlaySessionSource implements Parcelable {
                 && MoreObjects.equal(originScreen, that.originScreen)
                 && MoreObjects.equal(promotedSourceInfo, that.promotedSourceInfo)
                 && MoreObjects.equal(recommendationsSourceInfo, that.recommendationsSourceInfo)
-                && MoreObjects.equal(chartSourceInfo, that.chartSourceInfo);
+                && MoreObjects.equal(chartSourceInfo, that.chartSourceInfo)
+                && MoreObjects.equal(discoverySource, that.discoverySource);
     }
 
     @Override
     public int hashCode() {
-        return MoreObjects.hashCode(collectionUrn, collectionOwnerUrn, collectionSize, exploreVersion, originScreen, recommendationsSourceInfo,
-                                    chartSourceInfo);
+        return MoreObjects.hashCode(collectionUrn,
+                                    collectionOwnerUrn,
+                                    collectionSize,
+                                    exploreVersion,
+                                    originScreen,
+                                    recommendationsSourceInfo,
+                                    chartSourceInfo,
+                                    discoverySource);
     }
 
     public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
@@ -304,6 +326,7 @@ public class PlaySessionSource implements Parcelable {
                           .add("exploreVersion", exploreVersion)
                           .add("searchQuerySourceInfo", searchQuerySourceInfo)
                           .add("promotedSourceInfo", promotedSourceInfo)
+                          .add("discoverySource", discoverySource)
                           .toString();
     }
 }

@@ -70,7 +70,7 @@ public class PlayHistoryOperations {
 
     Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
         return playbackInitiator.playTracks(getAllTracksForPlayback(), trackUrn, 0,
-                                            new PlaySessionSource(screen));
+                                            PlaySessionSource.forHistory(screen.get()));
     }
 
     Observable<Boolean> clearHistory() {

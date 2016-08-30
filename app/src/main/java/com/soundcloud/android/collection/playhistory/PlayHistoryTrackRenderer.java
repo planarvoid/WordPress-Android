@@ -1,23 +1,31 @@
 package com.soundcloud.android.collection.playhistory;
 
+import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.playback.DiscoverySource;
+import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.DownloadableTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 
 class PlayHistoryTrackRenderer implements CellRenderer<PlayHistoryItemTrack> {
 
     private final DownloadableTrackItemRenderer renderer;
+    private final ScreenProvider screenProvider;
 
     @Inject
-    public PlayHistoryTrackRenderer(DownloadableTrackItemRenderer renderer) {
+    public PlayHistoryTrackRenderer(DownloadableTrackItemRenderer renderer,
+                                    ScreenProvider screenProvider) {
         this.renderer = renderer;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -28,7 +36,14 @@ class PlayHistoryTrackRenderer implements CellRenderer<PlayHistoryItemTrack> {
     @Override
     public void bindItemView(int position, View itemView, List<PlayHistoryItemTrack> items) {
         PlayHistoryItemTrack track = items.get(position);
-        renderer.bindItemView(0, itemView, Collections.singletonList(track.trackItem()));
+        renderer.bindTrackView(track.trackItem(), itemView, position, getTrackSourceInfo());
+    }
+
+    @NonNull
+    private Optional<TrackSourceInfo> getTrackSourceInfo() {
+        TrackSourceInfo info = new TrackSourceInfo(screenProvider.getLastScreenTag(), true);
+        info.setSource(DiscoverySource.HISTORY.value(), Strings.EMPTY);
+        return Optional.of(info);
     }
 
     public void setListener(TrackItemRenderer.Listener listener) {

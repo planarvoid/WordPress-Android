@@ -5,11 +5,16 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.events.CollectionEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -26,16 +31,22 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
+    private final ScreenProvider screenProvider;
+    private final EventBus eventBus;
     private final boolean fixedWidth;
 
     RecentlyPlayedPlaylistRenderer(boolean fixedWidth,
                                    @Provided ImageOperations imageOperations,
                                    @Provided Resources resources,
-                                   @Provided Navigator navigator) {
+                                   @Provided Navigator navigator,
+                                   @Provided ScreenProvider screenProvider,
+                                   @Provided EventBus eventBus) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.navigator = navigator;
+        this.screenProvider = screenProvider;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -88,7 +99,10 @@ class RecentlyPlayedPlaylistRenderer implements CellRenderer<RecentlyPlayedPlaya
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.legacyOpenPlaylist(view.getContext(), playlist.getUrn(), Screen.COLLECTIONS);
+                Urn urn = playlist.getUrn();
+                Screen lastScreen = screenProvider.getLastScreen();
+                eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
+                navigator.legacyOpenPlaylist(view.getContext(), urn, lastScreen);
             }
         };
     }

@@ -28,7 +28,7 @@ public enum Screen {
     PLAYLISTS("collection:playlists"),
     OFFLINE_ONBOARDING("collection:offline_onboarding"),
     OFFLINE_OFFBOARDING("collection:offline_offboarding"),
-    PLAY_HISTORY("collection:play_history"),
+    PLAY_HISTORY("collection:history"),
     RECENTLY_PLAYED("collection:recently_played"),
 
     // onboarding
@@ -149,6 +149,15 @@ public enum Screen {
 
     public String get(String postfix) {
         return trackingTag + ":" + postfix.toLowerCase(Locale.US).replaceAll(" ", "_");
+    }
+
+    public static Screen fromTag(String tag) {
+        for (Screen screen : values()) {
+            if (screen.trackingTag.equals(tag)) {
+                return screen;
+            }
+        }
+        return Screen.UNKNOWN;
     }
 
     public void addToBundle(Bundle bundle) {

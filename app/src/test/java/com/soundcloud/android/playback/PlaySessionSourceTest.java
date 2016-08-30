@@ -161,6 +161,19 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
         assertThat(copy.getPromotedSourceInfo()).isNull();
     }
 
+
+    @Test
+    public void discoverySourceShouldBeParcelable() {
+        final PlaySessionSource source = PlaySessionSource.forHistory(Screen.PLAY_HISTORY.get());
+
+        Parcel parcel = Parcel.obtain();
+        source.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+
+        PlaySessionSource copy = new PlaySessionSource(parcel);
+        assertThat(copy.getDiscoverySource()).isEqualTo(DiscoverySource.HISTORY);
+    }
+
     @Test
     public void shouldParcelAbsentMetadata() {
         PlaySessionSource original = PlaySessionSource.forPlaylist(ORIGIN_PAGE, PLAYLIST_URN, USER_URN, TRACK_COUNT);
@@ -224,5 +237,21 @@ public class PlaySessionSourceTest extends AndroidUnitTest {
 
         assertThat(playSessionSource.getDiscoverySource()).isEqualTo(DiscoverySource.STATIONS_SUGGESTIONS);
         assertThat(playSessionSource.getCollectionUrn()).isEqualTo(station);
+    }
+
+    @Test
+    public void createsPlaySessionSourceForPlayHistory() {
+        final PlaySessionSource playSessionSource = PlaySessionSource.forHistory(Screen.PLAY_HISTORY.get());
+
+        assertThat(playSessionSource.getOriginScreen()).isEqualTo(Screen.PLAY_HISTORY.get());
+        assertThat(playSessionSource.getDiscoverySource()).isEqualTo(DiscoverySource.HISTORY);
+    }
+
+    @Test
+    public void getInitialSourceFallsbackToDiscoverySourceIfPresent() {
+        final PlaySessionSource playSessionSource = PlaySessionSource.forHistory("screen");
+
+        assertThat(playSessionSource.getInitialSource()).isEqualTo(DiscoverySource.HISTORY.value());
+        assertThat(playSessionSource.getInitialSourceVersion()).isEqualTo(Strings.EMPTY);
     }
 }

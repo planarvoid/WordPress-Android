@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.functions.Func1;
@@ -37,6 +38,10 @@ public class ScreenProvider {
 
     public String getLastScreenTag() {
         return lastScreenTag;
+    }
+
+    public Screen getLastScreen() {
+        return Screen.fromTag(lastScreenTag);
     }
 
     private class ScreenTrackingEventSubscriber extends DefaultSubscriber<ScreenEvent> {

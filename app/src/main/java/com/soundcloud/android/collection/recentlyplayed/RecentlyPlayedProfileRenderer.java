@@ -5,11 +5,16 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.events.CollectionEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.image.ImageResource;
 import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -27,15 +32,21 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Navigator navigator;
+    private final ScreenProvider screenProvider;
+    private final EventBus eventBus;
 
     RecentlyPlayedProfileRenderer(boolean fixedWidth,
-                                         @Provided ImageOperations imageOperations,
-                                         @Provided Resources resources,
-                                         @Provided Navigator navigator) {
+                                  @Provided ImageOperations imageOperations,
+                                  @Provided Resources resources,
+                                  @Provided Navigator navigator,
+                                  @Provided ScreenProvider screenProvider,
+                                  @Provided EventBus eventBus) {
         this.fixedWidth = fixedWidth;
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.navigator = navigator;
+        this.screenProvider = screenProvider;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -74,7 +85,10 @@ class RecentlyPlayedProfileRenderer implements CellRenderer<RecentlyPlayedPlayab
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.legacyOpenProfile(view.getContext(), user.getUrn(), Screen.COLLECTIONS);
+                Urn urn = user.getUrn();
+                Screen lastScreen = screenProvider.getLastScreen();
+                eventBus.publish(EventQueue.TRACKING, CollectionEvent.forRecentlyPlayed(urn, lastScreen));
+                navigator.legacyOpenProfile(view.getContext(), urn, lastScreen);
             }
         };
     }

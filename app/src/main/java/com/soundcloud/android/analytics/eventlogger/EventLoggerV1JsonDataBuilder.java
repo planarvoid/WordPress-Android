@@ -355,6 +355,8 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildCollectionEvent("filter_sort::set", event));
             case CollectionEvent.KIND_CLEAR:
                 return transform(buildCollectionEvent("filter_sort::clear", event));
+            case CollectionEvent.KIND_RECENTLY_PLAYED_NAVIGATION:
+                return transform(buildNavigationCollectionEvent(event));
             default:
                 throw new IllegalStateException("Unexpected CollectionEvent type: " + event);
         }
@@ -379,6 +381,13 @@ public class EventLoggerV1JsonDataBuilder {
                 .clickCategory(EventLoggerClickCategories.COLLECTION)
                 .clickObject(event.get(CollectionEvent.KEY_OBJECT))
                 .clickTarget(event.get(CollectionEvent.KEY_TARGET));
+    }
+
+    private EventLoggerEventData buildNavigationCollectionEvent(CollectionEvent event) {
+        return buildBaseEvent(CLICK_EVENT, event)
+                .clickName(CollectionEvent.CLICK_NAME_ITEM_NAVIGATION)
+                .pageName(event.get(CollectionEvent.KEY_PAGE_NAME))
+                .clickObject(event.get(CollectionEvent.KEY_OBJECT));
     }
 
     private EventLoggerEventData buildClickEvent(String clickName, UIEvent event) {
