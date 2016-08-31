@@ -39,7 +39,7 @@ class PlaybackAnalyticsController {
         }
 
         if (playState.isPlayerPlaying()) {
-            dispatcher.onPlayTransition(currentItem, playState, isNewItem);
+            dispatcher.onPlayTransition(playState, isNewItem);
         } else {
             dispatcher.onStopTransition(playState, isNewItem);
         }

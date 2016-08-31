@@ -1,11 +1,15 @@
 package com.soundcloud.android.playback;
 
+import com.soundcloud.android.ads.AdData;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.events.AdPlaybackSessionEvent;
 import com.soundcloud.android.events.AdPlaybackSessionEventArgs;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
@@ -17,8 +21,16 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
 
     static final long CHECKPOINT_INTERVAL = TimeUnit.SECONDS.toMillis(3);
 
+    private static final Function<AdData, PlayerAdData> TO_PLAYER_AD = new Function<AdData, PlayerAdData>() {
+        @Override
+        public PlayerAdData apply(AdData adData) {
+            return (PlayerAdData) adData;
+        }
+    };
+
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
+    private final AdsOperations adsOperations;
     private final StopReasonProvider stopReasonProvider;
 
     private Optional<PlayerAdData> currentPlayingAd = Optional.absent();
@@ -27,9 +39,11 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     @Inject
     public AdSessionAnalyticsDispatcher(EventBus eventBus,
                                         PlayQueueManager playQueueManager,
+                                        AdsOperations adsOperations,
                                         StopReasonProvider stopReasonProvider) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
+        this.adsOperations = adsOperations;
         this.stopReasonProvider = stopReasonProvider;
     }
 
@@ -52,14 +66,26 @@ class AdSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @Override
-    public void onPlayTransition(PlaybackItem playbackItem, PlayStateEvent playStateEvent, boolean isNewItem) {
+    public void onPlayTransition(PlayStateEvent playStateEvent, boolean isNewItem) {
         currentTrackSourceInfo = Optional.fromNullable(playQueueManager.getCurrentTrackSourceInfo());
         if (!currentPlayingAd.isPresent() && currentTrackSourceInfo.isPresent()) {
-            currentPlayingAd = Optional.of(((AdPlaybackItem) playbackItem).getAdData());
-            final AdPlaybackSessionEventArgs eventArgs = buildEventArgs(playStateEvent.getTransition());
-            eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
-            currentPlayingAd.get().setStartReported();
+            currentPlayingAd = getPlayerAdDataIfAvailable();
+            if (currentPlayingAd.isPresent()) {
+                final AdPlaybackSessionEventArgs eventArgs = buildEventArgs(playStateEvent.getTransition());
+                eventBus.publish(EventQueue.TRACKING, AdPlaybackSessionEvent.forPlay(currentPlayingAd.get(), eventArgs));
+                currentPlayingAd.get().setStartReported();
+            } else {
+                ErrorUtils.handleSilentException(new IllegalStateException("AdSessionAnalyticsController couldn't retrieve ad data for play state: " + playStateEvent.getTransition()));
+            }
         }
+    }
+
+    private Optional<PlayerAdData> getPlayerAdDataIfAvailable() {
+        Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
+        if (adData.isPresent() && adData.get() instanceof PlayerAdData) {
+            return adData.transform(TO_PLAYER_AD);
+        }
+        return Optional.absent();
     }
 
     @Override

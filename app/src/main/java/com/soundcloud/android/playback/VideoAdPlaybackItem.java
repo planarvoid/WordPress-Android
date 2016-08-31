@@ -12,11 +12,11 @@ import java.util.List;
 import auto.parcel.AutoParcel;
 
 @AutoParcel
-public abstract class VideoAdPlaybackItem implements AdPlaybackItem, Parcelable {
+public abstract class VideoAdPlaybackItem implements PlaybackItem, Parcelable {
 
     public static VideoAdPlaybackItem create(VideoAd adData, long startPosition) {
-        return new AutoParcel_VideoAdPlaybackItem(adData,
-                                                  adData.getAdUrn(),
+        return new AutoParcel_VideoAdPlaybackItem(adData.getAdUrn(),
+                                                  adData.getVideoSources(),
                                                   startPosition,
                                                   PlaybackType.VIDEO_AD,
                                                   Consts.NOT_SET);
@@ -25,9 +25,7 @@ public abstract class VideoAdPlaybackItem implements AdPlaybackItem, Parcelable 
     @Override
     public abstract Urn getUrn();
 
-    public List<VideoAdSource> getSources() {
-        return ((VideoAd) getAdData()).getVideoSources();
-    }
+    public abstract List<VideoAdSource> getSources();
 
     @Override
     public abstract long getStartPosition();

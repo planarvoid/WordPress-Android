@@ -34,7 +34,6 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private static final Urn CREATOR_URN = Urn.forUser(3L);
     private static final long PROGRESS = 1001L;
     private static final long DURATION = 2001L;
-    private static final AudioPlaybackItem PLAYBACK_ITEM = AudioPlaybackItem.create(TestPropertySets.fromApiTrack(), 0L);
 
     private PlaybackAnalyticsDispatcher dispatcher;
 
@@ -87,7 +86,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
                 PlaybackState.PLAYING, PlayStateReason.NONE, TRACK_URN, PROGRESS, DURATION));
         startEvent.addExtraAttribute(PlaybackStateTransition.EXTRA_URI, "file://some/local/uri");
 
-        dispatcher.onPlayTransition(PLAYBACK_ITEM, wrap(startEvent), true);
+        dispatcher.onPlayTransition(wrap(startEvent), true);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(startEvent, playbackSessionEvent);
@@ -98,7 +97,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     public void stateChangeEventWithValidTrackUrnInPlayingStateDoesNotPublishTwoConsecutivePlayEvents() {
         PlaybackStateTransition playEvent = playTransition();
 
-        dispatcher.onPlayTransition(PLAYBACK_ITEM, wrap(playEvent), false);
+        dispatcher.onPlayTransition(wrap(playEvent), false);
 
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
@@ -242,7 +241,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     protected PlaybackStateTransition playTransitionForTrack(Urn trackUrn) {
         final PlaybackStateTransition startEvent = new PlaybackStateTransition(
                 PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, PROGRESS, DURATION);
-        dispatcher.onPlayTransition(PLAYBACK_ITEM, wrap(addStateExtras(startEvent)), true);
+        dispatcher.onPlayTransition(wrap(addStateExtras(startEvent)), true);
 
         return startEvent;
     }
