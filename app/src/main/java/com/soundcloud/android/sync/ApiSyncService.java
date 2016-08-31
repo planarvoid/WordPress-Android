@@ -23,7 +23,6 @@ public class ApiSyncService extends Service {
     public static final String EXTRA_SYNCABLE_ENTITIES = "com.soundcloud.android.sync.extra.SYNCABLE_ENTITIES";
 
     public static final String ACTION_APPEND = "com.soundcloud.android.sync.action.APPEND";
-    public static final String ACTION_PUSH = "com.soundcloud.android.sync.action.PUSH";
     public static final String ACTION_HARD_REFRESH = "com.soundcloud.android.sync.action.HARD_REFRESH";
 
     public static final String EXTRA_SYNC_URIS = "com.soundcloud.android.sync.extra.SYNC_URIS";
