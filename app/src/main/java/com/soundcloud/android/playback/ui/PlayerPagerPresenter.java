@@ -230,7 +230,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
             final PlayerPagePresenter presenter = pagePresenter(pageData);
             final View view = entry.getKey();
             presenter.onForeground(view);
-            if (pageData.isVideo()) {
+            if (pageData.isVideoAd()) {
                 setVideoSurface(pageData, presenter, view);
             }
         }
@@ -314,7 +314,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     public int getItemViewType(int position) {
         final PlayQueueItem playQueueItem = currentPlayQueue.get(position);
         if (AdUtils.isAd(playQueueItem)) {
-            return playQueueItem.isVideo() ? TYPE_VIDEO_AD_VIEW : TYPE_AUDIO_AD_VIEW;
+            return playQueueItem.isVideoAd() ? TYPE_VIDEO_AD_VIEW : TYPE_AUDIO_AD_VIEW;
         } else {
             return TYPE_TRACK_VIEW;
         }
@@ -349,7 +349,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
         if (isForeground) {
             // this will attach the cast button
             presenter.onForeground(view);
-            if (playQueueItem.isVideo()) {
+            if (playQueueItem.isVideoAd()) {
                 setVideoSurface(playQueueItem, presenter, view);
             }
         }
@@ -380,14 +380,14 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     private PlayerPagePresenter pagePresenter(PlayQueueItem playQueueItem) {
         if (AdUtils.isAd(playQueueItem)) {
-            return playQueueItem.isVideo() ? videoAdPresenter : audioAdPresenter;
+            return playQueueItem.isVideoAd() ? videoAdPresenter : audioAdPresenter;
         } else {
             return trackPagePresenter;
         }
     }
 
     private Observable<? extends PlayerItem> getTrackOrAdObservable(final PlayQueueItem playQueueItem) {
-        if (playQueueItem.isVideo()) {
+        if (playQueueItem.isVideoAd()) {
             return getAdObservable(playQueueItem.getAdData().get(), Optional.<Urn>absent());
         }
 
@@ -623,7 +623,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
                                               PlayerPagePresenter presenter,
                                               View view) {
         final boolean viewPresentingCurrentVideo = pagesInPlayer.containsKey(view)
-                && pagesInPlayer.get(view).isVideo()
+                && pagesInPlayer.get(view).isVideoAd()
                 && playStateEvent.getPlayingItemUrn().equals(pagesInPlayer.get(view).getUrn());
         final boolean viewPresentingCurrentTrack = pagesInPlayer.containsKey(view)
                 && pagesInPlayer.get(view).isTrack()

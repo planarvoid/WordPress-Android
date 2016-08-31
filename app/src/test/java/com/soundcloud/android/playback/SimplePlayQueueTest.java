@@ -136,7 +136,7 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         playQueue.insertVideo(1, videoAd);
 
-        assertThat(playQueue.getPlayQueueItem(1).isVideo()).isTrue();
+        assertThat(playQueue.getPlayQueueItem(1).isVideoAd()).isTrue();
         assertThat(playQueue.getAdData(1)).isEqualTo(Optional.of(videoAd));
 
         assertThat(playQueue).hasSize(4);
@@ -373,7 +373,7 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
     }
 
     private void assertVideoQueueItem(PlayQueueItem playQueueItem, Optional<AdData> adData) {
-        assertThat(playQueueItem.isVideo()).isTrue();
+        assertThat(playQueueItem.isVideoAd()).isTrue();
         assertThat(playQueueItem.getAdData()).isEqualTo(adData);
     }
 

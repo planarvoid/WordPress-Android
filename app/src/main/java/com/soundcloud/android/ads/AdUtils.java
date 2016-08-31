@@ -39,7 +39,7 @@ public final class AdUtils {
     }
 
     public static boolean isVideoAd(PlayQueueItem playQueueItem) {
-        return playQueueItem.isVideo();
+        return playQueueItem.isVideoAd();
     }
 
     public static boolean hasAdOverlay(PlayQueueItem playQueueItem) {

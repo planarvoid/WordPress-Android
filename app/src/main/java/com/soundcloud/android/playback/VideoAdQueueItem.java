@@ -23,7 +23,7 @@ public class VideoAdQueueItem extends PlayQueueItem {
 
     @Override
     public Kind getKind() {
-        return Kind.VIDEO;
+        return Kind.VIDEO_AD;
     }
 
     public boolean isVerticalVideo() {

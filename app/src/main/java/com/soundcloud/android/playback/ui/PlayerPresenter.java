@@ -138,7 +138,7 @@ class PlayerPresenter extends SupportFragmentLightCycleDispatcher<PlayerFragment
     private static final Predicate<PlayQueueItem> IS_PLAYABLE = new Predicate<PlayQueueItem>() {
         @Override
         public boolean apply(PlayQueueItem input) {
-            return input.isTrack() || input.isVideo();
+            return input.isTrack() || input.isVideoAd();
         }
     };
 

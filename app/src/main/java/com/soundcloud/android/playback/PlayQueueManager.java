@@ -429,7 +429,7 @@ public class PlayQueueManager implements OriginProvider {
     }
 
     private boolean isNotBlockedTrackOrVideo(PlayQueueItem playQueueItem) {
-        return playQueueItem.isVideo() || (playQueueItem.isTrack() && !((TrackQueueItem) playQueueItem).isBlocked());
+        return playQueueItem.isVideoAd() || (playQueueItem.isTrack() && !((TrackQueueItem) playQueueItem).isBlocked());
     }
 
     private boolean isOfflineAvailable(PlayQueueItem playQueueItem) {

@@ -130,7 +130,7 @@ public class AdOrientationController extends DefaultActivityLightCycle<AppCompat
             final Activity activity = currentActivityRef.get();
             if (activity != null) {
                 final PlayQueueItem currentItem = event.getCurrentPlayQueueItem();
-                if (currentItem.isVideo()) {
+                if (currentItem.isVideoAd()) {
                     lockOrientationInPortraitIfVertical(activity, (VideoAdQueueItem) currentItem);
                 } else {
                     unlockOrientation(activity);
