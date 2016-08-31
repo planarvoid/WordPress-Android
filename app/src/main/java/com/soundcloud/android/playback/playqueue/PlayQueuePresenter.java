@@ -39,11 +39,9 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
-
+import rx.subscriptions.Subscriptions;
 
 import java.util.ArrayList;
-
-import static com.soundcloud.android.playback.PlayQueueManager.RepeatMode.REPEAT_ONE;
 
 class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         implements TrackItemRenderer.Listener {
@@ -179,7 +177,7 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        eventSubscriptions.unsubscribe();
+        eventSubscriptions.clear();
         updateSubscription.unsubscribe();
         ButterKnife.unbind(this);
         super.onDestroyView(fragment);

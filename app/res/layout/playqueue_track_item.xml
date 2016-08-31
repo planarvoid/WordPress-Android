@@ -5,6 +5,7 @@
     android:background="@drawable/queue_item_background"
     android:clickable="true"
     android:gravity="center_vertical"
+    android:longClickable="false"
     android:orientation="horizontal"
     android:padding="16dp">
 

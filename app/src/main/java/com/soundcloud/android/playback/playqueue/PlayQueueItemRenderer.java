@@ -10,6 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.utils.ViewUtils;
@@ -27,14 +28,17 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
     private final ImageOperations imageOperations;
     private final PlayQueueManager playQueueManager;
     private final TrackItemMenuPresenter trackItemMenuPresenter;
+    private final PlaySessionController playSessionController;
 
     @Inject
     public PlayQueueItemRenderer(ImageOperations imageOperations,
                                  PlayQueueManager playQueueManager,
-                                 TrackItemMenuPresenter trackItemMenuPresenter) {
+                                 TrackItemMenuPresenter trackItemMenuPresenter,
+                                 PlaySessionController playSessionController) {
         this.imageOperations = imageOperations;
         this.playQueueManager = playQueueManager;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
+        this.playSessionController = playSessionController;
     }
 
     @Override
@@ -94,7 +98,11 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
             @Override
             public void onClick(View view) {
                 playQueueManager.setCurrentPlayQueueItem(item.getUrn(), position);
+                if (!playSessionController.isPlayingCurrentPlayQueueItem()) {
+                    playSessionController.play();
+                }
             }
+
         });
     }
 
