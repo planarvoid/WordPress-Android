@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.viewpagerindicator;
+package com.soundcloud.android.view.pageindicator;
 
 import android.support.v4.view.ViewPager;
 

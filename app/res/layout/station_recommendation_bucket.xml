@@ -16,9 +16,9 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/recommended_stations_pager" />
 
-    <com.viewpagerindicator.CirclePageIndicator
+    <com.soundcloud.android.view.pageindicator.CirclePageIndicator
         android:id="@+id/page_indicator"
-        style="@style/CustomCirclePageIndicator"
+        style="@style/StationsPageIndicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="24dp" />

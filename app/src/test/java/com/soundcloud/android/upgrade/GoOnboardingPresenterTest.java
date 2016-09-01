@@ -212,6 +212,10 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
         private boolean isSetUpOfflineButtonRetry;
         private boolean isErrorDialogShown;
 
+        private GoOnboardingViewStub() {
+            super(new GoOnboardingAdapter(context()));
+        }
+
         @Override
         void bind(Activity activity, GoOnboardingPresenter presenter) {
             // no op

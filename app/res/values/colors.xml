@@ -8,7 +8,8 @@
 
     <color name="translucent_status_bar">#0cffffff</color>
     <color name="translucent_white">#ccffffff</color>
-
+    <color name="translucent_black">#33000000</color>
+    
     <color name="primary">@color/white</color>
     <color name="primary_dark">#bbbbbb</color>
     <color name="primary_darker">#1d1d1d</color>
@@ -30,11 +31,8 @@
 
     <!-- List items -->
     <!-- Legacy cells -->
-    <color name="list_text_value">@color/black</color>
     <color name="list_text_value_inactive">#a9a9a9</color>
     <color name="list_text_secondary">#777777</color>
-    <color name="list_text_created_at">#c9c9c9</color>
-    <color name="list_text_track_user">#828282</color>
     <color name="list_text_header">@color/ak_dark_gray</color>
 
     <!-- New cells -->

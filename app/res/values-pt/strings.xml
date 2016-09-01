@@ -703,10 +703,6 @@ vão aparecer aqui.</string>
   <string name="offline_no_wifi">Sem Wi-Fi</string>
   <string name="offline_no_connection">Sem conexão</string>
   <!--__GO ONBOARDING-->
-  <string name="go_onboarding_header">Bem-vindo ao SoundCloud Go</string>
-  <string name="go_onboarding_subheader">Agora você poderá aproveitar ainda mais música, offline e sem anúncios.</string>
-  <string name="go_onboarding_title">Salvar sua música offline</string>
-  <string name="go_onboarding_subtext">Use a seta para salvar todas as suas curtidas ou \nqualquer uma das playlists e álbuns offline.</string>
   <string name="go_onboarding_start">OK, entendi</string>
   <string name="go_onboarding_retry">Falha no carregamento. Tentar novamente?</string>
   <string name="go_onboarding_error_dialog_title">Ocorreu um erro</string>
