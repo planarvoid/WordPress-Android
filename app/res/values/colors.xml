@@ -7,9 +7,6 @@
     <color name="translucent_status_bar">#0cffffff</color>
     <color name="translucent_white">#ccffffff</color>
 
-    <color name="playqueue_background">#33ffffff</color>
-    <color name="playqueue_background_touch">#1Cffffff</color>
-
     <color name="primary">@color/white</color>
     <color name="primary_dark">#bbbbbb</color>
     <color name="primary_darker">#1d1d1d</color>
@@ -60,6 +57,9 @@
 
     <!-- Play Queue -->
     <color name="play_queue_remove">#ff3300</color>
+    <color name="play_queue_background">#33ffffff</color>
+    <color name="play_queue_drag_background">#1Affffff</color>
+    <color name="play_queue_background_touch">#1Cffffff</color>
 
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>

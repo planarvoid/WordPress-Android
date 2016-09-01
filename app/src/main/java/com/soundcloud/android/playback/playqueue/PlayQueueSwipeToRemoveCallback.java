@@ -67,7 +67,7 @@ class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         super.clearView(recyclerView, viewHolder);
-        viewHolder.itemView.setBackgroundResource(0);
+        viewHolder.itemView.setBackgroundResource(R.drawable.queue_item_background);
     }
 
     @Override
@@ -124,7 +124,7 @@ class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
         super.onSelectedChanged(viewHolder, actionState);
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
             draggedFromPosition = viewHolder.getAdapterPosition();
-            viewHolder.itemView.setBackgroundResource(R.color.playqueue_background);
+            viewHolder.itemView.setBackgroundResource(R.color.play_queue_drag_background);
         } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
             if (draggedFromPosition != Consts.NOT_SET && draggedToPosition != Consts.NOT_SET) {
                 presenter.moveItems(draggedFromPosition, draggedToPosition);
@@ -159,7 +159,7 @@ class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
 
         static StyleAttributes from(Context context) {
             final TypedArray ta = context.obtainStyledAttributes(R.style.PlayQueue_Remove,
-                                                                 R.styleable.PlayQueueSwipeRemoveItem);
+                    R.styleable.PlayQueueSwipeRemoveItem);
             final StyleAttributes styleAttributes = new StyleAttributes(
                     ta.getColor(R.styleable.PlayQueueSwipeRemoveItem_android_textColor, Color.RED),
                     ta.getDimensionPixelSize(R.styleable.PlayQueueSwipeRemoveItem_android_textSize, 40),
@@ -167,7 +167,7 @@ class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
                     ta.getColor(R.styleable.PlayQueueSwipeRemoveItem_android_background, Color.BLACK),
                     ta.getDimensionPixelSize(R.styleable.PlayQueueSwipeRemoveItem_android_paddingRight, 40),
                     Typeface.createFromAsset(context.getAssets(),
-                                             ta.getString(R.styleable.PlayQueueSwipeRemoveItem_custom_font))
+                            ta.getString(R.styleable.PlayQueueSwipeRemoveItem_custom_font))
             );
 
             ta.recycle();
