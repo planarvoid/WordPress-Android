@@ -1,6 +1,7 @@
 package com.soundcloud.android.testsupport;
 
 import com.soundcloud.android.BuildConfig;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -46,7 +47,12 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
 
     @Override
     protected SQLiteDatabase provideDatabase() {
-        return new DatabaseManager(RuntimeEnvironment.application).getWritableDatabase();
+        final ApplicationProperties applicationProperties = provideApplicationProperties();
+        return new DatabaseManager(RuntimeEnvironment.application, applicationProperties).getWritableDatabase();
+    }
+
+    private ApplicationProperties provideApplicationProperties() {
+        return new ApplicationProperties(RuntimeEnvironment.application.getResources());
     }
 
     public final class HelperObjectsRule extends ExternalResource {

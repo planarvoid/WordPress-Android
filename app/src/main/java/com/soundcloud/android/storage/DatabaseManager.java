@@ -8,6 +8,7 @@ import static com.soundcloud.android.storage.SchemaMigrationHelper.recreate;
 import static java.lang.String.format;
 
 import com.soundcloud.android.events.DatabaseMigrationEvent;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.ErrorUtils;
 
 import android.content.Context;
@@ -33,18 +34,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static long migrationStart = 0L;
 
     private static DatabaseManager instance;
+    private final ApplicationProperties applicationProperties;
 
-    public static DatabaseManager getInstance(Context context) {
+    public static DatabaseManager getInstance(Context context, ApplicationProperties applicationProperties) {
         if (instance == null) {
-            instance = new DatabaseManager(context);
+            instance = new DatabaseManager(context, applicationProperties);
         }
         return instance;
     }
 
     // Do NOT use this constructor outside older tests. We need a single instance of this class going forward.
     @Deprecated
-    public DatabaseManager(Context context) {
+    public DatabaseManager(Context context, ApplicationProperties applicationProperties) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.applicationProperties = applicationProperties;
     }
 
     @Override
@@ -80,7 +83,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
     }
 
-    public void onRecreateDb(SQLiteDatabase db) {
+    private void onRecreateDb(SQLiteDatabase db) {
         Log.d(TAG, "onRecreate(" + db + ")");
 
         dropTable(Tables.Recommendations.TABLE.name(), db);
@@ -311,7 +314,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Added unavailable_at column to TrackDownloads table
      */
-    private static boolean upgradeTo36(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo36(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.TrackDownloads.SQL);
             return true;
@@ -324,7 +327,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Added removed_at column to PlaylistTracks
      */
-    private static boolean upgradeTo37(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo37(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.PlaylistTracks, db);
             return true;
@@ -337,7 +340,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Added Posts table
      */
-    private static boolean upgradeTo38(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo38(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.create(Table.Posts, db);
             return true;
@@ -350,7 +353,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Added OfflineContent and TrackPolicies tables
      */
-    private static boolean upgradeTo39(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo39(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.OfflineContent.SQL);
             SchemaMigrationHelper.create(Table.TrackPolicies, db);
@@ -369,7 +372,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Changed Post table column names
      */
-    private static boolean upgradeTo40(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo40(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.recreate(Table.Posts, db);
             return true;
@@ -382,7 +385,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Changed columns in PromotedTracks and SoundStreamView
      */
-    private static boolean upgradeTo41(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo41(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.recreate(Table.PromotedTracks, db);
             SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
@@ -396,7 +399,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Update stream deduplication logic
      */
-    private static boolean upgradeTo42(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo42(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.recreate(Table.SoundStreamView, db);
             return true;
@@ -409,7 +412,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Add timestamp to promoted tracks
      */
-    private static boolean upgradeTo43(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo43(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.PromotedTracks, db);
             return true;
@@ -422,7 +425,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Add tier info to policies table
      */
-    private static boolean upgradeTo44(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo44(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.TrackPolicies, db);
             SchemaMigrationHelper.recreate(Table.SoundView, db);
@@ -437,7 +440,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Add waveforms table
      */
-    private static boolean upgradeTo45(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo45(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.create(Table.Waveforms, db);
             return true;
@@ -450,7 +453,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Created Recommendations table
      */
-    private static boolean upgradeTo46(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo46(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.Recommendations.SQL);
             db.execSQL(Tables.RecommendationSeeds.SQL);
@@ -465,7 +468,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Add columns to PlayQueue table
      */
-    private static boolean upgradeTo47(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo47(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.PlayQueue.TABLE.name(), Tables.PlayQueue.SQL, db);
             return true;
@@ -479,7 +482,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Recreate PlayQueue table to try to fix an unknown crash (that we think is migration related)
      */
-    private static boolean upgradeTo48(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo48(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.PlayQueue.TABLE.name(), db);
             db.execSQL(Tables.PlayQueue.SQL);
@@ -494,7 +497,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Created Stations table
      */
-    private static boolean upgradeTo49(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo49(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.Stations.SQL);
             db.execSQL(Tables.StationsPlayQueues.SQL);
@@ -508,7 +511,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Migrate Stations table to use the station_urn as the primary key & created Recently Played Stations table
      */
-    private static boolean upgradeTo50(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo50(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.Stations.TABLE.name(), db);
             dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
@@ -524,7 +527,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Add related entity to PlayQueue table (dropping and recreating because alter caused probs before)
      */
-    private static boolean upgradeTo51(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo51(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.PlayQueue.TABLE.name(), db);
             db.execSQL(Tables.PlayQueue.SQL);
@@ -539,7 +542,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Update the primary key for the StationsPlayQueues
      */
-    private static boolean upgradeTo52(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo52(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
             db.execSQL(Tables.StationsPlayQueues.SQL);
@@ -554,7 +557,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Remove a column (seed) from the Stations table.
      */
-    private static boolean upgradeTo53(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo53(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.Stations.TABLE.name(), db);
             db.execSQL(Tables.Stations.SQL);
@@ -569,7 +572,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Drop RecentStations
      */
-    private static boolean upgradeTo54(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo54(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable("RecentStations", db);
             return true;
@@ -583,7 +586,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Drop RecentStations
      */
-    private static boolean upgradeTo55(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo55(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable("RecentStations", db);
             db.execSQL(Tables.StationsCollections.SQL);
@@ -597,7 +600,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Update StationsPlayQueues to allow duplicated tracks.
      */
-    private static boolean upgradeTo56(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo56(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
             db.execSQL(Tables.StationsPlayQueues.SQL);
@@ -611,7 +614,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Update Stations table to start with correct default value for LAST_PLAYED_TRACK_POSITION
      */
-    private static boolean upgradeTo57(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo57(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.dropTable(Tables.Stations.TABLE.name(), db);
             db.execSQL(Tables.Stations.SQL);
@@ -625,7 +628,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Adds the URN column to the Comments table
      */
-    private static boolean upgradeTo59(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo59(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Comments.TABLE.name(), Tables.Comments.SQL, db);
             return true;
@@ -638,7 +641,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Adds the FULL_DURATION to the sounds table
      */
-    private static boolean upgradeTo60(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo60(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.Sounds, db);
             recreateSoundDependentViews(db);
@@ -653,7 +656,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Adds QUERY_URN & SOURCE_URN to the PlayQueue table
      * Adds the QUERY_URN column to the StationsPlayQueues table
      */
-    private static boolean upgradeTo61(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo61(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.PlayQueue.TABLE.name(), db);
             dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
@@ -669,7 +672,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Adds the BLOCKED to the track policy table
      */
-    private static boolean upgradeTo62(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo62(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.TrackPolicies, db);
             return true;
@@ -682,7 +685,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Adds REMOVED_AT to the Sounds table
      */
-    private static boolean upgradeTo63(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo63(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.Sounds, db);
             recreateSoundDependentViews(db);
@@ -697,7 +700,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Adds the SNIPPED to the track policy table
      */
-    private static boolean upgradeTo64(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo64(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.TrackPolicies, db);
             recreateSoundDependentViews(db);
@@ -709,7 +712,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     /* Drop activities as some may be missing associated playlist entity (delete playlist bug) */
-    private static boolean upgradeTo65(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo65(SQLiteDatabase db, int oldVersion) {
         try {
             db.delete(Table.Activities.name(), null, null);
             SchemaMigrationHelper.recreate(Table.ActivityView, db);
@@ -723,7 +726,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Changes columns of PlayQueue table to handle playlists
      */
-    private static boolean upgradeTo66(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo66(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.PlayQueue.TABLE.name(), db);
             db.execSQL(Tables.PlayQueue.SQL);
@@ -737,7 +740,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Recreates SoundView to exclude tracks that don't have a policy entry
      */
-    private static boolean upgradeTo67(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo67(SQLiteDatabase db, int oldVersion) {
         try {
             // this view isn't used anymore
             SchemaMigrationHelper.dropView("SoundAssociationView", db);
@@ -754,7 +757,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Fix SoundAssociationView dropping
      * Creates view OfflinePlaylistTracks
      */
-    private static boolean upgradeTo68(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo68(SQLiteDatabase db, int oldVersion) {
         try {
             // this view isn't used anymore
             dropView("SoundAssociationView", db);
@@ -769,7 +772,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Remove Owner from User associations
      */
-    private static boolean upgradeTo69(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo69(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.UserAssociations, db);
             SchemaMigrationHelper.recreate(Table.UserAssociationView, db);
@@ -783,7 +786,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Added snippet_duration to sounds
      */
-    private static boolean upgradeTo70(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo70(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.Sounds, db);
             recreateSoundDependentViews(db);
@@ -797,7 +800,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Made Uri the primary key of Collections
      */
-    private static boolean upgradeTo71(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo71(SQLiteDatabase db, int oldVersion) {
         try {
             recreate(Table.Collections, db);
             return true;
@@ -810,7 +813,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Added modified_at for playlist updates
      */
-    private static boolean upgradeTo72(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo72(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.Sounds, db);
             recreateSoundDependentViews(db);
@@ -824,7 +827,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Added artwork_url_template for stations
      */
-    private static boolean upgradeTo73(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo73(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Stations.TABLE.name(), Tables.Stations.SQL, db);
             return true;
@@ -837,7 +840,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /*
      * Added updated_at for station play queues
      */
-    private static boolean upgradeTo74(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo74(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Tables.Stations.TABLE.name(), Tables.Stations.SQL, db);
             return true;
@@ -851,7 +854,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Added avatar_url to offline playlist tracks view for new image requirements
      * Create view for querying local search suggestions
      */
-    private static boolean upgradeTo75(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo75(SQLiteDatabase db, int oldVersion) {
         try {
             SchemaMigrationHelper.dropView(Tables.OfflinePlaylistTracks.TABLE.name(), db);
             db.execSQL(Tables.OfflinePlaylistTracks.SQL);
@@ -866,7 +869,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Created Charts table
      */
-    private static boolean upgradeTo76(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo76(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.Charts.SQL);
             db.execSQL(Tables.ChartTracks.SQL);
@@ -881,7 +884,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Creates local play history table
      */
-    private static boolean upgradeTo77(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo77(SQLiteDatabase db, int oldVersion) {
         try {
             db.execSQL(Tables.PlayHistory.SQL);
             return true;
@@ -894,7 +897,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Albums Support: Add is_album, set_type and release_date to Sounds
      */
-    private static boolean upgradeTo78(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo78(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.Sounds, db);
             recreateSoundDependentViews(db);
@@ -908,7 +911,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Edit charts table to match API changes
      */
-    private static boolean upgradeTo79(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo79(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.Charts.TABLE.name(), db);
             dropTable(Tables.ChartTracks.TABLE.name(), db);
@@ -926,7 +929,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Change Recommendations table structure for tracking.
      * Need query_urn and query_position for each recommended bucket.
      */
-    private static boolean upgradeTo81(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo81(SQLiteDatabase db, int oldVersion) {
         try {
             alterColumns(Table.Users, db);
             dropTable(Tables.RecommendationSeeds.TABLE.name(), db);
@@ -942,7 +945,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      * Converge changes reflected in final schema but not through migrations
      * from database version 36 onwards
      */
-    private static boolean upgradeTo82(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo82(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable("CollectionItems", db);
             dropTable("CollectionPages", db);
@@ -964,7 +967,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Add helper flag to ChartTracks
      */
-    private static boolean upgradeTo83(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo83(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.Charts.TABLE.name(), db);
             dropTable(Tables.ChartTracks.TABLE.name(), db);
@@ -981,7 +984,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Change track_urn column to track_id in StationPlayQueues
      */
-    private static boolean upgradeTo84(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo84(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.StationsPlayQueues.TABLE.name(), db);
             db.execSQL(Tables.StationsPlayQueues.SQL);
@@ -995,7 +998,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /**
      * Change ChartTracks to store ImageResource instead of index to sounds
      */
-    private static boolean upgradeTo85(SQLiteDatabase db, int oldVersion) {
+    private boolean upgradeTo85(SQLiteDatabase db, int oldVersion) {
         try {
             dropTable(Tables.Charts.TABLE.name(), db);
             dropTable(Tables.ChartTracks.TABLE.name(), db);
@@ -1055,7 +1058,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
     }
 
-    private static void migratePolicies(SQLiteDatabase db) {
+    private void migratePolicies(SQLiteDatabase db) {
         final List<String> oldSoundColumns = Arrays.asList(
                 "_id", "monetizable", "policy");
         final List<String> newPoliciesColumns = Arrays.asList(
@@ -1068,20 +1071,25 @@ public class DatabaseManager extends SQLiteOpenHelper {
                                       newPoliciesColumns, Table.Sounds.name(), oldSoundColumns);
     }
 
-    private static void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {
+    private void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {
         final String message = format(Locale.US, "error during upgrade%d (from %d)", newVersion, oldVersion);
         migrationEvent.set(DatabaseMigrationEvent.forFailedMigration(oldVersion,
                                                                      newVersion,
                                                                      getMigrationDuration(),
                                                                      exception.getMessage()));
-        ErrorUtils.handleSilentException(message, exception);
+
+        if (applicationProperties.allowDatabaseMigrationsSilentErrors()) {
+            ErrorUtils.handleSilentException(message, exception);
+        } else {
+            throw exception;
+        }
     }
 
-    private static long getMigrationDuration() {
+    private long getMigrationDuration() {
         return System.currentTimeMillis() - migrationStart;
     }
 
-    private static void recreateSoundDependentViews(SQLiteDatabase db) {
+    private void recreateSoundDependentViews(SQLiteDatabase db) {
         SchemaMigrationHelper.recreate(Table.SoundView, db);
         SchemaMigrationHelper.recreate(Table.PlaylistTracksView, db);
         SchemaMigrationHelper.recreate(Table.SoundStreamView, db);

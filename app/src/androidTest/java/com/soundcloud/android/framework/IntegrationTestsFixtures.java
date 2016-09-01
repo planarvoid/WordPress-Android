@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.Tables.OfflineContent._TYPE;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.SchemaMigrationHelper;
 import com.soundcloud.android.storage.Table;
@@ -25,12 +26,16 @@ public class IntegrationTestsFixtures {
     }
 
     public void clearLikes(Context context) {
-        final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
+        final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
         SchemaMigrationHelper.recreate(Table.Likes, db);
     }
 
+    private DatabaseManager databaseManager(Context context) {
+        return DatabaseManager.getInstance(context, new ApplicationProperties(context.getResources()));
+    }
+
     public void clearOfflineContent(Context context) {
-        final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
+        final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
         db.delete(TrackDownloads.TABLE.name(), null, null);
         db.delete(OfflineContent.TABLE.name(), null, null);
     }
@@ -50,12 +55,12 @@ public class IntegrationTestsFixtures {
     }
 
     private void insert(Context context, String table, ContentValues contentValues) {
-        final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
+        final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
         db.insert(table, null, contentValues);
     }
 
     private void update(Context context, ContentValues contentValues) {
-        final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
+        final SQLiteDatabase db = databaseManager(context).getWritableDatabase();
         db.update(Table.TrackPolicies.name(), contentValues, filter().build(), null);
     }
 

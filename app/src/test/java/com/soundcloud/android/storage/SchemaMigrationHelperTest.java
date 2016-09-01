@@ -2,6 +2,7 @@ package com.soundcloud.android.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Test;
 
@@ -14,16 +15,19 @@ import java.util.List;
 
 public class SchemaMigrationHelperTest extends AndroidUnitTest {
 
+    private final ApplicationProperties applicationProperties = new ApplicationProperties(resources());
+    private final DatabaseManager databaseManager = new DatabaseManager(context(), applicationProperties);
+
     @Test
     public void shouldGetColumnNames() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(context()).getWritableDatabase();
+        SQLiteDatabase db = databaseManager.getWritableDatabase();
         List<String> columns = SchemaMigrationHelper.getColumnNames(Table.Sounds, db);
         assertThat(columns.isEmpty()).isFalse();
     }
 
     @Test
     public void shouldDropAndCreateTable() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(context()).getWritableDatabase();
+        SQLiteDatabase db = databaseManager.getWritableDatabase();
         Table table = Table.Sounds;
 
         assertThat(exists(table, db)).isTrue();
@@ -37,7 +41,7 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
 
     @Test
     public void shouldAddColumnToTracks() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(context()).getWritableDatabase();
+        SQLiteDatabase db = databaseManager.getWritableDatabase();
 
         String oldSchema = Table.Sounds.createString;
         db.execSQL(oldSchema);
@@ -58,7 +62,7 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
 
     @Test
     public void shouldAlterColumnsWithoutRenamingColumn() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(context()).getWritableDatabase();
+        SQLiteDatabase db = databaseManager.getWritableDatabase();
 
         String oldSchema = Table.buildCreateString("foo", "(" +
                 "_id INTEGER PRIMARY KEY," +
@@ -95,7 +99,7 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
 
     @Test
     public void shouldAlterColumnsWithRenamingColumn() throws Exception {
-        SQLiteDatabase db = new DatabaseManager(context()).getWritableDatabase();
+        SQLiteDatabase db = databaseManager.getWritableDatabase();
 
         String oldSchema = Table.buildCreateString("foo", "(_id INTEGER PRIMARY KEY," +
                 " keep_me VARCHAR(255)," +
@@ -146,4 +150,5 @@ public class SchemaMigrationHelperTest extends AndroidUnitTest {
             return false;
         }
     }
+
 }

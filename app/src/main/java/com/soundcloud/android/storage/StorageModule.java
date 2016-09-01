@@ -2,6 +2,7 @@ package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.crypto.Obfuscator;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ObfuscatedPreferences;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -216,13 +217,13 @@ public class StorageModule {
     }
 
     @Provides
-    public SQLiteDatabase provideDatabase(Context context) {
-        return provideDatabaseManager(context).getWritableDatabase();
+    public SQLiteDatabase provideDatabase(Context context, ApplicationProperties applicationProperties) {
+        return provideDatabaseManager(context, applicationProperties).getWritableDatabase();
     }
 
     @Provides
-    public DatabaseManager provideDatabaseManager(Context context) {
-        return DatabaseManager.getInstance(context);
+    public DatabaseManager provideDatabaseManager(Context context, ApplicationProperties applicationProperties) {
+        return DatabaseManager.getInstance(context, applicationProperties);
     }
 
     @Provides

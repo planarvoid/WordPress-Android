@@ -1,9 +1,11 @@
 package com.soundcloud.android.testsupport;
 
 import static com.soundcloud.android.testsupport.AndroidUnitTest.context;
+import static com.soundcloud.android.testsupport.AndroidUnitTest.resources;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.propeller.PropellerDatabase;
 import org.apache.commons.io.FileUtils;
@@ -38,17 +40,21 @@ public class DatabaseMigrationHelper {
         currentVersion = ORIGIN_VERSION;
 
         Context context = RuntimeEnvironment.application;
-        DatabaseManager helper = DatabaseManager.getInstance(context);
+        DatabaseManager helper = DatabaseManager.getInstance(context, applicationProperties());
         FileUtils.copyFile(ORIGIN_FILE, upgradedFile);
         helper.onCreate(SQLiteDatabase.openOrCreateDatabase(newFile, null));
     }
 
     public void upgradeTo(int version) {
         Context context = RuntimeEnvironment.application;
-        DatabaseManager helper = DatabaseManager.getInstance(context);
+        DatabaseManager helper = DatabaseManager.getInstance(context, applicationProperties());
         SQLiteDatabase upgradedDb = getUpgradedDatabase();
         helper.onUpgrade(upgradedDb, currentVersion, version);
         currentVersion = version;
+    }
+
+    private ApplicationProperties applicationProperties() {
+        return new ApplicationProperties(resources());
     }
 
     public void upgradeToCurrent() {
