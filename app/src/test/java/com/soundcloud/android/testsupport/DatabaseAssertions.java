@@ -210,6 +210,13 @@ public class DatabaseAssertions {
                                   .whereNotNull(ADDED_AT))).counts(1);
     }
 
+    public void assertNoPlaylistTrackForAddition(Urn playlist, Urn track) {
+        assertThat(select(from(PlaylistTracks.name())
+                                  .whereEq(PLAYLIST_ID, playlist.getNumericId())
+                                  .whereEq(TRACK_ID, track.getNumericId())
+                                  .whereNull(ADDED_AT))).counts(1);
+    }
+
     public void assertPlaylistTrackForRemoval(Urn playlist, Urn track) {
         assertThat(select(from(PlaylistTracks.name())
                                   .whereEq(PLAYLIST_ID, playlist.getNumericId())

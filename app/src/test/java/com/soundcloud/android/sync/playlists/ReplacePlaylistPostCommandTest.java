@@ -51,6 +51,19 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void shouldClearPlaylistTracksAddedAt() throws Exception {
+        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
+        ApiTrack playlistTrack = testFixtures().insertPlaylistTrackPendingAddition(oldPlaylist, 0, new Date());
+        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+
+        WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
+        assertThat(result.success()).isTrue();
+
+        databaseAssertions().assertNoPlaylistTrackForAddition(newPlaylist.getUrn(),
+                                                     playlistTrack.getUrn());
+    }
+
+    @Test
     public void shouldUpdatePostsTableWithNewPlaylistId() throws Exception {
         ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
         ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);

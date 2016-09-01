@@ -94,6 +94,7 @@ class ReplacePlaylistPostCommand
             private void updatePlaylistTrackEntries(PropellerDatabase propeller) {
                 final ContentValues playlistTracksValues = new ContentValues();
                 playlistTracksValues.put(PlaylistTracks.PLAYLIST_ID, newPlaylist.getId());
+                playlistTracksValues.putNull(PlaylistTracks.ADDED_AT);
                 step(propeller.update(Table.PlaylistTracks, playlistTracksValues,
                                       filter().whereEq(PlaylistTracks.PLAYLIST_ID, localPlaylistUrn.getNumericId())));
             }
