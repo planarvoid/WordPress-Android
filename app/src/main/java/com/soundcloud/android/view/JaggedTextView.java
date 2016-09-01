@@ -87,16 +87,20 @@ public class JaggedTextView extends CustomFontTextView {
 
         canvas.save();
         canvas.translate(getPaddingLeft(), getPaddingTop());
-        if (listener != null) {
-            int badgeOffset = (int) (getWidth() - layout.getLineRight(0) - getPaddingRight() - getPaddingLeft());
-            listener.onBackgroundChange(badgeOffset);
-        }
+        updateBadgeOffset(layout);
         if (showBackground && !TextUtils.isEmpty(getText())) {
             drawBackground(canvas, layout);
         }
         canvas.restore();
 
         super.onDraw(canvas);
+    }
+
+    private void updateBadgeOffset(Layout layout) {
+        if (listener != null) {
+            float badgeOffset = getWidth() - layout.getLineRight(0) - getPaddingRight() - getPaddingLeft();
+            listener.onBackgroundChange((int) badgeOffset);
+        }
     }
 
     private void drawBackground(Canvas canvas, Layout layout) {
