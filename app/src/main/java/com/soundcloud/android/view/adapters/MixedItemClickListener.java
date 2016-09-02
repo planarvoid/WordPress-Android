@@ -19,7 +19,6 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.strings.Strings;
 import rx.Observable;
 
 import android.view.View;
@@ -130,11 +129,7 @@ public class MixedItemClickListener {
                                    .invokerScreen(ScreenElement.LIST.get())
                                    .contextScreen(screen.get())
                                    .pageName(screen.get())
-                                   .attributingActivity(
-                                           AttributingActivity.create(
-                                                   AttributingActivity.typeFromPlayableItem(item),
-                                                   Strings.EMPTY
-                                           ))
+                                   .attributingActivity(AttributingActivity.fromPlayableItem(item))
                                    .linkType(LinkType.SELF)
                                    .build();
     }

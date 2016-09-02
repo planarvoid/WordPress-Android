@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -39,6 +40,8 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
@@ -68,6 +71,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
     @Mock private MenuItem menuItem;
     @Mock private FeatureFlags featureFlags;
     @Mock private PlayQueueHelper playQueueHelper;
+    @Mock private EventTracker eventTracker;
+    @Captor private ArgumentCaptor<UIEvent> uiEventArgumentCaptor;
 
     private View button;
 
@@ -107,7 +112,8 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
                                                   offlineOperations,
                                                   navigator,
                                                   featureFlags,
-                                                  playQueueHelper);
+                                                  playQueueHelper,
+                                                  eventTracker);
 
         button = new View(new FragmentActivity());
     }
@@ -155,7 +161,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
-        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING, UIEvent.class);
+        verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
+
+        UIEvent uiEvent = uiEventArgumentCaptor.getValue();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_REPOST);
         assertThat(uiEvent.isFromOverflow()).isTrue();
     }
@@ -184,7 +192,9 @@ public class PlaylistItemMenuPresenterTest extends AndroidUnitTest {
         presenter.show(button, playlist, menuOptions);
         presenter.onMenuItemClick(menuItem, context);
 
-        UIEvent uiEvent = eventBus.lastEventOn(EventQueue.TRACKING, UIEvent.class);
+        verify(eventTracker).trackEngagement(uiEventArgumentCaptor.capture());
+
+        UIEvent uiEvent = uiEventArgumentCaptor.getValue();
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_LIKE);
         assertThat(uiEvent.isFromOverflow()).isTrue();
     }

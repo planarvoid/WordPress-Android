@@ -19,7 +19,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,7 +63,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromToggleToFollow() {
-        PropertySet userProperties = buildUserPropertySet(Urn.forUser(30l));
+        PropertySet userProperties = buildUserPropertySet(Urn.forUser(30L));
         UIEvent uiEvent = UIEvent.fromToggleFollow(true, EntityMetadata.fromUser(userProperties));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_FOLLOW);
         assertThat(uiEvent.get("creator_urn")).isEqualTo("soundcloud:users:30");
@@ -73,7 +72,7 @@ public class UIEventTest extends AndroidUnitTest {
 
     @Test
     public void shouldCreateEventFromToggleToUnfollow() {
-        PropertySet userProperties = buildUserPropertySet(Urn.forUser(30l));
+        PropertySet userProperties = buildUserPropertySet(Urn.forUser(30L));
         UIEvent uiEvent = UIEvent.fromToggleFollow(false, EntityMetadata.fromUser(userProperties));
         assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_UNFOLLOW);
     }
@@ -1048,7 +1047,7 @@ public class UIEventTest extends AndroidUnitTest {
     @Test
     public void shouldCreateEventFromNavigation() {
         final AttributingActivity attributingActivity = AttributingActivity.create(AttributingActivity.POSTED,
-                                                                                   Strings.EMPTY);
+                                                                                   Optional.<Urn>absent());
 
         EventContextMetadata eventContext = eventContextNoInvokerScreen()
                 .attributingActivity(attributingActivity)

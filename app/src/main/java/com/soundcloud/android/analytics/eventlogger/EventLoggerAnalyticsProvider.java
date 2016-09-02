@@ -22,6 +22,8 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UpgradeFunnelEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
 import dagger.Lazy;
 
@@ -37,16 +39,19 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
     private final Lazy<EventLoggerJsonDataBuilder> dataBuilderV0;
     private final Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1;
     private final SharedPreferences sharedPreferences;
+    private final FeatureFlags featureFlags;
 
     @Inject
     public EventLoggerAnalyticsProvider(EventTrackingManager eventTrackingManager,
                                         Lazy<EventLoggerJsonDataBuilder> dataBuilderV0,
                                         Lazy<EventLoggerV1JsonDataBuilder> dataBuilderV1,
-                                        SharedPreferences sharedPreferences) {
+                                        SharedPreferences sharedPreferences,
+                                        FeatureFlags featureFlags) {
         this.sharedPreferences = sharedPreferences;
         this.dataBuilderV0 = dataBuilderV0;
         this.dataBuilderV1 = dataBuilderV1;
         this.eventTrackingManager = eventTrackingManager;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -142,12 +147,19 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
                 trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
                 break;
-            case UIEvent.KIND_NAVIGATION:
             case UIEvent.KIND_LIKE:
             case UIEvent.KIND_UNLIKE:
             case UIEvent.KIND_REPOST:
             case UIEvent.KIND_UNREPOST:
             case UIEvent.KIND_SHARE:
+                trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
+
+                if (featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)) {
+                    trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForInteractionEvent(event));
+                }
+
+                break;
+            case UIEvent.KIND_NAVIGATION:
             case UIEvent.KIND_SHUFFLE:
             case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
             case UIEvent.KIND_VIDEO_AD_SHRINK:

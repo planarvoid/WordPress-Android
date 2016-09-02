@@ -6,6 +6,7 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -59,10 +60,12 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private final Navigator navigator;
     private final FeatureFlags featureFlags;
     private final PlayQueueHelper playQueueHelper;
+    private final EventTracker eventTracker;
 
     private PlaylistItem playlist;
     private Subscription playlistSubscription = RxUtils.invalidSubscription();
     private OverflowMenuOptions menuOptions;
+    private Optional<EventContextMetadata.Builder> eventContextMetadataBuilder;
 
     @Inject
     public PlaylistItemMenuPresenter(Context appContext,
@@ -78,7 +81,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                                      OfflineContentOperations offlineContentOperations,
                                      Navigator navigator,
                                      FeatureFlags featureFlags,
-                                     PlayQueueHelper playQueueHelper) {
+                                     PlayQueueHelper playQueueHelper,
+                                     EventTracker eventTracker) {
         this.appContext = appContext;
         this.eventBus = eventBus;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
@@ -93,11 +97,20 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         this.navigator = navigator;
         this.featureFlags = featureFlags;
         this.playQueueHelper = playQueueHelper;
+        this.eventTracker = eventTracker;
     }
 
     public void show(View button, PlaylistItem playlist, OverflowMenuOptions menuOptions) {
+        show(button, playlist, menuOptions, null);
+    }
+
+    public void show(View button,
+                     PlaylistItem playlist,
+                     OverflowMenuOptions menuOptions,
+                     EventContextMetadata.Builder eventContextMetadataBuilder) {
         this.playlist = playlist;
         this.menuOptions = menuOptions;
+        this.eventContextMetadataBuilder = Optional.fromNullable(eventContextMetadataBuilder);
 
         final PopupMenuWrapper menu = setupMenu(button);
         loadPlaylist(menu);
@@ -188,12 +201,14 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     }
 
     private EventContextMetadata getEventContextMetadata() {
-        return EventContextMetadata.builder()
-                                   .invokerScreen(ScreenElement.LIST.get())
-                                   .contextScreen(screenProvider.getLastScreenTag())
-                                   .pageName(screenProvider.getLastScreenTag())
-                                   .isFromOverflow(true)
-                                   .build();
+        final EventContextMetadata.Builder builder = eventContextMetadataBuilder.isPresent() ?
+                                                     eventContextMetadataBuilder.get() :
+                                                     EventContextMetadata.builder()
+                                                                         .invokerScreen(ScreenElement.LIST.get())
+                                                                         .contextScreen(screenProvider.getLastScreenTag())
+                                                                         .pageName(screenProvider.getLastScreenTag());
+
+        return builder.isFromOverflow(true).build();
     }
 
     private void handleLike() {
@@ -203,12 +218,12 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                       .observeOn(AndroidSchedulers.mainThread())
                       .subscribe(new LikeToggleSubscriber(appContext, addLike));
 
-        eventBus.publish(EventQueue.TRACKING,
-                         UIEvent.fromToggleLike(addLike,
-                                                playlist.getUrn(),
-                                                getEventContextMetadata(),
-                                                getPromotedSourceIfExists(),
-                                                EntityMetadata.from(playlist)));
+        eventTracker.trackEngagement(
+                UIEvent.fromToggleLike(addLike,
+                                       playlist.getUrn(),
+                                       getEventContextMetadata(),
+                                       getPromotedSourceIfExists(),
+                                       EntityMetadata.from(playlist)));
 
         if (isUnlikingNotOwnedPlaylistInOfflineMode(addLike)) {
             fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlistUrn));
@@ -222,7 +237,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(appContext, addRepost));
 
-        eventBus.publish(EventQueue.TRACKING,
+        eventTracker.trackEngagement(
                          UIEvent.fromToggleRepost(addRepost,
                                                   playlist.getUrn(),
                                                   getEventContextMetadata(),

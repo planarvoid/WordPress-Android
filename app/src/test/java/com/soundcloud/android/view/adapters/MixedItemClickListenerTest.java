@@ -31,7 +31,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -214,10 +213,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
 
         assertThat(uiEventArgumentCaptor.getValue()
                                         .getAttributingActivity()
-                                        .get()).isEqualTo(AttributingActivity.create(
-                AttributingActivity.typeFromPlayableItem(playlistItem),
-                Strings.EMPTY
-        ));
+                                        .get()).isEqualTo(AttributingActivity.fromPlayableItem(playlistItem));
 
         assertThat(uiEventArgumentCaptor.getValue().getContextScreen()).isEqualTo(screen.get());
 

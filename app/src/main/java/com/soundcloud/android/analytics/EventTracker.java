@@ -33,7 +33,7 @@ public class EventTracker {
         publishAndUpdate(event, Optional.<ReferringEvent>absent());
     }
 
-    public void trackInteraction(UIEvent event) {
+    public void trackEngagement(UIEvent event) {
         attachAndPublish(event, trackingStateProvider.getLastEvent());
     }
 

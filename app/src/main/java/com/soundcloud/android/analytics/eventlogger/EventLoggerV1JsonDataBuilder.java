@@ -315,7 +315,24 @@ public class EventLoggerV1JsonDataBuilder {
             case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
                 return transform(buildClickEvent("ad::skip", event));
             case UIEvent.KIND_NAVIGATION:
-                return transform(buildNavigationEvent(event, ACTION_NAVIGATION));
+                return transform(buildInteractionEvent(ACTION_NAVIGATION, event));
+            default:
+                throw new IllegalStateException("Unexpected UIEvent type: " + event);
+        }
+    }
+
+    public String buildForInteractionEvent(UIEvent event) {
+        switch (event.getKind()) {
+            case UIEvent.KIND_SHARE:
+                return transform(buildInteractionEvent("share", event));
+            case UIEvent.KIND_REPOST:
+                return transform(buildInteractionEvent("repost::add", event));
+            case UIEvent.KIND_UNREPOST:
+                return transform(buildInteractionEvent("repost::remove", event));
+            case UIEvent.KIND_LIKE:
+                return transform(buildInteractionEvent("like::add", event));
+            case UIEvent.KIND_UNLIKE:
+                return transform(buildInteractionEvent("like::remove", event));
             default:
                 throw new IllegalStateException("Unexpected UIEvent type: " + event);
         }
@@ -422,8 +439,9 @@ public class EventLoggerV1JsonDataBuilder {
             eventData.queryPosition(queryPosition.get());
         }
 
-        if (!event.get(PlayableTrackingKeys.KEY_PAGE_URN).equals(Urn.NOT_SET.toString())) {
-            eventData.pageUrn(event.get(PlayableTrackingKeys.KEY_PAGE_URN));
+        final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
+        if (pageUrn != null && !pageUrn.equals(Urn.NOT_SET.toString())) {
+            eventData.pageUrn(pageUrn);
         }
 
         if (event.isFromOverflow()) {
@@ -433,7 +451,7 @@ public class EventLoggerV1JsonDataBuilder {
         return eventData;
     }
 
-    private EventLoggerEventData buildNavigationEvent(UIEvent event, String action) {
+    private EventLoggerEventData buildInteractionEvent(String action, UIEvent event) {
         final Optional<AttributingActivity> attributingActivity = event.getAttributingActivity();
         final Optional<Module> module = event.getModule();
         final Optional<Integer> modulePosition = event.getModulePosition();
@@ -553,7 +571,7 @@ public class EventLoggerV1JsonDataBuilder {
 
     private void addExperiments(EventLoggerEventData eventData) {
         ArrayList<Integer> activeVariants = experimentOperations.getActiveVariants();
-        if(activeVariants.size() > 0) {
+        if (activeVariants.size() > 0) {
             eventData.experiment(EXPERIMENT_VARIANTS_KEY, Strings.joinOn(",").join(activeVariants));
         }
     }

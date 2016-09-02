@@ -187,7 +187,7 @@ public class TrackItemMenuPresenterTest extends AndroidUnitTest {
         final String originScreen = "trackSourceInfoScreen";
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(originScreen, false);
 
-        presenter.show(activity, view, trackItem, 0, Optional.of(trackSourceInfo));
+        presenter.show(activity, view, trackItem, 0, Optional.of(trackSourceInfo), Optional.<EventContextMetadata.Builder>absent());
 
         assertThat(presenter.getEventContextMetadata().contextScreen()).isEqualTo(originScreen);
         assertThat(presenter.getEventContextMetadata().pageName()).isEqualTo(originScreen);
