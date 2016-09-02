@@ -5,12 +5,13 @@ import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
 import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
-import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayStateEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.java.collections.Pair;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -68,26 +69,26 @@ public class PlayHistoryController {
     private final EventBus eventBus;
     private final WritePlayHistoryCommand playHistoryStoreCommand;
     private final WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
-    private final PlayHistoryExperiment playHistoryExperiment;
     private final PushPlayHistoryCommand pushPlayHistoryCommand;
     private final PushRecentlyPlayedCommand pushRecentlyPlayedCommand;
     private final Scheduler scheduler;
+    private final FeatureFlags featureFlags;
 
     @Inject
     public PlayHistoryController(EventBus eventBus,
                                  WritePlayHistoryCommand playHistoryStoreCommand,
                                  WriteRecentlyPlayedCommand recentlyPlayedStoreCommand,
-                                 PlayHistoryExperiment playHistoryExperiment,
+                                 FeatureFlags featureFlags,
                                  PushPlayHistoryCommand pushPlayHistoryCommand,
                                  PushRecentlyPlayedCommand pushRecentlyPlayedCommand,
                                  @Named(LOW_PRIORITY) Scheduler scheduler) {
         this.eventBus = eventBus;
         this.playHistoryStoreCommand = playHistoryStoreCommand;
         this.recentlyPlayedStoreCommand = recentlyPlayedStoreCommand;
-        this.playHistoryExperiment = playHistoryExperiment;
         this.pushPlayHistoryCommand = pushPlayHistoryCommand;
         this.pushRecentlyPlayedCommand = pushRecentlyPlayedCommand;
         this.scheduler = scheduler;
+        this.featureFlags = featureFlags;
     }
 
     public void subscribe() {
@@ -111,7 +112,7 @@ public class PlayHistoryController {
         return new Action1<PlayHistoryRecord>() {
             @Override
             public void call(PlayHistoryRecord record) {
-                if (playHistoryExperiment.isEnabled()) {
+                if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
                     eventBus.publish(EventQueue.PLAY_HISTORY, PlayHistoryEvent.fromAdded(record.trackUrn()));
                 }
             }

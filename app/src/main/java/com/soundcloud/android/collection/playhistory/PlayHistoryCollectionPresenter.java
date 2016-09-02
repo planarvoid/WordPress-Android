@@ -9,7 +9,6 @@ import com.soundcloud.android.collection.MyCollection;
 import com.soundcloud.android.collection.PreviewCollectionItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
-import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -33,7 +32,6 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter impl
     private static final int FIXED_ITEMS = FIXED_PREVIEW_ITEMS + FIXED_RECENTLY_PLAYED_ITEMS + FIXED_PLAY_HISTORY_ITEMS;
 
     private final CollectionOperations collectionOperations;
-    private final PlayHistoryExperiment experiment;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlayHistoryOperations playHistoryOperations;
 
@@ -41,14 +39,12 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter impl
                                           CollectionOperations collectionOperations,
                                           CollectionOptionsStorage collectionOptionsStorage,
                                           CollectionAdapter adapter,
-                                          PlayHistoryExperiment experiment,
                                           Resources resources,
                                           EventBus eventBus,
                                           Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                           PlayHistoryOperations playHistoryOperations) {
         super(swipeRefreshAttacher, eventBus, adapter, resources, collectionOptionsStorage);
         this.collectionOperations = collectionOperations;
-        this.experiment = experiment;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.playHistoryOperations = playHistoryOperations;
 
@@ -79,15 +75,8 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter impl
         collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(),
                                                                        myCollection.getPlaylistItems()));
 
-        if (experiment.showOnlyOnSearch()) {
-            addPlayHistory(playHistoryTrackItems, collectionItems);
-        } else if (experiment.showBelowListeningHistory()) {
-            addPlayHistory(playHistoryTrackItems, collectionItems);
-            addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
-        } else {
-            addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
-            addPlayHistory(playHistoryTrackItems, collectionItems);
-        }
+        addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
+        addPlayHistory(playHistoryTrackItems, collectionItems);
 
         return collectionItems;
     }

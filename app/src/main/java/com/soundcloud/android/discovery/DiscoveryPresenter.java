@@ -1,13 +1,6 @@
 package com.soundcloud.android.discovery;
 
-import static com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations.CAROUSEL_ITEMS;
-import static com.soundcloud.android.rx.RxUtils.IS_NOT_EMPTY_LIST;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
-
 import com.soundcloud.android.Navigator;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
-import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
-import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
@@ -32,7 +25,6 @@ import com.soundcloud.android.view.adapters.RecyclerViewParallaxer;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
@@ -49,13 +41,6 @@ import java.util.List;
 
 class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, DiscoveryItem>
         implements DiscoveryAdapter.DiscoveryItemListenerBucket, TrackRecommendationListener {
-
-    private static final Func1<List<RecentlyPlayedPlayableItem>, DiscoveryItem> TO_RECENTLY_PLAYED = new Func1<List<RecentlyPlayedPlayableItem>, DiscoveryItem>() {
-        @Override
-        public DiscoveryItem call(List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems) {
-            return RecentlyPlayedBucketDiscoveryItem.create(recentlyPlayedPlayableItems);
-        }
-    };
 
     private final DataSource dataSource;
     private final TrackRecommendationPlaybackInitiator trackRecommendationPlaybackInitiator;
@@ -108,13 +93,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         subscription = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.CURRENT_PLAY_QUEUE_ITEM, new UpdatePlayingUrnSubscriber())
         );
-        if (dataSource.showPlayHistory()) {
-            subscription.add(eventBus
-                                     .queue(EventQueue.PLAY_HISTORY)
-                                     .flatMap(continueWith(dataSource.playHistory()))
-                                     .observeOn(AndroidSchedulers.mainThread())
-                                     .subscribe(new UpdateRecentlyPlayedItemSubscriber()));
-        }
     }
 
     @Override
@@ -205,17 +183,9 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         }
     }
 
-    private class UpdateRecentlyPlayedItemSubscriber extends DefaultSubscriber<DiscoveryItem> {
-        @Override
-        public void onNext(DiscoveryItem item) {
-            dataSource.updateRecentlyPlayed(adapter, item);
-        }
-    }
-
     public static class DataSource {
         private static final DiscoveryItem EMPTY_ITEM = EmptyViewItem.fromThrowable(new EmptyThrowable());
         private static final DiscoveryItem SEARCH_ITEM = DiscoveryItem.forSearchItem();
-        private static final int RECENTLY_PLAYED_POSITION = 1;
 
         private static final Func1<Throwable, DiscoveryItem> ERROR_ITEM = new Func1<Throwable, DiscoveryItem>() {
             @Override
@@ -236,32 +206,22 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         private final RecommendedStationsOperations recommendedStationsOperations;
         private final ChartsOperations chartsOperations;
         private final FeatureFlags featureFlags;
-        private final RecentlyPlayedOperations recentlyPlayedOperations;
-        private final PlayHistoryExperiment playHistoryExperiment;
 
         @Inject
         public DataSource(RecommendedTracksOperations recommendedTracksOperations,
                           PlaylistDiscoveryOperations playlistDiscoveryOperations,
                           RecommendedStationsOperations recommendedStationsOperations,
-                          PlayHistoryExperiment playHistoryExperiment,
                           ChartsOperations chartsOperations,
-                          FeatureFlags featureFlags,
-                          RecentlyPlayedOperations recentlyPlayedOperations) {
+                          FeatureFlags featureFlags) {
             this.recommendedTracksOperations = recommendedTracksOperations;
             this.playlistDiscoveryOperations = playlistDiscoveryOperations;
             this.recommendedStationsOperations = recommendedStationsOperations;
-            this.playHistoryExperiment = playHistoryExperiment;
             this.chartsOperations = chartsOperations;
             this.featureFlags = featureFlags;
-            this.recentlyPlayedOperations = recentlyPlayedOperations;
         }
 
         Observable<List<DiscoveryItem>> discoveryItems() {
             List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(5);
-
-            if (showPlayHistory()) {
-                discoveryItems.add(playHistory());
-            }
 
             discoveryItems.add(recommendedStationsOperations.recommendedStations());
 
@@ -281,10 +241,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
         Observable<List<DiscoveryItem>> refreshItems() {
             List<Observable<DiscoveryItem>> discoveryItems = new ArrayList<>(5);
 
-            if (showPlayHistory()) {
-                discoveryItems.add(playHistory());
-            }
-
             discoveryItems.add(recommendedStationsOperations.refreshRecommendedStations());
 
             if (featureFlags.isEnabled(Flag.DISCOVERY_RECOMMENDATIONS)) {
@@ -300,14 +256,6 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
             return items(discoveryItems);
         }
 
-        void updateRecentlyPlayed(DiscoveryAdapter adapter, DiscoveryItem item) {
-            adapter.setItem(RECENTLY_PLAYED_POSITION, item);
-        }
-
-        boolean showPlayHistory() {
-            return playHistoryExperiment.showOnlyOnSearch();
-        }
-
         private Observable<List<DiscoveryItem>> items(List<Observable<DiscoveryItem>> discoveryItems) {
             return Observable
                     .just(discoveryItems)
@@ -318,10 +266,5 @@ class DiscoveryPresenter extends RecyclerViewPresenter<List<DiscoveryItem>, Disc
                     .toList();
         }
 
-        private Observable<DiscoveryItem> playHistory() {
-            return recentlyPlayedOperations.recentlyPlayed(CAROUSEL_ITEMS)
-                                           .filter(IS_NOT_EMPTY_LIST)
-                                           .map(TO_RECENTLY_PLAYED);
-        }
     }
 }

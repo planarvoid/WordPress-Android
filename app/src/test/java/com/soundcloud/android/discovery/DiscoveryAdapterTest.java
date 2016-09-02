@@ -35,7 +35,6 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
     @Mock private EmptyDiscoveryItemRenderer emptyDiscoveryItemRenderer;
     @Mock private RecommendedStationsBucketItem stationsBucketItem;
     @Mock private RecommendedTracksBucketItem tracksBucketItem;
-    @Mock private RecentlyPlayedDiscoveryBucketRenderer recentlyPlayedBucketItemRenderer;
     @Mock private PlaylistTagsItem playlistTagItem;
     @Mock private ChartsBucketItem chartsBucketItem;
 
@@ -57,7 +56,6 @@ public class DiscoveryAdapterTest extends AndroidUnitTest {
                                        recommendedStationsBucketRenderer,
                                        chartsBucketItemRenderer,
                                        recommendationsFooterRenderer,
-                                       recentlyPlayedBucketItemRenderer,
                                        emptyDiscoveryItemRenderer);
     }
 

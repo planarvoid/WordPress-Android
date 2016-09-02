@@ -9,9 +9,10 @@ import com.soundcloud.android.collection.playlists.PlaylistsCollectionActivity;
 import com.soundcloud.android.collection.playlists.PlaylistsCollectionFragment;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedFragment;
-import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Module;
 import dagger.Provides;
@@ -40,15 +41,15 @@ public class CollectionModule {
                                                        CollectionOptionsStorage collectionOptionsStorage,
                                                        CollectionAdapter adapter,
                                                        CollectionPlaylistOptionsPresenter optionsPresenter,
-                                                       PlayHistoryExperiment playHistoryExperiment,
+                                                       FeatureFlags featureFlags,
                                                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                                        PlayHistoryOperations playHistoryOperations,
                                                        Resources resources,
                                                        EventBus eventBus) {
-        if (playHistoryExperiment.isEnabled()) {
+        if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)) {
             return new PlayHistoryCollectionPresenter(
                     swipeRefreshAttacher, collectionOperations, collectionOptionsStorage,
-                    adapter, playHistoryExperiment, resources, eventBus, expandPlayerSubscriberProvider,
+                    adapter, resources, eventBus, expandPlayerSubscriberProvider,
                     playHistoryOperations);
         } else {
             return new CollectionPresenter(

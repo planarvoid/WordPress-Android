@@ -11,7 +11,6 @@ public class ActiveExperiments {
     public static final String LISTENING_LAYER = "android_listening";
     public static final List<ExperimentConfiguration> ACTIVE_EXPERIMENTS = Arrays.asList(ShareAsTextButtonExperiment.CONFIGURATION,
                                                                                          StationsRecoAlgorithmExperiment.CONFIGURATION,
-                                                                                         PlayHistoryExperiment.CONFIGURATION,
                                                                                          OpusExperiment.CONFIGURATION);
 
     private static final String[] ACTIVE_LAYERS = {LISTENING_LAYER};

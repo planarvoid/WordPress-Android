@@ -15,7 +15,6 @@ import com.soundcloud.android.collection.playhistory.PlayHistoryCollectionPresen
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
-import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -75,7 +74,6 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
     @Mock private CollectionPlaylistOptionsPresenter optionsPresenter;
     @Mock private CollectionAdapter adapter;
     @Mock private Fragment fragment;
-    @Mock private PlayHistoryExperiment experiment;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private PlayHistoryOperations playHistoryOperations;
 
@@ -91,7 +89,6 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
                                                        collectionOperations,
                                                        collectionOptionsStorage,
                                                        adapter,
-                                                       experiment,
                                                        resources(),
                                                        eventBus,
                                                        expandPlayerSubscriberProvider,
@@ -167,31 +164,6 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
 
         collectionSyncedBus.onNext(null);
         verify(collectionOperations, never()).collectionsForPlayHistory();
-    }
-
-    @Test
-    public void shouldOnlyShowPlayHistoryWhenExperimentIsOnSearch() {
-        when(experiment.showOnlyOnSearch()).thenReturn(true);
-
-        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(MY_COLLECTION);
-
-        assertThat(collectionItems).containsExactly(
-                PreviewCollectionItem.forLikesAndPlaylists(MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems()),
-                PlayHistoryBucketItem.create(PLAY_HISTORY)
-        );
-    }
-
-    @Test
-    public void shouldShowRecentlyPlayedBelowPlayHistoryWhenExperimentIsSet() {
-        when(experiment.showBelowListeningHistory()).thenReturn(true);
-
-        Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(MY_COLLECTION);
-
-        assertThat(collectionItems).containsExactly(
-                PreviewCollectionItem.forLikesAndPlaylists(MY_COLLECTION.getLikes(), MY_COLLECTION.getPlaylistItems()),
-                PlayHistoryBucketItem.create(PLAY_HISTORY),
-                RecentlyPlayedBucketItem.create(RECENTLY_PLAYED)
-        );
     }
 
     @Test

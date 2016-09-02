@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
 import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
-import com.soundcloud.android.configuration.experiments.PlayHistoryExperiment;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayHistoryEvent;
@@ -15,6 +14,8 @@ import com.soundcloud.android.playback.PlayStateReason;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -35,10 +36,10 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
     private static final PlayHistoryRecord RECORD2 = PlayHistoryRecord.create(START_EVENT, TRACK_URN2, COLLECTION_URN);
     private static final PlayHistoryRecord RECORD = PlayHistoryRecord.create(START_EVENT, TRACK_URN, COLLECTION_URN);
 
+    @Mock FeatureFlags featureFlags;
     @Mock WritePlayHistoryCommand playHistoryStoreCommand;
     @Mock WriteRecentlyPlayedCommand recentlyPlayedStoreCommand;
     @Mock PlayHistoryOperations playHistoryOperations;
-    @Mock PlayHistoryExperiment experiment;
     @Mock PushPlayHistoryCommand pushPlayHistoryCommand;
     @Mock private PushRecentlyPlayedCommand pushRecentlyPlayedCommand;
 
@@ -48,14 +49,15 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(experiment.isEnabled()).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
         PlayHistoryController controller = new PlayHistoryController(eventBus,
                                                                      playHistoryStoreCommand,
                                                                      recentlyPlayedStoreCommand,
-                                                                     experiment,
+                                                                     featureFlags,
                                                                      pushPlayHistoryCommand,
                                                                      pushRecentlyPlayedCommand,
-                                                                     scheduler);
+                                                                     scheduler
+        );
         controller.subscribe();
     }
 
