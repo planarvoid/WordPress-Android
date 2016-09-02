@@ -536,7 +536,7 @@
     <string name="title_notification_settings">Notification settings</string>
 
     <!-- __STATIONS -->
-    <string name="stations_collection_title_liked_stations">Liked stations</string>
+    <string name="stations_collection_title_liked_stations">Stations</string>
     <string name="liked_stations_empty_view_message">You have not liked any station yet</string>
     <string name="stations_start_track_station">Start track station</string>
     <string name="stations_start_user_station">Start station</string>

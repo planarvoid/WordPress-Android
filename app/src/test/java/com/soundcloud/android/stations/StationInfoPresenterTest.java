@@ -8,7 +8,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -33,7 +32,6 @@ import rx.subjects.PublishSubject;
 import android.os.Bundle;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class StationInfoPresenterTest extends AndroidUnitTest {
 
@@ -57,21 +55,17 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
     @Mock PlayQueueManager playQueueManager;
 
     private TestEventBus eventBus;
-    private StationRecord stationRecord;
-    private List<StationInfoTrack> stationTracks;
+    private StationWithTracks stationWithTracks;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        stationRecord = StationFixtures.getStation(TRACK_STATION);
-        stationTracks = StationFixtures.getStationTracks(10);
+        stationWithTracks = StationFixtures.getStationWithTracks(TRACK_STATION);
 
         when(playQueueManager.getCollectionUrn()).thenReturn(Urn.NOT_SET);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PlayQueueItem.EMPTY);
-        when(stationOperations.lastPlayedPosition(TRACK_STATION)).thenReturn(Observable.just(Consts.NOT_SET));
-        when(stationOperations.stationWithSeed(TRACK_STATION, Optional.<Urn>absent())).thenReturn(Observable.just(
-                stationRecord));
-        when(stationOperations.stationTracks(TRACK_STATION)).thenReturn(Observable.just(stationTracks));
+        when(stationOperations.stationWithTracks(TRACK_STATION, Optional.<Urn>absent())).thenReturn(Observable.just(
+                stationWithTracks));
 
         when(rendererFactory.create(any(StationInfoPresenter.class))).thenReturn(bucketRenderer);
         when(adapterFactory.create(any(StationInfoClickListener.class), eq(bucketRenderer))).thenReturn(adapter);
@@ -89,15 +83,15 @@ public class StationInfoPresenterTest extends AndroidUnitTest {
     public void shouldLoadInitialItemsInOnCreate() {
         presenter.onCreate(fragmentRule1.getFragment(), null);
 
-        final StationInfoTracksBucket tracksBucket = StationInfoTracksBucket.from(stationTracks, Consts.NOT_SET);
-        final StationInfoHeader header = StationInfoHeader.from(stationRecord, tracksBucket.getMostPlayedArtists(3));
+        final StationInfoTracksBucket tracksBucket = StationInfoTracksBucket.from(stationWithTracks);
+        final StationInfoHeader header = StationInfoHeader.from(stationWithTracks);
 
         verify(adapter).onNext(Arrays.asList(header, tracksBucket));
     }
 
     @Test
     public void shouldSubscribeAdapterToPlayingTrackChanges() {
-        final Urn playingTrackUrn = stationTracks.get(0).getUrn();
+        final Urn playingTrackUrn = stationWithTracks.getStationInfoTracks().get(0).getUrn();
         presenter.onCreate(fragmentRule1.getFragment(), null);
 
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM, positionChangedEvent(playingTrackUrn));

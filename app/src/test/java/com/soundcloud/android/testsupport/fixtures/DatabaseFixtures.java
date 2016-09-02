@@ -398,6 +398,12 @@ public class DatabaseFixtures {
         return station;
     }
 
+    public ApiStation insertLikedStation() {
+        final ApiStation apiStation = insertStation();
+        insertInto(StationsCollections.TABLE, getStationLikeContentValues(apiStation.getUrn(), true));
+        return apiStation;
+    }
+
     public ApiStation insertUnlikedStation() {
         final ApiStation apiStation = insertStation();
         insertInto(StationsCollections.TABLE, getStationLikeContentValues(apiStation.getUrn(), false));

@@ -1,16 +1,22 @@
 package com.soundcloud.android.stations;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycles;
+import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
 import android.content.res.Resources;
@@ -29,7 +35,11 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     private final StationsAdapter adapter;
     private final Resources resources;
     private final PlayQueueManager playQueueManager;
+    private final EventBus eventBus;
+
     @LightCycle final StationsNowPlayingController stationsNowPlayingController;
+
+    private Subscription subscription = RxUtils.invalidSubscription();
 
     @Inject
     public LikedStationsPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
@@ -37,12 +47,13 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
                                   StationsAdapter adapter,
                                   Resources resources,
                                   PlayQueueManager playQueueManager,
-                                  StationsNowPlayingController stationsNowPlayingController) {
+                                  EventBus eventBus, StationsNowPlayingController stationsNowPlayingController) {
         super(swipeRefreshAttacher, Options.defaults());
         this.operations = operations;
         this.adapter = adapter;
         this.resources = resources;
         this.playQueueManager = playQueueManager;
+        this.eventBus = eventBus;
         this.stationsNowPlayingController = stationsNowPlayingController;
         this.stationsNowPlayingController.setAdapter(adapter);
         LightCycles.bind(this);
@@ -88,13 +99,27 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     @Override
     public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+        configureRecyclerView(view);
+        configureEmptyView();
+
+        subscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                               .filter(EntityStateChangedEvent.IS_STATION_COLLECTION_UPDATED)
+                               .observeOn(AndroidSchedulers.mainThread())
+                               .subscribe(new RefreshLikedStationsSubscriber());
+    }
+
+    @Override
+    public void onDestroy(Fragment fragment) {
+        subscription.unsubscribe();
+        super.onDestroy(fragment);
+    }
+
+    private void configureRecyclerView(View view) {
         RecyclerView recyclerView = getRecyclerView();
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(),
                                                             resources.getInteger(R.integer.stations_grid_span_count)));
-
-        configureEmptyView();
     }
 
     private void configureEmptyView() {
@@ -106,5 +131,14 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     @Override
     protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
+    private class RefreshLikedStationsSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+
+        @Override
+        public void onNext(EntityStateChangedEvent args) {
+            adapter.clear();
+            retryWith(onRefreshBinding());
+        }
     }
 }

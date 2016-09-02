@@ -11,12 +11,13 @@ import java.util.List;
 @AutoValue
 abstract class StationInfoHeader extends StationInfoItem implements ImageResource, Entity {
 
-    public static StationInfoHeader from(StationRecord record, List<String> artists) {
-        return new AutoValue_StationInfoHeader(record.getUrn(),
-                                               record.getType(),
-                                               record.getTitle(),
-                                               artists,
-                                               record.getImageUrlTemplate());
+    public static StationInfoHeader from(StationWithTracks station) {
+        return new AutoValue_StationInfoHeader(station.getUrn(),
+                                               station.getType(),
+                                               station.getTitle(),
+                                               station.getMostPlayedArtists(),
+                                               station.getImageUrlTemplate(),
+                                               station.isLiked());
     }
 
     StationInfoHeader() {
@@ -35,8 +36,5 @@ abstract class StationInfoHeader extends StationInfoItem implements ImageResourc
     @Override
     public abstract Optional<String> getImageUrlTemplate();
 
-    public boolean isLiked() {
-        // TODO: another story
-        return false;
-    }
+    public abstract boolean isLiked();
 }

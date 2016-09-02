@@ -49,6 +49,13 @@ public class StationsOperations {
         }
     };
 
+    private static final Func1<StationWithTracks, Boolean> STATIONS_CONTAINING_TRACKS = new Func1<StationWithTracks, Boolean>() {
+        @Override
+        public Boolean call(StationWithTracks station) {
+            return station.getStationInfoTracks().size() > 0;
+        }
+    };
+
     @Inject
     public StationsOperations(SyncStateStorage syncStateStorage,
                               StationsStorage stationsStorage,
@@ -75,28 +82,54 @@ public class StationsOperations {
         return station(station, prependSeed(seed));
     }
 
-    Observable<StationRecord> stationWithSeed(Urn station, final Optional<Urn> seed) {
-        return station(station,
-                       seed.isPresent() ? prependSeed(seed.get()) : UtilityFunctions.<StationRecord>identity());
+    Observable<StationWithTracks> stationWithTracks(Urn station, final Optional<Urn> seed) {
+        return stationWithTracks(station,
+                                 seed.isPresent() ?
+                                 prependSeed(seed.get()) :
+                                 UtilityFunctions.<StationRecord>identity());
+    }
+
+    private Observable<StationWithTracks> stationWithTracks(Urn station,
+                                                            Func1<StationRecord, StationRecord> toStation) {
+        return stationsStorage
+                .clearExpiredPlayQueue(station)
+                .flatMap(continueWith(loadStationWithTracks(station, toStation)))
+                .subscribeOn(scheduler);
     }
 
     private Observable<StationRecord> station(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return stationsStorage
                 .clearExpiredPlayQueue(station)
-                .flatMap(continueWith(loadStation(station, toStation)))
+                .flatMap(continueWith(getStation(station, toStation)))
                 .subscribeOn(scheduler);
     }
 
-    private Observable<StationRecord> loadStation(Urn station, Func1<StationRecord, StationRecord> toStation) {
+    private Observable<StationRecord> getStation(Urn station, Func1<StationRecord, StationRecord> toStation) {
         return Observable
                 .concat(stationsStorage.station(station).filter(HAS_TRACKS),
-                        stationsApi
-                                .fetchStation(station)
-                                .doOnNext(storeTracks)
-                                .map(toStation)
-                                .doOnNext(storeStationCommand.toAction1())
+                        syncSingleStation(station, toStation)
                 )
                 .first();
+    }
+
+    private Observable<StationWithTracks> loadStationWithTracks(Urn station,
+                                                                Func1<StationRecord, StationRecord> toStation) {
+        return Observable
+                .concat(loadStationWithTracks(station).filter(STATIONS_CONTAINING_TRACKS),
+                        syncSingleStation(station, toStation).flatMap(continueWith(loadStationWithTracks(station))))
+                .first();
+    }
+
+    private Observable<StationWithTracks> loadStationWithTracks(Urn station) {
+        return stationsStorage.stationWithTracks(station);
+    }
+
+    private Observable<StationRecord> syncSingleStation(Urn station,
+                                                        Func1<StationRecord, StationRecord> toStation) {
+        return stationsApi.fetchStation(station)
+                          .doOnNext(storeTracks)
+                          .map(toStation)
+                          .doOnNext(storeStationCommand.toAction1());
     }
 
     private Func1<StationRecord, StationRecord> prependSeed(final Urn seed) {
@@ -121,11 +154,6 @@ public class StationsOperations {
         return collection.subscribeOn(scheduler);
     }
 
-    Observable<List<StationInfoTrack>> stationTracks(Urn stationUrn) {
-        return stationsStorage.stationTracks(stationUrn).toList()
-                              .subscribeOn(scheduler);
-    }
-
     private Observable<StationRecord> loadStationsCollection(final int type) {
         return stationsStorage.getStationsCollection(type).subscribeOn(scheduler);
     }
@@ -136,10 +164,6 @@ public class StationsOperations {
 
     ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
         return stationsStorage.saveLastPlayedTrackPosition(collectionUrn, position);
-    }
-
-    Observable<Integer> lastPlayedPosition(Urn stationUrn) {
-        return stationsStorage.loadLastPlayedPosition(stationUrn).subscribeOn(scheduler);
     }
 
     public Observable<SyncJobResult> sync() {

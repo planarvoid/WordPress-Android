@@ -143,14 +143,14 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
 
     @Test
     public void shouldLoadLastPlayedTrackPosition() {
-        TestSubscriber<Integer> subscriber = new TestSubscriber<>();
+        TestSubscriber<StationWithTracks> subscriber = new TestSubscriber<>();
         final int position = 20;
         final Urn station = testFixtures().insertStation(0).getUrn();
 
         storage.saveLastPlayedTrackPosition(station, position);
-        storage.loadLastPlayedPosition(station).subscribe(subscriber);
+        storage.stationWithTracks(station).subscribe(subscriber);
 
-        subscriber.assertValue(position);
+        assertThat(subscriber.getOnNextEvents().get(0).getPreviousPosition()).isEqualTo(20);
     }
 
     @Test
@@ -252,6 +252,19 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         storage.updateStationLike(apiStation.getUrn(), true).subscribe(subscriber);
 
         databaseAssertions().assertLocalStationLike(apiStation.getUrn());
+    }
+
+    @Test
+    public void shouldReturnCorrectLikeStatusWhenLoadingStationWithTracks() {
+        final ApiStation apiStation = testFixtures().insertLikedStation();
+        final TestSubscriber<StationWithTracks> subscriber = new TestSubscriber<>();
+
+        storage.stationWithTracks(apiStation.getUrn()).subscribe(subscriber);
+        final StationWithTracks stationWithTracks = subscriber.getOnNextEvents().get(0);
+
+        assertThat(stationWithTracks.isLiked()).isTrue();
+        assertThat(stationWithTracks.getTitle()).isEqualTo(apiStation.getTitle());
+        assertThat(stationWithTracks.getType()).isEqualTo(apiStation.getType());
     }
 
     private void assertReceivedStationInfoTracks(List<StationInfoTrack> receivedTracks, List<ApiTrack> apiTracks) {

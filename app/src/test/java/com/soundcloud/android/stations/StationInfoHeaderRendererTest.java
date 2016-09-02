@@ -1,5 +1,7 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.stations.StationFixtures.createStationInfoTrack;
+import static com.soundcloud.android.stations.StationFixtures.getStationWithTracks;
 import static java.util.Collections.singletonList;
 import static junit.framework.Assert.assertEquals;
 import static org.assertj.android.api.Assertions.assertThat;
@@ -27,7 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
@@ -50,8 +52,7 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindsStationInfo() {
-        StationInfoHeader stationInfoHeader = StationInfoHeader.from(StationFixtures.getStation(station),
-                                                                     Collections.<String>emptyList());
+        StationInfoHeader stationInfoHeader = StationInfoHeader.from(getStationWithTracks(station));
 
         renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
 
@@ -61,8 +62,7 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindArtwork() {
-        StationInfoHeader stationInfoHeader = StationInfoHeader.from(StationFixtures.getStation(station),
-                                                                     Collections.<String>emptyList());
+        StationInfoHeader stationInfoHeader = StationInfoHeader.from(getStationWithTracks(station));
 
         renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
 
@@ -73,8 +73,9 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindDescriptionWithTwoArtists() {
-        StationInfoHeader stationInfoHeader = StationInfoHeader.from(StationFixtures.getStation(station),
-                                                                     Arrays.asList("Artist1", "Artist2"));
+        final List<StationInfoTrack> tracks = Arrays.asList(createStationInfoTrack(2, "Artist1"),
+                                                            createStationInfoTrack(1, "Artist2"));
+        StationInfoHeader stationInfoHeader = StationInfoHeader.from(getStationWithTracks(station, tracks));
 
         renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
 
@@ -84,9 +85,10 @@ public class StationInfoHeaderRendererTest extends AndroidUnitTest {
 
     @Test
     public void bindDescriptionWithOneArtists() {
-        final CharSequence expectedDesc = resources().getString(R.string.stations_home_description, "Artist1");
-        final StationInfoHeader stationInfoHeader = StationInfoHeader.from(StationFixtures.getStation(station),
-                                                                           Collections.singletonList("Artist1"));
+        final StationWithTracks stationWithTracks = getStationWithTracks(station);
+        final StationInfoHeader stationInfoHeader = StationInfoHeader.from(stationWithTracks);
+        final CharSequence expectedDesc = resources().getString(R.string.stations_home_description,
+                                                                stationWithTracks.getMostPlayedArtists().get(0));
 
         renderer.bindItemView(0, itemView, singletonList(stationInfoHeader));
 

@@ -80,6 +80,13 @@ public abstract class EntityStateChangedEvent implements UrnEvent {
         }
     };
 
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_STATION_COLLECTION_UPDATED = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.getKind() == STATIONS_COLLECTION_UPDATED;
+        }
+    };
+
     public static final Func1<EntityStateChangedEvent, Urn> TO_URN = new Func1<EntityStateChangedEvent, Urn>() {
         @Override
         public Urn call(EntityStateChangedEvent entityStateChangedEvent) {

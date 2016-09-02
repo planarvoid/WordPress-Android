@@ -1,14 +1,15 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.testsupport.fixtures.ModelFixtures.trackItems;
-import static com.soundcloud.java.collections.Iterables.transform;
-import static com.soundcloud.java.collections.Lists.newArrayList;
+import static com.soundcloud.java.collections.Lists.transform;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 
@@ -19,6 +20,13 @@ import java.util.Random;
 
 public class StationFixtures {
     private static final Random random = new Random();
+
+    private static Function<TrackRecord, StationInfoTrack> toStationInfoTrack = new Function<TrackRecord, StationInfoTrack>() {
+        @Override
+        public StationInfoTrack apply(TrackRecord input) {
+            return StationInfoTrack.from(((ApiTrack) input).toPropertySet());
+        }
+    };
 
     public static ApiStation getApiStation() {
         return getApiStation(Urn.forTrackStation(random.nextLong()));
@@ -49,15 +57,6 @@ public class StationFixtures {
         );
     }
 
-    static List<StationInfoTrack> getStationTracks(int size) {
-        return newArrayList(transform(trackItems(size), new Function<TrackItem, StationInfoTrack>() {
-            @Override
-            public StationInfoTrack apply(TrackItem trackItem) {
-                return StationInfoTrack.from(trackItem);
-            }
-        }));
-    }
-
     private static ApiStationMetadata getApiStationMetadata(Urn station) {
         return new ApiStationMetadata(
                 station,
@@ -76,6 +75,29 @@ public class StationFixtures {
         }
 
         return "fixture-stations";
+    }
+
+    static StationWithTracks getStationWithTracks(Urn station) {
+        final ApiStation apiStation = getApiStation(station);
+        final List<StationInfoTrack> tracks = transform(apiStation.getTrackRecords(), toStationInfoTrack);
+
+        return getStationWithTracks(apiStation, tracks);
+    }
+
+    static StationWithTracks getStationWithTracks(Urn station, List<StationInfoTrack> tracks) {
+        return getStationWithTracks(getApiStation(station), tracks);
+    }
+
+    private static StationWithTracks getStationWithTracks(ApiStation apiStation, List<StationInfoTrack> tracks) {
+        return new StationWithTracks(
+                apiStation.getUrn(),
+                apiStation.getTitle(),
+                apiStation.getType(),
+                apiStation.getImageUrlTemplate(),
+                apiStation.getPermalink(),
+                tracks,
+                Stations.NEVER_PLAYED,
+                true);
     }
 
     public static StationRecord getStation(Urn urn) {
@@ -120,6 +142,13 @@ public class StationFixtures {
 
     public static ApiStationsCollections collections(List<Urn> recents) {
         return ApiStationsCollections.create(createStationsCollection(recents));
+    }
+
+    static StationInfoTrack createStationInfoTrack(int playCount, String artistName) {
+        final PropertySet trackState = TestPropertySets.fromApiTrack()
+                                                       .put(TrackProperty.PLAY_COUNT, playCount)
+                                                       .put(TrackProperty.CREATOR_NAME, artistName);
+        return StationInfoTrack.from(TrackItem.from(trackState));
     }
 
     static ModelCollection<ApiStationMetadata> createStationsCollection(List<Urn> stations) {

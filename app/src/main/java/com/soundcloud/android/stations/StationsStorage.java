@@ -24,6 +24,7 @@ import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class StationsStorage {
+    private static final String STATION_LIKE = "STATION_LIKE";
     private static final String ONBOARDING_DISABLED = "ONBOARDING_DISABLED";
     private static final long EXPIRE_DELAY = TimeUnit.HOURS.toMillis(24);
 
@@ -61,6 +63,15 @@ class StationsStorage {
                     cursorReader.getString(Stations.PERMALINK),
                     mapLastPosition(cursorReader),
                     fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
+        }
+    };
+
+    private static final Func2<StationWithTracks, List<StationInfoTrack>, StationWithTracks> ZIP_STATION_WITH_TRACKS = new Func2<StationWithTracks, List<StationInfoTrack>, StationWithTracks>() {
+        @Override
+        public StationWithTracks call(StationWithTracks stationWithTracks,
+                                      List<StationInfoTrack> stationInfoTracks) {
+            stationWithTracks.setTracks(stationInfoTracks);
+            return stationWithTracks;
         }
     };
 
@@ -172,6 +183,7 @@ class StationsStorage {
     private Query buildStationsQuery(int collectionType) {
         return Query.from(StationsCollections.TABLE)
                     .whereEq(StationsCollections.COLLECTION_TYPE, collectionType)
+                    .whereNull(StationsCollections.REMOVED_AT)
                     .order(StationsCollections.ADDED_AT, Query.Order.DESC)
                     .order(StationsCollections.POSITION, Query.Order.ASC);
     }
@@ -196,6 +208,27 @@ class StationsStorage {
                     }
                 }
         );
+    }
+
+    Observable<StationWithTracks> stationWithTracks(final Urn station) {
+        return propellerRx.query(Query.from(Stations.TABLE)
+                                      .select(Stations.STATION_URN,
+                                              Stations.TITLE,
+                                              Stations.TYPE,
+                                              Stations.LAST_PLAYED_TRACK_POSITION,
+                                              Stations.ARTWORK_URL_TEMPLATE,
+                                              Stations.PERMALINK,
+                                              exists(likeQuery(station)).as(STATION_LIKE))
+                                      .whereEq(Stations.STATION_URN, station))
+                          .map(new StationWithTracksMapper())
+                          .zipWith(stationTracks(station).toList(), ZIP_STATION_WITH_TRACKS);
+    }
+
+    private static Query likeQuery(Urn stationUrn) {
+        return Query.from(StationsCollections.TABLE)
+                    .whereNull(StationsCollections.REMOVED_AT)
+                    .whereEq(StationsCollections.STATION_URN, stationUrn)
+                    .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED);
     }
 
     Observable<StationInfoTrack> stationTracks(Urn stationUrn) {
@@ -224,18 +257,6 @@ class StationsStorage {
 
     ChangeResult saveLastPlayedTrackPosition(Urn stationUrn, int position) {
         return updateStation(stationUrn, values().put(Stations.LAST_PLAYED_TRACK_POSITION, position).get());
-    }
-
-    Observable<Integer> loadLastPlayedPosition(Urn stationUrn) {
-        return propellerRx.query(Query.from(Stations.TABLE)
-                                      .select(Stations.LAST_PLAYED_TRACK_POSITION)
-                                      .whereEq(Stations.STATION_URN, stationUrn.toString()))
-                          .map(new Func1<CursorReader, Integer>() {
-                              @Override
-                              public Integer call(CursorReader cursorReader) {
-                                  return mapLastPosition(cursorReader);
-                              }
-                          });
     }
 
     private ChangeResult resetLastPlayedTrackPosition(Urn stationUrn) {
@@ -293,4 +314,20 @@ class StationsStorage {
         }
     }
 
+    private final class StationWithTracksMapper extends RxResultMapper<StationWithTracks> {
+
+        @Override
+        public StationWithTracks map(CursorReader reader) {
+            return new StationWithTracks(
+                    new Urn(reader.getString(Stations.STATION_URN)),
+                    reader.getString(Stations.TITLE),
+                    reader.getString(Stations.TYPE),
+                    Optional.fromNullable(reader.getString(Stations.ARTWORK_URL_TEMPLATE)),
+                    reader.getString(Stations.PERMALINK),
+                    Collections.<StationInfoTrack>emptyList(),
+                    reader.getInt(Stations.LAST_PLAYED_TRACK_POSITION),
+                    reader.getBoolean(STATION_LIKE)
+            );
+        }
+    }
 }

@@ -26,7 +26,7 @@ public final class ApiStation implements StationRecord {
     };
 
     private final ApiStationMetadata metadata;
-    private final List<? extends TrackRecord> tracks;
+    private final List<ApiTrack> tracks;
     private final Urn queryUrn;
 
     @JsonCreator
@@ -47,7 +47,7 @@ public final class ApiStation implements StationRecord {
         return transform(tracks, TO_STATION_TRACK);
     }
 
-    public List<? extends TrackRecord> getTrackRecords() {
+    public List<ApiTrack> getTrackRecords() {
         return tracks;
     }
 
