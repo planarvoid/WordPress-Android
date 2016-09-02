@@ -45,7 +45,8 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
 
     private static final List<PlaylistItem> PLAYLISTS = ModelFixtures.create(PlaylistItem.class, 2);
     private static final List<TrackItem> PLAY_HISTORY = singletonList(mock(TrackItem.class));
-    private static final List<RecentlyPlayedPlayableItem> RECENTLY_PLAYED = singletonList(mock(RecentlyPlayedPlayableItem.class));
+    private static final List<RecentlyPlayedPlayableItem> RECENTLY_PLAYED = singletonList(mock(
+            RecentlyPlayedPlayableItem.class));
 
     private static final MyCollection MY_COLLECTION = MyCollection.forCollectionWithPlayHistory(LIKES,
                                                                                                 PLAYLISTS,
@@ -113,7 +114,9 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
         Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
 
         assertThat(collectionItems).containsExactly(
-                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems())
+                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems()),
+                RecentlyPlayedBucketItem.create(Collections.<RecentlyPlayedPlayableItem>emptyList()),
+                PlayHistoryBucketItem.create(Collections.<TrackItem>emptyList())
         );
     }
 
@@ -123,7 +126,9 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
         Iterable<CollectionItem> collectionItems = presenter.toCollectionItems.call(myCollection);
 
         assertThat(collectionItems).containsExactly(
-                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems())
+                PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(), myCollection.getPlaylistItems()),
+                RecentlyPlayedBucketItem.create(Collections.<RecentlyPlayedPlayableItem>emptyList()),
+                PlayHistoryBucketItem.create(Collections.<TrackItem>emptyList())
         );
     }
 

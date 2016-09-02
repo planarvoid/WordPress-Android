@@ -166,7 +166,7 @@
     <color name="collections_options_dialog_header">#b3b3b3</color>
     <color name="collections_kill_filter_text_color">@color/ak_medium_dark_gray</color>
     <color name="collections_empty_slot_border">@color/ak_medium_dark_gray</color>
-    <color name="collections_empty_playlists_text_color">@color/ak_medium_dark_gray</color>
+    <color name="collections_empty_text_color">@color/ak_medium_dark_gray</color>
     <color name="collections_recently_played_header">@color/ak_medium_dark_gray</color>
 
     <!-- You -->

@@ -82,15 +82,11 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter impl
     }
 
     private void addRecentlyPlayed(List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems, List<CollectionItem> collectionItems) {
-        if (recentlyPlayedPlayableItems.size() > 0) {
-            collectionItems.add(RecentlyPlayedBucketItem.create(recentlyPlayedPlayableItems));
-        }
+        collectionItems.add(RecentlyPlayedBucketItem.create(recentlyPlayedPlayableItems));
     }
 
     private void addPlayHistory(List<TrackItem> tracks, List<CollectionItem> collectionItems) {
-        if (tracks.size() > 0) {
-            collectionItems.add(PlayHistoryBucketItem.create(tracks));
-        }
+        collectionItems.add(PlayHistoryBucketItem.create(tracks));
     }
 
     @Override

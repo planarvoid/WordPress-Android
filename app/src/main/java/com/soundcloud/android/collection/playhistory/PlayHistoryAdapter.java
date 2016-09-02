@@ -1,5 +1,6 @@
 package com.soundcloud.android.collection.playhistory;
 
+import static com.soundcloud.android.collection.playhistory.PlayHistoryItem.Kind.PlayHistoryEmpty;
 import static com.soundcloud.android.collection.playhistory.PlayHistoryItem.Kind.PlayHistoryHeader;
 import static com.soundcloud.android.collection.playhistory.PlayHistoryItem.Kind.PlayHistoryTrack;
 
@@ -24,9 +25,12 @@ class PlayHistoryAdapter extends PagingRecyclerItemAdapter<PlayHistoryItem, Play
 
     @Inject
     PlayHistoryAdapter(PlayHistoryTrackRenderer trackRenderer,
-                       PlayHistoryHeaderRenderer headerRenderer) {
+                       PlayHistoryHeaderRenderer headerRenderer,
+                       PlayHistoryEmptyRenderer emptyRenderer) {
         super(new CellRendererBinding<>(PlayHistoryTrack.ordinal(), trackRenderer),
-              new CellRendererBinding<>(PlayHistoryHeader.ordinal(), headerRenderer));
+              new CellRendererBinding<>(PlayHistoryHeader.ordinal(), headerRenderer),
+              new CellRendererBinding<>(PlayHistoryEmpty.ordinal(), emptyRenderer)
+              );
         this.trackRenderer = trackRenderer;
         this.headerRenderer = headerRenderer;
     }

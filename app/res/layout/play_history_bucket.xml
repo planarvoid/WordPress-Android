@@ -21,6 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <View style="@style/Divider.Item" />
+
     <FrameLayout
         android:id="@+id/play_history_view_all"
         style="@style/ViewAllContainer">

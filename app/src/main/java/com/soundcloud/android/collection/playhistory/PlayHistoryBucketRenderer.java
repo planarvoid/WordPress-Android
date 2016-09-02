@@ -60,8 +60,12 @@ public class PlayHistoryBucketRenderer implements CellRenderer<PlayHistoryBucket
 
         adapter.clear();
 
-        for (TrackItem trackItem : listeningHistory) {
-            adapter.addItem(PlayHistoryItemTrack.create(trackItem));
+        if (listeningHistory.isEmpty()) {
+            adapter.addItem(PlayHistoryItemEmpty.create());
+        } else {
+            for (TrackItem trackItem : listeningHistory) {
+                adapter.addItem(PlayHistoryItemTrack.create(trackItem));
+            }
         }
 
         adapter.notifyDataSetChanged();

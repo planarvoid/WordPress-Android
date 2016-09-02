@@ -6,7 +6,8 @@ abstract class RecentlyPlayedItem {
         RecentlyPlayedHeader,
         RecentlyPlayedPlaylist,
         RecentlyPlayedStation,
-        RecentlyPlayedProfile
+        RecentlyPlayedProfile,
+        RecentlyPlayedEmpty
     }
 
     abstract Kind getKind();

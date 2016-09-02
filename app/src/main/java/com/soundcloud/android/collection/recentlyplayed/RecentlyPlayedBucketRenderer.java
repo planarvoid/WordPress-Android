@@ -55,8 +55,12 @@ public class RecentlyPlayedBucketRenderer implements CellRenderer<RecentlyPlayed
 
         adapter.clear();
 
-        for (RecentlyPlayedPlayableItem recentlyPlayedPlayableItem : recentlyPlayedPlayableItems) {
-            adapter.addItem(recentlyPlayedPlayableItem);
+        if (recentlyPlayedPlayableItems.isEmpty()) {
+            adapter.addItem(RecentlyPlayedEmpty.create());
+        } else {
+            for (RecentlyPlayedPlayableItem recentlyPlayedPlayableItem : recentlyPlayedPlayableItems) {
+                adapter.addItem(recentlyPlayedPlayableItem);
+            }
         }
         adapter.notifyDataSetChanged();
     }

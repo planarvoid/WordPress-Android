@@ -662,8 +662,8 @@
     <string name="collections_play_history_clear_error_message">Error clearing your listening history. Try again later.</string>
     <string name="collections_play_history_empty">Find all the tracks you’ve listened to here.</string>
     <string name="collections_recently_played_header">Recently played</string>
-    <string name="collections_view_all_tracks">View more</string>
-    <string name="collections_view_all_recently_played">View all recently played</string>
+    <string name="collections_view_all_tracks">See all listening history</string>
+    <string name="collections_view_all_recently_played">See all recently played</string>
     <string name="dialog_playlist_delete_title">Delete playlist?</string>
     <string name="dialog_playlist_delete_message">This will permanently delete this playlist. Are you sure you want to continue?</string>
     <string name="collections_recently_played_track_station">track station</string>

@@ -7,13 +7,9 @@ import com.soundcloud.android.tracks.TrackItem;
 abstract class PlayHistoryItemTrack extends PlayHistoryItem {
 
     static PlayHistoryItemTrack create(TrackItem trackItem) {
-        return new AutoValue_PlayHistoryItemTrack(trackItem);
+        return new AutoValue_PlayHistoryItemTrack(Kind.PlayHistoryTrack, trackItem);
     }
 
     public abstract TrackItem trackItem();
-
-    PlayHistoryItemTrack() {
-        super(Kind.PlayHistoryTrack);
-    }
 
 }
