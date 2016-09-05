@@ -5,7 +5,6 @@ def TRUE = "true"
 def FALSE = "false"
 
 enum Feature {
-  PUBLISH_PLAY_EVENTS_TO_TPUB,
   ARCHER_PUSH,
   DISCOVERY_CHARTS,
   DISCOVERY_RECOMMENDATIONS,
@@ -24,7 +23,6 @@ enum Feature {
 
 android {
   defaultConfig {
-    buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), FALSE
     buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), FALSE
     buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), FALSE
     buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), FALSE
@@ -43,7 +41,6 @@ android {
 
   buildTypes {
     alpha {
-      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
@@ -59,7 +56,6 @@ android {
     }
 
     beta {
-      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
@@ -71,7 +67,6 @@ android {
 
     debug {
       buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
-      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
@@ -84,7 +79,6 @@ android {
     }
 
     release {
-      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
@@ -95,7 +89,6 @@ android {
     }
 
     preRelease {
-      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
@@ -105,7 +98,6 @@ android {
     }
 
     releaseNonPlayStore {
-      buildConfigField BOOLEAN, Feature.PUBLISH_PLAY_EVENTS_TO_TPUB.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE

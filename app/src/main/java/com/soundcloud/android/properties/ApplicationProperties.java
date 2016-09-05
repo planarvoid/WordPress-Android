@@ -26,9 +26,10 @@ public class ApplicationProperties {
     private static final String BETA_PLAYBACK_LOGS_EMAIL = "android-beta-logs-playback@soundcloud.com";
     private static final String DEV_PLAYBACK_LOGS_EMAIL = "skippy@soundcloud.com";
 
-    private static BuildType BUILD_TYPE;
-    private static boolean VERBOSE_LOGGING;
-    private static boolean GOOGLE_PLUS_ENABLED;
+    private static BuildType buildType;
+    private static boolean verboseLogging;
+    private static boolean googlePlusEnabled;
+    private static boolean enforceConcurrentStreamingLimitation;
 
     private final String castReceiverAppId;
     @VisibleForTesting
@@ -38,11 +39,11 @@ public class ApplicationProperties {
             "full_x86".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT);
 
     public String getFeedbackEmail() {
-        return BUILD_TYPE.feedbackEmail;
+        return buildType.feedbackEmail;
     }
 
     public String getPlaybackFeedbackEmail() {
-        return BUILD_TYPE.playbackFeedbackEmail;
+        return buildType.playbackFeedbackEmail;
     }
 
 
@@ -67,35 +68,40 @@ public class ApplicationProperties {
         checkNotNull(resources, "Resources should not be null");
         String buildType = resources.getString(R.string.build_type);
         checkArgument(Strings.isNotBlank(buildType), "Build type not found in application package resources");
-        BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase(Locale.US));
-        VERBOSE_LOGGING = resources.getBoolean(R.bool.verbose_logging);
-        GOOGLE_PLUS_ENABLED = resources.getBoolean(R.bool.google_plus_enabled);
+        ApplicationProperties.buildType = BuildType.valueOf(buildType.toUpperCase(Locale.US));
+        verboseLogging = resources.getBoolean(R.bool.verbose_logging);
+        googlePlusEnabled = resources.getBoolean(R.bool.google_plus_enabled);
+        enforceConcurrentStreamingLimitation = resources.getBoolean(R.bool.enforce_concurrent_streaming_limitation);
         castReceiverAppId = resources.getString(R.string.cast_receiver_app_id);
     }
 
     public boolean isGooglePlusEnabled() {
-        return GOOGLE_PLUS_ENABLED;
+        return googlePlusEnabled;
     }
 
     public boolean useVerboseLogging() {
-        return VERBOSE_LOGGING;
+        return verboseLogging;
+    }
+
+    public boolean enforceConcurrentStreamingLimitation() {
+        return enforceConcurrentStreamingLimitation;
     }
 
     public boolean isReleaseBuild() {
-        return BuildType.RELEASE.equals(BUILD_TYPE);
+        return BuildType.RELEASE.equals(buildType);
     }
 
     public boolean isDebugBuild() {
-        return BuildType.DEBUG.equals(BUILD_TYPE);
+        return BuildType.DEBUG.equals(buildType);
     }
 
     public boolean isAlphaBuild() {
-        return BuildType.ALPHA.equals(BUILD_TYPE);
+        return BuildType.ALPHA.equals(buildType);
     }
 
     public boolean shouldAllowFeedback() {
-        return BuildType.ALPHA.equals(BUILD_TYPE) || BuildType.BETA.equals(BUILD_TYPE) || BuildType.DEBUG.equals(
-                BUILD_TYPE);
+        return BuildType.ALPHA.equals(buildType) || BuildType.BETA.equals(buildType) || BuildType.DEBUG.equals(
+                buildType);
     }
 
     public boolean allowDatabaseMigrationsSilentErrors() {
@@ -103,7 +109,7 @@ public class ApplicationProperties {
     }
 
     public String getBuildType() {
-        return BUILD_TYPE.name();
+        return buildType.name();
     }
 
     public boolean shouldEnableNetworkProxy() {
@@ -128,11 +134,11 @@ public class ApplicationProperties {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("buildType", BUILD_TYPE).add("isDevice", IS_RUNNING_ON_DEVICE).
+        return MoreObjects.toStringHelper(this).add("buildType", buildType).add("isDevice", IS_RUNNING_ON_DEVICE).
                 add("isEmulator", IS_RUNNING_ON_EMULATOR).toString();
     }
 
     public boolean shouldReportCrashes() {
-        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DEVICE && !BuildType.DEBUG.equals(BUILD_TYPE) && BUILD_TYPE != null;
+        return !IS_RUNNING_ON_EMULATOR && IS_RUNNING_ON_DEVICE && !BuildType.DEBUG.equals(buildType) && buildType != null;
     }
 }

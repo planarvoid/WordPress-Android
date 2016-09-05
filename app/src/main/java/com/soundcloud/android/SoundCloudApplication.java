@@ -192,7 +192,7 @@ public class SoundCloudApplication extends MultiDexApplication {
             playlistExploder.subscribe();
         }
 
-        if (featureFlags.isEnabled(Flag.FEATURE_PUBLISH_PLAY_EVENTS_TO_TPUB)) {
+        if (applicationProperties.enforceConcurrentStreamingLimitation()) {
             playPublisher.subscribe();
         }
 
