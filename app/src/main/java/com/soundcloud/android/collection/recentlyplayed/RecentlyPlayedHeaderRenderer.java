@@ -23,7 +23,7 @@ class RecentlyPlayedHeaderRenderer extends SimpleHeaderRenderer<RecentlyPlayedHe
     public String getTitle(RecentlyPlayedHeader header) {
         final int contextCount = header.contextCount();
 
-        return resources.getQuantityString(R.plurals.collections_recently_played_header,
+        return resources.getQuantityString(R.plurals.collections_recently_played_header_items,
                                            contextCount,
                                            contextCount);
     }

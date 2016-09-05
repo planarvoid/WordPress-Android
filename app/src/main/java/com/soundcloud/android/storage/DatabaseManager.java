@@ -1042,7 +1042,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
      */
     private boolean upgradeTo88(SQLiteDatabase db, int oldVersion) {
         try {
-            dropTable("Shortcuts", db);
+            dropView("Shortcuts", db);
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 88);

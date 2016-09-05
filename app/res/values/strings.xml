@@ -680,7 +680,7 @@
     <string name="collections_recently_played_clear_error_message">Error clearing your recently played. Try again later.</string>
     <string name="collections_recently_played_empty">Find all your recently played content here.</string>
 
-    <plurals name="collections_recently_played_header">
+    <plurals name="collections_recently_played_header_items">
         <item quantity="one">%d recently played item</item>
         <item quantity="other">%d recently played items</item>
     </plurals>

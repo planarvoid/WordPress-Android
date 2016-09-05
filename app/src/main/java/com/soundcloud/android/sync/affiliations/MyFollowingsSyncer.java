@@ -20,7 +20,6 @@ import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.LegacySyncResult;
-import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.LegacySyncStrategy;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
@@ -89,11 +88,13 @@ public class MyFollowingsSyncer extends LegacySyncStrategy implements Callable<B
         if (!isLoggedIn()) {
             Log.w(TAG, "Invalid user id, skipping sync ");
             return new LegacySyncResult(Content.ME_FOLLOWINGS.uri);
-
-        } else if (action != null && action.equals(ApiSyncService.ACTION_PUSH)) {
-            return pushUserAssociations();
         } else {
-            return syncLocalToRemote();
+            final LegacySyncResult legacySyncResult = pushUserAssociations();
+            if (legacySyncResult.success) {
+                return syncLocalToRemote();
+             } else {
+                return legacySyncResult;
+            }
         }
     }
 
