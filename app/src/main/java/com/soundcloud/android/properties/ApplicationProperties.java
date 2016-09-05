@@ -105,7 +105,7 @@ public class ApplicationProperties {
     }
 
     public boolean allowDatabaseMigrationsSilentErrors() {
-        return BuildType.RELEASE.equals(BUILD_TYPE);
+        return BuildType.RELEASE.equals(buildType);
     }
 
     public String getBuildType() {
