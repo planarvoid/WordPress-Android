@@ -673,6 +673,12 @@ public class DatabaseFixtures {
         return apiPlaylist;
     }
 
+    public ApiTrack insertPostedTrack(Date postedAt, boolean isRepost) {
+        ApiTrack apiTrack = insertTrack();
+        insertTrackPost(apiTrack.getUrn().getNumericId(), postedAt.getTime(), isRepost);
+        return apiTrack;
+    }
+
     public void insertStreamTrackPost(ApiStreamItem apiStreamItem) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, apiStreamItem.getTrack().get().getId());

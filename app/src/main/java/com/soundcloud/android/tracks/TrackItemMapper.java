@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.storage.TableColumns.SoundView;
+import static com.soundcloud.propeller.query.Field.field;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.EntityProperty;
@@ -8,6 +9,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
@@ -23,33 +25,37 @@ public final class TrackItemMapper extends RxResultMapper<PropertySet> {
 
     private static final String SHARING_PRIVATE = "private";
 
-    public static final List<String> BASE_TRACK_FIELDS =
+    private static Object soundViewAs(String fieldName) {
+        return field(Table.SoundView.field(fieldName)).as(fieldName);
+    }
+
+    public static final List<Object> BASE_TRACK_FIELDS =
             Collections.unmodifiableList(Arrays.asList(
-                    SoundView._ID,
-                    SoundView.TITLE,
-                    SoundView.USERNAME,
-                    SoundView.USER_ID,
-                    SoundView.SNIPPET_DURATION,
-                    SoundView.FULL_DURATION,
-                    SoundView.PLAYBACK_COUNT,
-                    SoundView.COMMENT_COUNT,
-                    SoundView.COMMENTABLE,
-                    SoundView.LIKES_COUNT,
-                    SoundView.REPOSTS_COUNT,
-                    SoundView.WAVEFORM_URL,
-                    SoundView.STREAM_URL,
-                    SoundView.ARTWORK_URL,
-                    SoundView.POLICIES_MONETIZABLE,
-                    SoundView.POLICIES_BLOCKED,
-                    SoundView.POLICIES_SNIPPED,
-                    SoundView.POLICIES_POLICY,
-                    SoundView.POLICIES_SUB_HIGH_TIER,
-                    SoundView.POLICIES_MONETIZATION_MODEL,
-                    SoundView.PERMALINK_URL,
-                    SoundView.SHARING,
-                    SoundView.CREATED_AT,
-                    SoundView.OFFLINE_DOWNLOADED_AT,
-                    SoundView.OFFLINE_REMOVED_AT));
+                    soundViewAs(SoundView._ID),
+                    soundViewAs(SoundView.TITLE),
+                    soundViewAs(SoundView.USERNAME),
+                    soundViewAs(SoundView.USER_ID),
+                    soundViewAs(SoundView.SNIPPET_DURATION),
+                    soundViewAs(SoundView.FULL_DURATION),
+                    soundViewAs(SoundView.PLAYBACK_COUNT),
+                    soundViewAs(SoundView.COMMENT_COUNT),
+                    soundViewAs(SoundView.COMMENTABLE),
+                    soundViewAs(SoundView.LIKES_COUNT),
+                    soundViewAs(SoundView.REPOSTS_COUNT),
+                    soundViewAs(SoundView.WAVEFORM_URL),
+                    soundViewAs(SoundView.STREAM_URL),
+                    soundViewAs(SoundView.ARTWORK_URL),
+                    soundViewAs(SoundView.POLICIES_MONETIZABLE),
+                    soundViewAs(SoundView.POLICIES_BLOCKED),
+                    soundViewAs(SoundView.POLICIES_SNIPPED),
+                    soundViewAs(SoundView.POLICIES_POLICY),
+                    soundViewAs(SoundView.POLICIES_SUB_HIGH_TIER),
+                    soundViewAs(SoundView.POLICIES_MONETIZATION_MODEL),
+                    soundViewAs(SoundView.PERMALINK_URL),
+                    soundViewAs(SoundView.SHARING),
+                    soundViewAs(SoundView.CREATED_AT),
+                    soundViewAs(SoundView.OFFLINE_DOWNLOADED_AT),
+                    soundViewAs(SoundView.OFFLINE_REMOVED_AT)));
 
     @Override
     public PropertySet map(CursorReader cursorReader) {

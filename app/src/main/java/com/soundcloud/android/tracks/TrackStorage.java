@@ -1,8 +1,11 @@
 package com.soundcloud.android.tracks;
 
+import static android.provider.BaseColumns._ID;
+import static com.soundcloud.android.storage.TableColumns.ResourceTable._TYPE;
 import static com.soundcloud.android.tracks.TrackItemMapper.BASE_TRACK_FIELDS;
 import static com.soundcloud.java.collections.MoreCollections.transform;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
+import static com.soundcloud.propeller.query.Field.field;
 
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
@@ -81,8 +84,8 @@ class TrackStorage {
     private Query buildTrackDescriptionQuery(Urn trackUrn) {
         return Query.from(Table.SoundView.name())
                     .select(TableColumns.SoundView.DESCRIPTION)
-                    .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
-                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .whereEq(_ID, trackUrn.getNumericId())
+                    .whereEq(_TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 
     private Query buildTrackQuery(Urn trackUrn) {
@@ -93,73 +96,67 @@ class TrackStorage {
 
         return Query.from(Table.SoundView.name())
                     .select(fields.toArray())
-                    .whereEq(TableColumns.SoundView._ID, trackUrn.getNumericId())
-                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .whereEq(_ID, trackUrn.getNumericId())
+                    .whereEq(_TYPE, TableColumns.Sounds.TYPE_TRACK);
     }
 
-    private Query buildTracksQuery(List<Urn> trackUrn) {
+    private Query buildTracksQuery(List<Urn> trackUrns) {
         List<Object> fields = new ArrayList<>(BASE_TRACK_FIELDS.size() + 2);
         fields.addAll(BASE_TRACK_FIELDS);
-        fields.add(exists(likesQuery(trackUrn)).as(TableColumns.SoundView.USER_LIKE));
-        fields.add(exists(repostsQuery(trackUrn)).as(TableColumns.SoundView.USER_REPOST));
+        fields.add(field(Table.Likes.field(_ID) + " IS NOT NULL").as(TableColumns.SoundView.USER_LIKE));
+        fields.add(field(Table.Posts.field(TableColumns.Posts.TYPE) + " IS NOT NULL").as(TableColumns.SoundView.USER_REPOST));
 
         return Query.from(Table.SoundView.name())
                     .select(fields.toArray())
-                    .whereIn(TableColumns.SoundView._ID, transform(trackUrn, Urns.TO_ID))
-                    .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                    .leftJoin(Table.Likes.name(), getLikeJoinConditions())
+                    .leftJoin(Table.Posts.name(), getRepostJoinConditions())
+                    .whereIn(Table.SoundView.field(_ID), transform(trackUrns, Urns.TO_ID))
+                    .whereEq(Table.SoundView.field(_TYPE), TableColumns.Sounds.TYPE_TRACK)
+                    .groupBy(Table.SoundView.field(_ID));
     }
 
-    private Query likesQuery(List<Urn> trackUrn) {
-        final Where joinConditions = Filter.filter()
-                                           .whereEq(Table.Sounds.field(TableColumns.Sounds._ID),
-                                                    Table.Likes.field(TableColumns.Likes._ID))
-                                           .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE),
-                                                    Table.Likes.field(TableColumns.Likes._TYPE));
-
-        return Query.from(Table.Likes.name())
-                    .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereIn(Table.Sounds.field(TableColumns.Sounds._ID), transform(trackUrn, Urns.TO_ID))
-                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                    .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
+    private Where getLikeJoinConditions() {
+        return Filter.filter()
+                     .whereEq(Table.SoundView.field(_ID), Table.Likes.field(_ID))
+                     .whereEq(Table.SoundView.field(_TYPE), Table.Likes.field(TableColumns.Likes._TYPE))
+                     .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
-
 
     private Query likeQuery(Urn trackUrn) {
         final Where joinConditions = Filter.filter()
-                                           .whereEq(Table.Sounds.field(TableColumns.Sounds._ID),
+                                           .whereEq(Table.Sounds.field(_ID),
                                                     Table.Likes.field(TableColumns.Likes._ID))
-                                           .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE),
+                                           .whereEq(Table.Sounds.field(_TYPE),
                                                     Table.Likes.field(TableColumns.Likes._TYPE));
 
         return Query.from(Table.Likes.name())
                     .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), trackUrn.getNumericId())
-                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                    .whereEq(Table.Sounds.field(_ID), trackUrn.getNumericId())
+                    .whereEq(Table.Sounds.field(_TYPE), TableColumns.Sounds.TYPE_TRACK)
                     .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT));
     }
 
     private Query repostQuery(Urn trackUrn) {
         final Where joinConditions = Filter.filter()
-                                           .whereEq(TableColumns.Sounds._ID, TableColumns.Posts.TARGET_ID)
-                                           .whereEq(TableColumns.Sounds._TYPE, TableColumns.Posts.TARGET_TYPE);
+                                           .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
+                                           .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE);
 
         return Query.from(Table.Posts.name())
                     .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereEq(TableColumns.Sounds._ID, trackUrn.getNumericId())
-                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                    .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
+                    .whereEq(Table.Sounds.field(_ID), trackUrn.getNumericId())
+                    .whereEq(Table.Sounds.field(_TYPE), TableColumns.Sounds.TYPE_TRACK)
+                    .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
     }
 
-    private Query repostsQuery(List<Urn> trackUrn) {
-        final Where joinConditions = Filter.filter()
-                                           .whereEq(TableColumns.Sounds._ID, TableColumns.Posts.TARGET_ID)
-                                           .whereEq(TableColumns.Sounds._TYPE, TableColumns.Posts.TARGET_TYPE);
+    private Where getRepostJoinConditions() {
+        return Filter.filter()
+                     .whereEq(Table.SoundView.field(_ID), TableColumns.Posts.TARGET_ID)
+                     .whereEq(Table.SoundView.field(_TYPE), TableColumns.Posts.TARGET_TYPE)
+                     .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), typeRepostDelimited());
+    }
 
-        return Query.from(Table.Posts.name())
-                    .innerJoin(Table.Sounds.name(), joinConditions)
-                    .whereIn(Table.Sounds.field(TableColumns.Sounds._ID), transform(trackUrn, Urns.TO_ID))
-                    .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
-                    .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
+    private String typeRepostDelimited() {
+        return "'" + TableColumns.Posts.TYPE_REPOST + "'";
     }
 
 }

@@ -20,6 +20,7 @@ import rx.observers.TestSubscriber;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class TrackStorageTest extends StorageIntegrationTest {
 
@@ -157,4 +158,31 @@ public class TrackStorageTest extends StorageIntegrationTest {
 
         subscriber.assertValue(singletonList(apiTrack.getUrn()));
     }
+
+    @Test
+    public void loadTracksSetsUserLikeIndividually() {
+        final TestSubscriber<Map<Urn, PropertySet>> subscriber = new TestSubscriber<>();
+        ApiTrack likedApiTrack = testFixtures().insertLikedTrack(new Date());
+        ApiTrack apiTrack = testFixtures().insertTrack();
+
+        storage.loadTracks(asList(likedApiTrack.getUrn(), apiTrack.getUrn())).subscribe(subscriber);
+        Map<Urn, PropertySet> map = subscriber.getOnNextEvents().get(0);
+
+        assertThat(map.get(likedApiTrack.getUrn()).get(PlayableProperty.IS_USER_LIKE)).isTrue();
+        assertThat(map.get(apiTrack.getUrn()).get(PlayableProperty.IS_USER_LIKE)).isFalse();
+    }
+
+    @Test
+    public void loadTracksSetsUserRepostsIndividually() {
+        final TestSubscriber<Map<Urn, PropertySet>> subscriber = new TestSubscriber<>();
+        ApiTrack postedApiTrack = testFixtures().insertPostedTrack(new Date(), true);
+        ApiTrack apiTrack = testFixtures().insertTrack();
+
+        storage.loadTracks(asList(postedApiTrack.getUrn(), apiTrack.getUrn())).subscribe(subscriber);
+        Map<Urn, PropertySet> map = subscriber.getOnNextEvents().get(0);
+
+        assertThat(map.get(postedApiTrack.getUrn()).get(PlayableProperty.IS_USER_REPOST)).isTrue();
+        assertThat(map.get(apiTrack.getUrn()).get(PlayableProperty.IS_USER_REPOST)).isFalse();
+    }
+
 }
