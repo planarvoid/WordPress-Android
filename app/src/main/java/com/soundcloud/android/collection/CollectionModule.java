@@ -50,7 +50,7 @@ public class CollectionModule {
             return new PlayHistoryCollectionPresenter(
                     swipeRefreshAttacher, collectionOperations, collectionOptionsStorage,
                     adapter, resources, eventBus, expandPlayerSubscriberProvider,
-                    playHistoryOperations);
+                    playHistoryOperations, featureFlags);
         } else {
             return new CollectionPresenter(
                     swipeRefreshAttacher, collectionOperations, collectionOptionsStorage,

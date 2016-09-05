@@ -19,6 +19,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -44,23 +46,27 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
     private static final LikesItem NO_LIKES = LikesItem.fromTrackPreviews(Collections.<LikedTrackPreview>emptyList());
 
     private static final List<PlaylistItem> PLAYLISTS = ModelFixtures.create(PlaylistItem.class, 2);
+    private static final List<StationRecord> STATIONS = singletonList(mock(StationRecord.class));
     private static final List<TrackItem> PLAY_HISTORY = singletonList(mock(TrackItem.class));
     private static final List<RecentlyPlayedPlayableItem> RECENTLY_PLAYED = singletonList(mock(
             RecentlyPlayedPlayableItem.class));
 
     private static final MyCollection MY_COLLECTION = MyCollection.forCollectionWithPlayHistory(LIKES,
                                                                                                 PLAYLISTS,
+                                                                                                STATIONS,
                                                                                                 PLAY_HISTORY,
                                                                                                 RECENTLY_PLAYED,
                                                                                                 false);
     private static final MyCollection MY_COLLECTION_WITHOUT_PLAY_HISTORY = MyCollection.forCollectionWithPlayHistory(
             LIKES,
             PLAYLISTS,
+            STATIONS,
             Collections.<TrackItem>emptyList(),
             Collections.<RecentlyPlayedPlayableItem>emptyList(),
             false);
     private static final MyCollection MY_COLLECTION_EMPTY = MyCollection.forCollectionWithPlayHistory(NO_LIKES,
                                                                                                       Collections.<PlaylistItem>emptyList(),
+                                                                                                      Collections.<StationRecord>emptyList(),
                                                                                                       Collections.<TrackItem>emptyList(),
                                                                                                       Collections.<RecentlyPlayedPlayableItem>emptyList(),
                                                                                                       false);
@@ -77,6 +83,7 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
     @Mock private Fragment fragment;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private PlayHistoryOperations playHistoryOperations;
+    @Mock private FeatureFlags featureFlags;
 
     private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
     private TestEventBus eventBus = new TestEventBus();
@@ -93,7 +100,7 @@ public class PlayHistoryCollectionPresenterTest extends AndroidUnitTest {
                                                        resources(),
                                                        eventBus,
                                                        expandPlayerSubscriberProvider,
-                                                       playHistoryOperations);
+                                                       playHistoryOperations, featureFlags);
     }
 
     @Test

@@ -13,6 +13,8 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -34,6 +36,8 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter impl
     private final CollectionOperations collectionOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final PlayHistoryOperations playHistoryOperations;
+    private final FeatureFlags featureFlags;
+
 
     public PlayHistoryCollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                           CollectionOperations collectionOperations,
@@ -42,11 +46,13 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter impl
                                           Resources resources,
                                           EventBus eventBus,
                                           Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                                          PlayHistoryOperations playHistoryOperations) {
+                                          PlayHistoryOperations playHistoryOperations,
+                                          FeatureFlags featureFlags) {
         super(swipeRefreshAttacher, eventBus, adapter, resources, collectionOptionsStorage);
         this.collectionOperations = collectionOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.playHistoryOperations = playHistoryOperations;
+        this.featureFlags = featureFlags;
 
         adapter.setTrackClickListener(this);
     }
@@ -72,8 +78,14 @@ public class PlayHistoryCollectionPresenter extends BaseCollectionPresenter impl
         List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems = myCollection.getRecentlyPlayedItems();
         List<CollectionItem> collectionItems = new ArrayList<>(playHistoryTrackItems.size() + FIXED_ITEMS);
 
-        collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(),
-                                                                       myCollection.getPlaylistItems()));
+        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
+            collectionItems.add(PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
+                                                                                   myCollection.getPlaylistItems(),
+                                                                                   myCollection.getStations()));
+        } else {
+            collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(),
+                                                                           myCollection.getPlaylistItems()));
+        }
 
         addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
         addPlayHistory(playHistoryTrackItems, collectionItems);

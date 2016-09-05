@@ -19,6 +19,13 @@ public abstract class PreviewCollectionItem extends CollectionItem {
                                                    Optional.of(playlistItems));
     }
 
+    public static CollectionItem forLikesPlaylistsAndStations(LikesItem likes,
+                                                              List<PlaylistItem> playlistItems,
+                                                              List<StationRecord> stations) {
+        return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
+                                                   likes, Optional.of(stations), Optional.of(playlistItems));
+    }
+
     static PreviewCollectionItem forLikesAndStations(LikesItem likes, List<StationRecord> stations) {
         return new AutoValue_PreviewCollectionItem(CollectionItem.TYPE_PREVIEW,
                                                    likes, Optional.of(stations), Optional.<List<PlaylistItem>>absent());
