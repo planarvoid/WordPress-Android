@@ -396,6 +396,14 @@ public class DatabaseAssertions {
                                   .whereEq(PlayHistory.TIMESTAMP, record.timestamp()))).counts(count);
     }
 
+    public void assertPlayHistory(PlayHistoryRecord record) {
+        assertPlayHistory(record, 1);
+    }
+
+    public void assertPlayHistoryCount(int count) {
+        assertThat(select(from(PlayHistory.TABLE))).counts(count);
+    }
+
     public void assertRecentlyPlayed(PlayHistoryRecord record, int count) {
         assertThat(select(from(RecentlyPlayed.TABLE)
                                   .whereEq(RecentlyPlayed.CONTEXT_ID, record.contextUrn().getNumericId())
@@ -403,8 +411,12 @@ public class DatabaseAssertions {
                                   .whereEq(RecentlyPlayed.TIMESTAMP, record.timestamp()))).counts(count);
     }
 
-    public void assertPlayHistory(PlayHistoryRecord record) {
-        assertPlayHistory(record, 1);
+    public void assertRecentlyPlayed(PlayHistoryRecord record) {
+        assertRecentlyPlayed(record, 1);
+    }
+
+    public void assertRecentlyPlayedCount(int count) {
+        assertThat(select(from(RecentlyPlayed.TABLE))).counts(count);
     }
 
     private void assertTrackPolicyInserted(TrackRecord track) {

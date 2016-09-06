@@ -39,6 +39,7 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private EventBus eventBus;
     @Mock private StationsOperations stationsOperations;
+    @Mock private OptimizeRecentlyPlayedCommand optimizeRecentlyPlayedCommand;
 
     @Before
     public void setUp() throws Exception {
@@ -47,7 +48,8 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
 
         syncer = new RecentlyPlayedSyncer(recentlyPlayedStorage, fetchRecentlyPlayedCommand, pushRecentlyPlayedCommand,
                                           fetchPlaylistsCommand, storePlaylistsCommand, fetchUsersCommand,
-                                          storeUsersCommand, stationsOperations, eventBus);
+                                          storeUsersCommand, stationsOperations, eventBus,
+                                          optimizeRecentlyPlayedCommand);
     }
 
     @Test
@@ -100,10 +102,17 @@ public class RecentlyPlayedSyncerTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldPushUnSyncedPlayHistory() throws Exception {
+    public void shouldPushUnSyncedRecentlyPlayed() throws Exception {
         syncer.call();
 
         verify(pushRecentlyPlayedCommand).call();
+    }
+
+    @Test
+    public void shouldOptimizeRecentlyPlayed() throws Exception {
+        syncer.call();
+
+        verify(optimizeRecentlyPlayedCommand).call(1000);
     }
 
     private PlayHistoryRecord contextFor(Urn urn) {

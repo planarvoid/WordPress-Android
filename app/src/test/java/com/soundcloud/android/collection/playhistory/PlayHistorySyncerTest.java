@@ -33,6 +33,7 @@ public class PlayHistorySyncerTest {
     @Mock private PushPlayHistoryCommand pushPlayHistoryCommand;
     @Mock private FetchTracksCommand fetchTracksCommand;
     @Mock private StoreTracksCommand storeTracksCommand;
+    @Mock private OptimizePlayHistoryCommand optimizePlayHistoryCommand;
     @Mock private EventBus eventBus;
 
     private PlayHistorySyncer syncer;
@@ -43,7 +44,7 @@ public class PlayHistorySyncerTest {
         when(fetchPlayHistoryCommand.call()).thenReturn(REMOTE);
 
         syncer = new PlayHistorySyncer(playHistoryStorage, fetchPlayHistoryCommand, pushPlayHistoryCommand,
-                                       fetchTracksCommand, storeTracksCommand, eventBus);
+                                       fetchTracksCommand, storeTracksCommand, eventBus, optimizePlayHistoryCommand);
     }
 
     @Test
@@ -71,6 +72,13 @@ public class PlayHistorySyncerTest {
         syncer.call();
 
         verify(pushPlayHistoryCommand).call();
+    }
+
+    @Test
+    public void shouldOptimizeTable() throws Exception {
+        syncer.call();
+
+        verify(optimizePlayHistoryCommand).call(1000);
     }
 
 }

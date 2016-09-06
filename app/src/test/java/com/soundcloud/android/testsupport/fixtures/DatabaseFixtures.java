@@ -7,11 +7,10 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
+import com.soundcloud.android.collection.playhistory.PlayHistoryRecord;
 import com.soundcloud.android.comments.ApiComment;
 import com.soundcloud.android.discovery.Chart;
 import com.soundcloud.android.discovery.ChartBucketType;
-import com.soundcloud.android.sync.charts.ApiImageResource;
-import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.ApiStation;
 import com.soundcloud.android.stations.StationFixtures;
@@ -32,8 +31,10 @@ import com.soundcloud.android.sync.activities.ApiTrackCommentActivity;
 import com.soundcloud.android.sync.activities.ApiTrackLikeActivity;
 import com.soundcloud.android.sync.activities.ApiUserFollowActivity;
 import com.soundcloud.android.sync.charts.ApiChart;
+import com.soundcloud.android.sync.charts.ApiImageResource;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
+import com.soundcloud.android.tracks.TrackArtwork;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
@@ -181,6 +182,22 @@ public class DatabaseFixtures {
         cv.put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT);
         cv.put(StationsCollections.ADDED_AT, time);
         insertInto(StationsCollections.TABLE, cv.get());
+    }
+
+    public void insertPlayHistory(long timestamp, Urn urn) {
+        ContentValues cv = new ContentValues();
+        cv.put(Tables.PlayHistory.TIMESTAMP.name(), timestamp);
+        cv.put(Tables.PlayHistory.TRACK_ID.name(), urn.getNumericId());
+        insertInto(Tables.PlayHistory.TABLE, cv);
+    }
+
+    public void insertRecentlyPlayed(long timestamp, Urn urn) {
+        ContentValues cv = new ContentValues();
+        PlayHistoryRecord record = PlayHistoryRecord.create(timestamp, Urn.NOT_SET, urn);
+        cv.put(Tables.RecentlyPlayed.TIMESTAMP.name(), record.timestamp());
+        cv.put(Tables.RecentlyPlayed.CONTEXT_TYPE.name(), record.getContextType());
+        cv.put(Tables.RecentlyPlayed.CONTEXT_ID.name(), record.contextUrn().getNumericId());
+        insertInto(Tables.RecentlyPlayed.TABLE, cv);
     }
 
     private void insertPolicy(ApiTrack track) {

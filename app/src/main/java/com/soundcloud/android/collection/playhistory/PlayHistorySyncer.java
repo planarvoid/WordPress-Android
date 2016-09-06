@@ -25,6 +25,7 @@ class PlayHistorySyncer implements Callable<Boolean> {
     private final FetchTracksCommand fetchTracksCommand;
     private final StoreTracksCommand storeTracksCommand;
     private final EventBus eventBus;
+    private final OptimizePlayHistoryCommand optimizePlayHistoryCommand;
 
     @Inject
     PlayHistorySyncer(PlayHistoryStorage playHistoryStorage,
@@ -32,13 +33,15 @@ class PlayHistorySyncer implements Callable<Boolean> {
                       PushPlayHistoryCommand pushPlayHistoryCommand,
                       FetchTracksCommand fetchTracksCommand,
                       StoreTracksCommand storeTracksCommand,
-                      EventBus eventBus) {
+                      EventBus eventBus,
+                      OptimizePlayHistoryCommand optimizePlayHistoryCommand) {
         this.playHistoryStorage = playHistoryStorage;
         this.pushPlayHistoryCommand = pushPlayHistoryCommand;
         this.fetchPlayHistoryCommand = fetchPlayHistoryCommand;
         this.fetchTracksCommand = fetchTracksCommand;
         this.storeTracksCommand = storeTracksCommand;
         this.eventBus = eventBus;
+        this.optimizePlayHistoryCommand = optimizePlayHistoryCommand;
     }
 
     @Override
@@ -49,6 +52,7 @@ class PlayHistorySyncer implements Callable<Boolean> {
     }
 
     private void pushUnSyncedPlayHistory() {
+        optimizePlayHistoryCommand.call(PlayHistoryOperations.MAX_HISTORY_ITEMS);
         pushPlayHistoryCommand.call();
     }
 

@@ -21,7 +21,7 @@ import java.util.List;
 
 public class PlayHistoryOperations {
 
-    private static final int MAX_HISTORY_ITEMS = 1000;
+    static final int MAX_HISTORY_ITEMS = 1000;
 
     private final PlaybackInitiator playbackInitiator;
     private final PlayHistoryStorage playHistoryStorage;
