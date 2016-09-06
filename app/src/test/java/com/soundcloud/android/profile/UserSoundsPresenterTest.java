@@ -3,6 +3,8 @@ package com.soundcloud.android.profile;
 import static com.soundcloud.android.R.layout.default_recyclerview_with_refresh;
 import static com.soundcloud.android.profile.UserSoundsItem.fromPlaylistItem;
 import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
+import static com.soundcloud.android.profile.UserSoundsTypes.TRACKS;
+import static com.soundcloud.android.profile.UserSoundsTypes.fromModule;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -18,7 +20,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -29,7 +30,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -152,7 +153,8 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         View view = mock(View.class);
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         TrackItem trackItem = TrackItem.from(track);
-        final UserSoundsItem userSoundsItem = fromTrackItem(trackItem, -1);
+        final int collectionType = TRACKS;
+        final UserSoundsItem userSoundsItem = fromTrackItem(trackItem, collectionType);
         when(adapter.getItem(0)).thenReturn(userSoundsItem);
         when(adapter.getItems()).thenReturn(singletonList(userSoundsItem));
 
@@ -165,8 +167,7 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
                                           same(userSoundsItem),
                                           eq(USER_URN),
                                           same(SEARCH_QUERY_SOURCE_INFO),
-                                          eq(Optional.<Module>absent()),
-                                          eq(0));
+                                          eq(fromModule(collectionType, 0)));
 
         final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
         argumentCaptor.getValue().subscribe(subscriber);

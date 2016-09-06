@@ -269,9 +269,8 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                                 createTrackPropertySet(playlistItem.getUrn()));
 
         final int modulePosition = 5;
-        final Optional<Module> module = Optional.of(Module.create(Module.USER_ALBUMS,
-                                                                          "resource"));
-        listener.onPostClick(Observable.just(items), view, 1, playlistItem, module, modulePosition);
+        final Module module = Module.create(Module.USER_ALBUMS, modulePosition);
+        listener.onPostClick(Observable.just(items), view, 1, playlistItem, module);
 
         verify(navigator).openPlaylist(eq(context),
                                        eq(playlistItem.getUrn()),
@@ -280,8 +279,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
                                        any(PromotedSourceInfo.class),
                                        uiEventArgumentCaptor.capture());
 
-        assertThat(uiEventArgumentCaptor.getValue().getModule()).isEqualTo(module);
-        assertThat(uiEventArgumentCaptor.getValue().getModulePosition()).isEqualTo(Optional.of(modulePosition));
+        assertThat(uiEventArgumentCaptor.getValue().getModule()).isEqualTo(Optional.of(module));
     }
 
     @Test

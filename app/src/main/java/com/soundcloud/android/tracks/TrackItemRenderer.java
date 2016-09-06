@@ -4,18 +4,23 @@ import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.discovery.ChartTrackItem;
+import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
@@ -80,10 +85,18 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     @Override
     public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
         final TrackItem track = trackItems.get(position);
-        bindTrackView(track, itemView, position, Optional.<TrackSourceInfo>absent());
+        bindTrackView(track,
+                      itemView,
+                      position,
+                      Optional.<TrackSourceInfo>absent(),
+                      Optional.<Module>absent());
     }
 
-    public void bindTrackView(final TrackItem track, View itemView, final int position, Optional<TrackSourceInfo> trackSourceInfo) {
+    public void bindTrackView(final TrackItem track,
+                              View itemView,
+                              final int position,
+                              Optional<TrackSourceInfo> trackSourceInfo,
+                              Optional<Module> module) {
         TrackItemView trackItemView = (TrackItemView) itemView.getTag();
         trackItemView.setCreator(track.getCreatorName());
         trackItemView.setTitle(track.getTitle(), track.isBlocked()
@@ -105,7 +118,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
         bindExtraInfoBottom(trackItemView, track, position);
 
         loadArtwork(trackItemView, track);
-        setupOverFlow(trackItemView, track, position, trackSourceInfo);
+        setupOverFlow(trackItemView, track, position, trackSourceInfo, module);
     }
 
 
@@ -124,11 +137,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private void setupOverFlow(final TrackItemView itemView,
                                final TrackItem track,
                                final int position,
-                               final Optional<TrackSourceInfo> trackSourceInfo) {
+                               final Optional<TrackSourceInfo> trackSourceInfo,
+                               final Optional<Module> module) {
         itemView.setOverflowListener(new TrackItemView.OverflowListener() {
             @Override
             public void onOverflow(View overflowButton) {
-                showTrackItemMenu(overflowButton, track, position, trackSourceInfo);
+                showTrackItemMenu(overflowButton, track, position, trackSourceInfo, module);
             }
         });
     }
@@ -136,13 +150,32 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     protected void showTrackItemMenu(View button,
                                      TrackItem track,
                                      int position,
-                                     Optional<TrackSourceInfo> trackSourceInfo) {
+                                     Optional<TrackSourceInfo> trackSourceInfo,
+                                     Optional<Module> module) {
         trackItemMenuPresenter.show(getFragmentActivity(button),
                                     button,
                                     track,
                                     position,
                                     trackSourceInfo,
-                                    Optional.<EventContextMetadata.Builder>absent());
+                                    getEventContextMetaDataBuilder(track, module));
+    }
+
+    private Optional<EventContextMetadata.Builder> getEventContextMetaDataBuilder(PlayableItem item,
+                                                                                  Optional<Module> module) {
+        final String screen = screenProvider.getLastScreenTag();
+
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
+                                                                         .invokerScreen(ScreenElement.LIST.get())
+                                                                         .contextScreen(screen)
+                                                                         .pageName(screen)
+                                                                         .attributingActivity(AttributingActivity.fromPlayableItem(
+                                                                                 item));
+
+        if (module.isPresent()) {
+            builder.module(module.get());
+        }
+
+        return Optional.of(builder);
     }
 
     private void loadArtwork(TrackItemView itemView, TrackItem track) {

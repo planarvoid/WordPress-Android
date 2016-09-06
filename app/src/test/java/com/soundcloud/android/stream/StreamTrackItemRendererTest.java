@@ -82,8 +82,7 @@ public class StreamTrackItemRendererTest extends AndroidUnitTest {
         assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
         assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
         assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
-        assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, Strings.EMPTY));
-        assertThat(context.modulePosition()).isEqualTo(position);
+        assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, position));
         assertThat(context.attributingActivity()).isEqualTo(AttributingActivity.fromPlayableItem(postedTrack));
     }
 

@@ -454,7 +454,6 @@ public class EventLoggerV1JsonDataBuilder {
     private EventLoggerEventData buildInteractionEvent(String action, UIEvent event) {
         final Optional<AttributingActivity> attributingActivity = event.getAttributingActivity();
         final Optional<Module> module = event.getModule();
-        final Optional<Integer> modulePosition = event.getModulePosition();
         final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
 
         final EventLoggerEventData eventData = buildBaseEvent(INTERACTION_EVENT, event)
@@ -462,8 +461,11 @@ public class EventLoggerV1JsonDataBuilder {
                 .item(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
                 .pageviewId(event.get(ReferringEvent.REFERRING_EVENT_ID_KEY))
                 .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
-                .action(action)
-                .linkType(event.getLinkType());
+                .action(action);
+
+        if (action.equals(ACTION_NAVIGATION)) {
+            eventData.linkType(event.getLinkType());
+        }
 
         if (pageUrn != null && !pageUrn.equals(Urn.NOT_SET.toString())) {
             eventData.pageUrn(pageUrn);
@@ -474,11 +476,8 @@ public class EventLoggerV1JsonDataBuilder {
         }
 
         if (module.isPresent()) {
-            eventData.module(module.get().getName(), module.get().getResource());
-        }
-
-        if (modulePosition.isPresent()) {
-            eventData.modulePosition(modulePosition.get().toString());
+            eventData.module(module.get().getName());
+            eventData.modulePosition(module.get().getPosition());
         }
 
         return eventData;

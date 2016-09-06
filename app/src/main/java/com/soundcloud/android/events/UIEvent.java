@@ -151,10 +151,6 @@ public final class UIEvent extends TrackingEvent {
         return Optional.fromNullable(eventContextMetadata.module());
     }
 
-    public Optional<Integer> getModulePosition() {
-        return Optional.fromNullable(eventContextMetadata.modulePosition());
-    }
-
     public String getLinkType() {
         final LinkType linkType = eventContextMetadata.linkType();
 

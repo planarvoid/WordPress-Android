@@ -1,7 +1,8 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.events.Module.getModuleFromUserSoundsType;
 import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY;
+import static com.soundcloud.android.profile.UserSoundsItem.getPositionInModule;
+import static com.soundcloud.android.profile.UserSoundsTypes.fromModule;
 import static com.soundcloud.java.collections.Iterables.filter;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 import static com.soundcloud.java.collections.Lists.transform;
@@ -164,18 +165,15 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         final List<PropertySet> playables = filterPlayableItems(userSoundsItems);
         final int playablePosition = filterPlayableItems(userSoundsItems.subList(0, position)).size();
 
-        final List<UserSoundsItem> itemsInModule = filterItemsInModule(userSoundsItems, clickedItem);
-        int positionInModule = itemsInModule.indexOf(clickedItem);
         clickListener.onItemClick(Observable.just(playables),
                                   view,
                                   playablePosition,
                                   clickedItem,
                                   userUrn,
                                   searchQuerySourceInfo,
-                                  getModuleFromUserSoundsType(clickedItem.getCollectionType(), Strings.EMPTY),
-                                  positionInModule);
+                                  fromModule(clickedItem.getCollectionType(),
+                                             getPositionInModule(userSoundsItems, clickedItem)));
     }
-
 
     private void displaySecondaryTextForOtherUser() {
         userSubscription.unsubscribe();
@@ -210,20 +208,4 @@ class UserSoundsPresenter extends RecyclerViewPresenter<UserProfile, UserSoundsI
         return transform(newArrayList(filter(userSoundsItems, FILTER_PLAYABLE_USER_SOUNDS_ITEMS)),
                          USER_SOUNDS_ITEM_TO_PROPERTY_SET);
     }
-
-
-    private List<UserSoundsItem> filterItemsInModule(final List<UserSoundsItem> userSoundsItems,
-                                                     final UserSoundsItem userSoundsItem) {
-        return newArrayList(filter(userSoundsItems, new Predicate<UserSoundsItem>() {
-            @Override
-            public boolean apply(UserSoundsItem input) {
-                return input.getItemType() != UserSoundsItem.TYPE_DIVIDER
-                        && input.getItemType() != UserSoundsItem.TYPE_HEADER
-                        && input.getItemType() != UserSoundsItem.TYPE_VIEW_ALL
-                        && input.getItemType() != UserSoundsItem.TYPE_END_OF_LIST_DIVIDER
-                        && input.getCollectionType() == userSoundsItem.getCollectionType();
-            }
-        }));
-    }
-
 }

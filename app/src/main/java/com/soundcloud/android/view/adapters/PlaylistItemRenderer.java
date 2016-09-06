@@ -1,18 +1,25 @@
 package com.soundcloud.android.view.adapters;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.events.AttributingActivity;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.OverflowMenuOptions;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import android.content.res.Resources;
@@ -63,10 +70,10 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        bindPlaylistView(playlists.get(position), itemView);
+        bindPlaylistView(playlists.get(position), itemView, Optional.<Module>absent());
     }
 
-    public void bindPlaylistView(PlaylistItem playlist, View itemView) {
+    public void bindPlaylistView(PlaylistItem playlist, View itemView, Optional<Module> module) {
         getTextView(itemView, R.id.list_item_header).setText(playlist.getCreatorName());
         getTextView(itemView, R.id.list_item_subheader).setText(playlist.getTitle());
 
@@ -74,18 +81,23 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
         showAdditionalInformation(itemView, playlist);
 
         loadArtwork(itemView, playlist);
-        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist);
+        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist, module);
     }
 
     public void allowOfflineOptions() {
         this.menuOptions = OverflowMenuOptions.builder().showOffline(true).build();
     }
 
-    private void setupOverFlow(final View button, final PlaylistItem playlist) {
+    private void setupOverFlow(final View button,
+                               final PlaylistItem playlist,
+                               final Optional<Module> module) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playlistItemMenuPresenter.show(button, playlist, menuOptions);
+                playlistItemMenuPresenter.show(button,
+                                               playlist,
+                                               menuOptions,
+                                               getEventContextMetaDataBuilder(playlist, module));
             }
         });
     }
@@ -171,6 +183,24 @@ public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
             final Drawable heartIcon = likesCountText.getCompoundDrawables()[0];
             heartIcon.setLevel(playlist.isLiked() ? 1 : 0);
         }
+    }
+
+    private EventContextMetadata.Builder getEventContextMetaDataBuilder(PlayableItem item,
+                                                                        Optional<Module> module) {
+        final String screen = screenProvider.getLastScreenTag();
+
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
+                                                                         .invokerScreen(ScreenElement.LIST.get())
+                                                                         .contextScreen(screen)
+                                                                         .pageName(screen)
+                                                                         .attributingActivity(AttributingActivity.fromPlayableItem(
+                                                                                 item));
+
+        if (module.isPresent()) {
+            builder.module(module.get());
+        }
+
+        return builder;
     }
 
     private boolean hasLike(int likesCount) {

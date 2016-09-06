@@ -91,8 +91,7 @@ class StreamPlaylistItemRenderer implements CellRenderer<PlaylistItem> {
     EventContextMetadata.Builder getEventContextMetadataBuilder(PlaylistItem playlistItem, int position) {
         return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
                                    .contextScreen(Screen.STREAM.get())
-                                   .module(Module.create(Module.STREAM, Strings.EMPTY))
-                                   .modulePosition(position)
+                                   .module(Module.create(Module.STREAM, position))
                                    .pageName(Screen.STREAM.get())
                                    .attributingActivity(AttributingActivity.fromPlayableItem(playlistItem));
     }

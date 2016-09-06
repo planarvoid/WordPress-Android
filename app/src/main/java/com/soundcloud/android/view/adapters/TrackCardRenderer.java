@@ -2,16 +2,19 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
+import com.soundcloud.java.optional.Optional;
 
 import android.content.res.Resources;
 import android.support.annotation.LayoutRes;
@@ -29,6 +32,7 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
     private final ImageOperations imageOperations;
     private final Navigator navigator;
     private final Resources resources;
+    private final ScreenProvider screenProvider;
     private int layoutResource = R.layout.default_track_card;
 
     @Inject
@@ -37,13 +41,15 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
                              CardEngagementsPresenter engagementsPresenter,
                              ImageOperations imageOperations,
                              Navigator navigator,
-                             Resources resources) {
+                             Resources resources,
+                             ScreenProvider screenProvider) {
         this.numberFormatter = numberFormatter;
         this.menuPresenter = menuPresenter;
         this.engagementsPresenter = engagementsPresenter;
         this.imageOperations = imageOperations;
         this.navigator = navigator;
         this.resources = resources;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -55,21 +61,28 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
 
     @Override
     public void bindItemView(final int position, View itemView, List<TrackItem> trackItems) {
-        bindTrackCard(trackItems.get(position), itemView, position);
+        bindTrackCard(trackItems.get(position), itemView, position, Optional.<Module>absent());
     }
 
-    public void bindTrackCard(final TrackItem track, final View itemView, final int position) {
+    public void bindTrackCard(final TrackItem track,
+                              final View itemView,
+                              final int position,
+                              final Optional<Module> module) {
         final TrackCardViewHolder viewHolder = (TrackCardViewHolder) itemView.getTag();
         viewHolder.resetAdditionalInformation();
 
-        engagementsPresenter.bind(viewHolder, track, getEventContextMetadata());
+        engagementsPresenter.bind(viewHolder, track, getEventContextMetadataBuilder(module).build());
 
         viewHolder.bindArtworkView(track);
         showPlayCountOrNowPlaying(viewHolder, track);
         viewHolder.overflowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View overflowButton) {
-                menuPresenter.show(getFragmentActivity(itemView), viewHolder.overflowButton, track, position);
+                menuPresenter.show(getFragmentActivity(itemView),
+                                   viewHolder.overflowButton,
+                                   track,
+                                   position,
+                                   getEventContextMetadataBuilder(module));
             }
         });
     }
@@ -78,11 +91,15 @@ public class TrackCardRenderer implements CellRenderer<TrackItem> {
         this.layoutResource = layoutResource;
     }
 
-    private EventContextMetadata getEventContextMetadata() {
-        return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                                   .contextScreen(Screen.STREAM.get())
-                                   .pageName(Screen.STREAM.get())
-                                   .build();
+    private EventContextMetadata.Builder getEventContextMetadataBuilder(Optional<Module> module) {
+        EventContextMetadata.Builder builder = EventContextMetadata.builder()
+                                                                   .invokerScreen(ScreenElement.LIST.get())
+                                                                   .contextScreen(screenProvider.getLastScreenTag())
+                                                                   .pageName(screenProvider.getLastScreenTag());
+        if (module.isPresent()) {
+            builder.module(module.get());
+        }
+        return builder;
     }
 
     private void showPlayCountOrNowPlaying(TrackCardViewHolder itemView, TrackItem track) {

@@ -109,8 +109,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
         final Urn urn = adapter.getItem(position).getUrn();
         EventContextMetadata.Builder eventContextMetadataBuilder = EventContextMetadata.builder()
                                                                                        .linkType(LinkType.SELF)
-                                                                                       .module(Module.create(Module.USER_FOLLOWERS))
-                                                                                       .modulePosition(position);
+                                                                                       .module(Module.create(Module.USER_FOLLOWERS, position));
 
         if (screen != null) {
             eventContextMetadataBuilder.pageName(screen.get())

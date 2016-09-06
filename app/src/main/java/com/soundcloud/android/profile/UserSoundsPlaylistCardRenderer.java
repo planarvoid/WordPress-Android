@@ -1,10 +1,14 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.UserSoundsItem.getPositionInModule;
+import static com.soundcloud.android.profile.UserSoundsTypes.fromModule;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.adapters.PlaylistCardRenderer;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +32,16 @@ class UserSoundsPlaylistCardRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
-        final Optional<PlaylistItem> playlistItem = items.get(position).getPlaylistItem();
+        final UserSoundsItem userSoundsItem = items.get(position);
+        final Optional<PlaylistItem> playlistItem = userSoundsItem.getPlaylistItem();
 
         if (playlistItem.isPresent()) {
             itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
-            playlistCardRenderer.bindPlaylistCardView(playlistItem.get(), itemView);
+            playlistCardRenderer.bindPlaylistCardView(playlistItem.get(),
+                                                      itemView,
+                                                      Optional.of(fromModule(userSoundsItem.getCollectionType(),
+                                                                             getPositionInModule(items,
+                                                                                                 userSoundsItem))));
         }
     }
 }

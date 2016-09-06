@@ -87,7 +87,7 @@ class EventLoggerParam {
     static final String RESOURCE = "resource";
     static final String MODULE = "context";
     static final String MODULE_NAME = "name";
-    static final String MODULE_POSITION = "context_position";
+    static final String MODULE_POSITION = "position_in_context";
 
     // search tracking
     static final String QUERY_URN = "query_urn";

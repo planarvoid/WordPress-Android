@@ -38,9 +38,6 @@ public abstract class EventContextMetadata {
     public abstract Module module();
 
     @Nullable
-    public abstract Integer modulePosition();
-
-    @Nullable
     public abstract TrackSourceInfo trackSourceInfo();
 
     @AutoValue.Builder
@@ -59,14 +56,10 @@ public abstract class EventContextMetadata {
 
         public abstract Builder module(Module module);
 
-        public abstract Builder modulePosition(Integer position);
-
         public abstract Builder attributingActivity(AttributingActivity attributingActivityType);
 
         public abstract Builder isFromOverflow(boolean isFromOverflow);
 
         public abstract EventContextMetadata build();
-
     }
-
 }

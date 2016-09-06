@@ -8,6 +8,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
+import org.assertj.core.util.Maps;
 import org.junit.Test;
 
 import java.util.Map;
@@ -74,6 +75,66 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
         data.experiment("exp_android_listening", 12345);
 
         assertThat(data.payload.get("exp_android_listening")).isEqualTo(String.valueOf(12345));
+    }
+
+
+    @Test
+    public void addsPageviewIdToPayload() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.pageviewId("uuid");
+
+        assertThat(data.payload.get(EventLoggerParam.PAGEVIEW_ID)).isEqualTo("uuid");
+    }
+
+    @Test
+    public void addsAttributingActivityToPayload() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.attributingActivity("type", "resource");
+
+        Map<String, String> expected = Maps.newHashMap();
+        expected.put(EventLoggerParam.TYPE, "type");
+        expected.put(EventLoggerParam.RESOURCE, "resource");
+        assertThat(data.payload.get(EventLoggerParam.ATTRIBUTING_ACTIVITY)).isEqualTo(expected);
+    }
+
+    @Test
+    public void addsLinkTypeToPayload() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.linkType("link_type");
+
+        assertThat(data.payload.get(EventLoggerParam.LINK_TYPE)).isEqualTo("link_type");
+    }
+
+    @Test
+    public void addsItemToPayload() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.item("item");
+
+        assertThat(data.payload.get(EventLoggerParam.ITEM)).isEqualTo("item");
+    }
+
+    @Test
+    public void addsModuleToPayloadAsContext() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.module("module_name");
+
+        Map<String, String> expected = Maps.newHashMap();
+        expected.put(EventLoggerParam.MODULE_NAME, "module_name");
+        assertThat(data.payload.get(EventLoggerParam.MODULE)).isEqualTo(expected);
+    }
+
+    @Test
+    public void addsModulePositionToPayloadAsContextPosition() {
+        EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
+
+        data.modulePosition(3);
+
+        assertThat(data.payload.get(EventLoggerParam.MODULE_POSITION)).isEqualTo("3");
     }
 
     @Test

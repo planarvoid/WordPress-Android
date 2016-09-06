@@ -14,7 +14,7 @@ public class AttributingActivityTest {
     @Test
     public void isActiveWhenModuleIsStream() {
         final AttributingActivity attributingActivity = AttributingActivity.create("what", Optional.<Urn>absent());
-        final Module module = Module.create(Module.STREAM, "yo");
+        final Module module = Module.create(Module.STREAM, 1);
 
         assertThat(attributingActivity.isActive(Optional.of(module))).isTrue();
     }
@@ -22,7 +22,7 @@ public class AttributingActivityTest {
     @Test
     public void isNotActiveWhenModuleIsNotStream() {
         final AttributingActivity attributingActivity = AttributingActivity.create("what", Optional.<Urn>absent());
-        final Module module = Module.create("word", "yo");
+        final Module module = Module.create("word", 1);
 
         assertThat(attributingActivity.isActive(Optional.of(module))).isFalse();
     }

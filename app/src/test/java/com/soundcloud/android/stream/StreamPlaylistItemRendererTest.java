@@ -70,8 +70,7 @@ public class StreamPlaylistItemRendererTest extends AndroidUnitTest {
         assertThat(context.invokerScreen()).isEqualTo(ScreenElement.LIST.get());
         assertThat(context.contextScreen()).isEqualTo(Screen.STREAM.get());
         assertThat(context.pageName()).isEqualTo(Screen.STREAM.get());
-        assertThat(context.modulePosition()).isEqualTo(position);
-        assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, Strings.EMPTY));
+        assertThat(context.module()).isEqualTo(Module.create(Module.STREAM, position));
         assertThat(context.attributingActivity()).isEqualTo(AttributingActivity.fromPlayableItem(playlistItem));
     }
 

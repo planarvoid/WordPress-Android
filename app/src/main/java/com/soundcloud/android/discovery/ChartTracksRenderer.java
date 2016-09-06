@@ -1,6 +1,8 @@
 package com.soundcloud.android.discovery;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -40,7 +42,8 @@ class ChartTracksRenderer implements CellRenderer<ChartTrackListItem> {
                 return info;
             }
         });
-        trackItemRenderer.bindTrackView(track.chartTrackItem, itemView, position, trackSourceInfo);
+        trackItemRenderer.bindTrackView(track.chartTrackItem, itemView, position, trackSourceInfo,
+                                        Optional.<Module>absent());
     }
 
 }

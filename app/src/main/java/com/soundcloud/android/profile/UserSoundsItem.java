@@ -1,5 +1,8 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.java.collections.Iterables.filter;
+import static com.soundcloud.java.collections.Lists.newArrayList;
+
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.Urn;
@@ -8,7 +11,10 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Predicate;
 import com.soundcloud.java.optional.Optional;
+
+import java.util.List;
 
 @AutoValue
 abstract class UserSoundsItem implements ListItem {
@@ -120,5 +126,24 @@ abstract class UserSoundsItem implements ListItem {
         } else {
             return Optional.absent();
         }
+    }
+
+    public static int getPositionInModule(List<UserSoundsItem> userSoundsItems, UserSoundsItem clickedItem) {
+        final List<UserSoundsItem> itemsInModule = filterItemsInModule(userSoundsItems, clickedItem);
+        return itemsInModule.indexOf(clickedItem);
+    }
+
+    private static List<UserSoundsItem> filterItemsInModule(final List<UserSoundsItem> userSoundsItems,
+                                                            final UserSoundsItem userSoundsItem) {
+        return newArrayList(filter(userSoundsItems, new Predicate<UserSoundsItem>() {
+            @Override
+            public boolean apply(UserSoundsItem input) {
+                return input.getItemType() != TYPE_DIVIDER
+                        && input.getItemType() != TYPE_HEADER
+                        && input.getItemType() != TYPE_VIEW_ALL
+                        && input.getItemType() != TYPE_END_OF_LIST_DIVIDER
+                        && input.getCollectionType() == userSoundsItem.getCollectionType();
+            }
+        }));
     }
 }

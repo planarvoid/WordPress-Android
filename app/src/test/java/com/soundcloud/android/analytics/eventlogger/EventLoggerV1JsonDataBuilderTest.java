@@ -994,8 +994,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Test
     public void createdJsonForInteractionEventWithActiveAttributingActivity() throws ApiMapperException {
         final Integer position = 0;
-        final Module module = Module.create(Module.STREAM,
-                                            Strings.EMPTY);
+        final Module module = Module.create(Module.STREAM, position);
         final Urn pageUrn = Urn.forUser(123L);
         final AttributingActivity attributingActivity = mock(AttributingActivity.class);
         when(attributingActivity.getType()).thenReturn(AttributingActivity.PROMOTED);
@@ -1007,7 +1006,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                     .trackSourceInfo(trackSourceInfo)
                                     .pageName(PAGE_NAME)
                                     .module(module)
-                                    .modulePosition(position)
                                     .attributingActivity(attributingActivity)
                                     .linkType(LinkType.SELF)
                                     .pageUrn(pageUrn)
@@ -1029,16 +1027,15 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .linkType(LinkType.SELF.getName())
                 .pageUrn(pageUrn.toString())
                 .attributingActivity(attributingActivity.getType(), attributingActivity.getResource())
-                .module(module.getName(), module.getResource())
-                .modulePosition(position.toString())
+                .module(module.getName())
+                .modulePosition(position)
         );
     }
 
     @Test
     public void createdJsonForInteractionEventWithInactiveAttributingActivity() throws ApiMapperException {
         final Integer position = 0;
-        final Module module = Module.create(Module.STREAM,
-                                            Strings.EMPTY);
+        final Module module = Module.create(Module.STREAM, position);
         final Urn pageUrn = Urn.forUser(123L);
         final AttributingActivity attributingActivity = mock(AttributingActivity.class);
         when(attributingActivity.getType()).thenReturn(AttributingActivity.PROMOTED);
@@ -1050,7 +1047,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                     .trackSourceInfo(trackSourceInfo)
                                     .pageName(PAGE_NAME)
                                     .module(module)
-                                    .modulePosition(position)
                                     .attributingActivity(attributingActivity)
                                     .linkType(LinkType.SELF)
                                     .pageUrn(pageUrn)
@@ -1071,8 +1067,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .action(ACTION_NAVIGATION)
                                                .linkType(LinkType.SELF.getName())
                                                .pageUrn(pageUrn.toString())
-                                               .module(module.getName(), module.getResource())
-                                               .modulePosition(position.toString())
+                                               .module(module.getName())
+                                               .modulePosition(position)
         );
     }
 

@@ -1,5 +1,8 @@
 package com.soundcloud.android.profile;
 
+import static com.soundcloud.android.profile.UserSoundsItem.getPositionInModule;
+import static com.soundcloud.android.profile.UserSoundsTypes.fromModule;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -7,6 +10,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.java.optional.Optional;
+import com.soundcloud.java.strings.Strings;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +36,17 @@ class UserSoundsTrackItemRenderer implements CellRenderer<UserSoundsItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<UserSoundsItem> items) {
-        final Optional<TrackItem> trackItem = items.get(position).getTrackItem();
+        final UserSoundsItem userSoundsItem = items.get(position);
+        final Optional<TrackItem> trackItem = userSoundsItem.getTrackItem();
 
         if (trackItem.isPresent()) {
             itemView.setBackgroundColor(itemView.getResources().getColor(R.color.white));
-            trackItemRenderer.bindTrackView(trackItem.get(), itemView, position, Optional.<TrackSourceInfo>absent());
+            trackItemRenderer.bindTrackView(trackItem.get(),
+                                            itemView,
+                                            position,
+                                            Optional.<TrackSourceInfo>absent(),
+                                            Optional.of(fromModule(userSoundsItem.getCollectionType(),
+                                                                   getPositionInModule(items, userSoundsItem))));
         }
     }
 }

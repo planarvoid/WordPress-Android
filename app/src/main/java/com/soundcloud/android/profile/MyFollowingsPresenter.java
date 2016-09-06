@@ -140,8 +140,7 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
         EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
                                                                         .pageName(screen.get())
                                                                         .linkType(LinkType.SELF)
-                                                                        .module(Module.create(Module.USER_FOLLOWING))
-                                                                        .modulePosition(position)
+                                                                        .module(Module.create(Module.USER_FOLLOWING, position))
                                                                         .contextScreen(screen.get())
                                                                         .build();
 

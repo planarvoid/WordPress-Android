@@ -71,8 +71,7 @@ class StreamTrackItemRenderer implements CellRenderer<TrackItem> {
     @VisibleForTesting
     EventContextMetadata.Builder getEventContextMetadataBuilder(TrackItem trackItem, Integer position) {
         return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                                   .module(Module.create(Module.STREAM, Strings.EMPTY))
-                                   .modulePosition(position)
+                                   .module(Module.create(Module.STREAM, position))
                                    .contextScreen(Screen.STREAM.get())
                                    .pageName(Screen.STREAM.get())
                                    .attributingActivity(AttributingActivity.fromPlayableItem(trackItem));

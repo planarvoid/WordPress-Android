@@ -60,7 +60,7 @@ public class MixedItemClickListener {
                     .playTracks(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view, clickedItem, Optional.<Module>absent(), Consts.NOT_SET);
+            handleNonTrackItemClick(view, clickedItem, Optional.<Module>absent());
         }
     }
 
@@ -70,17 +70,15 @@ public class MixedItemClickListener {
                     position,
                     clickedItem,
                     new PlaySessionSource(screen),
-                    Optional.<Module>absent(),
-                    Consts.NOT_SET);
+                    Optional.<Module>absent());
     }
 
     public void onPostClick(Observable<List<PropertySet>> playables,
                             View view,
                             int position,
                             ListItem clickedItem,
-                            Optional<Module> module,
-                            int modulePosition) {
-        onPostClick(playables, view, position, clickedItem, new PlaySessionSource(screen), module, modulePosition);
+                            Module module) {
+        onPostClick(playables, view, position, clickedItem, new PlaySessionSource(screen), Optional.of(module));
     }
 
     public void onProfilePostClick(Observable<List<PropertySet>> playables,
@@ -93,8 +91,7 @@ public class MixedItemClickListener {
                     position,
                     clickedItem,
                     PlaySessionSource.forArtist(screen, userUrn),
-                    Optional.<Module>absent(),
-                    Consts.NOT_SET);
+                    Optional.<Module>absent());
     }
 
     private void onPostClick(Observable<List<PropertySet>> playables,
@@ -102,8 +99,7 @@ public class MixedItemClickListener {
                              int position,
                              ListItem clickedItem,
                              PlaySessionSource playSessionSource,
-                             Optional<Module> module,
-                             int modulePosition) {
+                             Optional<Module> module) {
         if (clickedItem.getUrn().isTrack()) {
             final TrackItem item = (TrackItem) clickedItem;
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
@@ -114,7 +110,7 @@ public class MixedItemClickListener {
                     .playPosts(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view, clickedItem, module, modulePosition);
+            handleNonTrackItemClick(view, clickedItem, module);
         }
     }
 
@@ -123,11 +119,11 @@ public class MixedItemClickListener {
         if (playable.getUrn().isTrack()) {
             handleTrackClick(playables, position);
         } else {
-            handleNonTrackItemClick(view, playable, Optional.<Module>absent(), Consts.NOT_SET);
+            handleNonTrackItemClick(view, playable, Optional.<Module>absent());
         }
     }
 
-    private void handleNonTrackItemClick(View view, ListItem item, Optional<Module> module, int modulePosition) {
+    private void handleNonTrackItemClick(View view, ListItem item, Optional<Module> module) {
         Urn entityUrn = item.getUrn();
         if (item instanceof PlayableItem) {
             navigator.openPlaylist(view.getContext(),
@@ -135,7 +131,7 @@ public class MixedItemClickListener {
                                    screen,
                                    searchQuerySourceInfo,
                                    promotedPlaylistInfo(item),
-                                   UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module, modulePosition)));
+                                   UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module)));
         } else if (entityUrn.isPlaylist()) {
             navigator.legacyOpenPlaylist(view.getContext(),
                                          entityUrn,
@@ -150,7 +146,7 @@ public class MixedItemClickListener {
         }
     }
 
-    private EventContextMetadata getEventContextMetadata(PlayableItem item, Optional<Module> module, int modulePosition) {
+    private EventContextMetadata getEventContextMetadata(PlayableItem item, Optional<Module> module) {
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
                                                                          .invokerScreen(ScreenElement.LIST.get())
                                                                          .contextScreen(screen.get())
@@ -161,9 +157,6 @@ public class MixedItemClickListener {
 
         if (module.isPresent()) {
             builder.module(module.get());
-        }
-        if (modulePosition != Consts.NOT_SET) {
-            builder.modulePosition(modulePosition);
         }
         return builder.build();
     }

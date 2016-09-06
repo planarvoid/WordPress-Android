@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -29,6 +30,7 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
     @Mock Navigator navigator;
     @Mock PlaylistItemMenuPresenter playlistMenuPresenter;
     @Mock CardEngagementsPresenter cardEngagementsPresenter;
+    @Mock ScreenProvider screenProvider;
 
     private PlaylistCardRenderer renderer;
 
@@ -38,7 +40,8 @@ public class PlaylistCardRendererTest extends AndroidUnitTest {
                                             navigator,
                                             imageOperations,
                                             playlistMenuPresenter,
-                                            cardEngagementsPresenter);
+                                            cardEngagementsPresenter,
+                                            screenProvider);
     }
 
     @Test

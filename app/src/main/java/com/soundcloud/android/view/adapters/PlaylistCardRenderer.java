@@ -5,13 +5,15 @@ import static com.soundcloud.android.tracks.OverflowMenuOptions.builder;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -20,6 +22,7 @@ import com.soundcloud.android.view.adapters.CardEngagementsPresenter.CardEngagem
 import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
@@ -43,18 +46,21 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
     private final ImageOperations imageOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final CardEngagementsPresenter cardEngagementsPresenter;
+    private final ScreenProvider screenProvider;
     private int layoutResource = R.layout.default_playlist_card;
 
     @Inject
     public PlaylistCardRenderer(Resources resources,
                                 Navigator navigator, ImageOperations imageOperations,
                                 PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                CardEngagementsPresenter cardEngagementsPresenter) {
+                                CardEngagementsPresenter cardEngagementsPresenter,
+                                ScreenProvider screenProvider) {
         this.resources = resources;
         this.navigator = navigator;
         this.imageOperations = imageOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
         this.cardEngagementsPresenter = cardEngagementsPresenter;
+        this.screenProvider = screenProvider;
     }
 
     @Override
@@ -68,10 +74,10 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
 
     @Override
     public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
-        bindPlaylistCardView(playlists.get(position), itemView);
+        bindPlaylistCardView(playlists.get(position), itemView, Optional.<Module>absent());
     }
 
-    public void bindPlaylistCardView(PlaylistItem playlist, View itemView) {
+    public void bindPlaylistCardView(PlaylistItem playlist, View itemView, Optional<Module> module) {
         PlaylistViewHolder viewHolder = (PlaylistViewHolder) itemView.getTag();
 
         bindArtworkView(viewHolder, playlist);
@@ -79,31 +85,41 @@ public class PlaylistCardRenderer implements CellRenderer<PlaylistItem> {
         viewHolder.trackCount.setText(String.valueOf(playlist.getTrackCount()));
         viewHolder.tracksView.setText(tracksQuantity);
 
-        setupEngagementBar(viewHolder, playlist);
+        setupEngagementBar(viewHolder, playlist, module);
     }
 
     public void setLayoutResource(@LayoutRes int layoutResource) {
         this.layoutResource = layoutResource;
     }
 
-    private void setupEngagementBar(PlaylistViewHolder playlistView, final PlaylistItem playlistItem) {
-        cardEngagementsPresenter.bind(playlistView, playlistItem, getEventContextMetadata());
+    private void setupEngagementBar(PlaylistViewHolder playlistView,
+                                    final PlaylistItem playlistItem,
+                                    final Optional<Module> module) {
+        cardEngagementsPresenter.bind(playlistView,
+                                      playlistItem,
+                                      getEventContextMetadataBuilder(module).build());
         playlistView.tagList.setText(formatTags(playlistItem.getTags()));
         playlistView.tagList.setVisibility(View.VISIBLE);
 
         playlistView.overflowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View overflowButton) {
-                playlistItemMenuPresenter.show(overflowButton, playlistItem, builder().build());
+                playlistItemMenuPresenter.show(overflowButton,
+                                               playlistItem,
+                                               builder().build(),
+                                               getEventContextMetadataBuilder(module));
             }
         });
     }
 
-    private EventContextMetadata getEventContextMetadata() {
-        return EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
-                                   .contextScreen(Screen.SEARCH_PLAYLIST_DISCO.get())
-                                   .pageName(Screen.SEARCH_PLAYLIST_DISCO.get())
-                                   .build();
+    private EventContextMetadata.Builder getEventContextMetadataBuilder(final Optional<Module> module) {
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder().invokerScreen(ScreenElement.LIST.get())
+                                                                   .contextScreen(screenProvider.getLastScreenTag())
+                                                                   .pageName(screenProvider.getLastScreenTag());
+        if (module.isPresent()) {
+            builder.module(module.get());
+        }
+        return builder;
     }
 
     private void bindArtworkView(PlaylistViewHolder itemView, final PlayableItem playableItem) {

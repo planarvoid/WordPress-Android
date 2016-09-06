@@ -265,18 +265,17 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData module(String name, String resource) {
+    public EventLoggerEventData module(String name) {
         final HashMap<String, String> module = new HashMap<>();
 
         module.put(MODULE_NAME, name);
-        module.put(RESOURCE, resource);
 
         addToPayload(MODULE, module);
 
         return this;
     }
 
-    public EventLoggerEventData modulePosition(String position) {
+    public EventLoggerEventData modulePosition(int position) {
         addToPayload(MODULE_POSITION, position);
 
         return this;

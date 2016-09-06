@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -50,7 +51,8 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
     protected void showTrackItemMenu(View button,
                                      TrackItem track,
                                      int position,
-                                     Optional<TrackSourceInfo> trackSourceInfo) {
+                                     Optional<TrackSourceInfo> trackSourceInfo,
+                                     Optional<Module> module) {
         trackItemMenuPresenter.show(getFragmentActivity(button),
                                     button,
                                     track,
