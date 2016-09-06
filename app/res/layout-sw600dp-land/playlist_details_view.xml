@@ -48,7 +48,7 @@
 
     <ImageButton
         android:id="@+id/btn_play"
-        style="@style/PlaylistPlay" />
+        style="@style/HeaderPlay" />
 
     <include
         android:id="@+id/playlist_engagement_bar"

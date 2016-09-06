@@ -17,6 +17,7 @@
 
     <ImageButton
         android:id="@+id/btn_play"
-        style="@style/StationInfo.PlayButton"
+        style="@style/HeaderPlay"
         android:layout_gravity="center" />
+
 </FrameLayout>
