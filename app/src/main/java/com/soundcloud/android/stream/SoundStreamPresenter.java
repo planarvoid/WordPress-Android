@@ -191,7 +191,7 @@ public class SoundStreamPresenter extends TimelinePresenter<TypedListItem> imple
     }
 
     private void handleListItemClick(View view, int position, ListItem item) {
-        itemClickListener.onPostClick(streamOperations.urnsForPlayback(), view, position, item);
+        itemClickListener.legacyOnPostClick(streamOperations.urnsForPlayback(), view, position, item);
     }
 
     private void publishPromotedItemClickEvent(PromotedListItem item) {

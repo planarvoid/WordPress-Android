@@ -139,7 +139,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(view, 0);
 
-        verify(itemClickListener).onPostClick(streamTracks, view, 0, clickedTrack);
+        verify(itemClickListener).legacyOnPostClick(streamTracks, view, 0, clickedTrack);
     }
 
     @Test
@@ -168,7 +168,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
         presenter.onItemClicked(view, 0);
 
         assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(PromotedTrackingEvent.class);
-        verify(itemClickListener).onPostClick(streamTracks, view, 0, clickedPlaylist);
+        verify(itemClickListener).legacyOnPostClick(streamTracks, view, 0, clickedPlaylist);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(view, 0);
 
-        verify(itemClickListener).onPostClick(streamTracks, view, 0, playlistItem);
+        verify(itemClickListener).legacyOnPostClick(streamTracks, view, 0, playlistItem);
     }
 
     @Test

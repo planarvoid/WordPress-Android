@@ -105,7 +105,7 @@ abstract class ProfilePlayablePresenter<DataT extends Iterable<PropertySet>>
         if (item.getUrn().isTrack()) {
             clickListener.onProfilePostClick(getPlayables(adapter), view, position, item, item.getUserUrn());
         } else {
-            clickListener.onPostClick(getPlayables(adapter), view, position, item);
+            clickListener.legacyOnPostClick(getPlayables(adapter), view, position, item);
         }
     }
 

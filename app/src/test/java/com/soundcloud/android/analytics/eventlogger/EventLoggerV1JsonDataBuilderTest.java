@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION_NAVIGATION;
 import static java.util.UUID.randomUUID;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -991,14 +992,15 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createdJsonForNavigationEvent() throws ApiMapperException {
+    public void createdJsonForInteractionEventWithActiveAttributingActivity() throws ApiMapperException {
         final Integer position = 0;
-        final AttributingActivity attributingActivityType = AttributingActivity.create(
-                AttributingActivity.PROMOTED,
-                Optional.<Urn>absent());
         final Module module = Module.create(Module.STREAM,
                                             Strings.EMPTY);
         final Urn pageUrn = Urn.forUser(123L);
+        final AttributingActivity attributingActivity = mock(AttributingActivity.class);
+        when(attributingActivity.getType()).thenReturn(AttributingActivity.PROMOTED);
+        when(attributingActivity.isActive(Optional.of(module))).thenReturn(true);
+
         final EventContextMetadata eventContextMetadata =
                 EventContextMetadata.builder()
                                     .contextScreen("screen")
@@ -1006,7 +1008,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                     .pageName(PAGE_NAME)
                                     .module(module)
                                     .modulePosition(position)
-                                    .attributingActivity(attributingActivityType)
+                                    .attributingActivity(attributingActivity)
                                     .linkType(LinkType.SELF)
                                     .pageUrn(pageUrn)
                                     .build();
@@ -1026,9 +1028,51 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                 .action(ACTION_NAVIGATION)
                 .linkType(LinkType.SELF.getName())
                 .pageUrn(pageUrn.toString())
-                .attributingActivity(attributingActivityType.getType(), attributingActivityType.getResource())
+                .attributingActivity(attributingActivity.getType(), attributingActivity.getResource())
                 .module(module.getName(), module.getResource())
                 .modulePosition(position.toString())
+        );
+    }
+
+    @Test
+    public void createdJsonForInteractionEventWithInactiveAttributingActivity() throws ApiMapperException {
+        final Integer position = 0;
+        final Module module = Module.create(Module.STREAM,
+                                            Strings.EMPTY);
+        final Urn pageUrn = Urn.forUser(123L);
+        final AttributingActivity attributingActivity = mock(AttributingActivity.class);
+        when(attributingActivity.getType()).thenReturn(AttributingActivity.PROMOTED);
+        when(attributingActivity.isActive(Optional.of(module))).thenReturn(false);
+
+        final EventContextMetadata eventContextMetadata =
+                EventContextMetadata.builder()
+                                    .contextScreen("screen")
+                                    .trackSourceInfo(trackSourceInfo)
+                                    .pageName(PAGE_NAME)
+                                    .module(module)
+                                    .modulePosition(position)
+                                    .attributingActivity(attributingActivity)
+                                    .linkType(LinkType.SELF)
+                                    .pageUrn(pageUrn)
+                                    .build();
+
+        final UIEvent navigationEvent = UIEvent.fromNavigation(TRACK_URN, eventContextMetadata);
+        final String pageviewId = randomUUID().toString();
+
+        navigationEvent.putReferringEvent(ReferringEvent.create(pageviewId, Strings.EMPTY));
+
+        jsonDataBuilder.buildForUIEvent(navigationEvent);
+
+        verify(jsonTransformer).toJson(getEventData("item_interaction", BOOGALOO_VERSION, navigationEvent.getTimestamp())
+                                               .uuid(navigationEvent.getId())
+                                               .item(TRACK_URN.toString())
+                                               .pageviewId(pageviewId)
+                                               .pageName(PAGE_NAME)
+                                               .action(ACTION_NAVIGATION)
+                                               .linkType(LinkType.SELF.getName())
+                                               .pageUrn(pageUrn.toString())
+                                               .module(module.getName(), module.getResource())
+                                               .modulePosition(position.toString())
         );
     }
 

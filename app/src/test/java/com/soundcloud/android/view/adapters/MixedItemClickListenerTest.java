@@ -12,6 +12,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -31,6 +32,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -109,7 +111,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         when(playbackInitiator.playPosts(trackList, promotedTrack.getUrn(), 0, playSessionSource))
                 .thenReturn(Observable.just(playbackResult));
 
-        listener.onPostClick(trackList, view, 0, promotedTrack);
+        listener.legacyOnPostClick(trackList, view, 0, promotedTrack);
 
         verify(expandPlayerSubscriber).onNext(playbackResult);
         verify(expandPlayerSubscriber).onCompleted();
@@ -238,7 +240,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         when(playbackInitiator.playPosts(tracklist, track1.getUrn(), 1, new PlaySessionSource(screen))).thenReturn(
                 Observable.just(playbackResult));
 
-        listener.onPostClick(tracklist, view, 1, track1);
+        listener.legacyOnPostClick(tracklist, view, 1, track1);
 
         verify(expandPlayerSubscriber).onNext(playbackResult);
         verify(expandPlayerSubscriber).onCompleted();
@@ -250,7 +252,7 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
         List<PropertySet> items = Arrays.asList(createTrackPropertySet(Urn.forTrack(123L)),
                                                 createTrackPropertySet(playlistItem.getUrn()));
 
-        listener.onPostClick(Observable.just(items), view, 1, playlistItem);
+        listener.legacyOnPostClick(Observable.just(items), view, 1, playlistItem);
 
         verify(navigator).openPlaylist(eq(context),
                                        eq(playlistItem.getUrn()),
@@ -261,13 +263,35 @@ public class MixedItemClickListenerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void onPostClickOpensPlaylistOnNonTrackItem() {
+        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        List<PropertySet> items = Arrays.asList(createTrackPropertySet(Urn.forTrack(123L)),
+                                                createTrackPropertySet(playlistItem.getUrn()));
+
+        final int modulePosition = 5;
+        final Optional<Module> module = Optional.of(Module.create(Module.USER_ALBUMS,
+                                                                          "resource"));
+        listener.onPostClick(Observable.just(items), view, 1, playlistItem, module, modulePosition);
+
+        verify(navigator).openPlaylist(eq(context),
+                                       eq(playlistItem.getUrn()),
+                                       eq(screen),
+                                       eq(searchQuerySourceInfo),
+                                       any(PromotedSourceInfo.class),
+                                       uiEventArgumentCaptor.capture());
+
+        assertThat(uiEventArgumentCaptor.getValue().getModule()).isEqualTo(module);
+        assertThat(uiEventArgumentCaptor.getValue().getModulePosition()).isEqualTo(Optional.of(modulePosition));
+    }
+
+    @Test
     public void postItemClickOnLocalUserGoesToUserProfile() {
         final UserItem userItem = ModelFixtures.create(UserItem.class);
         List<PropertySet> items = Arrays.asList(createTrackPropertySet(Urn.forTrack(123L)),
                                                 createTrackPropertySet(Urn.forPlaylist(123L)),
                                                 createTrackPropertySet(userItem.getUrn()));
 
-        listener.onPostClick(Observable.just(items), view, 2, userItem);
+        listener.legacyOnPostClick(Observable.just(items), view, 2, userItem);
 
         verify(navigator).legacyOpenProfile(context, userItem.getUrn(), screen, searchQuerySourceInfo);
     }

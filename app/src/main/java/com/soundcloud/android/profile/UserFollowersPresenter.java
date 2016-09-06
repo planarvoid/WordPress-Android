@@ -3,7 +3,12 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.Module;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
@@ -41,6 +46,7 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
         }
     };
     private final ImagePauseOnScrollListener imagePauseOnScrollListener;
+    private Screen screen;
 
     @Inject
     UserFollowersPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener,
@@ -67,6 +73,9 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
+
+        screen = (Screen) fragment.getArguments().getSerializable(ProfileArguments.SCREEN_KEY);
+
         getBinding().connect();
     }
 
@@ -97,7 +106,18 @@ class UserFollowersPresenter extends RecyclerViewPresenter<PagedRemoteCollection
 
     @Override
     protected void onItemClicked(View view, int position) {
-        navigator.legacyOpenProfile(view.getContext(), adapter.getItem(position).getUrn());
+        final Urn urn = adapter.getItem(position).getUrn();
+        EventContextMetadata.Builder eventContextMetadataBuilder = EventContextMetadata.builder()
+                                                                                       .linkType(LinkType.SELF)
+                                                                                       .module(Module.create(Module.USER_FOLLOWERS))
+                                                                                       .modulePosition(position);
+
+        if (screen != null) {
+            eventContextMetadataBuilder.pageName(screen.get())
+                                       .contextScreen(screen.get());
+        }
+
+        navigator.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadataBuilder.build()));
     }
 
     @Override

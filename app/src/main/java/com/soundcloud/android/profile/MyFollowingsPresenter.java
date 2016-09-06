@@ -1,14 +1,17 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileArguments.SCREEN_KEY;
-import static com.soundcloud.android.profile.ProfileArguments.SEARCH_QUERY_SOURCE_INFO_KEY;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.events.EventContextMetadata;
+import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.Module;
+import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
@@ -51,7 +54,6 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
 
     private final UserRecyclerItemAdapter adapter;
     private final Navigator navigator;
-    private SearchQuerySourceInfo searchQuerySourceInfo;
     private Screen screen;
     private CompositeSubscription updateFollowingsSubscription;
 
@@ -76,7 +78,6 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
         super.onCreate(fragment, bundle);
 
         screen = (Screen) fragment.getArguments().getSerializable(SCREEN_KEY);
-        searchQuerySourceInfo = fragment.getArguments().getParcelable(SEARCH_QUERY_SOURCE_INFO_KEY);
 
         updateFollowingsSubscription = new CompositeSubscription(
 
@@ -135,7 +136,16 @@ class MyFollowingsPresenter extends RecyclerViewPresenter<List<PropertySet>, Use
 
     @Override
     protected void onItemClicked(View view, int position) {
-        navigator.legacyOpenProfile(view.getContext(), adapter.getItem(position).getUrn(), screen, searchQuerySourceInfo);
+        final Urn urn = adapter.getItem(position).getUrn();
+        EventContextMetadata eventContextMetadata = EventContextMetadata.builder()
+                                                                        .pageName(screen.get())
+                                                                        .linkType(LinkType.SELF)
+                                                                        .module(Module.create(Module.USER_FOLLOWING))
+                                                                        .modulePosition(position)
+                                                                        .contextScreen(screen.get())
+                                                                        .build();
+
+        navigator.openProfile(view.getContext(), urn, UIEvent.fromNavigation(urn, eventContextMetadata));
     }
 
     @Override

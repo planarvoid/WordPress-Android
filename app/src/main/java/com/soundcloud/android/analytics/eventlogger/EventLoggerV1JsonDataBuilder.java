@@ -469,7 +469,7 @@ public class EventLoggerV1JsonDataBuilder {
             eventData.pageUrn(pageUrn);
         }
 
-        if (attributingActivity.isPresent()) {
+        if (attributingActivity.isPresent() && attributingActivity.get().isActive(module)) {
             eventData.attributingActivity(attributingActivity.get().getType(), attributingActivity.get().getResource());
         }
 

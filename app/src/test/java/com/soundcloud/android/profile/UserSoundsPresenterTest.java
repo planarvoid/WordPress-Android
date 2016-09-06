@@ -14,10 +14,11 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -28,6 +29,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -150,8 +152,9 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
         View view = mock(View.class);
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         TrackItem trackItem = TrackItem.from(track);
+        final UserSoundsItem userSoundsItem = fromTrackItem(trackItem, -1);
         when(adapter.getItem(0)).thenReturn(userSoundsItem);
-        when(adapter.getItems()).thenReturn(singletonList(fromTrackItem(trackItem, UserSoundsTypes.SPOTLIGHT)));
+        when(adapter.getItems()).thenReturn(singletonList(userSoundsItem));
 
         presenter.onCreate(fragmentRule.getFragment(), null);
         presenter.onItemClicked(view, 0);
@@ -161,7 +164,9 @@ public class UserSoundsPresenterTest extends AndroidUnitTest {
                                           eq(0),
                                           same(userSoundsItem),
                                           eq(USER_URN),
-                                          same(SEARCH_QUERY_SOURCE_INFO));
+                                          same(SEARCH_QUERY_SOURCE_INFO),
+                                          eq(Optional.<Module>absent()),
+                                          eq(0));
 
         final TestSubscriber<List<PropertySet>> subscriber = new TestSubscriber<>();
         argumentCaptor.getValue().subscribe(subscriber);

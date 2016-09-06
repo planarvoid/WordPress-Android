@@ -110,8 +110,8 @@ public class ProfilePlayablePresenterTest extends AndroidUnitTest {
 
         presenter.onItemClicked(itemView, 1);
 
-        verify(itemClickListener).onPostClick(argumentCaptor.capture(), same(itemView), eq(1),
-                                              same((ListItem) playlistItem));
+        verify(itemClickListener).legacyOnPostClick(argumentCaptor.capture(), same(itemView), eq(1),
+                                                    same((ListItem) playlistItem));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -7,6 +8,7 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.AttributingActivity;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.LinkType;
+import com.soundcloud.android.events.Module;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
@@ -19,6 +21,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 
 import android.view.View;
@@ -57,12 +60,27 @@ public class MixedItemClickListener {
                     .playTracks(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view, clickedItem);
+            handleNonTrackItemClick(view, clickedItem, Optional.<Module>absent(), Consts.NOT_SET);
         }
     }
 
-    public void onPostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem) {
-        onPostClick(playables, view, position, clickedItem, new PlaySessionSource(screen));
+    public void legacyOnPostClick(Observable<List<PropertySet>> playables, View view, int position, ListItem clickedItem) {
+        onPostClick(playables,
+                    view,
+                    position,
+                    clickedItem,
+                    new PlaySessionSource(screen),
+                    Optional.<Module>absent(),
+                    Consts.NOT_SET);
+    }
+
+    public void onPostClick(Observable<List<PropertySet>> playables,
+                            View view,
+                            int position,
+                            ListItem clickedItem,
+                            Optional<Module> module,
+                            int modulePosition) {
+        onPostClick(playables, view, position, clickedItem, new PlaySessionSource(screen), module, modulePosition);
     }
 
     public void onProfilePostClick(Observable<List<PropertySet>> playables,
@@ -70,14 +88,22 @@ public class MixedItemClickListener {
                                    int position,
                                    ListItem clickedItem,
                                    Urn userUrn) {
-        onPostClick(playables, view, position, clickedItem, PlaySessionSource.forArtist(screen, userUrn));
+        onPostClick(playables,
+                    view,
+                    position,
+                    clickedItem,
+                    PlaySessionSource.forArtist(screen, userUrn),
+                    Optional.<Module>absent(),
+                    Consts.NOT_SET);
     }
 
-    public void onPostClick(Observable<List<PropertySet>> playables,
-                            View view,
-                            int position,
-                            ListItem clickedItem,
-                            PlaySessionSource playSessionSource) {
+    private void onPostClick(Observable<List<PropertySet>> playables,
+                             View view,
+                             int position,
+                             ListItem clickedItem,
+                             PlaySessionSource playSessionSource,
+                             Optional<Module> module,
+                             int modulePosition) {
         if (clickedItem.getUrn().isTrack()) {
             final TrackItem item = (TrackItem) clickedItem;
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
@@ -88,7 +114,7 @@ public class MixedItemClickListener {
                     .playPosts(playables, item.getUrn(), position, playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else {
-            handleNonTrackItemClick(view, clickedItem);
+            handleNonTrackItemClick(view, clickedItem, module, modulePosition);
         }
     }
 
@@ -97,11 +123,11 @@ public class MixedItemClickListener {
         if (playable.getUrn().isTrack()) {
             handleTrackClick(playables, position);
         } else {
-            handleNonTrackItemClick(view, playable);
+            handleNonTrackItemClick(view, playable, Optional.<Module>absent(), Consts.NOT_SET);
         }
     }
 
-    private void handleNonTrackItemClick(View view, ListItem item) {
+    private void handleNonTrackItemClick(View view, ListItem item, Optional<Module> module, int modulePosition) {
         Urn entityUrn = item.getUrn();
         if (item instanceof PlayableItem) {
             navigator.openPlaylist(view.getContext(),
@@ -109,7 +135,7 @@ public class MixedItemClickListener {
                                    screen,
                                    searchQuerySourceInfo,
                                    promotedPlaylistInfo(item),
-                                   UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item)));
+                                   UIEvent.fromNavigation(entityUrn, getEventContextMetadata((PlayableItem) item, module, modulePosition)));
         } else if (entityUrn.isPlaylist()) {
             navigator.legacyOpenPlaylist(view.getContext(),
                                          entityUrn,
@@ -124,14 +150,22 @@ public class MixedItemClickListener {
         }
     }
 
-    private EventContextMetadata getEventContextMetadata(PlayableItem item) {
-        return EventContextMetadata.builder()
-                                   .invokerScreen(ScreenElement.LIST.get())
-                                   .contextScreen(screen.get())
-                                   .pageName(screen.get())
-                                   .attributingActivity(AttributingActivity.fromPlayableItem(item))
-                                   .linkType(LinkType.SELF)
-                                   .build();
+    private EventContextMetadata getEventContextMetadata(PlayableItem item, Optional<Module> module, int modulePosition) {
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
+                                                                         .invokerScreen(ScreenElement.LIST.get())
+                                                                         .contextScreen(screen.get())
+                                                                         .pageName(screen.get())
+                                                                         .attributingActivity(AttributingActivity.fromPlayableItem(
+                                                                                 item))
+                                                                         .linkType(LinkType.SELF);
+
+        if (module.isPresent()) {
+            builder.module(module.get());
+        }
+        if (modulePosition != Consts.NOT_SET) {
+            builder.modulePosition(modulePosition);
+        }
+        return builder.build();
     }
 
     private PromotedSourceInfo promotedPlaylistInfo(ListItem item) {
