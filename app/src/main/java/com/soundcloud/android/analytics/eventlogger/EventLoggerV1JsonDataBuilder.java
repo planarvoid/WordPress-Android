@@ -192,7 +192,8 @@ public class EventLoggerV1JsonDataBuilder {
         return transform(data);
     }
 
-    public EventLoggerEventData buildAdClickThroughEvent(String clickName, UIEvent event) {
+    public EventLoggerEventData buildAdClickThroughEvent(UIEvent event) {
+        final String clickName = event.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE).equals("video_ad") ?  "clickthrough::video_ad" : "clickthrough::audio_ad";
         return buildClickEvent(clickName, event)
                 .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL));
     }
@@ -311,9 +312,9 @@ public class EventLoggerV1JsonDataBuilder {
                 return transform(buildClickEvent("ad::full_screen", event));
             case UIEvent.KIND_VIDEO_AD_SHRINK:
                 return transform(buildClickEvent("ad::exit_full_screen", event));
-            case UIEvent.KIND_VIDEO_AD_CLICKTHROUGH:
-                return transform(buildAdClickThroughEvent("clickthrough::video_ad", event));
-            case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
+            case UIEvent.KIND_AD_CLICKTHROUGH:
+                return transform(buildAdClickThroughEvent(event));
+            case UIEvent.KIND_SKIP_AD_CLICK:
                 return transform(buildClickEvent("ad::skip", event));
             case UIEvent.KIND_NAVIGATION:
                 return transform(buildInteractionEvent(ACTION_NAVIGATION, event));

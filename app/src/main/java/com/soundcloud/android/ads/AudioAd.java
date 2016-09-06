@@ -27,6 +27,7 @@ public abstract class AudioAd extends PlayerAdData {
                 adTracking.thirdQuartileUrls,
                 adTracking.pauseUrls,
                 adTracking.resumeUrls,
+                apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().trackingClickUrls : Collections.<String>emptyList(),
                 apiAudioAd.isSkippable(),
                 extractVisualAdDisplayProperties(apiAudioAd),
                 apiAudioAd.hasCompanion() ? Optional.of(apiAudioAd.getCompanion().urn) : Optional.<Urn>absent(),
@@ -34,7 +35,6 @@ public abstract class AudioAd extends PlayerAdData {
                 extractClickThrough(apiAudioAd),
                 apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().ctaButtonText : Optional.<String>absent(),
                 apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().trackingImpressionUrls : Collections.<String>emptyList(),
-                apiAudioAd.hasCompanion() ? apiAudioAd.getCompanion().trackingClickUrls : Collections.<String>emptyList(),
                 Lists.transform(apiAudioAd.getAudioSources(), ApiAudioAdSource.toAudioAdSource));
     }
 
@@ -74,8 +74,6 @@ public abstract class AudioAd extends PlayerAdData {
     public abstract Optional<String> getCallToActionButtonText();
 
     public abstract List<String> getCompanionImpressionUrls();
-
-    public abstract List<String> getCompanionClickUrls();
 
     public abstract List<AudioAdSource> getAudioSources();
 }

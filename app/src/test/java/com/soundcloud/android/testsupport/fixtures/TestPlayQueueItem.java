@@ -2,6 +2,7 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AudioAd;
+import com.soundcloud.android.ads.OverlayAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;
@@ -23,7 +24,7 @@ public class TestPlayQueueItem {
         return new TrackQueueItem.Builder(itemUrn).blocked(true).build();
     }
 
-    public static TrackQueueItem createTrack(Urn itemUrn, AdData adData) {
+    public static TrackQueueItem createTrack(Urn itemUrn, OverlayAdData adData) {
         return new TrackQueueItem.Builder(itemUrn).withAdData(adData).build();
     }
 

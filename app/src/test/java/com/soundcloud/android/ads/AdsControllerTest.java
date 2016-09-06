@@ -252,8 +252,7 @@ public class AdsControllerTest extends AndroidUnitTest {
 
     @Test
     public void configureAdForNextTrackDoesNotReplaceAnExistingAudioAd() {
-        final PlayQueueItem audioAd = TestPlayQueueItem.createTrack(Urn.forTrack(123L),
-                                                                    AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        final PlayQueueItem audioAd = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
         insertFullAdsForNextTrack();
 
         when(playQueueManager.getNextPlayQueueItem()).thenReturn(audioAd);
@@ -729,11 +728,9 @@ public class AdsControllerTest extends AndroidUnitTest {
                                anyBoolean(),
                                anyBoolean())).thenReturn(Observable.just(apiAdsForTrack));
         adsController.subscribe();
-        final TrackQueueItem trackItem = TestPlayQueueItem.createTrack(currentTrackUrn,
-                                                                       AudioAd.create(apiAdsForTrack.audioAd().get(),
-                                                                                      currentTrackUrn));
+        final PlayQueueItem adItem = TestPlayQueueItem.createAudioAd(AudioAd.create(apiAdsForTrack.audioAd().get(), currentTrackUrn));
         eventBus.publish(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                         CurrentPlayQueueItemEvent.fromPositionChanged(trackItem, Urn.NOT_SET, 0));
+                         CurrentPlayQueueItemEvent.fromPositionChanged(adItem, Urn.NOT_SET, 0));
     }
 
 }

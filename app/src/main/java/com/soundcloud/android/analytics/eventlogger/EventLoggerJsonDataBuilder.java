@@ -29,7 +29,6 @@ import android.content.res.Resources;
 import javax.inject.Inject;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class EventLoggerJsonDataBuilder {
 
@@ -86,10 +85,6 @@ public class EventLoggerJsonDataBuilder {
 
     public String build(UIEvent event) {
         switch (event.getKind()) {
-            case UIEvent.KIND_AUDIO_AD_CLICK:
-                return transform(getAudioAdClickEvent(event));
-            case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
-                return transform(getAudioAdSkipClickEvent(event));
             case UIEvent.KIND_LIKE:
                 return transform(getEngagementEvent("like::add", event));
             case UIEvent.KIND_UNLIKE:
@@ -123,29 +118,6 @@ public class EventLoggerJsonDataBuilder {
         }
 
         return eventData;
-    }
-
-    private EventLoggerEventData getAudioAdSkipClickEvent(UIEvent event) {
-        return buildBaseEvent(CLICK_EVENT, event)
-                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
-                .clickName("ad::skip")
-                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
-                .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL));
-    }
-
-    private EventLoggerEventData getAudioAdClickEvent(UIEvent event) {
-        return buildBaseEvent(CLICK_EVENT, event)
-                .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
-                .clickName("clickthrough::companion_display")
-                .clickTarget(event.get(PlayableTrackingKeys.KEY_CLICK_THROUGH_URL))
-                .clickObject(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
-                .adUrn(event.get(PlayableTrackingKeys.KEY_AD_URN))
-                .monetizedObject(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
-                .externalMedia(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL));
     }
 
     public String build(AdOverlayTrackingEvent event) {

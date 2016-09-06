@@ -224,17 +224,10 @@ public class PlaySessionController {
 
     private void publishSkipEventIfAd() {
         final Optional<AdData> adData = adsOperations.getCurrentTrackAdData();
-        if (adsOperations.isCurrentItemAudioAd()) {
-            final UIEvent audioSkipEvent = UIEvent.fromSkipAudioAdClick((AudioAd) adData.get(),
-                                                                        playQueueManager.getCurrentPlayQueueItem()
-                                                                                        .getUrn(),
-                                                                        accountOperations.getLoggedInUserUrn(),
-                                                                        playQueueManager.getCurrentTrackSourceInfo());
-            eventBus.publish(EventQueue.TRACKING, audioSkipEvent);
-        } else if (adsOperations.isCurrentItemVideoAd()) {
+        if (adsOperations.isCurrentItemAd()) {
             eventBus.publish(EventQueue.TRACKING,
-                             UIEvent.fromSkipVideoAdClick((VideoAd) adData.get(),
-                                                          playQueueManager.getCurrentTrackSourceInfo()));
+                             UIEvent.fromSkipAdClick((PlayerAdData) adData.get(),
+                                                     playQueueManager.getCurrentTrackSourceInfo()));
         }
     }
 

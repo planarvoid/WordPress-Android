@@ -970,7 +970,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForSkipVideoAdUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromSkipVideoAdClick(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final UIEvent event = UIEvent.fromSkipAdClick(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
         jsonDataBuilder.buildForUIEvent(event);
 
@@ -984,7 +984,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     @Test
     public void createsJsonForVideoAdClickthroughUIEvent() throws ApiMapperException {
-        final UIEvent event = UIEvent.fromVideoAdClickThrough(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
+        final UIEvent event = UIEvent.fromAdClickThrough(AdFixtures.getVideoAd(TRACK_URN), trackSourceInfo);
 
         jsonDataBuilder.buildForUIEvent(event);
 

@@ -116,7 +116,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), audioAd);
+        final PlayQueueItem playQueueItem = TestPlayQueueItem.createAudioAd(audioAd);
 
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack.put(AdProperty.IS_AUDIO_AD,
                                                                                                true)));

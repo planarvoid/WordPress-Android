@@ -138,51 +138,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void createsAudioAdCompanionDisplayClickEventJson() throws ApiMapperException {
-        final Urn monetizedTrackUrn = Urn.forTrack(123L);
-        final AudioAd audioAd = AdFixtures.getAudioAd(monetizedTrackUrn);
-        final Urn audioAdTrackUrn = Urn.forTrack(456);
-
-        jsonDataBuilder.build(UIEvent.fromAudioAdCompanionDisplayClick(audioAd,
-                                                                       audioAdTrackUrn,
-                                                                       LOGGED_IN_USER,
-                                                                       trackSourceInfo,
-                                                                       TIMESTAMP));
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                                               .adUrn(audioAd.getCompanionAdUrn().get().toString())
-                                               .pageName(Screen.LIKES.get())
-                                               .clickName("clickthrough::companion_display")
-                                               .clickTarget(audioAd.getClickThroughUrl().get())
-                                               .clickObject(audioAdTrackUrn.toString())
-                                               .externalMedia(audioAd.getCompanionImageUrl().get().toString())
-                                               .monetizedObject(monetizedTrackUrn.toString())
-                                               .monetizationType("audio_ad"));
-    }
-
-    @Test
-    public void createsAudioAdSkippedClickEventJson() throws ApiMapperException {
-        final Urn monetizedTrackUrn = Urn.forTrack(123L);
-        final AudioAd audioAd = AdFixtures.getAudioAd(monetizedTrackUrn);
-        final Urn audioAdTrackUrn = Urn.forTrack(456);
-
-        jsonDataBuilder.build(UIEvent.fromSkipAudioAdClick(audioAd,
-                                                           audioAdTrackUrn,
-                                                           LOGGED_IN_USER,
-                                                           trackSourceInfo,
-                                                           TIMESTAMP));
-
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", TIMESTAMP)
-                                               .adUrn(audioAd.getAdUrn().toString())
-                                               .pageName(Screen.LIKES.get())
-                                               .clickName("ad::skip")
-                                               .clickObject(audioAdTrackUrn.toString())
-                                               .externalMedia(audioAd.getCompanionImageUrl().get().toString())
-                                               .monetizedObject(monetizedTrackUrn.toString())
-                                               .monetizationType("audio_ad"));
-    }
-
-    @Test
     public void createsJsonForLeaveBehindImpression() throws ApiMapperException {
         final Urn monetizedTrack = Urn.forTrack(123L);
         final LeaveBehindAd leaveBehindAd = AdFixtures.getLeaveBehindAd(Urn.forTrack(123L));
@@ -275,7 +230,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         final AudioAd audioAd = AdFixtures.getAudioAd(audioAdTrackUrn);
 
         jsonDataBuilder.build(new VisualAdImpressionEvent(audioAd,
-                                                          audioAdTrackUrn,
                                                           LOGGED_IN_USER,
                                                           trackSourceInfo,
                                                           TIMESTAMP));
@@ -284,7 +238,6 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
                                                .adUrn(audioAd.getCompanionAdUrn().get().toString())
                                                .pageName(Screen.LIKES.get())
                                                .impressionName("companion_display")
-                                               .impressionObject(audioAdTrackUrn.toString())
                                                .monetizationType("audio_ad")
                                                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                                                .externalMedia(audioAd.getCompanionImageUrl().get().toString()));

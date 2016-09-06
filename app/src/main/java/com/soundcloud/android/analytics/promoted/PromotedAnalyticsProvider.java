@@ -65,13 +65,7 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
     }
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
-        if (event.isAd()) {
-            if (event.shouldReportAdStart()) {
-                trackAllUrls(event.getTimestamp(), event.getAudioAdImpressionUrls());
-            } else if (event.hasTrackFinished()) {
-                trackAllUrls(event.getTimestamp(), event.getAudioAdFinishUrls());
-            }
-        } else if (event.isPromotedTrack() && event.shouldReportAdStart()) {
+        if (event.isPromotedTrack() && event.shouldReportAdStart()) {
             trackAllUrls(event.getTimestamp(), event.getPromotedPlayUrls());
         }
     }
@@ -79,12 +73,10 @@ public class PromotedAnalyticsProvider extends DefaultAnalyticsProvider {
     private void handleUIEvent(UIEvent event) {
         List<String> urls;
         switch (event.getKind()) {
-            case UIEvent.KIND_AUDIO_AD_CLICK:
-            case UIEvent.KIND_VIDEO_AD_CLICKTHROUGH:
+            case UIEvent.KIND_AD_CLICKTHROUGH:
                 urls = event.getAdClickthroughUrls();
                 break;
-            case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
-            case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
+            case UIEvent.KIND_SKIP_AD_CLICK:
                 urls = event.getAdSkipUrls();
                 break;
             case UIEvent.KIND_VIDEO_AD_FULLSCREEN:

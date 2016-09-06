@@ -11,9 +11,9 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.LeaveBehindAd;
-import com.soundcloud.android.ads.PlayerAdData;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -34,12 +34,11 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
     private AdPageListener listener;
     private TestEventBus eventBus = new TestEventBus();
-    private PlayerAdData adData;
+    private AudioAd adData;
 
     @Mock private PlaySessionController playSessionController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
-    @Mock private AccountOperations accountOperations;
     @Mock private WhyAdsDialogPresenter whyAdsPresenter;
     @Mock private Activity activity;
     @Mock private Navigator navigator;
@@ -48,13 +47,11 @@ public class AdPageListenerTest extends AndroidUnitTest {
     public void setUp() throws Exception {
         listener = new AdPageListener(context(), navigator,
                                       playSessionController, playQueueManager,
-                                      eventBus, adsOperations, accountOperations, whyAdsPresenter);
+                                      eventBus, adsOperations, whyAdsPresenter);
 
         adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
 
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
-                                                                                                  adData));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(adData));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(adData));
     }
@@ -66,8 +63,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
 
         listener.onClickThrough();
 
-        final AudioAd audioAd = (AudioAd) adData;
-        verify(navigator).openAdClickthrough(context(), audioAd.getClickThroughUrl().get());
+        verify(navigator).openAdClickthrough(context(), adData.getClickThroughUrl().get());
     }
 
     @Test
@@ -90,8 +86,8 @@ public class AdPageListenerTest extends AndroidUnitTest {
         listener.onClickThrough();
 
         final UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AUDIO_AD_CLICK);
-        assertThat(uiEvent.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
+        assertThat(uiEvent.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
     }
 
     @Test
@@ -104,7 +100,7 @@ public class AdPageListenerTest extends AndroidUnitTest {
         listener.onClickThrough();
 
         final UIEvent uiEvent = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_VIDEO_AD_CLICKTHROUGH);
+        assertThat(uiEvent.getKind()).isEqualTo(UIEvent.KIND_AD_CLICKTHROUGH);
     }
 
     @Test

@@ -220,8 +220,7 @@ public class AdsOperationsTest extends AndroidUnitTest {
     @Test
     public void isCurrentItemVideoAdShouldReturnFalseIfCurrentItemIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(Urn.forTrack(123L),
-                                                          AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L))));
 
         assertThat(adsOperations.isCurrentItemVideoAd()).isFalse();
     }
