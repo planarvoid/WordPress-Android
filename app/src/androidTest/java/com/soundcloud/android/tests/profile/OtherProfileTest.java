@@ -90,7 +90,8 @@ public class OtherProfileTest extends TrackingActivityTest<ResolveActivity> {
     public void testPlayAndPauseFromTracksBucket() {
         startEventTracking();
 
-        final VisualPlayerElement playerElement = profileScreen.scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.TRACKS);
+        final VisualPlayerElement playerElement =
+                profileScreen.scrollToBucketAndClickFirstTrack(ProfileScreen.Bucket.TRACKS);
 
         assertPlayAndPause(playerElement);
 

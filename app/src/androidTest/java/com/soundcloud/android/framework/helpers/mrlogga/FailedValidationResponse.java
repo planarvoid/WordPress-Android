@@ -7,6 +7,7 @@ import java.util.List;
 class FailedValidationResponse implements ValidationResponse {
 
     private String status;
+    private String message;
     private List<ValidationResult> validationResults;
 
     public String getStatus() {
@@ -15,6 +16,10 @@ class FailedValidationResponse implements ValidationResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @JsonProperty("event_validation_results")
@@ -29,8 +34,11 @@ class FailedValidationResponse implements ValidationResponse {
 
     @Override
     public String toString() {
-        final StringBuilder stringBuilder = new StringBuilder("\nValidation Results:\n");
+        if (message != null) {
+            return "\nError message received:\n" + message;
+        }
 
+        final StringBuilder stringBuilder = new StringBuilder("\nValidation Results:\n");
         for (int i = 0; i < validationResults.size(); i++) {
             final ValidationResult result = validationResults.get(i);
             stringBuilder.append(i)
@@ -38,7 +46,6 @@ class FailedValidationResponse implements ValidationResponse {
                          .append(result)
                          .append("\n");
         }
-
         return stringBuilder.toString();
     }
 }
