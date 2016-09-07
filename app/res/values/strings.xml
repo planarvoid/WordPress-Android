@@ -538,6 +538,9 @@
     <!-- __STATIONS -->
     <string name="stations_collection_title_liked_stations">Stations</string>
     <string name="liked_stations_empty_view_message">You have not liked any station yet</string>
+    <string name="liked_stations_onboarding_dialog_title">We’ve introduced liking stations</string>
+    <string name="liked_stations_onboarding_dialog_message">You can now unlike stations to remove them from your Collection.</string>
+    <string name="liked_stations_onboarding_dialog_button">Got it</string>
     <string name="stations_start_track_station">Start track station</string>
     <string name="stations_start_user_station">Start station</string>
     <string name="stations_open_station">Open station</string>
@@ -551,8 +554,8 @@
     <string name="stations_collection_title_station_page">Station</string>
     <string name="stations_tracks_in_this_station">Tracks in this station</string>
     <string name="stations_see_all_tracks">See all tracks</string>
-    <string name="stations_home_station_based_on">%s based on</string>
     <string name="suggested_stations">Suggested stations</string>
+    <string name="stations_home_station_based_on">%s based on</string>
     <string name="stations_home_description">An endless mix of music including %1$s and more</string>
 
     <!-- __TIME -->

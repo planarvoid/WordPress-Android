@@ -193,10 +193,6 @@ public class StationsOperations {
                 .subscribeOn(scheduler);
     }
 
-    public boolean shouldDisplayOnboardingStreamItem() {
-        return !stationsStorage.isOnboardingDisabled();
-    }
-
     private Func1<List<StationTrack>, PlayQueue> toPlayQueue(final Urn station) {
         return new Func1<List<StationTrack>, PlayQueue>() {
             @Override
@@ -219,7 +215,19 @@ public class StationsOperations {
         stationsStorage.clear();
     }
 
-    public void disableOnboarding() {
-        stationsStorage.disableOnboarding();
+    public boolean shouldShowOnboardingStreamItem() {
+        return !stationsStorage.isOnboardingStreamItemDisabled();
+    }
+
+    public void disableOnboardingStreamItem() {
+        stationsStorage.disableOnboardingStreamItem();
+    }
+
+    boolean shouldShowLikedStationsOnboarding() {
+        return !stationsStorage.isOnboardingForLikedStationsDisabled();
+    }
+
+    void disableLikedStationsOnboarding() {
+        stationsStorage.disableLikedStationsOnboarding();
     }
 }

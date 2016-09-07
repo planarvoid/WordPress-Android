@@ -241,14 +241,14 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
     public void showStationsOnboardingAsFirstItem() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-        when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
+        when(stationsOperations.shouldShowOnboardingStreamItem()).thenReturn(true);
 
         assertInitialStreamFirstItemUrn(StationOnboardingStreamItem.URN);
     }
 
     @Test
     public void shouldNotShowStationsOnboardingOnEmptyStream() {
-        when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
+        when(stationsOperations.shouldShowOnboardingStreamItem()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.<PropertySet>empty());
@@ -259,7 +259,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
 
     @Test
     public void shouldNotShowStationsOnboardingOnPromotedOnlyStream() {
-        when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
+        when(stationsOperations.shouldShowOnboardingStreamItem()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.just(promotedTrackProperties));
@@ -273,7 +273,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
 
-        when(stationsOperations.shouldDisplayOnboardingStreamItem()).thenReturn(true);
+        when(stationsOperations.shouldShowOnboardingStreamItem()).thenReturn(true);
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.from(itemsWithPromoted));

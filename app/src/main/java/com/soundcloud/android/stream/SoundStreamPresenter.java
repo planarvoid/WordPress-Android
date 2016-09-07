@@ -261,7 +261,7 @@ public class SoundStreamPresenter extends TimelinePresenter<TypedListItem> imple
 
     @Override
     public void onStationOnboardingItemClosed(int position) {
-        stationsOperations.disableOnboarding();
+        stationsOperations.disableOnboardingStreamItem();
         removeItem(position);
     }
 

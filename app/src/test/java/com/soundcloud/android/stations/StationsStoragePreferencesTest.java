@@ -19,28 +19,39 @@ public class StationsStoragePreferencesTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         storage = new StationsStorage(
-                sharedPreferences("whatever", Context.MODE_PRIVATE),
+                sharedPreferences("station_prefs", Context.MODE_PRIVATE),
                 mock(PropellerDatabase.class),
                 new TestDateProvider());
     }
 
     @Test
-    public void isOnboardingDisabledReturnsFalseWhenStorageIsEmpty() {
-        assertThat(storage.isOnboardingDisabled()).isFalse();
+    public void isOnboardingStreamItemDisabledReturnsFalseWhenStorageIsEmpty() {
+        assertThat(storage.isOnboardingStreamItemDisabled()).isFalse();
     }
 
     @Test
-    public void isOnboardingDisabledReturnsTrueWhenHasBeenDisabled() {
-        storage.disableOnboarding();
-        assertThat(storage.isOnboardingDisabled()).isTrue();
+    public void isOnboardingStreamItemDisabledReturnsTrueWhenHasBeenDisabled() {
+        storage.disableOnboardingStreamItem();
+        assertThat(storage.isOnboardingStreamItemDisabled()).isTrue();
+    }
+
+    @Test
+    public void isOnboardingForLikedStationsDisabledReturnsFalseWhenStorageIsEmpty() {
+        assertThat(storage.isOnboardingForLikedStationsDisabled()).isFalse();
+    }
+
+    @Test
+    public void isOnboardingForLikedStationsDisabledReturnsTrueAfterItGotDisabled() {
+        storage.disableLikedStationsOnboarding();
+        assertThat(storage.isOnboardingForLikedStationsDisabled()).isTrue();
     }
 
     @Test
     public void clearReset() {
-        storage.disableOnboarding();
+        storage.disableOnboardingStreamItem();
 
         storage.clear();
 
-        assertThat(storage.isOnboardingDisabled()).isFalse();
+        assertThat(storage.isOnboardingStreamItemDisabled()).isFalse();
     }
 }

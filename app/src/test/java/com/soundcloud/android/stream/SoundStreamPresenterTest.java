@@ -282,7 +282,7 @@ public class SoundStreamPresenterTest extends AndroidUnitTest {
     public void onStationOnboardingItemClosedDisableOnboarding() {
         presenter.onStationOnboardingItemClosed(0);
 
-        verify(stationsOperations).disableOnboarding();
+        verify(stationsOperations).disableOnboardingStreamItem();
     }
 
     @Test

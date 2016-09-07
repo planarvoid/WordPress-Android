@@ -94,8 +94,8 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
 
         @Override
         public List<TypedListItem> call(List<TypedListItem> streamItems) {
-            if (stationsOperations.shouldDisplayOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems,
-                                                                                                   NOTIFICATION)) {
+            if (stationsOperations.shouldShowOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems,
+                                                                                                NOTIFICATION)) {
                 streamItems.add(0, new StationOnboardingStreamItem());
             }
             return streamItems;

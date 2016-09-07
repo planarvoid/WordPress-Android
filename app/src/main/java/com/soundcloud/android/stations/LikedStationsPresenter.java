@@ -1,6 +1,9 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+
 import com.soundcloud.android.R;
+import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.PlayQueueManager;
@@ -19,9 +22,12 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -30,6 +36,13 @@ import javax.inject.Inject;
 import java.util.List;
 
 class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel>, StationViewModel> {
+
+    private final DialogInterface.OnDismissListener onDismissListener = new DialogInterface.OnDismissListener() {
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            operations.disableLikedStationsOnboarding();
+        }
+    };
 
     private final StationsOperations operations;
     private final StationsAdapter adapter;
@@ -91,7 +104,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     @Override
     protected CollectionBinding<List<StationViewModel>, StationViewModel> onRefreshBinding() {
         return CollectionBinding
-                .from(operations.sync().flatMap(RxUtils.continueWith(stationsSource())))
+                .from(operations.sync().flatMap(continueWith(stationsSource())))
                 .withAdapter(adapter)
                 .build();
     }
@@ -106,6 +119,13 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
                                .filter(EntityStateChangedEvent.IS_STATION_COLLECTION_UPDATED)
                                .observeOn(AndroidSchedulers.mainThread())
                                .subscribe(new RefreshLikedStationsSubscriber());
+    }
+
+    @Override
+    public void onResume(Fragment fragment) {
+        if (operations.shouldShowLikedStationsOnboarding()) {
+            showOnboardingDialog(fragment.getActivity());
+        }
     }
 
     @Override
@@ -126,6 +146,20 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         final EmptyView emptyView = getEmptyView();
         emptyView.setMessageText(R.string.liked_stations_empty_view_message);
         emptyView.setImage(R.drawable.empty_collection_stations);
+    }
+
+    private void showOnboardingDialog(Activity activity) {
+        final View view = new CustomFontViewBuilder(activity)
+                .setIcon(R.drawable.like_station_onboarding)
+                .setTitle(R.string.liked_stations_onboarding_dialog_title)
+                .setMessage(R.string.liked_stations_onboarding_dialog_message).get();
+
+        new AlertDialog.Builder(activity)
+                .setView(view)
+                .setPositiveButton(R.string.liked_stations_onboarding_dialog_button, null)
+                .setOnDismissListener(onDismissListener)
+                .create()
+                .show();
     }
 
     @Override
