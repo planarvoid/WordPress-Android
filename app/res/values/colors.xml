@@ -4,6 +4,8 @@
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
 
+    <color name="play_button_dark">#2b2b2b</color>
+
     <color name="translucent_status_bar">#0cffffff</color>
     <color name="translucent_white">#ccffffff</color>
 

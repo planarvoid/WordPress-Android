@@ -17,7 +17,8 @@
 
         <ImageButton
             android:id="@+id/btn_play"
-            style="@style/PlaylistPlay" />
+            style="@style/HeaderPlay" />
+
     </RelativeLayout>
 
     <com.soundcloud.android.view.JaggedTextView
