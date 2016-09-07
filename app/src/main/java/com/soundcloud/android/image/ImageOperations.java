@@ -64,6 +64,7 @@ public class ImageOperations {
     private final FallbackBitmapLoadingAdapter.Factory adapterFactory;
     private final BitmapLoadingAdapter.Factory bitmapAdapterFactory;
     private final FileNameGenerator fileNameGenerator;
+    private final UserAgentImageDownloaderFactory imageDownloaderFactory;
 
     private final CircularPlaceholderGenerator circularPlaceholderGenerator;
     private final Cache<String, TransitionDrawable> placeholderCache;
@@ -77,12 +78,14 @@ public class ImageOperations {
                            FallbackBitmapLoadingAdapter.Factory adapterFactory,
                            BitmapLoadingAdapter.Factory bitmapAdapterFactory,
                            ImageProcessor imageProcessor,
-                           ImageUrlBuilder imageUrlBuilder) {
+                           ImageUrlBuilder imageUrlBuilder,
+                           UserAgentImageDownloaderFactory imageDownloaderFactory) {
         this(ImageLoader.getInstance(), imageUrlBuilder, placeholderGenerator, circularPlaceholderGenerator,
              adapterFactory, bitmapAdapterFactory, imageProcessor,
              Cache.<String, TransitionDrawable>withSoftValues(50),
              Cache.<Urn, Bitmap>withSoftValues(10),
-             new HashCodeFileNameGenerator());
+             new HashCodeFileNameGenerator(),
+             imageDownloaderFactory);
     }
 
     private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
@@ -97,7 +100,8 @@ public class ImageOperations {
                     ImageProcessor imageProcessor,
                     Cache<String, TransitionDrawable> placeholderCache,
                     Cache<Urn, Bitmap> blurredImageCache,
-                    FileNameGenerator fileNameGenerator) {
+                    FileNameGenerator fileNameGenerator,
+                    UserAgentImageDownloaderFactory imageDownloaderFactory) {
         this.imageLoader = imageLoader;
         this.imageUrlBuilder = imageUrlBuilder;
         this.placeholderGenerator = placeholderGenerator;
@@ -108,6 +112,7 @@ public class ImageOperations {
         this.bitmapAdapterFactory = bitmapAdapterFactory;
         this.imageProcessor = imageProcessor;
         this.fileNameGenerator = fileNameGenerator;
+        this.imageDownloaderFactory = imageDownloaderFactory;
     }
 
     public void initialise(Context context, ApplicationProperties properties) {
@@ -120,6 +125,7 @@ public class ImageOperations {
 
         builder.defaultDisplayImageOptions(ImageOptionsFactory.cache());
         builder.diskCacheFileNameGenerator(fileNameGenerator);
+        builder.imageDownloader(imageDownloaderFactory.create(context));
         final long availableMemory = Runtime.getRuntime().maxMemory();
         // Here are some reference values for available mem: Wildfire: 16,777,216; Nexus S: 33,554,432; Nexus 4: 201,326,592
         if (availableMemory < LOW_MEM_DEVICE_THRESHOLD) {

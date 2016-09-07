@@ -106,6 +106,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Mock FileNameGenerator fileNameGenerator;
     @Mock ImageProcessor imageProcessor;
     @Mock Configuration configuration;
+    @Mock UserAgentImageDownloaderFactory imageDownloaderFactory;
 
     @Captor ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
     @Captor ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
@@ -123,7 +124,8 @@ public class ImageOperationsTest extends AndroidUnitTest {
                 imageProcessor,
                 placeholderCache,
                 blurCache,
-                fileNameGenerator);
+                fileNameGenerator,
+                imageDownloaderFactory);
         scheduler = Schedulers.immediate();
 
         when(imageLoader.getDiskCache()).thenReturn(diskCache);
