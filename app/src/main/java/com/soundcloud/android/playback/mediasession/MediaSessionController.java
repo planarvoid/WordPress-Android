@@ -119,7 +119,7 @@ public class MediaSessionController {
         final PlayQueueItem queueItem = playQueueManager.getCurrentPlayQueueItem();
 
         if (!queueItem.isEmpty()) {
-            updateMetadata(queueItem.getUrn(), AdUtils.isAd(queueItem));
+            updateMetadata(queueItem.getUrn(), queueItem.isAd());
         }
     }
 

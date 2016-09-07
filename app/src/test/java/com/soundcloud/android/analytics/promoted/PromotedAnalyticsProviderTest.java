@@ -46,14 +46,14 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     private TrackSourceInfo trackSourceInfo;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initMocks(this);
         analyticsProvider = new PromotedAnalyticsProvider(eventTrackingManager);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
     }
 
     @Test
-    public void tracksAdClickthroughs() throws Exception {
+    public void tracksAdClickthroughs() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         UIEvent event = UIEvent.fromAdClickThrough(audioAd, trackSourceInfo);
 
@@ -71,7 +71,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tracksAudioAdClickthrough() throws Exception {
+    public void tracksAudioAdClickthrough() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         UIEvent event = UIEvent.fromAdClickThrough(videoAd, trackSourceInfo);
 
@@ -87,7 +87,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tracksVideoAdSkips() throws Exception {
+    public void tracksVideoAdSkips() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         UIEvent event = UIEvent.fromSkipAdClick(videoAd, trackSourceInfo);
 
@@ -103,7 +103,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void tracksVideoAdClickthrough() throws Exception {
+    public void tracksVideoAdClickthrough() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         UIEvent event = UIEvent.fromAdClickThrough(videoAd, trackSourceInfo);
 
@@ -418,7 +418,7 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void sendsTrackingEventAsap() throws CreateModelException {
+    public void sendsTrackingEventAsap() {
         final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
         final AdPlaybackSessionEventArgs args = AdPlaybackSessionEventArgs.create(trackSourceInfo, TestPlayerTransitions.playing(), "123");
         final AdPlaybackSessionEvent playbackSessionEvent = AdPlaybackSessionEvent.forPlay(videoAd, args);

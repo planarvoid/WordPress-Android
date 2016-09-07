@@ -173,7 +173,7 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
     }
 
     boolean isAdPageAtPosition(int position) {
-        return AdUtils.isAd(currentPlayQueue.get(position));
+        return currentPlayQueue.get(position).isAd();
     }
 
     @Override
@@ -437,14 +437,14 @@ public class PlayerPagerPresenter extends DefaultSupportFragmentLightCycle<Playe
 
     private Observable<? extends PlayerItem> getAdObservable(final AdData adData) {
         return getTrackObservable(adData.getMonetizableTrackUrn()).map(
-                    new Func1<PropertySet, AdData>() {
-                        @Override
-                        public AdData call(PropertySet monetizableTrack) {
-                            adData.setMonetizableTitle(monetizableTrack.get(PlayableProperty.TITLE));
-                            adData.setMonetizableCreator(monetizableTrack.get(PlayableProperty.CREATOR_NAME));
-                            return adData;
-                        }
-                    }).map(TO_PLAYER_AD);
+                new Func1<PropertySet, AdData>() {
+                    @Override
+                    public AdData call(PropertySet monetizableTrack) {
+                        adData.setMonetizableTitle(monetizableTrack.get(PlayableProperty.TITLE));
+                        adData.setMonetizableCreator(monetizableTrack.get(PlayableProperty.CREATOR_NAME));
+                        return adData;
+                    }
+                }).map(TO_PLAYER_AD);
     }
 
     @NonNull

@@ -2,7 +2,6 @@ package com.soundcloud.android.collection.playhistory;
 
 import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 
-import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
 import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -39,7 +38,7 @@ public class PlayHistoryController {
                     return playStateEvent.isPlayerPlaying()
                             && !PlayQueueItem.EMPTY.equals(currentPlayQueueItem)
                             && currentPlayQueueItem.getUrn().equals(playStateEvent.getPlayingItemUrn())
-                            && !AdUtils.isAd(currentPlayQueueItem);
+                            && !currentPlayQueueItem.isAd();
                 }
             };
 

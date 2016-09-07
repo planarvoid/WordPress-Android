@@ -173,19 +173,19 @@ public class AdsOperations {
     }
 
     public boolean isCurrentItemAd() {
-        return AdUtils.isAd(playQueueManager.getCurrentPlayQueueItem());
+        return playQueueManager.getCurrentPlayQueueItem().isAd();
     }
 
     public boolean isNextItemAd() {
-        return AdUtils.isAd(playQueueManager.getNextPlayQueueItem());
+        return playQueueManager.getNextPlayQueueItem().isAd();
     }
 
     public boolean isCurrentItemAudioAd() {
-        return AdUtils.isAudioAd(playQueueManager.getCurrentPlayQueueItem());
+        return playQueueManager.getCurrentPlayQueueItem().isAudioAd();
     }
 
     public boolean isCurrentItemVideoAd() {
-        return AdUtils.isVideoAd(playQueueManager.getCurrentPlayQueueItem());
+        return playQueueManager.getCurrentPlayQueueItem().isVideoAd();
     }
 
     public boolean isCurrentItemLetterboxVideoAd() {

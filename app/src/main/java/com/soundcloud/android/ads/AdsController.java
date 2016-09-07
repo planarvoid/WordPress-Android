@@ -216,10 +216,10 @@ public class AdsController {
         if (!isForeground && adsForNextTrack.isPresent() && playQueueManager.hasNextItem()) {
             final ApiAdsForTrack ads = adsForNextTrack.get();
             final PlayQueueItem nextItem = playQueueManager.getNextPlayQueueItem();
-            if (AdUtils.isVideoAd(nextItem)) {
+            if (nextItem.isVideoAd()) {
                 adsOperations.replaceUpcomingVideoAd(ads, (VideoAdQueueItem) nextItem);
                 didReplaceNextAd = true;
-            } else if (!AdUtils.isAudioAd(nextItem) && ads.audioAd().isPresent()) {
+            } else if (!nextItem.isAudioAd() && ads.audioAd().isPresent()) {
                 adsOperations.insertAudioAd((TrackQueueItem) nextItem, ads.audioAd().get());
                 didReplaceNextAd = true;
             }
