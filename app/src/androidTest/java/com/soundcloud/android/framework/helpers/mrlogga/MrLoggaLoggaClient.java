@@ -1,7 +1,10 @@
 package com.soundcloud.android.framework.helpers.mrlogga;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.java.reflect.TypeToken;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -10,7 +13,6 @@ import com.squareup.okhttp.Response;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -28,17 +30,18 @@ class MrLoggaLoggaClient {
     private static final String ACTION_START_RECORDING = "start_recording";
     private static final String ACTION_FINISH_RECORDING = "finish_recording";
     private static final String IS_SCENARIO_COMPLETE_SCENARIO_ID = "is_scenario_complete";
-    private static final String IS_FINISHED_LOGGING = "true";
 
     private final OkHttpClient httpClient;
     private final String loggingEndpoint;
+    private final JsonTransformer jsonTransformer;
+    protected final String deviceUDID;
 
-    public final String deviceUDID;
-
-    public MrLoggaLoggaClient(Context context, DeviceHelper deviceHelper, OkHttpClient client) {
+    MrLoggaLoggaClient(Context context, DeviceHelper deviceHelper,
+                       OkHttpClient client, JsonTransformer jsonTransformer) {
         this.httpClient = client;
         this.deviceUDID = deviceHelper.getUdid();
         this.loggingEndpoint = getLoggingEndpoint(context);
+        this.jsonTransformer = jsonTransformer;
     }
 
     private String getLoggingEndpoint(Context c) {
@@ -55,19 +58,22 @@ class MrLoggaLoggaClient {
                 .url(buildIsScenarioCompletedUrl(scenarioId))
                 .get()
                 .build();
-        return IS_FINISHED_LOGGING.equals(executeRequest(request).responseBody);
+        return Boolean.parseBoolean(executeRequest(request).responseBody);
     }
 
     MrLoggaResponse stopLogging() {
         return sendPostLoggingRequest(ACTION_FINISH_LOGGING);
     }
 
-    MrLoggaResponse validate(String scenarioId) {
-        return sendValidateRequest(scenarioId);
+    ValidationResponse validate(String scenarioId) throws ApiMapperException, IOException {
+        final Request request = new Request.Builder()
+                .url(buildIsValidationUrl(scenarioId))
+                .get().build();
+        return executeValidationRequest(request);
     }
 
     @SuppressWarnings("unused")
-    public MrLoggaResponse startRecording(String scenarioId) {
+    MrLoggaResponse startRecording(String scenarioId) {
         final Request request = new Request.Builder()
                 .url(loggingEndpoint + ACTION_START_RECORDING)
                 .post(RequestBody.create(MEDIA_TYPE_PLAIN_TEXT, scenarioId))
@@ -76,18 +82,11 @@ class MrLoggaLoggaClient {
     }
 
     @SuppressWarnings("unused")
-    public MrLoggaResponse finishRecording() {
+    MrLoggaResponse finishRecording() {
         final Request request = new Request.Builder()
                 .url(loggingEndpoint + ACTION_FINISH_RECORDING)
                 .post(EMPTY_REQUEST_BODY)
                 .build();
-        return executeRequest(request);
-    }
-
-    private MrLoggaResponse sendValidateRequest(String scenarioId) {
-        final Request request = new Request.Builder()
-                .url(buildIsValidationUrl(scenarioId))
-                .get().build();
         return executeRequest(request);
     }
 
@@ -116,14 +115,21 @@ class MrLoggaLoggaClient {
 
     private MrLoggaResponse executeRequest(Request request) {
         try {
-            Log.d(TAG, "request=" + request);
             Response response = httpClient.newCall(request).execute();
             final String responsePayload = response.body().string();
-            Log.d(TAG, "response=" + response + ";body=" + responsePayload);
             return new MrLoggaResponse(response.isSuccessful(), responsePayload);
         } catch (IOException exception) {
-            Log.e(TAG, "IOException when request", exception);
             return new MrLoggaResponse(false, exception.getMessage());
+        }
+    }
+
+    private ValidationResponse executeValidationRequest(Request request) throws ApiMapperException, IOException {
+        Response response = httpClient.newCall(request).execute();
+        final String responseBody = response.body().string();
+        if (response.isSuccessful()) {
+            return new SuccessfulValidationResponse();
+        } else {
+            return jsonTransformer.fromJson(responseBody, TypeToken.of(FailedValidationResponse.class));
         }
     }
 

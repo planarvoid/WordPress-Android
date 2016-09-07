@@ -1,9 +1,13 @@
 package com.soundcloud.android.framework.helpers.mrlogga;
 
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import com.robotium.solo.Condition;
+import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.framework.Waiter;
+
+import java.io.IOException;
 
 public class MrLoggaVerifier {
     private final MrLoggaLoggaClient client;
@@ -53,12 +57,16 @@ public class MrLoggaVerifier {
     }
 
     private void assertScenarioImmediately(String scenarioId) {
-        final MrLoggaResponse response = client.validate(scenarioId);
-        assertTrue("Error validating scenario: " + scenarioId + " on device " + client.deviceUDID + " \n" + response.responseBody,
-                   response.success);
+        try {
+            final ValidationResponse response = client.validate(scenarioId);
+            assertTrue("Error validating scenario: " + scenarioId + " on device " + client.deviceUDID + " \n" + response,
+                       response.isSuccessful());
+        } catch (ApiMapperException | IOException ex) {
+            fail("Validation request failed: " + ex.getMessage());
+        }
     }
 
-    static class IsScenarioComplete implements Condition {
+    private static class IsScenarioComplete implements Condition {
         private final MrLoggaLoggaClient client;
         private final String scenarioId;
 

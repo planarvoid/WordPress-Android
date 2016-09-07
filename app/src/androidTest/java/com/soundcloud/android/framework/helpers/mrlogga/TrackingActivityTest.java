@@ -1,5 +1,6 @@
 package com.soundcloud.android.framework.helpers.mrlogga;
 
+import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.tests.ActivityTest;
@@ -37,7 +38,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
         final Context context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context,
                                                                  new DeviceHelper(context, new BuildHelper()),
-                                                                 new OkHttpClient());
+                                                                 new OkHttpClient(), new JacksonJsonTransformer());
 
         verifier = new MrLoggaVerifier(client, waiter);
         recorder = new MrLoggaRecorder(client);
