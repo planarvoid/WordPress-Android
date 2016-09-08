@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
@@ -64,6 +65,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     private final RepostOperations repostOperations;
     private final AccountOperations accountOperations;
     private final EventBus eventBus;
+    private final EventTracker eventTracker;
     private final LikeOperations likeOperations;
     private final PlaylistEngagementsView playlistEngagementsView;
     private final FeatureOperations featureOperations;
@@ -84,6 +86,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
 
     @Inject
     public LegacyPlaylistEngagementsPresenter(EventBus eventBus,
+                                              EventTracker eventTracker,
                                               RepostOperations repostOperations,
                                               AccountOperations accountOperations,
                                               LikeOperations likeOperations,
@@ -99,6 +102,7 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
                                               ShareOperations shareOperations,
                                               PlayQueueHelper playQueueHelper) {
         this.eventBus = eventBus;
+        this.eventTracker = eventTracker;
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
         this.likeOperations = likeOperations;
@@ -332,12 +336,12 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     @Override
     public void onToggleLike(boolean addLike) {
         if (playlistHeaderItem != null) {
-            eventBus.publish(EventQueue.TRACKING,
-                             UIEvent.fromToggleLike(addLike,
-                                                    playlistHeaderItem.getUrn(),
-                                                    getEventContext(),
-                                                    playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo(),
-                                                    EntityMetadata.from(playlistHeaderItem)));
+            eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike,
+                                                                playlistHeaderItem.getUrn(),
+                                                                getEventContext(),
+                                                                playlistHeaderItem.getPlaySessionSource()
+                                                                                  .getPromotedSourceInfo(),
+                                                                EntityMetadata.from(playlistHeaderItem)));
 
             fireAndForget(likeOperations.toggleLike(playlistHeaderItem.getUrn(), addLike));
         }
@@ -346,12 +350,12 @@ public class LegacyPlaylistEngagementsPresenter extends DefaultSupportFragmentLi
     @Override
     public void onToggleRepost(boolean isReposted, boolean showResultToast) {
         if (playlistHeaderItem != null) {
-            eventBus.publish(EventQueue.TRACKING,
-                             UIEvent.fromToggleRepost(isReposted,
-                                                      playlistHeaderItem.getUrn(),
-                                                      getEventContext(),
-                                                      playlistHeaderItem.getPlaySessionSource().getPromotedSourceInfo(),
-                                                      EntityMetadata.from(playlistHeaderItem)));
+            eventTracker.trackEngagement(UIEvent.fromToggleRepost(isReposted,
+                                                                  playlistHeaderItem.getUrn(),
+                                                                  getEventContext(),
+                                                                  playlistHeaderItem.getPlaySessionSource()
+                                                                                    .getPromotedSourceInfo(),
+                                                                  EntityMetadata.from(playlistHeaderItem)));
 
             if (showResultToast) {
                 repostOperations.toggleRepost(playlistHeaderItem.getUrn(), isReposted)

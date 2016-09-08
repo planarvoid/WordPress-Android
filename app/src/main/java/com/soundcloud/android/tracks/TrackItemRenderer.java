@@ -4,7 +4,6 @@ import static com.soundcloud.android.tracks.TieredTracks.isFullHighTierTrack;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
@@ -24,6 +23,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.PromoterClickViewListener;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -47,12 +47,13 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final ImageOperations imageOperations;
     private final CondensedNumberFormatter numberFormatter;
     private final EventBus eventBus;
-    private final ScreenProvider screenProvider;
+    protected final ScreenProvider screenProvider;
     private final Navigator navigator;
     protected final FeatureOperations featureOperations;
     private final TrackItemView.Factory trackItemViewFactory;
 
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
+    protected Optional<String> moduleName = Optional.absent();
 
     private Urn playingTrack = Urn.NOT_SET;
     private Listener listener = null;
@@ -66,7 +67,27 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                              Navigator navigator,
                              FeatureOperations featureOperations,
                              TrackItemView.Factory trackItemViewFactory) {
+        this(Optional.<String>absent(),
+             imageOperations,
+             numberFormatter,
+             trackItemMenuPresenter,
+             eventBus,
+             screenProvider,
+             navigator,
+             featureOperations,
+             trackItemViewFactory);
+    }
 
+    protected TrackItemRenderer(Optional<String> moduleName,
+                             ImageOperations imageOperations,
+                             CondensedNumberFormatter numberFormatter,
+                             TrackItemMenuPresenter trackItemMenuPresenter,
+                             EventBus eventBus,
+                             ScreenProvider screenProvider,
+                             Navigator navigator,
+                             FeatureOperations featureOperations,
+                             TrackItemView.Factory trackItemViewFactory) {
+        this.moduleName = moduleName;
         this.imageOperations = imageOperations;
         this.numberFormatter = numberFormatter;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
@@ -83,13 +104,17 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
+    public void bindItemView(final int position, View itemView, List<TrackItem> trackItems) {
         final TrackItem track = trackItems.get(position);
         bindTrackView(track,
                       itemView,
                       position,
                       Optional.<TrackSourceInfo>absent(),
-                      Optional.<Module>absent());
+                      moduleName.transform(new Function<String, Module>() {
+                          public Module apply(String input) {
+                              return Module.create(input, position);
+                          }
+                      }));
     }
 
     public void bindTrackView(final TrackItem track,
@@ -156,12 +181,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
                                     button,
                                     track,
                                     position,
-                                    trackSourceInfo,
-                                    getEventContextMetaDataBuilder(track, module));
+                                    getEventContextMetaDataBuilder(track, module, trackSourceInfo));
     }
 
-    private Optional<EventContextMetadata.Builder> getEventContextMetaDataBuilder(PlayableItem item,
-                                                                                  Optional<Module> module) {
+    private EventContextMetadata.Builder getEventContextMetaDataBuilder(PlayableItem item,
+                                                                        Optional<Module> module,
+                                                                        Optional<TrackSourceInfo> trackSourceInfo) {
         final String screen = screenProvider.getLastScreenTag();
 
         final EventContextMetadata.Builder builder = EventContextMetadata.builder()
@@ -175,7 +200,11 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             builder.module(module.get());
         }
 
-        return Optional.of(builder);
+        if (trackSourceInfo.isPresent()) {
+            builder.trackSourceInfo(trackSourceInfo.get());
+        }
+
+        return builder;
     }
 
     private void loadArtwork(TrackItemView itemView, TrackItem track) {

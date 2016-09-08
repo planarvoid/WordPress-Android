@@ -10,6 +10,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -54,6 +56,8 @@ import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
@@ -93,6 +97,8 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     @Mock private PlaylistHeaderView headerView;
     @Mock private PlayQueueHelper playQueueHelper;
     @Mock private ScreenProvider screenProvider;
+    @Mock private EventTracker eventTracker;
+    @Captor private ArgumentCaptor<UIEvent> uiEventCaptor;
 
     @Rule public final FragmentRule fragmentRule = new FragmentRule(R.layout.playlist_fragment, fragmentArgs());
 
@@ -116,6 +122,7 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
 
         presenter = new PlaylistHeaderPresenter(
                 eventBus,
+                eventTracker,
                 playlistHeaderViewFactory,
                 navigator,
                 profileHeaderScrollHelper,
@@ -204,10 +211,11 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenLikingAPlaylist() {
         setPlaylistInfo();
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleLike(true);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN.get());
     }
@@ -217,10 +225,11 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
         when(likeOperations.toggleLike(playlistWithTracks.getUrn(),
                                        false)).thenReturn(Observable.just(PropertySet.create()));
+        doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleLike(false);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN.get());
     }
@@ -230,10 +239,11 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
         when(repostOperations.toggleRepost(any(Urn.class),
                                            anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+        doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleRepost(true, false);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN.get());
     }
@@ -243,10 +253,11 @@ public class PlaylistHeaderPresenterTest extends AndroidUnitTest {
         setPlaylistInfo();
         when(repostOperations.toggleRepost(any(Urn.class),
                                            anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+        doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         presenter.onToggleRepost(false, false);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo(SCREEN.get());
     }

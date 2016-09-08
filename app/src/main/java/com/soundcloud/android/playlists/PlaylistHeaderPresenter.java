@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.collection.ConfirmRemoveOfflineDialogFragment;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -56,6 +57,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
         implements PlaylistEngagementsView.OnEngagementListener {
 
     private final EventBus eventBus;
+    private final EventTracker eventTracker;
     private final PlaylistHeaderViewFactory playlistDetailsViewFactory;
     private final Navigator navigator;
     private final FeatureOperations featureOperations;
@@ -86,6 +88,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
 
     @Inject
     PlaylistHeaderPresenter(EventBus eventBus,
+                            EventTracker eventTracker,
                             PlaylistHeaderViewFactory playlistDetailsViewFactory,
                             Navigator navigator,
                             PlaylistHeaderScrollHelper playlistHeaderScrollHelper,
@@ -103,6 +106,7 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
                             NetworkConnectionHelper connectionHelper,
                             PlayQueueHelper playQueueHelper) {
         this.eventBus = eventBus;
+        this.eventTracker = eventTracker;
         this.playlistDetailsViewFactory = playlistDetailsViewFactory;
         this.navigator = navigator;
         this.featureOperations = featureOperations;
@@ -368,12 +372,12 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onToggleLike(boolean addLike) {
         if (headerItem != null) {
-            eventBus.publish(EventQueue.TRACKING,
-                             UIEvent.fromToggleLike(addLike,
-                                                    headerItem.getUrn(),
-                                                    getEventContext(),
-                                                    headerItem.getPlaySessionSource().getPromotedSourceInfo(),
-                                                    EntityMetadata.from(headerItem)));
+            eventTracker.trackEngagement(UIEvent.fromToggleLike(addLike,
+                                                                headerItem.getUrn(),
+                                                                getEventContext(),
+                                                                headerItem.getPlaySessionSource()
+                                                                          .getPromotedSourceInfo(),
+                                                                EntityMetadata.from(headerItem)));
 
             fireAndForget(likeOperations.toggleLike(headerItem.getUrn(), addLike));
         }
@@ -382,12 +386,12 @@ class PlaylistHeaderPresenter extends SupportFragmentLightCycleDispatcher<Fragme
     @Override
     public void onToggleRepost(boolean isReposted, boolean showResultToast) {
         if (headerItem != null) {
-            eventBus.publish(EventQueue.TRACKING,
-                             UIEvent.fromToggleRepost(isReposted,
-                                                      headerItem.getUrn(),
-                                                      getEventContext(),
-                                                      headerItem.getPlaySessionSource().getPromotedSourceInfo(),
-                                                      EntityMetadata.from(headerItem)));
+            eventTracker.trackEngagement(UIEvent.fromToggleRepost(isReposted,
+                                                                  headerItem.getUrn(),
+                                                                  getEventContext(),
+                                                                  headerItem.getPlaySessionSource()
+                                                                            .getPromotedSourceInfo(),
+                                                                  EntityMetadata.from(headerItem)));
 
             if (showResultToast) {
                 repostOperations.toggleRepost(headerItem.getUrn(), isReposted)

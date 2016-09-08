@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
+import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventContextMetadata;
@@ -33,8 +34,15 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
                                      TrackItemMenuPresenter trackItemMenuPresenter, EventBus eventBus,
                                      FeatureOperations featureOperations, ScreenProvider screenProvider,
                                      Navigator navigator, TrackItemView.Factory trackItemViewFactory) {
-        super(imageOperations, numberFormatter, trackItemMenuPresenter, eventBus, featureOperations, screenProvider,
-              navigator, trackItemViewFactory);
+        super(Optional.of(Module.PLAYLIST),
+              imageOperations,
+              numberFormatter,
+              trackItemMenuPresenter,
+              eventBus,
+              featureOperations,
+              screenProvider,
+              navigator,
+              trackItemViewFactory);
     }
 
     public void setRemoveTrackListener(RemoveTrackListener removeTrackListener) {
@@ -61,8 +69,27 @@ public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
                                     ownerUrn,
                                     removeTrackListener,
                                     promotedSourceInfo,
-                                    Optional.<TrackSourceInfo>absent(),
-                                    Optional.<EventContextMetadata.Builder>absent());
+                                    getEventContextMetaDataBuilder(module, trackSourceInfo));
+    }
+
+    private EventContextMetadata.Builder getEventContextMetaDataBuilder(Optional<Module> module,
+                                                                        Optional<TrackSourceInfo> trackSourceInfo) {
+        final String screen = screenProvider.getLastScreenTag();
+
+        final EventContextMetadata.Builder builder = EventContextMetadata.builder()
+                                                                         .invokerScreen(ScreenElement.LIST.get())
+                                                                         .contextScreen(screen)
+                                                                         .pageName(screen);
+
+        if (module.isPresent()) {
+            builder.module(module.get());
+        }
+
+        if (trackSourceInfo.isPresent()) {
+            builder.trackSourceInfo(trackSourceInfo.get());
+        }
+
+        return builder;
     }
 
     @Override

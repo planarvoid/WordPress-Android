@@ -77,7 +77,6 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
         assertThat(data.payload.get("exp_android_listening")).isEqualTo(String.valueOf(12345));
     }
 
-
     @Test
     public void addsPageviewIdToPayload() {
         EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
@@ -129,12 +128,12 @@ public class EventLoggerEventDataTest extends AndroidUnitTest {
     }
 
     @Test
-    public void addsModulePositionToPayloadAsContextPosition() {
+    public void addsModulePositionToPayloadAsPositionInContext() {
         EventLoggerEventData data = new EventLoggerEventData("event", "v0", CLIENT_ID, "1234", "4321", 12345);
 
-        data.modulePosition(3);
+        data.modulePosition(0);
 
-        assertThat(data.payload.get(EventLoggerParam.MODULE_POSITION)).isEqualTo("3");
+        assertThat(data.payload.get(EventLoggerParam.MODULE_POSITION)).isEqualTo("0");
     }
 
     @Test

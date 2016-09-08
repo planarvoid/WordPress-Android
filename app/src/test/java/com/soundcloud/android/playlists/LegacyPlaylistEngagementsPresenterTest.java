@@ -11,6 +11,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -28,6 +30,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;
@@ -95,8 +98,10 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private OfflineSettingsOperations offlineSettings;
     @Mock private ShareOperations shareOperations;
     @Mock private PlayQueueHelper playQueueHelper;
+    @Mock private EventTracker eventTracker;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
+    @Captor private ArgumentCaptor<UIEvent> uiEventCaptor;
     private OnEngagementListener onEngagementListener;
 
     private static Bundle fragmentArgs() {
@@ -109,6 +114,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
     public void setup() {
         eventBus = new TestEventBus();
         presenter = new LegacyPlaylistEngagementsPresenter(eventBus,
+                                                           eventTracker,
                                                            repostOperations,
                                                            accountOperations,
                                                            likeOperations,
@@ -145,10 +151,10 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
     public void shouldPublishUIEventWhenLikingAPlaylist() {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
-
+        doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
         onEngagementListener.onToggleLike(true);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_LIKE);
         assertThat(uiEvent.getContextScreen()).isEqualTo(Screen.UNKNOWN.get());
     }
@@ -158,10 +164,11 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
         when(likeOperations.toggleLike(playlistWithTracks.getUrn(),
                                        false)).thenReturn(Observable.just(PropertySet.create()));
+        doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         onEngagementListener.onToggleLike(false);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNLIKE);
         assertThat(uiEvent.getContextScreen()).isEqualTo(Screen.UNKNOWN.get());
     }
@@ -171,10 +178,11 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
         when(repostOperations.toggleRepost(any(Urn.class),
                                            anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+        doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         onEngagementListener.onToggleRepost(true, false);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_REPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo(Screen.UNKNOWN.get());
     }
@@ -184,10 +192,11 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
         presenter.setPlaylistInfo(PlaylistHeaderItem.create(playlistWithTracks, getPlaySessionSource()));
         when(repostOperations.toggleRepost(any(Urn.class),
                                            anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+        doNothing().when(eventTracker).trackEngagement(uiEventCaptor.capture());
 
         onEngagementListener.onToggleRepost(false, false);
 
-        UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        UIEvent uiEvent = uiEventCaptor.getValue();
         assertThat(uiEvent.getKind()).isSameAs(UIEvent.KIND_UNREPOST);
         assertThat(uiEvent.getContextScreen()).isEqualTo(Screen.UNKNOWN.get());
     }

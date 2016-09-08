@@ -20,11 +20,11 @@ public class ShareOperations {
 
     private static final String SHARE_TYPE = "text/plain";
 
-    private final EventTracker tracker;
+    private final EventTracker eventTracker;
 
     @Inject
-    public ShareOperations(EventTracker tracker) {
-        this.tracker = tracker;
+    public ShareOperations(EventTracker eventTracker) {
+        this.eventTracker = eventTracker;
     }
 
     public void share(Context context, PropertySet playable, EventContextMetadata contextMetadata,
@@ -41,7 +41,7 @@ public class ShareOperations {
 
     private void publishShareTracking(PropertySet playable, EventContextMetadata contextMetadata,
                                       PromotedSourceInfo promotedSourceInfo) {
-        tracker.trackEngagement(UIEvent.fromShare(
+        eventTracker.trackEngagement(UIEvent.fromShare(
                 playable.get(EntityProperty.URN),
                 contextMetadata,
                 promotedSourceInfo,
