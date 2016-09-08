@@ -105,7 +105,6 @@ public enum ApiEndpoints {
     ACTIVITIES("/activities"),
 
     // streams
-    STREAMS_TO_HLS("/streams/to-hls"),
     HLS_STREAM("/tracks/%s/streams/hls"),
     HLS_SNIPPET_STREAM("/tracks/%s/streams/hls/snippet"),
     HTTP_STREAM("/tracks/%s/streams/http"),

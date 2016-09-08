@@ -184,10 +184,6 @@ public abstract class PlayQueue implements Iterable<PlayQueueItem> {
 
     public abstract PlayQueueItem getPlayQueueItem(int position);
 
-    public abstract void insertAudioAd(int position, Urn trackUrn, AudioAd adData, boolean shouldPersist);
-
-    public abstract void insertVideo(int position, VideoAd videoAd);
-
     public abstract void removeItem(PlayQueueItem item);
 
     public abstract void removeItemAtPosition(int position);

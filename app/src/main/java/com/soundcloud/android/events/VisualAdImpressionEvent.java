@@ -11,19 +11,17 @@ import java.util.List;
 public class VisualAdImpressionEvent extends TrackingEvent {
     private List<String> impressionUrls;
 
-    public VisualAdImpressionEvent(AudioAd adData, Urn audioAdTrack, Urn userUrn, TrackSourceInfo sessionSource) {
-        this(adData, audioAdTrack, userUrn, sessionSource, System.currentTimeMillis());
+    public VisualAdImpressionEvent(AudioAd adData, Urn userUrn, TrackSourceInfo sessionSource) {
+        this(adData, userUrn, sessionSource, System.currentTimeMillis());
     }
 
     @VisibleForTesting
     public VisualAdImpressionEvent(AudioAd adData,
-                                   Urn audioAdTrack,
                                    Urn userUrn,
                                    TrackSourceInfo sessionSource,
                                    long timeStamp) {
         super(KIND_DEFAULT, timeStamp);
         put(PlayableTrackingKeys.KEY_USER_URN, userUrn.toString());
-        put(PlayableTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString());
         put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adData.getMonetizableTrackUrn().toString());
         put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, sessionSource.getOriginScreen());
         put(PlayableTrackingKeys.KEY_AD_URN, adData.getCompanionAdUrn());

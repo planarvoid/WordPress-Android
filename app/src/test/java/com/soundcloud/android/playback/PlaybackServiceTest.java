@@ -247,8 +247,7 @@ public class PlaybackServiceTest extends AndroidUnitTest {
 
     @Test
     public void onProgressForwardsAudioAdProgressEventToAnalyticsDispatcher() {
-        playbackItem = AudioAdPlaybackItem.create(TestPropertySets.fromApiTrack(),
-                                                  AdFixtures.getAudioAd(Urn.forTrack(123L)));
+        playbackItem = AudioAdPlaybackItem.create(AdFixtures.getAudioAd(Urn.forTrack(123L)));
         playbackService.onCreate();
         playbackService.play(playbackItem);
         playbackService.onProgressEvent(25, 50);

@@ -116,7 +116,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsAudioAd() {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        final PlayQueueItem playQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), audioAd);
+        final PlayQueueItem playQueueItem = TestPlayQueueItem.createAudioAd(audioAd);
 
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack.put(AdProperty.IS_AUDIO_AD,
                                                                                                true)));
@@ -161,7 +161,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePresenterPlayStateInformationWhenChangedPlayableIsCurrentlyPlayingTrackAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN, AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L))));
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
         EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
@@ -218,7 +218,7 @@ public class PlayerWidgetControllerTest extends AndroidUnitTest {
     @Test
     public void shouldUpdatePresenterWithAdInformationWhenCurrentTrackIsAudioAd() {
         when(playQueueManager.getCurrentPlayQueueItem())
-                .thenReturn(TestPlayQueueItem.createTrack(WIDGET_TRACK_URN, AdFixtures.getAudioAd(Urn.forTrack(123L))));
+                .thenReturn(TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L))));
         when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack.put(AdProperty.IS_AUDIO_AD,
                                                                                                true)));
 

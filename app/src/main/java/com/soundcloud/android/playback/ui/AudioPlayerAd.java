@@ -12,8 +12,8 @@ public class AudioPlayerAd extends PlayerAd {
 
     private final AudioAd audioData;
 
-    AudioPlayerAd(AudioAd audioAd, PropertySet source) {
-        super(audioAd, source);
+    AudioPlayerAd(AudioAd audioAd) {
+        super(audioAd, PropertySet.create());
         this.audioData = audioAd;
     }
 

@@ -107,7 +107,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     private List<PlayQueueItem> playQueue = Arrays.<PlayQueueItem>asList(
             TestPlayQueueItem.createTrack(TRACK1_URN),
             TestPlayQueueItem.createTrack(TRACK2_URN),
-            TestPlayQueueItem.createTrack(AD_URN, AdFixtures.getAudioAd(MONETIZABLE_TRACK_URN)),
+            TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(MONETIZABLE_TRACK_URN)),
             TestPlayQueueItem.createTrack(AD_URN, AdFixtures.getInterstitialAd(MONETIZABLE_TRACK_URN)));
 
     @Before

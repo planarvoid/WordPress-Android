@@ -43,7 +43,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
         }
 
         private boolean isPlayerExpandedWithAd(PlayerState playerState) {
-            return playerState.playerUIEventKind == PlayerUIEvent.PLAYER_EXPANDED && playerState.isAd;
+            return playerState.playerUIEventKind == PlayerUIEvent.PLAYER_EXPANDED && playerState.playQueueItem.isAd();
         }
 
         private boolean isDifferentTrack(PlayerState playerState) {
@@ -54,9 +54,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     private final Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, PlayerState> toPlayerState = new Func2<CurrentPlayQueueItemEvent, PlayerUIEvent, PlayerState>() {
         @Override
         public PlayerState call(CurrentPlayQueueItemEvent currentItemEvent, PlayerUIEvent playerUIEvent) {
-            return new PlayerState(adsOperations.isCurrentItemAd(),
-                                   currentItemEvent.getCurrentPlayQueueItem(),
-                                   playerUIEvent.getKind());
+            return new PlayerState(currentItemEvent.getCurrentPlayQueueItem(), playerUIEvent.getKind());
         }
     };
 
@@ -98,8 +96,7 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
                 lastSeenAdUrn = currentItem.getUrn();
             } else {
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.unlockPlayer());
-                if (adsOperations.isCurrentItemAudioAd()
-                        && shouldExpandAudioAd()
+                if (adsOperations.isCurrentItemAudioAd() && shouldExpandAudioAd()
                         && !lastSeenAdUrn.equals(currentItem.getUrn())) {
                     expandAudioAd(currentItem);
                 }
@@ -118,12 +115,10 @@ public class AdPlayerController extends DefaultActivityLightCycle<AppCompatActiv
     }
 
     private static class PlayerState {
-        private final boolean isAd;
         private final PlayQueueItem playQueueItem;
         private final int playerUIEventKind;
 
-        public PlayerState(boolean isAd, PlayQueueItem playQueueItem, int playerUIEventKind) {
-            this.isAd = isAd;
+        public PlayerState(PlayQueueItem playQueueItem, int playerUIEventKind) {
             this.playQueueItem = playQueueItem;
             this.playerUIEventKind = playerUIEventKind;
         }

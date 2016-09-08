@@ -11,8 +11,8 @@ public class VideoPlayerAd extends PlayerAd {
 
     private final VideoAd videoData;
 
-    VideoPlayerAd(VideoAd videoAd, PropertySet source) {
-        super(videoAd, source);
+    VideoPlayerAd(VideoAd videoAd) {
+        super(videoAd, PropertySet.create());
         this.videoData = videoAd;
     }
 

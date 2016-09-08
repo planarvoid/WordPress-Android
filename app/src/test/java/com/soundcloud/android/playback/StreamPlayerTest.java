@@ -46,7 +46,7 @@ public class StreamPlayerTest extends AndroidUnitTest {
             TrackProperty.FULL_DURATION.bind(456L)
     );
     private AudioPlaybackItem audioPlaybackItem = AudioPlaybackItem.create(track, 123L);
-    private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(track, AdFixtures.getAudioAd(trackUrn));
+    private AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(AdFixtures.getAudioAd(trackUrn));
     private AudioPlaybackItem offlinePlaybackItem = AudioPlaybackItem.forOffline(track, 123L);
     private VideoAdPlaybackItem videoPlaybackItem = VideoAdPlaybackItem.create(getVideoAd(trackUrn), 0L);
 
@@ -111,12 +111,12 @@ public class StreamPlayerTest extends AndroidUnitTest {
     @Test
     public void playWithAudioAdPlaybackItemCallsPlayOnSkippyByDefault() {
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
-        final AudioAdPlaybackItem uninterruptedItem = AudioAdPlaybackItem.create(track, audioAd);
+        final AudioAdPlaybackItem audioAdPlaybackItem = AudioAdPlaybackItem.create(audioAd);
         instantiateStreamPlaya();
 
-        streamPlayerWrapper.play(uninterruptedItem);
+        streamPlayerWrapper.play(audioAdPlaybackItem);
 
-        verify(skippyAdapter).play(uninterruptedItem);
+        verify(skippyAdapter).play(audioAdPlaybackItem);
     }
 
     @Test

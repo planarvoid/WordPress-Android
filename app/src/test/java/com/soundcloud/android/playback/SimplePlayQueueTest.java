@@ -117,34 +117,6 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
         assertThat(playQueue.indexOfTrackUrn(1, Urn.forTrack(2l))).isEqualTo(1);
     }
 
-    @Test
-    public void insertsAudioAdAtPosition() throws CreateModelException {
-        final Urn trackUrn = Urn.forTrack(123L);
-        final AudioAd adData = AdFixtures.getAudioAd(Urn.forTrack(123L));
-        playQueue.insertAudioAd(1, trackUrn, adData, true);
-
-        assertTrackQueueItem(playQueue.getPlayQueueItem(1), trackUrn);
-        assertThat(playQueue.getAdData(1)).isEqualTo(Optional.of(adData));
-
-        assertThat(playQueue).hasSize(4);
-        assertTrackQueueItem(playQueue.getPlayQueueItem(0), Urn.forTrack(1L));
-        assertTrackQueueItem(playQueue.getPlayQueueItem(2), Urn.forTrack(2L));
-    }
-
-    @Test
-    public void insertsVideoAtPosition() throws CreateModelException {
-        final VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        playQueue.insertVideo(1, videoAd);
-
-        assertThat(playQueue.getPlayQueueItem(1).isVideoAd()).isTrue();
-        assertThat(playQueue.getAdData(1)).isEqualTo(Optional.of(videoAd));
-
-        assertThat(playQueue).hasSize(4);
-        assertTrackQueueItem(playQueue.getPlayQueueItem(0), Urn.forTrack(1L));
-        assertTrackQueueItem(playQueue.getPlayQueueItem(2), Urn.forTrack(2L));
-    }
-
-    @Test
     public void removeItem() {
         playQueue = PlayQueue.fromPlayQueueItems(Lists.<PlayQueueItem>newArrayList(TRACK_QUEUE_ITEM_1, TRACK_QUEUE_ITEM_2));
 

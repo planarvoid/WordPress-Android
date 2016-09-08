@@ -24,10 +24,9 @@ import rx.subjects.Subject;
 import android.app.Activity;
 
 public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
-    private final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(Urn.forTrack(123L),
-                                                                                AdFixtures.getAudioAd(Urn.forTrack(123L)));
+    private final PlayQueueItem AD_QUEUE_ITEM = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(123L)));
     private final CurrentPlayQueueItemEvent CURRENT_TRACK_CHANGED_EVENT = CurrentPlayQueueItemEvent.fromPositionChanged(
-            PLAY_QUEUE_ITEM,
+            AD_QUEUE_ITEM,
             Urn.NOT_SET,
             0);
     private final PlayerUIEvent PLAYER_EXPANDED_EVENT = PlayerUIEvent.fromPlayerExpanded();
@@ -36,7 +35,6 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AccountOperations accountOperations;
     @Mock private Activity activity;
-    @Mock private AdsOperations adsOperations;
     private ActivityLifeCycleEvent activityResumeEvent;
     private ActivityLifeCycleEvent activityPauseEvent;
 
@@ -51,8 +49,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
         TestEventBus eventBus = new TestEventBus();
         VisualAdImpressionOperations controller = new VisualAdImpressionOperations(eventBus,
                                                                                    playQueueManager,
-                                                                                   accountOperations,
-                                                                                   adsOperations);
+                                                                                   accountOperations);
         activitiesLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);
         currentTrackQueue = eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
         playerUiQueue = eventBus.queue(EventQueue.PLAYER_UI);
@@ -60,8 +57,7 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
         activityResumeEvent = ActivityLifeCycleEvent.forOnResume(activity);
         activityPauseEvent = ActivityLifeCycleEvent.forOnPause(activity);
 
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(PLAY_QUEUE_ITEM);
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(AD_QUEUE_ITEM);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(42L));
 
@@ -92,12 +88,16 @@ public class VisualAdImpressionOperationsTest extends AndroidUnitTest {
     @Test
     public void shouldNotLogWhenTheCurrentTrackIsNotAnAd() {
         final PlayQueueItem nonAdPlayQueueItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L));
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(false);
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(nonAdPlayQueueItem);
+
+        final CurrentPlayQueueItemEvent playQueueItemEvent = CurrentPlayQueueItemEvent.fromPositionChanged(
+                nonAdPlayQueueItem,
+                Urn.NOT_SET,
+                0);
 
         activitiesLifeCycleQueue.onNext(activityResumeEvent);
         playerUiQueue.onNext(PLAYER_EXPANDED_EVENT);
-        currentTrackQueue.onNext(CURRENT_TRACK_CHANGED_EVENT);
+        currentTrackQueue.onNext(playQueueItemEvent);
 
         assertThat(subscriber.getOnNextEvents()).isEmpty();
     }

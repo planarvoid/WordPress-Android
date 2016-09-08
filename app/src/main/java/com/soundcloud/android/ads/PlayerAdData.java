@@ -61,6 +61,8 @@ public abstract class PlayerAdData extends AdData {
 
     public abstract List<String> getResumeUrls();
 
+    public abstract List<String> getClickUrls();
+
     public abstract boolean isSkippable();
 
     public abstract Optional<VisualAdDisplayProperties> getDisplayProperties();

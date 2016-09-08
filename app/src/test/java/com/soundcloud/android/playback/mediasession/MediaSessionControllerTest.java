@@ -46,7 +46,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
     private static final PlaybackItem PLAYBACK_ITEM = AudioPlaybackItem.create(TRACK, START_POSITION);
     private static final Urn URN = PLAYBACK_ITEM.getUrn();
     private static final PlayQueueItem PLAY_QUEUE_ITEM = TestPlayQueueItem.createTrack(URN);
-    private static final PlayQueueItem AD_QUEUE_ITEM = TestPlayQueueItem.createTrack(URN, AdFixtures.getAudioAd(URN));
+    private static final PlayQueueItem AD_QUEUE_ITEM = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(URN));
 
 
     @Mock MediaSessionController.Listener listener;
@@ -220,7 +220,7 @@ public class MediaSessionControllerTest extends AndroidUnitTest {
 
         controller.onSkip();
 
-        verify(metadataOperations).metadata(URN, true, Optional.of(currentMediaMetadata));
+        verify(metadataOperations).metadata(Urn.forAd("dfp", "869"), true, Optional.of(currentMediaMetadata));
     }
 
 

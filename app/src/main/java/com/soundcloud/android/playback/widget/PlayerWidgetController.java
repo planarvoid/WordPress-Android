@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.widget;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.BuildConfig;
-import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.analytics.EngagementsTracking;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -78,9 +77,9 @@ public class PlayerWidgetController {
 
     private void updatePlayableInformation(PropertySet extraInfo) {
         PlayQueueItem item = playQueueManager.getCurrentPlayQueueItem();
-        if (AdUtils.isAudioAd(item)) {
+        if (item.isAudioAd()) {
             presenter.updateForAudioAd(context);
-        } else if (AdUtils.isVideoAd(item)) {
+        } else if (item.isVideoAd()) {
             presenter.updateForVideoAd(context);
         } else if (item.isTrack()) {
             trackRepository.track(item.getUrn())

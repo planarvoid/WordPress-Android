@@ -159,31 +159,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     }
 
     @Test
-    public void shouldTrackAudioAdRelatedUIEvents() {
-        UIEvent event1 = UIEvent.fromAudioAdClick(AdFixtures.getAudioAd(Urn.forTrack(123L)),
-                                                  Urn.forTrack(456),
-                                                  userUrn,
-                                                  trackSourceInfo);
-        UIEvent event2 = UIEvent.fromAudioAdCompanionDisplayClick(AdFixtures.getAudioAd(Urn.forTrack(123L)),
-                                                                  Urn.forTrack(456),
-                                                                  userUrn,
-                                                                  trackSourceInfo,
-                                                                  1000);
-        when(dataBuilderv0.build(event1)).thenReturn("url1");
-        when(dataBuilderv0.build(event2)).thenReturn("url2");
-        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
-
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event1);
-        eventLoggerAnalyticsProvider.handleTrackingEvent(event2);
-
-        verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
-        assertThat(captor.getAllValues()).hasSize(2);
-        List<TrackingRecord> allValues = captor.getAllValues();
-        assertEventTracked(allValues.get(0), "url1", event1.getTimestamp());
-        assertEventTracked(allValues.get(1), "url2", event2.getTimestamp());
-    }
-
-    @Test
     public void shouldTrackLikeEventsWithV1() {
         PromotedListItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         PromotedSourceInfo promotedSourceInfo = PromotedSourceInfo.fromItem(promotedTrack);
@@ -265,7 +240,6 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     public void shouldTrackVisualAdCompanionImpressionTrackingEvents() {
         TrackSourceInfo sourceInfo = new TrackSourceInfo("source", true);
         VisualAdImpressionEvent event = new VisualAdImpressionEvent(AdFixtures.getAudioAd(Urn.forTrack(123L)),
-                                                                    Urn.forTrack(123L),
                                                                     Urn.forUser(456L),
                                                                     sourceInfo);
         when(dataBuilderv0.build(event)).thenReturn("ForVisualAdImpression");
@@ -462,7 +436,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldVideoAdSkipEvent() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        UIEvent adEvent = UIEvent.fromSkipVideoAdClick(videoAd, trackSourceInfo);
+        UIEvent adEvent = UIEvent.fromSkipAdClick(videoAd, trackSourceInfo);
         when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 
@@ -475,7 +449,7 @@ public class EventLoggerAnalyticsProviderTest extends AndroidUnitTest {
     @Test
     public void shouldVideoAdClickthroughEvent() {
         VideoAd videoAd = AdFixtures.getVideoAd(Urn.forTrack(123L));
-        UIEvent adEvent = UIEvent.fromVideoAdClickThrough(videoAd, trackSourceInfo);
+        UIEvent adEvent = UIEvent.fromAdClickThrough(videoAd, trackSourceInfo);
         when(dataBuilderv1.buildForUIEvent(adEvent)).thenReturn("UIEvent");
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
 

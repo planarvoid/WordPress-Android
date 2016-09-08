@@ -13,11 +13,9 @@ import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.PlaybackProgressEvent;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +43,7 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onProgressForwardsAudioAdProgressEventToAdAnalyticsDispatcher() {
-        playbackItem = AudioAdPlaybackItem.create(TestPropertySets.fromApiTrack(), AdFixtures.getAudioAd(track));
+        playbackItem = AudioAdPlaybackItem.create(AdFixtures.getAudioAd(track));
         PlaybackProgressEvent progressEvent = PlaybackProgressEvent.create(PlaybackProgress.empty(), track);
 
         controller.onProgressEvent(playbackItem, progressEvent);
@@ -89,16 +87,15 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onProgressForwardsCheckpointEventForAdsIfCheckpointIntervalHasPassed() {
-        final PropertySet adTrack = TestPropertySets.fromApiTrack();
-        playbackItem = AudioAdPlaybackItem.create(adTrack, AdFixtures.getAudioAd(track));
+        playbackItem = AudioAdPlaybackItem.create(AdFixtures.getAudioAd(track));
         PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
                                                                          PlayStateReason.NONE,
-                                                                         adTrack.get(EntityProperty.URN));
+                                                                         playbackItem.getUrn());
         controller.onStateTransition(playbackItem, wrap(transition));
 
         final long position = AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL;
         final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
-                                                                            adTrack.get(EntityProperty.URN));
+                                                                            playbackItem.getUrn());
         controller.onProgressEvent(playbackItem, progress);
 
         InOrder inOrder = inOrder(adSessionDispatcher);
@@ -108,16 +105,15 @@ public class PlaybackAnalyticsControllerTest extends AndroidUnitTest {
 
     @Test
     public void onProgressDoesntForwardCheckpointEventForAdsIfCheckpointIntervalHasNotPassed() {
-        final PropertySet adTrack = TestPropertySets.fromApiTrack();
-        playbackItem = AudioAdPlaybackItem.create(adTrack, AdFixtures.getAudioAd(track));
+        playbackItem = AudioAdPlaybackItem.create(AdFixtures.getAudioAd(track));
         PlaybackStateTransition transition = new PlaybackStateTransition(PlaybackState.PLAYING,
                                                                          PlayStateReason.NONE,
-                                                                         adTrack.get(EntityProperty.URN));
+                                                                         playbackItem.getUrn());
         controller.onStateTransition(playbackItem, wrap(transition));
 
         final long position = AdSessionAnalyticsDispatcher.CHECKPOINT_INTERVAL - 1;
         final PlaybackProgressEvent progress = PlaybackProgressEvent.create(new PlaybackProgress(position, 90000L),
-                                                                            adTrack.get(EntityProperty.URN));
+                                                                            playbackItem.getUrn());
         controller.onProgressEvent(playbackItem, progress);
 
         verify(adSessionDispatcher, never()).onProgressCheckpoint(any(PlayStateEvent.class),

@@ -65,7 +65,6 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
         defaultPlaybackStrategy = new DefaultPlaybackStrategy(playQueueManager,
                                                               serviceInitiator,
                                                               trackRepository,
-                                                              adsOperations,
                                                               offlinePlaybackOperations,
                                                               playSessionStateProvider,
                                                               eventBus);
@@ -188,16 +187,13 @@ public class DefaultPlaybackStrategyTest extends AndroidUnitTest {
 
     @Test
     public void playCurrentPlaysAudioAdSuccessfully() {
-        final PropertySet track = onlineTrack();
         final AudioAd audioAd = AdFixtures.getAudioAd(trackUrn);
-        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(trackPlayQueueItem);
-        when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
-        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
-        when(adsOperations.getCurrentTrackAdData()).thenReturn(Optional.<AdData>of(audioAd));
+        when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createAudioAd(audioAd));
+        when(playSessionStateProvider.getLastProgressForItem(audioAd.getAdUrn())).thenReturn(PlaybackProgress.empty());
 
         defaultPlaybackStrategy.playCurrent().subscribe(playCurrentSubscriber);
 
-        verify(serviceInitiator).play(AudioAdPlaybackItem.create(track, audioAd));
+        verify(serviceInitiator).play(AudioAdPlaybackItem.create(audioAd));
         playCurrentSubscriber.assertCompleted();
     }
 

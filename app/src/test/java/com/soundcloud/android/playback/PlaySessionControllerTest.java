@@ -20,6 +20,7 @@ import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlayableTrackingKeys;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.Screen;
@@ -308,12 +309,12 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
-        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAd();
         inOrder.verify(playQueueManager).setCurrentPlayQueueItem(trackPlayQueueItem);
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
-        assertThat(event.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
+        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
     }
 
     @Test
@@ -407,8 +408,8 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
         inOrder.verify(playQueueManager).moveToPreviousPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
-        assertThat(event.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
+        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
     }
 
     @Test
@@ -420,11 +421,11 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
-        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemVideoAd();
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAd();
         inOrder.verify(playQueueManager).moveToPreviousPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_VIDEO_AD_CLICK);
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
     }
 
     @Test
@@ -487,12 +488,12 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
-        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAudioAd();
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAd();
         inOrder.verify(playQueueManager).moveToNextPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
-        assertThat(event.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
+        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo(Urn.forAd("dfp", "869").toString());
     }
 
     @Test
@@ -503,11 +504,11 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
         // make sure we test for the current track being an ad *before* we skip
         InOrder inOrder = inOrder(adsOperations, playQueueManager);
-        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemVideoAd();
+        inOrder.verify(adsOperations, atLeastOnce()).isCurrentItemAd();
         inOrder.verify(playQueueManager).moveToNextPlayableItem();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_VIDEO_AD_CLICK);
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AD_CLICK);
     }
 
     @Test
@@ -728,7 +729,7 @@ public class PlaySessionControllerTest extends AndroidUnitTest {
 
     private void setupAudioAdInProgress(long currentProgress) {
         final AudioAd adData = AdFixtures.getAudioAd(Urn.forTrack(456L));
-        final PlayQueueItem audioAdItem = TestPlayQueueItem.createTrack(Urn.forTrack(123L), adData);
+        final PlayQueueItem audioAdItem = TestPlayQueueItem.createAudioAd(adData);
         when(adsOperations.isCurrentItemAudioAd()).thenReturn(true);
         setupAdInProgress(currentProgress, audioAdItem);
     }

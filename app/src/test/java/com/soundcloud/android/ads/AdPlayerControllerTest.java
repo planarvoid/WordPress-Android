@@ -156,7 +156,7 @@ public class AdPlayerControllerTest extends AndroidUnitTest {
     private void setAudioPlaying(AdData adData) {
         boolean isAd = adData != null;
         final PlayQueueItem item = isAd
-                ? TestPlayQueueItem.createTrack(TRACK_URN, adData)
+                ? TestPlayQueueItem.createAudioAd((AudioAd) adData)
                 : TestPlayQueueItem.createTrack(TRACK_URN);
 
         when(adsOperations.isCurrentItemAd()).thenReturn(isAd);

@@ -2,8 +2,6 @@ package com.soundcloud.android.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
@@ -11,7 +9,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -31,19 +28,12 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                                                                                              "allow",
                                                                                              DURATION);
 
-    private static final PropertySet AUDIO_AD_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
+    private static final PropertySet PROMOTED_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String UUID = "uuid";
     private static final String PLAY_ID = "play-id";
 
-    private AudioAd audioAdData;
-
     @Mock TrackSourceInfo trackSourceInfo;
-
-    @Before
-    public void setUp() {
-        audioAdData = AdFixtures.getAudioAd(Urn.forTrack(123L));
-    }
 
     @Test
     public void stopEventSetsTimeElapsedSinceLastPlayEvent() {
@@ -67,13 +57,6 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playEventWithStartNotMarkedAsReportedInAdDataIsFirstAdPlay() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA))
-                                                             .withAudioAd(audioAdData);
-        assertThat(playEvent.shouldReportAdStart()).isTrue();
-    }
-
-    @Test
     public void checkpointEventIsCreated() {
         PlaybackSessionEvent checkpointEvent = PlaybackSessionEvent.forCheckpoint(createArgs());
         assertThat(checkpointEvent.isCheckpointEvent()).isTrue();
@@ -86,37 +69,9 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     }
 
     @Test
-    public void playEventWithStartMarkedSentAdDataIsNotAFirstPlay() {
-        audioAdData.setStartReported();
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(1L, TRACK_DATA))
-                                                             .withAudioAd(audioAdData);
-        assertThat(playEvent.shouldReportAdStart()).isFalse();
-    }
-
-    @Test
-    public void stopEventIsNotAFirstPlay() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs(0L, TRACK_DATA))
-                                                             .withAudioAd(audioAdData);
-        final PlaybackSessionEventArgs args = createArgs(0L, TRACK_DATA);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(playEvent,
-                                                                      PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED,
-                                                                      args);
-        assertThat(stopEvent.shouldReportAdStart()).isFalse();
-    }
-
-    @Test
-    public void noMonetizationTypeIndicatesNoAudioAdOrPromotedTrack() {
+    public void noMonetizationTypeIndicatesNotPromotedTrack() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(createArgs());
-        assertThat(playEvent.isAd()).isFalse();
         assertThat(playEvent.isPromotedTrack()).isFalse();
-    }
-
-    @Test
-    public void eventWithAudioAdMonetizationTypeIndicatesAnAudioAd() {
-        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA)).withAudioAd(audioAdData);
-
-        assertThat(playEvent.isAd()).isTrue();
     }
 
     @Test
@@ -127,7 +82,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                                                                  Arrays.asList("url"));
 
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA)).withPromotedTrack(promotedInfo);
+                createArgs(0L, PROMOTED_TRACK_DATA)).withPromotedTrack(promotedInfo);
 
         assertThat(playEvent.isPromotedTrack()).isTrue();
     }
@@ -140,7 +95,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                                                                  Arrays.asList("url"));
 
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA)).withPromotedTrack(promotedInfo);
+                createArgs(0L, PROMOTED_TRACK_DATA)).withPromotedTrack(promotedInfo);
 
         assertThat(playEvent.shouldReportAdStart()).isTrue();
     }
@@ -154,26 +109,9 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
         promotedInfo.setPlaybackStarted();
 
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
-                createArgs(0L, AUDIO_AD_TRACK_DATA)).withPromotedTrack(promotedInfo);
+                createArgs(0L, PROMOTED_TRACK_DATA)).withPromotedTrack(promotedInfo);
 
         assertThat(playEvent.shouldReportAdStart()).isFalse();
-    }
-
-    @Test
-    public void populatesAdAttributesFromAdPlaybackEvent() {
-        final AudioAd audioAd = AdFixtures.getAudioAd(TRACK_URN);
-
-        PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(
-                createArgs(PROGRESS, TestPropertySets.expectedTrackForAnalytics(TRACK_URN, CREATOR_URN)))
-                                                         .withAudioAd(audioAd);
-
-        assertThat(event.isAd()).isTrue();
-        assertThat(event.get(PlayableTrackingKeys.KEY_AD_URN)).isEqualTo("dfp:ads:869");
-        assertThat(event.get(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).isEqualTo(TRACK_URN.toString());
-        assertThat(event.get(PlayableTrackingKeys.KEY_AD_ARTWORK_URL)).isEqualTo(audioAd.getCompanionImageUrl().get().toString());
-        assertThat(event.getAudioAdImpressionUrls()).contains("audio_impression1", "audio_impression2");
-        assertThat(event.getAudioAdCompanionImpressionUrls()).contains("comp_impression1", "comp_impression2");
-        assertThat(event.getAudioAdFinishUrls()).contains("audio_finish1", "audio_finish2");
     }
 
     @Test

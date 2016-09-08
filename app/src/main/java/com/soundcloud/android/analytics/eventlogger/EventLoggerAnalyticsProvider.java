@@ -143,10 +143,6 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
 
     private void handleUIEvent(UIEvent event) {
         switch (event.getKind()) {
-            case UIEvent.KIND_AUDIO_AD_CLICK:
-            case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
-                trackEvent(event.getTimestamp(), dataBuilderV0.get().build(event));
-                break;
             case UIEvent.KIND_LIKE:
             case UIEvent.KIND_UNLIKE:
             case UIEvent.KIND_REPOST:
@@ -163,8 +159,8 @@ public class EventLoggerAnalyticsProvider extends DefaultAnalyticsProvider {
             case UIEvent.KIND_SHUFFLE:
             case UIEvent.KIND_VIDEO_AD_FULLSCREEN:
             case UIEvent.KIND_VIDEO_AD_SHRINK:
-            case UIEvent.KIND_VIDEO_AD_CLICKTHROUGH:
-            case UIEvent.KIND_SKIP_VIDEO_AD_CLICK:
+            case UIEvent.KIND_AD_CLICKTHROUGH:
+            case UIEvent.KIND_SKIP_AD_CLICK:
                 trackEvent(event.getTimestamp(), dataBuilderV1.get().buildForUIEvent(event));
                 break;
             default:

@@ -7,7 +7,6 @@ import com.facebook.FacebookSdk;
 import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.accounts.FacebookModule;
-import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.api.ApiModule;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -235,7 +234,6 @@ public class ApplicationModule {
                                                     PlayQueueManager playQueueManager,
                                                     Lazy<CastPlayer> castPlayer,
                                                     TrackRepository trackRepository,
-                                                    AdsOperations adsOperations,
                                                     OfflinePlaybackOperations offlinePlaybackOperations,
                                                     PlaySessionStateProvider playSessionStateProvider,
                                                     EventBus eventBus) {
@@ -245,7 +243,6 @@ public class ApplicationModule {
             return new DefaultPlaybackStrategy(playQueueManager,
                                                serviceInitiator,
                                                trackRepository,
-                                               adsOperations,
                                                offlinePlaybackOperations,
                                                playSessionStateProvider,
                                                eventBus);

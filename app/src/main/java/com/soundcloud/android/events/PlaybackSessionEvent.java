@@ -1,6 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.Durations;
@@ -33,7 +32,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private static final String EVENT_KIND_STOP = "stop";
     private static final String EVENT_KIND_CHECKPOINT = "checkpoint";
 
-    private static final String MONETIZATION_AUDIO_AD = "audio_ad";
     private static final String MONETIZATION_PROMOTED = "promoted";
 
     private final Urn trackUrn;
@@ -51,9 +49,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private long listenTime;
     private final TrackSourceInfo trackSourceInfo;
 
-    private List<String> adCompanionImpressionUrls = Collections.emptyList();
-    private List<String> adImpressionUrls = Collections.emptyList();
-    private List<String> adFinishedUrls = Collections.emptyList();
     private List<String> promotedPlayUrls = Collections.emptyList();
 
     public static PlaybackSessionEvent forPlayStart(PlaybackSessionEventArgs args) {
@@ -98,22 +93,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
         EntityMetadata.from(args.getTrackData()).addToTrackingEvent(this);
     }
 
-    // Audio ad
-    public PlaybackSessionEvent withAudioAd(AudioAd audioAd) {
-        put(PlayableTrackingKeys.KEY_AD_URN, audioAd.getAdUrn().toString());
-        put(PlayableTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO_AD);
-        put(PlayableTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.getMonetizableTrackUrn().toString());
-        put(PlayableTrackingKeys.KEY_AD_TRACK_URN, trackUrn.toString());
-        put(PlayableTrackingKeys.KEY_ORIGIN_SCREEN, trackSourceInfo.getOriginScreen());
-        put(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN, trackUrn.toString());
-        put(PlayableTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.getCompanionImageUrl());
-        this.adCompanionImpressionUrls = audioAd.getCompanionImpressionUrls();
-        this.adImpressionUrls = audioAd.getImpressionUrls();
-        this.adFinishedUrls = audioAd.getFinishUrls();
-        this.shouldReportAdStart = !audioAd.hasReportedStart();
-        return this;
-    }
-
     // Promoted track
     public PlaybackSessionEvent withPromotedTrack(PromotedSourceInfo promotedSource) {
         put(PlayableTrackingKeys.KEY_AD_URN, promotedSource.getAdUrn());
@@ -154,18 +133,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public long getDuration() {
         return duration;
-    }
-
-    public List<String> getAudioAdImpressionUrls() {
-        return adImpressionUrls;
-    }
-
-    public List<String> getAudioAdFinishUrls() {
-        return adFinishedUrls;
-    }
-
-    public List<String> getAudioAdCompanionImpressionUrls() {
-        return adCompanionImpressionUrls;
     }
 
     public List<String> getPromotedPlayUrls() {
@@ -212,10 +179,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return listenTime;
     }
 
-    public boolean isAd() {
-        return isMonetizationType(MONETIZATION_AUDIO_AD);
-    }
-
     public boolean isPromotedTrack() {
         return isMonetizationType(MONETIZATION_PROMOTED);
     }
@@ -227,10 +190,6 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public boolean shouldReportAdStart() {
         return kind.equals(EVENT_KIND_PLAY) && shouldReportAdStart;
-    }
-
-    public boolean hasTrackFinished() {
-        return isStopEvent() && getStopReason() == PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED;
     }
 
     public boolean isMarketablePlay() {

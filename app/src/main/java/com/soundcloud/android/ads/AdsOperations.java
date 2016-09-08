@@ -7,13 +7,12 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.AdDeliveryEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.TrackQueueItem;
@@ -37,27 +36,15 @@ public class AdsOperations {
 
     private final FeatureOperations featureOperations;
     private final Lazy<KruxSegmentProvider> kruxSegmentProvider;
-    private final StoreTracksCommand storeTracksCommand;
     private final PlayQueueManager playQueueManager;
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
     private final EventBus eventBus;
-    private final Action1<ApiAdsForTrack> cacheAudioAdTrack = new Action1<ApiAdsForTrack>() {
-        @Override
-        public void call(ApiAdsForTrack apiAdsForTrack) {
-            final Optional<ApiAudioAd> audioAd = apiAdsForTrack.audioAd();
-            if (audioAd.isPresent()) {
-                final ApiTrack track = audioAd.get().getApiTrack();
-                storeTracksCommand.toAction1().call(Collections.singletonList(track));
-            }
-        }
-    };
 
     @Inject
-    AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager, FeatureOperations featureOperations,
+    AdsOperations(PlayQueueManager playQueueManager, FeatureOperations featureOperations,
                   ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                   EventBus eventBus, Lazy<KruxSegmentProvider> kruxSegmentProvider) {
-        this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
         this.featureOperations = featureOperations;
         this.apiClientRx = apiClientRx;
@@ -84,8 +71,7 @@ public class AdsOperations {
         return apiClientRx.mappedResponse(request.build(), ApiAdsForTrack.class)
                           .subscribeOn(scheduler)
                           .doOnError(logFailedAds(sourceUrn, endpoint, playerVisible, inForeground))
-                          .doOnNext(logAds(sourceUrn))
-                          .doOnNext(cacheAudioAdTrack);
+                          .doOnNext(logAds(sourceUrn));
     }
 
     private Action1<? super ApiAdsForTrack> logAds(final Urn sourceUrn) {
@@ -148,36 +134,29 @@ public class AdsOperations {
         final AudioAd audioAdData = AudioAd.create(apiAudioAd, monetizableItem.getUrn());
 
         if (apiAudioAd.hasApiLeaveBehind()) {
-            insertAudioAdWithLeaveBehind(apiAudioAd, audioAdData, monetizableItem);
+            insertAudioAdWithLeaveBehind(apiAudioAd.getLeaveBehind(), audioAdData, monetizableItem);
         } else {
-            insertAudioAdWithoutLeaveBehind(monetizableItem, apiAudioAd, audioAdData);
+            insertAudioAdWithoutLeaveBehind(monetizableItem, audioAdData);
         }
     }
 
     private void insertAudioAdWithoutLeaveBehind(TrackQueueItem monetizableItem,
-                                                 ApiAudioAd apiAudioAd,
                                                  AudioAd audioAdData) {
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem).build();
-        final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(apiAudioAd.getApiTrack().getUrn())
-                .withAdData(audioAdData)
-                .persist(false)
-                .build();
-        playQueueManager.replace(monetizableItem, Arrays.<PlayQueueItem>asList(audioAdItem, newMonetizableItem));
+        final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);
+
+        playQueueManager.replace(monetizableItem, Arrays.asList(audioAdItem, newMonetizableItem));
     }
 
-    private void insertAudioAdWithLeaveBehind(ApiAudioAd apiAudioAd,
+    private void insertAudioAdWithLeaveBehind(ApiLeaveBehind apiLeaveBehind,
                                               AudioAd audioAdData,
                                               TrackQueueItem monetizableItem) {
-        final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiAudioAd.getLeaveBehind(),
-                                                                 apiAudioAd.getApiTrack().getUrn());
+        final LeaveBehindAd leaveBehindAd = LeaveBehindAd.create(apiLeaveBehind, audioAdData.getAdUrn());
         final TrackQueueItem newMonetizableItem = new TrackQueueItem.Builder(monetizableItem)
                 .withAdData(leaveBehindAd).build();
-        final TrackQueueItem audioAdItem = new TrackQueueItem.Builder(apiAudioAd.getApiTrack().getUrn())
-                .withAdData(audioAdData)
-                .persist(false)
-                .build();
+        final AudioAdQueueItem audioAdItem = new AudioAdQueueItem(audioAdData);
 
-        playQueueManager.replace(monetizableItem, Arrays.<PlayQueueItem>asList(audioAdItem, newMonetizableItem));
+        playQueueManager.replace(monetizableItem, Arrays.asList(audioAdItem, newMonetizableItem));
     }
 
     void replaceUpcomingVideoAd(ApiAdsForTrack ads, VideoAdQueueItem videoItem) {
@@ -194,19 +173,19 @@ public class AdsOperations {
     }
 
     public boolean isCurrentItemAd() {
-        return AdUtils.isAd(playQueueManager.getCurrentPlayQueueItem());
+        return playQueueManager.getCurrentPlayQueueItem().isAd();
     }
 
     public boolean isNextItemAd() {
-        return AdUtils.isAd(playQueueManager.getNextPlayQueueItem());
+        return playQueueManager.getNextPlayQueueItem().isAd();
     }
 
     public boolean isCurrentItemAudioAd() {
-        return AdUtils.isAudioAd(playQueueManager.getCurrentPlayQueueItem());
+        return playQueueManager.getCurrentPlayQueueItem().isAudioAd();
     }
 
     public boolean isCurrentItemVideoAd() {
-        return AdUtils.isVideoAd(playQueueManager.getCurrentPlayQueueItem());
+        return playQueueManager.getCurrentPlayQueueItem().isVideoAd();
     }
 
     public boolean isCurrentItemLetterboxVideoAd() {
