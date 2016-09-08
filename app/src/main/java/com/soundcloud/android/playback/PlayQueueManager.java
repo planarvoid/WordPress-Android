@@ -424,12 +424,12 @@ public class PlayQueueManager implements OriginProvider {
 
     private boolean isPlayableAtPosition(int i) {
         final PlayQueueItem playQueueItem = playQueue.getPlayQueueItem(i);
-        return isNotBlockedTrackOrVideo(playQueueItem) &&
+        return isNotBlockedTrackOrAd(playQueueItem) &&
                 (networkConnectionHelper.isNetworkConnected() || isOfflineAvailable(playQueueItem));
     }
 
-    private boolean isNotBlockedTrackOrVideo(PlayQueueItem playQueueItem) {
-        return playQueueItem.isVideoAd() || (playQueueItem.isTrack() && !((TrackQueueItem) playQueueItem).isBlocked());
+    private boolean isNotBlockedTrackOrAd(PlayQueueItem playQueueItem) {
+        return playQueueItem.isAd() || (playQueueItem.isTrack() && !((TrackQueueItem) playQueueItem).isBlocked());
     }
 
     private boolean isOfflineAvailable(PlayQueueItem playQueueItem) {

@@ -15,7 +15,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
@@ -677,6 +676,36 @@ public class PlayQueueManagerTest extends AndroidUnitTest {
                 )
         );
 
+    }
+
+    @Test
+    public void moveToNextPlayableItemGoesToNextItemIfAudioAd() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        final AudioAdQueueItem adItem = TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(Urn.forTrack(2L)));
+        playQueue.replaceItem(1, Arrays.asList(adItem, playQueue.getPlayQueueItem(1)));
+
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+
+        final CurrentPlayQueueItemEvent actual = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
+        assertThat(actual.getCurrentPlayQueueItem().isAudioAd()).isTrue();
+    }
+
+    @Test
+    public void moveToNextPlayableItemGoesToNextItemIfVideoAd() {
+        final PlayQueue playQueue = createPlayQueue(TestUrns.createTrackUrns(1L, 2L, 3L));
+        final VideoAdQueueItem adItem = TestPlayQueueItem.createVideo(AdFixtures.getVideoAd(Urn.forTrack(2L)));
+        playQueue.replaceItem(1, Arrays.asList(adItem, playQueue.getPlayQueueItem(1)));
+
+        playQueueManager.setNewPlayQueue(playQueue, playlistSessionSource, 0);
+
+        assertThat(playQueueManager.autoMoveToNextPlayableItem()).isTrue();
+        assertThat(playQueueManager.getCurrentPosition()).isEqualTo(1);
+
+        final CurrentPlayQueueItemEvent actual = eventBus.lastEventOn(EventQueue.CURRENT_PLAY_QUEUE_ITEM);
+        assertThat(actual.getCurrentPlayQueueItem().isVideoAd()).isTrue();
     }
 
     @Test
