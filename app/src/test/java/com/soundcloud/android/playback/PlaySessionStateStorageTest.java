@@ -9,18 +9,13 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
-import org.robolectric.fakes.RoboSharedPreferences;
 
-import android.content.Context;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.content.SharedPreferences;
 
 public class PlaySessionStateStorageTest extends AndroidUnitTest {
 
     private static final Urn TRACK = Urn.forTrack(123);
-    private RoboSharedPreferences prefs = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(),
-                                                                    "prefs", Context.MODE_PRIVATE);
+    private SharedPreferences prefs = sharedPreferences();
 
     private PlaySessionStateStorage storage;
 

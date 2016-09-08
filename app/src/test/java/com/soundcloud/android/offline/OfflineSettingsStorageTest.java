@@ -9,12 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestObserver;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 public class OfflineSettingsStorageTest extends AndroidUnitTest {
 
-    private final SharedPreferences preferences = sharedPreferences("test", Context.MODE_PRIVATE);
+    private final SharedPreferences preferences = sharedPreferences();
 
     private OfflineSettingsStorage storage;
     private TestObserver<Boolean> testObserver = new TestObserver<>();

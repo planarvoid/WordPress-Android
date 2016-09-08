@@ -6,7 +6,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 public class PlaylistsOptionsStorageTest extends AndroidUnitTest {
@@ -17,7 +16,7 @@ public class PlaylistsOptionsStorageTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        preferences = sharedPreferences("test", Context.MODE_PRIVATE);
+        preferences = sharedPreferences();
         storage = new CollectionOptionsStorage(preferences);
     }
 

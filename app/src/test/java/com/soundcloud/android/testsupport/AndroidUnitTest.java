@@ -61,7 +61,7 @@ public abstract class AndroidUnitTest {
         return context().getResources();
     }
 
-    protected static SharedPreferences sharedPreferences(String name, int mode) {
-        return new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), name, mode);
+    protected static SharedPreferences sharedPreferences() {
+        return new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "Test", Context.MODE_PRIVATE);
     }
 }

@@ -17,7 +17,6 @@ import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.List;
@@ -30,10 +29,7 @@ public class PlaylistTagStorageTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         dateProvider = new TestDateProvider();
-        tagStorage = new PlaylistTagStorage(
-                sharedPreferences("test", Context.MODE_PRIVATE),
-                dateProvider,
-                Schedulers.immediate());
+        tagStorage = new PlaylistTagStorage(sharedPreferences(), dateProvider, Schedulers.immediate());
     }
 
     @Test

@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.HashSet;
@@ -35,7 +34,7 @@ public class ObfuscatedPreferencesTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         configureMockObfuscation();
-        wrappedPreferences = sharedPreferences("test", Context.MODE_PRIVATE);
+        wrappedPreferences = sharedPreferences();
         preferences = new ObfuscatedPreferences(wrappedPreferences, obfuscator);
     }
 

@@ -13,15 +13,11 @@ import com.soundcloud.propeller.ChangeResult;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import org.robolectric.fakes.RoboSharedPreferences;
 import rx.observers.TestSubscriber;
 
-import android.content.Context;
+import android.content.SharedPreferences;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class StationsStorageDatabaseTest extends StorageIntegrationTest {
@@ -29,8 +25,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     private final TestDateProvider dateProvider = new TestDateProvider();
     private final Urn stationUrn = Urn.forTrackStation(123L);
     private final long BEFORE_24H = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(25L);
-    private RoboSharedPreferences sharedPreferences =
-            new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(), "TEST", Context.MODE_PRIVATE);
+    private SharedPreferences sharedPreferences = sharedPreferences();
 
 
     private StationsStorage storage;

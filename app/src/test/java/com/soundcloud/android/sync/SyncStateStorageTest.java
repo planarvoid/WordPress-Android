@@ -11,14 +11,11 @@ import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.propeller.query.Query;
 import org.junit.Before;
 import org.junit.Test;
-import org.robolectric.fakes.RoboSharedPreferences;
 import rx.observers.TestSubscriber;
 
-import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class SyncStateStorageTest extends StorageIntegrationTest {
@@ -29,14 +26,12 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
     private TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
     private TestSubscriber<Long> timeSubscriber = new TestSubscriber<>();
     private TestDateProvider dateProvider;
-    private RoboSharedPreferences roboSharedPreferences = new RoboSharedPreferences(new HashMap<String, Map<String, Object>>(),
-                                                                                    "TEST",
-                                                                                    Context.MODE_PRIVATE);
+    private SharedPreferences sharedPreferences = sharedPreferences();
 
     @Before
     public void setUp() throws Exception {
         dateProvider = new TestDateProvider();
-        storage = new SyncStateStorage(propeller(), roboSharedPreferences, dateProvider);
+        storage = new SyncStateStorage(propeller(), sharedPreferences, dateProvider);
     }
 
     @Test
@@ -235,7 +230,7 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
 
     @Test
     public void getSyncMissesReturnsSetValue() {
-        roboSharedPreferences.edit().putInt(Syncable.CHARTS.name() + "_misses", 5).apply();
+        sharedPreferences.edit().putInt(Syncable.CHARTS.name() + "_misses", 5).apply();
 
         assertThat(storage.getSyncMisses(Syncable.CHARTS)).isEqualTo(5);
     }
@@ -244,13 +239,13 @@ public class SyncStateStorageTest extends StorageIntegrationTest {
     public void resetSyncMissesStoresValue() {
         storage.resetSyncMisses(Syncable.CHARTS);
 
-        assertThat(roboSharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 4)).isEqualTo(0);
+        assertThat(sharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 4)).isEqualTo(0);
     }
 
     @Test
     public void incrementSyncMissesStoresValue() {
         storage.incrementSyncMisses(Syncable.CHARTS);
 
-        assertThat(roboSharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 0)).isEqualTo(1);
+        assertThat(sharedPreferences.getInt(Syncable.CHARTS.name() + "_misses", 0)).isEqualTo(1);
     }
 }

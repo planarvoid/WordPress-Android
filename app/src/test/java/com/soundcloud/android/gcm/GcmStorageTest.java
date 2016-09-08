@@ -9,24 +9,19 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.robolectric.fakes.RoboSharedPreferences;
 
-import android.content.Context;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.content.SharedPreferences;
 
 public class GcmStorageTest extends AndroidUnitTest{
 
     private GcmStorage gcmStorage;
 
     @Mock private FeatureFlags featureFlags;
-    private RoboSharedPreferences prefs;
+    private SharedPreferences prefs;
 
     @Before
     public void setUp() throws Exception {
-        final HashMap<String, Map<String, Object>> prefsContent = new HashMap<>();
-        prefs = new RoboSharedPreferences(prefsContent, "prefs", Context.MODE_PRIVATE);
+        prefs = sharedPreferences();
         gcmStorage = new GcmStorage(prefs, featureFlags);
     }
 

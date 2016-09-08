@@ -3,13 +3,10 @@ package com.soundcloud.android.sync.timeline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
-
-import android.content.Context;
 
 public class TimelineSyncStorageTest extends AndroidUnitTest {
 
@@ -17,7 +14,7 @@ public class TimelineSyncStorageTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new TimelineSyncStorage(sharedPreferences(StorageModule.STREAM_SYNC, Context.MODE_PRIVATE));
+        storage = new TimelineSyncStorage(sharedPreferences());
     }
 
     @Test
