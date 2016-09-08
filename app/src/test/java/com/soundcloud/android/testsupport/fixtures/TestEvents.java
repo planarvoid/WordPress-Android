@@ -22,7 +22,7 @@ public class TestEvents {
         return PlaybackSessionEvent.forPlay(
                 PlaybackSessionEventArgs.create(
                         TestPropertySets.expectedTrackForAnalytics(trackUrn, Urn.forUser(2L)),
-                        new TrackSourceInfo("screen", false), playbackProgress, "hls", "playa", false, false, "uuid"));
+                        new TrackSourceInfo("screen", false), playbackProgress, "hls", "playa", false, false, "uuid", "play-id"));
     }
 
     public static PlaybackSessionEvent playbackSessionTrackFinishedEvent() {
@@ -33,7 +33,7 @@ public class TestEvents {
         PlaybackSessionEvent previousPlayEvent = playbackSessionPlayEvent();
         final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(
                 TestPropertySets.expectedTrackForAnalytics(trackUrn, Urn.forUser(2L)),
-                new TrackSourceInfo("screen", false), (long) 0, "hls", "playa", false, false, "uuid");
+                new TrackSourceInfo("screen", false), 0L, "hls", "playa", false, false, "uuid", "play-id");
 
         return PlaybackSessionEvent.forStop(previousPlayEvent, stopReason, args);
     }

@@ -7,6 +7,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDI
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY_START;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -165,7 +166,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .monetizationType(eventData.get(PlayableTrackingKeys.KEY_MONETIZATION_TYPE))
                 .pageName(eventData.trackSourceInfo.getOriginScreen())
                 .playheadPosition(eventData.getEventArgs().getProgress())
-                .uuid(eventData.getEventArgs().getUuid())
+                .clientEventId(eventData.getEventArgs().getUuid())
                 .trigger(getTrigger(eventData.trackSourceInfo))
                 .protocol(eventData.getEventArgs().getProtocol())
                 .playerType(eventData.getEventArgs().getPlayerType())
@@ -457,7 +458,7 @@ public class EventLoggerV1JsonDataBuilder {
         final String pageUrn = event.get(PlayableTrackingKeys.KEY_PAGE_URN);
 
         final EventLoggerEventData eventData = buildBaseEvent(INTERACTION_EVENT, event)
-                .uuid(event.getId())
+                .clientEventId(event.getId())
                 .item(event.get(PlayableTrackingKeys.KEY_CLICK_OBJECT_URN))
                 .pageviewId(event.get(ReferringEvent.REFERRING_EVENT_ID_KEY))
                 .pageName(event.get(PlayableTrackingKeys.KEY_ORIGIN_SCREEN))
@@ -491,7 +492,7 @@ public class EventLoggerV1JsonDataBuilder {
                 .trackLength(event.getDuration())
                 .track(urn)
                 .trackOwner(event.getCreatorUrn())
-                .uuid(event.getUUID())
+                .clientEventId(event.getClientEventId())
                 .localStoragePlayback(event.isOfflineTrack())
                 .consumerSubsPlan(featureOperations.getCurrentPlan())
                 .trigger(getTrigger(event.getTrackSourceInfo()))
@@ -506,11 +507,16 @@ public class EventLoggerV1JsonDataBuilder {
 
         if (event.isPlayEvent()) {
             data.action(AUDIO_ACTION_PLAY);
+            data.playId(event.getPlayId());
+        } else if (event.isPlayStartEvent()) {
+            data.action(AUDIO_ACTION_PLAY_START);
         } else if (event.isStopEvent()) {
             data.action(AUDIO_ACTION_PAUSE);
             data.reason(getStopReason(event.getStopReason()));
+            data.playId(event.getPlayId());
         } else if (event.isCheckpointEvent()) {
             data.action(AUDIO_ACTION_CHECKPOINT);
+            data.playId(event.getPlayId());
         } else {
             throw new IllegalArgumentException("Unexpected audio event:" + event.getKind());
         }

@@ -17,6 +17,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.rx.eventbus.EventBus;
 import dagger.Lazy;
@@ -57,6 +58,7 @@ public class AccountOperations {
     private final EventBus eventBus;
     private final Scheduler scheduler;
 
+    private final PlaySessionStateStorage playSessionStateStorage;
     private final Lazy<ConfigurationOperations> configurationOperations;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
     private final Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand;
@@ -86,6 +88,7 @@ public class AccountOperations {
                       AccountManager accountManager,
                       SoundCloudTokenOperations tokenOperations,
                       EventBus eventBus,
+                      PlaySessionStateStorage playSessionStateStorage,
                       Lazy<ConfigurationOperations> configurationOperations,
                       Lazy<AccountCleanupAction> accountCleanupAction,
                       Lazy<ClearTrackDownloadsCommand> clearTrackDownloadsCommand,
@@ -95,6 +98,7 @@ public class AccountOperations {
         this.accountManager = accountManager;
         this.tokenOperations = tokenOperations;
         this.eventBus = eventBus;
+        this.playSessionStateStorage = playSessionStateStorage;
         this.configurationOperations = configurationOperations;
         this.accountCleanupAction = accountCleanupAction;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
@@ -229,6 +233,7 @@ public class AccountOperations {
                 eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forLogout());
                 resetPlaybackService();
                 subscriber.onCompleted();
+                playSessionStateStorage.clear();
             }
         }).subscribeOn(scheduler);
     }

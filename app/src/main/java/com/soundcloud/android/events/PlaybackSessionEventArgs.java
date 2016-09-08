@@ -18,9 +18,11 @@ public abstract class PlaybackSessionEventArgs {
                                                   String playerType,
                                                   boolean isOfflineTrack,
                                                   boolean marketablePlay,
-                                                  String uuid) {
+                                                  String clientId,
+                                                  String playId) {
         return new AutoValue_PlaybackSessionEventArgs(trackData, trackSourceInfo, progress,
-                                                      protocol, playerType, isOfflineTrack, marketablePlay, uuid);
+                                                      protocol, playerType, isOfflineTrack,
+                                                      marketablePlay, clientId, playId);
     }
 
     public static PlaybackSessionEventArgs createWithProgress(PropertySet trackData,
@@ -28,10 +30,11 @@ public abstract class PlaybackSessionEventArgs {
                                                               PlaybackProgress progress,
                                                               PlaybackStateTransition transition,
                                                               boolean marketablePlay,
-                                                              String uuid) {
+                                                              String clientId,
+                                                              String playId) {
         return PlaybackSessionEventArgs.create(trackData, trackSourceInfo, progress.getPosition(),
                                                getProtocol(transition), getPlayerType(transition),
-                                               isLocalStoragePlayback(transition), marketablePlay, uuid);
+                                               isLocalStoragePlayback(transition), marketablePlay, clientId, playId);
     }
 
     public abstract PropertySet getTrackData();
@@ -48,7 +51,9 @@ public abstract class PlaybackSessionEventArgs {
 
     public abstract boolean isMarketablePlay();
 
-    public abstract String getUuid();
+    public abstract String getClientEventId();
+
+    public abstract String getPlayId();
 
     private static String getPlayerType(PlaybackStateTransition stateTransition) {
         return stateTransition.getExtraAttribute(PlaybackStateTransition.EXTRA_PLAYER_TYPE);

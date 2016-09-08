@@ -39,13 +39,15 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     private static final TrackItem TRACK = TrackItem.from(TRACK_PROPERTY_SET);
     private static final TrackSourceInfo TRACK_SOURCE_INFO = new TrackSourceInfo("origin", true);
     private static final String UUID = "uuid";
+    private static final String PLAY_ID = "play_id";
+
     private static final PlaybackSessionEvent MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
             PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https",
-                                            "player", false, true, UUID));
+                                            "player", false, true, UUID, PLAY_ID));
 
     private static final PlaybackSessionEvent NON_MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
             PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https",
-                                            "player", false, false, UUID));
+                                            "player", false, false, UUID, PLAY_ID));
 
     private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = new AppboyProperties()
             .addProperty("creator_display_name", TRACK.getCreatorName())
@@ -132,7 +134,8 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
                                                                               "player",
                                                                               false,
                                                                               false,
-                                                                              UUID);
+                                                                              UUID,
+                                                                              PLAY_ID);
         PlaybackSessionEvent event = PlaybackSessionEvent.forStop(NON_MARKETABLE_PLAY_EVENT,
                                                                   PlaybackSessionEvent.STOP_REASON_PAUSE,
                                                                   args);

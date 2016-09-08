@@ -18,6 +18,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.ClearTrackDownloadsCommand;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.playback.PlaySessionStateStorage;
 import com.soundcloud.android.playback.PlaybackService;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -63,6 +64,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     @Mock private AccountCleanupAction accountCleanupAction;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
     @Mock private LoginManager facebookLoginManager;
+    @Mock private PlaySessionStateStorage playSessionStateStorage;
 
     private ApiUser user;
 
@@ -70,6 +72,7 @@ public class AccountOperationsTest extends AndroidUnitTest {
     public void setUp() throws CreateModelException {
         accountOperations = new AccountOperations(context(), accountManager, tokenOperations,
                                                   eventBus,
+                                                  playSessionStateStorage,
                                                   InjectionSupport.lazyOf(configurationOperations),
                                                   InjectionSupport.lazyOf(accountCleanupAction),
                                                   InjectionSupport.lazyOf(clearTrackDownloadsCommand),
@@ -332,6 +335,16 @@ public class AccountOperationsTest extends AndroidUnitTest {
         accountOperations.purgeUserData().subscribe(observer);
 
         verify(tokenOperations).resetToken();
+    }
+
+    @Test
+    public void purgingUserDataShouldClearPlaySessionState() {
+        mockSoundCloudAccount();
+        mockValidToken();
+
+        accountOperations.purgeUserData().subscribe(observer);
+
+        verify(playSessionStateStorage).clear();
     }
 
     @Test

@@ -108,7 +108,7 @@ public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.build(screenEvent);
 
         verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", screenEvent.getTimestamp())
-                                                  .uuid(screenEvent.getId())
+                                                  .clientEventId(screenEvent.getId())
                                                   .referringEvent(referringEventId, ScreenEvent.KIND)
                                                   .pageName(Screen.ACTIVITIES.get())));
     }

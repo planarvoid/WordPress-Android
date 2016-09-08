@@ -3,6 +3,9 @@ package com.soundcloud.android.playback;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.UuidProvider;
+
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,34 +19,52 @@ import javax.inject.Singleton;
 public class PlaySessionStateProvider {
 
     private final PlaySessionStateStorage playSessionStateStorage;
+    private final UuidProvider uuidProvider;
 
     private PlaybackProgress lastProgress = PlaybackProgress.empty();
     private PlayStateEvent lastStateEvent = PlayStateEvent.DEFAULT;
     private Urn currentPlayingUrn = Urn.NOT_SET; // the urn of the item that is currently loaded in the playback service
 
     @Inject
-    public PlaySessionStateProvider(PlaySessionStateStorage playSessionStateStorage) {
+    public PlaySessionStateProvider(PlaySessionStateStorage playSessionStateStorage, UuidProvider uuidProvider) {
         this.playSessionStateStorage = playSessionStateStorage;
+        this.uuidProvider = uuidProvider;
     }
 
-    void onPlayStateTransition(PlayStateEvent playStateEvent) {
-        if (!PlayStateEvent.DEFAULT.equals(playStateEvent)) {
-            final boolean isItemChange = !playSessionStateStorage.getLastPlayingItem().equals(playStateEvent.getPlayingItemUrn());
-            currentPlayingUrn = playStateEvent.isTrackComplete() ? Urn.NOT_SET : playStateEvent.getPlayingItemUrn();
+    public PlayStateEvent onPlayStateTransition(PlaybackStateTransition stateTransition, long duration) {
+        if (!PlaybackStateTransition.DEFAULT.equals(stateTransition)) {
+
+            final boolean isNewTrack = !isLastPlayed(stateTransition.getUrn());
+            if (isNewTrack) {
+                playSessionStateStorage.savePlayInfo(stateTransition.getUrn());
+            }
+
+            PlayStateEvent playStateEvent = getPlayStateEvent(stateTransition, duration);
+            if (playStateEvent.isFirstPlay()) {
+                playSessionStateStorage.savePlayId(playStateEvent.getPlayId());
+            }
+
+            currentPlayingUrn = playStateEvent.isTrackComplete() ? Urn.NOT_SET : stateTransition.getUrn();
             lastStateEvent = playStateEvent;
             lastProgress = playStateEvent.getProgress();
 
-            if (playingNewItemFromBeginning(playStateEvent, isItemChange) || playStateEvent.getTransition().isPlayerIdle()) {
-                playSessionStateStorage.saveProgress(getPositionIfPlayingTrack());
+            if (isNewTrack || playStateEvent.getTransition().isPlayerIdle()) {
+                playSessionStateStorage.saveProgress(getPositionOfPlayingTrack());
             }
+            return playStateEvent;
 
-            if (isItemChange) {
-                playSessionStateStorage.savePlayInfo(playStateEvent.getPlayingItemUrn(), playStateEvent.getPlayId());
-            }
         }
+        return PlayStateEvent.DEFAULT;
     }
 
-    private long getPositionIfPlayingTrack() {
+    @NonNull
+    public PlayStateEvent getPlayStateEvent(PlaybackStateTransition stateTransition, long duration) {
+        final boolean isFirstPlay = stateTransition.isPlayerPlaying() && !playSessionStateStorage.hasPlayId();
+        final String playId = isFirstPlay ? uuidProvider.getRandomUuid() : playSessionStateStorage.getLastPlayId();
+        return PlayStateEvent.create(stateTransition, duration, isFirstPlay, playId);
+    }
+
+    private long getPositionOfPlayingTrack() {
         return currentPlayingUrn.isTrack() ? getLastProgressForItem(currentPlayingUrn).getPosition() : 0;
     }
 
@@ -51,10 +72,6 @@ public class PlaySessionStateProvider {
         if (progress.getUrn().equals(currentPlayingUrn)) {
             lastProgress = progress.getPlaybackProgress();
         }
-    }
-
-    private boolean playingNewItemFromBeginning(PlayStateEvent playStateEvent, boolean isItemChange) {
-        return isItemChange && !isLastPlayed(playStateEvent.getPlayingItemUrn());
     }
 
     public PlaybackProgress getLastProgressForItem(Urn urn) {

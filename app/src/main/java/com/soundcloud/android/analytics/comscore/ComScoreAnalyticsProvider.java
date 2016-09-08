@@ -61,7 +61,7 @@ public class ComScoreAnalyticsProvider extends DefaultAnalyticsProvider {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                if (event.isPlayEvent()) {
+                if (event.isPlayOrPlayStartEvent()) {
                     comScore.onUxActive();
                 } else if (event.isStopEvent()) {
                     comScore.onUxInactive();

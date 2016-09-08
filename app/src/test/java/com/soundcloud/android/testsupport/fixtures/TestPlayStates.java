@@ -73,4 +73,9 @@ public class TestPlayStates {
     public static PlayStateEvent wrap(PlaybackStateTransition transition) {
         return PlayStateEvent.create(transition, API_DURATION, IS_FIRST_PLAY, PLAY_ID);
     }
+
+    @NonNull
+    public static PlayStateEvent wrap(PlaybackStateTransition transition, boolean isFirstPlay) {
+        return PlayStateEvent.create(transition, API_DURATION, isFirstPlay, PLAY_ID);
+    }
 }

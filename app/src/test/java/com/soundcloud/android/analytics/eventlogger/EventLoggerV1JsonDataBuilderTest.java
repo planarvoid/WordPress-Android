@@ -73,7 +73,8 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
 
     private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
     private static final String UDID = "udid";
-    private static final String UUID = "uuid";
+    private static final String CLIENT_EVENT_ID = "client-event-id";
+    private static final String PLAY_ID = "play-id";
     private static final int APP_VERSION_CODE = 386;
     private static final int CLIENT_ID = 3152;
     private static final String BOOGALOO_VERSION = "v1.21.2";
@@ -144,6 +145,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
                                                .action("play")
+                                               .playId(PLAY_ID)
                                                .playheadPosition(12L)
                                                .source("source")
                                                .sourceVersion("source-version")
@@ -153,7 +155,41 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .queryPosition(QUERY_POSITION)
                                                .protocol("hls")
                                                .playerType("PLAYA")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
+                                               .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
+    }
+    @Test
+    public void createsAudioEventJsonForAudioPlaybackStartEvent() throws ApiMapperException {
+        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forPlayStart(
+                createArgs(track, trackSourceInfo, 12L, true));
+
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
+        trackSourceInfo.setReposter(Urn.forUser(456L));
+
+        jsonDataBuilder.buildForAudioEvent(event);
+
+        verify(jsonTransformer).toJson(getEventData("audio", BOOGALOO_VERSION, event.getTimestamp())
+                                               .pageName(event.getTrackSourceInfo().getOriginScreen())
+                                               .trackLength(track.get(TrackProperty.FULL_DURATION))
+                                               .track(track.get(TrackProperty.URN))
+                                               .trackOwner(track.get(TrackProperty.CREATOR_URN))
+                                               .reposter(Urn.forUser(456L))
+                                               .localStoragePlayback(true)
+                                               .consumerSubsPlan(CONSUMER_SUBS_PLAN)
+                                               .trigger("manual")
+                                               .action("play_start")
+                                               .playheadPosition(12L)
+                                               .source("source")
+                                               .sourceVersion("source-version")
+                                               .queryUrn(QUERY_URN.toString())
+                                               .queryPosition(QUERY_POSITION)
+                                               .inPlaylist(PLAYLIST_URN)
+                                               .playlistPosition(2)
+                                               .protocol("hls")
+                                               .playerType("PLAYA")
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
 
@@ -180,6 +216,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
                                                .action("play")
+                                               .playId(PLAY_ID)
                                                .playheadPosition(12L)
                                                .source("source")
                                                .sourceUrn(QUERY_URN.toString())
@@ -188,7 +225,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("PLAYA")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
 
@@ -216,6 +253,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
                                                .action("play")
+                                               .playId(PLAY_ID)
                                                .playheadPosition(12L)
                                                .source("source")
                                                .sourceUrn(QUERY_URN.toString())
@@ -224,7 +262,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("PLAYA")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
 
@@ -252,6 +290,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
                                                .action("pause")
+                                               .playId(PLAY_ID)
                                                .playheadPosition(123L)
                                                .source("source")
                                                .sourceVersion("source-version")
@@ -261,7 +300,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
                                                .playerType("PLAYA")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                                                .reason("concurrent_streaming"));
     }
@@ -288,6 +327,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
                                                .action("checkpoint")
+                                               .playId(PLAY_ID)
                                                .playheadPosition(12L)
                                                .source("source")
                                                .queryUrn(QUERY_URN.toString())
@@ -297,7 +337,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .playlistPosition(2)
                                                .protocol("hls")
                                                .playerType("PLAYA")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL));
     }
 
@@ -326,6 +366,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
                                                .action("pause")
+                                               .playId(PLAY_ID)
                                                .playheadPosition(123L)
                                                .source("source")
                                                .sourceUrn(QUERY_URN.toString())
@@ -334,7 +375,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("PLAYA")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                                                .reason("playback_error"));
     }
@@ -365,6 +406,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
                                                .action("pause")
+                                               .playId(PLAY_ID)
                                                .playheadPosition(123L)
                                                .source("source")
                                                .sourceUrn(QUERY_URN.toString())
@@ -373,7 +415,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .sourceVersion("source-version")
                                                .protocol("hls")
                                                .playerType("PLAYA")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
                                                .reason("playback_error"));
     }
@@ -401,6 +443,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .consumerSubsPlan(CONSUMER_SUBS_PLAN)
                                                .trigger("manual")
                                                .action("play")
+                                               .playId(PLAY_ID)
                                                .playheadPosition(12L)
                                                .source("source")
                                                .sourceVersion("source-version")
@@ -408,7 +451,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .playlistPosition(2)
                                                .protocol("hls")
                                                .playerType("PLAYA")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
                                                .monetizationModel(TestPropertySets.MONETIZATION_MODEL)
@@ -695,7 +738,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
                                                                                        TestPlayerTransitions.playing(),
-                                                                                       UUID);
+                                                                                       CLIENT_EVENT_ID);
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forPlay(audioAd, eventArgs);
 
         trackSourceInfo.setSource("source", "source-version");
@@ -715,7 +758,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .playlistPosition(2)
                                                .protocol("hls")
                                                .playerType("player")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .queryUrn(QUERY_URN.toString())
                                                .queryPosition(QUERY_POSITION)
                                                .adUrn(audioAd.getAdUrn().toString())
@@ -728,11 +771,10 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         final AudioAd audioAd = AdFixtures.getAudioAd(Urn.forTrack(123L));
         final AdPlaybackSessionEventArgs eventArgs = AdPlaybackSessionEventArgs.create(trackSourceInfo,
                                                                                        TestPlayerTransitions.idle(),
-                                                                                       UUID);
+                                                                                       CLIENT_EVENT_ID);
         final AdPlaybackSessionEvent event = AdPlaybackSessionEvent.forStop(audioAd,
                                                                             eventArgs,
                                                                             PlaybackSessionEvent.STOP_REASON_BUFFERING);
-
         trackSourceInfo.setSource("source", "source-version");
         trackSourceInfo.setOriginPlaylist(PLAYLIST_URN, 2, Urn.forUser(321L));
 
@@ -753,7 +795,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                .playlistPosition(2)
                                                .protocol("hls")
                                                .playerType("player")
-                                               .uuid(UUID)
+                                               .clientEventId(CLIENT_EVENT_ID)
                                                .adUrn(audioAd.getAdUrn().toString())
                                                .monetizedObject(audioAd.getMonetizableTrackUrn().toString())
                                                .monetizationType("audio_ad"));
@@ -1019,7 +1061,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(navigationEvent);
 
         verify(jsonTransformer).toJson(getEventData("item_interaction", BOOGALOO_VERSION, navigationEvent.getTimestamp())
-                .uuid(navigationEvent.getId())
+                .clientEventId(navigationEvent.getId())
                 .item(TRACK_URN.toString())
                 .pageviewId(pageviewId)
                 .pageName(PAGE_NAME)
@@ -1060,7 +1102,7 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
         jsonDataBuilder.buildForUIEvent(navigationEvent);
 
         verify(jsonTransformer).toJson(getEventData("item_interaction", BOOGALOO_VERSION, navigationEvent.getTimestamp())
-                                               .uuid(navigationEvent.getId())
+                                               .clientEventId(navigationEvent.getId())
                                                .item(TRACK_URN.toString())
                                                .pageviewId(pageviewId)
                                                .pageName(PAGE_NAME)
@@ -1406,9 +1448,11 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     }
 
     @NonNull
-    private PlaybackSessionEventArgs createArgs(PropertySet track, TrackSourceInfo trackSourceInfo, long progress,
+    private PlaybackSessionEventArgs createArgs(PropertySet track,
+                                                TrackSourceInfo trackSourceInfo,
+                                                long progress,
                                                 boolean isOfflineTrack) {
         return PlaybackSessionEventArgs.create(track, trackSourceInfo, progress, PROTOCOL,
-                                               PLAYER_TYPE, isOfflineTrack, false, UUID);
+                                               PLAYER_TYPE, isOfflineTrack, false, CLIENT_EVENT_ID, PLAY_ID);
     }
 }

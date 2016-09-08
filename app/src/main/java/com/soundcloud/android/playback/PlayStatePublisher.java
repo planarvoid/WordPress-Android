@@ -2,7 +2,6 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -12,7 +11,7 @@ import javax.inject.Singleton;
 public class PlayStatePublisher {
 
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final UuidProvider uuidProvider;
+
     private final PlaybackAnalyticsController analyticsController;
     private final PlayQueueAdvancer playQueueAdvancer;
     private final AdsController adsController;
@@ -20,12 +19,10 @@ public class PlayStatePublisher {
 
     @Inject
     public PlayStatePublisher(PlaySessionStateProvider playSessionStateProvider,
-                              UuidProvider uuidProvider,
                               PlaybackAnalyticsController analyticsController,
                               PlayQueueAdvancer playQueueAdvancer, AdsController adsController,
                               EventBus eventBus) {
         this.playSessionStateProvider = playSessionStateProvider;
-        this.uuidProvider = uuidProvider;
         this.analyticsController = analyticsController;
         this.playQueueAdvancer = playQueueAdvancer;
         this.adsController = adsController;
@@ -36,11 +33,9 @@ public class PlayStatePublisher {
                         PlaybackItem currentPlaybackItem,
                         boolean publishAnalytics){
 
-        final boolean isFirstPlay = !playSessionStateProvider.isLastPlayed(stateTransition.getUrn());
-        final String playId = isFirstPlay ? uuidProvider.getRandomUuid() : playSessionStateProvider.getCurrentPlayId();
-        PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, currentPlaybackItem.getDuration(), isFirstPlay, playId);
+        PlayStateEvent playStateEvent = playSessionStateProvider.onPlayStateTransition(
+                stateTransition,currentPlaybackItem.getDuration());
 
-        playSessionStateProvider.onPlayStateTransition(playStateEvent);
         if (publishAnalytics) {
             analyticsController.onStateTransition(currentPlaybackItem, playStateEvent);
         }

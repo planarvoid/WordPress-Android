@@ -98,7 +98,7 @@ class AppboyEventHandler {
     public void handleEvent(PlaybackSessionEvent event) {
         boolean sessionPlayed = appboyPlaySessionState.isSessionPlayed();
 
-        if (!sessionPlayed && event.isPlayEvent() && event.isMarketablePlay()) {
+        if (!sessionPlayed && event.isPlayOrPlayStartEvent() && event.isMarketablePlay()) {
             appboyPlaySessionState.setSessionPlayed();
             tagEvent(AppboyEvents.PLAY, buildPlayableProperties(event));
             appboy.requestInAppMessageRefresh();

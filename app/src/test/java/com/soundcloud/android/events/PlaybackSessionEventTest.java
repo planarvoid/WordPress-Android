@@ -34,6 +34,7 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
     private static final PropertySet AUDIO_AD_TRACK_DATA = TestPropertySets.expectedTrackForPlayer();
     private static final String PLAYER_TYPE = "PLAYA";
     private static final String UUID = "uuid";
+    private static final String PLAY_ID = "play-id";
 
     private AudioAd audioAdData;
 
@@ -184,7 +185,8 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                                                                                                       PLAYER_TYPE,
                                                                                                       false,
                                                                                                       true,
-                                                                                                      UUID));
+                                                                                                      UUID,
+                                                                                                      PLAY_ID));
         assertThat(playEvent.isMarketablePlay()).isTrue();
     }
 
@@ -202,7 +204,8 @@ public class PlaybackSessionEventTest extends AndroidUnitTest {
                                                PLAYER_TYPE,
                                                false,
                                                false,
-                                               UUID);
+                                               UUID,
+                                               PLAY_ID);
     }
 
 }

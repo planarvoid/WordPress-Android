@@ -51,6 +51,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAY
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_VISIBLE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYHEAD_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAY_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.POLICY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROMOTED_BY;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
@@ -297,8 +298,8 @@ class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData uuid(String uuid) {
-        addToPayload(EventLoggerParam.UUID, uuid);
+    public EventLoggerEventData clientEventId(String clientEventId) {
+        addToPayload(EventLoggerParam.CLIENT_EVENT_ID, clientEventId);
         return this;
     }
 
@@ -403,6 +404,7 @@ class EventLoggerEventData {
         return this;
     }
 
+    @Deprecated
     public EventLoggerEventData errorCode(String errorCode) {
         addToPayload(ERROR_CODE, errorCode);
         return this;
@@ -425,6 +427,11 @@ class EventLoggerEventData {
 
     public EventLoggerEventData action(String action) {
         addToPayload(ACTION, action);
+        return this;
+    }
+
+    public EventLoggerEventData playId(String playId) {
+        addToPayload(PLAY_ID, playId);
         return this;
     }
 

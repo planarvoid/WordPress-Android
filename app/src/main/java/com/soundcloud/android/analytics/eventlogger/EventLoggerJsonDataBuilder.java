@@ -75,8 +75,7 @@ public class EventLoggerJsonDataBuilder {
                 if (referringEventId != null && referringEventKind != null) {
                     eventData.referringEvent(referringEventId, referringEventKind);
                 }
-
-                eventData.uuid(event.getId());
+                eventData.clientEventId(event.getId());
             }
 
             return jsonTransformer.toJson(eventData);
@@ -120,7 +119,7 @@ public class EventLoggerJsonDataBuilder {
         }
 
         if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
-            eventData.uuid(event.getId());
+            eventData.clientEventId(event.getId());
         }
 
         return eventData;
@@ -279,7 +278,7 @@ public class EventLoggerJsonDataBuilder {
                         .referrer(event.get(ForegroundEvent.KEY_REFERRER));
 
                 if (featureFlags.isEnabled(HOLISTIC_TRACKING)) {
-                    eventData.uuid(event.getId());
+                    eventData.clientEventId(event.getId());
                 }
 
                 return transform(eventData);

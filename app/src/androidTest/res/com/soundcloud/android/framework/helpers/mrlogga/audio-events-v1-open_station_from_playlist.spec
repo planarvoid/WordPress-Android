@@ -3,12 +3,13 @@ expected_events:
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
+    client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     source: stations
     client_id: 3152
     source_version: default
-    action: play
+    action: play_start
     player_type: (MediaPlayer|Skippy)
     consumer_subs_plan: none
     page_name: stations:main
@@ -24,12 +25,13 @@ expected_events:
     local_storage_playback: false
     policy: (ALLOW|SNIP)
     app_version: '[0-9]+'
-    client_event_id: (\w|-)+
     monetization_model: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
+    client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
+    play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     source: stations
@@ -52,18 +54,18 @@ expected_events:
     local_storage_playback: false
     policy: (ALLOW|SNIP)
     app_version: '[0-9]+'
-    client_event_id: (\w|-)+
     monetization_model: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
+    client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     source: stations
     client_id: 3152
     source_version: default
-    action: play
+    action: play_start
     player_type: (MediaPlayer|Skippy)
     consumer_subs_plan: none
     page_name: stations:main
@@ -80,12 +82,13 @@ expected_events:
     local_storage_playback: false
     policy: ALLOW
     app_version: '[0-9]+'
-    client_event_id: (\w|-)+
     monetization_model: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
+    client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
+    play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     source: stations
@@ -109,7 +112,6 @@ expected_events:
     local_storage_playback: false
     policy: ALLOW
     app_version: '[0-9]+'
-    client_event_id: (\w|-)+
     monetization_model: (\w|-)+
   version: '1'
 whitelisted_events: audio

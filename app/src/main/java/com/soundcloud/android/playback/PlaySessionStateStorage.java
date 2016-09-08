@@ -22,9 +22,15 @@ public class PlaySessionStateStorage {
         this.sharedPreferences = sharedPreferences;
     }
 
-    void savePlayInfo(Urn currentUrn, String playId) {
+    void savePlayInfo(Urn currentUrn) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Keys.ITEM.name(), currentUrn.toString());
+        editor.remove(Keys.PLAY_ID.name());
+        editor.apply();
+    }
+
+    void savePlayId(String playId) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(Keys.PLAY_ID.name(), playId);
         editor.apply();
     }
@@ -46,5 +52,17 @@ public class PlaySessionStateStorage {
 
     String getLastPlayId() {
         return sharedPreferences.getString(Keys.PLAY_ID.name(), Strings.EMPTY);
+    }
+
+    public boolean hasPlayId() {
+        return sharedPreferences.contains(Keys.PLAY_ID.name());
+    }
+
+    public void clear() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(Keys.PROGRESS.name());
+        editor.remove(Keys.ITEM.name());
+        editor.remove(Keys.PLAY_ID.name());
+        editor.apply();
     }
 }

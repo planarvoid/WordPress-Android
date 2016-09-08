@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.playback.PlaySessionStateStorage.Keys.ITEM;
+import static com.soundcloud.android.playback.PlaySessionStateStorage.Keys.PLAY_ID;
 import static com.soundcloud.android.playback.PlaySessionStateStorage.Keys.PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,9 +27,24 @@ public class PlaySessionStateStorageTest extends AndroidUnitTest {
 
     @Test
     public void savePlayInfoStoresCurrentInfoInPrefs() {
-        storage.savePlayInfo(TRACK, "play-id");
+        storage.savePlayInfo(TRACK);
 
         assertThat(prefs.getString(ITEM.name(), Strings.EMPTY)).isEqualTo(TRACK.toString());
+    }
+
+    @Test
+    public void savePlayIdStoresPlayIdInPrefs() {
+        storage.savePlayId("play-id");
+
+        assertThat(prefs.getString(PLAY_ID.name(), Strings.EMPTY)).isEqualTo("play-id");
+    }
+
+    @Test
+    public void savePlayInfoClearsPlayId() {
+        storage.savePlayId("play-id");
+        storage.savePlayInfo(TRACK);
+
+        assertThat(prefs.contains(PLAY_ID.name())).isFalse();
     }
 
     @Test

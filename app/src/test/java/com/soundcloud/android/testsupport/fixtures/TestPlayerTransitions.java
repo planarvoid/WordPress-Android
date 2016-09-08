@@ -61,8 +61,16 @@ public class TestPlayerTransitions {
                                                 dateProvider));
     }
 
+    public static PlaybackStateTransition complete() {
+        return complete(URN);
+    }
+
     public static PlaybackStateTransition complete(Urn urn) {
         return withExtras(new PlaybackStateTransition(PlaybackState.IDLE, PlayStateReason.PLAYBACK_COMPLETE, urn));
+    }
+
+    public static PlaybackStateTransition error(PlayStateReason REASON) {
+        return new PlaybackStateTransition(PlaybackState.IDLE, REASON, URN, 0, 0);
     }
 
     private static PlaybackStateTransition withExtras(PlaybackStateTransition transition) {

@@ -28,6 +28,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public static final String KEY_POLICY = "policy";
     public static final String PLAYER_TYPE = "player_type";
 
+    private static final String EVENT_KIND_PLAY_START = "play_start";
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
     private static final String EVENT_KIND_CHECKPOINT = "checkpoint";
@@ -41,7 +42,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private final long progress;
     private final boolean isOfflineTrack;
     private final boolean marketablePlay;
-    private final String uuid;
+    private final String clientEventId;
+    private final String playId;
     private final String monetizationModel;
 
     private int stopReason;
@@ -53,6 +55,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private List<String> adImpressionUrls = Collections.emptyList();
     private List<String> adFinishedUrls = Collections.emptyList();
     private List<String> promotedPlayUrls = Collections.emptyList();
+
+    public static PlaybackSessionEvent forPlayStart(PlaybackSessionEventArgs args) {
+        return new PlaybackSessionEvent(EVENT_KIND_PLAY_START, args);
+    }
 
     public static PlaybackSessionEvent forPlay(PlaybackSessionEventArgs args) {
         return new PlaybackSessionEvent(EVENT_KIND_PLAY, args);
@@ -78,7 +84,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
         super(eventKind);
         this.isOfflineTrack = args.isOfflineTrack();
         this.marketablePlay = args.isMarketablePlay();
-        this.uuid = args.getUuid();
+        this.clientEventId = args.getClientEventId();
+        this.playId = args.getPlayId();
         this.trackUrn = args.getTrackData().get(TrackProperty.URN);
         this.creatorUrn = args.getTrackData().get(TrackProperty.CREATOR_URN);
         this.monetizationModel = args.getTrackData().get(TrackProperty.MONETIZATION_MODEL);
@@ -117,8 +124,16 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return this;
     }
 
+    public boolean isPlayStartEvent() {
+        return EVENT_KIND_PLAY_START.equals(kind);
+    }
+
     public boolean isPlayEvent() {
         return EVENT_KIND_PLAY.equals(kind);
+    }
+
+    public boolean isPlayOrPlayStartEvent() {
+        return isPlayStartEvent() || isPlayEvent();
     }
 
     public boolean isCheckpointEvent() {
@@ -169,12 +184,16 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return creatorUrn;
     }
 
-    public String getUUID() {
-        return uuid;
+    public String getClientEventId() {
+        return clientEventId;
     }
 
     public String getMonetizationModel() {
         return monetizationModel;
+    }
+
+    public String getPlayId() {
+        return playId;
     }
 
     private void setListenTime(long listenTime) {

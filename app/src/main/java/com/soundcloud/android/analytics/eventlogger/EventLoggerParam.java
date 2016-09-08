@@ -21,6 +21,8 @@ class EventLoggerParam {
     static final String PLAYLIST_POSITION = "playlist_position";
     static final String PLAYHEAD_POSITION = "playhead_position";
     static final String POLICY = "policy";
+    static final String CLIENT_EVENT_ID = "client_event_id";
+    static final String PLAY_ID = "play_id";
 
     // subs
     static final String LOCAL_STORAGE_PLAYBACK = "local_storage_playback";
@@ -98,6 +100,7 @@ class EventLoggerParam {
     static final String REFERRER = "referrer";
 
     // audio action
+    static final String AUDIO_ACTION_PLAY_START = "play_start";
     static final String AUDIO_ACTION_PLAY = "play";
     static final String AUDIO_ACTION_PAUSE = "pause";
     static final String AUDIO_ACTION_CHECKPOINT = "checkpoint";

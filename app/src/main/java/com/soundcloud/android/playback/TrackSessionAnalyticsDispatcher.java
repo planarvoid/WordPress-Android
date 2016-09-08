@@ -8,6 +8,7 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlaybackSessionEventArgs;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -18,7 +19,6 @@ import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
@@ -31,6 +31,7 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     private final PlayQueueManager playQueueManager;
     private final AppboyPlaySessionState appboyPlaySessionState;
     private final StopReasonProvider stopReasonProvider;
+    private final UuidProvider uuidProvider;
 
     private Optional<PlaybackSessionEvent> lastPlaySessionEvent = Optional.absent();
     private Optional<TrackSourceInfo> currentTrackSourceInfo = Optional.absent();
@@ -41,12 +42,14 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                                            TrackRepository trackRepository,
                                            PlayQueueManager playQueueManager,
                                            AppboyPlaySessionState appboyPlaySessionState,
-                                           StopReasonProvider stopReasonProvider) {
+                                           StopReasonProvider stopReasonProvider,
+                                           UuidProvider uuidProvider) {
         this.eventBus = eventBus;
         this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
         this.appboyPlaySessionState = appboyPlaySessionState;
         this.stopReasonProvider = stopReasonProvider;
+        this.uuidProvider = uuidProvider;
     }
 
     @Override
@@ -103,15 +106,23 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     private boolean lastEventIsNotPlay() {
-        return !(lastPlaySessionEvent.isPresent() && lastPlaySessionEvent.get().isPlayEvent());
+        return !(lastPlaySessionEvent.isPresent() && lastPlaySessionEvent.get().isPlayOrPlayStartEvent());
     }
 
     private Func1<PropertySet, PlaybackSessionEvent> playStateToSessionPlayEvent(final PlayStateEvent playStateEvent) {
         return new Func1<PropertySet, PlaybackSessionEvent>() {
             @Override
             public PlaybackSessionEvent call(PropertySet track) {
-                PlaybackSessionEvent playSessionEvent = PlaybackSessionEvent.forPlay(buildEventArgs(track,
-                                                                                                    playStateEvent));
+                final String playId = playStateEvent.getPlayId();
+                PlaybackSessionEvent playSessionEvent = playStateEvent.isFirstPlay() ?
+                                                        PlaybackSessionEvent.forPlayStart(buildEventArgs(track,
+                                                                                                         playStateEvent,
+                                                                                                         playId,
+                                                                                                         playId)) :
+                                                        PlaybackSessionEvent.forPlay(buildEventArgs(track,
+                                                                                                    playStateEvent,
+                                                                                                    uuidProvider.getRandomUuid(),
+                                                                                                    playId));
 
                 final PlayQueueItem currentPlayQueueItem = playQueueManager.getCurrentPlayQueueItem();
                 PlaySessionSource playSource = playQueueManager.getCurrentPlaySessionSource();
@@ -142,7 +153,10 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
                         public PlaybackSessionEvent call(PropertySet track) {
                             return PlaybackSessionEvent.forStop(playEventForStop,
                                                                 stopReason,
-                                                                buildEventArgs(track, playStateEvent));
+                                                                buildEventArgs(track,
+                                                                               playStateEvent,
+                                                                               uuidProvider.getRandomUuid(),
+                                                                               playStateEvent.getPlayId()));
                         }
                     })
                     .subscribe(eventBus.queue(EventQueue.TRACKING));
@@ -157,7 +171,9 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
             public TrackingEvent call(PropertySet track) {
                 return PlaybackSessionEvent.forCheckpoint(buildEventArgs(track,
                                                                          progressEvent.getPlaybackProgress(),
-                                                                         playStateEvent));
+                                                                         playStateEvent,
+                                                                         uuidProvider.getRandomUuid(),
+                                                                         playStateEvent.getPlayId()));
             }
         };
     }
@@ -169,19 +185,22 @@ class TrackSessionAnalyticsDispatcher implements PlaybackAnalyticsDispatcher {
     }
 
     @NonNull
-    private PlaybackSessionEventArgs buildEventArgs(PropertySet track, PlayStateEvent playStateEvent) {
-        return buildEventArgs(track, playStateEvent.getProgress(), playStateEvent);
+    private PlaybackSessionEventArgs buildEventArgs(PropertySet track, PlayStateEvent playStateEvent, String clientId, String playId) {
+        return buildEventArgs(track, playStateEvent.getProgress(), playStateEvent, clientId, playId);
     }
 
     private PlaybackSessionEventArgs buildEventArgs(PropertySet track,
                                                     PlaybackProgress progress,
-                                                    PlayStateEvent playStateEvent) {
+                                                    PlayStateEvent playStateEvent,
+                                                    String clientId,
+                                                    String playId) {
         return PlaybackSessionEventArgs.createWithProgress(track,
                                                            currentTrackSourceInfo.get(),
                                                            progress,
                                                            playStateEvent.getTransition(),
                                                            appboyPlaySessionState.isMarketablePlay(),
-                                                           UUID.randomUUID().toString());
+                                                           clientId,
+                                                           playId);
     }
 
 }

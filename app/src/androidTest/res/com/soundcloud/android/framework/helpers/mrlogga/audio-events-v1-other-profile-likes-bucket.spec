@@ -4,9 +4,10 @@ expected_events:
   name: audio
   params:
     anonymous_id: (\w|-)+
+    client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     track_owner: soundcloud:users:[0-9]+
     client_id: 3152
-    action: play
+    action: play_start
     policy: ALLOW
     player_type: Skippy
     consumer_subs_plan: none
@@ -22,12 +23,13 @@ expected_events:
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    client_event_id: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   params:
     anonymous_id: (\w|-)+
+    client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
+    play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     track_owner: soundcloud:users:[0-9]+
     client_id: 3152
     action: pause
@@ -47,16 +49,16 @@ expected_events:
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    client_event_id: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   optional: true
   params:
+    client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     client_id: 3152
-    action: play
+    action: play_start
     policy: ALLOW
     player_type: Skippy
     consumer_subs_plan: none
@@ -72,12 +74,13 @@ expected_events:
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    client_event_id: (\w|-)+
   version: '1'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
   optional: true
   params:
+    client_event_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
+    play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:[0-9]+
     client_id: 3152
@@ -98,7 +101,6 @@ expected_events:
     connection_type: wifi
     trigger: manual
     local_storage_playback: false
-    client_event_id: (\w|-)+
   version: '1'
 whitelisted_events:
 - audio

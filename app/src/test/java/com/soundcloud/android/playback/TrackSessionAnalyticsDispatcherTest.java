@@ -17,6 +17,7 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
@@ -34,6 +35,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     private static final Urn CREATOR_URN = Urn.forUser(3L);
     private static final long PROGRESS = 1001L;
     private static final long DURATION = 2001L;
+    private static final String UUID = "blah-123";
 
     private PlaybackAnalyticsDispatcher dispatcher;
 
@@ -41,6 +43,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AppboyPlaySessionState appboyPlaySessionState;
     @Mock private StopReasonProvider stopReasonProvider;
+    @Mock private UuidProvider uuidProvider;
 
     private TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.STREAM.get(), true);
 
@@ -54,10 +57,22 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
         when(playQueueManager.isTrackFromCurrentPromotedItem(TRACK_URN)).thenReturn(false);
+        when(uuidProvider.getRandomUuid()).thenReturn(UUID);
 
         dispatcher = new TrackSessionAnalyticsDispatcher(
                 eventBus, trackRepository, playQueueManager, appboyPlaySessionState,
-                stopReasonProvider);
+                stopReasonProvider, uuidProvider);
+    }
+
+    @Test
+    public void stateChangeEventForFirstPlayWithValidTrackUrnInPlayingStatePublishesPlayEvent() {
+        PlaybackStateTransition playEvent = playTransition(true);
+
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        expectCommonAudioEventData(playEvent, playbackSessionEvent, "play-id");
+        assertThat(playbackSessionEvent.isStopEvent()).isFalse();
+        assertThat(playbackSessionEvent.isPlayEvent()).isFalse();
+        assertThat(playbackSessionEvent.isPlayStartEvent()).isTrue();
     }
 
     @Test
@@ -67,6 +82,8 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         assertThat(playbackSessionEvent.isStopEvent()).isFalse();
+        assertThat(playbackSessionEvent.isPlayEvent()).isTrue();
+        assertThat(playbackSessionEvent.isPlayStartEvent()).isFalse();
     }
 
     @Test
@@ -77,6 +94,8 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
         PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         assertThat(playbackSessionEvent.isStopEvent()).isTrue();
+        assertThat(playbackSessionEvent.isPlayEvent()).isFalse();
+        assertThat(playbackSessionEvent.isPlayStartEvent()).isFalse();
         assertThat(playbackSessionEvent.getStopReason()).isEqualTo(PlaybackSessionEvent.STOP_REASON_SKIP);
     }
 
@@ -106,12 +125,19 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
     private void expectCommonAudioEventData(PlaybackStateTransition stateTransition,
                                             PlaybackSessionEvent playbackSessionEvent) {
+        expectCommonAudioEventData(stateTransition, playbackSessionEvent, UUID);
+    }
+
+    private void expectCommonAudioEventData(PlaybackStateTransition stateTransition,
+                                            PlaybackSessionEvent playbackSessionEvent,
+                                            String uuid) {
         assertThat(playbackSessionEvent.getTrackUrn()).isEqualTo(TRACK_URN);
         assertThat(playbackSessionEvent.getCreatorUrn()).isEqualTo(CREATOR_URN);
         assertThat(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).isEqualTo(stateTransition.getExtraAttribute(
                 PlaybackStateTransition.EXTRA_PLAYBACK_PROTOCOL));
         assertThat(playbackSessionEvent.getTrackSourceInfo()).isSameAs(trackSourceInfo);
-        assertThat(playbackSessionEvent.getUUID()).isNotEmpty();
+        assertThat(playbackSessionEvent.getClientEventId()).isEqualTo(uuid);
+        assertThat(playbackSessionEvent.getPlayId()).isEqualTo("play-id");
         assertThat(playbackSessionEvent.getProgress()).isEqualTo(PROGRESS);
         assertThat(playbackSessionEvent.getTimestamp()).isGreaterThan(0L);
     }
@@ -183,7 +209,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
     // the player does not send stop events when skipping, so we have to materialize these
     @Test
     public void shouldPublishStopEventWhenUserSkipsBetweenTracksManually() {
-        playTransitionForTrack(TRACK_URN);
+        playTransitionForTrack(TRACK_URN, false);
         skipTransition();
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
@@ -203,7 +229,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
-        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayEvent()).isTrue();
+        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayOrPlayStartEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).isCheckpointEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).getProgress()).isEqualTo(3000L);
     }
@@ -219,7 +245,7 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
 
         List<TrackingEvent> events = eventBus.eventsOn(EventQueue.TRACKING);
         assertThat(events).hasSize(2);
-        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayEvent()).isTrue();
+        assertThat(((PlaybackSessionEvent) events.get(0)).isPlayOrPlayStartEvent()).isTrue();
         assertThat(((PlaybackSessionEvent) events.get(1)).isStopEvent()).isTrue();
     }
 
@@ -231,17 +257,21 @@ public class TrackSessionAnalyticsDispatcherTest extends AndroidUnitTest {
                                         PlaybackProgressEvent.create(new PlaybackProgress(3000L, 30000L),
                                                                      Urn.forTrack(101L)));
 
-        assertThat(((PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING)).isPlayEvent()).isTrue();
+        assertThat(((PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING)).isPlayOrPlayStartEvent()).isTrue();
     }
 
     protected PlaybackStateTransition playTransition() {
-        return playTransitionForTrack(TRACK_URN);
+        return playTransitionForTrack(TRACK_URN, false);
     }
 
-    protected PlaybackStateTransition playTransitionForTrack(Urn trackUrn) {
+    protected PlaybackStateTransition playTransition(boolean firstPlay) {
+        return playTransitionForTrack(TRACK_URN, firstPlay);
+    }
+
+    protected PlaybackStateTransition playTransitionForTrack(Urn trackUrn, boolean firstPlay) {
         final PlaybackStateTransition startEvent = new PlaybackStateTransition(
                 PlaybackState.PLAYING, PlayStateReason.NONE, trackUrn, PROGRESS, DURATION);
-        dispatcher.onPlayTransition(wrap(addStateExtras(startEvent)), true);
+        dispatcher.onPlayTransition(wrap(addStateExtras(startEvent), firstPlay), true);
 
         return startEvent;
     }

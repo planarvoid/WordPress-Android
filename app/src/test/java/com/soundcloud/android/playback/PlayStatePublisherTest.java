@@ -2,7 +2,6 @@ package com.soundcloud.android.playback;
 
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.ads.AdsController;
@@ -10,7 +9,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
-import com.soundcloud.android.utils.TestDateProvider;
 import com.soundcloud.android.utils.UuidProvider;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.junit.Before;
@@ -29,6 +27,7 @@ public class PlayStatePublisherTest {
     private static final boolean IS_FIRST_PLAY = true;
     private static final String PLAY_ID = "play-id";
     private static final Urn URN = TestPlayStates.URN;
+    private static final int DURATION = 456;
 
     private PlayStatePublisher publisher;
     @Mock private PlaySessionStateProvider sessionStateProvider;
@@ -40,7 +39,7 @@ public class PlayStatePublisherTest {
 
     @Before
     public void setUp() throws Exception {
-        publisher = new PlayStatePublisher(sessionStateProvider, uuidProvider, analyticsController,
+        publisher = new PlayStatePublisher(sessionStateProvider, analyticsController,
                                            playQueueAdvancer,
                                            adsController, eventBus);
         when(uuidProvider.getRandomUuid()).thenReturn(PLAY_ID);
@@ -54,10 +53,11 @@ public class PlayStatePublisherTest {
 
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
         final AudioPlaybackItem playbackItem = getPlaybackItem();
+        final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), true, PLAY_ID);
+        when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
 
         publisher.publish(stateTransition, playbackItem, true);
 
-        final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), true, PLAY_ID);
         final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, playQueueAdvancer, eventBus);
         inOrder.verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
         inOrder.verify(adsController).onPlayStateChanged(playStateEvent);
@@ -73,6 +73,7 @@ public class PlayStatePublisherTest {
         final AudioPlaybackItem playbackItem = getPlaybackItem();
 
         final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), false, PLAY_ID);
+        when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
         when(playQueueAdvancer.onPlayStateChanged(playStateEvent)).thenReturn(PlayQueueAdvancer.Result.QUEUE_COMPLETE);
 
         publisher.publish(stateTransition, playbackItem, true);
@@ -85,30 +86,18 @@ public class PlayStatePublisherTest {
     }
 
     @Test
-    public void publishesPlayStateWithCorrectedDuration() {
-        final TestDateProvider dateProvider = new TestDateProvider();
-        final PlaybackStateTransition stateTransition = TestPlayerTransitions.playing(123, 0, dateProvider);
-        final AudioPlaybackItem playbackItem = getPlaybackItem();
-        final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, 456, IS_FIRST_PLAY, PLAY_ID);
-
-        publisher.publish(stateTransition, playbackItem, true);
-
-        verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
-        verify(adsController).onPlayStateChanged(playStateEvent);
-        verify(eventBus).publish(EventQueue.PLAYBACK_STATE_CHANGED, playStateEvent);
-    }
-
-    @Test
     public void publishesPlayStateWithLastPlayIdIfNotFirstPlayEvent() {
         when(sessionStateProvider.isLastPlayed(URN)).thenReturn(true);
         when(sessionStateProvider.getCurrentPlayId()).thenReturn("current-play-id");
 
         final PlaybackStateTransition stateTransition = TestPlayerTransitions.buffering();
         final AudioPlaybackItem playbackItem = getPlaybackItem();
+        final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), false, "current-play-id");
+        when(sessionStateProvider.onPlayStateTransition(stateTransition, DURATION)).thenReturn(playStateEvent);
 
         publisher.publish(stateTransition, playbackItem, true);
 
-        final PlayStateEvent playStateEvent = PlayStateEvent.create(stateTransition, playbackItem.getDuration(), false, "current-play-id");
+
         final InOrder inOrder = Mockito.inOrder(analyticsController, adsController, eventBus);
         inOrder.verify(analyticsController).onStateTransition(playbackItem, playStateEvent);
         inOrder.verify(adsController).onPlayStateChanged(playStateEvent);
@@ -117,6 +106,6 @@ public class PlayStatePublisherTest {
 
     @NonNull
     private AudioPlaybackItem getPlaybackItem() {
-        return AudioPlaybackItem.create(TestPlayStates.URN, 0, 456, PlaybackType.AUDIO_DEFAULT);
+        return AudioPlaybackItem.create(TestPlayStates.URN, 0, DURATION, PlaybackType.AUDIO_DEFAULT);
     }
 }
