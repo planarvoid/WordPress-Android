@@ -7,14 +7,13 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 public class UninterruptedPlaytimeStorageTest extends AndroidUnitTest {
 
     public static final long PLAYTIME1 = 123L;
     public static final long PLAYTIME2 = 456L;
-    private final SharedPreferences preferences = sharedPreferences("test", Context.MODE_PRIVATE);
+    private final SharedPreferences preferences = sharedPreferences();
 
     private UninterruptedPlaytimeStorage storage;
 

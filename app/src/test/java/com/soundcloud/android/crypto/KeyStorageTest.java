@@ -8,14 +8,13 @@ import com.soundcloud.java.strings.Charsets;
 import org.junit.Before;
 import org.junit.Test;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 public class KeyStorageTest extends AndroidUnitTest {
     private KeyStorage keyStorage;
 
     private final DeviceSecret testKey = getTestKeyFromString("my key é", "a portuguese valuë, 123");
-    private final SharedPreferences preferences = sharedPreferences("test", Context.MODE_PRIVATE);
+    private final SharedPreferences preferences = sharedPreferences();
 
     @Before
     public void setUp() throws Exception {

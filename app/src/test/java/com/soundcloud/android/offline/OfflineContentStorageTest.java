@@ -7,8 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import android.content.Context;
-
 public class OfflineContentStorageTest extends AndroidUnitTest {
 
     private OfflineContentStorage storage;
@@ -16,9 +14,7 @@ public class OfflineContentStorageTest extends AndroidUnitTest {
 
     @Before
     public void setUp() {
-        storage = new OfflineContentStorage(null,
-                                            sharedPreferences("Test", Context.MODE_PRIVATE),
-                                            isOfflineLikedTracksEnabledCommand);
+        storage = new OfflineContentStorage(null, sharedPreferences(), isOfflineLikedTracksEnabledCommand);
     }
 
     @Test

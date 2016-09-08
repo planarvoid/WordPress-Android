@@ -3,16 +3,14 @@ package com.soundcloud.android.policies;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 public class PolicySettingsStorageTest extends AndroidUnitTest {
 
-    private final SharedPreferences preferences = sharedPreferences("test", Context.MODE_PRIVATE);
+    private final SharedPreferences preferences = sharedPreferences();
     private PolicySettingsStorage storage;
 
     @Before

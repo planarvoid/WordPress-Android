@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import rx.observers.TestObserver;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
@@ -27,8 +26,7 @@ public class FeatureStorageTest extends AndroidUnitTest {
     @Before
     public void setUp() throws Exception {
         features = TestFeatures.asList();
-        SharedPreferences prefs = new ObfuscatedPreferences(sharedPreferences("test", Context.MODE_PRIVATE),
-                                                            new Obfuscator());
+        SharedPreferences prefs = new ObfuscatedPreferences(sharedPreferences(), new Obfuscator());
         storage = new FeatureStorage(prefs);
     }
 

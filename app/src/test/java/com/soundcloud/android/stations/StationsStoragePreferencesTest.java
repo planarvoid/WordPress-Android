@@ -10,18 +10,13 @@ import com.soundcloud.propeller.PropellerDatabase;
 import org.junit.Before;
 import org.junit.Test;
 
-import android.content.Context;
-
 public class StationsStoragePreferencesTest extends AndroidUnitTest {
 
     private StationsStorage storage;
 
     @Before
     public void setUp() throws Exception {
-        storage = new StationsStorage(
-                sharedPreferences("station_prefs", Context.MODE_PRIVATE),
-                mock(PropellerDatabase.class),
-                new TestDateProvider());
+        storage = new StationsStorage(sharedPreferences(), mock(PropellerDatabase.class), new TestDateProvider());
     }
 
     @Test

@@ -6,15 +6,13 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import android.content.Context;
-
 public class TokenStorageTest extends AndroidUnitTest {
 
     private TokenStorage tokenStorage;
 
     @Before
     public void setUp() throws Exception {
-        tokenStorage = new TokenStorage(sharedPreferences("test", Context.MODE_PRIVATE));
+        tokenStorage = new TokenStorage(sharedPreferences());
     }
 
     @Test
