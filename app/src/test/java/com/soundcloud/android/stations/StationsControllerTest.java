@@ -1,14 +1,18 @@
 package com.soundcloud.android.stations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
@@ -17,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 public class StationsControllerTest extends AndroidUnitTest {
     private static final Urn TRACK_URN = TestPlayStates.URN;
@@ -24,9 +29,14 @@ public class StationsControllerTest extends AndroidUnitTest {
 
     @Mock StationsOperations operations;
     private TestEventBus eventBus = new TestEventBus();
+    private final PublishSubject<SyncJobResult> syncRecentStations = PublishSubject.create();
+    private final PublishSubject<SyncJobResult> syncLikedStations = PublishSubject.create();
 
     @Before
     public void setUp() {
+        when(operations.syncRecentStations()).thenReturn(syncRecentStations);
+        when(operations.syncLikedStations()).thenReturn(syncLikedStations);
+
         new StationsController(eventBus, operations, Schedulers.immediate()).subscribe();
     }
 
@@ -36,7 +46,8 @@ public class StationsControllerTest extends AndroidUnitTest {
                          CurrentPlayQueueItemEvent.fromPositionChanged(TestPlayQueueItem.createTrack(TRACK_URN),
                                                                        Urn.forPlaylist(123L),
                                                                        0));
-        verifyZeroInteractions(operations);
+        verify(operations, never()).saveLastPlayedTrackPosition(any(Urn.class), anyInt());
+        verify(operations, never()).saveRecentlyPlayedStation(any(Urn.class));
     }
 
     @Test
@@ -70,7 +81,8 @@ public class StationsControllerTest extends AndroidUnitTest {
                                                                        STATION,
                                                                        0));
 
-        verifyZeroInteractions(operations);
+        verify(operations, never()).saveLastPlayedTrackPosition(any(Urn.class), anyInt());
+        verify(operations, never()).saveRecentlyPlayedStation(any(Urn.class));
     }
 
     @Test
@@ -82,7 +94,8 @@ public class StationsControllerTest extends AndroidUnitTest {
                                                                        Urn.forPlaylist(456L),
                                                                        1));
 
-        verifyZeroInteractions(operations);
+        verify(operations, never()).saveLastPlayedTrackPosition(any(Urn.class), anyInt());
+        verify(operations, never()).saveRecentlyPlayedStation(any(Urn.class));
     }
 
     @Test
@@ -99,8 +112,12 @@ public class StationsControllerTest extends AndroidUnitTest {
 
     @Test
     public void shouldTriggerSyncUponLogin() {
+        assertThat(syncRecentStations.hasObservers()).isFalse();
+        assertThat(syncLikedStations.hasObservers()).isFalse();
+
         eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(Urn.forUser(123)));
 
-        verify(operations).sync();
+        assertThat(syncRecentStations.hasObservers()).isTrue();
+        assertThat(syncLikedStations.hasObservers()).isTrue();
     }
 }

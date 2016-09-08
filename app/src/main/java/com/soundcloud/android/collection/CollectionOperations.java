@@ -409,10 +409,6 @@ public class CollectionOperations {
         );
     }
 
-    private Observable<List<StationRecord>> refreshStationsAndLoad() {
-        return stationsOperations.sync().flatMap(continueWith(loadStations()));
-    }
-
     private Observable<List<LikedTrackPreview>> refreshLikesAndLoadPreviews() {
         return syncInitiator.refreshLikedTracks().flatMap(continueWith(likedTrackPreviews()));
     }
@@ -421,11 +417,22 @@ public class CollectionOperations {
         return loadLikedTrackPreviews.toObservable(null).subscribeOn(scheduler);
     }
 
+    private Observable<List<StationRecord>> refreshStationsAndLoad() {
+        return syncStations().flatMap(continueWith(loadStations()));
+    }
+
+    private Observable<SyncJobResult> syncStations() {
+        return stationsOperations.syncStations(stationCollectionType());
+    }
+
     private Observable<List<StationRecord>> loadStations() {
-        final int stationCollectionType = featureFlags.isEnabled(Flag.LIKED_STATIONS) ?
-                                          StationsCollectionsTypes.LIKED :
-                                          StationsCollectionsTypes.RECENT;
-        return stationsOperations.collection(stationCollectionType).toList();
+        return stationsOperations.collection(stationCollectionType()).toList();
+    }
+
+    private int stationCollectionType() {
+        return featureFlags.isEnabled(Flag.LIKED_STATIONS) ?
+               StationsCollectionsTypes.LIKED :
+               StationsCollectionsTypes.RECENT;
     }
 
     private Observable<List<PlaylistItem>> loadPlaylists(PlaylistsOptions options) {

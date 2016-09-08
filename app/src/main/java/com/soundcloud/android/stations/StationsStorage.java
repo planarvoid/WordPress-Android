@@ -32,17 +32,21 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
+import com.soundcloud.propeller.schema.Column;
 import rx.Observable;
 import rx.functions.Func1;
 import rx.functions.Func2;
 
 import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -64,6 +68,13 @@ class StationsStorage {
                     cursorReader.getString(Stations.PERMALINK),
                     mapLastPosition(cursorReader),
                     fromNullable(cursorReader.getString(Stations.ARTWORK_URL_TEMPLATE)));
+        }
+    };
+
+    private static final ResultMapper<Urn> TO_URN = new ResultMapper<Urn>() {
+        @Override
+        public Urn map(CursorReader reader) {
+            return new Urn(reader.getString(StationsCollections.STATION_URN));
         }
     };
 
@@ -288,6 +299,50 @@ class StationsStorage {
                             .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.RECENT)
                             .whereNotNull(StationsCollections.ADDED_AT))
                 .toList(TO_RECENT_STATION);
+    }
+
+    List<Urn> getLocalLikedStations() {
+        return getChangedLikedStation(StationsCollections.ADDED_AT);
+    }
+
+    List<Urn> getLocalUnlikedStations() {
+        return getChangedLikedStation(StationsCollections.REMOVED_AT);
+    }
+
+    private List<Urn> getChangedLikedStation(Column column) {
+        return propellerDatabase.query(Query.from(StationsCollections.TABLE)
+                                            .whereEq(StationsCollections.COLLECTION_TYPE,
+                                                     StationsCollectionsTypes.LIKED)
+                                            .whereNotNull(column))
+                                .toList(TO_URN);
+    }
+
+    void setLikedStations(final List<Urn> newLikedStations) {
+
+        propellerDatabase.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                final Where filterLikedStations = filter().whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED);
+                step(propellerDatabase.delete(StationsCollections.TABLE, filterLikedStations));
+                step(propellerDatabase.bulkUpsert(StationsCollections.TABLE, toContentValues(newLikedStations)));
+            }
+        });
+    }
+
+    @NonNull
+    private List<ContentValues> toContentValues(List<Urn> likedStations) {
+        final List<ContentValues> contentValuesList = new ArrayList<>(likedStations.size());
+        for (int i = 0; i < likedStations.size(); i++) {
+            final Urn station = likedStations.get(i);
+
+            final ContentValues contentValues = values()
+                    .put(StationsCollections.STATION_URN, station.toString())
+                    .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)
+                    .put(StationsCollections.POSITION, i)
+                    .get();
+            contentValuesList.add(contentValues);
+        }
+        return contentValuesList;
     }
 
     boolean isOnboardingStreamItemDisabled() {

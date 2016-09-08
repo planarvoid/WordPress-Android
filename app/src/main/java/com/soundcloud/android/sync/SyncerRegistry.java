@@ -7,6 +7,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedSyncProvid
 import com.soundcloud.android.discovery.ChartGenresSyncProvider;
 import com.soundcloud.android.discovery.ChartsSyncProvider;
 import com.soundcloud.android.discovery.RecommendedTracksSyncProvider;
+import com.soundcloud.android.stations.LikedStationsSyncProvider;
 import com.soundcloud.android.stations.RecentStationsSyncProvider;
 import com.soundcloud.android.stations.RecommendedStationsSyncProvider;
 import com.soundcloud.android.stream.SoundStreamSyncProvider;
@@ -19,6 +20,7 @@ import com.soundcloud.android.sync.posts.TrackPostsSyncProvider;
 import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -31,6 +33,7 @@ public class SyncerRegistry {
     public SyncerRegistry(SoundStreamSyncProvider soundStreamSyncProvider,
                           ActivitiesSyncProvider activitiesSyncProvider,
                           RecentStationsSyncProvider recentStationsSyncerProvider,
+                          LikedStationsSyncProvider likedStationsSyncProvider,
                           RecommendedStationsSyncProvider recommendedStationsSyncProvider,
                           RecommendedTracksSyncProvider recommendationsSyncProvider,
                           ChartsSyncProvider chartsSyncProvider,
@@ -48,6 +51,7 @@ public class SyncerRegistry {
         registerSyncer(soundStreamSyncProvider);
         registerSyncer(activitiesSyncProvider);
         registerSyncer(recentStationsSyncerProvider);
+        registerSyncer(likedStationsSyncProvider);
         registerSyncer(recommendedStationsSyncProvider);
         registerSyncer(recommendationsSyncProvider);
         registerSyncer(chartsSyncProvider);
@@ -88,7 +92,7 @@ public class SyncerRegistry {
 
         /**
          * Provides a {@link Callable} that will perform the syncing task.
-
+         *
          * @param action a specific action for this sync. If a syncer can perform multiple types of syncs,
          *               this action specify that type. See {@link com.soundcloud.android.sync.stream.SoundStreamSyncer}
          * @return The return value indicates that there were actual updates performed.

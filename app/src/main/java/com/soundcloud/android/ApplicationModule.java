@@ -84,7 +84,6 @@ public class ApplicationModule {
     public static final String MAIN_LOOPER = "MainLooper";
 
     public static final String CURRENT_DATE_PROVIDER = "CurrentDateProvider";
-    public static final String LIGHT_TRACK_ITEM_RENDERER = "LightTrackItemRenderer";
 
     private final SoundCloudApplication application;
 

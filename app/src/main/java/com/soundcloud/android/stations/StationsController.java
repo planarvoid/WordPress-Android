@@ -1,6 +1,8 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromStationsUpdated;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
@@ -10,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayStateEvent;
 import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
 import rx.Scheduler;
@@ -41,13 +42,6 @@ public class StationsController {
         @Override
         public Boolean call(CurrentUserChangedEvent currentUserChangedEvent) {
             return currentUserChangedEvent.getKind() == CurrentUserChangedEvent.USER_UPDATED;
-        }
-    };
-
-    private final Func1<CurrentUserChangedEvent, Observable<SyncJobResult>> syncStations = new Func1<CurrentUserChangedEvent, Observable<SyncJobResult>>() {
-        @Override
-        public Observable<SyncJobResult> call(CurrentUserChangedEvent currentUserChangedEvent) {
-            return operations.sync();
         }
     };
 
@@ -84,10 +78,9 @@ public class StationsController {
     }
 
     private void syncStationsUponLogin() {
-        eventBus.queue(EventQueue.CURRENT_USER_CHANGED)
+        fireAndForget(eventBus.queue(EventQueue.CURRENT_USER_CHANGED)
                 .filter(IS_LOGGED_IN)
-                .flatMap(syncStations)
-                .subscribe(new DefaultSubscriber<SyncJobResult>());
+                .flatMap(continueWith(Observable.concatEager(operations.syncRecentStations(), operations.syncLikedStations()))));
     }
 
     private void saveRecentStation() {

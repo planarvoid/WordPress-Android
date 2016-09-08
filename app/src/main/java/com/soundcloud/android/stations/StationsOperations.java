@@ -26,6 +26,7 @@ import javax.inject.Named;
 import java.util.List;
 
 public class StationsOperations {
+
     private final SyncStateStorage syncStateStorage;
     private final StationsStorage stationsStorage;
     private final StationsApi stationsApi;
@@ -146,7 +147,7 @@ public class StationsOperations {
 
     public Observable<StationRecord> collection(final int type) {
         final Observable<StationRecord> collection;
-        if (syncStateStorage.hasSyncedBefore(Syncable.RECENT_STATIONS)) {
+        if (syncStateStorage.hasSyncedBefore(typeToSyncable(type))) {
             collection = loadStationsCollection(type);
         } else {
             collection = syncAndLoadStationsCollection(type);
@@ -159,15 +160,37 @@ public class StationsOperations {
     }
 
     private Observable<StationRecord> syncAndLoadStationsCollection(int type) {
-        return sync().flatMap(continueWith(loadStationsCollection(type)));
+
+        return syncStations(type).flatMap(continueWith(loadStationsCollection(type)));
+    }
+
+    public Observable<SyncJobResult> syncStations(int type) {
+        return syncInitiator.sync(typeToSyncable(type));
+    }
+
+    public Observable<SyncJobResult> syncRecentStations() {
+        return syncInitiator.sync(Syncable.RECENT_STATIONS);
+    }
+
+    public Observable<SyncJobResult> syncLikedStations() {
+        return syncInitiator.sync(Syncable.LIKED_STATIONS);
     }
 
     ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
         return stationsStorage.saveLastPlayedTrackPosition(collectionUrn, position);
     }
 
-    public Observable<SyncJobResult> sync() {
-        return syncInitiator.sync(Syncable.RECENT_STATIONS);
+    private Syncable typeToSyncable(int type) {
+        switch (type) {
+            case StationsCollectionsTypes.LIKED:
+                return Syncable.LIKED_STATIONS;
+            case StationsCollectionsTypes.RECENT:
+                return Syncable.RECENT_STATIONS;
+            case StationsCollectionsTypes.RECOMMENDATIONS:
+                return Syncable.RECOMMENDED_STATIONS;
+            default:
+                throw new IllegalArgumentException("Unknown station's type: " + type);
+        }
     }
 
     ChangeResult saveRecentlyPlayedStation(Urn stationUrn) {

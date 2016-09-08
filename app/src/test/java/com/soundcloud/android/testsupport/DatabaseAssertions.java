@@ -368,6 +368,12 @@ public class DatabaseAssertions {
                 .counts(1);
     }
 
+    public void assertLikedStationHasSize(int number) {
+        assertThat(select(from(StationsCollections.TABLE)
+                .whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)))
+                .counts(number);
+    }
+
     public void assertLocalStationUnlike(Urn stationUrn) {
         assertThat(select(from(StationsCollections.TABLE)
                                   .whereEq(StationsCollections.STATION_URN, stationUrn.toString())

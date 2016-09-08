@@ -2,6 +2,7 @@ package com.soundcloud.android.collection;
 
 import static com.soundcloud.android.collection.CollectionOperations.PLAYLIST_LIMIT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -96,7 +97,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.RECENT)).thenReturn(Observable.just(StationFixtures.getStation(
                 Urn.forTrackStation(123L))));
-        when(stationsOperations.sync()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
+        when(stationsOperations.syncRecentStations()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
         postedPlaylist1 = getPostedPlaylist(Urn.forPlaylist(1L), new Date(1), "apple");
         postedPlaylist2 = getPostedPlaylist(Urn.forPlaylist(2L), new Date(3), "banana");
         likedPlaylist1 = getLikedPlaylist(Urn.forPlaylist(3L), new Date(2), "cherry");
@@ -363,6 +364,7 @@ public class CollectionOperationsTest extends AndroidUnitTest {
     @Test
     public void updatedCollectionsReturnsMyCollectionsAfterSync() throws Exception {
         final PublishSubject<Void> subject = PublishSubject.create();
+        when(stationsOperations.syncStations(anyInt())).thenReturn(Observable.<SyncJobResult>just(SyncJobResult.success("", true)));
         when(syncInitiator.refreshLikedTracks()).thenReturn(subject);
         when(syncInitiator.refreshMyPostedAndLikedPlaylists()).thenReturn(subject);
 

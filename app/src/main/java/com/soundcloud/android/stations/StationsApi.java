@@ -9,14 +9,19 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.experiments.StationsRecoAlgorithmExperiment;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
+
 import rx.Observable;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class StationsApi {
     private final ApiClientRx apiClientRx;
@@ -30,6 +35,20 @@ class StationsApi {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
         this.stationsExperiment = stationsExperiment;
+    }
+
+    public ModelCollection<Urn> updateLikedStations(LikedStationsPostBody likedStationsPostBody) throws ApiRequestException, IOException, ApiMapperException {
+        final ApiRequest.Builder builder = ApiRequest.put(ApiEndpoints.STATIONS_LIKED.path());
+        final Map<String, List<String>> body = new HashMap<>(2);
+        body.put("liked", Urns.toString(likedStationsPostBody.likedStations()));
+        body.put("unliked", Urns.toString(likedStationsPostBody.unlikedStations()));
+
+        final ApiRequest request = builder
+                .forPrivateApi()
+                .withContent(body)
+                .build();
+        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<Urn>>() {
+        });
     }
 
     ModelCollection<ApiStationMetadata> fetchStationRecommendations() throws ApiRequestException, IOException, ApiMapperException {

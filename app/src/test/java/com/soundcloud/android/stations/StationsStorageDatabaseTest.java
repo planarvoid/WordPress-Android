@@ -1,5 +1,6 @@
 package com.soundcloud.android.stations;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
@@ -128,7 +129,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         storage.station(apiStation.getUrn()).subscribe(subscriber);
 
         final StationRecord station = StationFixtures.getStation(apiStation);
-        subscriber.assertReceivedOnNext(Collections.singletonList(station));
+        subscriber.assertReceivedOnNext(singletonList(station));
     }
 
     @Test
@@ -252,6 +253,50 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         storage.updateStationLike(apiStation.getUrn(), true).subscribe(subscriber);
 
         databaseAssertions().assertLocalStationLike(apiStation.getUrn());
+    }
+
+    @Test
+    public void getLocalLikedStationsShouldReturnLocalChanges() {
+        final Urn localLikedStation = testFixtures().insertLocalLikedStation().getUrn();
+        testFixtures().insertLocalUnlikedStation();
+        testFixtures().insertLikedStation();
+
+        assertThat(storage.getLocalLikedStations()).containsExactly(localLikedStation);
+    }
+
+    @Test
+    public void getLocalLikedStationsShouldReturnEmptyWheNone() {
+        testFixtures().insertLocalUnlikedStation();
+        testFixtures().insertLikedStation();
+
+        assertThat(storage.getLocalLikedStations()).isEmpty();
+    }
+
+    @Test
+    public void getLocalUnlikedStationsShouldReturnLocalUnlikedStations() {
+        testFixtures().insertLocalLikedStation();
+        final Urn localUnlikedSation = testFixtures().insertLocalUnlikedStation().getUrn();
+        testFixtures().insertUnlikedStation();
+
+        assertThat(storage.getLocalUnlikedStations()).containsExactly(localUnlikedSation);
+    }
+
+    @Test
+    public void getLocalUnlikedStationsShouldReturnEmptyWhenNone() {
+        testFixtures().insertLocalLikedStation();
+        testFixtures().insertUnlikedStation();
+
+        assertThat(storage.getLocalUnlikedStations()).isEmpty();
+    }
+
+    @Test
+    public void setLikedStations() {
+        testFixtures().insertLikedStation();
+        testFixtures().insertLocalLikedStation();
+
+        storage.setLikedStations(singletonList(Urn.forTrackStation(7777777777l)));
+
+        databaseAssertions().assertLikedStationHasSize(1);
     }
 
     @Test

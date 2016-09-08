@@ -94,7 +94,7 @@ class RecentStationsPresenter extends RecyclerViewPresenter<List<StationViewMode
     @Override
     protected CollectionBinding<List<StationViewModel>, StationViewModel> onRefreshBinding() {
         return CollectionBinding
-                .from(operations.sync().flatMap(toStationViewModels))
+                .from(operations.syncRecentStations().flatMap(toStationViewModels))
                 .withAdapter(adapter)
                 .build();
     }

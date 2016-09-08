@@ -104,7 +104,7 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
     @Override
     protected CollectionBinding<List<StationViewModel>, StationViewModel> onRefreshBinding() {
         return CollectionBinding
-                .from(operations.sync().flatMap(continueWith(stationsSource())))
+                .from(operations.syncLikedStations().flatMap(RxUtils.continueWith(stationsSource())))
                 .withAdapter(adapter)
                 .build();
     }

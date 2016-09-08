@@ -417,25 +417,53 @@ public class DatabaseFixtures {
 
     public ApiStation insertLikedStation() {
         final ApiStation apiStation = insertStation();
-        insertInto(StationsCollections.TABLE, getStationLikeContentValues(apiStation.getUrn(), true));
+        insertInto(StationsCollections.TABLE, getStationLikeCollectionContentValues(apiStation.getUrn(), true));
+        return apiStation;
+    }
+
+    public ApiStation insertLocalLikedStation() {
+        return insertLocalLikedStation(System.currentTimeMillis());
+    }
+
+    public ApiStation insertLocalLikedStation(long date) {
+        final ApiStation apiStation = insertStation();
+        insertInto(StationsCollections.TABLE, getStationLikeCollectionContentValues(apiStation.getUrn(), true, date));
+        return apiStation;
+    }
+
+    public ApiStation insertLocalUnlikedStation() {
+        return insertLocalUnlikedStation(System.currentTimeMillis());
+    }
+
+    public ApiStation insertLocalUnlikedStation(long date) {
+        final ApiStation apiStation = insertStation();
+        insertInto(StationsCollections.TABLE, getStationLikeCollectionContentValues(apiStation.getUrn(), false, date));
         return apiStation;
     }
 
     public ApiStation insertUnlikedStation() {
         final ApiStation apiStation = insertStation();
-        insertInto(StationsCollections.TABLE, getStationLikeContentValues(apiStation.getUrn(), false));
+        insertInto(StationsCollections.TABLE, getStationLikeCollectionContentValues(apiStation.getUrn(), false));
         return apiStation;
     }
 
-    private ContentValues getStationLikeContentValues(Urn stationUrn, boolean isLiked) {
-        return ContentValuesBuilder
+    private ContentValues getStationLikeCollectionContentValues(Urn stationUrn, boolean isLiked) {
+        return getStationLikeCollectionContentValues(stationUrn, isLiked, -1);
+    }
+
+    private ContentValues getStationLikeCollectionContentValues(Urn stationUrn, boolean isLiked, long localChangeDate) {
+        final ContentValuesBuilder builder = ContentValuesBuilder
                 .values()
                 .put(StationsCollections.STATION_URN, stationUrn.toString())
-                .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED)
-                .put(isLiked ? StationsCollections.ADDED_AT : StationsCollections.REMOVED_AT,
-                     System.currentTimeMillis())
-                .put(isLiked ? StationsCollections.REMOVED_AT : StationsCollections.ADDED_AT, null)
-                .get();
+                .put(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED);
+
+        if (localChangeDate >= 0) {
+            builder
+                    .put(isLiked ? StationsCollections.ADDED_AT : StationsCollections.REMOVED_AT, localChangeDate)
+                    .put(isLiked ? StationsCollections.REMOVED_AT : StationsCollections.ADDED_AT, null);
+        }
+
+        return builder.get();
     }
 
     public Chart insertChart(ApiChart<ApiImageResource> apiChart, int bucketType) {
