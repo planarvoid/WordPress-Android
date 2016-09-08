@@ -14,7 +14,7 @@ expected_events:
     ts: '[0-9]+'
     track: soundcloud:tracks:[0-9]+
     player_type: Skippy
-    action: play
+    action: play_start
     client_id: '3152'
     anonymous_id: (\w|-)+
     page_name: stream:main
@@ -38,6 +38,7 @@ expected_events:
     in_playlist: soundcloud:playlists:[0-9]+
     playlist_position: 0
     pause_reason: pause
+    play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     anonymous_id: (\w|-)+
     connection_type: wifi
     track: soundcloud:tracks:[0-9]+

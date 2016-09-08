@@ -9,6 +9,7 @@ expected_events:
     protocol: hls|https
     ts: '[0-9]+'
     pause_reason: pause
+    play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: ALLOW
     anonymous_id: (\w|-)+
     connection_type: wifi

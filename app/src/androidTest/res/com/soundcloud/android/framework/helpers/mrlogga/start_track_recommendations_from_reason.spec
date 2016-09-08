@@ -9,7 +9,7 @@ expected_events:
     track_owner: soundcloud:users:[0-9]+
     source: personal-recommended
     client_id: 3152
-    action: play
+    action: play_start
     policy: ALLOW
     player_type: Skippy|MediaPlayer
     consumer_subs_plan: (high_tier|none)
@@ -37,6 +37,7 @@ expected_events:
     source: personal-recommended
     client_id: 3152
     action: pause
+    play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: ALLOW
     player_type: Skippy|MediaPlayer
     consumer_subs_plan: (high_tier|none)

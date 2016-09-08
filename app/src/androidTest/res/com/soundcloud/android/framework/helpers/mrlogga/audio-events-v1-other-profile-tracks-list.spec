@@ -51,7 +51,7 @@ expected_events:
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
     protocol: hls
-    pause_reason: pause
+    pause_reason: (buffer_underrun|pause)
     ts: '[0-9]+'
     app_version: '[0-9]+'
     track: soundcloud:tracks:[0-9]+

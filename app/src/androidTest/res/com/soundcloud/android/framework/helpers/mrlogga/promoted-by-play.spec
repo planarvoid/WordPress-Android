@@ -32,7 +32,7 @@ expected_events:
     ad_urn: dfp:ads:[0-9,-]+
     track: soundcloud:tracks:[0-9]+
     player_type: (Skippy|MediaPlayer)
-    action: play
+    action: play_start
     client_id: '3152'
     page_name: stream:main
     user: soundcloud:users:107904111

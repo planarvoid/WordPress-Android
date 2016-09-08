@@ -134,7 +134,7 @@ expected_events:
     query_urn: soundcloud:charts:(\w|-)+
     query_position: 0
     # more:
-    action: play
+    action: play_start
     trigger: manual
     playhead_position: '[0-9]+'
     track_length: '[0-9]+'
