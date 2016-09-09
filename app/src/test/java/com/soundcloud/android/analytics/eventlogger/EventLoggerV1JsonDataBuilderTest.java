@@ -47,8 +47,6 @@ import com.soundcloud.android.playback.PlaybackType;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.playlists.PromotedPlaylistItem;
 import com.soundcloud.android.presentation.PromotedListItem;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationsSourceInfo;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
@@ -97,7 +95,6 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
     @Mock private JsonTransformer jsonTransformer;
     @Mock private FeatureOperations featureOperations;
     @Mock private NetworkConnectionHelper connectionHelper;
-    @Mock private FeatureFlags featureFlags;
 
     private EventLoggerV1JsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = createTrackSourceInfo();
@@ -112,15 +109,13 @@ public class EventLoggerV1JsonDataBuilderTest extends AndroidUnitTest {
                                                            accountOperations,
                                                            jsonTransformer,
                                                            featureOperations,
-                                                           experimentOperations,
-                                                           featureFlags);
+                                                           experimentOperations);
 
         when(connectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.WIFI);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
         when(deviceHelper.getAppVersionCode()).thenReturn(APP_VERSION_CODE);
         when(featureOperations.getCurrentPlan()).thenReturn(CONSUMER_SUBS_PLAN);
-        when(featureFlags.isEnabled(Flag.HOLISTIC_TRACKING)).thenReturn(false);
     }
 
     @Test

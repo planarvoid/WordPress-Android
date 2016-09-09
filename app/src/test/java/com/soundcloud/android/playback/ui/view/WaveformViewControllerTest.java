@@ -58,7 +58,6 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
     @Mock private Bitmap bitmap;
     @Mock private WaveformOperations waveformOperations;
     @Mock private AdOverlayController adOverlayController;
-    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setUp() throws Exception {
@@ -77,8 +76,7 @@ public class WaveformViewControllerTest extends AndroidUnitTest {
         when(adOverlayController.isNotVisible()).thenReturn(true);
 
         waveformViewController = new WaveformViewController.Factory(scrubControllerFactory,
-                                                                    progressAnimationControllerFactory,
-                                                                    featureFlags).create(waveformView);
+                                                                    progressAnimationControllerFactory).create(waveformView);
     }
 
     @Test

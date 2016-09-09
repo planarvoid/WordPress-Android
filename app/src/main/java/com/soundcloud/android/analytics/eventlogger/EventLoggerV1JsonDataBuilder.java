@@ -4,10 +4,10 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTI
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_CHECKPOINT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PAUSE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY_START;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_CHECKPOINT;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_PLAY;
 import static com.soundcloud.android.events.AdPlaybackSessionEvent.EVENT_KIND_STOP;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AUDIO_ACTION_PLAY_START;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -38,7 +38,6 @@ import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.TrackSourceInfo;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.optional.Optional;
@@ -72,19 +71,17 @@ public class EventLoggerV1JsonDataBuilder {
     private final AccountOperations accountOperations;
     private final FeatureOperations featureOperations;
     private final ExperimentOperations experimentOperations;
-    private final FeatureFlags featureFlags;
     private final JsonTransformer jsonTransformer;
 
     @Inject
     public EventLoggerV1JsonDataBuilder(Resources resources, DeviceHelper deviceHelper,
                                         NetworkConnectionHelper connectionHelper, AccountOperations accountOperations,
                                         JsonTransformer jsonTransformer, FeatureOperations featureOperations,
-                                        ExperimentOperations experimentOperations, FeatureFlags featureFlags) {
+                                        ExperimentOperations experimentOperations) {
         this.connectionHelper = connectionHelper;
         this.accountOperations = accountOperations;
         this.featureOperations = featureOperations;
         this.experimentOperations = experimentOperations;
-        this.featureFlags = featureFlags;
         this.appId = resources.getInteger(R.integer.app_id);
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;

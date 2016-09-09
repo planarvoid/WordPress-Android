@@ -13,7 +13,6 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrollXHelper;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.waveform.WaveformData;
@@ -69,8 +68,7 @@ public class WaveformViewController
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
-                           final ScrubController.Factory scrubControllerFactory,
-                           FeatureFlags featureFlags) {
+                           final ScrubController.Factory scrubControllerFactory) {
         this.waveformView = waveform;
         this.waveformWidthRatio = waveform.getWidthRatio();
         this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
@@ -323,21 +321,18 @@ public class WaveformViewController
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;
         private final ScrubController.Factory scrubControllerFactory;
-        private final FeatureFlags featureFlags;
 
         @Inject
         Factory(ScrubController.Factory scrubControllerFactory,
-                ProgressController.Factory animationControllerFactory, FeatureFlags featureFlags) {
+                ProgressController.Factory animationControllerFactory) {
             this.scrubControllerFactory = scrubControllerFactory;
             this.animationControllerFactory = animationControllerFactory;
-            this.featureFlags = featureFlags;
         }
 
         public WaveformViewController create(WaveformView waveformView) {
             return new WaveformViewController(waveformView,
                                               animationControllerFactory,
-                                              scrubControllerFactory,
-                                              featureFlags);
+                                              scrubControllerFactory);
         }
     }
 
