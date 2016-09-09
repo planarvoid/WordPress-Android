@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.external;
 import com.soundcloud.android.PlaybackServiceInitiator;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.playback.PlaySessionController;
+import com.soundcloud.android.utils.Log;
 
 import javax.inject.Inject;
 
@@ -22,6 +23,7 @@ public class PlaybackActionController {
     }
 
     public void handleAction(String action, String source) {
+        Log.d(getClass().getSimpleName(), "Handling Playback action " + action + " from " + source);
         if (PlaybackAction.PLAY.equals(action)) {
             playSessionController.play();
         } else if (PlaybackAction.PAUSE.equals(action)) {

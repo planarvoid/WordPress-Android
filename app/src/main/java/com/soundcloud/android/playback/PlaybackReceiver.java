@@ -52,6 +52,7 @@ class PlaybackReceiver extends BroadcastReceiver {
                 playbackService.seek(seekPosition, true);
             } else if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(action)) {
                 if (playbackService.isPlayerPlaying()) {
+                    Log.d(getClass().getSimpleName(), "Pausing from audio becoming noisy");
                     // avoid moving to paused state when unplugging headphones
                     // and not playing locally (i.e. when casting).
                     playbackService.pause();
