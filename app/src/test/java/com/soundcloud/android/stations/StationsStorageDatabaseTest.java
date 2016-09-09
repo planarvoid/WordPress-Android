@@ -1,9 +1,11 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.android.stations.StationFixtures.createStationsCollection;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -17,6 +19,7 @@ import rx.observers.TestSubscriber;
 
 import android.content.SharedPreferences;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -285,16 +288,6 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void setLikedStations() {
-        testFixtures().insertLikedStation();
-        testFixtures().insertLocalLikedStation();
-
-        storage.setLikedStations(singletonList(Urn.forTrackStation(7777777777l)));
-
-        databaseAssertions().assertLikedStationHasSize(1);
-    }
-
-    @Test
     public void shouldReturnCorrectLikeStatusWhenLoadingStationWithTracks() {
         final ApiStation apiStation = testFixtures().insertLikedStation();
         final TestSubscriber<StationWithTracks> subscriber = new TestSubscriber<>();
@@ -305,6 +298,19 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         assertThat(stationWithTracks.isLiked()).isTrue();
         assertThat(stationWithTracks.getTitle()).isEqualTo(apiStation.getTitle());
         assertThat(stationWithTracks.getType()).isEqualTo(apiStation.getType());
+    }
+
+    @Test
+    public void shouldFilterRemoteContentWhenLocalContentWasUpdatedAfterSyncingStarted() throws Exception {
+        final List<Urn> stationUrns = Arrays.asList(Urn.forTrackStation(1L), Urn.forTrackStation(2L));
+        final ModelCollection<ApiStationMetadata> remoteContent = createStationsCollection(stationUrns);
+
+        final List<ApiStationMetadata> collection = remoteContent.getCollection();
+        storage.setLikedStationsAndAddNewMetaData(stationUrns, collection);
+
+        databaseAssertions().assertLikedStationHasSize(2);
+        databaseAssertions().assertStationMetadataInserted(collection.get(0));
+        databaseAssertions().assertStationMetadataInserted(collection.get(1));
     }
 
     private void assertReceivedStationInfoTracks(List<StationInfoTrack> receivedTracks, List<ApiTrack> apiTracks) {

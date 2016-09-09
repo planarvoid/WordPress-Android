@@ -1,6 +1,7 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,7 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 
 import java.util.Collections;
+import java.util.List;
 
 public class StationsApiTest extends AndroidUnitTest {
     @Mock ApiClientRx apiClientRx;
@@ -47,6 +49,19 @@ public class StationsApiTest extends AndroidUnitTest {
         api.fetchStation(stationUrn).subscribe(subscriber);
 
         subscriber.assertReceivedOnNext(Collections.singletonList(apiStation));
+    }
+
+    @Test
+    public void shouldReturnAnApiStationMetadata() throws Exception {
+        final ApiStation station = StationFixtures.getApiStation();
+        when(stationsExperiment.getVariantName()).thenReturn(Optional.<String>absent());
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET",
+                                                                  ApiEndpoints.STATION.path(stationUrn.toString()))),
+                                           eq(ApiStation.class)))
+                .thenReturn(station);
+
+        final List<ApiStationMetadata> result = api.fetchStations(Collections.singletonList(stationUrn));
+        assertThat(result.get(0)).isEqualTo(station.getMetadata());
     }
 
     @Test

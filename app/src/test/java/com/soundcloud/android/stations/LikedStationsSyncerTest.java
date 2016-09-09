@@ -1,11 +1,18 @@
 package com.soundcloud.android.stations;
 
+import static com.soundcloud.java.collections.Lists.newArrayList;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.DateProvider;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -15,18 +22,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static com.soundcloud.java.collections.Lists.newArrayList;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class LikedStationsSyncerTest {
 
     private static final List<Urn> LIKED_URNS = newArrayList(Urn.forArtistStation(1));
     private static final List<Urn> UNLIKED_URNS = newArrayList(Urn.forArtistStation(2));
-    private static final ModelCollection<Urn> RETURNED_URNS = new ModelCollection(newArrayList(Urn.forArtistStation(3),
+    private static final ModelCollection<Urn> RETURNED_URNS = new ModelCollection<>(newArrayList(Urn.forArtistStation(3),
                                                                                                Urn.forArtistStation(4)));
 
     @Mock private StationsApi stationsApi;
@@ -38,18 +38,19 @@ public class LikedStationsSyncerTest {
         MockitoAnnotations.initMocks(this);
         likedStationsSyncer = new LikedStationsSyncer(stationsApi, storage);
         when(stationsApi.updateLikedStations(any(LikedStationsPostBody.class))).thenReturn(RETURNED_URNS);
+        when(storage.getStations()).thenReturn(Collections.<Urn>emptyList());
+        when(storage.getLocalLikedStations()).thenReturn(LIKED_URNS);
+        when(storage.getLocalUnlikedStations()).thenReturn(UNLIKED_URNS);
     }
 
     @Test
     public void shouldDeleteAndUpsertLikedStations() throws Exception {
-        when(storage.getLocalLikedStations()).thenReturn(LIKED_URNS);
-        when(storage.getLocalUnlikedStations()).thenReturn(UNLIKED_URNS);
-
         assertTrue(likedStationsSyncer.call());
+
         verify(storage).getLocalLikedStations();
         verify(storage).getLocalUnlikedStations();
         verify(stationsApi).updateLikedStations(eq(LikedStationsPostBody.create(UNLIKED_URNS, LIKED_URNS)));
-        verify(storage).setLikedStations(eq(RETURNED_URNS.getCollection()));
+        verify(storage).setLikedStationsAndAddNewMetaData(eq(RETURNED_URNS.getCollection()),  eq(Collections.<ApiStationMetadata>emptyList()));
     }
 
     @Test
@@ -58,11 +59,25 @@ public class LikedStationsSyncerTest {
         when(storage.getLocalUnlikedStations()).thenReturn(Collections.<Urn>emptyList());
 
         assertTrue(likedStationsSyncer.call());
+
         verify(storage).getLocalLikedStations();
         verify(storage).getLocalUnlikedStations();
-        verify(stationsApi).updateLikedStations(eq(
-                LikedStationsPostBody.create(Collections.<Urn>emptyList(), Collections.<Urn>emptyList())));
-        verify(storage).setLikedStations(eq(RETURNED_URNS.getCollection()));
+        verify(stationsApi).updateLikedStations(eq(LikedStationsPostBody.create(Collections.<Urn>emptyList(), Collections.<Urn>emptyList())));
+        verify(storage).setLikedStationsAndAddNewMetaData(eq(RETURNED_URNS.getCollection()), eq(Collections.<ApiStationMetadata>emptyList()));
     }
 
+    @Test
+    public void shouldAddUnknownStations() throws Exception {
+        final Urn known = Urn.forArtistStation(1111);
+        final Urn unknown = Urn.forArtistStation(2222);
+        final ApiStationMetadata newMetadata = new ApiStationMetadata(unknown, "", "", "", "");
+
+        when(storage.getStations()).thenReturn(singletonList(known));
+        when(stationsApi.updateLikedStations(any(LikedStationsPostBody.class))).thenReturn(new ModelCollection<>(asList(known, unknown)));
+        when(stationsApi.fetchStations(singletonList(unknown))).thenReturn(singletonList(newMetadata));
+
+        assertTrue(likedStationsSyncer.call());
+
+        verify(storage).setLikedStationsAndAddNewMetaData(eq(asList(known, unknown)), eq(singletonList(newMetadata)));
+    }
 }

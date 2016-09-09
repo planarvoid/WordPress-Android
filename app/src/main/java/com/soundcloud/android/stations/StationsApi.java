@@ -19,6 +19,7 @@ import rx.Observable;
 import javax.inject.Inject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,26 @@ class StationsApi {
                 .build();
 
         return apiClientRx.mappedResponse(request, ApiStation.class);
+    }
+
+    public List<ApiStationMetadata> fetchStations(List<Urn> urns) throws ApiRequestException, IOException, ApiMapperException {
+        // TODO: 9/8/16 This is temporary.
+
+        final List<ApiStationMetadata> stationMetadatas = new ArrayList<>(urns.size());
+        for (Urn urn : urns) {
+            final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION.path(urn.toString()));
+            final Optional<String> variant = stationsExperiment.getVariantName();
+            if (variant.isPresent()) {
+                builder.addQueryParam("variant", variant.get());
+            }
+            final ApiRequest request = builder
+                    .forPrivateApi()
+                    .build();
+
+            final ApiStation apiStation = apiClient.fetchMappedResponse(request, ApiStation.class);
+            stationMetadatas.add(apiStation.getMetadata());
+        }
+        return stationMetadatas;
     }
 
     ApiStationsCollections syncStationsCollections(List<PropertySet> recentStationsToSync) throws ApiRequestException, IOException, ApiMapperException {

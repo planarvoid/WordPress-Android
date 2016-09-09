@@ -7,6 +7,7 @@ import static com.soundcloud.android.model.PlayableProperty.TITLE;
 import static com.soundcloud.android.model.PlayableProperty.URN;
 import static com.soundcloud.android.stations.Stations.NEVER_PLAYED;
 import static com.soundcloud.android.tracks.TrackProperty.PLAY_COUNT;
+import static com.soundcloud.java.collections.Lists.transform;
 import static com.soundcloud.java.optional.Optional.fromNullable;
 import static com.soundcloud.propeller.ContentValuesBuilder.values;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
@@ -24,6 +25,7 @@ import com.soundcloud.android.storage.Tables.StationsPlayQueues;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.java.collections.PropertySet;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
@@ -71,10 +73,17 @@ class StationsStorage {
         }
     };
 
-    private static final ResultMapper<Urn> TO_URN = new ResultMapper<Urn>() {
+    private static final ResultMapper<Urn> STATIONS_COLLECTIONS_TO_URN = new ResultMapper<Urn>() {
         @Override
         public Urn map(CursorReader reader) {
             return new Urn(reader.getString(StationsCollections.STATION_URN));
+        }
+    };
+
+    private static final ResultMapper<Urn> STATIONS_TO_URN = new ResultMapper<Urn>() {
+        @Override
+        public Urn map(CursorReader reader) {
+            return new Urn(reader.getString(Stations.STATION_URN));
         }
     };
 
@@ -86,6 +95,38 @@ class StationsStorage {
             return stationWithTracks;
         }
     };
+
+    private static final Function<ApiStationMetadata, ContentValues> TO_STATION_METADATA = new Function<ApiStationMetadata, ContentValues>() {
+        @Override
+        public ContentValues apply(ApiStationMetadata station) {
+            final ContentValuesBuilder contentValuesBuilder = values()
+                    .put(Stations.STATION_URN, station.getUrn().toString())
+                    .put(Stations.TYPE, station.getType())
+                    .put(Stations.TITLE, station.getTitle())
+                    .put(Stations.PERMALINK, station.getPermalink());
+
+            final Optional<String> artworkUrlTemplate = station.getArtworkUrlTemplate();
+            contentValuesBuilder.put(Stations.ARTWORK_URL_TEMPLATE,
+                                     artworkUrlTemplate.isPresent() ?
+                                     artworkUrlTemplate.get() :
+                                     null);
+            return contentValuesBuilder.get();
+        }
+    };
+
+    public void setLikedStationsAndAddNewMetaData(final List<Urn> remoteLikedStations,
+                                                  final List<ApiStationMetadata> newStationsMetaData) {
+        propellerDatabase.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propellerDatabase) {
+                final Where filterLikedStations = filter().whereEq(StationsCollections.COLLECTION_TYPE,
+                                                                   StationsCollectionsTypes.LIKED);
+                step(propellerDatabase.bulkUpsert(Stations.TABLE, transform(newStationsMetaData, TO_STATION_METADATA)));
+                step(propellerDatabase.delete(StationsCollections.TABLE, filterLikedStations));
+                step(propellerDatabase.bulkUpsert(StationsCollections.TABLE, toContentValues(remoteLikedStations)));
+            }
+        });
+    }
 
     private static int mapLastPosition(CursorReader cursorReader) {
         return cursorReader.isNull(Stations.LAST_PLAYED_TRACK_POSITION) ?
@@ -190,6 +231,12 @@ class StationsStorage {
         return propellerRx
                 .query(buildStationsQuery(type))
                 .flatMap(toStation);
+    }
+
+    List<Urn> getStations() {
+        return propellerDatabase
+                .query(Query.from(Stations.TABLE).select(Stations.STATION_URN))
+                .toList(STATIONS_TO_URN);
     }
 
     private Query buildStationsQuery(int collectionType) {
@@ -314,19 +361,7 @@ class StationsStorage {
                                             .whereEq(StationsCollections.COLLECTION_TYPE,
                                                      StationsCollectionsTypes.LIKED)
                                             .whereNotNull(column))
-                                .toList(TO_URN);
-    }
-
-    void setLikedStations(final List<Urn> newLikedStations) {
-
-        propellerDatabase.runTransaction(new PropellerDatabase.Transaction() {
-            @Override
-            public void steps(PropellerDatabase propeller) {
-                final Where filterLikedStations = filter().whereEq(StationsCollections.COLLECTION_TYPE, StationsCollectionsTypes.LIKED);
-                step(propellerDatabase.delete(StationsCollections.TABLE, filterLikedStations));
-                step(propellerDatabase.bulkUpsert(StationsCollections.TABLE, toContentValues(newLikedStations)));
-            }
-        });
+                                .toList(STATIONS_COLLECTIONS_TO_URN);
     }
 
     @NonNull

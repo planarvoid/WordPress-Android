@@ -3,8 +3,10 @@ package com.soundcloud.android.stations;
 import static com.soundcloud.android.stations.LikedStationsPostBody.create;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.DiffUtils;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -27,7 +29,15 @@ class LikedStationsSyncer implements Callable<Boolean> {
         final List<Urn> unlikedStations = storage.getLocalUnlikedStations();
         final LikedStationsPostBody likedStationsPostBody = create(unlikedStations, likedStations);
 
-        storage.setLikedStations(api.updateLikedStations(likedStationsPostBody).getCollection());
+        final List<Urn> knownStations = storage.getStations();
+        final List<Urn> remoteLikedStations = api.updateLikedStations(likedStationsPostBody).getCollection();
+        final List<Urn> toSync = DiffUtils.minus(remoteLikedStations, knownStations);
+
+        final List<ApiStationMetadata> newStationsMetaData = toSync.isEmpty() ?
+                                                             Collections.<ApiStationMetadata>emptyList() :
+                                                             api.fetchStations(toSync);
+
+        storage.setLikedStationsAndAddNewMetaData(remoteLikedStations, newStationsMetaData);
         return true;
     }
 
