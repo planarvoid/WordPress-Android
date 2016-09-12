@@ -43,14 +43,14 @@ public class ReferrerResolverTest extends AndroidUnitTest {
     @Test
     public void shouldDetectFacebookIntentViaAppId() {
         Intent intent = new Intent();
-        intent.putExtra("app_id", 19507961798l);
+        intent.putExtra("app_id", 19507961798L);
         assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.FACEBOOK.value());
     }
 
     @Test
     public void shouldNotDetectFacebookIntentViaOtherAppIds() {
         Intent intent = new Intent();
-        intent.putExtra("app_id", 101l);
+        intent.putExtra("app_id", 101L);
         assertThat(resolver.getReferrerFromIntent(intent, resources)).isEqualTo(Referrer.OTHER.value());
     }
 

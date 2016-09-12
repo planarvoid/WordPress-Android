@@ -1,6 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.ScreenElement;

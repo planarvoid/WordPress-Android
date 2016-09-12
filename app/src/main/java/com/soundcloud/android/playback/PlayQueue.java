@@ -3,8 +3,6 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;

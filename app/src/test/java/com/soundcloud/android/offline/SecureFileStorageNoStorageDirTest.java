@@ -62,7 +62,7 @@ public class SecureFileStorageNoStorageDirTest extends AndroidUnitTest { // just
 
     @Test
     public void returnsUsedStorageIsZero() throws Exception {
-        assertThat(storage.getStorageUsed()).isEqualTo(0l);
+        assertThat(storage.getStorageUsed()).isEqualTo(0L);
     }
 
     @Test

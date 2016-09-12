@@ -76,7 +76,7 @@ public class TestUser {
                 }
             }
             try {
-                shouldRetry = (result == false);
+                shouldRetry = !result;
                 if (!result) {
                     Thread.sleep(5000);
                 }

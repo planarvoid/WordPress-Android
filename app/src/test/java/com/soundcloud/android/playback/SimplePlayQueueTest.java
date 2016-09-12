@@ -5,8 +5,6 @@ import static org.assertj.core.util.Lists.newArrayList;
 
 import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AudioAd;
-import com.soundcloud.android.ads.VideoAd;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.stations.StationFixtures;
@@ -17,7 +15,6 @@ import com.soundcloud.android.testsupport.TestUrns;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueue;
 import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.java.optional.Optional;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,27 +91,27 @@ public class SimplePlayQueueTest extends AndroidUnitTest {
 
     @Test
     public void indexOfReturnsMinusOneWhenTrackIsNotPresent() {
-        assertThat(playQueue.indexOfTrackUrn(Urn.forTrack(4l))).isEqualTo(-1);
+        assertThat(playQueue.indexOfTrackUrn(Urn.forTrack(4L))).isEqualTo(-1);
     }
 
     @Test
     public void indexOfReturnsIndexInQueueWhenTrackIsPresent() {
-        assertThat(playQueue.indexOfTrackUrn(Urn.forTrack(2l))).isEqualTo(1);
+        assertThat(playQueue.indexOfTrackUrn(Urn.forTrack(2L))).isEqualTo(1);
     }
 
     @Test
     public void indexOfWithStartPositionReturnsMinusOneWhenTrackIsNotPresent() {
-        assertThat(playQueue.indexOfTrackUrn(1, Urn.forTrack(4l))).isEqualTo(-1);
+        assertThat(playQueue.indexOfTrackUrn(1, Urn.forTrack(4L))).isEqualTo(-1);
     }
 
     @Test
     public void indexOfWithStartPositionReturnsMinusOneWhenTrackIsNotPresentAfterGivenPosition() {
-        assertThat(playQueue.indexOfTrackUrn(2, Urn.forTrack(2l))).isEqualTo(-1);
+        assertThat(playQueue.indexOfTrackUrn(2, Urn.forTrack(2L))).isEqualTo(-1);
     }
 
     @Test
     public void indexOfWithStartPositionReturnsIndexInQueueWhenTrackIsPresent() {
-        assertThat(playQueue.indexOfTrackUrn(1, Urn.forTrack(2l))).isEqualTo(1);
+        assertThat(playQueue.indexOfTrackUrn(1, Urn.forTrack(2L))).isEqualTo(1);
     }
 
     public void removeItem() {

@@ -103,7 +103,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
 
     @Test
     public void displaySetupOfflineRetryOnNetworkErrorWhenErrorAlreadyOccurred() {
-        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.<Object>error(new IOException()));
+        when(planChangeOperations.awaitAccountUpgrade()).thenReturn(Observable.error(new IOException()));
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();
@@ -128,7 +128,7 @@ public class GoOnboardingPresenterTest extends AndroidUnitTest {
     @Test
     public void displaySetupOfflineRetryOnApiRequestExceptionForNetworkErrorAlreadyOccurred() {
         when(planChangeOperations.awaitAccountUpgrade())
-                .thenReturn(Observable.<Object>error(ApiRequestException.networkError(null, new IOException())));
+                .thenReturn(Observable.error(ApiRequestException.networkError(null, new IOException())));
 
         presenter.onCreate(activity, null);
         presenter.onSetupOfflineClicked();

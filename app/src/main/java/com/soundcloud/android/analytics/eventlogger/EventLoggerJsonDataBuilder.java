@@ -279,9 +279,7 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, TrackingEvent event) {
-        final EventLoggerEventData eventData = buildBaseEvent(eventName, event.getTimestamp());
-
-        return eventData;
+        return buildBaseEvent(eventName, event.getTimestamp());
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {

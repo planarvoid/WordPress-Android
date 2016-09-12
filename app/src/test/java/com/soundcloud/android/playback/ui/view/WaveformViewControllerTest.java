@@ -16,7 +16,6 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.view.WaveformScrollView;
 import com.soundcloud.android.waveform.WaveformData;

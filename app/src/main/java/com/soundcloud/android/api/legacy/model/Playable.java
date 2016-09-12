@@ -139,7 +139,7 @@ public abstract class Playable extends PublicApiResource
         b.putBoolean("user_like", user_like);
         b.putBoolean("user_repost", user_repost);
         b.putLong("duration", duration);
-        b.putLong("created_at", created_at != null ? created_at.getTime() : -1l);
+        b.putLong("created_at", created_at != null ? created_at.getTime() : -1L);
         b.putBoolean("streamable", streamable);
         b.putBoolean("downloadable", downloadable);
         b.putString("license", license);
@@ -177,7 +177,7 @@ public abstract class Playable extends PublicApiResource
         user_like = b.getBoolean("user_like");
         user_repost = b.getBoolean("user_repost");
         duration = b.getLong("duration");
-        created_at = b.getLong("created_at") == -1l ? null : new Date(b.getLong("created_at"));
+        created_at = b.getLong("created_at") == -1L ? null : new Date(b.getLong("created_at"));
         streamable = b.getBoolean("streamable");
         downloadable = b.getBoolean("downloadable");
         license = b.getString("license");

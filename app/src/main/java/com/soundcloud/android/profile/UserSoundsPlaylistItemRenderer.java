@@ -8,7 +8,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 
 import android.view.LayoutInflater;
 import android.view.View;

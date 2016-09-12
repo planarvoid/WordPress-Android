@@ -555,7 +555,7 @@ public class RecordPresenter extends DefaultSupportFragmentLightCycle<Fragment> 
                     updateAmplitude(intent.getFloatExtra(SoundRecorder.EXTRA_AMPLITUDE, -1f), currentState == RECORD);
                 }
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
-                updateRecordProgress(intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l));
+                updateRecordProgress(intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1L));
             } else if (SoundRecorder.RECORD_ERROR.equals(action)) {
                 updateUi(CreateState.IDLE_RECORD);
             } else if (SoundRecorder.RECORD_FINISHED.equals(action)) {

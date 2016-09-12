@@ -18,6 +18,7 @@ import rx.observers.TestSubscriber;
 
 import android.support.annotation.NonNull;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -143,9 +144,7 @@ public class SearchSuggestionStorageTest extends StorageIntegrationTest {
     @NonNull
     private List<PropertySet> toList(PropertySet... items) {
         final List<PropertySet> propertySets = Lists.newArrayList();
-        for (final PropertySet item : items) {
-            propertySets.add(item);
-        }
+        Collections.addAll(propertySets, items);
         return propertySets;
     }
 }

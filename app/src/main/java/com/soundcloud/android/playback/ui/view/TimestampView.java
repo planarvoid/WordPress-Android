@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TimestampView extends LinearLayout implements ProgressAware, OnScrubListener {
 
-    private static final long SCRUB_TRANSITION_DURATION = 120l;
+    private static final long SCRUB_TRANSITION_DURATION = 120L;
     private static final float SCRUB_SCALE = 2.2f;
     private static final double SPRING_TENSION = 110.0;
     private static final double SPRING_FRICTION = 10.0;

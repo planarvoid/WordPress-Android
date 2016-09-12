@@ -20,7 +20,6 @@ import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
-import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

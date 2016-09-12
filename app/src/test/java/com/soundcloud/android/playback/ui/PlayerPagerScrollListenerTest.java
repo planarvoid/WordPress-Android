@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
-import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.testsupport.AndroidUnitTest;

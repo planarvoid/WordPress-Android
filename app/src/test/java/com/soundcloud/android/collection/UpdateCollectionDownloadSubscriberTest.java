@@ -48,7 +48,7 @@ public class UpdateCollectionDownloadSubscriberTest extends AndroidUnitTest {
 
     @Test
     public void doesNotNotifyWhenUrnNotLikesOfflineChange() {
-        final OfflineContentChangedEvent event = downloaded(singletonList(Urn.forTrack(234l)), false);
+        final OfflineContentChangedEvent event = downloaded(singletonList(Urn.forTrack(234L)), false);
         subscriber.onNext(event);
 
         verify(adapter, never()).notifyDataSetChanged();

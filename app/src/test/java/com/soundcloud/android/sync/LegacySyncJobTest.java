@@ -205,7 +205,7 @@ public class LegacySyncJobTest extends AndroidUnitTest {
 
         assertThat(legacySyncItem.getResult().syncResult.stats.numIoExceptions).isEqualTo(0L);
         assertThat(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).isEqualTo(0L);
-        assertThat(legacySyncItem.getResult().syncResult.delayUntil).isGreaterThan(0l);
+        assertThat(legacySyncItem.getResult().syncResult.delayUntil).isGreaterThan(0L);
     }
 
     @Test

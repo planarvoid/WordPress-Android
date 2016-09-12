@@ -12,7 +12,6 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.playback.PlayQueueManager;
 import com.soundcloud.android.playback.PlaySessionController;
-import com.soundcloud.android.playback.Player;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
 

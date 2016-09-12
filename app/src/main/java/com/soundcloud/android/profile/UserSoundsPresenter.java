@@ -25,7 +25,6 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;

@@ -30,7 +30,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.strings.Strings;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Rule;

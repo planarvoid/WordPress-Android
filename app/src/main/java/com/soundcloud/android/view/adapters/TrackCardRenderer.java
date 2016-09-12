@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.utils.ViewUtils.getFragmentActivity;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;

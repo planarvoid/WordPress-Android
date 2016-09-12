@@ -523,7 +523,7 @@ public class DatabaseFixtures {
         for (int i = 0; i < stationTracks.size(); i++) {
             final StationTrack track = stationTracks.get(i);
             insertInto(StationsPlayQueues.TABLE, getTrackContentValues(i, station, track));
-            insertTrack((ApiTrack) station.getTrackRecords().get(i));
+            insertTrack(station.getTrackRecords().get(i));
         }
     }
 

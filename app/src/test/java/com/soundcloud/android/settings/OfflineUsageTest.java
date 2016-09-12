@@ -14,7 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class OfflineUsageTest {
 
-    private static final long GB = 1024l * 1024l * 1024l;
+    private static final long GB = 1024L * 1024L * 1024L;
 
     private OfflineUsage offlineUsage;
 
@@ -131,32 +131,32 @@ public class OfflineUsageTest {
 
     @Test
     public void returnsNewValuesAfterUpdate() {
-        when(fileStorage.getStorageAvailable()).thenReturn(1000l);
-        when(fileStorage.getStorageUsed()).thenReturn(2000l);
-        when(offlineSettings.getStorageLimit()).thenReturn(3000l);
-        when(fileStorage.getStorageCapacity()).thenReturn(4000l);
+        when(fileStorage.getStorageAvailable()).thenReturn(1000L);
+        when(fileStorage.getStorageUsed()).thenReturn(2000L);
+        when(offlineSettings.getStorageLimit()).thenReturn(3000L);
+        when(fileStorage.getStorageCapacity()).thenReturn(4000L);
 
         offlineUsage.update();
 
-        assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(1000l);
-        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(2000l);
-        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(3000l);
-        assertThat(offlineUsage.getDeviceTotal()).isEqualTo(4000l);
+        assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(1000L);
+        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(2000L);
+        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(3000L);
+        assertThat(offlineUsage.getDeviceTotal()).isEqualTo(4000L);
     }
 
     @Test
     public void setsOfflineTotalToMaxAvailable() {
-        when(fileStorage.getStorageAvailable()).thenReturn(500l);
-        when(fileStorage.getStorageUsed()).thenReturn(2000l);
-        when(offlineSettings.getStorageLimit()).thenReturn(4000l);
-        when(fileStorage.getStorageCapacity()).thenReturn(3500l);
+        when(fileStorage.getStorageAvailable()).thenReturn(500L);
+        when(fileStorage.getStorageUsed()).thenReturn(2000L);
+        when(offlineSettings.getStorageLimit()).thenReturn(4000L);
+        when(fileStorage.getStorageCapacity()).thenReturn(3500L);
 
         offlineUsage.update();
 
-        assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(500l);
-        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(2000l);
-        assertThat(offlineUsage.getDeviceTotal()).isEqualTo(3500l);
-        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(2500l);
+        assertThat(offlineUsage.getDeviceAvailable()).isEqualTo(500L);
+        assertThat(offlineUsage.getOfflineUsed()).isEqualTo(2000L);
+        assertThat(offlineUsage.getDeviceTotal()).isEqualTo(3500L);
+        assertThat(offlineUsage.getUsableOfflineLimit()).isEqualTo(2500L);
     }
 
 }

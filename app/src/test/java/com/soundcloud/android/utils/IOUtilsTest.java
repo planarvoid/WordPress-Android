@@ -79,8 +79,8 @@ public class IOUtilsTest {
 
     @Test
     public void shouldGetDirSize() throws Exception {
-        assertThat(IOUtils.getDirSize(new File("no-existo"))).isEqualTo(0l);
-        assertThat(IOUtils.getDirSize(tempFolder.getRoot())).isEqualTo(0l);
+        assertThat(IOUtils.getDirSize(new File("no-existo"))).isEqualTo(0L);
+        assertThat(IOUtils.getDirSize(tempFolder.getRoot())).isEqualTo(0L);
         File f1 = tempFolder.newFile("aFile");
         File dir = new File(tempFolder.getRoot(), "aDir");
         assertThat(dir.mkdir()).isTrue();
@@ -91,7 +91,7 @@ public class IOUtilsTest {
         OutputStream os2 = new FileOutputStream(f2);
         os2.write(new byte[1024]);
         os2.close();
-        assertThat(IOUtils.getDirSize(tempFolder.getRoot())).isEqualTo(8192 + 1024l);
+        assertThat(IOUtils.getDirSize(tempFolder.getRoot())).isEqualTo(8192 + 1024L);
         tempFolder.delete();
     }
 

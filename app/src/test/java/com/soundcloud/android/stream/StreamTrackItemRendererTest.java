@@ -19,7 +19,6 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
-import com.soundcloud.java.strings.Strings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

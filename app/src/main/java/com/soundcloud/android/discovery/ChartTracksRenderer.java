@@ -1,6 +1,5 @@
 package com.soundcloud.android.discovery;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.Module;
 import com.soundcloud.android.model.Urn;

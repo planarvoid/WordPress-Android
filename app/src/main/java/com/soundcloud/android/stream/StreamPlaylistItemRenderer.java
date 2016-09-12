@@ -14,7 +14,6 @@ import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
-import com.soundcloud.java.strings.Strings;
 
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;

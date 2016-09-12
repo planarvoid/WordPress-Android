@@ -30,7 +30,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Sharing;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.events.EntityMetadata;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventContextMetadata;
 import com.soundcloud.android.events.EventQueue;

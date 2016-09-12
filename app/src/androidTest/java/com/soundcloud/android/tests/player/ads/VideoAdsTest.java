@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.annotation.AdsTest;
-import com.soundcloud.android.framework.annotation.Ignore;
 import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.tests.TestConsts;
 import org.hamcrest.Matchers;

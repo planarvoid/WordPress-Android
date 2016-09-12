@@ -1,7 +1,5 @@
 package com.soundcloud.android.stations;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.dialog.CustomFontViewBuilder;
 import com.soundcloud.android.events.EntityStateChangedEvent;

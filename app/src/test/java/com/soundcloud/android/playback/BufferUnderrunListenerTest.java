@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;

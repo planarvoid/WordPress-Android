@@ -40,13 +40,13 @@ public class PlayQueueHelperTest extends AndroidUnitTest {
     @Mock private ScreenProvider screenProvider;
     private PlayQueueHelper playQueueHelper;
     private List<Urn> trackList;
-    private Urn playlistUrn =Urn.forPlaylist(12345l);
+    private Urn playlistUrn =Urn.forPlaylist(12345L);
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Urn track1 = Urn.forTrack(1l);
-        Urn track2 = Urn.forTrack(2l);
+        Urn track1 = Urn.forTrack(1L);
+        Urn track2 = Urn.forTrack(2L);
         trackList = Lists.newArrayList(track1, track2);
         playQueueHelper = new PlayQueueHelper(playQueueManager, playlistOperations, playbackToastHelper, eventBus,
                                               playbackInitiator, screenProvider);

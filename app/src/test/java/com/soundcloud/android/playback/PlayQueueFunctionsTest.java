@@ -3,7 +3,6 @@ package com.soundcloud.android.playback;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.soundcloud.android.ads.AdFixtures;
-import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;

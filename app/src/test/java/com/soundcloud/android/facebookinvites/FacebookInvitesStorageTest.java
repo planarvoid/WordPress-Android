@@ -54,7 +54,7 @@ public class FacebookInvitesStorageTest {
         storage.setClicked();
 
         verify(editor).putLong(LAST_CLICK, currentTime);
-        verify(editor).putLong(LAST_DISMISS, 0l);
+        verify(editor).putLong(LAST_DISMISS, 0L);
         verify(editor).putInt(TIMES_DISMISSED, 0);
         verify(editor, times(3)).apply();
     }

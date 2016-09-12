@@ -5,7 +5,6 @@ import static com.soundcloud.android.tracks.OverflowMenuOptions.builder;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;

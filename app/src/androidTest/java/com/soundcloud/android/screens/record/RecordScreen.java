@@ -53,7 +53,7 @@ public class RecordScreen extends Screen {
 
     public RecordScreen deleteRecording() {
         deleteButton().click();
-        testDriver.waitForDialogToOpen(2000l);
+        testDriver.waitForDialogToOpen(2000L);
         acceptDeleteRecording();
         return this;
     }
@@ -122,7 +122,7 @@ public class RecordScreen extends Screen {
 
     private RecordScreen acceptDeleteRecording() {
         testDriver.findOnScreenElement(text(testDriver.getString(R.string.btn_yes))).click();
-        testDriver.waitForDialogToClose(1000l);
+        testDriver.waitForDialogToClose(1000L);
         return this;
     }
 

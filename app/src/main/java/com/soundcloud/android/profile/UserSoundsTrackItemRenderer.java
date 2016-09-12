@@ -10,7 +10,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItemView;
 import com.soundcloud.java.optional.Optional;
-import com.soundcloud.java.strings.Strings;
 
 import android.view.View;
 import android.view.ViewGroup;

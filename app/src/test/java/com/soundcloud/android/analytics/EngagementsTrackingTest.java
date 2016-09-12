@@ -25,8 +25,8 @@ import rx.Observable;
 
 public class EngagementsTrackingTest extends AndroidUnitTest {
 
-    private static final Urn TRACK_URN = Urn.forTrack(123l);
-    private static final Urn USER_URN = Urn.forUser(33l);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn USER_URN = Urn.forUser(33L);
     private static final PropertySet PROMOTED_TRACK = expectedPromotedTrack();
     private static final PropertySet PLAYER_TRACK = expectedTrackForPlayer();
     private static final PropertySet WIDGET_TRACK = expectedTrackForWidget();

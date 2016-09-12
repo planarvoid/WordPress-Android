@@ -104,7 +104,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     private PropertySet track;
     private PagerAdapter adapter;
 
-    private List<PlayQueueItem> playQueue = Arrays.<PlayQueueItem>asList(
+    private List<PlayQueueItem> playQueue = Arrays.asList(
             TestPlayQueueItem.createTrack(TRACK1_URN),
             TestPlayQueueItem.createTrack(TRACK2_URN),
             TestPlayQueueItem.createAudioAd(AdFixtures.getAudioAd(MONETIZABLE_TRACK_URN)),
@@ -151,14 +151,14 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
                                  PlayableProperty.TITLE.bind("title"),
                                  PlayableProperty.CREATOR_NAME.bind("artist"),
-                                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123l)));
+                                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L)));
 
         when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
                 PropertySet.from(
                         TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
                         PlayableProperty.TITLE.bind("title"),
                         PlayableProperty.CREATOR_NAME.bind("artist"),
-                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(123l)))
+                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(123L)))
         ));
 
         when(trackRepository.track(TRACK2_RELATED_URN)).thenReturn(Observable.just(
@@ -166,7 +166,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
                         TrackProperty.URN.bind(TRACK2_RELATED_URN),
                         PlayableProperty.TITLE.bind("related title"),
                         PlayableProperty.CREATOR_NAME.bind("related artist"),
-                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(234l)))
+                        PlayableProperty.CREATOR_URN.bind(Urn.forUser(234L)))
         ));
     }
 
@@ -263,7 +263,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         View currentPageView = getVideoAdPageView();
 
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), videoAd.getAdUrn());
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), videoAd.getAdUrn());
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -279,7 +279,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         presenter.onResume(playerFragment);
         View currentPageView = getVideoAdPageView();
 
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l),
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L),
                                                                    Urn.forAd("dfp", "other-ad-urn"));
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
@@ -292,7 +292,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
         when(playQueueManager.getCurrentPlayQueueItem()).thenReturn(TestPlayQueueItem.createTrack(TRACK1_URN));
         presenter.onResume(playerFragment);
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), TRACK1_URN);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), TRACK1_URN);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -303,7 +303,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     public void onPlaybackProgressEventDoNotSetsProgressForPausedAdapter() {
         presenter.onResume(playerFragment);
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), TRACK1_URN);
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), TRACK1_URN);
         presenter.onPause(playerFragment);
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
@@ -314,7 +314,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onPlaybackProgressEventDoNotSetProgressOnOtherTrackPage() {
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), Urn.forTrack(234L));
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), Urn.forTrack(234L));
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 
@@ -324,7 +324,7 @@ public class PlayerPagerPresenterTest extends AndroidUnitTest {
     @Test
     public void onPlaybackProgressEventDoesNotSetProgressOnNotPlayingTrackPage() {
         View currentPageView = getPageView();
-        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5l, 10l), Urn.forTrack(999L));
+        PlaybackProgressEvent event = PlaybackProgressEvent.create(new PlaybackProgress(5L, 10L), Urn.forTrack(999L));
 
         eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
 

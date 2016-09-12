@@ -5,7 +5,6 @@ import static com.soundcloud.android.profile.UserSoundsItem.fromTrackItem;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.ApiPlaylist;

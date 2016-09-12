@@ -13,7 +13,6 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.util.CondensedNumberFormatter;
 import com.soundcloud.android.view.adapters.CardEngagementsPresenter;
-import com.soundcloud.java.strings.Strings;
 
 import android.support.annotation.VisibleForTesting;
 import android.view.LayoutInflater;

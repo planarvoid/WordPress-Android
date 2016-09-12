@@ -1,7 +1,6 @@
 package com.soundcloud.android.events;
 
 import com.google.auto.value.AutoValue;
-import com.soundcloud.java.strings.Strings;
 
 @AutoValue
 public abstract class Module {

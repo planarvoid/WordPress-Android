@@ -153,7 +153,7 @@ class SimplePlayQueue extends PlayQueue {
 
     @Override
     public List<Urn> getTrackItemUrns() {
-        final List<Urn> trackItemUrns = new ArrayList<Urn>();
+        final List<Urn> trackItemUrns = new ArrayList<>();
         for (PlayQueueItem item : playQueueItems) {
             if (item.isTrack()) {
                 trackItemUrns.add(item.getUrn());
@@ -166,7 +166,7 @@ class SimplePlayQueue extends PlayQueue {
     public List<Urn> getItemUrns(int from, int count) {
         final int to = Math.min(size(), from + count);
         if (to >= from) {
-            final List<Urn> itemUrns = new ArrayList<Urn>(to - from);
+            final List<Urn> itemUrns = new ArrayList<>(to - from);
             for (int i = from; i < to; i++) {
                 itemUrns.add(getUrn(i));
             }

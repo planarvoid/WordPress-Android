@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.skippy;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.Player;
 import com.soundcloud.android.playback.skippy.SkippyAdapter.StateChangeHandler;
 import com.soundcloud.android.utils.NetworkConnectionHelper;

@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.playqueue;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -40,7 +39,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import java.util.ArrayList;
 

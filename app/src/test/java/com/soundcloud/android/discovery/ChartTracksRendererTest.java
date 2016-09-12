@@ -5,7 +5,6 @@ import static com.soundcloud.android.api.model.ChartType.TOP;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.Module;

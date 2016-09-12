@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.PlaybackServiceInitiator;
-import com.soundcloud.android.ads.AdData;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
@@ -26,7 +25,6 @@ import com.soundcloud.android.testsupport.fixtures.TestPlayQueueItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;

@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdQueueItem;

@@ -42,11 +42,11 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     private static final String PLAY_ID = "play_id";
 
     private static final PlaybackSessionEvent MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
-            PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https",
+            PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0L, "https",
                                             "player", false, true, UUID, PLAY_ID));
 
     private static final PlaybackSessionEvent NON_MARKETABLE_PLAY_EVENT = PlaybackSessionEvent.forPlay(
-            PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0l, "https",
+            PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET, TRACK_SOURCE_INFO, 0L, "https",
                                             "player", false, false, UUID, PLAY_ID));
 
     private static final AppboyProperties PLAYABLE_ONLY_PROPERTIES = new AppboyProperties()
@@ -129,7 +129,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     public void shouldNotTrackPauseEvents() {
         final PlaybackSessionEventArgs args = PlaybackSessionEventArgs.create(TRACK_PROPERTY_SET,
                                                                               TRACK_SOURCE_INFO,
-                                                                              0l,
+                0L,
                                                                               "https",
                                                                               "player",
                                                                               false,
@@ -190,7 +190,7 @@ public class AppboyEventHandlerTest extends AndroidUnitTest {
     @Test
     public void shouldTrackShareEvents() {
         EventContextMetadata eventContext = eventContextBuilder().pageUrn(Urn.forTrack(123L)).build();
-        UIEvent event = UIEvent.fromShare(Urn.forTrack(123l), eventContext, null, METADATA);
+        UIEvent event = UIEvent.fromShare(Urn.forTrack(123L), eventContext, null, METADATA);
 
         eventHandler.handleEvent(event);
 

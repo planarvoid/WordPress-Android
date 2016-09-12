@@ -186,14 +186,14 @@ public class SecureFileStorageTest extends AndroidUnitTest { // just because of 
 
     @Test
     public void returnsUsedStorage() throws Exception {
-        assertThat(storage.getStorageUsed()).isEqualTo(0l);
+        assertThat(storage.getStorageUsed()).isEqualTo(0L);
 
         final File file = createOfflineFile();
         OutputStream os = new FileOutputStream(file);
         os.write(new byte[8192]);
         os.close();
 
-        assertThat(storage.getStorageUsed()).isEqualTo(8192l);
+        assertThat(storage.getStorageUsed()).isEqualTo(8192L);
         storage.deleteTrack(TRACK_URN);
     }
 

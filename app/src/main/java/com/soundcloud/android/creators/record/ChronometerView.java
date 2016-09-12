@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class ChronometerView extends CustomFontTextView {
-    private long durationSec = -1l, progressSec = -1l;
+    private long durationSec = -1L, progressSec = -1L;
     private String durationString;
 
     private int mode;

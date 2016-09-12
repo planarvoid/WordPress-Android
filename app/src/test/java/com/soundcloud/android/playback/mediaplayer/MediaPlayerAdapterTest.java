@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdFixtures;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.VideoAdSource;
@@ -24,7 +23,6 @@ import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.AudioAdPlaybackItem;
 import com.soundcloud.android.playback.AudioPlaybackItem;
@@ -288,20 +286,20 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void seekShouldReturnInvalidSeekPositionWithNoMediaPlayer() {
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(-1L);
+        assertThat(mediaPlayerAdapter.seek(123L)).isEqualTo(-1L);
     }
 
     @Test
     public void seekShouldSeekOnMediaPlayerWhilePreparing() {
         mediaPlayerAdapter.play(trackItem);
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.seek(123L)).isEqualTo(123L);
         verify(mediaPlayer).seekTo(123);
     }
 
     @Test
     public void seekShouldCallSeekOnMediaPlayer() {
         playUrlAndSetPrepared(trackItem);
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.seek(123L)).isEqualTo(123L);
         verify(mediaPlayer).seekTo(123);
     }
 
@@ -322,14 +320,14 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void seekShouldReturnSeekPositionWhenGettingProgressWhileSeeking() {
         playUrlAndSetPrepared(trackItem);
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.seek(123L)).isEqualTo(123L);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123L);
     }
 
     @Test
     public void playUrlShouldCreateNewMediaPlayerIfWaitingForSeekToReturn() {
         playUrlAndSetPrepared(trackItem);
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.seek(123L)).isEqualTo(123L);
         mediaPlayerAdapter.play(trackItem);
         verify(mediaPlayerManager).create();
     }
@@ -337,7 +335,7 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     @Test
     public void playUrlShouldReleaseOldMediaPlayerIfWaitingForSeekToReturn() {
         playUrlAndSetPrepared(trackItem);
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.seek(123L)).isEqualTo(123L);
         mediaPlayerAdapter.play(trackItem);
         verify(mediaPlayerManager).stopAndReleaseAsync(mediaPlayer);
     }
@@ -390,28 +388,28 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
 
     @Test
     public void seekShouldReturn0WithNoMediaPlayer() {
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(0l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(0L);
     }
 
     @Test
     public void seekShouldReturnMediaPlayerPosition() {
         playUrlAndSetPrepared(trackItem);
         when(mediaPlayer.getCurrentPosition()).thenReturn(999);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(999l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(999L);
     }
 
     @Test
     public void seekShouldReturnSeekPositionIfWaitingForSeek() {
         playUrlAndSetPrepared(trackItem);
-        assertThat(mediaPlayerAdapter.seek(123l)).isEqualTo(123l);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.seek(123L)).isEqualTo(123L);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123L);
     }
 
     @Test
     public void seekRemovesSeekPosClearingThroughHandlerThroughHandler() {
         playUrlAndSetPrepared(trackItem);
 
-        mediaPlayerAdapter.seek(456l);
+        mediaPlayerAdapter.seek(456L);
         // seek position cleared via handler
         verify(playerHandler).removeMessages(MediaPlayerAdapter.PlayerHandler.CLEAR_LAST_SEEK);
     }
@@ -584,10 +582,10 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         when(mediaPlayer.getDuration()).thenReturn(duration);
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
-        assertThat(mediaPlayerAdapter.seek(456l)).isEqualTo(456l);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(456l);
+        assertThat(mediaPlayerAdapter.seek(456L)).isEqualTo(456L);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(456L);
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
-        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123l);
+        assertThat(mediaPlayerAdapter.getProgress()).isEqualTo(123L);
     }
 
     @Test
@@ -717,12 +715,12 @@ public class MediaPlayerAdapterTest extends AndroidUnitTest {
     public void onBufferingListenerClearsSeekPosThroughHandlerWhenBufferingComplete() {
         playUrlAndSetPrepared(trackItem);
 
-        mediaPlayerAdapter.seek(456l);
+        mediaPlayerAdapter.seek(456L);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_START, 0);
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
         // reflects the seek position
-        assertThat(mediaPlayerAdapter.getSeekPosition()).isEqualTo(456l);
+        assertThat(mediaPlayerAdapter.getSeekPosition()).isEqualTo(456L);
         mediaPlayerAdapter.onInfo(mediaPlayer, MediaPlayer.MEDIA_INFO_BUFFERING_END, 0);
 
         // seek position cleared via handler

@@ -21,7 +21,7 @@ public final class UriUtils {
                 Log.d(SoundCloudApplication.TAG, "Could not parse last segment as long from URI " + uri.toString());
             }
         }
-        return -1l;
+        return -1L;
     }
 
     /**

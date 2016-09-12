@@ -19,7 +19,7 @@ import android.support.v4.content.ContextCompat;
 
 class PlayQueueUIItem {
 
-    enum PlayState {PLAYING, COMING_UP, PLAYED;}
+    enum PlayState {PLAYING, COMING_UP, PLAYED}
 
     private final PlayQueueItem playQueueItem;
     private final TrackItem trackItem;

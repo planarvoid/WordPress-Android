@@ -85,7 +85,7 @@ public class SoundRecorderService extends Service {
                 }
 
             } else if (SoundRecorder.RECORD_PROGRESS.equals(action)) {
-                final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1l) / 1000;
+                final long time = intent.getLongExtra(SoundRecorder.EXTRA_ELAPSEDTIME, -1L) / 1000;
                 if (!ScTextUtils.usesSameTimeElapsedString(lastNotifiedTime, time)) {
                     lastNotifiedTime = time;
                     updateRecordTicker(time);

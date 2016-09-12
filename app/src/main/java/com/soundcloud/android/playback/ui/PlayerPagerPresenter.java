@@ -5,7 +5,6 @@ import static com.soundcloud.android.ads.AdUtils.hasAdOverlay;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdData;
-import com.soundcloud.android.ads.AdUtils;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.AudioAd;
 import com.soundcloud.android.ads.OverlayAdData;

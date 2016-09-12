@@ -47,7 +47,6 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 
 public class EventLoggerJsonDataBuilderTest extends AndroidUnitTest {
 

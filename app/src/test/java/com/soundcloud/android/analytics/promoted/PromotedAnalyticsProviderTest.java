@@ -26,11 +26,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.TrackSourceInfo;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPlayerTransitions;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
-import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -131,9 +129,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        assertPromotedTrackingRecord(event1, "comp_impression1", 333l);
+        assertPromotedTrackingRecord(event1, "comp_impression1", 333L);
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        assertPromotedTrackingRecord(event2, "comp_impression2", 333l);
+        assertPromotedTrackingRecord(event2, "comp_impression2", 333L);
     }
 
     @Test
@@ -152,9 +150,9 @@ public class PromotedAnalyticsProviderTest extends AndroidUnitTest {
         verify(eventTrackingManager, times(2)).trackEvent(captor.capture());
 
         final TrackingRecord event1 = captor.getAllValues().get(0);
-        assertPromotedTrackingRecord(event1, "leave_impression1", 333l);
+        assertPromotedTrackingRecord(event1, "leave_impression1", 333L);
         final TrackingRecord event2 = captor.getAllValues().get(1);
-        assertPromotedTrackingRecord(event2, "leave_impression2", 333l);
+        assertPromotedTrackingRecord(event2, "leave_impression2", 333L);
     }
 
     @Test

@@ -3,9 +3,7 @@ package com.soundcloud.android.ads;
 import static com.soundcloud.java.collections.Lists.newArrayList;
 
 import com.soundcloud.android.ads.ApiAudioAd.RelatedResources;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -1,7 +1,5 @@
 package com.soundcloud.android.ads;
 
-import com.soundcloud.android.model.Urn;
-
 import java.util.concurrent.TimeUnit;
 
 public final class AdConstants {

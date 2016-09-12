@@ -24,7 +24,7 @@ public class SeekBarElement {
                 int x = view.getMeasuredWidth() * percentage / 100;
                 int y = view.getMeasuredHeight() / 2;
 
-                MotionEvent event = MotionEvent.obtain(1000l,
+                MotionEvent event = MotionEvent.obtain(1000L,
                                                        SystemClock.uptimeMillis(),
                                                        MotionEvent.ACTION_UP,
                                                        x,
