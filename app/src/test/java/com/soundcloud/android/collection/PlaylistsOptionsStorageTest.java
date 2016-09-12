@@ -2,6 +2,7 @@ package com.soundcloud.android.collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import org.junit.Before;
 import org.junit.Test;

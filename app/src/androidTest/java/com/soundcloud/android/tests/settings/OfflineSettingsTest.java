@@ -70,6 +70,7 @@ public class OfflineSettingsTest extends ActivityTest<LauncherActivity> {
 
         getSolo().goBack();
         final DownloadImageViewElement downloadElement = mainNavHelper.goToCollections()
+                                                                      .clickPlaylistsPreview()
                                                                       .scrollToFirstPlaylist()
                                                                       .downloadElement();
 

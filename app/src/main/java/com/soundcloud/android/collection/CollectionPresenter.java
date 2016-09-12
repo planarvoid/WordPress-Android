@@ -1,117 +1,296 @@
 package com.soundcloud.android.collection;
 
-import com.soundcloud.android.events.CollectionEvent;
+import com.soundcloud.android.R;
+import com.soundcloud.android.collection.playhistory.PlayHistoryBucketItem;
+import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedBucketItem;
+import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.main.Screen;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
+import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.annotations.VisibleForTesting;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.content.res.Resources;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionPresenter extends BaseCollectionPresenter
-        implements CollectionAdapter.Listener, CollectionPlaylistOptionsPresenter.Listener {
+class CollectionPresenter extends RecyclerViewPresenter<MyCollection, CollectionItem>
+        implements TrackItemRenderer.Listener, OnboardingItemCellRenderer.Listener {
 
-    private static final int NON_PLAYLIST_OR_TRACK_COLLECTION_ITEMS = 6;
+    private static final int FIXED_ITEMS = 5;
 
-    private final CollectionOperations collectionOperations;
-    private final CollectionPlaylistOptionsPresenter optionsPresenter;
+    public static final String TAG = "CollectionPresenter";
+    private final Func1<Object, Boolean> isNotRefreshing = new Func1<Object, Boolean>() {
+        @Override
+        public Boolean call(Object event) {
+            return !swipeRefreshAttacher.isRefreshing();
+        }
+    };
+
+    private final Action1<Object> logCollectionChanged = new Action1<Object>() {
+        @Override
+        public void call(Object o) {
+            Log.d(TAG, "OnCollectionChanged [event=" + o + ", isNotRefreshing=" + isNotRefreshing + "]");
+        }
+    };
+
+    private final Action1<MyCollection> clearOnNext = new Action1<MyCollection>() {
+        @Override
+        public void call(MyCollection myCollection) {
+            adapter.clear();
+        }
+    };
+
+    @VisibleForTesting
+    final Func1<MyCollection, Iterable<CollectionItem>> toCollectionItems =
+            new Func1<MyCollection, Iterable<CollectionItem>>() {
+                @Override
+                public List<CollectionItem> call(MyCollection myCollection) {
+                    List<CollectionItem> collectionItems = buildCollectionItems(myCollection);
+                    if (collectionOptionsStorage.isOnboardingEnabled()) {
+                        return collectionWithOnboarding(collectionItems);
+                    } else {
+                        return collectionItems;
+                    }
+                }
+            };
+
+    private final SwipeRefreshAttacher swipeRefreshAttacher;
     private final EventBus eventBus;
+    private final CollectionAdapter adapter;
+    private final Resources resources;
     private final CollectionOptionsStorage collectionOptionsStorage;
+    private final CollectionOperations collectionOperations;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    private final PlayHistoryOperations playHistoryOperations;
+    private final FeatureFlags featureFlags;
 
-    private PlaylistsOptions currentOptions;
+    private CompositeSubscription eventSubscriptions = new CompositeSubscription();
 
-    public CollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
-                               CollectionOperations collectionOperations,
-                               CollectionOptionsStorage collectionOptionsStorage,
-                               CollectionAdapter adapter,
-                               CollectionPlaylistOptionsPresenter optionsPresenter,
-                               Resources resources,
-                               EventBus eventBus) {
-        super(swipeRefreshAttacher, eventBus, adapter, resources, collectionOptionsStorage);
+
+    @Inject
+    CollectionPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                        CollectionOperations collectionOperations,
+                        CollectionOptionsStorage collectionOptionsStorage,
+                        CollectionAdapter adapter,
+                        Resources resources,
+                        EventBus eventBus,
+                        Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                        PlayHistoryOperations playHistoryOperations,
+                        FeatureFlags featureFlags) {
+        super(swipeRefreshAttacher);
         this.collectionOperations = collectionOperations;
-        this.collectionOptionsStorage = collectionOptionsStorage;
-        this.optionsPresenter = optionsPresenter;
+        this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.playHistoryOperations = playHistoryOperations;
+        this.featureFlags = featureFlags;
+        this.swipeRefreshAttacher = swipeRefreshAttacher;
         this.eventBus = eventBus;
-        adapter.setListener(this);
-        currentOptions = collectionOptionsStorage.getLastOrDefault();
+        this.adapter = adapter;
+        this.resources = resources;
+        this.collectionOptionsStorage = collectionOptionsStorage;
+
+        adapter.setTrackClickListener(this);
+        adapter.setOnboardingListener(this);
     }
 
     @Override
-    public Observable<MyCollection> myCollection() {
-        return collectionOperations.collections(currentOptions);
+    public void onCreate(Fragment fragment, Bundle bundle) {
+        super.onCreate(fragment, bundle);
+        getBinding().connect();
     }
 
     @Override
-    public Observable<MyCollection> updatedMyCollection() {
-        return collectionOperations.updatedCollections(currentOptions);
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
+        super.onViewCreated(fragment, view, savedInstanceState);
+
+        final int itemMargin = view.getResources().getDimensionPixelSize(R.dimen.collection_default_margin);
+        final int spanCount = resources.getInteger(R.integer.collection_grid_span_count);
+        final GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), spanCount);
+        layoutManager.setSpanSizeLookup(createSpanSizeLookup(spanCount));
+
+        RecyclerView recyclerView = getRecyclerView();
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.addItemDecoration(new CollectionItemDecoration(itemMargin));
+        recyclerView.setPadding(itemMargin, 0, 0, 0);
+        recyclerView.setClipToPadding(false);
+        recyclerView.setClipChildren(false);
     }
 
     @Override
-    public Observable<Object> onCollectionChanged() {
-        return collectionOperations.onCollectionChanged();
+    public void onDestroy(Fragment fragment) {
+        eventSubscriptions.unsubscribe();
+        super.onDestroy(fragment);
     }
 
     @Override
-    public void onPlaylistSettingsClicked(View view) {
-        optionsPresenter.showOptions(view.getContext(), this, currentOptions);
+    protected CollectionBinding<MyCollection, CollectionItem> onBuildBinding(Bundle bundle) {
+        final Observable<MyCollection> collections = collectionOperations.collections()
+                                                                         .observeOn(AndroidSchedulers.mainThread());
+        return CollectionBinding.from(collections.doOnNext(new OnCollectionLoadedAction()), toCollectionItems)
+                                .withAdapter(adapter)
+                                .build();
     }
 
     @Override
-    public void onRemoveFilterClicked() {
-        onOptionsUpdated(PlaylistsOptions.builder().build());
-        eventBus.publish(EventQueue.TRACKING, CollectionEvent.forClearFilter());
+    protected CollectionBinding<MyCollection, CollectionItem> onRefreshBinding() {
+        final Observable<MyCollection> collections =
+                collectionOperations.updatedCollections().observeOn(AndroidSchedulers.mainThread());
+        return CollectionBinding.from(collections.doOnError(new OnErrorAction()).doOnNext(clearOnNext),
+                                      toCollectionItems)
+                                .withAdapter(adapter)
+                                .build();
     }
 
     @Override
-    public void onOptionsUpdated(PlaylistsOptions options) {
-        collectionOptionsStorage.store(options);
-        currentOptions = options;
-        refreshCollections();
-        eventBus.publish(EventQueue.TRACKING, CollectionEvent.forFilter(currentOptions));
+    public void onCollectionsOnboardingItemClosed(int position) {
+        collectionOptionsStorage.disableOnboarding();
+        removeItem(position);
     }
 
-    private boolean isCurrentlyFiltered() {
-        return currentOptions.showOfflineOnly()
-                || (currentOptions.showLikes() && !currentOptions.showPosts())
-                || (!currentOptions.showLikes() && currentOptions.showPosts());
+    @Override
+    protected EmptyView.Status handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 
-    protected List<CollectionItem> buildCollectionItems(MyCollection myCollection) {
+    private void refreshCollections() {
+        final Observable<MyCollection> source = collectionOperations.collections()
+                                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                                    .doOnNext(clearOnNext);
+        retryWith(CollectionBinding
+                          .from(source, toCollectionItems)
+                          .withAdapter(adapter).build());
+    }
+
+    private GridLayoutManager.SpanSizeLookup createSpanSizeLookup(final int spanCount) {
+        return new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position < adapter.getItemCount() && adapter.getItem(position).isSingleSpan()) {
+                    return 1;
+                } else {
+                    return spanCount;
+                }
+            }
+        };
+    }
+
+    private void removeItem(int position) {
+        adapter.removeItem(position);
+        adapter.notifyItemRemoved(position);
+    }
+
+    private void showError() {
+        Toast.makeText(getRecyclerView().getContext(),
+                       R.string.collections_loading_error,
+                       Toast.LENGTH_LONG).show();
+    }
+
+    private void subscribeForUpdates() {
+        eventSubscriptions.unsubscribe();
+        eventSubscriptions = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.OFFLINE_CONTENT_CHANGED, new UpdateCollectionDownloadSubscriber(adapter)),
+                collectionOperations.onCollectionChanged()
+                                    .doOnNext(logCollectionChanged)
+                                    .filter(isNotRefreshing)
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new RefreshCollectionsSubscriber())
+        );
+    }
+
+    private class RefreshCollectionsSubscriber extends DefaultSubscriber<Object> {
+        @Override
+        public void onNext(Object ignored) {
+            refreshCollections();
+        }
+    }
+
+    private class OnCollectionLoadedAction implements Action1<MyCollection> {
+        @Override
+        public void call(MyCollection myCollection) {
+            adapter.clear();
+            subscribeForUpdates();
+            if (myCollection.hasError()) {
+                showError();
+            }
+        }
+    }
+
+    private class OnErrorAction implements Action1<Throwable> {
+        @Override
+        public void call(Throwable ignored) {
+            showError();
+        }
+    }
+
+    private List<CollectionItem> collectionWithOnboarding(List<CollectionItem> collectionItems) {
+        List<CollectionItem> collectionItemsWithOnboarding = new ArrayList<>(collectionItems.size() + 1);
+        collectionItemsWithOnboarding.add(OnboardingCollectionItem.create());
+        collectionItemsWithOnboarding.addAll(collectionItems);
+        return collectionItemsWithOnboarding;
+    }
+
+    private List<CollectionItem> buildCollectionItems(MyCollection myCollection) {
         List<TrackItem> playHistoryTrackItems = myCollection.getPlayHistoryTrackItems();
-        List<PlaylistItem> playlistItems = myCollection.getPlaylistItems();
-        List<CollectionItem> collectionItems = new ArrayList<>(playlistItems.size() +
-                                                                       playHistoryTrackItems.size() + NON_PLAYLIST_OR_TRACK_COLLECTION_ITEMS);
+        List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems = myCollection.getRecentlyPlayedItems();
+        List<CollectionItem> collectionItems = new ArrayList<>(playHistoryTrackItems.size() + FIXED_ITEMS);
 
-        collectionItems.add(PreviewCollectionItem.forLikesAndStations(myCollection.getLikes(),
-                                                                      myCollection.getStations()));
-        collectionItems.addAll(playlistCollectionItems(playlistItems, false));
+        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
+            collectionItems.add(PreviewCollectionItem.forLikesPlaylistsAndStations(myCollection.getLikes(),
+                                                                                   myCollection.getPlaylistItems(),
+                                                                                   myCollection.getStations()));
+        } else {
+            collectionItems.add(PreviewCollectionItem.forLikesAndPlaylists(myCollection.getLikes(),
+                                                                           myCollection.getPlaylistItems()));
+        }
+
+        addRecentlyPlayed(recentlyPlayedPlayableItems, collectionItems);
+        addPlayHistory(playHistoryTrackItems, collectionItems);
 
         return collectionItems;
     }
 
-    protected List<CollectionItem> playlistCollectionItems(List<PlaylistItem> playlistItems, boolean withTopSpacing) {
-
-        List<CollectionItem> items = new ArrayList<>(playlistItems.size() + 2);
-
-        items.add(PlaylistHeaderCollectionItem.create(playlistItems.size(), withTopSpacing));
-
-        for (PlaylistItem playlistItem : playlistItems) {
-            items.add(PlaylistCollectionItem.create(playlistItem));
-        }
-
-        if (isCurrentlyFiltered()) {
-            items.add(PlaylistRemoveFilterCollectionItem.create());
-        } else if (playlistItems.isEmpty()) {
-            items.add(EmptyPlaylistCollectionItem.create());
-        }
-
-        return items;
+    private void addRecentlyPlayed(List<RecentlyPlayedPlayableItem> recentlyPlayedPlayableItems,
+                                   List<CollectionItem> collectionItems) {
+        collectionItems.add(RecentlyPlayedBucketItem.create(recentlyPlayedPlayableItems));
     }
+
+    private void addPlayHistory(List<TrackItem> tracks, List<CollectionItem> collectionItems) {
+        collectionItems.add(PlayHistoryBucketItem.create(tracks));
+    }
+
+    @Override
+    public void trackItemClicked(Urn urn, int position) {
+        playHistoryOperations
+                .startPlaybackFrom(urn, Screen.COLLECTIONS)
+                .subscribe(expandPlayerSubscriberProvider.get());
+    }
+
 
 }

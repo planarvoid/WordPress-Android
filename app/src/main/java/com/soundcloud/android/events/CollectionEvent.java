@@ -1,6 +1,6 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.collection.PlaylistsOptions;
+import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.Urn;
 

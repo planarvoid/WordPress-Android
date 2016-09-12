@@ -9,7 +9,7 @@ import android.os.Bundle;
 
 import javax.inject.Inject;
 
-public class PlaylistsCollectionActivity extends PlayerActivity {
+public class PlaylistsActivity extends PlayerActivity {
 
     @Inject BaseLayoutHelper baseLayoutHelper;
 
@@ -34,7 +34,7 @@ public class PlaylistsCollectionActivity extends PlayerActivity {
 
     private void attachFragment() {
         getSupportFragmentManager().beginTransaction()
-                                   .replace(R.id.container, new PlaylistsCollectionFragment())
+                                   .replace(R.id.container, new PlaylistsFragment())
                                    .commit();
     }
 

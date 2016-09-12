@@ -39,7 +39,7 @@ public class PlaylistDetailsTest extends TrackingActivityTest<LauncherActivity> 
 
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        playlistDetailsScreen = collectionScreen.clickOnFirstPlaylist();
+        playlistDetailsScreen = collectionScreen.clickPlaylistsPreview().clickOnFirstPlaylist();
     }
 
     public void testPlaylistDetailsScreenShouldBeVisibleOnPlaylistClick() {

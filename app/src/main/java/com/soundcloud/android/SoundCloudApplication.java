@@ -183,10 +183,7 @@ public class SoundCloudApplication extends MultiDexApplication {
         castSessionController.startListening();
         trackOfflineStateProvider.subscribe();
         playQueueExtender.subscribe();
-
-        if (featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY_STORAGE)) {
-            playHistoryController.subscribe();
-        }
+        playHistoryController.subscribe();
 
         if (featureFlags.isEnabled(Flag.EXPLODE_PLAYLISTS_IN_PLAYQUEUES)) {
             playlistExploder.subscribe();

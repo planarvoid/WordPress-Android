@@ -2,16 +2,11 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.RecyclerViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.elements.CollectionsPlaylistOptionsDialogElement;
 import com.soundcloud.android.screens.elements.LikedTracksPreviewElement;
-import com.soundcloud.android.screens.elements.PlaylistElement;
-import com.soundcloud.android.screens.stations.RecentStationsScreen;
-
-import android.support.v7.widget.RecyclerView;
+import com.soundcloud.android.screens.elements.PlaylistsPreviewElement;
 
 public class CollectionScreen extends Screen {
 
@@ -27,61 +22,9 @@ public class CollectionScreen extends Screen {
         return new TrackLikesScreen(testDriver);
     }
 
-    public RecentStationsScreen clickRecentStations() {
-        recentStationsElement().click();
-        return new RecentStationsScreen(testDriver);
-    }
-
-    public PlaylistElement scrollToPlaylistWithTitle(final String title) {
-        ViewElement viewElement = scrollToItem(
-                With.id(R.id.collections_playlist_item),
-                PlaylistElement.WithTitle(testDriver, title)
-        );
-        return PlaylistElement.forCard(testDriver, viewElement);
-    }
-
-    public PlaylistDetailsScreen scrollToAndClickPlaylistWithTitle(String title) {
-        return scrollToPlaylistWithTitle(title).click();
-    }
-
-    public PlaylistElement getPlaylistWithTitle(String title) {
-        ViewElement result = collectionsView().findOnScreenElement(
-                With.id(R.id.collections_playlist_item),
-                PlaylistElement.WithTitle(testDriver, title)
-        );
-        return PlaylistElement.forCard(testDriver, result);
-    }
-
-    public PlaylistDetailsScreen clickOnFirstPlaylist() {
-        scrollToFirstPlaylist().click();
-        return new PlaylistDetailsScreen(testDriver);
-    }
-
-    public PlaylistElement scrollToFirstPlaylist() {
-        ViewElement viewElement = scrollToItem(With.id(R.id.collections_playlist_item));
-        return PlaylistElement.forCard(testDriver, viewElement);
-    }
-
-    public CollectionsPlaylistOptionsDialogElement clickPlaylistOptions() {
-        playlistSettingsButton().click();
-        return new CollectionsPlaylistOptionsDialogElement(testDriver);
-    }
-
-    public void removeFilters() {
-        scrollToItem(With.id(R.id.btn_remove_filters)).click();
-    }
-
-    public int getLoadedItemCount() {
-        return collectionsView().getItemCount();
-    }
-
-    public ViewElement playlistSettingsButton() {
-        return testDriver.findOnScreenElement(With.id(R.id.btn_collections_playlist_options));
-    }
-
-    private RecyclerViewElement collectionsView() {
-        waitForContentAndRetryIfLoadingFailed();
-        return testDriver.findOnScreenElement(With.className(RecyclerView.class)).toRecyclerView();
+    public PlaylistsScreen clickPlaylistsPreview() {
+        likedPlaylistsPreviewElement().click();
+        return new PlaylistsScreen(testDriver);
     }
 
     public LikedTracksPreviewElement likedTracksPreviewElement() {
@@ -89,12 +32,9 @@ public class CollectionScreen extends Screen {
         return new LikedTracksPreviewElement(testDriver, viewElement);
     }
 
-    private ViewElement recentStationsElement() {
-        return testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.stations_collection_title_recent_stations)));
-    }
-
-    public int visiblePlaylistsCount() {
-        return testDriver.findOnScreenElements(With.id(R.id.collections_playlist_item)).size();
+    public PlaylistsPreviewElement likedPlaylistsPreviewElement() {
+        final ViewElement viewElement = testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.collections_playlists_header)));
+        return new PlaylistsPreviewElement(testDriver, viewElement);
     }
 
     @Override

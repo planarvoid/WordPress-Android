@@ -43,6 +43,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
 
     public void testDownloadIsUnavailableWhenTheyAccessPlaylists() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
+                                                     .clickPlaylistsPreview()
                                                      .clickOnFirstPlaylist()
                                                      .getDownloadToggle();
 
@@ -51,6 +52,7 @@ public class UnsubscribedUserTest extends ActivityTest<MainActivity> {
 
     public void testDownloadIsUnavailableWhenTheyAccessPlaylistDetailScreen() throws Exception {
         final ViewElement offlineItem = mainNavHelper.goToCollections()
+                                                     .clickPlaylistsPreview()
                                                      .clickOnFirstPlaylist()
                                                      .getDownloadToggle();
 

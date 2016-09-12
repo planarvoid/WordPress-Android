@@ -19,7 +19,7 @@ import javax.inject.Inject;
 public class CollectionFragment extends LightCycleSupportFragment<CollectionFragment>
         implements RefreshableScreen, ScrollContent {
 
-    @Inject @LightCycle BaseCollectionPresenter presenter;
+    @Inject @LightCycle CollectionPresenter presenter;
 
     public CollectionFragment() {
         setRetainInstance(true);

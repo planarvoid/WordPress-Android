@@ -48,7 +48,8 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
 
     @CollectionsTest
     public void testAutoPlaysRecommendationsAfterPlaylist() {
-        final PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickOnFirstPlaylist();
+        final PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickPlaylistsPreview()
+                                                                            .clickOnFirstPlaylist();
 
         startEventTracking();
 
@@ -72,7 +73,8 @@ public class PlaylistAutoplayRecommendationsTest extends TrackingActivityTest<Ma
     public void testDoesNotAutoPlaysRecommendationsAfterPlaylistIfSettingOff() {
         setAutoPlayEnabled(false);
 
-        final PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickOnFirstPlaylist();
+        final PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickPlaylistsPreview()
+                                                                            .clickOnFirstPlaylist();
 
         startEventTracking();
 

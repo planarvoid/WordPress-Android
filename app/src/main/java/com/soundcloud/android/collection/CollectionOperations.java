@@ -3,25 +3,19 @@ package com.soundcloud.android.collection;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_HISTORY;
 import static com.soundcloud.android.events.PlayHistoryEvent.IS_PLAY_HISTORY_CHANGE;
-import static com.soundcloud.android.offline.OfflineState.NOT_OFFLINE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.collection.playhistory.PlayHistoryOperations;
+import com.soundcloud.android.collection.playlists.MyPlaylistsOperations;
+import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedOperations;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableItem;
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.likes.LikeProperty;
-import com.soundcloud.android.likes.PlaylistLikesStorage;
-import com.soundcloud.android.model.PostProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.offline.OfflineStateOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.playlists.PlaylistPostStorage;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.stations.StationRecord;
@@ -32,37 +26,25 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.collections.Sets;
 import com.soundcloud.rx.eventbus.EventBus;
 import rx.Notification;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
 import rx.functions.Func2;
-import rx.functions.Func3;
 import rx.functions.Func5;
-
-import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class CollectionOperations {
 
-    @VisibleForTesting static final int PLAYLIST_LIMIT = 1000; // Arbitrarily high, we don't want to worry about paging
     private static final int PLAY_HISTORY_LIMIT = 3;
 
     private final EventBus eventBus;
     private final Scheduler scheduler;
-    private final PlaylistPostStorage playlistPostStorage;
-    private final PlaylistLikesStorage playlistLikesStorage;
     private final LoadLikedTrackPreviewsCommand loadLikedTrackPreviews;
     private final SyncInitiatorBridge syncInitiator;
     private final StationsOperations stationsOperations;
@@ -70,78 +52,11 @@ public class CollectionOperations {
     private final OfflineStateOperations offlineStateOperations;
     private final PlayHistoryOperations playHistoryOperations;
     private final RecentlyPlayedOperations recentlyPlayedOperations;
+    private final MyPlaylistsOperations myPlaylistsOperations;
     private final FeatureFlags featureFlags;
 
-    private static final Func1<List<PropertySet>, List<PropertySet>> REMOVE_DUPLICATE_PLAYLISTS = new Func1<List<PropertySet>, List<PropertySet>>() {
-        @Override
-        public List<PropertySet> call(List<PropertySet> propertySets) {
-            Set<Urn> uniquePlaylists = Sets.newHashSetWithExpectedSize(propertySets.size());
-            for (Iterator<PropertySet> iterator = propertySets.iterator(); iterator.hasNext(); ) {
-                final Urn urn = iterator.next().get(PlaylistProperty.URN);
-                if (uniquePlaylists.contains(urn)) {
-                    iterator.remove();
-                } else {
-                    uniquePlaylists.add(urn);
-                }
-            }
-            return propertySets;
-        }
-    };
 
-    private static final Func1<List<PropertySet>, List<PropertySet>> SORT_BY_CREATION = new Func1<List<PropertySet>, List<PropertySet>>() {
-        @Override
-        public List<PropertySet> call(List<PropertySet> propertySets) {
-            Collections.sort(propertySets, new Comparator<PropertySet>() {
-                @Override
-                public int compare(PropertySet lhs, PropertySet rhs) {
-                    // flipped as we want reverse chronological order
-                    return getAssociationDate(rhs).compareTo(getAssociationDate(lhs));
-                }
-
-                private Date getAssociationDate(PropertySet propertySet) {
-                    return propertySet.contains(LikeProperty.CREATED_AT) ?
-                           propertySet.get(LikeProperty.CREATED_AT) :
-                           propertySet.get(PostProperty.CREATED_AT);
-                }
-            });
-            return propertySets;
-        }
-    };
-
-    private static final Func1<List<PropertySet>, List<PropertySet>> SORT_BY_TITLE = new Func1<List<PropertySet>, List<PropertySet>>() {
-        @Override
-        public List<PropertySet> call(List<PropertySet> propertySets) {
-            Collections.sort(propertySets, new Comparator<PropertySet>() {
-                @Override
-                public int compare(PropertySet lhs, PropertySet rhs) {
-                    return lhs.get(PlaylistProperty.TITLE).compareTo(rhs.get(PlaylistProperty.TITLE));
-                }
-            });
-            return propertySets;
-        }
-    };
-
-
-    private static Func2<List<PropertySet>, List<PropertySet>, List<PropertySet>> COMBINE_POSTED_AND_LIKED = new Func2<List<PropertySet>, List<PropertySet>, List<PropertySet>>() {
-        @Override
-        public List<PropertySet> call(List<PropertySet> postedPlaylists, List<PropertySet> likedPlaylists) {
-            List<PropertySet> all = new ArrayList<>(postedPlaylists.size() + likedPlaylists.size());
-            all.addAll(postedPlaylists);
-            all.addAll(likedPlaylists);
-            return all;
-        }
-    };
-
-    private static final Func3<List<PlaylistItem>, LikesItem, List<StationRecord>, MyCollection> TO_MY_COLLECTIONS = new Func3<List<PlaylistItem>, LikesItem, List<StationRecord>, MyCollection>() {
-        @Override
-        public MyCollection call(List<PlaylistItem> playlistItems,
-                                 LikesItem likes,
-                                 List<StationRecord> stationRecords) {
-            return MyCollection.forCollectionWithPlaylists(likes, playlistItems, stationRecords, false);
-        }
-    };
-
-    private static final Func5<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection> TO_MY_COLLECTIONS_FOR_PLAY_HISTORY =
+    private static final Func5<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection> TO_MY_COLLECTIONS =
             new Func5<List<PlaylistItem>, LikesItem, List<StationRecord>, List<TrackItem>, List<RecentlyPlayedPlayableItem>, MyCollection>() {
                 @Override
                 public MyCollection call(List<PlaylistItem> playlistItems,
@@ -165,24 +80,6 @@ public class CollectionOperations {
         }
     };
 
-    private static final Func3<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<MyCollection>> TO_MY_COLLECTIONS_OR_ERROR =
-            new Func3<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<MyCollection>>() {
-                @Override
-                public Notification<MyCollection> call(Notification<List<PlaylistItem>> playlists,
-                                                       Notification<LikesItem> likes,
-                                                       Notification<List<StationRecord>> stations) {
-                    if (playlists.isOnCompleted() && likes.isOnCompleted() && stations.isOnCompleted()) {
-                        return Notification.createOnCompleted();
-                    }
-                    return Notification.createOnNext(MyCollection.forCollectionWithPlaylists(
-                            getLikesPreviews(likes),
-                            getPlaylistsPreview(playlists),
-                            getStationsPreview(stations),
-                            likes.isOnError() || playlists.isOnError() || stations.isOnError()
-                    ));
-                }
-            };
-
     private static List<PlaylistItem> getPlaylistsPreview(Notification<List<PlaylistItem>> playlists) {
         return playlists.isOnError() ? Collections.<PlaylistItem>emptyList() : playlists.getValue();
     }
@@ -193,7 +90,7 @@ public class CollectionOperations {
                likes.getValue();
     }
 
-    private static final Func5<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedPlayableItem>>, Notification<MyCollection>> TO_MY_COLLECTIONS_FOR_PLAY_HISTORY_OR_ERROR =
+    private static final Func5<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedPlayableItem>>, Notification<MyCollection>> TO_MY_COLLECTIONS_OR_ERROR =
             new Func5<Notification<List<PlaylistItem>>, Notification<LikesItem>, Notification<List<StationRecord>>, Notification<List<TrackItem>>, Notification<List<RecentlyPlayedPlayableItem>>, Notification<MyCollection>>() {
                 @Override
                 public Notification<MyCollection> call(Notification<List<PlaylistItem>> playlists,
@@ -230,17 +127,6 @@ public class CollectionOperations {
         return stations.isOnError() ? Collections.<StationRecord>emptyList() : stations.getValue();
     }
 
-    private static final Func1<SyncJobResult, Boolean> IS_RECENT_STATIONS_SYNC_EVENT = new Func1<SyncJobResult, Boolean>() {
-        @Override
-        public Boolean call(SyncJobResult syncJobResult) {
-            if (syncJobResult.getAction().equals(Syncable.RECENT_STATIONS.name())) {
-                return syncJobResult.wasChanged();
-            } else {
-                return false;
-            }
-        }
-    };
-
     private static final Func1<? super EntityStateChangedEvent, Boolean> IS_COLLECTION_CHANGE_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
@@ -251,7 +137,6 @@ public class CollectionOperations {
                 case EntityStateChangedEvent.LIKE:
                 case EntityStateChangedEvent.PLAYLIST_PUSHED_TO_SERVER:
                 case EntityStateChangedEvent.STATIONS_COLLECTION_UPDATED:
-                case EntityStateChangedEvent.PLAYLIST_MARKED_FOR_DOWNLOAD:
                     return true;
                 default:
                     return false;
@@ -262,8 +147,6 @@ public class CollectionOperations {
     @Inject
     CollectionOperations(EventBus eventBus,
                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                         PlaylistPostStorage playlistPostStorage,
-                         PlaylistLikesStorage playlistLikesStorage,
                          LoadLikedTrackPreviewsCommand loadLikedTrackPreviews,
                          SyncInitiatorBridge syncInitiator,
                          StationsOperations stationsOperations,
@@ -271,11 +154,10 @@ public class CollectionOperations {
                          OfflineStateOperations offlineStateOperations,
                          PlayHistoryOperations playHistoryOperations,
                          RecentlyPlayedOperations recentlyPlayedOperations,
+                         MyPlaylistsOperations myPlaylistsOperations,
                          FeatureFlags featureFlags) {
         this.eventBus = eventBus;
         this.scheduler = scheduler;
-        this.playlistPostStorage = playlistPostStorage;
-        this.playlistLikesStorage = playlistLikesStorage;
         this.loadLikedTrackPreviews = loadLikedTrackPreviews;
         this.syncInitiator = syncInitiator;
         this.stationsOperations = stationsOperations;
@@ -283,40 +165,25 @@ public class CollectionOperations {
         this.offlineStateOperations = offlineStateOperations;
         this.playHistoryOperations = playHistoryOperations;
         this.recentlyPlayedOperations = recentlyPlayedOperations;
+        this.myPlaylistsOperations = myPlaylistsOperations;
         this.featureFlags = featureFlags;
     }
 
-    Observable<Object> onCollectionChanged() {
-        return Observable.merge(
-                eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
-                eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_RECENT_STATIONS_SYNC_EVENT)
-        );
-    }
-
-    public Observable<Object> onCollectionChangedWithPlayHistory() {
+    public Observable<Object> onCollectionChanged() {
         return Observable.merge(
                 eventBus.queue(ENTITY_STATE_CHANGED).filter(IS_COLLECTION_CHANGE_FILTER).cast(Object.class),
                 eventBus.queue(PLAY_HISTORY).filter(IS_PLAY_HISTORY_CHANGE)
         );
     }
 
-    public Observable<MyCollection> collections(final PlaylistsOptions options) {
-        return Observable.zip(
-                myPlaylists(options).materialize(),
-                likesItem().materialize(),
-                loadStations().materialize(),
-                TO_MY_COLLECTIONS_OR_ERROR
-        ).dematerialize();
-    }
-
-    public Observable<MyCollection> collectionsForPlayHistory() {
+    public Observable<MyCollection> collections() {
         return Observable.zip(
                 myPlaylists().materialize(),
                 likesItem().materialize(),
                 loadStations().materialize(),
                 playHistoryItems().materialize(),
                 recentlyPlayed().materialize(),
-                TO_MY_COLLECTIONS_FOR_PLAY_HISTORY_OR_ERROR
+                TO_MY_COLLECTIONS_OR_ERROR
         ).dematerialize();
     }
 
@@ -329,28 +196,7 @@ public class CollectionOperations {
     }
 
     public Observable<List<PlaylistItem>> myPlaylists() {
-        return myPlaylists(PlaylistsOptions.SHOW_ALL);
-    }
-
-    private Observable<List<PlaylistItem>> myPlaylists(final PlaylistsOptions options) {
-        return syncInitiator
-                .hasSyncedLikedAndPostedPlaylistsBefore()
-                .flatMap(new Func1<Boolean, Observable<List<PlaylistItem>>>() {
-                    @Override
-                    public Observable<List<PlaylistItem>> call(Boolean hasSynced) {
-                        if (hasSynced) {
-                            return loadPlaylists(options);
-                        } else {
-                            return refreshAndLoadPlaylists(options);
-                        }
-                    }
-                }).subscribeOn(scheduler);
-    }
-
-    private Observable<List<PlaylistItem>> refreshAndLoadPlaylists(final PlaylistsOptions options) {
-        return syncInitiator
-                .refreshMyPostedAndLikedPlaylists()
-                .flatMap(continueWith(loadPlaylists(options)));
+        return myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL);
     }
 
     private Observable<LikesItem> likesItem() {
@@ -385,27 +231,16 @@ public class CollectionOperations {
                             }).subscribeOn(scheduler);
     }
 
-    Observable<MyCollection> updatedCollections(final PlaylistsOptions options) {
+    Observable<MyCollection> updatedCollections() {
         return Observable.zip(
-                refreshAndLoadPlaylists(options),
-                Observable.zip(refreshLikesAndLoadPreviews(),
-                               likedTracksOfflineState(),
-                               TO_LIKES_ITEM),
-                refreshStationsAndLoad(),
-                TO_MY_COLLECTIONS
-        );
-    }
-
-    public Observable<MyCollection> updatedCollectionsForPlayHistory() {
-        return Observable.zip(
-                refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL),
+                myPlaylistsOperations.refreshAndLoadPlaylists(PlaylistsOptions.SHOW_ALL),
                 Observable.zip(refreshLikesAndLoadPreviews(),
                                likedTracksOfflineState(),
                                TO_LIKES_ITEM),
                 refreshStationsAndLoad(),
                 refreshPlayHistoryItems(),
                 refreshRecentlyPlayedItems(),
-                TO_MY_COLLECTIONS_FOR_PLAY_HISTORY
+                TO_MY_COLLECTIONS
         );
     }
 
@@ -422,58 +257,18 @@ public class CollectionOperations {
     }
 
     private Observable<SyncJobResult> syncStations() {
-        return stationsOperations.syncStations(stationCollectionType());
+        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
+            return stationsOperations.syncStations(StationsCollectionsTypes.LIKED);
+        } else {
+            return Observable.just(SyncJobResult.success(Syncable.LIKED_STATIONS.name(), false));
+        }
     }
 
     private Observable<List<StationRecord>> loadStations() {
-        return stationsOperations.collection(stationCollectionType()).toList();
-    }
-
-    private int stationCollectionType() {
-        return featureFlags.isEnabled(Flag.LIKED_STATIONS) ?
-               StationsCollectionsTypes.LIKED :
-               StationsCollectionsTypes.RECENT;
-    }
-
-    private Observable<List<PlaylistItem>> loadPlaylists(PlaylistsOptions options) {
-        return unsortedPlaylists(options)
-                .map(offlineOnly(options.showOfflineOnly()))
-                .map(options.sortByTitle() ? SORT_BY_TITLE : SORT_BY_CREATION)
-                .map(REMOVE_DUPLICATE_PLAYLISTS)
-                .map(PlaylistItem.fromPropertySets())
-                .subscribeOn(scheduler);
-    }
-
-    private Func1<List<PropertySet>, List<PropertySet>> offlineOnly(final boolean offlineOnly) {
-        return new Func1<List<PropertySet>, List<PropertySet>>() {
-            @Override
-            public List<PropertySet> call(List<PropertySet> propertySets) {
-                if (offlineOnly) {
-                    for (Iterator<PropertySet> iterator = propertySets.iterator(); iterator.hasNext(); ) {
-                        OfflineState offlineState = iterator.next()
-                                                            .getOrElse(OfflineProperty.OFFLINE_STATE, NOT_OFFLINE);
-
-                        if (offlineState.equals(NOT_OFFLINE)) {
-                            iterator.remove();
-                        }
-                    }
-                }
-                return propertySets;
-            }
-        };
-    }
-
-    private Observable<List<PropertySet>> unsortedPlaylists(PlaylistsOptions options) {
-        final Observable<List<PropertySet>> loadLikedPlaylists = playlistLikesStorage.loadLikedPlaylists(PLAYLIST_LIMIT,
-                                                                                                         Long.MAX_VALUE);
-        final Observable<List<PropertySet>> loadPostedPlaylists = playlistPostStorage.loadPostedPlaylists(PLAYLIST_LIMIT,
-                                                                                                          Long.MAX_VALUE);
-        if (options.showLikes() && !options.showPosts()) {
-            return loadLikedPlaylists;
-        } else if (options.showPosts() && !options.showLikes()) {
-            return loadPostedPlaylists;
+        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
+            return stationsOperations.collection(StationsCollectionsTypes.LIKED).toList();
         } else {
-            return loadPostedPlaylists.zipWith(loadLikedPlaylists, COMBINE_POSTED_AND_LIKED);
+            return Observable.just(Collections.<StationRecord>emptyList());
         }
     }
 

@@ -10,8 +10,6 @@ enum Feature {
   DISCOVERY_RECOMMENDATIONS,
   EXPLODE_PLAYLISTS_IN_PLAYQUEUES,
   EDIT_PLAYLIST,
-  LOCAL_PLAY_HISTORY,
-  LOCAL_PLAY_HISTORY_STORAGE,
   PLAY_QUEUE,
   NEW_SYNC_ADAPTER,
   HOLISTIC_TRACKING,
@@ -29,8 +27,6 @@ android {
     buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), FALSE
     buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), FALSE
     buildConfigField BOOLEAN, Feature.EDIT_PLAYLIST.name(), FALSE
-    buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), FALSE
-    buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), FALSE
     buildConfigField BOOLEAN, Feature.ALBUMS.name(), FALSE
     buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), FALSE
     buildConfigField BOOLEAN, Feature.HOLISTIC_TRACKING.name(), FALSE
@@ -44,8 +40,6 @@ android {
       buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
@@ -59,7 +53,6 @@ android {
       buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
       buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
@@ -71,7 +64,6 @@ android {
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
       buildConfigField BOOLEAN, Feature.PLAY_QUEUE.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_CHARTS.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
       buildConfigField BOOLEAN, Feature.NEW_SYNC_ADAPTER.name(), TRUE
@@ -82,7 +74,6 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
       buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.ARCHER_PUSH.name(), TRUE
@@ -92,7 +83,6 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
       buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
     }
@@ -101,7 +91,6 @@ android {
       buildConfigField BOOLEAN, Feature.EXPLODE_PLAYLISTS_IN_PLAYQUEUES.name(), TRUE
       buildConfigField BOOLEAN, Feature.DISCOVERY_RECOMMENDATIONS.name(), TRUE
       buildConfigField BOOLEAN, Feature.ALBUMS.name(), TRUE
-      buildConfigField BOOLEAN, Feature.LOCAL_PLAY_HISTORY_STORAGE.name(), TRUE
       buildConfigField BOOLEAN, Feature.EXPLORE.name(), TRUE
       buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), TRUE
     }

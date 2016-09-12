@@ -31,9 +31,9 @@ public class PlaylistDetailsScreen extends Screen {
         super(solo);
     }
 
-    public CollectionScreen goBackToCollections() {
+    public PlaylistsScreen goBackToPlaylists() {
         testDriver.goBack();
-        return new CollectionScreen(testDriver);
+        return new PlaylistsScreen(testDriver);
     }
 
     public PlaylistDetailsScreen scrollToBottom() {

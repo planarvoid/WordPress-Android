@@ -2,7 +2,6 @@ package com.soundcloud.android.collection.playhistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.collection.recentlyplayed.PushRecentlyPlayedCommand;
 import com.soundcloud.android.collection.recentlyplayed.WriteRecentlyPlayedCommand;
@@ -15,7 +14,6 @@ import com.soundcloud.android.playback.PlaybackState;
 import com.soundcloud.android.playback.PlaybackStateTransition;
 import com.soundcloud.android.playback.TrackQueueItem;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.utils.TestDateProvider;
@@ -49,11 +47,9 @@ public class PlayHistoryControllerTest extends AndroidUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Flag.LOCAL_PLAY_HISTORY)).thenReturn(true);
         PlayHistoryController controller = new PlayHistoryController(eventBus,
                                                                      playHistoryStoreCommand,
                                                                      recentlyPlayedStoreCommand,
-                                                                     featureFlags,
                                                                      pushPlayHistoryCommand,
                                                                      pushRecentlyPlayedCommand,
                                                                      scheduler

@@ -8,19 +8,19 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.CollectionScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class CollectionPlaylistOptionsTest extends ActivityTest<MainActivity> {
 
-    protected CollectionScreen collectionScreen;
+    protected PlaylistsScreen playlistsScreen;
 
     public CollectionPlaylistOptionsTest() {
         super(MainActivity.class);
     }
 
-    private void navigateToCollections() {
-        collectionScreen = mainNavHelper.goToCollections();
+    private void navigateToPlaylists() {
+        playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
     }
 
     @Override
@@ -29,50 +29,51 @@ public class CollectionPlaylistOptionsTest extends ActivityTest<MainActivity> {
     }
 
     public void testFiltersPlaylists() {
-        navigateToCollections();
-        collectionScreen.scrollToFirstPlaylist();
+        navigateToPlaylists();
 
-        int unfilteredCount = collectionScreen.visiblePlaylistsCount();
+        playlistsScreen.scrollToFirstPlaylist();
 
-        collectionScreen.clickPlaylistOptions()
-                        .clickCreated()
-                        .clickDone();
+        int unfilteredCount = playlistsScreen.visiblePlaylistsCount();
 
-        assertThat(collectionScreen.visiblePlaylistsCount(), is(lessThan(unfilteredCount)));
+        playlistsScreen.clickPlaylistOptions()
+                       .clickCreated()
+                       .clickDone();
 
-        collectionScreen.clickPlaylistOptions()
-                        .clickLiked()
-                        .clickDone();
+        assertThat(playlistsScreen.visiblePlaylistsCount(), is(lessThan(unfilteredCount)));
 
-        assertThat(collectionScreen.visiblePlaylistsCount(), is(equalTo(unfilteredCount)));
+        playlistsScreen.clickPlaylistOptions()
+                       .clickLiked()
+                       .clickDone();
 
-        collectionScreen.clickPlaylistOptions()
-                        .clickCreated()
-                        .clickDone();
+        assertThat(playlistsScreen.visiblePlaylistsCount(), is(equalTo(unfilteredCount)));
 
-        assertThat(collectionScreen.visiblePlaylistsCount(), is(lessThan(unfilteredCount)));
+        playlistsScreen.clickPlaylistOptions()
+                       .clickCreated()
+                       .clickDone();
 
-        collectionScreen.removeFilters();
+        assertThat(playlistsScreen.visiblePlaylistsCount(), is(lessThan(unfilteredCount)));
 
-        assertThat(collectionScreen.visiblePlaylistsCount(), is(equalTo(unfilteredCount)));
+        playlistsScreen.removeFilters();
+
+        assertThat(playlistsScreen.visiblePlaylistsCount(), is(equalTo(unfilteredCount)));
     }
 
     public void testSortsPlaylists() {
-        navigateToCollections();
+        navigateToPlaylists();
 
-        final String firstPlaylistTitle = collectionScreen.scrollToFirstPlaylist().getTitle();
+        final String firstPlaylistTitle = playlistsScreen.scrollToFirstPlaylist().getTitle();
 
-        collectionScreen.clickPlaylistOptions()
-                        .clickSortByTitle()
-                        .clickDone();
+        playlistsScreen.clickPlaylistOptions()
+                       .clickSortByTitle()
+                       .clickDone();
 
-        assertThat(collectionScreen.scrollToFirstPlaylist().getTitle(), is(not(equalTo(firstPlaylistTitle))));
+        assertThat(playlistsScreen.scrollToFirstPlaylist().getTitle(), is(not(equalTo(firstPlaylistTitle))));
 
-        collectionScreen.clickPlaylistOptions()
-                        .clickSortByCreatedAt()
-                        .clickDone();
+        playlistsScreen.clickPlaylistOptions()
+                       .clickSortByCreatedAt()
+                       .clickDone();
 
-        assertThat(collectionScreen.scrollToFirstPlaylist().getTitle(), is(equalTo(firstPlaylistTitle)));
+        assertThat(playlistsScreen.scrollToFirstPlaylist().getTitle(), is(equalTo(firstPlaylistTitle)));
     }
 
 }

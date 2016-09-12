@@ -14,12 +14,12 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class PlaylistsCollectionFragment extends LightCycleSupportFragment<PlaylistsCollectionFragment>
+public class PlaylistsFragment extends LightCycleSupportFragment<PlaylistsFragment>
         implements RefreshableScreen {
 
-    @Inject @LightCycle PlaylistsCollectionPresenter presenter;
+    @Inject @LightCycle PlaylistsPresenter presenter;
 
-    public PlaylistsCollectionFragment() {
+    public PlaylistsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
     }

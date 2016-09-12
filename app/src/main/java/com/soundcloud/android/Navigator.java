@@ -10,7 +10,7 @@ import com.soundcloud.android.api.model.ChartCategory;
 import com.soundcloud.android.api.model.ChartType;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.collection.playhistory.PlayHistoryActivity;
-import com.soundcloud.android.collection.playlists.PlaylistsCollectionActivity;
+import com.soundcloud.android.collection.playlists.PlaylistsActivity;
 import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedActivity;
 import com.soundcloud.android.comments.TrackCommentsActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
@@ -416,7 +416,7 @@ public class Navigator {
     }
 
     public void openPlaylistsCollection(Context context) {
-        context.startActivity(new Intent(context, PlaylistsCollectionActivity.class));
+        context.startActivity(new Intent(context, PlaylistsActivity.class));
     }
 
     public void openDiscovery(Context context, Screen screen) {

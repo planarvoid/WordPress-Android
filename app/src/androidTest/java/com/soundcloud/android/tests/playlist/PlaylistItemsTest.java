@@ -72,7 +72,8 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     private void assertPlaylistContainsTrack(String trackTitle) {
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         collectionScreen.pullToRefresh();
-        PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.scrollToAndClickPlaylistWithTitle(playlist);
+        PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickPlaylistsPreview()
+                                                                      .scrollToAndClickPlaylistWithTitle(playlist);
 
         assertThat(playlistDetailsScreen.getTitle(), is(playlist));
         assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(true));

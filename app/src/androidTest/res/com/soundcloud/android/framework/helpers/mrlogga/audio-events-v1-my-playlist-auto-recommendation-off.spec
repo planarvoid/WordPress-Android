@@ -12,7 +12,7 @@ expected_events:
     action: play_start
     player_type: Skippy
     consumer_subs_plan: (\w|-)+
-    page_name: collection:overview
+    page_name: collection:playlists
     in_playlist: soundcloud:playlists:[0-9]+
     user: soundcloud:users:50749473
     playlist_position: '3'
@@ -39,7 +39,7 @@ expected_events:
     action: pause
     player_type: Skippy
     consumer_subs_plan: (\w|-)+
-    page_name: collection:main
+    page_name: collection:playlists
     in_playlist: soundcloud:playlists:[0-9]+
     user: soundcloud:users:50749473
     playlist_position: '3'

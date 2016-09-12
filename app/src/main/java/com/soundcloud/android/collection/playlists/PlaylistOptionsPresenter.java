@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playlists;
 
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
@@ -14,12 +14,12 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-public class CollectionPlaylistOptionsPresenter {
+public class PlaylistOptionsPresenter {
 
     private final FeatureOperations featureOperations;
 
     @Inject
-    public CollectionPlaylistOptionsPresenter(FeatureOperations featureOperations) {
+    public PlaylistOptionsPresenter(FeatureOperations featureOperations) {
         this.featureOperations = featureOperations;
     }
 
@@ -27,7 +27,7 @@ public class CollectionPlaylistOptionsPresenter {
         void onOptionsUpdated(PlaylistsOptions options);
     }
 
-    public void showOptions(Context context, final Listener listener, PlaylistsOptions initialOptions) {
+    void showOptions(Context context, final Listener listener, PlaylistsOptions initialOptions) {
         final View dialoglayout = View.inflate(context, R.layout.dialog_collections_options, null);
         final ToggleButton showLikes = ButterKnife.findById(dialoglayout, R.id.show_likes);
         final ToggleButton showPosts = ButterKnife.findById(dialoglayout, R.id.show_posts);

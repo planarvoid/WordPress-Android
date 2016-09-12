@@ -30,8 +30,10 @@ public class OptimizeRecentlyPlayedCommand extends DefaultWriteStorageCommand<In
 
         if (queryResult.getResultCount() > 0) {
             Long last = queryResult.first(scalar(Long.class));
+            queryResult.release();
             return propeller.delete(TABLE, filter().whereLe(TIMESTAMP, last));
         } else {
+            queryResult.release();
             return new ChangeResult(0);
         }
     }

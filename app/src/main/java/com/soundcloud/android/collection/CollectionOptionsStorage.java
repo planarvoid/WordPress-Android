@@ -1,5 +1,6 @@
 package com.soundcloud.android.collection;
 
+import com.soundcloud.android.collection.playlists.PlaylistsOptions;
 import com.soundcloud.android.storage.StorageModule;
 
 import android.content.SharedPreferences;
@@ -36,7 +37,7 @@ public class CollectionOptionsStorage {
         preferences.edit().putBoolean(ONBOARDING_DISABLED, true).apply();
     }
 
-    PlaylistsOptions getLastOrDefault() {
+    public PlaylistsOptions getLastOrDefault() {
         return PlaylistsOptions.builder()
                                .showLikes(preferences.getBoolean(KEY_SHOW_LIKES, false))
                                .showPosts(preferences.getBoolean(KEY_SHOW_POSTS, false))

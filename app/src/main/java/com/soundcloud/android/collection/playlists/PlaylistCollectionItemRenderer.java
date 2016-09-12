@@ -1,11 +1,11 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.OfflineState;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -24,7 +24,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
+class PlaylistCollectionItemRenderer implements CellRenderer<PlaylistCollectionPlaylistItem> {
 
     public static final int TOUCH_DELEGATE_DP = 8;
 
@@ -35,7 +35,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
 
     @Inject
-    public CollectionPlaylistItemRenderer(ImageOperations imageOperations,
+    public PlaylistCollectionItemRenderer(ImageOperations imageOperations,
                                           Resources resources,
                                           Navigator navigator,
                                           FeatureOperations featureOperations,
@@ -53,8 +53,8 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
     }
 
     @Override
-    public void bindItemView(int position, View view, List<CollectionItem> list) {
-        final PlaylistCollectionItem item = (PlaylistCollectionItem) list.get(position);
+    public void bindItemView(int position, View view, List<PlaylistCollectionPlaylistItem> list) {
+        final PlaylistCollectionPlaylistItem item = list.get(position);
         final PlaylistItem playlistItem = item.getPlaylistItem();
         final ImageView artwork = (ImageView) view.findViewById(R.id.artwork);
         final TextView title = (TextView) view.findViewById(R.id.title);
@@ -106,7 +106,7 @@ class CollectionPlaylistItemRenderer implements CellRenderer<CollectionItem> {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigator.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.COLLECTIONS);
+                navigator.legacyOpenPlaylist(view.getContext(), playlistItem.getUrn(), Screen.PLAYLISTS);
             }
         };
     }

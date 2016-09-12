@@ -5,8 +5,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.CollectionScreen;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
@@ -22,30 +22,30 @@ public class DeleteMyPlaylistTest extends ActivityTest<MainActivity> {
 
     public void testDeletePlaylistFromOverFlowMenu() {
         final String newPlaylist = createNewPlaylist();
-        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
+        final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
 
-        collectionScreen
+        playlistsScreen
                 .scrollToPlaylistWithTitle(newPlaylist)
                 .clickOverflow()
                 .clickDelete()
                 .clickConfirm();
 
-        assertThat(collectionScreen.getPlaylistWithTitle(newPlaylist).isOnScreen(), is(false));
+        assertThat(playlistsScreen.getPlaylistWithTitle(newPlaylist).isOnScreen(), is(false));
     }
 
     public void testDeletePlaylistFromPlaylistDetails() {
         final String newPlaylist = createNewPlaylist();
 
-        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
+        final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
 
-        collectionScreen
+        playlistsScreen
                 .scrollToPlaylistWithTitle(newPlaylist)
                 .click()
                 .clickPlaylistOverflowButton()
                 .clickDelete()
                 .clickConfirm();
 
-        assertThat(collectionScreen.getPlaylistWithTitle(newPlaylist).isOnScreen(), is(false));
+        assertThat(playlistsScreen.getPlaylistWithTitle(newPlaylist).isOnScreen(), is(false));
     }
 
     private String createNewPlaylist() {

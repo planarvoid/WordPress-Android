@@ -68,7 +68,7 @@ public class PlayHistoryOperations {
         return playHistoryStorage.loadTracks(limit).toList();
     }
 
-    Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
+    public Observable<PlaybackResult> startPlaybackFrom(Urn trackUrn, Screen screen) {
         return playbackInitiator.playTracks(getAllTracksForPlayback(), trackUrn, 0,
                                             PlaySessionSource.forHistory(screen.get()));
     }

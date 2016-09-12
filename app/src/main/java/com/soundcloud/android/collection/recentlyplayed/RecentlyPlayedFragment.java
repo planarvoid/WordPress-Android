@@ -2,7 +2,7 @@ package com.soundcloud.android.collection.recentlyplayed;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.collection.playlists.PlaylistsCollectionFragment;
+import com.soundcloud.android.collection.playlists.PlaylistsFragment;
 import com.soundcloud.android.presentation.RefreshableScreen;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class RecentlyPlayedFragment extends LightCycleSupportFragment<PlaylistsCollectionFragment>
+public class RecentlyPlayedFragment extends LightCycleSupportFragment<PlaylistsFragment>
         implements RefreshableScreen {
 
     @Inject @LightCycle RecentlyPlayedPresenter presenter;

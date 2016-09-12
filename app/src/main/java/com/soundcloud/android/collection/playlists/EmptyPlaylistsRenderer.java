@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class CollectionEmptyPlaylistsRenderer implements CellRenderer<CollectionItem> {
+class EmptyPlaylistsRenderer implements CellRenderer<PlaylistCollectionEmptyPlaylistItem> {
 
     @Inject
-    public CollectionEmptyPlaylistsRenderer() {
+    public EmptyPlaylistsRenderer() {
     }
 
     @Override
@@ -23,7 +23,7 @@ class CollectionEmptyPlaylistsRenderer implements CellRenderer<CollectionItem> {
     }
 
     @Override
-    public void bindItemView(int position, View view, List<CollectionItem> list) {
+    public void bindItemView(int position, View view, List<PlaylistCollectionEmptyPlaylistItem> list) {
         // no-op
     }
 }

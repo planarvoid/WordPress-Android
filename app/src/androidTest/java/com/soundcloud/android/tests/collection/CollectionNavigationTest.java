@@ -6,7 +6,7 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.CollectionScreen;
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -27,15 +27,15 @@ public class CollectionNavigationTest extends ActivityTest<MainActivity> {
         TestUser.collectionUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testGoesToPlaylistDetailsPage() {
-        navigateToCollections();
-        PlaylistDetailsScreen playlistDetailsScreen = collectionScreen.clickOnFirstPlaylist();
-        assertThat(playlistDetailsScreen.isVisible(), is(true));
-    }
-
     public void testGoesToTrackLikesPage() {
         navigateToCollections();
         TrackLikesScreen trackLikesScreen = collectionScreen.clickLikedTracksPreview();
         assertThat(trackLikesScreen.isVisible(), is(true));
+    }
+
+    public void testGoesToPlaylistsPage() {
+        navigateToCollections();
+        PlaylistsScreen playlistsScreen = collectionScreen.clickPlaylistsPreview();
+        assertThat(playlistsScreen.isVisible(), is(true));
     }
 }

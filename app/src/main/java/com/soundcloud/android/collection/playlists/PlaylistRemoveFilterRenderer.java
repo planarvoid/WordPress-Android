@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class CollectionPlaylistRemoveFilterRenderer implements CellRenderer<CollectionItem> {
+class PlaylistRemoveFilterRenderer implements CellRenderer<PlaylistCollectionRemoveFilterItem> {
 
     private OnRemoveFilterListener onRemoveFilterClickListener;
 
@@ -28,7 +28,7 @@ class CollectionPlaylistRemoveFilterRenderer implements CellRenderer<CollectionI
     }
 
     @Inject
-    public CollectionPlaylistRemoveFilterRenderer() {
+    public PlaylistRemoveFilterRenderer() {
     }
 
     @Override
@@ -40,7 +40,7 @@ class CollectionPlaylistRemoveFilterRenderer implements CellRenderer<CollectionI
     }
 
     @Override
-    public void bindItemView(int position, View view, List<CollectionItem> list) {
+    public void bindItemView(int position, View view, List<PlaylistCollectionRemoveFilterItem> list) {
         // no-op
     }
 

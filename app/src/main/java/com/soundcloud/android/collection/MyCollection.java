@@ -5,6 +5,7 @@ import com.soundcloud.android.collection.recentlyplayed.RecentlyPlayedPlayableIt
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.java.collections.PropertySet;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,11 +13,10 @@ import java.util.List;
 @AutoValue
 public abstract class MyCollection {
 
-    static MyCollection forCollectionWithPlaylists(LikesItem likes, List<PlaylistItem> likedAndPostedPlaylists,
-                                                   List<StationRecord> stationRecords, boolean atLeastOneError) {
-        return new AutoValue_MyCollection(likes,
+    public static MyCollection forCollectionWithPlaylists(List<PlaylistItem> likedAndPostedPlaylists, boolean atLeastOneError) {
+        return new AutoValue_MyCollection(new LikesItem(Collections.<LikedTrackPreview>emptyList(), PropertySet.create()),
                                           likedAndPostedPlaylists,
-                                          stationRecords,
+                                          Collections.<StationRecord>emptyList(),
                                           Collections.<TrackItem>emptyList(),
                                           Collections.<RecentlyPlayedPlayableItem>emptyList(),
                                           atLeastOneError);

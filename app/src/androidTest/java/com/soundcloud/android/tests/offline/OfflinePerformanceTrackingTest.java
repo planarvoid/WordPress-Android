@@ -53,6 +53,7 @@ public class OfflinePerformanceTrackingTest extends TrackingActivityTest<MainAct
 
         final PlaylistDetailsScreen playlistDetailsScreen = mainNavHelper
                 .goToCollections()
+                .clickPlaylistsPreview()
                 .scrollToAndClickPlaylistWithTitle("Offline tracking playlist")
                 .clickDownloadToggle();
 

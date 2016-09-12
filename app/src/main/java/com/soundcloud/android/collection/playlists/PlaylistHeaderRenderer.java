@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playlists;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -15,7 +15,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-class CollectionPlaylistHeaderRenderer implements CellRenderer<PlaylistHeaderCollectionItem> {
+class PlaylistHeaderRenderer implements CellRenderer<PlaylistCollectionHeaderItem> {
 
     private static final int EXTEND_OPTIONS_HIT_DP = 8;
 
@@ -39,7 +39,7 @@ class CollectionPlaylistHeaderRenderer implements CellRenderer<PlaylistHeaderCol
     }
 
     @Inject
-    CollectionPlaylistHeaderRenderer(Resources resources) {
+    PlaylistHeaderRenderer(Resources resources) {
         this.resources = resources;
     }
 
@@ -54,20 +54,15 @@ class CollectionPlaylistHeaderRenderer implements CellRenderer<PlaylistHeaderCol
     }
 
     @Override
-    public void bindItemView(int position, View view, List<PlaylistHeaderCollectionItem> list) {
-        PlaylistHeaderCollectionItem item = list.get(position);
+    public void bindItemView(int position, View view, List<PlaylistCollectionHeaderItem> list) {
+        PlaylistCollectionHeaderItem item = list.get(position);
         ButterKnife.bind(this, view);
         setHeaderTitle(item.getPlaylistCount());
-        setHeaderTopSpacing(item.withTopSeparator());
     }
 
     private void setHeaderTitle(int count) {
         String title = resources.getQuantityString(R.plurals.collections_playlists_header_plural, count, count);
         headerText.setText(title);
-    }
-
-    private void setHeaderTopSpacing(boolean visible) {
-        headerTopSeparator.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     void setOnSettingsClickListener(OnSettingsClickListener onSettingsClickListener) {

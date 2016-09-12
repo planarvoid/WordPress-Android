@@ -1,11 +1,11 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playlists;
 
 import com.google.auto.value.AutoValue;
 
 @AutoValue
 public abstract class PlaylistsOptions {
 
-    static final PlaylistsOptions SHOW_ALL = new AutoValue_PlaylistsOptions.Builder()
+    public static final PlaylistsOptions SHOW_ALL = new AutoValue_PlaylistsOptions.Builder()
             .showLikes(true)
             .showPosts(true)
             .showOfflineOnly(false)

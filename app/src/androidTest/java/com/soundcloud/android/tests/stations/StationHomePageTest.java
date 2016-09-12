@@ -40,6 +40,7 @@ public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> 
         super.setUp();
 
         playlistDetailsScreen = mainNavHelper.goToCollections()
+                                             .clickPlaylistsPreview()
                                              .scrollToAndClickPlaylistWithTitle("track-stations");
 
         playlistDetailsScreen.waitForContentAndRetryIfLoadingFailed();

@@ -1,4 +1,4 @@
-package com.soundcloud.android.collection;
+package com.soundcloud.android.collection.playlists;
 
 import com.google.auto.value.AutoValue;
 import com.soundcloud.android.model.Urn;
@@ -8,10 +8,10 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 
 @AutoValue
-abstract class PlaylistCollectionItem extends CollectionItem {
+public abstract class PlaylistCollectionPlaylistItem extends PlaylistCollectionItem {
 
-    static PlaylistCollectionItem create(PlaylistItem playlistItem) {
-        return new AutoValue_PlaylistCollectionItem(CollectionItem.TYPE_PLAYLIST_ITEM, playlistItem);
+    public static PlaylistCollectionPlaylistItem create(PlaylistItem playlistItem) {
+        return new AutoValue_PlaylistCollectionPlaylistItem(PlaylistCollectionItem.TYPE_PLAYLIST, playlistItem);
     }
 
     abstract PlaylistItem getPlaylistItem();

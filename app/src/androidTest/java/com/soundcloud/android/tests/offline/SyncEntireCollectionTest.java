@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.OfflineSyncTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.CollectionScreen;
+import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.PlaylistElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -47,14 +48,17 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
 
-        final PlaylistElement playlist = collectionScreen
-                .scrollToFirstPlaylist();
+        final PlaylistsScreen playlistsScreen = collectionScreen.clickPlaylistsPreview();
+        final PlaylistElement playlist = playlistsScreen.scrollToFirstPlaylist();
 
         playlist.clickOverflow()
                 .clickMakeUnavailableOfflineToDisableSyncCollection()
                 .clickOk();
 
         assertThat(playlist.downloadElement().isVisible(), is(false));
+
+        playlistsScreen.goBackToCollections();
+
         assertThat(checkSyncEntireCollectionStatus(), is(false));
     }
 
@@ -64,15 +68,20 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
 
-        final PlaylistElement playlist = collectionScreen
+        final PlaylistsScreen playlistsScreen = collectionScreen.clickPlaylistsPreview();
+
+        final PlaylistElement playlist = playlistsScreen
                 .scrollToFirstPlaylist()
                 .click()
                 .clickDownloadToDisableSyncCollection()
                 .clickOkForPlaylistDetails()
-                .goBackToCollections()
+                .goBackToPlaylists()
                 .scrollToFirstPlaylist();
 
         assertThat(playlist.downloadElement().isVisible(), is(false));
+
+        playlistsScreen.goBackToCollections();
+
         assertThat(checkSyncEntireCollectionStatus(), is(false));
     }
 
@@ -82,33 +91,38 @@ public class SyncEntireCollectionTest extends ActivityTest<LauncherActivity> {
         final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
         assertThat(collectionScreen.likedTracksPreviewElement().downloadElement().isVisible(), is(false));
 
-        final PlaylistElement playlist = collectionScreen
+        final PlaylistsScreen playlistsScreen = collectionScreen.clickPlaylistsPreview();
+
+        final PlaylistElement playlist = playlistsScreen
                 .scrollToFirstPlaylist()
                 .click()
                 .clickDownloadToDisableSyncCollection()
                 .clickCancelForPlaylistDetails()
-                .goBackToCollections()
+                .goBackToPlaylists()
                 .scrollToFirstPlaylist();
 
         assertThat(playlist.downloadElement().isVisible(), is(true));
+
+        playlistsScreen.goBackToCollections();
+
         assertThat(checkSyncEntireCollectionStatus(), is(true));
     }
 
     public void testDisablingSyncEntireCollectionViaPlaylistLeavesOtherContentDownloaded() {
         enableSyncEntireCollection();
-        final CollectionScreen collectionScreen = mainNavHelper.goToCollections();
+        final PlaylistsScreen playlistsScreen = mainNavHelper.goToCollections().clickPlaylistsPreview();
 
-        final PlaylistElement playlist1 = collectionScreen
+        final PlaylistElement playlist1 = playlistsScreen
                 .scrollToFirstPlaylist()
                 .click()
                 .clickDownloadToDisableSyncCollection()
                 .clickOkForPlaylistDetails()
-                .goBackToCollections()
+                .goBackToPlaylists()
                 .scrollToFirstPlaylist();
 
         assertThat(playlist1.downloadElement().isVisible(), is(false));
 
-        final PlaylistElement playlist2 = collectionScreen.scrollToPlaylistWithTitle("Offline playlist");
+        final PlaylistElement playlist2 = playlistsScreen.scrollToPlaylistWithTitle("Offline playlist");
 
         assertThat(playlist2.downloadElement().isVisible(), is(true));
     }

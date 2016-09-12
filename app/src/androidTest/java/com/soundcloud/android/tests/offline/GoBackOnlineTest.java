@@ -48,9 +48,11 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         enableOfflineContent(context);
 
         mainNavHelper.goToCollections()
+                     .clickPlaylistsPreview()
                      .scrollToFirstPlaylist()
                      .click()
                      .clickDownloadToggle()
+                     .goBackToPlaylists()
                      .goBackToCollections();
 
         final BasicSettingsScreen basicSettingsScreen = mainNavHelper.goToBasicSettings();
@@ -64,6 +66,7 @@ public class GoBackOnlineTest extends ActivityTest<MainActivity> {
         goBackOnlineDialog.clickContinue();
 
         DownloadImageViewElement downloadElement = mainNavHelper.goToCollections()
+                                                                .clickPlaylistsPreview()
                                                                 .scrollToFirstPlaylist()
                                                                 .downloadElement();
 
