@@ -1,7 +1,9 @@
 package com.soundcloud.android.ads;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -21,7 +23,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class AdViewabilityController extends DefaultActivityLightCycle<AppCompatActivity> {
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+public class AdViewabilityMoatController extends DefaultActivityLightCycle<AppCompatActivity> {
 
     private final DeviceHelper deviceHelper;
     private final FeatureFlags featureFlags;
@@ -33,7 +36,7 @@ public class AdViewabilityController extends DefaultActivityLightCycle<AppCompat
     private WeakReference<Activity> currentActivity;
 
     @Inject
-    public AdViewabilityController(DeviceHelper deviceHelper, FeatureFlags featureFlags, Context context) {
+    public AdViewabilityMoatController(DeviceHelper deviceHelper, FeatureFlags featureFlags, Context context) {
         this.deviceHelper = deviceHelper;
         this.featureFlags = featureFlags;
         this.context = context;

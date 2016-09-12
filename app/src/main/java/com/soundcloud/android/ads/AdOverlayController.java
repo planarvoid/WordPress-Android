@@ -7,6 +7,7 @@ import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playback.PlayQueueItem;
 import com.soundcloud.android.playback.PlayQueueManager;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -16,6 +17,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.view.View;
+import android.widget.ImageView;
 
 @SuppressWarnings("PMD.AccessorClassGeneration")
 @AutoFactory(allowSubclasses = true)
@@ -27,10 +29,11 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private final AccountOperations accountOperations;
+    private final ApplicationProperties applicationProperties;
     private final InterstitialPresenterFactory interstitialPresenterFactory;
     private final LeaveBehindPresenterFactory leaveBehindPresenterFactory;
     private final AdOverlayListener listener;
-    private final AdViewabilityController adViewabilityController;
+    private final AdViewabilityMoatController adViewabilityController;
 
     private Optional<OverlayAdData> overlayData = Optional.absent();
 
@@ -58,9 +61,10 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
                         @Provided EventBus eventBus,
                         @Provided PlayQueueManager playQueueManager,
                         @Provided AccountOperations accountOperations,
+                        @Provided ApplicationProperties applicationProperties,
                         @Provided InterstitialPresenterFactory interstitialPresenterFactory,
                         @Provided LeaveBehindPresenterFactory leaveBehindPresenterFactory,
-                        @Provided AdViewabilityController adViewabilityController) {
+                        @Provided AdViewabilityMoatController adViewabilityController) {
         this.trackView = trackView;
         this.listener = listener;
         this.context = context;
@@ -68,6 +72,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
+        this.applicationProperties = applicationProperties;
         this.interstitialPresenterFactory = interstitialPresenterFactory;
         this.leaveBehindPresenterFactory = leaveBehindPresenterFactory;
         this.adViewabilityController = adViewabilityController;
@@ -129,9 +134,21 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     public void show(boolean isForeground) {
         if (overlayData.isPresent() && shouldDisplayAdOverlay(isForeground)) {
             OverlayAdData adData = overlayData.get();
-            adViewabilityController.startOverlayTracking(presenter.getImageView(), adData);
+            startTrackingOverlayViewability(presenter.getImageView(), adData);
             presenter.bind(adData);
             resetMetaData();
+        }
+    }
+
+    private void startTrackingOverlayViewability(ImageView view, OverlayAdData adData) {
+        if (applicationProperties.canUseMoatForAdViewability()) {
+            adViewabilityController.startOverlayTracking(view, adData);
+        }
+    }
+
+    private void stopTrackingOverlayViewability() {
+        if (applicationProperties.canUseMoatForAdViewability()) {
+            adViewabilityController.stopOverlayTracking();
         }
     }
 
@@ -174,12 +191,12 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         if (presenter != null) {
             final boolean fullScreen = presenter.isFullScreen();
             setOverlayDismissed();
-            adViewabilityController.stopOverlayTracking();
             presenter.clear();
             presenter = null;
             overlayData = Optional.absent();
             listener.onAdOverlayHidden(fullScreen);
         }
+        stopTrackingOverlayViewability();
     }
 
     private void setOverlayDismissed() {
