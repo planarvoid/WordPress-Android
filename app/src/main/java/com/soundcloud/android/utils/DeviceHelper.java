@@ -6,16 +6,19 @@ import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.strings.Strings;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public class DeviceHelper {
+
+    private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // Available memory (bytes)
 
     private static final String MISSING_DEVICE_NAME = "unknown device";
     private static final String MISSING_UDID = "unknown";
@@ -82,11 +85,6 @@ public class DeviceHelper {
         return BuildConfig.VERSION_CODE;
     }
 
-    public boolean hasMicrophone() {
-        PackageManager pm = context.getPackageManager();
-        return pm != null && pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
-    }
-
     public int getCurrentOrientation() {
         return context.getResources().getConfiguration().orientation;
     }
@@ -97,6 +95,18 @@ public class DeviceHelper {
 
     public boolean isOrientation(int orientation) {
         return getCurrentOrientation() == orientation;
+    }
+
+    public boolean isLowMemoryDevice() {
+        // Reference values for available mem: Wildfire: 16,777,216; Nexus S: 33,554,432; Nexus 4: 201,326,592
+        return Runtime.getRuntime().maxMemory() < LOW_MEM_DEVICE_THRESHOLD;
+    }
+
+    public DisplayMetrics getDisplayMetrics() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay().getMetrics(metrics);
+        return metrics;
     }
 
     public static String getBuildInfo() {

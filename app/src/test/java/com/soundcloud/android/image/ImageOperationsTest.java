@@ -26,6 +26,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.DisplayMetricsStub;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
@@ -107,6 +108,7 @@ public class ImageOperationsTest extends AndroidUnitTest {
     @Mock ImageProcessor imageProcessor;
     @Mock Configuration configuration;
     @Mock UserAgentImageDownloaderFactory imageDownloaderFactory;
+    @Mock DeviceHelper deviceHelper;
 
     @Captor ArgumentCaptor<ImageViewAware> imageViewAwareCaptor;
     @Captor ArgumentCaptor<DisplayImageOptions> displayOptionsCaptor;
@@ -125,7 +127,8 @@ public class ImageOperationsTest extends AndroidUnitTest {
                 placeholderCache,
                 blurCache,
                 fileNameGenerator,
-                imageDownloaderFactory);
+                imageDownloaderFactory,
+                deviceHelper);
         scheduler = Schedulers.immediate();
 
         when(imageLoader.getDiskCache()).thenReturn(diskCache);

@@ -4,6 +4,8 @@ import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.Log;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func0;
@@ -23,14 +25,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 
 class GoOnboardingAdapter extends PagerAdapter {
 
+    private static final int BG_SAMPLE_SIZE = 2;
+
     private Context context;
+    private DeviceHelper deviceHelper;
 
     @Inject
-    public GoOnboardingAdapter(Context context) {
+    public GoOnboardingAdapter(Context context, DeviceHelper deviceHelper) {
         this.context = context;
+        this.deviceHelper = deviceHelper;
     }
 
     @Override
@@ -61,20 +68,33 @@ class GoOnboardingAdapter extends PagerAdapter {
         Observable.fromCallable(new Func0<Bitmap>() {
             @Override
             public Bitmap call() {
-                return BitmapFactory.decodeResource(context.getResources(), page.background);
+                BitmapFactory.Options decodeOpts = new BitmapFactory.Options();
+                if (deviceHelper.isLowMemoryDevice() || shouldResampleBackground(page)) {
+                    // Scale background image to half source size
+                    decodeOpts.inSampleSize = BG_SAMPLE_SIZE;
+                }
+                return BitmapFactory.decodeResource(context.getResources(), page.background, decodeOpts);
             }
         })
         .subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER)
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new DefaultSubscriber<Bitmap>() {
-            @Override
-            public void onNext(Bitmap bitmap) {
-                ImageView background = ButterKnife.findById(view, R.id.go_onboarding_background);
-                if (background != null) {
-                    background.setImageBitmap(bitmap);
-                }
-            }
-        });
+        .subscribe(new BackgroundSubscriber((ImageView) view.findViewById(R.id.go_onboarding_background)));
+    }
+
+    private BitmapFactory.Options measureBackground(OnboardingPage page) {
+        BitmapFactory.Options measureOpts = new BitmapFactory.Options();
+        measureOpts.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(context.getResources(), page.background, measureOpts);
+        return measureOpts;
+    }
+
+    private boolean shouldResampleBackground(OnboardingPage page) {
+        final BitmapFactory.Options options = measureBackground(page);
+        int fullWidth = options.outWidth;
+        int resampleWidth = options.outWidth / BG_SAMPLE_SIZE;
+        int screenWidth = deviceHelper.getDisplayMetrics().widthPixels;
+        // Resample if screen width is closer to sampled width than source width
+        return Math.abs(fullWidth - screenWidth) > Math.abs(resampleWidth - screenWidth);
     }
 
     private void bindBasicViews(OnboardingPage page, ViewGroup view) {
@@ -98,12 +118,35 @@ class GoOnboardingAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return 4;
+        return OnboardingPage.values().length;
     }
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == object;
+    }
+
+    private class BackgroundSubscriber extends DefaultSubscriber<Bitmap> {
+
+        private final WeakReference<ImageView> viewRef;
+
+        public BackgroundSubscriber(ImageView view) {
+            this.viewRef = new WeakReference<>(view);
+        }
+
+        @Override
+        public void onNext(Bitmap bitmap) {
+            ImageView background = viewRef.get();
+            if (background != null && bitmap != null) {
+                background.setImageBitmap(bitmap);
+            }
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Log.e(getClass().getSimpleName(), "Failed to decode background: " + e.getMessage());
+            super.onError(e); // Log remotely
+        }
     }
 
     enum OnboardingPage {

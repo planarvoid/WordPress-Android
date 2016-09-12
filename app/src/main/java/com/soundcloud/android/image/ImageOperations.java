@@ -17,6 +17,7 @@ import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.cache.Cache;
 import com.soundcloud.android.utils.cache.Cache.ValueProvider;
@@ -53,7 +54,6 @@ import java.util.Set;
 public class ImageOperations {
 
     private static final String TAG = ImageLoader.TAG;
-    private static final int LOW_MEM_DEVICE_THRESHOLD = 50 * 1024 * 1024; // available mem in bytes
     private static final String PLACEHOLDER_KEY_BASE = "%s_%s_%s";
 
     private final ImageLoader imageLoader;
@@ -65,6 +65,7 @@ public class ImageOperations {
     private final BitmapLoadingAdapter.Factory bitmapAdapterFactory;
     private final FileNameGenerator fileNameGenerator;
     private final UserAgentImageDownloaderFactory imageDownloaderFactory;
+    private final DeviceHelper deviceHelper;
 
     private final CircularPlaceholderGenerator circularPlaceholderGenerator;
     private final Cache<String, TransitionDrawable> placeholderCache;
@@ -79,13 +80,15 @@ public class ImageOperations {
                            BitmapLoadingAdapter.Factory bitmapAdapterFactory,
                            ImageProcessor imageProcessor,
                            ImageUrlBuilder imageUrlBuilder,
-                           UserAgentImageDownloaderFactory imageDownloaderFactory) {
+                           UserAgentImageDownloaderFactory imageDownloaderFactory,
+                           DeviceHelper deviceHelper) {
         this(ImageLoader.getInstance(), imageUrlBuilder, placeholderGenerator, circularPlaceholderGenerator,
              adapterFactory, bitmapAdapterFactory, imageProcessor,
              Cache.<String, TransitionDrawable>withSoftValues(50),
              Cache.<Urn, Bitmap>withSoftValues(10),
              new HashCodeFileNameGenerator(),
-             imageDownloaderFactory);
+             imageDownloaderFactory,
+             deviceHelper);
     }
 
     private final FallbackImageListener notFoundListener = new FallbackImageListener(notFoundUris);
@@ -101,7 +104,8 @@ public class ImageOperations {
                     Cache<String, TransitionDrawable> placeholderCache,
                     Cache<Urn, Bitmap> blurredImageCache,
                     FileNameGenerator fileNameGenerator,
-                    UserAgentImageDownloaderFactory imageDownloaderFactory) {
+                    UserAgentImageDownloaderFactory imageDownloaderFactory,
+                    DeviceHelper deviceHelper) {
         this.imageLoader = imageLoader;
         this.imageUrlBuilder = imageUrlBuilder;
         this.placeholderGenerator = placeholderGenerator;
@@ -113,6 +117,7 @@ public class ImageOperations {
         this.imageProcessor = imageProcessor;
         this.fileNameGenerator = fileNameGenerator;
         this.imageDownloaderFactory = imageDownloaderFactory;
+        this.deviceHelper = deviceHelper;
     }
 
     public void initialise(Context context, ApplicationProperties properties) {
@@ -126,11 +131,9 @@ public class ImageOperations {
         builder.defaultDisplayImageOptions(ImageOptionsFactory.cache());
         builder.diskCacheFileNameGenerator(fileNameGenerator);
         builder.imageDownloader(imageDownloaderFactory.create(context));
-        final long availableMemory = Runtime.getRuntime().maxMemory();
-        // Here are some reference values for available mem: Wildfire: 16,777,216; Nexus S: 33,554,432; Nexus 4: 201,326,592
-        if (availableMemory < LOW_MEM_DEVICE_THRESHOLD) {
-            // cut down to half of what UIL would reserve by default (div 8) on low mem devices
-            builder.memoryCacheSize((int) (availableMemory / 16));
+        if (deviceHelper.isLowMemoryDevice()) {
+            // Cut down to half of what UIL would reserve by default (div 8) on low mem devices
+            builder.memoryCacheSize((int) (Runtime.getRuntime().maxMemory() / 16));
         }
         imageLoader.init(builder.build());
     }
