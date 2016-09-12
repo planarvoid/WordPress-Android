@@ -9,6 +9,8 @@ import javax.inject.Inject;
 
 public class PlaybackActionController {
 
+    private static final String TAG = "PlaybackActionCtrl";
+
     private final PlaySessionController playSessionController;
     private final PlaybackServiceInitiator serviceInitiator;
     private final AdsController adsController;
@@ -23,7 +25,7 @@ public class PlaybackActionController {
     }
 
     public void handleAction(String action, String source) {
-        Log.d(getClass().getSimpleName(), "Handling Playback action " + action + " from " + source);
+        Log.d(TAG, "Handling Playback action " + action + " from " + source);
         if (PlaybackAction.PLAY.equals(action)) {
             playSessionController.play();
         } else if (PlaybackAction.PAUSE.equals(action)) {
