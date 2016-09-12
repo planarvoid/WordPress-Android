@@ -30,6 +30,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     private final InterstitialPresenterFactory interstitialPresenterFactory;
     private final LeaveBehindPresenterFactory leaveBehindPresenterFactory;
     private final AdOverlayListener listener;
+    private final AdViewabilityController adViewabilityController;
 
     private Optional<OverlayAdData> overlayData = Optional.absent();
 
@@ -58,7 +59,8 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
                         @Provided PlayQueueManager playQueueManager,
                         @Provided AccountOperations accountOperations,
                         @Provided InterstitialPresenterFactory interstitialPresenterFactory,
-                        @Provided LeaveBehindPresenterFactory leaveBehindPresenterFactory) {
+                        @Provided LeaveBehindPresenterFactory leaveBehindPresenterFactory,
+                        @Provided AdViewabilityController adViewabilityController) {
         this.trackView = trackView;
         this.listener = listener;
         this.context = context;
@@ -68,6 +70,7 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         this.accountOperations = accountOperations;
         this.interstitialPresenterFactory = interstitialPresenterFactory;
         this.leaveBehindPresenterFactory = leaveBehindPresenterFactory;
+        this.adViewabilityController = adViewabilityController;
     }
 
     @Override
@@ -124,8 +127,10 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     }
 
     public void show(boolean isForeground) {
-        if (shouldDisplayAdOverlay(isForeground)) {
-            presenter.bind(overlayData.get());
+        if (overlayData.isPresent() && shouldDisplayAdOverlay(isForeground)) {
+            OverlayAdData adData = overlayData.get();
+            adViewabilityController.startOverlayTracking(presenter.getImageView(), adData);
+            presenter.bind(adData);
             resetMetaData();
         }
     }
@@ -137,10 +142,6 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     }
 
     private boolean shouldDisplayAdOverlay(boolean isForeground) {
-        if (!overlayData.isPresent()) {
-            return false;
-        }
-
         final boolean isPortrait = deviceHelper.getCurrentOrientation() == Configuration.ORIENTATION_PORTRAIT;
         return presenter.shouldDisplayOverlay(overlayData.get(), isExpanded, isPortrait, isForeground);
     }
@@ -171,8 +172,9 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
     public void clear() {
         resetMetaData();
         if (presenter != null) {
-            setOverlayDismissed();
             final boolean fullScreen = presenter.isFullScreen();
+            setOverlayDismissed();
+            adViewabilityController.stopOverlayTracking();
             presenter.clear();
             presenter = null;
             overlayData = Optional.absent();
