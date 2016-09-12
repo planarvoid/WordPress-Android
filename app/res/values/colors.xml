@@ -59,9 +59,8 @@
 
     <!-- Play Queue -->
     <color name="play_queue_remove">#ff3300</color>
-    <color name="play_queue_background">#33ffffff</color>
-    <color name="play_queue_drag_background">#1Affffff</color>
-    <color name="play_queue_background_touch">#1Cffffff</color>
+    <color name="play_queue_playing_background">#37ffffff</color>
+    <color name="play_queue_higlighted_background">#1Effffff</color>
 
     <!-- Player Ads -->
     <color name="preview_artwork_overlay">#4c000000</color>

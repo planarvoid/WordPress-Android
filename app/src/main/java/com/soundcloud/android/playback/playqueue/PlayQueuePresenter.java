@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.playqueue;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -46,10 +47,17 @@ import java.util.ArrayList;
 class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         implements TrackItemRenderer.Listener {
 
-    private final Func1<PlayQueueEvent, Boolean> isNotMoveOrRemovedEvent = new Func1<PlayQueueEvent, Boolean>() {
+    private static final Func1<PlayQueueEvent, Boolean> isNotMoveOrRemovedEvent = new Func1<PlayQueueEvent, Boolean>() {
         @Override
         public Boolean call(PlayQueueEvent playQueueEvent) {
             return !playQueueEvent.itemMoved() && !playQueueEvent.itemRemoved();
+        }
+    };
+
+    private static final Func1<CurrentPlayQueueItemEvent, Boolean> hasPositionMoved = new Func1<CurrentPlayQueueItemEvent, Boolean>() {
+        @Override
+        public Boolean call(CurrentPlayQueueItemEvent currentPlayQueueItemEvent) {
+            return currentPlayQueueItemEvent.hasPositionChanged();
         }
     };
 
@@ -67,7 +75,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
         public List<PlayQueueUIItem> call(List<TrackAndPlayQueueItem> trackAndPlayQueueItems) {
             final List<PlayQueueUIItem> items = new ArrayList<>();
             for (TrackAndPlayQueueItem trackAndPlayQueueItem : trackAndPlayQueueItems) {
-                items.add(PlayQueueUIItem.from(trackAndPlayQueueItem.playQueueItem, trackAndPlayQueueItem.trackItem, context));
+                items.add(PlayQueueUIItem.from(trackAndPlayQueueItem.playQueueItem,
+                                               trackAndPlayQueueItem.trackItem,
+                                               context));
             }
             return items;
         }
@@ -126,14 +136,18 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     private void subscribeToEvents() {
-        eventSubscriptions.add(eventBus.subscribeImmediate(EventQueue.CURRENT_PLAY_QUEUE_ITEM,
-                new UpdateCurrentTrackSubscriber()));
+        eventSubscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                                       .first()
+                                       .subscribe(new UpdateCurrentTrackSubscriber()));
+        eventSubscriptions.add(eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM)
+                                       .filter(hasPositionMoved)
+                                       .subscribe(new UpdateCurrentTrackSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAY_QUEUE)
-                .filter(isNotMoveOrRemovedEvent)
-                .subscribe(new ChangePlayQueueSubscriber()));
+                                       .filter(isNotMoveOrRemovedEvent)
+                                       .subscribe(new ChangePlayQueueSubscriber()));
         eventSubscriptions.add(eventBus.queue(EventQueue.PLAYBACK_PROGRESS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new PlaybackProgressSubscriber()));
+                                       .observeOn(AndroidSchedulers.mainThread())
+                                       .subscribe(new PlaybackProgressSubscriber()));
         eventSubscriptions.add(
                 eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -161,9 +175,9 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
 
     private void refreshPlayQueue() {
         updateSubscription = playQueueOperations.getTracks()
-                .map(toPlayQueueUIItem)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new PlayQueueSubscriber());
+                                                .map(toPlayQueueUIItem)
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribe(new PlayQueueSubscriber());
     }
 
     private int getScrollPosition() {
@@ -280,7 +294,6 @@ class PlayQueuePresenter extends SupportFragmentLightCycleDispatcher<Fragment>
     }
 
     private class UpdateCurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueItemEvent> {
-
 
         @Override
         public void onNext(CurrentPlayQueueItemEvent event) {

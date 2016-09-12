@@ -21,8 +21,8 @@ public abstract class CurrentPlayQueueItemEvent {
     }
 
     public static CurrentPlayQueueItemEvent fromPositionRepeat(PlayQueueItem playQueueItem,
-                                                                Urn collectionUrn,
-                                                                int position) {
+                                                               Urn collectionUrn,
+                                                               int position) {
         return new AutoValue_CurrentPlayQueueItemEvent(POSITION_REPEAT, playQueueItem, collectionUrn, position);
     }
 
@@ -30,6 +30,10 @@ public abstract class CurrentPlayQueueItemEvent {
 
     public boolean isRepeat() {
         return getKind() == POSITION_REPEAT;
+    }
+
+    public boolean hasPositionChanged() {
+        return getKind() == POSITION_CHANGED;
     }
 
     public abstract PlayQueueItem getCurrentPlayQueueItem();

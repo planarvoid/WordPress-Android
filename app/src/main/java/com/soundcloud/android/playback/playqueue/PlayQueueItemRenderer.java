@@ -49,6 +49,7 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
     @Override
     public void bindItemView(final int position, View itemView, List<PlayQueueUIItem> items) {
         final PlayQueueUIItem item = items.get(position);
+        itemView.setSelected(item.getPlayState() == PlayQueueUIItem.PlayState.PLAYING);
         ViewGroup statusPlaceHolder = (ViewGroup) itemView.findViewById(R.id.status_place_holder);
         View textHolder = itemView.findViewById(R.id.text_holder);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.image);
@@ -58,15 +59,14 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
         title.setText(item.getTitle());
         creator.setText(item.getCreator());
         imageOperations.displayInAdapterView(item.getImageResource(),
-                ApiImageSize.getListItemImageSize(itemView.getResources()),
-                imageView);
+                                             ApiImageSize.getListItemImageSize(itemView.getResources()),
+                                             imageView);
         statusPlaceHolder.removeAllViews();
         setListener(position, itemView, item);
         setClickable(itemView, item);
         setStatusLabel(statusPlaceHolder, itemView, item);
         setRepeatAlpha(item, imageView, textHolder);
         setupOverFlow(item, overFlowButton, position);
-        setBackground(item, itemView);
         setTitleColor(item, title);
     }
 
@@ -83,14 +83,6 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
             View.inflate(itemView.getContext(), playQueueUIItem.getStatusLabelId(), statusPlaceHolder);
         }
 
-    }
-
-    private void setBackground(PlayQueueUIItem item, View view) {
-        if (item.getPlayState() == PlayQueueUIItem.PlayState.PLAYING) {
-            view.setBackgroundResource(R.drawable.queue_item_playing_background);
-        } else {
-            view.setBackgroundResource(R.drawable.queue_item_background);
-        }
     }
 
     private void setListener(final int position, View itemView, final PlayQueueUIItem item) {
@@ -150,23 +142,25 @@ public class PlayQueueItemRenderer implements CellRenderer<PlayQueueUIItem> {
             return playstate == PlayQueueUIItem.PlayState.PLAYED;
         } else {
             throw new IllegalStateException("New repeat mode: " + newRepeatMode.toString()
-                    + " cannot follow and old repeat mode: " + oldRepeatMode.toString());
+                                                    + " cannot follow and old repeat mode: " + oldRepeatMode.toString());
         }
     }
 
     private void setupOverFlow(final PlayQueueUIItem item, final ImageView overflowButton, final int position) {
         ViewUtils.extendTouchArea(overflowButton, ViewUtils.dpToPx(overflowButton.getContext(), EXTENDED_TOUCH_DP));
+        overflowButton.setSelected(false);
         if (item.getPlayState() == PlayQueueUIItem.PlayState.COMING_UP) {
             overflowButton.setImageResource(R.drawable.drag_handle);
+            overflowButton.setOnClickListener(null);
         } else {
             overflowButton.setImageResource(R.drawable.playqueue_track_item_overflow);
             overflowButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     trackItemMenuPresenter.show(ViewUtils.getFragmentActivity(view),
-                            view,
-                            item.getTrackItem(),
-                            position);
+                                                view,
+                                                item.getTrackItem(),
+                                                position);
                 }
             });
         }

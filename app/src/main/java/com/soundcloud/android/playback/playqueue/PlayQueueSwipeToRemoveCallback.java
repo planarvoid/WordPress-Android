@@ -124,7 +124,7 @@ class PlayQueueSwipeToRemoveCallback extends ItemTouchHelper.SimpleCallback {
         super.onSelectedChanged(viewHolder, actionState);
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
             draggedFromPosition = viewHolder.getAdapterPosition();
-            viewHolder.itemView.setBackgroundResource(R.color.play_queue_drag_background);
+            viewHolder.itemView.setBackgroundResource(R.color.play_queue_higlighted_background);
         } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
             if (draggedFromPosition != Consts.NOT_SET && draggedToPosition != Consts.NOT_SET) {
                 presenter.moveItems(draggedFromPosition, draggedToPosition);
