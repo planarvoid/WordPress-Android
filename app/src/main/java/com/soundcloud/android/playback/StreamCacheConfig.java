@@ -20,6 +20,10 @@ public class StreamCacheConfig {
     static final long MAX_SIZE_BYTES = 500 * 1024 * 1024; // 500MB
     static final int STREAM_CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE = 1;
 
+    // These are missing form the Locale class
+    private static final String COUNTRY_NEW_ZEALAND = "NZ";
+    private static final String COUNTRY_AUSTRALIA = "AU";
+
     private final TelphonyBasedCountryProvider countryProvider;
     @Nullable
     private final File streamCacheDirectory;
@@ -39,7 +43,9 @@ public class StreamCacheConfig {
                 || Locale.US.getCountry().equalsIgnoreCase(countryCode)
                 || Locale.GERMANY.getCountry().equalsIgnoreCase(countryCode)
                 || Locale.FRANCE.getCountry().equalsIgnoreCase(countryCode)
-                || Locale.UK.getCountry().equalsIgnoreCase(countryCode)) {
+                || Locale.UK.getCountry().equalsIgnoreCase(countryCode)
+                || COUNTRY_NEW_ZEALAND.equalsIgnoreCase(countryCode)
+                || COUNTRY_AUSTRALIA.equalsIgnoreCase(countryCode)) {
             return MIN_SIZE_BYTES;
         } else {
             return MAX_SIZE_BYTES;
