@@ -100,7 +100,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstTrack() {
-        return clickTrack(0);
+        return scrollToAndGetFirstTrackItem().click();
     }
 
     public VisualPlayerElement clickLastTrack() {
@@ -114,11 +114,11 @@ public class PlaylistDetailsScreen extends Screen {
         return findAndClickFirstTrackOverflowButton().clickStartStation();
     }
 
-    public TrackItemElement scrollToAndGetFirstTrackItem() {
+    private TrackItemElement scrollToAndGetFirstTrackItem() {
         return toTrackItemElement.apply(scrollToItem(With.id(R.id.track_list_item)));
     }
 
-    public PlaylistDetailsScreen scrollToLastTrackItem() {
+    private PlaylistDetailsScreen scrollToLastTrackItem() {
         testDriver.scrollListToLine(getTrackCount() - 1);
         return this;
     }

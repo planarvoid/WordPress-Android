@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 
@@ -84,6 +85,11 @@ public class StreamCardElement {
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
+    }
+
+    public PlaylistDetailsScreen clickToOpenPlaylist() {
+        wrapped.findOnScreenElement(With.id(R.id.title)).click();
+        return new PlaylistDetailsScreen(testDriver);
     }
 
     private ViewElement reposter() {
