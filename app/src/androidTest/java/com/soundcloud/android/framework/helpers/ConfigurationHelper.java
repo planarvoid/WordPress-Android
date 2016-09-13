@@ -31,6 +31,9 @@ public class ConfigurationHelper {
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
+    private static final String PREFS_STATIONS = "stations";
+
+    private static final String ONBOARDING_LIKED_STATIONS_DISABLED = "ONBOARDING_LIKED_STATIONS_DISABLED";
     private static final String LAST_POLICY_CHECK_TIME = "last_policy_check_time";
     private static final String TAG = "TestRunner";
 
@@ -156,6 +159,10 @@ public class ConfigurationHelper {
         return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
     }
 
+    private static SharedPreferences getStationsSettingsPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_STATIONS, Context.MODE_PRIVATE);
+    }
+
     public static void resetPolicyCheckTime(Context context) {
         getPolicySettingsPreferences(context)
                 .edit()
@@ -184,6 +191,13 @@ public class ConfigurationHelper {
 
     public static void enableOfflineSettingsOnboarding(Context context) {
         setOfflineSettingsOnboarding(context, false);
+    }
+
+    public static void disableStationsOnboarding(Context context) {
+        getStationsSettingsPreferences(context)
+                .edit()
+                .putBoolean(ONBOARDING_LIKED_STATIONS_DISABLED, true)
+                .apply();
     }
 
     private static void setOfflineSettingsOnboarding(Context context, boolean value) {

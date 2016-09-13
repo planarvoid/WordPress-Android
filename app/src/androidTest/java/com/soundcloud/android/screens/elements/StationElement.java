@@ -34,7 +34,7 @@ public class StationElement {
         return new StationHomeScreen(testDriver);
     }
 
-    static With WithTitle(final Han testDriver, final String title) {
+    public static With WithTitle(final Han testDriver, final String title) {
         return new With() {
 
             @Override

@@ -7,7 +7,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.annotation.StationsHomeTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -16,10 +15,9 @@ import com.soundcloud.android.screens.stations.StationHomeScreen;
 
 /**
  * This test tests exactly the same functionality as LegacyStationTest, the only difference is that it takes
- * into account the station home page. LegacyStationTest should be replaces by StationsHomeTest after StationHome
+ * into account the station home page. LegacyStationTest should be replaces by LikeStationsTest after StationHome
  * (StationInfoPage) is released
  */
-@StationsHomeTest
 public class StationHomePageTest extends TrackingActivityTest<LauncherActivity> {
 
     private static final String START_STATION_FROM_PLAYLIST = "audio-events-v1-open_station_from_playlist";

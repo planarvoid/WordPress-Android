@@ -17,21 +17,21 @@ apply from: "${project.('buildSrcDir')}/curl.gradle"
 
 def systemProperties = [
         //"log.tag.Propeller": "DEBUG", -- too noisy
-        "log.tag.ApiClient": "DEBUG",
-        "log.tag.PublicApi": "DEBUG",
-        "log.tag.ApiSyncer": "DEBUG",
-        "log.tag.Timeline": "DEBUG",
-        "log.tag.SC_ANDROID_TEST": "DEBUG",
-        "log.tag.BUG_4503": "DEBUG",
-        "log.tag.EventTrackingManager": "DEBUG",
-        "log.tag.MrLoggaVerifier": "DEBUG",
-        "log.tag.Configuration": "DEBUG",
-        "log.tag.TestRunner": "DEBUG",
-        "log.tag.PlaybackService": "DEBUG",
-        "log.tag.ScAds": "DEBUG",
+        "log.tag.ApiClient"            : "DEBUG",
+        "log.tag.PublicApi"            : "DEBUG",
+        "log.tag.ApiSyncer"            : "DEBUG",
+        "log.tag.Timeline"             : "DEBUG",
+        "log.tag.SC_ANDROID_TEST"      : "DEBUG",
+        "log.tag.BUG_4503"             : "DEBUG",
+        "log.tag.EventTrackingManager" : "DEBUG",
+        "log.tag.MrLoggaVerifier"      : "DEBUG",
+        "log.tag.Configuration"        : "DEBUG",
+        "log.tag.TestRunner"           : "DEBUG",
+        "log.tag.PlaybackService"      : "DEBUG",
+        "log.tag.ScAds"                : "DEBUG",
         "log.tag.SoundCloudApplication": "DEBUG",
-        "log.tag.OfflineTests": "DEBUG",
-        "log.tag.ActivityLifeCycle": "DEBUG"
+        "log.tag.OfflineTests"         : "DEBUG",
+        "log.tag.ActivityLifeCycle"    : "DEBUG"
 ]
 
 task runListOfTests << {
@@ -56,7 +56,7 @@ task runLollipopTests << {
           "com.soundcloud.android.framework.annotation.BlockedTrackTest",
           "com.soundcloud.android.framework.annotation.GoogleAccountTest",
           "com.soundcloud.android.framework.annotation.PaymentTest",
-          "com.soundcloud.android.framework.annotation.LegacyStationTest",
+          "com.soundcloud.android.framework.annotation.LegacyStationTest"
   ] as String[]
 
   runTests("Lollipop", excludeAnnotations, systemProperties, null, null)
@@ -73,7 +73,8 @@ task runLollipopTestsRelease << {
           "com.soundcloud.android.framework.annotation.StationsTabTest",
           "com.soundcloud.android.framework.annotation.PaymentTest",
           "com.soundcloud.android.framework.annotation.LegacyStationTest",
-          "com.soundcloud.android.framework.annotation.DiscoveryChartsTest",
+          "com.soundcloud.android.framework.annotation.DiscoveryChartsTest"
+
   ] as String[]
 
   runTests("Lollipop", excludeAnnotations, systemProperties, null, null)

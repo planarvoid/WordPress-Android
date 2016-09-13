@@ -7,6 +7,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.LikedTracksPreviewElement;
 import com.soundcloud.android.screens.elements.PlaylistsPreviewElement;
+import com.soundcloud.android.screens.stations.LikedStationsScreen;
 
 public class CollectionScreen extends Screen {
 
@@ -27,14 +28,23 @@ public class CollectionScreen extends Screen {
         return new PlaylistsScreen(testDriver);
     }
 
+    public LikedStationsScreen clickStations() {
+        stationsElement().click();
+        return new LikedStationsScreen(testDriver);
+    }
+
     public LikedTracksPreviewElement likedTracksPreviewElement() {
         final ViewElement viewElement = testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.collections_your_liked_tracks)));
         return new LikedTracksPreviewElement(testDriver, viewElement);
     }
 
-    public PlaylistsPreviewElement likedPlaylistsPreviewElement() {
+    private PlaylistsPreviewElement likedPlaylistsPreviewElement() {
         final ViewElement viewElement = testDriver.findOnScreenElement(With.text(testDriver.getString(R.string.collections_playlists_header)));
         return new PlaylistsPreviewElement(testDriver, viewElement);
+    }
+
+    private ViewElement stationsElement() {
+        return testDriver.findOnScreenElement(With.text(R.string.stations_collection_title_liked_stations));
     }
 
     @Override
