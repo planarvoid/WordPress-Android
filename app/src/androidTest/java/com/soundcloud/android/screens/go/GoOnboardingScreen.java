@@ -12,6 +12,7 @@ import com.soundcloud.android.upgrade.GoOnboardingActivity;
 import android.support.annotation.StringRes;
 
 public class GoOnboardingScreen extends Screen {
+
     public GoOnboardingScreen(Han testDriver) {
         super(testDriver);
     }
@@ -46,12 +47,7 @@ public class GoOnboardingScreen extends Screen {
 
     private ViewElement actionButton(@StringRes int string) {
         return testDriver
-                .findOnScreenElement(With.text(string))
-                .findAncestor(root(), With.classSimpleName("LoadingButton"));
-    }
-
-    private ViewElement root() {
-        return testDriver.findOnScreenElement(With.id(R.id.go_onboarding_container));
+                .findOnScreenElement(With.text(string));
     }
 
 }

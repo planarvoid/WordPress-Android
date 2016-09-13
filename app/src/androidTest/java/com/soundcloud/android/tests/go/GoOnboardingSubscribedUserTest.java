@@ -20,7 +20,6 @@ public class GoOnboardingSubscribedUserTest extends ActivityTest<GoOnboardingAct
         super(GoOnboardingActivity.class);
     }
 
-
     @Override
     protected void logInHelper() {
         TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
