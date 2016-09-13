@@ -3,29 +3,23 @@
 
     <style name="GoOnboarding" parent="TextAppearance.SoundCloudLightFont" />
 
-    <style name="GoOnboarding.WelcomeBackground">
+    <style name="GoOnboarding.Background">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:scaleType">centerCrop</item>
-        <item name="android:src">@drawable/go_onboarding_background</item>
     </style>
 
     <style name="GoOnboarding.WelcomeContainer">
-        <item name="android:layout_marginTop">@dimen/android_status_bar_stub_height</item>
-        <item name="android:padding">16dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_margin">16dp</item>
     </style>
 
     <style name="GoOnboarding.Text" parent="TextAppearance.SoundCloudLightFont">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:maxWidth">320dp</item>
-    </style>
-
-    <style name="GoOnboarding.Text.Header">
-        <item name="android:textSize">@dimen/go_onboarding_header_text_size</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:layout_marginTop">@dimen/android_status_bar_stub_height</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
     </style>
 
     <style name="GoOnboarding.Text.Title">
@@ -33,20 +27,18 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <!-- Only displayed when height is more than 500dp -->
     <style name="GoOnboarding.Text.SubText">
-        <item name="android:visibility">gone</item>
+        <item name="android:textSize">@dimen/go_onboarding_sub_title_text_size</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_marginTop">10dp</item>
     </style>
 
-    <!-- Only displayed when height is more than 500dp -->
-    <style name="GoOnboarding.Text.SubHeader">
-        <item name="android:visibility">gone</item>
-    </style>
-
-    <style name="GoOnboarding.Tooltip" parent="TextAppearance.SoundCloudLightFont">
-        <item name="android:layout_marginBottom">@dimen/go_onboarding_tooltip_margin_bottom</item>
-        <item name="android:layout_marginTop">@dimen/go_onboarding_tooltip_margin_top</item>
+    <style name="GoOnboarding.Tooltip">
+        <item name="android:layout_width">@dimen/go_onboarding_tooltip_size</item>
+        <item name="android:layout_height">@dimen/go_onboarding_tooltip_size</item>
+        <item name="android:layout_marginBottom">20dp</item>
         <item name="android:gravity">center_horizontal</item>
+        <item name="android:background">@drawable/onboarding_tooltip_background</item>
     </style>
 
     <style name="GoOnboarding.Button" parent="TextAppearance.SoundCloudLightFont">
@@ -61,6 +53,10 @@
         <item name="loadingColor">@color/white</item>
     </style>
 
+    <style name="GoOnboarding.PrimaryButton.Transparent">
+        <item name="android:background">@drawable/btn_primary_transparent</item>
+    </style>
+
     <style name="GoOnboarding.SecondaryButton" parent="GoOnboarding.Button">
         <item name="android:background">@drawable/btn_secondary</item>
         <item name="android:textColor">@color/black</item>
@@ -68,10 +64,15 @@
         <item name="loadingColor">@color/ak_sc_orange</item>
     </style>
 
+    <style name="GoOnboarding.Spacer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">80dp</item>
+    </style>
+
     <!-- Go Onboarding Settings -->
     <style name="GoOnboarding.SettingsBackground">
         <item name="android:scaleType">centerCrop</item>
-        <item name="android:src">@drawable/go_onboarding_background</item>
+        <item name="android:src">@drawable/go_onboarding_1</item>
     </style>
 
     <style name="GoOnboarding.SettingsContainer">

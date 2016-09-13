@@ -804,11 +804,16 @@
     <string name="offline_no_connection">No connection</string>
 
     <!-- __GO ONBOARDING -->
-    <string name="go_onboarding_header">Welcome to SoundCloud Go</string>
-    <string name="go_onboarding_subheader">Now you can enjoy even more music, offline and ad-free.</string>
-    <string name="go_onboarding_title">Save your music offline</string>
-    <string name="go_onboarding_subtext">Use the arrow to save all your likes or\nany of your playlists and albums offline.</string>
-    <string name="go_onboarding_start">OK, got it</string>
+    <string name="go_onboarding_title_1">Welcome to SoundCloud\u00A0Go!</string>
+    <string name="go_onboarding_body_1">You now have access to the always growing SoundCloud Go catalog and ad-free offline listening.</string>
+    <string name="go_onboarding_title_2">Play full tracks</string>
+    <string name="go_onboarding_body_2">All previews are now full tracks with SoundCloud Go.</string>
+    <string name="go_onboarding_title_3">Listen offline</string>
+    <string name="go_onboarding_body_3">Download playlists, albums, and all your liked tracks.</string>
+    <string name="go_onboarding_title_4">Start exploring</string>
+    <string name="go_onboarding_body_4">Don’t wait — find old favorites and look for new ones in your massive new catalog of tracks.</string>
+
+    <string name="go_onboarding_start">Start listening</string>
     <string name="go_onboarding_retry">Loading failed. Retry?</string>
     <string name="go_onboarding_error_dialog_title">Something went wrong</string>
     <string name="go_onboarding_error_dialog_msg">There was a problem enabling your new features and content. Please restart the application.</string>

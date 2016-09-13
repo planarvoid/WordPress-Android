@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/go_onboarding_container"
+    style="@style/GoOnboarding.WelcomeContainer">
+
+    <ImageView
+        android:id="@+id/go_onboarding_background"
+        style="@style/GoOffboarding.Background" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/go_onboarding_footer_spacer">
+
+        <LinearLayout
+            android:layout_width="@dimen/go_onboarding_text_width"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:ignore="uselessParent">
+
+            <ImageView
+                android:id="@+id/tooltip_image"
+                style="@style/GoOnboarding.Tooltip" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/go_onboarding_title"
+                style="@style/GoOnboarding.Text.Title" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/go_onboarding_body"
+                style="@style/GoOnboarding.Text.SubText" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/go_onboarding_footer_spacer"
+        style="@style/GoOnboarding.Spacer"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>

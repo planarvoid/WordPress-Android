@@ -1,88 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/landing_background_image"
-        style="@style/GoOnboarding.WelcomeBackground"
-        tools:background="#bbbbbb" />
-
-    <RelativeLayout
-        style="@style/GoOnboarding.WelcomeContainer"
-        android:id="@+id/go_onboarding_container"
+    <com.soundcloud.android.view.SafeViewPager
+        android:id="@+id/go_onboarding_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" />
 
-        <com.soundcloud.android.view.CustomFontTextView
-            android:id="@+id/go_onboarding_header"
-            style="@style/GoOnboarding.Text.Header"
-            android:layout_width="@dimen/go_onboarding_header_width"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="12dp"
-            android:text="@string/go_onboarding_header" />
+    <com.soundcloud.android.view.pageindicator.CirclePageIndicator
+        android:id="@+id/go_onboarding_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/GoOnboardingPageIndicator"
+        android:padding="2dp"
+        android:layout_above="@+id/btn_go_setup_start" />
 
-        <com.soundcloud.android.view.CustomFontTextView
-            style="@style/GoOnboarding.Text.SubHeader"
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/go_onboarding_header"
-            android:text="@string/go_onboarding_subheader" />
+    <com.soundcloud.android.view.LoadingButton
+        android:id="@+id/btn_go_setup_start"
+        style="@style/GoOnboarding.PrimaryButton.Transparent"
+        android:layout_margin="20dp"
+        android:layout_width="@dimen/go_onboarding_text_width"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        app:actionText="@string/go_onboarding_start"
+        app:retryText="@string/go_onboarding_retry" />
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_below="@id/go_onboarding_header"
-            android:layout_above="@+id/btn_go_setup_start">
-
-            <LinearLayout
-                android:layout_width="@dimen/go_onboarding_text_width"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:orientation="vertical"
-                tools:ignore="uselessParent">
-
-                <ImageView
-                    android:id="@+id/tooltip_image"
-                    style="@style/GoOnboarding.Tooltip"
-                    android:layout_width="@dimen/go_onboarding_tooltip_size"
-                    android:layout_height="@dimen/go_onboarding_tooltip_size"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/go_onboarding_welcome_icon" />
-
-                <com.soundcloud.android.view.CustomFontTextView
-                    android:id="@+id/go_onboarding_title"
-                    style="@style/GoOnboarding.Text.Title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/go_onboarding_title" />
-
-                <com.soundcloud.android.view.CustomFontTextView
-                    style="@style/GoOnboarding.Text.SubText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/go_onboarding_subtext" />
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-        <com.soundcloud.android.view.LoadingButton
-            android:id="@+id/btn_go_setup_start"
-            style="@style/GoOnboarding.PrimaryButton"
-            android:layout_width="@dimen/go_onboarding_text_width"
-            android:layout_height="48dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            app:actionText="@string/go_onboarding_start"
-            app:retryText="@string/go_onboarding_retry" />
-
-    </RelativeLayout>
-</merge>
+</RelativeLayout>

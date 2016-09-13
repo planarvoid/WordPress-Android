@@ -712,10 +712,6 @@
   <string name="offline_no_wifi">Aucun signal Wifi</string>
   <string name="offline_no_connection">Aucune connexion</string>
   <!--__GO ONBOARDING-->
-  <string name="go_onboarding_header">Bienvenue sur SoundCloud Go</string>
-  <string name="go_onboarding_subheader">Vous pouvez désormais écouter plus de musique, hors connexion et sans publicités.</string>
-  <string name="go_onboarding_title">Sauvegarder votre musique hors connexion</string>
-  <string name="go_onboarding_subtext">Utilisez la flèche pour enregistrer tous les favoris et\n tous vos albums et playlists hors connexion.</string>
   <string name="go_onboarding_start">D\'accord, j\'ai compris</string>
   <string name="go_onboarding_retry">Échec du chargement. Réessayer ?</string>
   <string name="go_onboarding_error_dialog_title">Un problème est survenu</string>

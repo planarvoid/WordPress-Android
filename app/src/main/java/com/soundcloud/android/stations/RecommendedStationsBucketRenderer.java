@@ -3,7 +3,7 @@ package com.soundcloud.android.stations;
 import butterknife.ButterKnife;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.CellRenderer;
-import com.viewpagerindicator.CirclePageIndicator;
+import com.soundcloud.android.view.pageindicator.CirclePageIndicator;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;

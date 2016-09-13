@@ -62,9 +62,9 @@ class GoOnboardingPresenter extends DefaultActivityLightCycle<AppCompatActivity>
     }
 
     @Override
-    public void onDestroy(AppCompatActivity anActivity) {
+    public void onDestroy(AppCompatActivity activity) {
         subscription.unsubscribe();
-        activity = null;
+        this.activity = null;
     }
 
     void onSetupOfflineClicked() {
