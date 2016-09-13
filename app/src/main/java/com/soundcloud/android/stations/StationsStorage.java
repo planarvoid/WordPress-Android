@@ -33,6 +33,7 @@ import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -123,11 +124,15 @@ class StationsStorage {
             public void steps(PropellerDatabase propellerDatabase) {
                 final Where filterLikedStations = filter().whereEq(StationsCollections.COLLECTION_TYPE,
                                                                    StationsCollectionsTypes.LIKED);
-                step(propellerDatabase.bulkUpsert(Stations.TABLE, transform(newStationsMetaData, TO_STATION_METADATA)));
+                step(storeStationsMetadata(newStationsMetaData));
                 step(propellerDatabase.delete(StationsCollections.TABLE, filterLikedStations));
                 step(propellerDatabase.bulkUpsert(StationsCollections.TABLE, toContentValues(remoteLikedStations)));
             }
         });
+    }
+
+    WriteResult storeStationsMetadata(List<ApiStationMetadata> newStationsMetaData){
+        return propellerDatabase.bulkUpsert(Stations.TABLE, transform(newStationsMetaData, TO_STATION_METADATA));
     }
 
     private static int mapLastPosition(CursorReader cursorReader) {
