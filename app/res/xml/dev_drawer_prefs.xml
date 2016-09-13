@@ -8,6 +8,9 @@
             android:key="@string/dev_drawer_action_get_oauth_token_to_clipboard_key"
             android:title="@string/dev_drawer_action_get_oauth_token_to_clipboard_title" />
         <Preference
+            android:key="@string/dev_drawer_action_show_remote_debug_key"
+            android:title="@string/dev_drawer_action_show_remote_debug_title" />
+        <Preference
             android:key="@string/dev_drawer_action_kill_app_key"
             android:title="@string/dev_drawer_action_kill_app_title" />
         <Preference

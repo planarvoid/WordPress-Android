@@ -13,14 +13,13 @@ import org.json.JSONObject;
 import android.content.res.Resources;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class GcmMessageHandler {
 
     private static final String TAG = "GcmMessageReceiver";
-    private static final String RECEIVE_MESSSAGE_ACTION = "com.google.android.c2dm.intent.RECEIVE";
     private static final String SC_ACTION_STOP = "stop";
-
-    private static final String EXTRA_FROM = "from";
     private static final String EXTRA_DATA = "data";
 
     private final Resources resources;
@@ -28,6 +27,8 @@ public class GcmMessageHandler {
     private final ConcurrentPlaybackOperations concurrentPlaybackOperations;
     private final AccountOperations accountOperations;
     private final GcmStorage gcmStorage;
+
+    private Listener listener;
 
     @Inject
     public GcmMessageHandler(Resources resources,
@@ -49,14 +50,23 @@ public class GcmMessageHandler {
             if (Strings.isBlank(payload)) {
                 ErrorUtils.handleSilentException(new IllegalArgumentException("Blank Remote Message Payload : " + remoteMessage));
             } else {
-                handleScMessage(payload);
+                handleScMessage(remoteMessage, payload);
             }
         }
     }
 
-    private void handleScMessage(String payload) {
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
+    private void handleScMessage(RemoteMessage remoteMessage, String payload) {
         try {
             final String decryptedString = gcmDecryptor.decrypt(payload);
+
+            if (listener != null) {
+                listener.onRemoteMessage(remoteMessage, decryptedString);
+            }
+
             logScMessage(decryptedString);
             final JSONObject jsonPayload = new JSONObject(decryptedString);
             if (isStopAction(jsonPayload) && isLoggedInUser(jsonPayload) && isNotSelfTriggered(jsonPayload)) {
@@ -84,5 +94,9 @@ public class GcmMessageHandler {
     private boolean isNotSelfTriggered(JSONObject jsonPayload) throws JSONException {
         final String token = gcmStorage.getToken();
         return token == null || !token.equals(jsonPayload.getString("token"));
+    }
+
+    public interface Listener {
+        void onRemoteMessage(RemoteMessage remoteMessage, String payload);
     }
 }

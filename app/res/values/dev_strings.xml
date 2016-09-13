@@ -9,6 +9,9 @@
     <string name="dev_drawer_action_get_oauth_token_to_clipboard_key">get_oauth_token</string>
     <string name="dev_drawer_action_get_oauth_token_to_clipboard_title">Get OAuth Token</string>
 
+    <string name="dev_drawer_action_show_remote_debug_key">show_remote_messages_debug</string>
+    <string name="dev_drawer_action_show_remote_debug_title">Show incoming remote messages</string>
+
     <string name="dev_drawer_action_kill_app_key">kill_process</string>
     <string name="dev_drawer_action_kill_app_title">Restart app</string>
 

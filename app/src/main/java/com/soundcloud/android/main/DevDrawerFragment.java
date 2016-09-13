@@ -6,6 +6,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.ConfigurationManager;
 import com.soundcloud.android.configuration.Plan;
+import com.soundcloud.android.gcm.GcmDebugDialogFragment;
 import com.soundcloud.android.playback.ConcurrentPlaybackOperations;
 import com.soundcloud.android.policies.DailyUpdateService;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -84,6 +85,16 @@ public class DevDrawerFragment extends PreferenceFragment {
                   public boolean onPreferenceClick(Preference preference) {
                       copyTokenToClipboard();
                       Toast.makeText(getActivity(), R.string.dev_oauth_token_copied, Toast.LENGTH_LONG).show();
+                      return true;
+                  }
+              });
+
+        screen.findPreference(getString(R.string.dev_drawer_action_show_remote_debug_key))
+              .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                  @Override
+                  public boolean onPreferenceClick(Preference preference) {
+                      GcmDebugDialogFragment dialogFragment = new GcmDebugDialogFragment();
+                      dialogFragment.show(getFragmentManager(), "gcm_debug");
                       return true;
                   }
               });
