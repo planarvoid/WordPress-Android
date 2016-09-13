@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -200,18 +201,18 @@ public class StationsOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldPersistNewLikedStation() {
-        when(stationsStorage.updateStationLike(any(Urn.class),
-                                               anyBoolean())).thenReturn(Observable.just(mock(ChangeResult.class)));
+        when(stationsStorage.updateLocalStationLike(any(Urn.class),
+                                                    anyBoolean())).thenReturn(Observable.just(mock(ChangeResult.class)));
 
         operations.toggleStationLike(station, true).subscribe();
 
-        verify(stationsStorage).updateStationLike(station, true);
+        verify(stationsStorage).updateLocalStationLike(station, true);
     }
 
     @Test
     public void shouldEmitStationUpdatedEventWhenLikingAStation() {
-        when(stationsStorage.updateStationLike(any(Urn.class),
-                                               anyBoolean())).thenReturn(Observable.just(mock(ChangeResult.class)));
+        when(stationsStorage.updateLocalStationLike(any(Urn.class),
+                                                    anyBoolean())).thenReturn(Observable.just(mock(ChangeResult.class)));
 
         operations.toggleStationLike(station, true).subscribe();
 
@@ -219,6 +220,44 @@ public class StationsOperationsTest extends AndroidUnitTest {
                                                                    EntityStateChangedEvent.class);
         assertThat(event.getKind()).isEqualTo(EntityStateChangedEvent.STATIONS_COLLECTION_UPDATED);
         assertThat(event.getFirstUrn()).isEqualTo(station);
+    }
+
+    @Test
+    public void shouldMarkMigrationAsCompletedIfSucceeded() {
+        TestSubscriber<Boolean> testSubscriber = new TestSubscriber<>();
+
+        when(stationsStorage.shouldRunRecentToLikedMigration()).thenReturn(true);
+        when(stationsApi.requestRecentToLikedMigration()).thenReturn(Observable.just(true));
+
+        operations.migrateRecentToLikedIfNeeded().subscribe(testSubscriber);
+
+        verify(stationsStorage).markRecentToLikedMigrationComplete();
+        testSubscriber.assertReceivedOnNext(Collections.singletonList(true));
+    }
+
+    @Test
+    public void shouldNotMarkMigrationAsCompletedIfFailed() {
+        TestSubscriber<Boolean> testSubscriber = new TestSubscriber<>();
+
+        when(stationsStorage.shouldRunRecentToLikedMigration()).thenReturn(true);
+        when(stationsApi.requestRecentToLikedMigration()).thenReturn(Observable.just(false));
+
+        operations.migrateRecentToLikedIfNeeded().subscribe(testSubscriber);
+
+        verify(stationsStorage, never()).markRecentToLikedMigrationComplete();
+        testSubscriber.assertCompleted();
+    }
+
+    @Test
+    public void shouldNotAttemptMigrationIfSucceedBefore() {
+        TestSubscriber<Boolean> testSubscriber = new TestSubscriber<>();
+
+        operations.migrateRecentToLikedIfNeeded().subscribe(testSubscriber);
+
+        verify(stationsStorage, never()).markRecentToLikedMigrationComplete();
+        verify(stationsApi, never()).requestRecentToLikedMigration();
+
+        testSubscriber.assertReceivedOnNext(Collections.singletonList(true));
     }
 
 }

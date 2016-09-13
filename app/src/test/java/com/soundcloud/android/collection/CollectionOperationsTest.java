@@ -24,7 +24,6 @@ import com.soundcloud.android.stations.StationRecord;
 import com.soundcloud.android.stations.StationsCollectionsTypes;
 import com.soundcloud.android.stations.StationsOperations;
 import com.soundcloud.android.sync.SyncInitiatorBridge;
-import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -98,7 +97,6 @@ public class CollectionOperationsTest extends AndroidUnitTest {
         when(syncInitiator.hasSyncedTrackLikesBefore()).thenReturn(Observable.just(true));
         when(stationsOperations.collection(StationsCollectionsTypes.LIKED))
                 .thenReturn(Observable.just(StationFixtures.getStation(Urn.forTrackStation(123L))));
-        when(stationsOperations.syncRecentStations()).thenReturn(Observable.just(SyncJobResult.success("stations sync", true)));
         when(myPlaylistsOperations.myPlaylists(PlaylistsOptions.SHOW_ALL))
                 .thenReturn(Observable.just(singletonList(PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class)))));
         when(playHistoryOperations.playHistory(3)).thenReturn(Observable.just(playHistory));

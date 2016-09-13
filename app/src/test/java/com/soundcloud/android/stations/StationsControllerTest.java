@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -110,14 +109,4 @@ public class StationsControllerTest extends AndroidUnitTest {
         verify(operations).saveRecentlyPlayedStation(STATION);
     }
 
-    @Test
-    public void shouldTriggerSyncUponLogin() {
-        assertThat(syncRecentStations.hasObservers()).isFalse();
-        assertThat(syncLikedStations.hasObservers()).isFalse();
-
-        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(Urn.forUser(123)));
-
-        assertThat(syncRecentStations.hasObservers()).isTrue();
-        assertThat(syncLikedStations.hasObservers()).isTrue();
-    }
 }

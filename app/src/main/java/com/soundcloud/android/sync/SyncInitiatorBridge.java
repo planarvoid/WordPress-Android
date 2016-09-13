@@ -5,6 +5,8 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.stations.StationsCollectionsTypes;
+import com.soundcloud.android.stations.StationsOperations;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -15,16 +17,18 @@ public class SyncInitiatorBridge {
     private final SyncInitiator syncInitiator;
     private final SyncStateStorage syncStateStorage;
     private final FeatureFlags featureFlags;
+    private final StationsOperations stationOperations;
 
     @Inject
     public SyncInitiatorBridge(LegacySyncInitiator legacySyncInitiator,
                                SyncInitiator syncInitiator,
                                SyncStateStorage syncStateStorage,
-                               FeatureFlags featureFlags) {
+                               FeatureFlags featureFlags, StationsOperations stationOperations) {
         this.legacySyncInitiator = legacySyncInitiator;
         this.syncInitiator = syncInitiator;
         this.syncStateStorage = syncStateStorage;
         this.featureFlags = featureFlags;
+        this.stationOperations = stationOperations;
     }
 
     public void refreshMe() {
@@ -56,7 +60,7 @@ public class SyncInitiatorBridge {
         if (featureFlags.isEnabled(Flag.FEATURE_NEW_SYNC_ADAPTER)) {
             return syncInitiator.sync(Syncable.MY_PLAYLISTS)
                                 .zipWith(syncInitiator.sync(Syncable.PLAYLIST_LIKES), RxUtils.ZIP_TO_VOID
-            );
+                                );
         } else {
             return legacySyncInitiator.refreshMyPlaylists()
                                       .zipWith(legacySyncInitiator.syncPlaylistLikes(), RxUtils.ZIP_TO_VOID);
@@ -93,5 +97,14 @@ public class SyncInitiatorBridge {
         } else {
             return legacySyncInitiator.syncTrackLikes().map(RxUtils.TO_VOID);
         }
+    }
+
+    public Observable<Void> refreshStations() {
+        if (featureFlags.isEnabled(Flag.LIKED_STATIONS)) {
+            return stationOperations.syncStations(StationsCollectionsTypes.LIKED).map(RxUtils.TO_VOID);
+        } else {
+            return stationOperations.syncStations(StationsCollectionsTypes.RECENT).map(RxUtils.TO_VOID);
+        }
+
     }
 }

@@ -229,7 +229,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     public void shouldSaveLocalStationLike() {
         final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
 
-        storage.updateStationLike(stationUrn, true).subscribe(subscriber);
+        storage.updateLocalStationLike(stationUrn, true).subscribe(subscriber);
 
         databaseAssertions().assertLocalStationLike(stationUrn);
     }
@@ -238,7 +238,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
     public void shouldSaveLocalStationUnlike() {
         final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
 
-        storage.updateStationLike(stationUrn, false).subscribe(subscriber);
+        storage.updateLocalStationLike(stationUrn, false).subscribe(subscriber);
 
         databaseAssertions().assertLocalStationUnlike(stationUrn);
     }
@@ -248,7 +248,7 @@ public class StationsStorageDatabaseTest extends StorageIntegrationTest {
         final ApiStation apiStation = testFixtures().insertUnlikedStation();
         final TestSubscriber<ChangeResult> subscriber = new TestSubscriber<>();
 
-        storage.updateStationLike(apiStation.getUrn(), true).subscribe(subscriber);
+        storage.updateLocalStationLike(apiStation.getUrn(), true).subscribe(subscriber);
 
         databaseAssertions().assertLocalStationLike(apiStation.getUrn());
     }

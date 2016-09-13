@@ -276,6 +276,7 @@ public class SoundCloudApplication extends MultiDexApplication {
     private void requestCollectionsSync() {
         fireAndForget(syncInitiatorBridge.refreshMyPostedAndLikedPlaylists());
         fireAndForget(syncInitiatorBridge.refreshLikedTracks());
+        fireAndForget(syncInitiatorBridge.refreshStations());
     }
 
     private void setupStrictMode() {

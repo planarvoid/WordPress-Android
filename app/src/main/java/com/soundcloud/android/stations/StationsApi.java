@@ -8,6 +8,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.experiments.StationsRecoAlgorithmExperiment;
 import com.soundcloud.android.model.Urn;
@@ -16,6 +17,7 @@ import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
 import rx.Observable;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -37,7 +39,7 @@ class StationsApi {
         this.stationsExperiment = stationsExperiment;
     }
 
-    public ModelCollection<Urn> updateLikedStations(LikedStationsPostBody likedStationsPostBody) throws ApiRequestException, IOException, ApiMapperException {
+    ModelCollection<Urn> updateLikedStations(LikedStationsPostBody likedStationsPostBody) throws ApiRequestException, IOException, ApiMapperException {
         final ApiRequest.Builder builder = ApiRequest.put(ApiEndpoints.STATIONS_LIKED.path());
         final Map<String, List<String>> body = new HashMap<>(2);
         body.put("liked", Urns.toString(likedStationsPostBody.likedStations()));
@@ -91,5 +93,18 @@ class StationsApi {
                 .build();
 
         return apiClient.fetchMappedResponse(request, ApiStationsCollections.class);
+    }
+
+    Observable<Boolean> requestRecentToLikedMigration() {
+        final ApiRequest request = ApiRequest.put(ApiEndpoints.STATIONS_MIGRATE_RECENT_TO_LIKED.path())
+                .forPrivateApi()
+                .build();
+
+        return apiClientRx.response(request).map(new Func1<ApiResponse, Boolean>() {
+            @Override
+            public Boolean call(ApiResponse apiResponse) {
+                return apiResponse.isSuccess();
+            }
+        });
     }
 }

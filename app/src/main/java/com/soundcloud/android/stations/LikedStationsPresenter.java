@@ -42,6 +42,13 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         }
     };
 
+    private final Func1<StationRecord, StationViewModel> toViewModel = new Func1<StationRecord, StationViewModel>() {
+        @Override
+        public StationViewModel call(StationRecord station) {
+            return new StationViewModel(station, playQueueManager.getCollectionUrn().equals(station.getUrn()));
+        }
+    };
+
     private final StationsOperations operations;
     private final StationsAdapter adapter;
     private final Resources resources;
@@ -76,21 +83,6 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
         getBinding().connect();
     }
 
-    private Observable<List<StationViewModel>> stationsSource() {
-        final Func1<StationRecord, StationViewModel> toViewModel = new Func1<StationRecord, StationViewModel>() {
-            @Override
-            public StationViewModel call(StationRecord station) {
-                return new StationViewModel(station, playQueueManager.getCollectionUrn().equals(station.getUrn()));
-            }
-        };
-
-        return operations
-                .collection(StationsCollectionsTypes.LIKED)
-                .map(toViewModel)
-                .take(resources.getInteger(R.integer.stations_list_max_recent_stations))
-                .toList();
-    }
-
     @Override
     protected CollectionBinding<List<StationViewModel>, StationViewModel> onBuildBinding(Bundle bundle) {
         return CollectionBinding
@@ -105,6 +97,12 @@ class LikedStationsPresenter extends RecyclerViewPresenter<List<StationViewModel
                 .from(operations.syncLikedStations().flatMap(RxUtils.continueWith(stationsSource())))
                 .withAdapter(adapter)
                 .build();
+    }
+
+    private Observable<List<StationViewModel>> stationsSource() {
+        return operations.collection(StationsCollectionsTypes.LIKED)
+                         .map(toViewModel)
+                         .toList();
     }
 
     @Override

@@ -54,9 +54,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class StationsStorage {
+
     private static final String STATION_LIKE = "STATION_LIKE";
     private static final String ONBOARDING_LIKED_STATIONS_DISABLED = "ONBOARDING_LIKED_STATIONS_DISABLED";
     private static final String ONBOARDING_STREAM_ITEM_DISABLED = "ONBOARDING_STREAM_ITEM_DISABLED";
+    private static final String MIGRATE_RECENT_TO_LIKED_STATIONS = "MIGRATE_RECENT_TO_LIKED_STATIONS";
     private static final long EXPIRE_DELAY = TimeUnit.HOURS.toMillis(24);
 
     private static final Func1<CursorReader, Station> TO_STATION_WITHOUT_TRACKS = new Func1<CursorReader, Station>() {
@@ -114,8 +116,8 @@ class StationsStorage {
         }
     };
 
-    public void setLikedStationsAndAddNewMetaData(final List<Urn> remoteLikedStations,
-                                                  final List<ApiStationMetadata> newStationsMetaData) {
+    void setLikedStationsAndAddNewMetaData(final List<Urn> remoteLikedStations,
+                                           final List<ApiStationMetadata> newStationsMetaData) {
         propellerDatabase.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propellerDatabase) {
@@ -206,7 +208,7 @@ class StationsStorage {
         });
     }
 
-    Observable<ChangeResult> updateStationLike(Urn stationUrn, boolean liked) {
+    Observable<ChangeResult> updateLocalStationLike(Urn stationUrn, boolean liked) {
         return propellerRx.upsert(StationsCollections.TABLE, contentValuesForStationLikeToggled(stationUrn, liked));
     }
 
@@ -249,8 +251,7 @@ class StationsStorage {
 
     Observable<StationRecord> station(Urn stationUrn) {
         return Observable.zip(
-                propellerRx.query(Query.from(Stations.TABLE)
-                                       .whereEq(Stations.STATION_URN, stationUrn))
+                propellerRx.query(Query.from(Stations.TABLE).whereEq(Stations.STATION_URN, stationUrn))
                            .map(TO_STATION_WITHOUT_TRACKS),
                 propellerRx.query(buildTracksListQuery(stationUrn)).map(TO_STATION_TRACK).toList(),
                 new Func2<Station, List<StationTrack>, StationRecord>() {
@@ -304,7 +305,7 @@ class StationsStorage {
                                  .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
                                  .whereEq(StationsPlayQueues.STATION_URN, stationUrn.toString())
                                  .order(StationsPlayQueues.POSITION, Query.Order.ASC);
-        return propellerRx.query(query).map(new StationTrackMapper());
+        return propellerRx.query(query).map(new StationInfoTrackMapper());
     }
 
     private Query buildTracksListQuery(Urn stationUrn) {
@@ -396,7 +397,15 @@ class StationsStorage {
         sharedPreferences.edit().putBoolean(ONBOARDING_LIKED_STATIONS_DISABLED, true).apply();
     }
 
-    private final class StationTrackMapper extends RxResultMapper<StationInfoTrack> {
+    boolean shouldRunRecentToLikedMigration() {
+        return sharedPreferences.getBoolean(MIGRATE_RECENT_TO_LIKED_STATIONS, true);
+    }
+
+    void markRecentToLikedMigrationComplete() {
+        sharedPreferences.edit().putBoolean(MIGRATE_RECENT_TO_LIKED_STATIONS, false).apply();
+    }
+
+    private final class StationInfoTrackMapper extends RxResultMapper<StationInfoTrack> {
 
         @Override
         public StationInfoTrack map(CursorReader reader) {

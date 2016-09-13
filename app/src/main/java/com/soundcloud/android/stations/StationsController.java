@@ -1,12 +1,9 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromStationsUpdated;
-import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.CurrentPlayQueueItemEvent;
-import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayStateEvent;
@@ -27,7 +24,7 @@ public class StationsController {
     private final StationsOperations operations;
     private final Scheduler scheduler;
 
-    public static final Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState> TO_COLLECTION_PLAY_STATE = new Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState>() {
+    private static final Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState> TO_COLLECTION_PLAY_STATE = new Func2<CurrentPlayQueueItemEvent, PlayStateEvent, CollectionPlaybackState>() {
         @Override
         public CollectionPlaybackState call(CurrentPlayQueueItemEvent event, PlayStateEvent playStateEvent) {
             return new CollectionPlaybackState(
@@ -35,13 +32,6 @@ public class StationsController {
                     event.getPosition(),
                     playStateEvent.getNewState()
             );
-        }
-    };
-
-    private static final Func1<CurrentUserChangedEvent, Boolean> IS_LOGGED_IN = new Func1<CurrentUserChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(CurrentUserChangedEvent currentUserChangedEvent) {
-            return currentUserChangedEvent.getKind() == CurrentUserChangedEvent.USER_UPDATED;
         }
     };
 
@@ -73,17 +63,6 @@ public class StationsController {
     }
 
     public void subscribe() {
-        syncStationsUponLogin();
-        saveRecentStation();
-    }
-
-    private void syncStationsUponLogin() {
-        fireAndForget(eventBus.queue(EventQueue.CURRENT_USER_CHANGED)
-                .filter(IS_LOGGED_IN)
-                .flatMap(continueWith(Observable.concatEager(operations.syncRecentStations(), operations.syncLikedStations()))));
-    }
-
-    private void saveRecentStation() {
         Observable
                 .combineLatest(
                         eventBus.queue(EventQueue.CURRENT_PLAY_QUEUE_ITEM),
@@ -101,7 +80,7 @@ public class StationsController {
         private final int position;
         private final PlaybackState playbackState;
 
-        public CollectionPlaybackState(Urn collectionUrn, int position, PlaybackState playbackState) {
+        CollectionPlaybackState(Urn collectionUrn, int position, PlaybackState playbackState) {
             this.collectionUrn = collectionUrn;
             this.position = position;
             this.playbackState = playbackState;

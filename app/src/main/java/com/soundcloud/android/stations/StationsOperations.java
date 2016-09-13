@@ -8,6 +8,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -27,22 +28,6 @@ import java.util.List;
 
 public class StationsOperations {
 
-    private final SyncStateStorage syncStateStorage;
-    private final StationsStorage stationsStorage;
-    private final StationsApi stationsApi;
-    private final StoreTracksCommand storeTracksCommand;
-    private final StoreStationCommand storeStationCommand;
-    private final SyncInitiator syncInitiator;
-    private final Scheduler scheduler;
-    private final EventBus eventBus;
-
-    private final Action1<ApiStation> storeTracks = new Action1<ApiStation>() {
-        @Override
-        public void call(ApiStation apiStation) {
-            storeTracksCommand.call(apiStation.getTrackRecords());
-        }
-    };
-
     private static final Func1<StationRecord, Boolean> HAS_TRACKS = new Func1<StationRecord, Boolean>() {
         @Override
         public Boolean call(StationRecord station) {
@@ -56,6 +41,30 @@ public class StationsOperations {
             return station.getStationInfoTracks().size() > 0;
         }
     };
+
+    private final Action1<ApiStation> storeTracks = new Action1<ApiStation>() {
+        @Override
+        public void call(ApiStation apiStation) {
+            storeTracksCommand.call(apiStation.getTrackRecords());
+        }
+    };
+
+    private final Func1<Boolean, Boolean> markMigrationCompleted = new Func1<Boolean, Boolean>() {
+        @Override
+        public Boolean call(Boolean wasSuccessful) {
+            stationsStorage.markRecentToLikedMigrationComplete();
+            return true;
+        }
+    };
+
+    private final SyncStateStorage syncStateStorage;
+    private final StationsStorage stationsStorage;
+    private final StationsApi stationsApi;
+    private final StoreTracksCommand storeTracksCommand;
+    private final StoreStationCommand storeStationCommand;
+    private final SyncInitiator syncInitiator;
+    private final Scheduler scheduler;
+    private final EventBus eventBus;
 
     @Inject
     public StationsOperations(SyncStateStorage syncStateStorage,
@@ -160,20 +169,34 @@ public class StationsOperations {
     }
 
     private Observable<StationRecord> syncAndLoadStationsCollection(int type) {
-
         return syncStations(type).flatMap(continueWith(loadStationsCollection(type)));
     }
 
     public Observable<SyncJobResult> syncStations(int type) {
-        return syncInitiator.sync(typeToSyncable(type));
+        if (StationsCollectionsTypes.LIKED == type) {
+            return migrateRecentToLikedIfNeeded().flatMap(continueWith(syncLikedStations()));
+        } else {
+            return syncInitiator.sync(typeToSyncable(type));
+        }
     }
 
-    public Observable<SyncJobResult> syncRecentStations() {
+    Observable<SyncJobResult> syncRecentStations() {
         return syncInitiator.sync(Syncable.RECENT_STATIONS);
     }
 
-    public Observable<SyncJobResult> syncLikedStations() {
+    Observable<SyncJobResult> syncLikedStations() {
         return syncInitiator.sync(Syncable.LIKED_STATIONS);
+    }
+
+    Observable<Boolean> migrateRecentToLikedIfNeeded() {
+        if (stationsStorage.shouldRunRecentToLikedMigration()) {
+            return stationsApi.requestRecentToLikedMigration()
+                              .filter(RxUtils.IS_TRUE)
+                              .map(markMigrationCompleted)
+                              .subscribeOn(scheduler);
+        } else {
+            return Observable.just(true);
+        }
     }
 
     ChangeResult saveLastPlayedTrackPosition(Urn collectionUrn, int position) {
@@ -200,7 +223,7 @@ public class StationsOperations {
     }
 
     Observable<ChangeResult> toggleStationLike(Urn stationUrn, boolean liked) {
-        return stationsStorage.updateStationLike(stationUrn, liked)
+        return stationsStorage.updateLocalStationLike(stationUrn, liked)
                               .doOnNext(eventBus.publishAction1(ENTITY_STATE_CHANGED, fromStationsUpdated(stationUrn)))
                               .subscribeOn(scheduler);
     }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.configuration.experiments.StationsRecoAlgorithmExperiment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -18,6 +19,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
+
+import java.util.Collections;
 
 public class StationsApiTest extends AndroidUnitTest {
     @Mock ApiClientRx apiClientRx;
@@ -60,5 +63,25 @@ public class StationsApiTest extends AndroidUnitTest {
         api.fetchStation(stationUrn).subscribe(subscriber);
 
         subscriber.assertReceivedOnNext(singletonList(apiStation));
+    }
+
+    @Test
+    public void shouldReturnTrueWhenMigrationRequestWasSuccessful() {
+        final TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
+        when(apiClientRx.response(argThat(isApiRequestTo("PUT", ApiEndpoints.STATIONS_MIGRATE_RECENT_TO_LIKED.path()))))
+                .thenReturn(Observable.just(new ApiResponse(null, 201, "")));
+
+        api.requestRecentToLikedMigration().subscribe(subscriber);
+        subscriber.assertReceivedOnNext(Collections.singletonList(true));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenMigrationRequestFailed() {
+        final TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
+        when(apiClientRx.response(argThat(isApiRequestTo("PUT", ApiEndpoints.STATIONS_MIGRATE_RECENT_TO_LIKED.path()))))
+                .thenReturn(Observable.just(new ApiResponse(null, 500, "")));
+
+        api.requestRecentToLikedMigration().subscribe(subscriber);
+        subscriber.assertReceivedOnNext(Collections.singletonList(false));
     }
 }
