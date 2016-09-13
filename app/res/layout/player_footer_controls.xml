@@ -15,13 +15,11 @@
             android:id="@+id/footer_user"
             style="@style/FooterUser"
             android:layout_toRightOf="@id/footer_toggle"
-            android:layout_marginTop="@dimen/player_footer_margin"
-            android:layout_marginRight="@dimen/player_footer_margin" />
+            android:layout_marginTop="@dimen/player_footer_margin"/>
 
     <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/footer_title"
             style="@style/FooterTitle"
             android:layout_below="@id/footer_user"
-            android:layout_toRightOf="@id/footer_toggle"
-            android:layout_marginRight="@dimen/player_footer_margin" />
+            android:layout_toRightOf="@id/footer_toggle" />
 </RelativeLayout>

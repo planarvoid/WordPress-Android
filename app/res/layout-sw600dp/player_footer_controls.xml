@@ -17,8 +17,7 @@
             android:layout_width="match_parent"
             android:layout_toRightOf="@id/footer_toggle"
             android:gravity="center_horizontal"
-            android:layout_marginTop="@dimen/player_footer_margin"
-            android:layout_marginRight="@dimen/player_footer_margin" />
+            android:layout_marginTop="@dimen/player_footer_margin" />
 
     <com.soundcloud.android.view.CustomFontTextView
             android:id="@+id/footer_title"
@@ -26,6 +25,5 @@
             android:layout_width="match_parent"
             android:layout_below="@id/footer_user"
             android:layout_toRightOf="@id/footer_toggle"
-            android:gravity="center_horizontal"
-            android:layout_marginRight="@dimen/player_footer_margin" />
+            android:gravity="center_horizontal" />
 </RelativeLayout>

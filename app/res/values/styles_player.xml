@@ -32,6 +32,7 @@
     <style name="FooterUser" parent="TextAppearance.SoundCloudLightFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginRight">16dp</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textSize">14sp</item>
@@ -140,7 +141,7 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
-    <style name="PlayerPlayQueueButton.Shuffle" >
+    <style name="PlayerPlayQueueButton.Shuffle">
         <item name="android:button">@drawable/btn_player_shuffle</item>
         <item name="android:layout_height">44dp</item>
         <item name="android:layout_width">44dp</item>
@@ -148,7 +149,7 @@
         <item name="android:textOff">@null</item>
     </style>
 
-    <style name="PlayerPlayQueueButton.Repeat" >
+    <style name="PlayerPlayQueueButton.Repeat">
         <item name="android:src">@drawable/ic_repeat</item>
         <item name="android:layout_height">44dp</item>
         <item name="android:layout_width">44dp</item>
