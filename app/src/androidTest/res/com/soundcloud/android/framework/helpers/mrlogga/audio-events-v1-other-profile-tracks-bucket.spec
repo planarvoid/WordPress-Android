@@ -58,7 +58,7 @@ expected_events:
     anonymous_id: (\w|-)+
     track_owner: soundcloud:users:218682740
     client_id: 3152
-    action: play_start
+    action: play
     play_id: '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89ab][a-fA-F0-9]{3}-[a-fA-F0-9]{12}'
     policy: ALLOW
     player_type: Skippy
