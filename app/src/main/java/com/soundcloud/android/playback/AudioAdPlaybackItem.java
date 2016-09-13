@@ -38,5 +38,4 @@ public abstract class AudioAdPlaybackItem implements PlaybackItem, Parcelable {
 
     @Override
     public abstract long getDuration();
-
 }
