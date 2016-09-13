@@ -44,9 +44,6 @@ public class SyncAdapterService extends Service {
     private static final boolean DEBUG_CANCEL = Boolean.valueOf(System.getProperty("syncadapter.debug.cancel", null));
     public static final String SYNC_FINISHED = SyncAdapterService.class.getName() + ".syncFinished";
 
-    public static final String EXTRA_SYNC_PUSH = "syncPush";
-    public static final String EXTRA_SYNC_PUSH_URI = "syncPushUri";
-
     private AbstractThreadedSyncAdapter syncAdapter;
 
     @Inject AccountOperations accountOperations;
@@ -197,7 +194,9 @@ public class SyncAdapterService extends Service {
                                         MyLikesStateProvider myLikesStateProvider,
                                         SyncConfig syncConfig) {
 
-        final Intent syncIntent = new Intent(app, ApiSyncService.class);
+        final Intent syncIntent = new Intent(app, ApiSyncService.class)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false);
+
         final boolean manual = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
         final ArrayList<Uri> urisToSync = new ArrayList<>();
 

@@ -57,6 +57,7 @@ class BackgroundSyncer {
         }
 
         final Intent syncIntent = putSyncables(new Intent(context, ApiSyncService.class), toSync)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver);
 
         context.startService(syncIntent);

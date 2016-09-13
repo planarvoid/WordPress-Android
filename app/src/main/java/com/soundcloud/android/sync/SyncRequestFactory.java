@@ -4,6 +4,8 @@ import static com.soundcloud.android.sync.SyncIntentHelper.getSyncable;
 import static com.soundcloud.android.sync.SyncIntentHelper.getSyncables;
 import static com.soundcloud.java.checks.Preconditions.checkArgument;
 
+import com.soundcloud.android.events.BackgroundSyncEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.DefaultSyncJob;
@@ -114,6 +116,9 @@ class SyncRequestFactory {
         final List<SyncJob> syncJobs = createSyncJobs(syncables);
         final ResultReceiver resultReceiver = getReceiverFromIntent(intent);
         final boolean isHighPriority = getIsHighPriorityFromIntent(intent);
+
+        logBackgroundSync(syncables, isHighPriority);
+
         return multiJobRequestFactory.create(syncJobs, resultReceiver, isHighPriority);
     }
 
@@ -136,6 +141,8 @@ class SyncRequestFactory {
                                         getReceiverFromIntent(intent), eventBus);
 
         }
+
+        logLegacyBackgroundSync(intent);
         return syncIntentFactory.create(intent);
     }
 
@@ -146,5 +153,18 @@ class SyncRequestFactory {
     private boolean getIsHighPriorityFromIntent(Intent intent) {
         // TODO, we should probably default to false when we get rid of LegacySyncInitiator, as it should always be set
         return intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true);
+    }
+
+    private void logBackgroundSync(List<Syncable> syncables, boolean isHighPriority) {
+        if (!isHighPriority) {
+            eventBus.publish(EventQueue.TRACKING, new BackgroundSyncEvent(syncables.size()));
+        }
+    }
+
+    private void logLegacyBackgroundSync(Intent intent) {
+        if (intent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS) && !getIsHighPriorityFromIntent(intent)) {
+            int syncUriCount = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS).size();
+            eventBus.publish(EventQueue.TRACKING, new BackgroundSyncEvent(syncUriCount));
+        }
     }
 }

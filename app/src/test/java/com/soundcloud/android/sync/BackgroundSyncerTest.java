@@ -51,6 +51,18 @@ public class BackgroundSyncerTest extends AndroidUnitTest {
     }
 
     @Test
+    public void syncsWithUiRequestSetToFalse() {
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
+
+        when(syncerRegistry.get(Syncable.CHARTS)).thenReturn(TestSyncData.forStaleTime(Syncable.CHARTS, STALE_TIME));
+        when(syncStateStorage.hasSyncedWithin(Syncable.CHARTS, STALE_TIME)).thenReturn(false);
+
+        assertThat(syncer.sync()).isEqualTo(Result.SYNCING);
+
+        assertThat(getServiceIntent().getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)).isFalse();
+    }
+
+    @Test
     public void syncsWithStaleSyncables() {
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
 
