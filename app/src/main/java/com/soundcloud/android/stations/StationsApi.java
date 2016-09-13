@@ -1,5 +1,7 @@
 package com.soundcloud.android.stations;
 
+import static java.util.Collections.singletonMap;
+
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -13,13 +15,10 @@ import com.soundcloud.android.utils.Urns;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.java.reflect.TypeToken;
-
 import rx.Observable;
 
 import javax.inject.Inject;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,23 +75,12 @@ class StationsApi {
     }
 
     public List<ApiStationMetadata> fetchStations(List<Urn> urns) throws ApiRequestException, IOException, ApiMapperException {
-        // TODO: 9/8/16 This is temporary.
+        final ApiRequest request = ApiRequest.post(ApiEndpoints.STATIONS_FETCH.path())
+                                              .forPrivateApi()
+                                              .withContent(singletonMap("urns", Urns.toString(urns)))
+                                              .build();
 
-        final List<ApiStationMetadata> stationMetadatas = new ArrayList<>(urns.size());
-        for (Urn urn : urns) {
-            final ApiRequest.Builder builder = ApiRequest.get(ApiEndpoints.STATION.path(urn.toString()));
-            final Optional<String> variant = stationsExperiment.getVariantName();
-            if (variant.isPresent()) {
-                builder.addQueryParam("variant", variant.get());
-            }
-            final ApiRequest request = builder
-                    .forPrivateApi()
-                    .build();
-
-            final ApiStation apiStation = apiClient.fetchMappedResponse(request, ApiStation.class);
-            stationMetadatas.add(apiStation.getMetadata());
-        }
-        return stationMetadatas;
+        return apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiStationMetadata>>() {}).getCollection();
     }
 
     ApiStationsCollections syncStationsCollections(List<PropertySet> recentStationsToSync) throws ApiRequestException, IOException, ApiMapperException {

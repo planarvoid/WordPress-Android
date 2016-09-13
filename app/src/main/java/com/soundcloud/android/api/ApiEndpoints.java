@@ -99,6 +99,7 @@ public enum ApiEndpoints {
     STATION("/stations/%s/station_and_tracks"),
     STATIONS("/stations"),
     STATIONS_LIKED("/stations/liked"),
+    STATIONS_FETCH("/stations/fetch"),
 
     // timeline features
     STREAM("/stream"),

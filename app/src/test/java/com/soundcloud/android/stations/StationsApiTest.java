@@ -1,7 +1,7 @@
 package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.testsupport.matchers.RequestMatchers.isApiRequestTo;
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -18,9 +18,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
-
-import java.util.Collections;
-import java.util.List;
 
 public class StationsApiTest extends AndroidUnitTest {
     @Mock ApiClientRx apiClientRx;
@@ -48,20 +45,7 @@ public class StationsApiTest extends AndroidUnitTest {
                 .thenReturn(Observable.just(apiStation));
         api.fetchStation(stationUrn).subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(Collections.singletonList(apiStation));
-    }
-
-    @Test
-    public void shouldReturnAnApiStationMetadata() throws Exception {
-        final ApiStation station = StationFixtures.getApiStation();
-        when(stationsExperiment.getVariantName()).thenReturn(Optional.<String>absent());
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET",
-                                                                  ApiEndpoints.STATION.path(stationUrn.toString()))),
-                                           eq(ApiStation.class)))
-                .thenReturn(station);
-
-        final List<ApiStationMetadata> result = api.fetchStations(Collections.singletonList(stationUrn));
-        assertThat(result.get(0)).isEqualTo(station.getMetadata());
+        subscriber.assertReceivedOnNext(singletonList(apiStation));
     }
 
     @Test
@@ -75,6 +59,6 @@ public class StationsApiTest extends AndroidUnitTest {
 
         api.fetchStation(stationUrn).subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(Collections.singletonList(apiStation));
+        subscriber.assertReceivedOnNext(singletonList(apiStation));
     }
 }
