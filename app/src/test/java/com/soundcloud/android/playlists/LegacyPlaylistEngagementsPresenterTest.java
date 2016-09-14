@@ -47,6 +47,7 @@ import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.playqueue.PlayQueueHelper;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.share.ShareOperations;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.FragmentRule;
@@ -98,6 +99,7 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
     @Mock private ShareOperations shareOperations;
     @Mock private PlayQueueHelper playQueueHelper;
     @Mock private EventTracker eventTracker;
+    @Mock private FeatureFlags featureFlags;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     @Captor private ArgumentCaptor<UIEvent> uiEventCaptor;
@@ -127,7 +129,8 @@ public class LegacyPlaylistEngagementsPresenterTest extends AndroidUnitTest {
                                                            offlineSettings,
                                                            navigator,
                                                            shareOperations,
-                                                           playQueueHelper);
+                                                           playQueueHelper,
+                                                           featureFlags);
 
         presenter.bindView(fragmentRule.getView());
         presenter.onResume(fragmentRule.getFragment());

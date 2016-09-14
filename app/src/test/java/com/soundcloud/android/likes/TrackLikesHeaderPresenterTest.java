@@ -36,6 +36,7 @@ import com.soundcloud.android.playback.PlaySessionSource;
 import com.soundcloud.android.playback.PlaybackInitiator;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.annotations.Issue;
@@ -82,6 +83,7 @@ public class TrackLikesHeaderPresenterTest extends AndroidUnitTest {
     @Mock private View layoutView;
     @Mock private ListView listView;
     @Mock private FragmentManager fragmentManager;
+    @Mock private FeatureFlags featureFlags;
 
     private TestEventBus eventBus;
     private List<Urn> likedTrackUrns;
