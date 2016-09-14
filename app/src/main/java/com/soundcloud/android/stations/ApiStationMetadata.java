@@ -3,10 +3,18 @@ package com.soundcloud.android.stations;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.objects.MoreObjects;
 import com.soundcloud.java.optional.Optional;
 
 public final class ApiStationMetadata {
+
+    public final static Function<ApiStationMetadata, Urn> TO_URN = new Function<ApiStationMetadata, Urn>() {
+        @Override
+        public Urn apply(ApiStationMetadata input) {
+            return input.getUrn();
+        }
+    };
 
     private final Urn urn;
     private final String title;
