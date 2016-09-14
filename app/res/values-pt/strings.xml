@@ -84,7 +84,7 @@
   <string name="authentication_your_password">Sua senha</string>
   <string name="authentication_clear_image">Mantenha pressionado para excluir a imagem</string>
   <string name="authentication_login_error_message">Não foi possível fazer login. Tente novamente.</string>
-  <string name="authentication_log_in_with_google_plus">Logar com Google Plus</string>
+  <string name="authentication_log_in_with_google_plus">Fazer login com o Google Plus</string>
   <string name="error_google_sign_in_failed">Não conseguimos iniciar sua sessão com o Google+. Para ativar sua conta do Google+ e tentar novamente, acesse plus.google.com.</string>
   <string name="auth_disclaimer_title">Mais um passo</string>
   <string name="auth_disclaimer_message">Selecionando \"Continuar\", você concorda com os Termos de Uso e com a Política de Privacidade da SoundCloud.</string>
@@ -99,6 +99,7 @@
   <string name="authentication_email_taken_message">Esse endereço de email já está associado com uma conta. Insira um endereço de email diferente ou tente fazer login.</string>
   <string name="authentication_email_invalid_message">O domínio que você inseriu parece que não pode receber emails. Você digitou corretamente?</string>
   <string name="authentication_email_other_error_message">Lamentamos, não conseguimos criar uma conta para você com os detalhes que você forneceu.</string>
+  <string name="authentication_error_unable_to_use_google_play_services">O login no Google+ não pode ser usado sem o Google Play Services. Tente outro método de fazer login.</string>
   <!--__DEEPLINKS-->
   <string name="error_toast_user_not_logged_in">Faça login para abrir este link.</string>
   <!--__EMPTY STATES-->
@@ -134,6 +135,7 @@
   <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente mais tarde.</string>
   <!--signup scope was revoked on server side-->
   <string name="signup_scope_revoked">Ups! Não conseguimos acessar sua conta.\nTente atualizar o aplicativo ou fazer login na SoundCloud.com.</string>
+  <string name="crop_external_permission_rationale">Conceda acesso à SoundCloud para ler seu armazenamento externo para acessar sua imagem.</string>
   <string name="follow_blocked_title">Seguir bloqueado</string>
   <string name="follow_blocked_content_username">%s bloqueou você.</string>
   <string name="follow_blocked_content_long_username">%s nos solicitou que sua conta fosse impossibilitada de segui-lo(a).</string>
@@ -282,7 +284,7 @@
   <string name="info">Informações</string>
   <string name="uploaded_xtimeago">Carregado %s</string>
   <string name="track_info_no_description">Sem descrição disponível</string>
-  <string name="up_next">Próximo para cima</string>
+  <string name="up_next">Avançar para cima</string>
   <!--@Todo from l10n: these playback errors are not very clear. Especially: what are playable tracks, and what can the user do about this?-->
   <string name="playback_error">Não é reproduzível</string>
   <string name="playback_error_connection">Verifique sua conexão e toque para tentar novamente.</string>
@@ -379,6 +381,7 @@
   <string name="record_tap_to_record">Toque para iniciar a gravação</string>
   <string name="record_tap_to_pause">Toque para pausar a gravação</string>
   <string name="record_tap_to_resume">Toque para continuar a gravação</string>
+  <string name="record_permission_rationale">Conceda à SoundCloud acesso ao seu microfone, assim podemos criar uma nova gravação.</string>
   <!--__UPLOAD-->
   <string name="uploader_event_processing">Processando</string>
   <string name="uploader_event_processing_your_sound">Processando seu som</string>
@@ -418,16 +421,17 @@
   <string name="recommendation_seeds_header">Descubra mais faixas</string>
   <string name="discovery_search_hint">Pesquisar no SoundCloud</string>
   <string name="discovery_search_title">Pesquisar</string>
-  <!--__DISCOVERY STATIONS-->
-  <string name="suggested_stations">Estações sugeridas</string>
   <!--__DISCOVERY CHARTS-->
-  <string name="charts_header">Paradas</string>
+  <string name="charts_header">Gráficos da SoundCloud</string>
   <string name="charts_trending">Novo e irado</string>
   <string name="charts_top">50 principais</string>
   <string name="charts_new_and_hot_list_header">Faixas que vão bombar hoje.</string>
   <string name="charts_top_fifty_list_header">As faixas mais tocadas na SoundCloud esta semana.</string>
   <string name="charts_genre_view_all">Procurar todos os gêneros</string>
   <string name="charts_by_genre">Gráficos por gênero</string>
+  <string name="all_genres">Todos os gêneros</string>
+  <string name="charts_page_header">%s gráficos</string>
+  <string tools:ignore="UnusedResources" name="charts_soundcloud">SoundCloud</string>
   <string tools:ignore="UnusedResources" name="charts_alternativerock">Rock alternativo</string>
   <string tools:ignore="UnusedResources" name="charts_ambient">Ambiente</string>
   <string tools:ignore="UnusedResources" name="charts_classical">Clássica</string>
@@ -494,8 +498,12 @@
   <string name="title_legal">Aviso legal</string>
   <string name="title_notification_settings">Configurações de notificação</string>
   <!--__STATIONS-->
+  <string name="stations_collection_title_liked_stations">Estações</string>
+  <string name="liked_stations_empty_view_message">Você ainda não curtiu nenhuma estação</string>
+  <string name="liked_stations_onboarding_dialog_button">Consegui</string>
   <string name="stations_start_track_station">Iniciar estação de faixa</string>
   <string name="stations_start_user_station">Iniciar estação</string>
+  <string name="stations_open_station">Abrir estação</string>
   <string name="stations_unable_to_start_station">Não conseguimos iniciar esta estação. Tente novamente em alguns minutos.</string>
   <string name="stations_loading_station">Carregando estação. Fique ligado.</string>
   <string name="stations_collection_title_recent_stations">Estações recentes</string>
@@ -504,6 +512,11 @@
   <string name="recent_stations_empty_view_heading">Inicie uma estação para ouvir uma série de faixas semelhantes. É como se fosse rádio.</string>
   <string name="recent_stations_empty_view_message">Basta tocar nos três pontos perto de qualquer faixa para começar.</string>
   <string name="stations_collection_title_station_page">Estação</string>
+  <string name="stations_tracks_in_this_station">Faixas nesta estação</string>
+  <string name="stations_see_all_tracks">Ver todas as faixas</string>
+  <string name="suggested_stations">Estações sugeridas</string>
+  <string name="stations_home_station_based_on">%s baseado em </string>
+  <string name="stations_home_description">Um mix sem fim de música, incluindo %1$s e muito mais</string>
   <!--__TIME-->
   <string name="format_abbreviated_seconds">%d s</string>
   <string name="format_abbreviated_minutes">%d min.</string>
@@ -577,6 +590,10 @@
   <string name="facebook_creator_invites_title">Convidar amigos para ouvir a faixa mais recente na SoundCloud</string>
   <!--__COLLECTION-->
   <string name="collections_playlists_header">Playlists e álbums</string>
+  <plurals name="collections_playlists_header_plural">
+    <item quantity="one">Playlists e álbums</item>
+    <item quantity="other">%d playlists e álbuns</item>
+  </plurals>
   <string name="collections_your_liked_tracks">Faixas curtidas</string>
   <string name="track_likes_title">Faixas curtidas</string>
   <string name="collections_options_header_filters">Filtros</string>
@@ -595,8 +612,13 @@ vão aparecer aqui.</string>
   <string name="collections_without_stations_onboarding_title">Suas curtidas. Suas playlists.\nTudo em um único lugar.</string>
   <string name="collections_onboarding_description">Bem-vindo à sua nova coleção, um destino único para seus sons.</string>
   <string name="collections_play_history_header">Histórico de escuta</string>
+  <string name="collections_play_history_clear_action">Limpar histórico de músicas ouvidas</string>
+  <string name="collections_play_history_clear_dialog_title">Limpar histórico de músicas ouvidas?</string>
+  <string name="collections_play_history_clear_dialog_message">Tem certeza de que deseja limpar o histórico de músicas ouvidas? Esta ação não poderá ser desfeita.</string>
+  <string name="collections_play_history_clear_dialog_button">Limpar</string>
+  <string name="collections_play_history_clear_error_message">Erro ao limpar o histórico de músicas ouvidas. Tente novamente mais tarde.</string>
+  <string name="collections_play_history_empty">Encontre todas as faixas que você ouviu aqui.</string>
   <string name="collections_recently_played_header">Recém-reproduzido</string>
-  <string name="collections_view_all_tracks">Ver mais</string>
   <string name="dialog_playlist_delete_title">Apagar playlist?</string>
   <string name="dialog_playlist_delete_message">Isso apagará permanentemente esta playlist. Tem certeza de que deseja continuar?</string>
   <string name="collections_recently_played_track_station">estação de faixa</string>
@@ -605,12 +627,22 @@ vão aparecer aqui.</string>
   <string name="collections_recently_played_playlist">playlist</string>
   <string name="collections_recently_played_album">álbum</string>
   <string name="collections_recently_played_profile">perfil</string>
+  <string name="collections_recently_played_clear_action">Limpar músicas reproduzidas recentemente</string>
+  <string name="collections_recently_played_clear_dialog_title">Limpar músicas reproduzidas recentemente?</string>
+  <string name="collections_recently_played_clear_dialog_message">Tem certeza de que deseja limpar o histórico de músicas reproduzidas recentemente? Esta ação não poderá ser desfeita.</string>
+  <string name="collections_recently_played_clear_dialog_button">Limpar</string>
+  <string name="collections_recently_played_clear_error_message">Erro ao limpar as músicas recentemente reproduzidas. Tente novamente mais tarde.</string>
+  <string name="collections_recently_played_empty">Encontre todo o conteúdo reproduzido recentemente aqui.</string>
+  <plurals name="collections_recently_played_header_items">
+    <item quantity="one">%d item reproduzido recentemente</item>
+    <item quantity="other">%d itens reproduzidos recentemente</item>
+  </plurals>
   <!--__TABS-->
   <string name="tab_home">Início</string>
   <string name="tab_discovery">Descoberta</string>
   <string name="tab_collection">Colecção</string>
   <string name="tab_more">Mais</string>
-  <!--__YOU-->
+  <!--__MORE-->
   <string name="more_explore">Explorar</string>
   <string name="more_activity">Notificações</string>
   <string name="more_record">Gravar</string>
@@ -621,10 +653,15 @@ vão aparecer aqui.</string>
   <string name="more_legal">Legal</string>
   <string name="more_sign_out">Sair</string>
   <string name="more_view_public_profile">Ver perfil público</string>
+  <string name="more_go_indicator">SOUNDCLOUD GO</string>
   <string name="more_app_version">Versão %s do aplicativo</string>
   <!--__NEW STREAM-->
   <string name="stream_playlist_header_text">%1$s %2$s uma playlist</string>
   <string name="stream_track_header_text">%1$s %2$s uma faixa</string>
+  <string name="stream_album_header_text">%1$s %2$s um álbum</string>
+  <string name="stream_ep_header_text">%1$s %2$s um EP</string>
+  <string name="stream_single_header_text">%1$s %2$s um single</string>
+  <string name="stream_compilation_header_text">%1$s %2$s uma compilação</string>
   <string name="stream_posted_action">publicado</string>
   <string name="stream_reposted_action">republicado</string>
   <string name="stream_promoted_action">promovido</string>
@@ -810,10 +847,13 @@ vão aparecer aqui.</string>
   <!--__UPSELL-->
   <string name="upsell_remove_ads">Retirar anúncios</string>
   <string name="upsell_upgrade_button">Obter SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_title">Fazer upgrade para o SoundCloud Go</string>
-  <string name="upsell_stream_upgrade_description">Obtenha um catálogo expandido, sem escuta offline e sem anúncios.</string>
-  <string name="upsell_track_preview">Pré-vizualização</string>
+  <string name="upsell_stream_upgrade_title">Desbloquear visualizações com o SoundCloud Go</string>
+  <string name="upsell_stream_upgrade_description">Obtenha acesso completo ao maior catálogo de streaming de música e áudio do mundo, com possibilidade de ouvir offline e sem anúncios.</string>
+  <string name="upsell_playlist_upgrade_title">Reproduza faixas completas com o SoundCloud Go</string>
+  <string name="upsell_playlist_upgrade_description">Sem mais visualizações. Ouça todos os segundos de todas as faixas.</string>
+  <string name="upsell_track_preview">Pré-visualização</string>
   <string name="upsell_track_geo_blocked">Não disponível no seu país</string>
+  <string name="upsell_not_avaliable">Não disponível</string>
   <!--__STATIONS-->
   <string name="station_type_track">Estação de faixa</string>
   <string name="station_type_genre">Estação de gênero</string>
