@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.annotation.ShuffleTest;
 import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
@@ -46,6 +47,7 @@ public class PlaylistDetailsTest extends TrackingActivityTest<LauncherActivity> 
         assertThat(playlistDetailsScreen, is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()));
     }
 
+    @ShuffleTest
     public void testShufflePlaylist() {
         startEventTracking();
 
