@@ -15,7 +15,6 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -152,31 +151,22 @@ public class PostsStorageTest extends StorageIntegrationTest {
     public void shouldLoadLastPublicPostedTrackWithDatePostedAndPermalink() throws Exception {
         post1 = createTrackPostForLastPostedAt(POSTED_DATE_2);
         createTrackPostForLastPostedAt(POSTED_DATE_1);
-        TestSubscriber<Optional<PropertySet>> subscriber = new TestSubscriber<>();
+        TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
 
         storage.loadLastPublicPostedTrack().subscribe(subscriber);
 
-        subscriber.assertValue(Optional.of(post1));
+        subscriber.assertValue(post1);
     }
 
     @Test
     public void shouldLoadLastPublicPostedTrackExcludingPrivateTracks() throws Exception {
         createPrivateTrackPostForLastPostedAt(POSTED_DATE_2);
         post2 = createTrackPostForLastPostedAt(POSTED_DATE_1);
-        TestSubscriber<Optional<PropertySet>> subscriber = new TestSubscriber<>();
+        TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
 
         storage.loadLastPublicPostedTrack().subscribe(subscriber);
 
-        subscriber.assertValue(Optional.of(post2));
-    }
-
-    @Test
-    public void shouldLoadLastPublicPostedAsAbsentWhenUserHasNoPosts() throws Exception {
-        TestSubscriber<Optional<PropertySet>> subscriber = new TestSubscriber<>();
-
-        storage.loadLastPublicPostedTrack().subscribe(subscriber);
-
-        subscriber.assertValue(Optional.<PropertySet>absent());
+        subscriber.assertValue(post2);
     }
 
     private PropertySet createTrackPostAt(Date postedAt) {

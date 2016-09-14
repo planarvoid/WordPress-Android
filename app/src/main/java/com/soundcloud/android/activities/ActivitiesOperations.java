@@ -48,11 +48,6 @@ class ActivitiesOperations extends TimelineOperations<ActivityItem> {
         return initialTimelineItems(false);
     }
 
-    @Override
-    protected Observable<List<ActivityItem>> initialTimelineItems(boolean syncCompleted) {
-        return super.initialTimelineItems(syncCompleted).subscribeOn(scheduler);
-    }
-
     Observable<List<ActivityItem>> updatedActivities() {
         return updatedTimelineItems().subscribeOn(scheduler);
     }

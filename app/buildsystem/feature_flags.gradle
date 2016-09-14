@@ -16,7 +16,8 @@ enum Feature {
   ALBUMS,
   EXPLORE,
   STATION_PAGE,
-  LIKED_STATIONS;
+  LIKED_STATIONS,
+  SUGGESTED_CREATORS;
 }
 
 android {
@@ -33,6 +34,7 @@ android {
     buildConfigField BOOLEAN, Feature.EXPLORE.name(), FALSE
     buildConfigField BOOLEAN, Feature.STATION_PAGE.name(), FALSE
     buildConfigField BOOLEAN, Feature.LIKED_STATIONS.name(), FALSE
+    buildConfigField BOOLEAN, Feature.SUGGESTED_CREATORS.name(), FALSE
   }
 
   buildTypes {

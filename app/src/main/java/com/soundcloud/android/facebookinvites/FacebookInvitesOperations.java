@@ -1,17 +1,21 @@
 package com.soundcloud.android.facebookinvites;
 
+import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.model.PostProperty;
 import com.soundcloud.android.profile.MyProfileOperations;
+import com.soundcloud.android.stream.NotificationItem;
 import com.soundcloud.android.utils.CurrentDateProvider;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import rx.Observable;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class FacebookInvitesOperations {
@@ -24,27 +28,21 @@ public class FacebookInvitesOperations {
     public static final int SHOW_AFTER_OPENS_COUNT = 5;
     public static final int REST_AFTER_DISMISS_COUNT = 2;
 
-    private static final Observable<Optional<FacebookInvitesItem>> NO_INVITES =
-            Observable.just(Optional.<FacebookInvitesItem>absent());
-
     private final FacebookInvitesStorage facebookInvitesStorage;
     private final FacebookApiHelper facebookApiHelper;
     private final NetworkConnectionHelper networkConnectionHelper;
     private final DateProvider dateProvider;
     private final MyProfileOperations myProfileOperations;
 
-    private final Func1<Optional<PropertySet>, Optional<FacebookInvitesItem>> toCreatorInvitesItem =
-            new Func1<Optional<PropertySet>, Optional<FacebookInvitesItem>>() {
+    private final Func1<PropertySet, Observable<NotificationItem>> toCreatorInvitesItem =
+            new Func1<PropertySet, Observable<NotificationItem>>() {
                 @Override
-                public Optional<FacebookInvitesItem> call(Optional<PropertySet> trackOpt) {
-                    if (trackOpt.isPresent()) {
-                        PropertySet track = trackOpt.get();
-
-                        if (isPostRecentlyCreated(track)) {
-                            return Optional.of(new FacebookInvitesItem(FacebookInvitesItem.CREATOR_URN, track));
-                        }
+                public Observable<NotificationItem> call(PropertySet track) {
+                    if (isPostRecentlyCreated(track)) {
+                        return Observable.<NotificationItem>just(new FacebookInvitesItem(FacebookInvitesItem.CREATOR_URN, track));
+                    } else {
+                        return Observable.empty();
                     }
-                    return Optional.absent();
                 }
             };
 
@@ -61,29 +59,44 @@ public class FacebookInvitesOperations {
         this.myProfileOperations = myProfileOperations;
     }
 
-    public Observable<Optional<FacebookInvitesItem>> creatorInvites() {
-        if (canShowForCreators()) {
-            return myProfileOperations.lastPublicPostedTrack()
-                                      .map(toCreatorInvitesItem)
-                                      .onErrorResumeNext(NO_INVITES);
-        } else {
-            return NO_INVITES;
-        }
+    public Observable<NotificationItem> creatorInvites() {
+        return canShowForCreators()
+                .filter(IS_TRUE)
+                .flatMap(continueWith(myProfileOperations.lastPublicPostedTrack()
+                                                         .flatMap(toCreatorInvitesItem)
+                                                         .onErrorResumeNext(Observable.<NotificationItem>empty())));
     }
 
-    public boolean canShowForCreators() {
-        return canShowAfterLastClick()
-                && canShowCreatorsAfterLastCreatorDismiss()
-                && facebookApiHelper.canShowAppInviteDialog()
-                && networkConnectionHelper.isNetworkConnected();
+    public Observable<NotificationItem> listenerInvites() {
+        return canShowForListeners()
+                .filter(IS_TRUE)
+                .flatMap(continueWith(Observable.<NotificationItem>just(new FacebookInvitesItem(
+                        FacebookInvitesItem.LISTENER_URN))));
     }
 
-    public boolean canShowForListeners() {
-        return canShowAfterLastClick()
-                && canShowAfterLastOpen()
-                && canShowAfterLastDismisses()
-                && facebookApiHelper.canShowAppInviteDialog()
-                && networkConnectionHelper.isNetworkConnected();
+    private Observable<Boolean> canShowForCreators() {
+        return Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return canShowAfterLastClick()
+                        && canShowCreatorsAfterLastCreatorDismiss()
+                        && facebookApiHelper.canShowAppInviteDialog()
+                        && networkConnectionHelper.isNetworkConnected();
+            }
+        });
+    }
+
+    Observable<Boolean> canShowForListeners() {
+        return Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return canShowAfterLastClick()
+                        && canShowAfterLastOpen()
+                        && canShowAfterLastDismisses()
+                        && facebookApiHelper.canShowAppInviteDialog()
+                        && networkConnectionHelper.isNetworkConnected();
+            }
+        });
     }
 
     private boolean canShowAfterLastOpen() {

@@ -56,6 +56,7 @@ public abstract class TimelineOperations<ItemT extends Timestamped> {
 
     protected Observable<List<ItemT>> initialTimelineItems(boolean syncCompleted) {
         return storage.timelineItems(PAGE_SIZE)
+                      .subscribeOn(scheduler)
                       .toList()
                       .map(toViewModels())
                       .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));

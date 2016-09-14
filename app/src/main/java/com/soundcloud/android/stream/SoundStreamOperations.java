@@ -1,33 +1,32 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.rx.RxUtils.continueWith;
-import static com.soundcloud.android.presentation.TypedListItem.Kind.NOTIFICATION;
 import static com.soundcloud.android.presentation.TypedListItem.Kind.PLAYABLE;
 import static com.soundcloud.android.presentation.TypedListItem.Kind.PROMOTED;
-import static com.soundcloud.android.presentation.TypedListItem.Kind.UPSELL;
+import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.tracks.TieredTracks.isHighTierPreview;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
-import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
 import com.soundcloud.android.main.Screen;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.TypedListItem;
-import com.soundcloud.android.upsell.UpsellListItem;
-import com.soundcloud.android.stations.StationOnboardingStreamItem;
-import com.soundcloud.android.stations.StationsOperations;
-import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.presentation.TypedListItem.Kind;
+import com.soundcloud.android.rx.RxUtils;
+import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.suggestedcreators.SuggestedCreatorsNotificationItem;
+import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations;
+import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
 import com.soundcloud.android.sync.timeline.TimelineOperations;
 import com.soundcloud.android.tracks.TieredTrack;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
+import com.soundcloud.android.upsell.UpsellListItem;
+import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.collections.PropertySet;
 import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.EventBus;
@@ -54,6 +53,7 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
     private final FacebookInvitesOperations facebookInvites;
     private final StationsOperations stationsOperations;
     private final InlineUpsellOperations upsellOperations;
+    private final SuggestedCreatorsOperations suggestedCreatorsOperations;
     private final RemoveStalePromotedItemsCommand removeStalePromotedItemsCommand;
     private final MarkPromotedItemAsStaleCommand markPromotedItemAsStaleCommand;
     private final Scheduler scheduler;
@@ -90,22 +90,10 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
         }
     };
 
-    private final Func1<List<TypedListItem>, List<TypedListItem>> prependStationsOnboardingItem = new Func1<List<TypedListItem>, List<TypedListItem>>() {
-
-        @Override
-        public List<TypedListItem> call(List<TypedListItem> streamItems) {
-            if (stationsOperations.shouldShowOnboardingStreamItem() && canAddDistinctItemOfKind(streamItems,
-                                                                                                NOTIFICATION)) {
-                streamItems.add(0, new StationOnboardingStreamItem());
-            }
-            return streamItems;
-        }
-    };
-
     private final Func1<List<TypedListItem>, List<TypedListItem>> appendUpsellAfterSnippet = new Func1<List<TypedListItem>, List<TypedListItem>>() {
         @Override
         public List<TypedListItem> call(List<TypedListItem> streamItems) {
-            if (upsellOperations.shouldDisplayInStream() && canAddDistinctItemOfKind(streamItems, UPSELL)) {
+            if (upsellOperations.shouldDisplayInStream()) {
                 Optional<TypedListItem> upsellable = getFirstUpsellable(streamItems);
                 if (upsellable.isPresent()) {
                     streamItems.add(streamItems.indexOf(upsellable.get()) + 1, UpsellListItem.forStream());
@@ -115,30 +103,20 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
         }
     };
 
-    private final Func1<List<TypedListItem>, List<TypedListItem>> prependFacebookListenerInvites = new Func1<List<TypedListItem>, List<TypedListItem>>() {
+    private final Func2<List<TypedListItem>, Optional<NotificationItem>, List<TypedListItem>> addNotificationItemToStream = new Func2<List<TypedListItem>, Optional<NotificationItem>, List<TypedListItem>>() {
         @Override
-        public List<TypedListItem> call(List<TypedListItem> streamItems) {
-            if (facebookInvites.canShowForListeners() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
-                streamItems.add(0, new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN));
+        public List<TypedListItem> call(List<TypedListItem> typedListItems, Optional<NotificationItem> notificationItemOptional) {
+            List<TypedListItem> result = Lists.newArrayList(typedListItems);
+            if (isSuggestedCreatorsNotification(notificationItemOptional) || !typedListItems.isEmpty()) {
+                result.addAll(0, notificationItemOptional.asSet());
             }
-            return streamItems;
+            return result;
         }
     };
 
-    private final Func2<List<TypedListItem>, Optional<FacebookInvitesItem>, List<TypedListItem>> prependFacebookCreatorInvites = new Func2<List<TypedListItem>, Optional<FacebookInvitesItem>, List<TypedListItem>>() {
-        @Override
-        public List<TypedListItem> call(List<TypedListItem> streamItems, Optional<FacebookInvitesItem> notification) {
-            if (notification.isPresent() && canAddDistinctItemOfKind(streamItems, NOTIFICATION)) {
-                streamItems.add(0, notification.get());
-                publishCreatorFacebookInvitesShown();
-            }
-            return streamItems;
-        }
-
-        private void publishCreatorFacebookInvitesShown() {
-            eventBus.publish(EventQueue.TRACKING, FacebookInvitesEvent.forCreatorShown());
-        }
-    };
+    private boolean isSuggestedCreatorsNotification(Optional<NotificationItem> notificationItemOptional) {
+        return notificationItemOptional.isPresent() && notificationItemOptional.get().getUrn() == SuggestedCreatorsNotificationItem.URN;
+    }
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
@@ -147,7 +125,8 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                           FacebookInvitesOperations facebookInvites,
                           StationsOperations stationsOperations, InlineUpsellOperations upsellOperations,
-                          SyncStateStorage syncStateStorage) {
+                          SyncStateStorage syncStateStorage,
+                          SuggestedCreatorsOperations suggestedCreatorsOperations) {
         super(Syncable.SOUNDSTREAM,
               soundStreamStorage,
               syncInitiator,
@@ -160,6 +139,7 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
         this.eventBus = eventBus;
         this.facebookInvites = facebookInvites;
         this.stationsOperations = stationsOperations;
+        this.suggestedCreatorsOperations = suggestedCreatorsOperations;
         this.upsellOperations = upsellOperations;
     }
 
@@ -169,22 +149,21 @@ public class SoundStreamOperations extends TimelineOperations<TypedListItem> {
     }
 
     public Observable<List<TypedListItem>> initialStreamItems() {
-        return initialTimelineItems(false).doOnNext(promotedImpressionAction);
-    }
-
-    @Override
-    protected Observable<List<TypedListItem>> initialTimelineItems(boolean syncCompleted) {
         return removeStalePromotedItemsCommand.toObservable(null)
                                               .subscribeOn(scheduler)
-                                              .flatMap(continueWith(super.initialTimelineItems(syncCompleted)))
-                                              .zipWith(facebookInvites.creatorInvites(), prependFacebookCreatorInvites)
+                                              .flatMap(continueWith(initialTimelineItems(false)))
+                                              .zipWith(notificationItem(), addNotificationItemToStream)
                                               .map(appendUpsellAfterSnippet)
-                                              .map(prependFacebookListenerInvites)
-                                              .map(prependStationsOnboardingItem);
+                                              .doOnNext(promotedImpressionAction);
     }
 
-    private boolean canAddDistinctItemOfKind(List<TypedListItem> streamItems, Kind kind) {
-        return streamItems.size() > 0 && !getFirstOfKind(streamItems, kind).isPresent();
+    private Observable<Optional<NotificationItem>> notificationItem() {
+        return suggestedCreatorsOperations.suggestedCreators()
+                                          .switchIfEmpty(facebookInvites.creatorInvites())
+                                          .switchIfEmpty(facebookInvites.listenerInvites())
+                                          .switchIfEmpty(stationsOperations.onboardingStreamItem())
+                                          .map(RxUtils.<NotificationItem>toOptional())
+                                          .switchIfEmpty(Observable.just(Optional.<NotificationItem>absent()));
     }
 
     public Observable<List<TypedListItem>> updatedStreamItems() {

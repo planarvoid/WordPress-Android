@@ -2,13 +2,13 @@ package com.soundcloud.android.stations;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.fromStationsUpdated;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.rx.RxUtils.IS_TRUE;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlayQueue;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.sync.SyncStateStorage;
@@ -25,6 +25,7 @@ import rx.internal.util.UtilityFunctions;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class StationsOperations {
 
@@ -191,7 +192,7 @@ public class StationsOperations {
     Observable<Boolean> migrateRecentToLikedIfNeeded() {
         if (stationsStorage.shouldRunRecentToLikedMigration()) {
             return stationsApi.requestRecentToLikedMigration()
-                              .filter(RxUtils.IS_TRUE)
+                              .filter(IS_TRUE)
                               .map(markMigrationCompleted)
                               .subscribeOn(scheduler);
         } else {
@@ -261,8 +262,18 @@ public class StationsOperations {
         stationsStorage.clear();
     }
 
-    public boolean shouldShowOnboardingStreamItem() {
-        return !stationsStorage.isOnboardingStreamItemDisabled();
+    public Observable<StationOnboardingStreamItem> onboardingStreamItem() {
+        return shouldShowOnboardingStreamItem()
+                .filter(IS_TRUE)
+                .flatMap(continueWith(Observable.just(new StationOnboardingStreamItem())));
+    }
+
+    private Observable<Boolean> shouldShowOnboardingStreamItem() {
+        return Observable.fromCallable(new Callable<Boolean>() {
+            public Boolean call() {
+                return !stationsStorage.isOnboardingStreamItemDisabled();
+            }
+        });
     }
 
     public void disableOnboardingStreamItem() {

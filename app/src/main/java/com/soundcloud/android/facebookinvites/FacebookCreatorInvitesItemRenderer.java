@@ -1,9 +1,12 @@
 package com.soundcloud.android.facebookinvites;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.presentation.CellRenderer;
+import com.soundcloud.rx.eventbus.EventBus;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +20,7 @@ public class FacebookCreatorInvitesItemRenderer implements CellRenderer<Facebook
 
     private final ImageOperations imageOperations;
     private final FacebookInvitesStorage facebookInvitesStorage;
+    private final EventBus eventBus;
     private Listener listener;
 
     public interface Listener {
@@ -27,13 +31,16 @@ public class FacebookCreatorInvitesItemRenderer implements CellRenderer<Facebook
 
     @Inject
     public FacebookCreatorInvitesItemRenderer(ImageOperations imageOperations,
-                                              FacebookInvitesStorage facebookInvitesStorage) {
+                                              FacebookInvitesStorage facebookInvitesStorage,
+                                              EventBus eventBus) {
         this.imageOperations = imageOperations;
         this.facebookInvitesStorage = facebookInvitesStorage;
+        this.eventBus = eventBus;
     }
 
     @Override
     public View createItemView(ViewGroup parent) {
+        eventBus.publish(EventQueue.TRACKING, FacebookInvitesEvent.forCreatorShown());
         return LayoutInflater.from(parent.getContext())
                              .inflate(R.layout.facebook_creator_invites_notification_card, parent, false);
     }

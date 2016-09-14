@@ -7,6 +7,7 @@ import com.soundcloud.java.collections.Iterables;
 import com.soundcloud.java.collections.Lists;
 import com.soundcloud.java.functions.Function;
 import com.soundcloud.java.functions.Predicate;
+import com.soundcloud.java.optional.Optional;
 import rx.Notification;
 import rx.Observable;
 import rx.Subscription;
@@ -63,6 +64,12 @@ public final class RxUtils {
         }
     };
 
+    public static final Func1<List, Integer> TO_SIZE = new Func1<List, Integer>() {
+        public Integer call(List list) {
+            return list.size();
+        }
+    };
+
     /**
      * @return A Subscription that is always unsubscribed. Can use as a Null object; reference equality
      * checks are safe to perform.
@@ -94,6 +101,15 @@ public final class RxUtils {
             @Override
             public Observable<T> call(Object o) {
                 return continuation;
+            }
+        };
+    }
+
+    public static <T> Func1<T, Optional<T>> toOptional() {
+        return new Func1<T, Optional<T>>() {
+            @Override
+            public Optional<T> call(T t) {
+                return Optional.of(t);
             }
         };
     }

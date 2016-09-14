@@ -12,7 +12,6 @@ import com.soundcloud.android.sync.SyncJobResult;
 import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import rx.Observable;
 import rx.Scheduler;
@@ -87,6 +86,10 @@ public class MyProfileOperations {
                                   .flatMap(loadInitialFollowings);
     }
 
+    public Observable<Integer> numberOfFollowings() {
+        return pagedFollowings().map(RxUtils.TO_SIZE);
+    }
+
     private Observable<List<PropertySet>> pagedFollowingsFromPosition(long fromPosition) {
         return userAssociationStorage
                 .followedUserUrns(PAGE_SIZE, fromPosition)
@@ -120,7 +123,7 @@ public class MyProfileOperations {
         };
     }
 
-    public Observable<Optional<PropertySet>> lastPublicPostedTrack() {
+    public Observable<PropertySet> lastPublicPostedTrack() {
         return postsStorage.loadLastPublicPostedTrack()
                            .subscribeOn(scheduler);
     }

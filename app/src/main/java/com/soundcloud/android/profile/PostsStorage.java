@@ -30,7 +30,6 @@ import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
-import rx.functions.Func1;
 import rx.functions.Func2;
 
 import android.provider.BaseColumns;
@@ -77,20 +76,8 @@ public class PostsStorage {
         );
     }
 
-    public Observable<Optional<PropertySet>> loadLastPublicPostedTrack() {
-        return propellerRx.query(buildQueryForLastPublicPostedTrack())
-                          .map(new LastPostedTrackMapper())
-                          .map(toOptionalPropertySet())
-                          .firstOrDefault(Optional.<PropertySet>absent());
-    }
-
-    private Func1<PropertySet, Optional<PropertySet>> toOptionalPropertySet() {
-        return new Func1<PropertySet, Optional<PropertySet>>() {
-            @Override
-            public Optional<PropertySet> call(PropertySet track) {
-                return Optional.of(track);
-            }
-        };
+    public Observable<PropertySet> loadLastPublicPostedTrack() {
+        return propellerRx.query(buildQueryForLastPublicPostedTrack()).map(new LastPostedTrackMapper());
     }
 
     private Query buildQueryForLastPublicPostedTrack() {

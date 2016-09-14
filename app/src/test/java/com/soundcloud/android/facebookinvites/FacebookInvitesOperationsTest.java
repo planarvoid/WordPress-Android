@@ -7,13 +7,13 @@ import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.D
 import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.REST_AFTER_DISMISS_COUNT;
 import static com.soundcloud.android.facebookinvites.FacebookInvitesOperations.SHOW_AFTER_OPENS_COUNT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.facebookapi.FacebookApi;
 import com.soundcloud.android.facebookapi.FacebookApiHelper;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.profile.MyProfileOperations;
+import com.soundcloud.android.stream.NotificationItem;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -62,49 +62,49 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
 
     @Test
     public void canShowForListenersOnSetup() throws Exception {
-        assertThat(operations.canShowForListeners()).isTrue();
+        assertThat(shouldShowForListeners()).isTrue();
     }
 
     @Test
     public void shouldNotShowForListenersWhenAppInviteDialogIsFalse() throws Exception {
         when(facebookApiHelper.canShowAppInviteDialog()).thenReturn(false);
 
-        assertThat(operations.canShowForListeners()).isFalse();
+        assertThat(shouldShowForListeners()).isFalse();
     }
 
     @Test
     public void shouldNotShowForListenersWhenAppNotOpenedEnoughTimes() throws Exception {
         when(storage.getTimesAppOpened()).thenReturn(SHOW_AFTER_OPENS_COUNT - 1);
 
-        assertThat(operations.canShowForListeners()).isFalse();
+        assertThat(shouldShowForListeners()).isFalse();
     }
 
     @Test
     public void shouldNotShowForListenersTheFirstTime() throws Exception {
         when(storage.getTimesAppOpened()).thenReturn(0);
 
-        assertThat(operations.canShowForListeners()).isFalse();
+        assertThat(shouldShowForListeners()).isFalse();
     }
 
     @Test
     public void shouldPersistForListenersAfterAppOpenedEnoughTimes() throws Exception {
         when(storage.getTimesAppOpened()).thenReturn(SHOW_AFTER_OPENS_COUNT + 1);
 
-        assertThat(operations.canShowForListeners()).isTrue();
+        assertThat(shouldShowForListeners()).isTrue();
     }
 
     @Test
     public void shouldNotShowForListenersWhenLastClickTooEarly() throws Exception {
         when(storage.getMillisSinceLastClick()).thenReturn(CLICK_INTERVAL_MS - 1);
 
-        assertThat(operations.canShowForListeners()).isFalse();
+        assertThat(shouldShowForListeners()).isFalse();
     }
 
     @Test
     public void shouldNotShowForListenersWhenConnectionNotAvailable() throws Exception {
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
 
-        assertThat(operations.canShowForListeners()).isFalse();
+        assertThat(shouldShowForListeners()).isFalse();
     }
 
     @Test
@@ -112,7 +112,7 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         when(storage.getTimesListenerDismissed()).thenReturn(REST_AFTER_DISMISS_COUNT - 1);
         when(storage.getMillisSinceLastListenerDismiss()).thenReturn(CLICK_INTERVAL_MS - 1);
 
-        assertThat(operations.canShowForListeners()).isFalse();
+        assertThat(shouldShowForListeners()).isFalse();
     }
 
     @Test
@@ -120,7 +120,7 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         when(storage.getTimesListenerDismissed()).thenReturn(REST_AFTER_DISMISS_COUNT - 1);
         when(storage.getMillisSinceLastListenerDismiss()).thenReturn(CLICK_INTERVAL_MS);
 
-        assertThat(operations.canShowForListeners()).isTrue();
+        assertThat(shouldShowForListeners()).isTrue();
     }
 
     @Test
@@ -128,7 +128,7 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         when(storage.getTimesListenerDismissed()).thenReturn(REST_AFTER_DISMISS_COUNT);
         when(storage.getMillisSinceLastListenerDismiss()).thenReturn(DISMISS_INTERVAL_MS - 1);
 
-        assertThat(operations.canShowForListeners()).isFalse();
+        assertThat(shouldShowForListeners()).isFalse();
     }
 
     @Test
@@ -136,41 +136,38 @@ public class FacebookInvitesOperationsTest extends AndroidUnitTest {
         when(storage.getTimesListenerDismissed()).thenReturn(REST_AFTER_DISMISS_COUNT);
         when(storage.getMillisSinceLastListenerDismiss()).thenReturn(DISMISS_INTERVAL_MS);
 
-        assertThat(operations.canShowForListeners()).isTrue();
+        assertThat(shouldShowForListeners()).isTrue();
     }
 
     @Test
     public void shouldShowForListenersWhenLastClickAfter() throws Exception {
         when(storage.getMillisSinceLastClick()).thenReturn(CLICK_INTERVAL_MS + 1);
 
-        assertThat(operations.canShowForListeners()).isTrue();
+        assertThat(shouldShowForListeners()).isTrue();
     }
 
     @Test
     public void shouldNotShowForListenersWhenCreatorDismissedBeforeDismissInterval() throws Exception {
         when(storage.getMillisSinceLastCreatorDismiss()).thenReturn(CREATOR_DISMISS_FOR_LISTENERS_INTERVAL_MS - 1);
 
-        assertThat(operations.canShowForListeners()).isFalse();
+        assertThat(shouldShowForListeners()).isFalse();
     }
 
-    @Test
-    public void shouldNotLoadForCreatorsWhenNoRecentPost() throws Exception {
-        when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(Optional.<PropertySet>absent()));
-
-        operations.creatorInvites().subscribe(observer);
-
-        verify(observer).onNext(Optional.<FacebookInvitesItem>absent());
+    private boolean shouldShowForListeners() {
+        final TestSubscriber<Boolean> subscriber = new TestSubscriber<>();
+        operations.canShowForListeners().subscribe(subscriber);
+        return subscriber.getOnNextEvents().get(0);
     }
 
     @Test
     public void shouldLoadForCreatorsWhenRecentPost() throws Exception {
-        final TestSubscriber<Optional<FacebookInvitesItem>> subscriber = new TestSubscriber<>();
+        final TestSubscriber<NotificationItem> subscriber = new TestSubscriber<>();
         PropertySet track = TestPropertySets.expectedPostedTrackForPostsScreen();
-        when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(Optional.of(track)));
+        when(myProfileOperations.lastPublicPostedTrack()).thenReturn(Observable.just(track));
 
         operations.creatorInvites().subscribe(subscriber);
 
-        final FacebookInvitesItem invitesItem = subscriber.getOnNextEvents().get(0).get();
+        final FacebookInvitesItem invitesItem = (FacebookInvitesItem) subscriber.getOnNextEvents().get(0);
         assertThat(invitesItem.getUrn()).isEqualTo(FacebookInvitesItem.CREATOR_URN);
         assertThat(invitesItem.getTrackUrn()).isEqualTo(track.get(PlayableProperty.URN));
         assertThat(invitesItem.getTrackUrl()).isEqualTo(track.get(PlayableProperty.PERMALINK_URL));

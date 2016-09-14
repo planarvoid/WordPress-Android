@@ -10,7 +10,6 @@ import static rx.Observable.from;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.FacebookInvitesEvent;
 import com.soundcloud.android.events.PromotedTrackingEvent;
 import com.soundcloud.android.facebookinvites.FacebookInvitesItem;
 import com.soundcloud.android.facebookinvites.FacebookInvitesOperations;
@@ -20,9 +19,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PromotedListItem;
 import com.soundcloud.android.presentation.TypedListItem;
-import com.soundcloud.android.upsell.UpsellListItem;
 import com.soundcloud.android.stations.StationOnboardingStreamItem;
 import com.soundcloud.android.stations.StationsOperations;
+import com.soundcloud.android.suggestedcreators.SuggestedCreatorsNotificationItem;
+import com.soundcloud.android.suggestedcreators.SuggestedCreatorsOperations;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncStateStorage;
 import com.soundcloud.android.sync.Syncable;
@@ -32,8 +32,8 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.upsell.InlineUpsellOperations;
+import com.soundcloud.android.upsell.UpsellListItem;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListItem, SoundStreamStorage> {
 
+    private final SuggestedCreatorsNotificationItem SUGGESTED_CREATORS_ITEM = new SuggestedCreatorsNotificationItem();
     private SoundStreamOperations operations;
 
     @Mock private SoundStreamStorage soundStreamStorage;
@@ -63,17 +64,20 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
     @Mock private FacebookInvitesOperations facebookInvitesOperations;
     @Mock private StationsOperations stationsOperations;
     @Mock private InlineUpsellOperations upsellOperations;
+    @Mock private SuggestedCreatorsOperations suggestedCreatorsOperations;
 
     private TestEventBus eventBus = new TestEventBus();
 
     private final PropertySet promotedTrackProperties = TestPropertySets.expectedPromotedTrack();
     private final PropertySet upsellableTrackProperties = TestPropertySets.upsellableTrack();
-    private final FacebookInvitesItem creatorInviteItem = new FacebookInvitesItem(FacebookInvitesItem.CREATOR_URN);
 
     @Before
     public void setUp() throws Exception {
         when(removeStalePromotedItemsCommand.toObservable(null)).thenReturn(Observable.just(Collections.<Long>emptyList()));
-        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.just(Optional.<FacebookInvitesItem>absent()));
+        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.<NotificationItem>empty());
+        when(facebookInvitesOperations.listenerInvites()).thenReturn(Observable.<NotificationItem>empty());
+        when(stationsOperations.onboardingStreamItem()).thenReturn(Observable.<StationOnboardingStreamItem>empty());
+        when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Observable.<NotificationItem>empty());
         this.operations = (SoundStreamOperations) super.operations;
     }
 
@@ -84,7 +88,8 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
                                                              SyncStateStorage syncStateStorage) {
         return new SoundStreamOperations(storage, syncInitiator, removeStalePromotedItemsCommand,
                                          markPromotedItemAsStaleCommand, eventBus, scheduler, facebookInvitesOperations,
-                                         stationsOperations, upsellOperations, syncStateStorage);
+                                         stationsOperations, upsellOperations, syncStateStorage,
+                                         suggestedCreatorsOperations);
     }
 
     @Override
@@ -115,6 +120,42 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
         inOrder.verify(observer).onNext(Collections.<TypedListItem>emptyList());
         inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
+    }
+    @Test
+    public void showsSuggestedCreatorsWhenOnlyPromotedTrackIsReturned() {
+        when(soundStreamStorage.timelineItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.just(promotedTrackProperties));
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+
+        initSuggestedCreatorsItem();
+
+        assertInitialStreamFirstItemUrn(SuggestedCreatorsNotificationItem.URN);
+    }
+
+    @Test
+    public void showsSuggestedCreatorsWhenNoTracksAreReturned() {
+        when(soundStreamStorage.timelineItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty())
+                .thenReturn(Observable.<PropertySet>empty());
+        when(syncInitiator.sync(Syncable.SOUNDSTREAM)).thenReturn(Observable.just(successWithChange()));
+
+        initSuggestedCreatorsItem();
+
+        assertInitialStreamFirstItemUrn(SuggestedCreatorsNotificationItem.URN);
+    }
+
+    @Test
+    public void showsSuggestedCreatorsInsteadOfOtherNotificationItems() {
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
+
+        initSuggestedCreatorsItem();
+        initFacebookCreatorsItem();
+        initFacebookListenersItem();
+        initOnboardingStationsItem();
+
+        assertInitialStreamFirstItemUrn(SuggestedCreatorsNotificationItem.URN);
     }
 
     @Test
@@ -175,7 +216,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
     public void shouldShowFacebookListenerInvitesAsFirstItem() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
+        initFacebookListenersItem();
 
         assertInitialStreamFirstItemUrn(FacebookInvitesItem.LISTENER_URN);
     }
@@ -184,26 +225,15 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
     public void shouldShowFacebookCreatorInvitesAsFirstItem() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
-        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.just(Optional.of(creatorInviteItem)));
+        initFacebookListenersItem();
+        initFacebookCreatorsItem();
 
         assertInitialStreamFirstItemUrn(FacebookInvitesItem.CREATOR_URN);
     }
 
     @Test
-    public void shouldTrackFacebookCreatorInvitesShown() {
-        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.just(Optional.of(creatorInviteItem)));
-
-        operations.initialStreamItems().subscribe(observer);
-
-        assertThat(eventBus.lastEventOn(EventQueue.TRACKING)).isInstanceOf(FacebookInvitesEvent.class);
-    }
-
-    @Test
     public void shouldNotShowFacebookInvitesOnEmptyStream() {
-        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
+        initFacebookListenersItem();
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.<PropertySet>empty());
@@ -214,7 +244,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
 
     @Test
     public void shouldNotShowFacebookInvitesOnPromotedOnlyStream() {
-        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
+        initFacebookListenersItem();
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.just(promotedTrackProperties));
@@ -228,7 +258,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
 
-        when(facebookInvitesOperations.canShowForListeners()).thenReturn(true);
+        initFacebookListenersItem();
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.from(itemsWithPromoted));
@@ -241,14 +271,14 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
     public void showStationsOnboardingAsFirstItem() {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.timelineItems(PAGE_SIZE)).thenReturn(Observable.from(items));
-        when(stationsOperations.shouldShowOnboardingStreamItem()).thenReturn(true);
+        initOnboardingStationsItem();
 
         assertInitialStreamFirstItemUrn(StationOnboardingStreamItem.URN);
     }
 
     @Test
     public void shouldNotShowStationsOnboardingOnEmptyStream() {
-        when(stationsOperations.shouldShowOnboardingStreamItem()).thenReturn(true);
+        initOnboardingStationsItem();
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.<PropertySet>empty());
@@ -259,7 +289,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
 
     @Test
     public void shouldNotShowStationsOnboardingOnPromotedOnlyStream() {
-        when(stationsOperations.shouldShowOnboardingStreamItem()).thenReturn(true);
+        initOnboardingStationsItem();
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.just(promotedTrackProperties));
@@ -273,7 +303,7 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
         final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
         itemsWithPromoted.add(0, promotedTrackProperties);
 
-        when(stationsOperations.shouldShowOnboardingStreamItem()).thenReturn(true);
+        initOnboardingStationsItem();
         when(soundStreamStorage.timelineItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty())
                 .thenReturn(Observable.from(itemsWithPromoted));
@@ -437,5 +467,25 @@ public class SoundStreamOperationsTest extends TimelineOperationsTest<TypedListI
         final TestSubscriber<List<TypedListItem>> subscriber = new TestSubscriber<>();
         operations.initialStreamItems().subscribe(subscriber);
         return subscriber;
+    }
+
+
+    private void initSuggestedCreatorsItem() {
+        when(suggestedCreatorsOperations.suggestedCreators()).thenReturn(Observable.<NotificationItem>just(
+                SUGGESTED_CREATORS_ITEM));
+    }
+
+    private void initFacebookListenersItem() {
+        final FacebookInvitesItem facebookInvitesItem = new FacebookInvitesItem(FacebookInvitesItem.LISTENER_URN);
+        when(facebookInvitesOperations.listenerInvites()).thenReturn(Observable.<NotificationItem>just(facebookInvitesItem));
+    }
+
+    private void initFacebookCreatorsItem() {
+        final FacebookInvitesItem facebookInvitesItem = new FacebookInvitesItem(FacebookInvitesItem.CREATOR_URN);
+        when(facebookInvitesOperations.creatorInvites()).thenReturn(Observable.<NotificationItem>just(facebookInvitesItem));
+    }
+
+    private void initOnboardingStationsItem() {
+        when(stationsOperations.onboardingStreamItem()).thenReturn(Observable.just(new StationOnboardingStreamItem()));
     }
 }

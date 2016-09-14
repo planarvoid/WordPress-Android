@@ -15,7 +15,6 @@ import com.soundcloud.android.users.UserAssociationProperty;
 import com.soundcloud.android.users.UserAssociationStorage;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.java.collections.PropertySet;
-import com.soundcloud.java.optional.Optional;
 import com.soundcloud.rx.Pager;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +31,7 @@ import java.util.List;
 
 public class MyProfileOperationsTest extends AndroidUnitTest {
 
+    private final Observable<Void> SHOULD_NEVER_SYNC = Observable.error(new RuntimeException("should not have synced"));
     private MyProfileOperations operations;
 
     @Mock private PostsStorage postStorage;
@@ -93,7 +93,7 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(urns));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
                 pageOfFollowings));
-        when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>empty());
+        when(syncInitiatorBridge.refreshFollowings()).thenReturn(SHOULD_NEVER_SYNC);
         when(syncInitiator.batchSyncUsers(urns)).thenReturn(Observable.just(SyncJobResult.success("success", true)));
 
         operations.pagedFollowings().subscribe(subscriber);
@@ -128,16 +128,17 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void updatedFollowingsReloadsFollowingsAfterSyncWithChange() {
-        final List<PropertySet> pageOfFollowings = createPageOfFollowings(2);
+        final List<PropertySet> pageOfFollowings1 = createPageOfFollowings(2);
         final List<Urn> followingsUrn = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
 
         when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
                 followingsUrn));
         when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
-                pageOfFollowings));
+                pageOfFollowings1));
         when(syncInitiatorBridge.refreshFollowings()).thenReturn(Observable.<Void>just(null));
         when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
-                                                                                                      true)));
+                                                                                                           true)));
+        final List<PropertySet> pageOfFollowings = pageOfFollowings1;
 
         operations.updatedFollowings().subscribe(subscriber);
 
@@ -146,35 +147,39 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
 
     @Test
     public void shouldLoadLastPublicPostedTrack() {
-        Optional<PropertySet> trackOpt = Optional.of(TestPropertySets.expectedPostedTrackForPostsScreen());
+        PropertySet trackOpt = TestPropertySets.expectedPostedTrackForPostsScreen();
         when(postStorage.loadLastPublicPostedTrack()).thenReturn(Observable.just(trackOpt));
-        TestSubscriber<Optional<PropertySet>> subscriber = new TestSubscriber<>();
+        TestSubscriber<PropertySet> subscriber = new TestSubscriber<>();
 
         operations.lastPublicPostedTrack().subscribe(subscriber);
 
         subscriber.assertValue(trackOpt);
     }
 
+    @Test
+    public void returnsNumberOfFollowings() {
+        TestSubscriber<Integer> subscriber = new TestSubscriber<>();
+        int numberOfFollowings = 2;
+        final List<PropertySet> pageOfFollowings = createPageOfFollowings(numberOfFollowings);
+        final List<Urn> followingsUrn = Arrays.asList(Urn.forUser(123L), Urn.forUser(124L));
+
+        when(userAssociationStorage.followedUserUrns(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
+                followingsUrn));
+        when(userAssociationStorage.followedUsers(PAGE_SIZE, Consts.NOT_SET)).thenReturn(Observable.just(
+                pageOfFollowings));
+        when(syncInitiatorBridge.refreshFollowings()).thenReturn(SHOULD_NEVER_SYNC);
+        when(syncInitiator.batchSyncUsers(followingsUrn)).thenReturn(Observable.just(SyncJobResult.success("success",
+                                                                                                           true)));
+
+        operations.numberOfFollowings().subscribe(subscriber);
+
+        subscriber.assertValue(numberOfFollowings);
+    }
+
     private List<PropertySet> createPageOfFollowings(int size) {
         List<PropertySet> page = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             page.add(TestPropertySets.expectedFollowingForFollowingsScreen(i));
-        }
-        return page;
-    }
-
-    private List<PropertySet> createPageOfPlaylists(int size) {
-        List<PropertySet> page = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            page.add(TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen());
-        }
-        return page;
-    }
-
-    private List<PropertySet> createPageOfLikes(int size) {
-        List<PropertySet> page = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            page.add(TestPropertySets.expectedLikedTrackForLikesScreen());
         }
         return page;
     }
@@ -186,13 +191,4 @@ public class MyProfileOperationsTest extends AndroidUnitTest {
         }
         return page;
     }
-
-    private List<PropertySet> createPageOfPostedTracks(int size) {
-        List<PropertySet> page = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            page.add(TestPropertySets.expectedPostedTrackForPostsScreen());
-        }
-        return page;
-    }
-
 }
