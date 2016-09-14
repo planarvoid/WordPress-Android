@@ -29,6 +29,7 @@ public class ConfigurationHelper {
 
     private static final String PREFS_FEATURES_SETTINGS = "features_settings";
     private static final String PREFS_POLICY_SETTINGS = "policy_settings";
+    private static final String PREFS_ANALYTICS_SETTINGS = "analytics_settings";
     private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private static final String PREFS_FACEBOOK_INVITES_SETTINGS = "facebook_invites";
     private static final String PREFS_STATIONS = "stations";
@@ -156,7 +157,7 @@ public class ConfigurationHelper {
     }
 
     private static SharedPreferences getAnalyticsSettingsPreferences(Context context) {
-        return context.getSharedPreferences(PREFS_POLICY_SETTINGS, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFS_ANALYTICS_SETTINGS, Context.MODE_PRIVATE);
     }
 
     private static SharedPreferences getStationsSettingsPreferences(Context context) {
@@ -167,7 +168,7 @@ public class ConfigurationHelper {
         getPolicySettingsPreferences(context)
                 .edit()
                 .remove(LAST_POLICY_CHECK_TIME)
-                .apply();
+                .commit();
     }
 
     public static void setPolicyCheckTime(Context context, long time) {
@@ -178,11 +179,12 @@ public class ConfigurationHelper {
     }
 
     public static void disablePromotedAnalytics(Context context) {
+        Log.i("asdf","Disable promoted analytics");
         getAnalyticsSettingsPreferences(context)
                 .edit()
                 .putStringSet(AnalyticsProviderFactory.DISABLED_PROVIDERS,
                               Sets.newHashSet(PromotedAnalyticsProvider.class.getName()))
-                .apply();
+                .commit();
     }
 
     public static void disableOfflineSettingsOnboarding(Context context) {
@@ -204,6 +206,6 @@ public class ConfigurationHelper {
         getOfflineSettingsPreferences(context)
                 .edit()
                 .putBoolean(OfflineSettingsStorage.OFFLINE_SETTINGS_ONBOARDING, value)
-                .apply();
+                .commit();
     }
 }

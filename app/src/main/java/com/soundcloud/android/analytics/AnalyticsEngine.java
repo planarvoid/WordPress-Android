@@ -2,6 +2,7 @@ package com.soundcloud.android.analytics;
 
 import static android.util.Log.INFO;
 import static com.soundcloud.android.onboarding.OnboardActivity.ONBOARDING_TAG;
+import static com.soundcloud.android.storage.StorageModule.ANALYTICS_SETTINGS;
 import static com.soundcloud.android.utils.ErrorUtils.log;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
@@ -26,6 +27,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.VisibleForTesting;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -62,9 +64,11 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     };
 
     @Inject
-    public AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences,
+    public AnalyticsEngine(EventBus eventBus,
+                           SharedPreferences sharedPreferences,
+                           @Named(ANALYTICS_SETTINGS) SharedPreferences analyticsSettings,
                            AnalyticsProviderFactory analyticsProviderFactory) {
-        this(eventBus, sharedPreferences, AndroidSchedulers.mainThread(),
+        this(eventBus, sharedPreferences, analyticsSettings, AndroidSchedulers.mainThread(),
              analyticsProviderFactory);
     }
 
@@ -75,7 +79,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     }
 
     @VisibleForTesting
-    protected AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences,
+    protected AnalyticsEngine(EventBus eventBus,
+                              SharedPreferences sharedPreferences,
+                              SharedPreferences analyticsSettings,
                               Scheduler scheduler,
                               AnalyticsProviderFactory analyticsProviderFactory) {
         Log.i(this, "Creating analytics engine");
@@ -85,6 +91,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         this.scheduler = scheduler;
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        analyticsSettings.registerOnSharedPreferenceChangeListener(this);
         subscribeEventQueues();
     }
 
@@ -102,9 +109,10 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
 
     @Override
     public final void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (SettingKey.ANALYTICS_ENABLED.equals(key)) {
+        if (SettingKey.ANALYTICS_ENABLED.equals(key) || AnalyticsProviderFactory.DISABLED_PROVIDERS.equals(key)) {
             analyticsProviders = analyticsProviderFactory.getProviders();
         }
+
     }
 
     private void scheduleFlush() {

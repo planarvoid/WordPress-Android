@@ -40,6 +40,7 @@ public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences analyticsSettings;
     @Mock private AnalyticsProvider analyticsProviderOne;
     @Mock private AnalyticsProvider analyticsProviderTwo;
     @Mock private AnalyticsProvider analyticsProviderThree;
@@ -136,7 +137,7 @@ public class AnalyticsEngineTrackingTest extends AndroidUnitTest {
     }
 
     private void initialiseAnalyticsEngine() {
-        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, scheduler, providersFactory);
+        analyticsEngine = new AnalyticsEngine(eventBus, sharedPreferences, analyticsSettings, scheduler, providersFactory);
     }
 
 }

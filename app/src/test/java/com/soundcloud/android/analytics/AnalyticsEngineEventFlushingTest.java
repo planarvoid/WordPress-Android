@@ -37,6 +37,7 @@ public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private SharedPreferences sharedPreferences;
+    @Mock private SharedPreferences analyticsSettings;
     @Mock private AnalyticsProvider analyticsProviderOne;
     @Mock private AnalyticsProvider analyticsProviderTwo;
     @Mock private Scheduler scheduler;
@@ -54,7 +55,7 @@ public class AnalyticsEngineEventFlushingTest extends AndroidUnitTest {
 
         when(analyticsProviderFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderOne,
                                                                                analyticsProviderTwo));
-        new AnalyticsEngine(eventBus, sharedPreferences, scheduler, analyticsProviderFactory);
+        new AnalyticsEngine(eventBus, sharedPreferences, analyticsSettings, scheduler, analyticsProviderFactory);
     }
 
     @Test
